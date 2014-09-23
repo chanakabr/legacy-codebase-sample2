@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Configuration;
+using ODBCWrapper;
 
 namespace DAL
 {
@@ -250,6 +251,48 @@ namespace DAL
             return null;
         }
 
+        public static bool Get_PurchaseMailData(string sPSPReference, ref long billingID, ref int groupID, 
+            ref string currencyCode, ref string siteGuid, ref double realPrice, ref double totalPrice, ref int billingMethod,
+            ref string last4Digits, ref string customData, ref string ppvModuleCode, ref string subCode, ref string ppCode)
+        {
+            //ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_PurchaseMailData");
+            //spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            //spGetPurchaseMailData.AddParameter("@PSPReference", sPSPReference);
+            //DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
+
+            //if (ds != null)
+            //    return ds.Tables[0];
+            //return null;
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_PurchaseMailData");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    billingID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["billing_id"]);
+                    groupID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["group_id"]);
+                    currencyCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["currency_code"]);
+                    siteGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["site_guid"]);
+                    realPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dt.Rows[0]["real_price"]);
+                    totalPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dt.Rows[0]["total_price"]);
+                    billingMethod = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["billing_method"]);
+                    last4Digits = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["last_four_digits"]);
+                    customData = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["customdata"]);
+                    ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
+                    subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
+                    ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["pre_paid_code"]);
+                }
+            }
+
+            return res;
+
+        }
+
         public static DataTable Get_M1_PurchaseMailData(int nM1TransactionID)
         {
             ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_M1_PurchaseMailData");
@@ -462,43 +505,6 @@ namespace DAL
 
         }
 
-        public static bool Get_DataForCancelingPaymentBecauseOfFraud(string sPSPReference, ref string sSiteGuid, ref int nGroupID, ref long lPurchaseID, ref int nType, ref double? dChargePrice, ref string sCurrencyCode)
-        {
-            bool res = false;
-            double dTempPrice = 0.0;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForCancelingPaymentBecauseOfFraud");
-            sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@PSPReference", sPSPReference);
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    if (dt.Rows[0]["site_guid"] != DBNull.Value && dt.Rows[0]["site_guid"] != null)
-                        sSiteGuid = dt.Rows[0]["site_guid"].ToString();
-                    if (dt.Rows[0]["group_id"] != DBNull.Value && dt.Rows[0]["group_id"] != null)
-                        Int32.TryParse(dt.Rows[0]["group_id"].ToString(), out nGroupID);
-                    if (dt.Rows[0]["purchase_id"] != DBNull.Value && dt.Rows[0]["purchase_id"] != null)
-                        Int64.TryParse(dt.Rows[0]["purchase_id"].ToString(), out lPurchaseID);
-                    if (dt.Rows[0]["type"] != DBNull.Value && dt.Rows[0]["type"] != null)
-                        Int32.TryParse(dt.Rows[0]["type"].ToString(), out nType);
-                    if (dt.Rows[0]["price"] == DBNull.Value || dt.Rows[0]["price"] == null || !Double.TryParse(dt.Rows[0]["price"].ToString(), out dTempPrice))
-                        dChargePrice = null;
-                    else
-                        dChargePrice = dTempPrice;
-                    if (dt.Rows[0]["currency_code"] != DBNull.Value && dt.Rows[0]["currency_code"] != null)
-                        sCurrencyCode = dt.Rows[0]["currency_code"].ToString();
-
-                    res = true;
-
-                }
-
-            }
-
-            return res;
-        }
-
         public static DataSet Get_M1GroupParameters(int? nGroupID, string appID)
         {
             ODBCWrapper.StoredProcedure spGetM1GroupParameters = new ODBCWrapper.StoredProcedure("Get_M1GroupParameters");
@@ -628,10 +634,6 @@ namespace DAL
 
             return res;
 
-
-
-
-
         }
 
         public static long Insert_NewCinepolisTransaction(long lSiteGuid, double dPrice, string sCurrencyCode,
@@ -700,8 +702,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<long>();
 
-
-
         }
 
         public static bool Update_PurchaseIDInCinepolisTransactions(long lCinepolisTransactionID, long lPurchaseID)
@@ -711,11 +711,6 @@ namespace DAL
             sp.AddParameter("@PurchaseID", lPurchaseID);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
-
-
-
-
-
             return sp.ExecuteReturnValue<bool>();
 
         }
@@ -728,15 +723,8 @@ namespace DAL
             sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
             sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
             sp.AddParameter("@InternalCode", nInternalCode);
-
-
-
             sp.AddParameter("@Msg", sMessage);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
-
-
-
-
 
             return sp.ExecuteReturnValue<bool>();
 
@@ -751,13 +739,10 @@ namespace DAL
             sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
             sp.AddParameter("@InternalCode", nInternalCode);
 
-
             sp.AddParameter("@Msg", sMessage);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
 
             return sp.ExecuteReturnValue<bool>();
-
-
 
         }
 
@@ -794,28 +779,49 @@ namespace DAL
 
             return res;
 
-
-
         }
 
-        public static bool Get_IsAdyenMailSent(string sPSPReference)
+        public static bool Get_IsSendMail(string pspReference, byte currentMailType, ref bool isSendMail, out List<string[]> deletedData)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IsAdyenMailSent");
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_IsSendMail");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@PSPReference", sPSPReference);
+            sp.AddParameter("@CurrentMailType", currentMailType);
+            sp.AddParameter("@PSPReference", pspReference);
 
-            return sp.ExecuteReturnValue<bool>();
-        }
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    isSendMail = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_send_mail"]) == 1;
+                }
 
-        public static bool Update_IsAdyenMailSent(string sPSPReference, bool bIsMailSent)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_IsAdyenMailSent");
-            sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@PSPReference", sPSPReference);
-            sp.AddParameter("@IsMailSent", bIsMailSent);
-            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+                DataTable deleted = ds.Tables[1];
+                if (deleted != null && deleted.Rows != null && deleted.Rows.Count > 0)
+                {
+                    deletedData = new List<string[]>(deleted.Rows.Count);
+                    for (int i = 0; i < deleted.Rows.Count; i++)
+                    {
+                        string id = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ID"]);
+                        string pspRef = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["psp_reference"]);
+                        string lastMailType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["last_mail_type"]);
+                        deletedData.Add(new string[3] { id, pspRef, lastMailType });
+                    }
+                }
+                else
+                {
+                    deletedData = new List<string[]>(0);
+                }
+            }
+            else
+            {
+                deletedData = new List<string[]>(0);
+            }
 
-            return sp.ExecuteReturnValue<bool>();
+            return res;
         }
         
     }
