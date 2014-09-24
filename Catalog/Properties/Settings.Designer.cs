@@ -36,20 +36,20 @@ namespace Catalog.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Domains/module.asmx")]
-        public string Catalog_WS_Domains_module {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_users/module.asmx")]
+        public string Catalog_ws_users_UsersService {
             get {
-                return ((string)(this["Catalog_WS_Domains_module"]));
+                return ((string)(this["Catalog_ws_users_UsersService"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_users/module.asmx")]
-        public string Catalog_ws_users_UsersService {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Domains/module.asmx")]
+        public string Catalog_WS_Domains_module {
             get {
-                return ((string)(this["Catalog_ws_users_UsersService"]));
+                return ((string)(this["Catalog_WS_Domains_module"]));
             }
         }
     }
