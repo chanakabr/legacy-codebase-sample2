@@ -805,9 +805,9 @@ namespace DAL
                     deletedData = new List<string[]>(deleted.Rows.Count);
                     for (int i = 0; i < deleted.Rows.Count; i++)
                     {
-                        string id = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ID"]);
-                        string pspRef = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["psp_reference"]);
-                        string lastMailType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["last_mail_type"]);
+                        string id = ODBCWrapper.Utils.GetSafeStr(deleted.Rows[i]["ID"]);
+                        string pspRef = ODBCWrapper.Utils.GetSafeStr(deleted.Rows[i]["psp_reference"]);
+                        string lastMailType = ODBCWrapper.Utils.GetSafeStr(deleted.Rows[i]["last_mail_type"]);
                         deletedData.Add(new string[3] { id, pspRef, lastMailType });
                     }
                 }
