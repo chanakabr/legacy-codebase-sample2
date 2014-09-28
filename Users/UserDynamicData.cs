@@ -209,7 +209,7 @@ namespace Users
             //directQuery += "declare @UpdateDate datetime";
             //directQuery += "set  @UpdateDate= '" + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + "'";
 
-            directQuery += "create table #x ( id int, user_id int, data_type nvarchar(50), data_value nvarchar(50), is_active int,";
+            directQuery += "create table #x ( id int, user_id int, data_type nvarchar(50), data_value nvarchar(512), is_active int,";
             directQuery += "status int, group_id int, create_date datetime, update_date datetime,  publish_date datetime)";
        
             foreach (int id in dUpdate.Keys)
