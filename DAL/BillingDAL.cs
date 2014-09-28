@@ -823,6 +823,35 @@ namespace DAL
 
             return res;
         }
+
+        public static bool Get_InitialAdyenCallbackData(string skinCode, long customDataID, ref int groupID, ref string baseRedirectUrl,
+            ref string customDataXml)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_InitialAdyenCallbackData");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@SkinCode", skinCode);
+            sp.AddParameter("@CustomDataID", customDataID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable agp = ds.Tables[0];
+                if(agp != null && agp.Rows != null && agp.Rows.Count > 0) 
+                {
+                    groupID = ODBCWrapper.Utils.GetIntSafeVal(agp.Rows[0]["group_id"]);
+                    baseRedirectUrl = ODBCWrapper.Utils.GetSafeStr(agp.Rows[0]["base_redirect_url"]);
+                }
+                DataTable cd = ds.Tables[1];
+                if (cd != null && cd.Rows != null && cd.Rows.Count > 0)
+                {
+                    customDataXml = ODBCWrapper.Utils.GetSafeStr(cd.Rows[0]["CUSTOMDATA"]);
+                }
+            }
+
+            return res;
+        }
         
     }
 }
