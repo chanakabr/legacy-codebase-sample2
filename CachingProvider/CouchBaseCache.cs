@@ -111,20 +111,17 @@ namespace CachingProvider
             return baseModule; 
         }
 
-        public override bool AddWithVersion(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        // Add - insert the value + key to cache only if the key dosen't exsits already
+        //(does nothing (returns false) if there is already a value for that key )
+        public override bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
             bool bRes = false;
             try
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
-                bool bCas = ulong.TryParse(baseModule.version, out cas);
-                
-                if (!bCas)
-                {
-                    return false;
-                }
-                
+                bool bCas = ulong.TryParse(baseModule.version, out cas);                
+               
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, dtExpiresAt, cas);
@@ -143,7 +140,7 @@ namespace CachingProvider
                 return false;
             }
         }
-        public override bool AddWithVersion(string sKey, BaseModuleCache oValue)
+        public override bool AddWithVersion<T>(string sKey, BaseModuleCache oValue)
         {
             bool bRes = false;
             try
@@ -151,11 +148,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-                if (!bCas)
-                {
-                    return false;
-                }
-
+               
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, cas);
 
                 if (casRes.StatusCode == 0)
@@ -181,12 +174,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-
-                if (!bCas)
-                {
-                    return false;
-                }
-
+                
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, dtExpiresAt, cas);
@@ -205,7 +193,7 @@ namespace CachingProvider
                 return false;
             }
         }
-        public override bool SetWithVersion(string sKey, BaseModuleCache oValue)
+        public override bool SetWithVersion<T>(string sKey, BaseModuleCache oValue)
         {
             bool bRes = false;
             try
@@ -213,11 +201,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-                if (!bCas)
-                {
-                    return false;
-                }
-
+              
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, cas);
 
                 if (casRes.StatusCode == 0)

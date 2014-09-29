@@ -11,6 +11,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using DAL;
 
 namespace Catalog
 {
@@ -126,7 +127,8 @@ namespace Catalog
             string sCheckSignature = Utils.GetSignature(oBaseRequest.m_sSignString, oBaseRequest.m_nGroupID);
             if (sCheckSignature != oBaseRequest.m_sSignature)
                 throw new Exception("Signatures don't match");
-        }
+        }     
+      
 
         public override string ToString()
         {

@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -65,7 +66,8 @@ namespace Catalog
                     nLanguage = request.m_oFilter.m_nLanguage;
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataSet ds = CatalogDAL.Get_ChannelsListByCategory(request.m_nCategoryID, request.m_nGroupID, nLanguage, lSubGroupTree);
 
                 if (ds != null && ds.Tables.Count > 0)

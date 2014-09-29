@@ -12,7 +12,7 @@ namespace CachingProvider
      * 2. Reason for deprecation: It used multiple MemoryCache objects. This is not recommended by Microsoft.
      * 3. MemoryCache object is a heavy object. 
      */ 
-    public class InMemoryCache : ICachingService
+   /* public class InMemoryCache : ICachingService
     {
 
         private InMemoryCache(string sCacheName)
@@ -65,4 +65,5 @@ namespace CachingProvider
             throw new NotImplementedException("Deprecated. Use SingleInMemoryCache instead.");
         }
     }
+    */
 }

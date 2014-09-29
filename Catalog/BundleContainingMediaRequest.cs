@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using System.Collections.Concurrent;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -51,8 +52,9 @@ namespace Catalog
                 List<SearchResult> lMedias = new List<SearchResult>();
                 ContainingMediaResponse response = new ContainingMediaResponse();
 
-                GroupManager groupManager = new GroupManager();
-                Group groupInCache = groupManager.GetGroup(request.m_nGroupID);
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                Group groupInCache = groupManager.GetGroup(nParentGroupID);
                 
                 if (groupInCache == null)
                 {
@@ -68,7 +70,7 @@ namespace Catalog
                 response.m_nTotalItems = 0;
 
                 List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nBundleID, request.m_eBundleType);
-                List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                 if (channelIds != null && channelIds.Count > 0 && allChannels != null && allChannels.Count > 0)
                 {
@@ -94,7 +96,7 @@ namespace Catalog
                                      {
                                          if (groupInCache != null)
                                          {
-                                             Channel currentChannel = allChannels[(int)obj];
+                                             GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
                                              ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                              channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
                                              channelsSearchObjects.Add(channelSearchObject);

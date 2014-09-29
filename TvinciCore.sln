@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumProject", "EnumProject\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDNTokenizers", "..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj", "{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupsCacheManager", "GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -424,6 +426,15 @@ Global
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|x86.ActiveCfg = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Basic|x86.ActiveCfg = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

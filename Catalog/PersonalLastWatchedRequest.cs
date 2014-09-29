@@ -9,6 +9,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -52,8 +53,9 @@ namespace Catalog
 
                 CheckSignature(request);
 
-                GroupManager groupManager = new GroupManager();
-                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
+               GroupManager groupManager = new GroupManager();
+               int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
                 if (dt != null)
                 {

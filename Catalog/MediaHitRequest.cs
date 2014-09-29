@@ -14,6 +14,7 @@ using DAL;
 using Tvinci.Core.DAL;
 using ApiObjects.Statistics;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -155,7 +156,8 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                Group oGroup = groupManager.GetGroup(mediaHitRequest.m_nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(mediaHitRequest.m_nGroupID);
+                Group oGroup = groupManager.GetGroup(nParentGroupID);
 
                 if (oGroup != null)
                 {

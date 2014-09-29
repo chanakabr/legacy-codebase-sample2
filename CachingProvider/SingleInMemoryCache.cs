@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Caching;
+using Logger;
+using System.Threading;
+using System.Security.Principal;
+using System.Security.AccessControl;
 
 namespace CachingProvider
 {
@@ -33,26 +37,26 @@ namespace CachingProvider
             cache = new MemoryCache(name);
         }
 
-        public bool Add(string sKey, object oValue, double nMinuteOffset)
+        public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
             if (string.IsNullOrEmpty(sKey))
                 return false;
-            return cache.Add(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
+            return cache.Add(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
         }
 
-        public bool Add(string sKey, object oValue)
+        public bool Add(string sKey, BaseModuleCache oValue)
         {
             return Add(sKey, oValue, DefaultMinOffset);
         }
 
-        public bool Set(string sKey, object oValue, double nMinuteOffset)
+        public bool Set(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
             bool res = false;
             if (string.IsNullOrEmpty(sKey))
                 return false;
             try
             {
-                cache.Set(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
+                cache.Set(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
                 res = true;
             }
             catch (Exception ex)
@@ -71,21 +75,25 @@ namespace CachingProvider
             return res;
         }
 
-        public bool Set(string sKey, object oValue)
+        public bool Set(string sKey, BaseModuleCache oValue)
         {
             return Set(sKey, oValue, DefaultMinOffset);
         }
 
-        public object Get(string sKey)
+        public BaseModuleCache Get(string sKey)
         {
+            BaseModuleCache baseModule = new BaseModuleCache();
             if (string.IsNullOrEmpty(sKey))
                 return null;
-            return cache.Get(sKey);
+            baseModule.result = cache.Get(sKey);
+            return baseModule;
         }
 
-        public object Remove(string sKey)
+        public BaseModuleCache Remove(string sKey)
         {
-            return cache.Remove(sKey);
+            BaseModuleCache baseModule = new BaseModuleCache();
+            baseModule.result = cache.Remove(sKey);
+            return baseModule;
         }
 
         public T Get<T>(string sKey) where T : class
@@ -93,6 +101,101 @@ namespace CachingProvider
             if (string.IsNullOrEmpty(sKey))
                 return default(T);
             return cache.Get(sKey) as T;
+        }
+
+        public BaseModuleCache GetWithVersion<T>(string sKey)
+        {
+            VersionModuleCache baseModule = new VersionModuleCache();
+
+            try
+            {
+                if (string.IsNullOrEmpty(sKey))
+                    return null;
+                baseModule = (VersionModuleCache)cache.Get(sKey);
+
+                return baseModule;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public bool AddWithVersion<T>(string sKey, BaseModuleCache oValue)
+        {
+            return AddWithVersion<T>(sKey, oValue, DefaultMinOffset);
+        }
+
+        public bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+
+            return cache.Add(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
+        }
+
+        public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            bool bRes = false;
+            try
+            {
+                VersionModuleCache baseModule = (VersionModuleCache)oValue;
+
+                DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
+
+                //lock 
+                bool createdNew = false;
+                var mutexSecurity = CreateMutex();
+                using (Mutex mutex = new Mutex(false, string.Concat("Lock", sKey), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+                        VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
+                        // memory is empty for this key OR the object must have the same version 
+                        if (vModule == null || (vModule != null && vModule.result != null && vModule.version == baseModule.version))
+                        {
+                            Guid versionGuid = Guid.NewGuid();
+                            baseModule.version = versionGuid.ToString();
+                            cache.Set(sKey, baseModule, DateTime.Now.AddMinutes(nMinuteOffset));
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        //unlock
+                        mutex.ReleaseMutex();
+                    }
+                }
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
+                log.Error(log.Message, false);
+                return false;
+            }
+        }
+
+        public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue)
+        {
+            return SetWithVersion<T>(sKey, oValue, DefaultMinOffset);
+        }
+
+        private MutexSecurity CreateMutex()
+        {
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+            return mutexSecurity;
         }
 
         public void Dispose()

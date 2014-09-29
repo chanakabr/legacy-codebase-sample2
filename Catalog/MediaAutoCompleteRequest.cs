@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -48,7 +49,8 @@ namespace Catalog
                     searchObj.m_nPageIndex = request.m_nPageIndex;
 
                     GroupManager groupManager = new GroupManager();
-                    Group oGroup = groupManager.GetGroup(request.m_nGroupID);
+                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    Group oGroup = groupManager.GetGroup(nParentGroupID);
 
                     if (oGroup != null && request.m_oFilter != null)
                     {

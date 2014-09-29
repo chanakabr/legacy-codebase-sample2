@@ -9,6 +9,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -95,7 +96,8 @@ namespace Catalog
                 _logger.Info(String.Concat(request.ToString(), " started at: ", DateTime.UtcNow, " ipno flow"));
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
                 DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID, lSubGroup);
 
                 if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -137,7 +139,8 @@ namespace Catalog
                 _logger.Info(String.Concat(request.ToString(), "started at: ", DateTime.UtcNow));
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataTable dt = CatalogDAL.Get_PersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, lSubGroup);
 

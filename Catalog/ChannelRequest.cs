@@ -18,6 +18,7 @@ using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using ApiObjects.Cache;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -69,14 +70,15 @@ namespace Catalog
 
                 ChannelResponse response = new ChannelResponse();
                 Group group = null;
-                Channel channel = null;
+                GroupsCacheManager.Channel channel = null;
 
                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = null;
 
                 try
                 {
-                    GroupManager groupManager = new GroupManager();
-                    groupManager.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);
+                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    groupManager.GetGroupAndChannel(request.m_nChannelID, nParentGroupID, ref group, ref channel);
 
                 }
                 catch (Exception ex)
@@ -219,7 +221,7 @@ namespace Catalog
             }
         }
 
-        private bool IsSlidingWindow(Channel channel)
+        private bool IsSlidingWindow(GroupsCacheManager.Channel channel)
         {
             bool bResult = false;
 
@@ -270,7 +272,7 @@ namespace Catalog
             return result;
         }
 
-        protected void OrderMediasByOrderNum(ref List<int> medias, Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
+        protected void OrderMediasByOrderNum(ref List<int> medias, GroupsCacheManager.Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
             if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
@@ -296,7 +298,7 @@ namespace Catalog
             }
         }
 
-        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage)
+        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)

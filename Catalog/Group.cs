@@ -17,7 +17,8 @@ using Catalog.Cache;
 
 namespace Catalog
 {
-    [Serializable]
+}
+  /*  [Serializable]
     [JsonObject(Id = "group")]
     public class Group : IDisposable
     {
@@ -614,7 +615,6 @@ namespace Catalog
             return retVal;
         }*/
 
-        #endregion
         
 
 

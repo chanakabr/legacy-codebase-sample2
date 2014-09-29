@@ -19,6 +19,7 @@ using EpgBL;
 using Catalog.Cache;
 using StatisticsBL;
 using ApiObjects.Statistics;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -64,7 +65,8 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(mediaRequest.m_nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(mediaRequest.m_nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 //complete media id details 
                 for (int i = nStartIndex; i < nEndIndex; i++)
@@ -507,8 +509,10 @@ namespace Catalog
                 if (searcher != null)
                 {
                     isLucene = searcher is LuceneWrapper;
-
-                    Group groupInCache = GroupsCache.Instance.GetGroup(oMediaRequest.m_nGroupID);
+                    GroupManager groupManager = new GroupManager();
+                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(oMediaRequest.m_nGroupID);
+                    Group groupInCache = groupManager.GetGroup(nParentGroupID);
+        
                     if (groupInCache != null)
                     {
                         LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
@@ -670,7 +674,10 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
-            Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+
+            GroupManager groupManager = new GroupManager();
+            int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+            Group group = groupManager.GetGroup(nParentGroupID);
 
             if (group != null)
             {
@@ -904,7 +911,8 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroupTree = groupManager.GetSubGroup(nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage, lSubGroupTree);
 
                 if (ds == null)
@@ -1201,7 +1209,7 @@ namespace Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -1281,7 +1289,7 @@ namespace Catalog
             DataTable permittedWathRulesDt = null;
             if (extractedPermittedWatchRulesDT == null)
             {
-                GroupManager groupManager = new GroupManager();
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 List<int> lSubGroup = groupManager.GetSubGroup(nGroupId);
                 permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
             }
@@ -1419,7 +1427,8 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(nGroupId);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupId);
+                Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
                 {
@@ -1444,7 +1453,8 @@ namespace Catalog
             if (lIds != null && lIds.Count > 0)
             {
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(nGroupId);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupId);
+                Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
                 {
@@ -1630,7 +1640,8 @@ namespace Catalog
             try
             {
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
 
@@ -2007,7 +2018,8 @@ namespace Catalog
                     EpgResultsObj resultPerChannel;
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
                     GroupManager groupManager = new GroupManager();
-                    Group group = groupManager.GetGroup(request.m_nGroupID);
+                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    Group group = groupManager.GetGroup(nParentGroupID);
 
                     if (group != null)
                     {
@@ -2128,7 +2140,8 @@ namespace Catalog
                     if (eType == StatsType.MEDIA)
                     {
                         GroupManager groupManager = new GroupManager();
-                        List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+                        int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                        List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
 
                         if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
@@ -2149,7 +2162,8 @@ namespace Catalog
                         else
                         {
                             GroupManager groupManager = new GroupManager();
-                            List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+                            int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                            List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
                             ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
                             if (ds != null)
                                 resList = getEpgStatFromDataSet(ds, lAssetIDs);
@@ -2429,8 +2443,9 @@ namespace Catalog
                         // we have operator id
                         res = true;
                         GroupManager groupManager = new GroupManager();
-                        List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);//group.GetOperatorChannelIDs(operatorID);
-                        List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);// group.GetDistinctAllOperatorsChannels();
+                        int nParentGroupID = CatalogCache.Instance().GetParentGroup(oMediaRequest.m_nGroupID);
+                        List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(nParentGroupID, operatorID);
+                        List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(nParentGroupID);
 
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
@@ -2668,7 +2683,8 @@ namespace Catalog
         {
             List<FileMedia> res = null;
             GroupManager groupManager = new GroupManager();
-            List<int> groupTreeVals = groupManager.GetSubGroup(groupID);
+            int nParentGroupID = CatalogCache.Instance().GetParentGroup(groupID);
+            List<int> groupTreeVals = groupManager.GetSubGroup(nParentGroupID);
 
             DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs, mediaFileCoGuid);
             List<Branding> brands = new List<Branding>();

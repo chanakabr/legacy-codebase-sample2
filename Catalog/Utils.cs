@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using DAL;
 using ElasticSearch.Searcher;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -781,7 +782,8 @@ namespace Catalog
             bool bRes = false;
                        
             GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(nGroupID);
+            int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+            Group group = groupManager.GetGroup(nParentGroupID);
             
             if (group != null)
             {
@@ -901,7 +903,7 @@ namespace Catalog
             if (!string.IsNullOrEmpty(configOverride) && Int32.TryParse(configOverride, out res) && res > 0)
                 return res;
             return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
-        }	
+        }      
 
     }
 }

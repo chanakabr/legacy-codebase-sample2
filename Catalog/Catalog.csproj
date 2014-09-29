@@ -107,12 +107,7 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Cache\BaseGroupCache.cs" />
-    <Compile Include="Cache\CouchBaseCacheWrapper.cs" />
-    <Compile Include="Cache\GroupCacheExternal.cs" />
-    <Compile Include="Cache\GroupCacheInternal.cs" />
-    <Compile Include="Cache\GroupCacheUtils.cs" />
-    <Compile Include="Cache\GroupManager.cs" />
+    <Compile Include="Cache\CatalogCache.cs" />
     <Compile Include="BundlesContainingMediaRequest.cs" />
     <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
@@ -156,7 +151,6 @@
     <Compile Include="EpgSearchRequest.cs" />
     <Compile Include="EpgSearchResponse.cs" />
     <Compile Include="Group.cs" />
-    <Compile Include="Cache\GroupsCache.cs" />
     <Compile Include="ChannelsListRequest.cs" />
     <Compile Include="CommentsListRequest.cs" />
     <Compile Include="CommentsListResponse.cs" />
@@ -399,6 +393,10 @@
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
@@ -418,6 +416,10 @@
     <ProjectReference Include="..\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>

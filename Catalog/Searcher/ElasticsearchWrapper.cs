@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using Logger;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -183,7 +184,8 @@ namespace Catalog
             SearchResultsObj lSortedMedias = new SearchResultsObj();
             
             GroupManager groupManager = new GroupManager();
-            Group oGroup = groupManager.GetGroup(nSubscriptionGroupId);       
+            int nSubscriptionParentGroupID = CatalogCache.Instance().GetParentGroup(nSubscriptionGroupId);
+            Group oGroup = groupManager.GetGroup(nSubscriptionParentGroupID);
 
             int nTotalItems = 0;
 
@@ -405,7 +407,8 @@ namespace Catalog
                 DateTime endDate = epgSearch.m_dEndDate;
                                 
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(epgSearch.m_nGroupID); 
+                int nParentGroupID = CatalogCache.Instance().GetParentGroup(epgSearch.m_nGroupID);
+                Group group = groupManager.GetGroup(nParentGroupID); 
 
                 if (group != null)
                 {

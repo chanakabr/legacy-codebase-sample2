@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -31,7 +32,10 @@ namespace Catalog
             ChannelObjResponse response = new ChannelObjResponse();
             Group group = null;
             Channel channel = null;
-            GroupsCache.Instance.GetGroupAndChannel(request.ChannelId, request.m_nGroupID, ref group, ref channel);
+            GroupManager groupManager = new GroupManager();
+            int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+            groupManager.GetGroupAndChannel(request.ChannelId, nParentGroupID, ref group, ref channel);
+            
             if (channel != null)
             {
                 response = new ChannelObjResponse
