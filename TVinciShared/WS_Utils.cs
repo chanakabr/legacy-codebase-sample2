@@ -49,11 +49,6 @@ namespace TVinciShared
 
         static public Int32 GetGroupID(string sWSName , string sModuleName, string sUN, string sPass, string sIP)
         {
-            //For TVM Staging Only!!!
-            //if (sIP.StartsWith("192.168.16"))
-            //{
-            //    sIP = "81.218.199.175";
-            //}
             try
             {
                 Int32 nGroupID = DAL.UtilsDal.GetGroupID(sUN, sPass, sModuleName, sIP, sWSName); 
@@ -72,12 +67,13 @@ namespace TVinciShared
             return sSecret;
         }
 
-        static public void GetWSUNPass(Int32 nGroupID, string sWSFunctionName , string sWSName , string sIP , ref string sWSUN, ref string sWSPassword)
+        static public bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName , string sWSName , string sIP , ref string sWSUN, ref string sWSPassword)
         {
-            sWSUN = "";
-            sWSPassword = "";
+            sWSUN = string.Empty;
+            sWSPassword = string.Empty;
 
             bool res = DAL.UtilsDal.GetWSUNPass(nGroupID, sIP, sWSFunctionName, sWSName, ref sWSUN, ref sWSPassword);
+            return res;
         }
 
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
