@@ -11,5 +11,10 @@ namespace CachingProvider
         public BaseModuleCache()
         {
         }
+
+        public BaseModuleCache(object oResult)
+        {
+            this.result = oResult;
+        }      
     }
 }

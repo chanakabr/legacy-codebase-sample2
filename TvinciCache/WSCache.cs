@@ -84,7 +84,8 @@ namespace TvinciCache
 
         public bool Add(string key, object obj)
         {
-            return obj != null && cache.Add(key, obj);
+            BaseModuleCache bModule = new BaseModuleCache(obj);
+            return obj != null && cache.Add(key, bModule);
         }
     }
 }

@@ -80,8 +80,7 @@ namespace Catalog.Cache
                 {
                     //GetParentGroup
                     nParentGroup = UtilsDal.GetParentGroupID(nGroupID);
-                    bModule = new BaseModuleCache();
-                    bModule.result = nParentGroup;
+                    bModule = new BaseModuleCache(nParentGroup);
                     bool bSet = instance.cache.Set(sKey, bModule);
                 }
                 return nParentGroup;

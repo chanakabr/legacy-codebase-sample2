@@ -14,5 +14,11 @@ namespace CachingProvider
         {
             version = string.Empty;
         }
+
+        public VersionModuleCache(object oResult, string sVersion)
+            : base(oResult)
+        {
+            this.version = sVersion;
+        }
     }
 }
