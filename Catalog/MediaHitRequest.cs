@@ -156,7 +156,7 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(mediaHitRequest.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
                 Group oGroup = groupManager.GetGroup(nParentGroupID);
 
                 if (oGroup != null)

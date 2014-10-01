@@ -184,7 +184,7 @@ namespace Catalog
             SearchResultsObj lSortedMedias = new SearchResultsObj();
             
             GroupManager groupManager = new GroupManager();
-            int nSubscriptionParentGroupID = CatalogCache.Instance().GetParentGroup(nSubscriptionGroupId);
+            int nSubscriptionParentGroupID = CatalogCache.GetParentGroup(nSubscriptionGroupId);
             Group oGroup = groupManager.GetGroup(nSubscriptionParentGroupID);
 
             int nTotalItems = 0;
@@ -407,7 +407,7 @@ namespace Catalog
                 DateTime endDate = epgSearch.m_dEndDate;
                                 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(epgSearch.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(epgSearch.m_nGroupID);
                 Group group = groupManager.GetGroup(nParentGroupID); 
 
                 if (group != null)

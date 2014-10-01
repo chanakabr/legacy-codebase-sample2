@@ -65,35 +65,5 @@ namespace TvinciCache
 
             return nGroupID;
         }
-
-        /*
-        internal static void GetAllWSCredentials()
-        {
-            string sIP = "1.1.1.1";
-            DataTable modules = new DataTable();
-            bool res = TVinciShared.WS_Utils.GetAllWSCredentials(sIP, ref modules);
-            if (res)
-            {
-                int nCount = modules.DefaultView.Count;
-                for (int i = 0; i < nCount; i++)
-                {
-                    int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(modules.DefaultView[i].Row["GROUP_ID"]);
-                    string sWSName = ODBCWrapper.Utils.GetSafeStr(modules.DefaultView[i].Row["WS_NAME"]);
-                    eWSModules eWSModule;
-                    if (Enum.TryParse<eWSModules>(sWSName.ToUpper(), out eWSModule))
-                    {
-                        Credentials uc = new Credentials();
-                        uc.m_sUsername = ODBCWrapper.Utils.GetSafeStr(modules.DefaultView[i].Row["USERNAME"]);
-                        uc.m_sPassword = ODBCWrapper.Utils.GetSafeStr(modules.DefaultView[i].Row["PASSWORD"]);
-
-                        string key = string.Format("Cas_GetWSCredentials_{0}_{1}", nGroupID, sWSName);
-
-                        CasCache.Instance().TryAddUserCredentials(key, uc);
-                    }
-                }
-            }
-        }
-        */
-
     }
 }

@@ -67,7 +67,7 @@ namespace Catalog
                 }
 
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
                 Group groupInCache = groupManager.GetGroup(nParentGroupID); 
 
                 if (groupInCache != null)

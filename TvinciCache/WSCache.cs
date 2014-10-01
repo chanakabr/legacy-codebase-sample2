@@ -78,8 +78,15 @@ namespace TvinciCache
 
         public T Get<T>(string key)
         {
-            object res = cache.Get(key);
-            return res != null ? (T) res : default(T); 
+            BaseModuleCache res = cache.Get(key);
+            if (res != null && res.result != null)
+            {
+                return (T)res.result;
+            }
+            else
+            {
+                return default(T); 
+            }
         }
 
         public bool Add(string key, object obj)

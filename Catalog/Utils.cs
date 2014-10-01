@@ -18,6 +18,7 @@ using DAL;
 using ElasticSearch.Searcher;
 using Catalog.Cache;
 using GroupsCacheManager;
+using ApiObjects;
 
 namespace Catalog
 {
@@ -782,7 +783,7 @@ namespace Catalog
             bool bRes = false;
                        
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);
             
             if (group != null)
@@ -872,14 +873,17 @@ namespace Catalog
             try
             {
                 u = new ws_users.UsersService();
-                string sIP = "1.1.1.1";
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserType", "users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
                 if (sWSURL.Length > 0)
                     u.Url = sWSURL;
-                nUserTypeID = u.GetUserType(sWSUserName, sWSPass, sSiteGuid);
+
+                //get username + password from wsCache
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.USERS);
+                if (oCredentials != null)
+                {
+                    nUserTypeID = u.GetUserType(oCredentials.m_sUsername, oCredentials.m_sPassword, sSiteGuid);                
+                }
+
                 return nUserTypeID;
             }
             catch (Exception ex)

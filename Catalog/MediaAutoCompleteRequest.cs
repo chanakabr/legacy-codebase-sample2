@@ -49,7 +49,7 @@ namespace Catalog
                     searchObj.m_nPageIndex = request.m_nPageIndex;
 
                     GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
                     Group oGroup = groupManager.GetGroup(nParentGroupID);
 
                     if (oGroup != null && request.m_oFilter != null)

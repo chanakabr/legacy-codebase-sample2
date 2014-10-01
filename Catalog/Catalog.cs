@@ -65,7 +65,7 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(mediaRequest.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(mediaRequest.m_nGroupID);
                 List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 //complete media id details 
@@ -510,7 +510,7 @@ namespace Catalog
                 {
                     isLucene = searcher is LuceneWrapper;
                     GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(oMediaRequest.m_nGroupID);
+                    int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                     Group groupInCache = groupManager.GetGroup(nParentGroupID);
         
                     if (groupInCache != null)
@@ -676,7 +676,7 @@ namespace Catalog
         {
 
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+            int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);
 
             if (group != null)
@@ -911,7 +911,7 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
                 List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage, lSubGroupTree);
 
@@ -1427,7 +1427,7 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupId);
+                int nParentGroupID = CatalogCache.GetParentGroup(nGroupId);
                 Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
@@ -1453,7 +1453,7 @@ namespace Catalog
             if (lIds != null && lIds.Count > 0)
             {
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupId);
+                int nParentGroupID = CatalogCache.GetParentGroup(nGroupId);
                 Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
@@ -1640,7 +1640,7 @@ namespace Catalog
             try
             {
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
                 List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
@@ -2018,7 +2018,7 @@ namespace Catalog
                     EpgResultsObj resultPerChannel;
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
                     GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
                     Group group = groupManager.GetGroup(nParentGroupID);
 
                     if (group != null)
@@ -2140,7 +2140,7 @@ namespace Catalog
                     if (eType == StatsType.MEDIA)
                     {
                         GroupManager groupManager = new GroupManager();
-                        int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                        int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
                         List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
 
@@ -2162,7 +2162,7 @@ namespace Catalog
                         else
                         {
                             GroupManager groupManager = new GroupManager();
-                            int nParentGroupID = CatalogCache.Instance().GetParentGroup(nGroupID);
+                            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
                             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
                             ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
                             if (ds != null)
@@ -2443,7 +2443,7 @@ namespace Catalog
                         // we have operator id
                         res = true;
                         GroupManager groupManager = new GroupManager();
-                        int nParentGroupID = CatalogCache.Instance().GetParentGroup(oMediaRequest.m_nGroupID);
+                        int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                         List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(nParentGroupID, operatorID);
                         List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(nParentGroupID);
 
@@ -2624,9 +2624,14 @@ namespace Catalog
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
             string sWSUrl = string.Empty;
-
-            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateLimitationModule", "domains", "1.1.1.1", ref sWSUsername, ref sWSPassword);
-            sWSUrl = Utils.GetWSURL("ws_domains");
+           
+            //get username + password from wsCache
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.DOMAINS);
+            if (oCredentials != null)
+            {
+                sWSUsername = oCredentials.m_sUsername;
+                sWSPassword = oCredentials.m_sPassword;
+            }
 
             if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
             {
@@ -2634,7 +2639,8 @@ namespace Catalog
             }
 
             using (WS_Domains.module domains = new WS_Domains.module())
-            {
+            { 
+                sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
                 WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID, null);
@@ -2683,7 +2689,7 @@ namespace Catalog
         {
             List<FileMedia> res = null;
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.Instance().GetParentGroup(groupID);
+            int nParentGroupID = CatalogCache.GetParentGroup(groupID);
             List<int> groupTreeVals = groupManager.GetSubGroup(nParentGroupID);
 
             DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs, mediaFileCoGuid);

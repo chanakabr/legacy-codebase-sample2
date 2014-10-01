@@ -69,7 +69,7 @@ namespace Catalog
             bool bResult = false;
 
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.Instance().GetParentGroup(oCommentReq.m_nGroupID);
+            int nParentGroupID = CatalogCache.GetParentGroup(oCommentReq.m_nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);
 
             if (group != null)

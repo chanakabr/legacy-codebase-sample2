@@ -33,7 +33,7 @@ namespace Catalog
             Group group = null;
             Channel channel = null;
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+            int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
             groupManager.GetGroupAndChannel(request.ChannelId, nParentGroupID, ref group, ref channel);
             
             if (channel != null)

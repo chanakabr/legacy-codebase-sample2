@@ -80,7 +80,7 @@ namespace GroupsCacheManager
                         break;
                     }
                 case "InnerCache":
-                    {
+                    {   
                         dCacheTT = GetDefaultCacheTimeInMinutes();
                         InitializeCachingService(GetCacheName(), dCacheTT);
                         sKeyCache = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
