@@ -50,6 +50,37 @@ namespace DAL
             return ret;
         }
 
+        public static int GetModuleImplID(int nGroupID, int moduleID)
+        {
+            int nImplID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select implementation_id from groups_modules_implementations with (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", 1);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nImplID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "implementation_id", 0);
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+
+            return nImplID;
+        }
+
         public static DataRow GetEncrypterData(int nGroupID)
         {
             DataRow ret = null;
@@ -220,6 +251,39 @@ namespace DAL
             return nGroupID;
         }
 
+        public static int GetGroupID(string sUN, string sPass, string sWSName)
+        {
+            int nGroupID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select group_id from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
+                selectQuery += "order by MODULE_NAME desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nGroupID;
+        }
+
         public static string GetSecretCode(string sWSName, string sModuleName, string sUN, ref int nGroupID)
         {
             string sSecret = string.Empty;
@@ -289,6 +353,73 @@ namespace DAL
                     {
                         sWSUN = selectQuery.Table("querY").DefaultView[0].Row["USERNAME"].ToString();
                         sWSPassword = selectQuery.Table("querY").DefaultView[0].Row["PASSWORD"].ToString();
+                        res = true;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        public static bool GetWSCredentials(int nGroupID, string sWSName, ref string sWSUN, ref string sWSPassword)
+        {
+            bool res = false;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select USERNAME,PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
+                selectQuery += "order by MODULE_NAME desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sWSUN = selectQuery.Table("querY").DefaultView[0].Row["USERNAME"].ToString();
+                        sWSPassword = selectQuery.Table("querY").DefaultView[0].Row["PASSWORD"].ToString();
+                        res = true;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        public static bool GetAllWSCredentials(string sIP, ref DataTable modules)
+        {
+            bool res = false;
+            modules = new DataTable();
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select DISTINCT GROUP_ID, WS_NAME, USERNAME, PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", sIP);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        modules = selectQuery.Table("query");
                         res = true;
                     }
                 }

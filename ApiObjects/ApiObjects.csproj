@@ -192,7 +192,7 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
-    <Compile Include="UserCredentials.cs" />
+    <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="WelcomeMailRequest.cs" />
   </ItemGroup>

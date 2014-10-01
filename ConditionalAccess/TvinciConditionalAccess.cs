@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects;
 using com.llnw.mediavault;
 using DAL;
 
@@ -53,7 +54,6 @@ namespace ConditionalAccess
         public override bool ActivateCampaign(int campaignID, CampaignActionInfo cai)
         {
             bool retVal = false;
-            string sIP = "1.1.1.1";
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
@@ -62,7 +62,7 @@ namespace ConditionalAccess
                 if (sWSURL.Length > 0)
                     m.Url = sWSURL;
 
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
                 if (camp != null)
                 {
@@ -79,7 +79,6 @@ namespace ConditionalAccess
         public override CampaignActionInfo ActivateCampaignWithInfo(int campaignID, CampaignActionInfo cai)
         {
             CampaignActionInfo retVal = null;
-            string sIP = "1.1.1.1";
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
@@ -88,7 +87,7 @@ namespace ConditionalAccess
                 if (sWSURL.Length > 0)
                     m.Url = sWSURL;
 
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = null;
                 if (campaignID > 0)
                 {
