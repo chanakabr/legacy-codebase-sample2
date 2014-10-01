@@ -80,15 +80,15 @@ namespace ConditionalAccess
                 {
                     UserPrePaidObject uppo = new UserPrePaidObject();
 
-                    uppo.m_nPPPurchaseID = Utils.GetIntSafeVal(ref selectQuery, "id", i);
+                    uppo.m_nPPPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", i);
 
-                    uppo.m_nPPModuleID = Utils.GetIntSafeVal(ref selectQuery, "pre_paid_module_id", i);
+                    uppo.m_nPPModuleID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "pre_paid_module_id", i);
 
-                    uppo.m_nTotalAmount = Utils.GetDoubleSafeVal(ref selectQuery, "total_amount", i);
-                    uppo.m_nAmountUsed = Utils.GetDoubleSafeVal(ref selectQuery, "amount_used", i);
+                    uppo.m_nTotalAmount = ODBCWrapper.Utils.GetDoubleSafeVal(selectQuery, "total_amount", i);
+                    uppo.m_nAmountUsed = ODBCWrapper.Utils.GetDoubleSafeVal(selectQuery, "amount_used", i);
 
-                    uppo.m_dEndDate = Utils.GetDateSafeVal(ref selectQuery, "end_date", i);
-                    uppo.m_dStartDate = Utils.GetDateSafeVal(ref selectQuery, "start_date", i);
+                    uppo.m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "end_date", i);
+                    uppo.m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "start_date", i);
 
                     m_nTotalAmount += uppo.m_nTotalAmount;
                     m_nAmountUsed += uppo.m_nAmountUsed;

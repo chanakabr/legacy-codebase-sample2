@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TVinciShared;
 using MCGroupRules;
+using ApiObjects;
 
 namespace ConditionalAccess
 {
@@ -16,7 +17,6 @@ namespace ConditionalAccess
             bool isValid = false;
             int numOfUses = 0;
 
-            string sIP = "1.1.1.1";
             string sWSUserName = "";
             string sWSPass = "";
             TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
@@ -24,8 +24,7 @@ namespace ConditionalAccess
             if (sWSURL != "")
                 m.Url = sWSURL;
 
-            
-            TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetCouponsGroupData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+            Utils.GetWSCredentials(groupID, eWSModules.PRICING, "GetCouponsGroupData", ref sWSUserName, ref sWSPass);
             PasswordGenerator p = new PasswordGenerator();
             p.Maximum = 16;
             p.Minimum = 12;

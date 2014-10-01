@@ -5,6 +5,7 @@ using System.Text;
 using TVinciShared;
 using System.Web;
 using ConditionalAccess.TvinciUsers;
+using ApiObjects;
 
 namespace ConditionalAccess
 {
@@ -22,12 +23,10 @@ namespace ConditionalAccess
 
         public override bool ActivateCampaign(TvinciPricing.Campaign camp, CampaignActionInfo cai, int groupID)
         {
-            
             bool retVal = false;
             int numOfUses = 0;
             if (IsCampaignValid(cai.m_siteGuid, camp.m_ID, ref numOfUses))
             {
-                string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
                 TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
@@ -35,7 +34,7 @@ namespace ConditionalAccess
                 if (sWSURL != "")
                     m.Url = sWSURL;
 
-                TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetCouponsGroupData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(groupID, eWSModules.PRICING, "", ref sWSUserName, ref sWSPass); 
                 PasswordGenerator p = new PasswordGenerator();
                 p.Maximum = 16;
                 p.Minimum = 12;

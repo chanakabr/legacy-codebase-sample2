@@ -6,6 +6,7 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace TVinciShared
 {
@@ -49,11 +50,6 @@ namespace TVinciShared
 
         static public Int32 GetGroupID(string sWSName , string sModuleName, string sUN, string sPass, string sIP)
         {
-            //For TVM Staging Only!!!
-            //if (sIP.StartsWith("192.168.16"))
-            //{
-            //    sIP = "81.218.199.175";
-            //}
             try
             {
                 Int32 nGroupID = DAL.UtilsDal.GetGroupID(sUN, sPass, sModuleName, sIP, sWSName); 
@@ -66,18 +62,53 @@ namespace TVinciShared
             return 0;
         }
 
+        static public Int32 GetGroupID(string sWSName, string sUN, string sPass)
+        {
+            try
+            {
+                Int32 nGroupID = DAL.UtilsDal.GetGroupID(sUN, sPass, sWSName);
+                return nGroupID;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sUN: " + sUN + " | sPass: " + sPass, "ws_utils");
+            }
+            return 0;
+        }
+
         static public string GetSecretCode(string sWSName, string sModuleName, string sUN , ref Int32 nGroupID)
         {
             string sSecret = DAL.UtilsDal.GetSecretCode(sWSName, sModuleName, sUN, ref nGroupID);
             return sSecret;
         }
 
-        static public void GetWSUNPass(Int32 nGroupID, string sWSFunctionName , string sWSName , string sIP , ref string sWSUN, ref string sWSPassword)
+        static public bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName , string sWSName , string sIP , ref string sWSUN, ref string sWSPassword)
         {
-            sWSUN = "";
-            sWSPassword = "";
+            sWSUN = string.Empty;
+            sWSPassword = string.Empty;
 
             bool res = DAL.UtilsDal.GetWSUNPass(nGroupID, sIP, sWSFunctionName, sWSName, ref sWSUN, ref sWSPassword);
+            return res;
+        }
+
+        static public bool GetWSCredentials(Int32 nGroupID, string sWSName, ref string sWSUN, ref string sWSPassword)
+        {
+            sWSUN = string.Empty;
+            sWSPassword = string.Empty;
+
+            bool res = DAL.UtilsDal.GetWSCredentials(nGroupID, sWSName, ref sWSUN, ref sWSPassword);
+            return res;
+        }
+
+        static public bool GetAllWSCredentials(string sIP, ref DataTable modules)
+        {
+            bool res = DAL.UtilsDal.GetAllWSCredentials(sIP, ref modules);
+            return res;
+        }
+
+        static public int GetModuleImplID(int nGroupID, int nModuleID)
+        {
+            return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID);
         }
 
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
@@ -375,6 +406,8 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {

@@ -11,9 +11,10 @@ namespace ApiObjects.CrowdsourceItems.Base
     public abstract class BaseCrowdsourceItem
     {
         [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
-        public virtual eItemType Type 
+        public virtual eItemType Type
         {
             get { return eItemType.LinearViews; }
+            set {}
         }
 
         [JsonProperty("timstamp")]

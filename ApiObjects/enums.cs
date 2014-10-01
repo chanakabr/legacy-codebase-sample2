@@ -182,4 +182,17 @@ namespace ApiObjects
 
     }
 
+    public enum eWSModules
+    {
+        API,
+        PRICING,
+        USERS,
+        DOMAINS,
+        BILLING,
+        SOCIAL,
+        CONDITIONALACCESS,
+        CATALOG,
+        NOTIFICATION
+    }
+
 }
