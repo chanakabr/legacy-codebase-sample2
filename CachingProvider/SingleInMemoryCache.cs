@@ -219,5 +219,25 @@ namespace CachingProvider
             return sb.ToString();
         }
 
+
+        public IDictionary<string, object> GetValues(List<string> keys)
+        {
+            IDictionary<string, object> iDict = null;
+            try
+            {
+                if (keys == null || keys.Count == 0)
+                    return null;
+
+                iDict = cache.GetValues(keys);
+                
+                return iDict;
+            }
+            catch 
+            {
+                return null;
+            }
+
+        }
+
     }
 }

@@ -247,35 +247,29 @@ namespace ConditionalAccess
 
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
-
             TvinciAPI.API m = null;
-
             TvinciAPI.MeidaMaper[] mapper = null;
+            
             try
             {
                 string nMediaFilesIDsToCache = ConvertArrayIntToStr(nMediaFilesIDs);
-                string sCacheKey = Utils.GetCachingManagerKey("MapMediaFiles", nMediaFilesIDsToCache, nGroupID);
-                if (CachingManager.CachingManager.Exist(sCacheKey))
-                    mapper = (TvinciAPI.MeidaMaper[])(CachingManager.CachingManager.GetCachedData(sCacheKey));
+
+                m = new ConditionalAccess.TvinciAPI.API();
+                string sWSUrl = GetWSURL("api_ws");
+                if (sWSUrl.Length > 0)
+                    m.Url = sWSUrl;
+
+                if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
+                {
+                    GetWSCredentials(nGroupID, eWSModules.API, "MapMediaFiles", ref sWSUserName, ref sWSPass);
+                    mapper = m.MapMediaFiles(sWSUserName, sWSPass, nMediaFilesIDs);
+                }
                 else
                 {
-                    m = new ConditionalAccess.TvinciAPI.API();
-                    string sWSUrl = GetWSURL("api_ws");
-                    if (sWSUrl.Length > 0)
-                        m.Url = sWSUrl;
-
-                    if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
-                    {
-                        GetWSCredentials(nGroupID, eWSModules.API, "MapMediaFiles", ref sWSUserName, ref sWSPass);
-                        mapper = m.MapMediaFiles(sWSUserName, sWSPass, nMediaFilesIDs);
-                    }
-                    else
-                    {
-                        mapper = m.MapMediaFiles(sAPIUsername, sAPIPassword, nMediaFilesIDs);
-                    }
-                    CachingManager.CachingManager.SetCachedData(sCacheKey, mapper, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    mapper = m.MapMediaFiles(sAPIUsername, sAPIPassword, nMediaFilesIDs);
                 }
             }
+
             finally
             {
                 #region Disposing
