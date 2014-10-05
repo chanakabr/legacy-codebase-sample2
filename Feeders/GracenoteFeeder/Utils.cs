@@ -12,6 +12,7 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;
 using EpgBL;
+using GroupsCacheManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 

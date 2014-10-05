@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {

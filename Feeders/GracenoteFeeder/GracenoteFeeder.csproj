@@ -75,6 +75,10 @@
       <Project>{8e6be280-9dcc-42d2-84c2-1a56812ae704}</Project>
       <Name>UploadQueue</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
