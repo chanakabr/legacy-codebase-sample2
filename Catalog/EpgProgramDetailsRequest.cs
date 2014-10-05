@@ -26,24 +26,24 @@ namespace Catalog
         {  
         }
 
+        private void CheckRequestValidness(EpgProgramDetailsRequest programRequest)
+        {
+            if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
+                throw new ArgumentException("request object is null or required variables are missing");
+        }
+
         /*Get Program Details By ProgramsIds*/
         public EpgProgramResponse GetProgramsByIDs(EpgProgramDetailsRequest programRequest)
         {
             EpgProgramResponse pResponse = new EpgProgramResponse();           
           
-            _logger.InfoFormat("{0}: {1}", "Catalog.GetProgramsByIDs Start At", DateTime.Now);
             try
             {
-                if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
-                    throw new Exception("request object is null or Required variables is null");
-
-                _logger.Info(string.Format("{0}: {1}", "count of MediasIDs", programRequest.m_lProgramsIds.Count));
+                CheckRequestValidness(programRequest);
 
                 CheckSignature(programRequest);
 
-                _logger.InfoFormat("Start Complete Details for {0} MediaIds", programRequest.m_lProgramsIds.Count);
-
-                bool completeDetails = Catalog.CompleteDetailsForProgramResponse(programRequest, ref pResponse);
+                Catalog.CompleteDetailsForProgramResponse(programRequest, ref pResponse);
 
                 return pResponse;
             }

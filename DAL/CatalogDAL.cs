@@ -1569,6 +1569,77 @@ namespace Tvinci.Core.DAL
             return mediasMarksList;
         }
 
+        public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("GetPicEpgURL");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "baseURL");
+                    if(baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                        baseUrl = String.Concat(baseUrl, '/');
+                    width = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "WIDTH");
+                    height = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "HEIGHT");
+                }
+            }
+
+            return res;
+        }
+
+        public static Dictionary<int, List<string>> Get_GroupTreePicEpgUrl(int parentGroupID)
+        {
+            Dictionary<int, List<string>> res = null;
+            StoredProcedure sp = new StoredProcedure("Get_GroupTreePicEpgUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, List<string>>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int groupID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["GROUP_ID"]);
+                        if (groupID > 0 && !res.ContainsKey(groupID))
+                        {
+                            string baseUrl = string.Empty;
+                            string width = string.Empty;
+                            string height = string.Empty;
+                            baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["baseURL"]);
+                            if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                            {
+                                baseUrl = String.Concat(baseUrl, '/');
+                            }
+                            width = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["WIDTH"]);
+                            height = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["HEIGHT"]);
+                            res.Add(groupID, new List<string>(3) { baseUrl, width, height });
+                        }
+                    }
+                }
+                else
+                {
+                    res = new Dictionary<int, List<string>>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, List<string>>(0);
+            }
+
+            return res;
+        }
+
         public static DataTable GetPicEpgURL(int groupID)
         {
             StoredProcedure sp = new StoredProcedure("GetPicEpgURL");
