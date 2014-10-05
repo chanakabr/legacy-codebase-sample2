@@ -438,7 +438,7 @@ namespace Catalog
             return channelViews;
         }
 
-        public static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action)
+        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action)
         {
             List<int> result = new List<int>();
 
@@ -513,7 +513,7 @@ namespace Catalog
             return result;
         }
 
-        public static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
+        internal static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
         {
             List<int> result = new List<int>();
 
@@ -589,7 +589,7 @@ namespace Catalog
             return result;
         }
 
-        public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
+        internal static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
         {
             List<T> result = new List<T>();
 
@@ -606,7 +606,7 @@ namespace Catalog
             return result;
         }
 
-        public static int GetUserType(string sSiteGuid, int nGroupID)
+        internal static int GetUserType(string sSiteGuid, int nGroupID)
         {
             int nUserTypeID = 0;
             ws_users.UsersService u = null;
