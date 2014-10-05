@@ -51,6 +51,32 @@ namespace Catalog
             m_nPrevTop = nPrevTop;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat("EpgRequest. St. Date: ", m_dStartDate));
+            sb.Append(String.Concat(" End Date: ", m_dEndDate));
+            sb.Append(String.Concat(" Search Type: ", m_eSearchType.ToString()));
+            sb.Append(String.Concat(" Next Top: ", m_nNextTop));
+            sb.Append(String.Concat(" Prev Top: ", m_nPrevTop));
+            if(m_nChannelIDs != null && m_nChannelIDs.Count > 0) 
+            {
+                sb.Append(" Channels: ");
+                for (int i = 0; i < m_nChannelIDs.Count; i++)
+                {
+                    sb.Append(m_nChannelIDs[i].ToString());
+                }
+            }
+            else 
+            {
+                sb.Append(" Channel list is empty. ");
+            }
+
+            sb.Append(String.Concat(" Base Req: ", base.ToString()));
+
+            return sb.ToString();
+
+        }
+
         
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
