@@ -8,6 +8,7 @@ using DAL;
 using System.Diagnostics;
 using System.Configuration;
 using System.Threading;
+using ApiObjects;
 
 namespace Users
 {
@@ -606,14 +607,22 @@ namespace Users
         {
             using (TvinciAPI.API client = new TvinciAPI.API())
             {
-                string sWSURL = Utils.GetWSURL("api_ws");
-                if (sWSURL != "")
-                    client.Url = sWSURL;
-                string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CreateDefaultRules", "API", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("api_ws");
+
+                if (sWSURL != "")
+                    client.Url = sWSURL;
+                
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);                
+
+                if (oCredentials != null)
+                {
+                    sWSUserName = oCredentials.m_sUsername;
+                    sWSPass = oCredentials.m_sPassword;
+                }
                 Logger.Logger.Log("Default Rules", sWSUserName + " " + sWSPass + " " + client.Url, "Default Rules");
+
                 return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
             }
         }
