@@ -17,7 +17,7 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public List<int> m_nChannelIDs; 
+        public List<int> m_nChannelIDs;
 
         [DataMember]
         public DateTime m_dStartDate;
@@ -58,7 +58,7 @@ namespace Catalog
             sb.Append(String.Concat(" Search Type: ", m_eSearchType.ToString()));
             sb.Append(String.Concat(" Next Top: ", m_nNextTop));
             sb.Append(String.Concat(" Prev Top: ", m_nPrevTop));
-            if(m_nChannelIDs != null && m_nChannelIDs.Count > 0) 
+            if (m_nChannelIDs != null && m_nChannelIDs.Count > 0)
             {
                 sb.Append(" Channels: ");
                 for (int i = 0; i < m_nChannelIDs.Count; i++)
@@ -66,7 +66,7 @@ namespace Catalog
                     sb.Append(m_nChannelIDs[i].ToString());
                 }
             }
-            else 
+            else
             {
                 sb.Append(" Channel list is empty. ");
             }
@@ -77,50 +77,41 @@ namespace Catalog
 
         }
 
-        
+        private void CheckRequestValidness(EpgRequest request)
+        {
+            if (request == null || request.m_nGroupID < 1 || request.m_nChannelIDs == null || request.m_nChannelIDs.Count == 0)
+                throw new ArgumentException("Request is null or does not contain any channels or has invalid group id");
+        }
+
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             EpgRequest request = oBaseRequest as EpgRequest;
-            EpgResponse response = new EpgResponse();           
-            List<EpgResultsObj> result;
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            EpgResponse response = new EpgResponse();
+            List<EpgResultsObj> result = null;
+            try
             {
-                log.Method = "EpgProgramIDsRequest GetResponse";
-                try
+                CheckSignature(request);
+
+                result = Catalog.GetEPGPrograms(request);
+                if (result != null)
                 {
-                    if (request == null)
-                        throw new ArgumentException("request object is null");
-
-                    if (request.m_nChannelIDs == null || request.m_nChannelIDs.Count == 0)
-                        throw new ArgumentException("Request does not contain any channels");
-
-                    CheckSignature(request);
-
-                    result = Catalog.GetEPGPrograms(request);
-                    if (result != null)
-                    {
-                        response.programsPerChannel = result;
-                        response.m_nTotalItems = result.Count;
-                    }
-                    else
-                    {
-                        log.Message = string.Format("Result from Catalog.GetEPGProgramIds was null. request startDate : {0}, requst endDate: {1}"
-                                        , request.m_dStartDate.ToString(), request.m_dEndDate.ToString());
-                        log.Error(log.Message, false);
-                        response = null;
-                    }
+                    response.programsPerChannel = result;
+                    response.m_nTotalItems = result.Count;
                 }
-                catch (Exception ex)
-                {   
-                    log.Message = string.Format("Could not retrieve the EPGIDs from Catalog.GetEPGProgramIds. Exception message: {0}, stack: {1}", ex.Message, ex.StackTrace);
-                    log.Error(log.Message, false);
+                else
+                {
                     response = null;
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Exception thrown at EpgRequest.GetResponse", ex);
+                response = null;
             }
 
             return response;
         }
-       
+
     }
 
 

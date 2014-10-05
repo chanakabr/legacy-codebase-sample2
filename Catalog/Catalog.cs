@@ -512,7 +512,7 @@ namespace Catalog
                     GroupManager groupManager = new GroupManager();
                     int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                     Group groupInCache = groupManager.GetGroup(nParentGroupID);
-        
+
                     if (groupInCache != null)
                     {
                         LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
@@ -2001,77 +2001,76 @@ namespace Catalog
 
         //returns a list of EpgIDsResultsObj, per channel, each one has a list of epgID and its update date
         //the amount of epgs that are returned, in case of 'current' is limited only by the 'NextTop' and 'PrevTop' paramters inside the request (not by page size and page index), per channel
-        public static List<EpgResultsObj> GetEPGPrograms(EpgRequest request)
+        internal static List<EpgResultsObj> GetEPGPrograms(EpgRequest request)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            try
             {
-                log.Method = "Catalog.GetEPGProgramIds";
-                try
+
+                List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
+                EpgResultsObj resultPerChannel;
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
+                GroupManager groupManager = new GroupManager();
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                Group group = groupManager.GetGroup(nParentGroupID);
+
+                if (group != null)
                 {
-                    if (request == null || request.m_nGroupID == 0)
+                    ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dicDocs = null;
+                    switch (request.m_eSearchType)
                     {
-                        log.Error("SearchEpgsByParams return null due to epgSearch == null || epgSearch.m_nGroupID==0", false);
-                        return null;
-                    }
-
-                    List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
-                    EpgResultsObj resultPerChannel;
-                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
-                    GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
-                    Group group = groupManager.GetGroup(nParentGroupID);
-
-                    if (group != null)
-                    {
-                        ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dicDocs = null;
-                        if (request.m_eSearchType == EpgSearchType.ByDate)
-                        {
-                            //page size and page index of the request effect only per channel (and not the total amount of results) 
-                            dicDocs = epgBL.GetMultiChannelProgramsDic(request.m_nPageSize, request.m_nPageIndex, request.m_nChannelIDs, request.m_dStartDate, request.m_dEndDate);
-                            log.Message = string.Format("SearchEpgs by params of GroupID={0}, between Dates {1} - {2} in channels {3}",
-                                request.m_nGroupID, request.m_dStartDate.ToShortDateString(), request.m_dEndDate.ToShortDateString(), request.m_nChannelIDs.ToString());
-                        }
-                        else if (request.m_eSearchType == ApiObjects.EpgSearchType.Current)
-                        {
-                            int nNextTop = 0;
-                            int nPrevTop = 0;
-                            getTopValues(request, ref nNextTop, ref nPrevTop); //insert default values, if needed                            
-
-                            //all results return, according to m_nPrevTop and m_nNextTop (and not page size and page index)
-                            dicDocs = epgBL.GetMultiChannelProgramsDicCurrent(nNextTop, nPrevTop, request.m_nChannelIDs);
-                            log.Message = string.Format("SearchEpgs for current epgs by params of GroupID={0}, last {1} and next {2} epgs of channels {3}",
-                                request.m_nGroupID, nPrevTop.ToString(), nNextTop.ToString(), request.m_nChannelIDs.ToString());
-                        }
-                        log.Info(log.Message, false);
-                        if (dicDocs != null)
-                        {
-                            foreach (int channelID in dicDocs.Keys)
+                        case EpgSearchType.ByDate:
                             {
-                                List<EPGChannelProgrammeObject> epgList;
-                                if (dicDocs.TryGetValue(channelID, out epgList) && epgList != null && epgList.Count > 0)
-                                {
-                                    //build the response
-                                    resultPerChannel = createEpgResults(dicDocs[channelID], channelID);
-                                    epgResponse.Add(resultPerChannel);
-                                }
+                                //page size and page index of the request effect only per channel (and not the total amount of results) 
+                                dicDocs = epgBL.GetMultiChannelProgramsDic(request.m_nPageSize, request.m_nPageIndex, request.m_nChannelIDs, request.m_dStartDate, request.m_dEndDate);
+                                break;
+                            }
+                        case EpgSearchType.Current:
+                            {
+                                int nNextTop = 0;
+                                int nPrevTop = 0;
+                                getTopValues(request, ref nNextTop, ref nPrevTop); //insert default values, if needed                            
+                                //all results return, according to m_nPrevTop and m_nNextTop (and not page size and page index)
+                                dicDocs = epgBL.GetMultiChannelProgramsDicCurrent(nNextTop, nPrevTop, request.m_nChannelIDs);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                    if (dicDocs != null)
+                    {
+                        foreach (int channelID in dicDocs.Keys)
+                        {
+                            List<EPGChannelProgrammeObject> epgList = null;
+                            if (dicDocs.TryGetValue(channelID, out epgList) && epgList != null && epgList.Count > 0)
+                            {
+                                //build the response
+                                resultPerChannel = createEpgResults(dicDocs[channelID], channelID);
+                                epgResponse.Add(resultPerChannel);
                             }
                         }
-                        else
-                            log.Error("Dictionary of results per channel returned empty, response will by empty.", false);
                     }
                     else
                     {
-                        log.Error("returning null because group was not retrieved from the Group Cache ", false);
-                        return null;
+                        Logger.Logger.Log("Error", String.Concat("GetEPGPrograms. Empty dict returned from Epg BL. Req: ", request.ToString()), "GetEPGPrograms");
                     }
-                    return epgResponse;
                 }
-                catch (Exception ex)
+                else
                 {
-                    log.Message = string.Format("SearchEpgsByParams had an exception: ex={0} in {1}", ex.Message, ex.StackTrace);
-                    log.Error(log.Message, false);
-                    return null;
+                    Logger.Logger.Log("Error", String.Concat("GetEPGPrograms failed to retrieve group from cache. Req: ", request.ToString()), "GetEPGPrograms");
                 }
+
+                return epgResponse;
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetEPGPrograms. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" Req: ", request.ToString()));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "GetEPGPrograms");
+                #endregion
+                return null;
             }
         }
 
@@ -2624,7 +2623,7 @@ namespace Catalog
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
             string sWSUrl = string.Empty;
-           
+
             //get username + password from wsCache
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.DOMAINS);
             if (oCredentials != null)
@@ -2639,11 +2638,11 @@ namespace Catalog
             }
 
             using (WS_Domains.module domains = new WS_Domains.module())
-            { 
+            {
                 sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID, null);
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0, nMediaID, null);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;
@@ -2703,7 +2702,7 @@ namespace Catalog
 
         private static bool IsBrand(DataRow dr)
         {
-            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0")) 
+            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0"))
                 || (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "RECURRING_TYPE_ID")) && !dr["RECURRING_TYPE_ID"].ToString().Equals("0"));
         }
 
