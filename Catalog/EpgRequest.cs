@@ -90,6 +90,7 @@ namespace Catalog
             List<EpgResultsObj> result = null;
             try
             {
+                CheckRequestValidness(request);
                 CheckSignature(request);
 
                 result = Catalog.GetEPGPrograms(request);

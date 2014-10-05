@@ -2005,7 +2005,6 @@ namespace Catalog
         {
             try
             {
-
                 List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
                 EpgResultsObj resultPerChannel;
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
