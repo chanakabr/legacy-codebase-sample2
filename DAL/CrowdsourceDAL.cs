@@ -12,7 +12,7 @@ namespace DAL
 {
     public static class CrowdsourceDAL
     {
-        private static GenericCouchbaseClient _client = CouchbaseWrapper.CouchbaseManager.GetInstance("crowdsource");
+        private static GenericCouchbaseClient _client = CouchbaseWrapper.CouchbaseManager.GetInstance("crowdsourcer.cb_crowdsource");
         
         public static int GetLastItemId(int groupId, eCrowdsourceType type, int assetId)
         {
