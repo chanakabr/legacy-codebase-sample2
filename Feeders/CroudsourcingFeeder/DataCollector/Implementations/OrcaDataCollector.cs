@@ -94,7 +94,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error normalizing singular item - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing");
+                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }

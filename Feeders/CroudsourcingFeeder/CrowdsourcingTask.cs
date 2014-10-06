@@ -24,14 +24,14 @@ namespace CrowdsourcingFeeder
             {
                 string[] paramsList = m_sParameters.Split('|');
                 eCrowdsourceType collectorType;
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: Recieved params: GroupId={1} Collector:{2} Asset={3}", DateTime.UtcNow, paramsList[2], paramsList[0], paramsList[1]), "Crowdsourcing");
+                Logger.Logger.Log("Crowdsource", string.Format("Recieved params: GroupId={0} Collector:{1} Asset={2}", paramsList[2], paramsList[0], paramsList[1]), "Crowdsourcing");
                 if (Enum.TryParse(paramsList[0], true, out collectorType) && paramsList.Length == 3)
                 {
                     BaseDataCollector collector = DataCollectorFactory.GetInstance(collectorType, paramsList[1], int.Parse(paramsList[2]));
                     if (collector != null)
                         return collector.ProccessCroudsourceTask();
                 }
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error parsing collectorType", DateTime.UtcNow, paramsList[0]), "Crowdsourcing");
+                Logger.Logger.Log("Crowdsource", string.Format("{0} - Error parsing collectorType", paramsList[0]), "Crowdsourcing");
                 return false;
             }
             catch (Exception)
