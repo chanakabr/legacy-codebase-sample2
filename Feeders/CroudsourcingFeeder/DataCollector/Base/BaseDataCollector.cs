@@ -99,8 +99,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error selecting singular item. groupId:{2} ex: \n {3}",
-                    DateTime.UtcNow, CollectorType, GroupId, ex.Message), "Crowdsourcing");
+                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error selecting singular item. groupId:{1} ex: \n {2}", CollectorType, GroupId, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
@@ -114,8 +113,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                     if (croudsourceItem.Value != null)
                         CrowdsourceDAL.UpdateCsList(GroupId, croudsourceItem);
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Media info missing:{2} MediaId={3} Language={4}",
-                            DateTime.UtcNow, CollectorType, GroupId, SelectedItem.Id, croudsourceItem.Key), "Crowdsourcing");
+                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Media info missing:{1} MediaId={2} Language={3}", CollectorType, GroupId, SelectedItem.Id, croudsourceItem.Key), "Crowdsourcing");
                 }
                 return true;
             }
@@ -156,8 +154,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error getting item info. groupId:{2}, mediaId:{3} ex: \n {4}",
-                    DateTime.UtcNow, CollectorType, GroupId, mediaId, ex.Message), "Crowdsourcing");
+                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error getting item info. groupId:{1}, mediaId:{2} ex: \n {3}", CollectorType, GroupId, mediaId, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
