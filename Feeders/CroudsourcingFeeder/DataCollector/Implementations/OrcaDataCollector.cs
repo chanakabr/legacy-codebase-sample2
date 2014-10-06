@@ -47,13 +47,13 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     parentalLevel = 0,
                     picSize = "",
                 };
-                string respJson = webClient.UploadString(TVinciShared.WS_Utils.GetTcmConfigValue(GroupId+"_TVPApiURL"), JsonConvert.SerializeObject(request));
+                string respJson = webClient.UploadString(TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("crowdsourcer.{0}_TVPApiURL", GroupId)), JsonConvert.SerializeObject(request));
                 TVPApiResponse response = JsonConvert.DeserializeObject<TVPApiResponse>(respJson);
                 return response.Content.Select(x => int.Parse(x.MediaID)).ToArray();
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
@@ -94,7 +94,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error normalizing singular item - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error normalizing singular item - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }

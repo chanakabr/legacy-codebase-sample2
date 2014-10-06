@@ -38,7 +38,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_bUseFinalDate = true,
                     },
                     m_sSignString = catalogSignString,
-                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("crowdsourcer.CatalogSignatureKey")),
                     m_nPageIndex = 0,
                     m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
                 });
@@ -54,7 +54,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
                 Logger.Logger.Log("Crowdsource",
                     string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow,
-                        CollectorType, ex.Message), "Crowdsourcing.log");
+                        CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
@@ -81,7 +81,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                TVinciShared.WS_Utils.GetTcmConfigValue("crowdsourcer.CatalogSignatureKey")),
                     });
 
                 if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
@@ -97,7 +97,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                TVinciShared.WS_Utils.GetTcmConfigValue("crowdsourcer.CatalogSignatureKey")),
 
                     });
 
@@ -154,7 +154,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
 
                 Logger.Logger.Log("Crowdsource",
                     string.Format("{0}:{1} - Error normalizing singular item. mediaId {2} - Exception: \n {3}",
-                        DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing.log");
+                        DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing");
                 return null;
             }
         }

@@ -15,7 +15,7 @@ namespace CrowdsourcingFeeder
         public CrowdsourcingTask(int nTaskID, int nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {
-            TCMClient.Settings.Instance.Init();
+            
         }
 
         protected override bool DoTheTaskInner()
