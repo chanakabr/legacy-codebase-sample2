@@ -628,7 +628,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get (ORCA) recommended medias by gallery")]
-        public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType)
+        public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType, string coGuid)
         {
             logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
 
@@ -641,7 +641,7 @@ namespace TVPApiServices
                 try
                 {
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    retVal = impl.GetRecommendedMediasByGallery(initObj, groupID, mediaID, picSize, parentalLevel, galleryType);
+                    retVal = impl.GetRecommendedMediasByGallery(initObj, groupID, mediaID, picSize, parentalLevel, galleryType, coGuid);
 
 
                 }

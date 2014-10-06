@@ -296,9 +296,6 @@
     <None Include="Web References\yes.tvinci.ITProxy\Entitlement.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\yes.tvinci.ITProxy\GetMemirDetailsResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\yes.tvinci.ITProxy\OfferListTypeOffer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -310,6 +307,9 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Web References\yes.tvinci.ITProxy\service.wsdl" />
+    <None Include="Web References\yes.tvinci.ITProxy\STBData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\CategoryObject.datasource">

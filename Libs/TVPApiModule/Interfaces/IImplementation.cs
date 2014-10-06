@@ -25,10 +25,12 @@ namespace TVPApiModule.Interfaces
 
         string GetMediaLicenseData(int iMediaFileID, int iMediaID);
 
-        TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
+        TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid);
 
         string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP);
 
         RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
+
+        TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId);
     }
 }

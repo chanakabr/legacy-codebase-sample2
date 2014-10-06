@@ -93,5 +93,11 @@ namespace TVPApiServices
 
         [OperationContract]
         bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs);
+
+        [OperationContract]
+        TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
+
+        [OperationContract]
+        TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId, string SerialNumber);
     }
 }

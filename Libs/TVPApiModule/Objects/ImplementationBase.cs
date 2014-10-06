@@ -105,7 +105,7 @@ namespace TVPApiModule.Objects
             return sRet;
         }
 
-        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
+        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid)
         {
             return null;
         }
@@ -117,6 +117,11 @@ namespace TVPApiModule.Objects
         }
 
         public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        {
+            return null;
+        }
+
+        public virtual TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId)
         {
             return null;
         }

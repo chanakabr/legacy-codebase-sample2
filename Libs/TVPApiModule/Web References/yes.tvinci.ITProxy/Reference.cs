@@ -55,6 +55,8 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         private System.Threading.SendOrPostCallback GetMemirDetailsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback OrcaLoginOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -131,6 +133,9 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         public event GetMemirDetailsCompletedEventHandler GetMemirDetailsCompleted;
+        
+        /// <remarks/>
+        public event OrcaLoginCompletedEventHandler OrcaLoginCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/AddDevice", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -561,23 +566,24 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/RecordAll", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordAllResult RecordAll(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId) {
+        public RecordAllResult RecordAll(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId, string SerialNumber) {
             object[] results = this.Invoke("RecordAll", new object[] {
                         AccountNumber,
                         ChannelCode,
                         RecordDate,
                         RecordTime,
-                        VersionId});
+                        VersionId,
+                        SerialNumber});
             return ((RecordAllResult)(results[0]));
         }
         
         /// <remarks/>
-        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId) {
-            this.RecordAllAsync(AccountNumber, ChannelCode, RecordDate, RecordTime, VersionId, null);
+        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId, string SerialNumber) {
+            this.RecordAllAsync(AccountNumber, ChannelCode, RecordDate, RecordTime, VersionId, SerialNumber, null);
         }
         
         /// <remarks/>
-        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId, object userState) {
+        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId, string SerialNumber, object userState) {
             if ((this.RecordAllOperationCompleted == null)) {
                 this.RecordAllOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordAllOperationCompleted);
             }
@@ -586,7 +592,8 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
                         ChannelCode,
                         RecordDate,
                         RecordTime,
-                        VersionId}, this.RecordAllOperationCompleted, userState);
+                        VersionId,
+                        SerialNumber}, this.RecordAllOperationCompleted, userState);
         }
         
         private void OnRecordAllOperationCompleted(object arg) {
@@ -598,11 +605,11 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetMemirDetails", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public GetMemirDetailsResult GetMemirDetails(string accountNumber, string serviceAddressId) {
+        public STBData[] GetMemirDetails(string accountNumber, string serviceAddressId) {
             object[] results = this.Invoke("GetMemirDetails", new object[] {
                         accountNumber,
                         serviceAddressId});
-            return ((GetMemirDetailsResult)(results[0]));
+            return ((STBData[])(results[0]));
         }
         
         /// <remarks/>
@@ -628,6 +635,37 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/OrcaLogin", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string OrcaLogin(string wizardAccountId, string crmUserId) {
+            object[] results = this.Invoke("OrcaLogin", new object[] {
+                        wizardAccountId,
+                        crmUserId});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void OrcaLoginAsync(string wizardAccountId, string crmUserId) {
+            this.OrcaLoginAsync(wizardAccountId, crmUserId, null);
+        }
+        
+        /// <remarks/>
+        public void OrcaLoginAsync(string wizardAccountId, string crmUserId, object userState) {
+            if ((this.OrcaLoginOperationCompleted == null)) {
+                this.OrcaLoginOperationCompleted = new System.Threading.SendOrPostCallback(this.OnOrcaLoginOperationCompleted);
+            }
+            this.InvokeAsync("OrcaLogin", new object[] {
+                        wizardAccountId,
+                        crmUserId}, this.OrcaLoginOperationCompleted, userState);
+        }
+        
+        private void OnOrcaLoginOperationCompleted(object arg) {
+            if ((this.OrcaLoginCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.OrcaLoginCompleted(this, new OrcaLoginCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -647,7 +685,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -841,7 +879,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1072,7 +1110,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1218,12 +1256,12 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/")]
-    public partial class MemirData {
+    public partial class STBData {
         
         private bool isRecordingField;
         
@@ -1263,28 +1301,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/")]
-    public partial class GetMemirDetailsResult {
-        
-        private MemirData[] memirimDataField;
-        
-        /// <remarks/>
-        public MemirData[] MemirimData {
-            get {
-                return this.memirimDataField;
-            }
-            set {
-                this.memirimDataField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1317,7 +1334,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1350,7 +1367,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1455,7 +1472,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1513,7 +1530,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1559,7 +1576,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://opencase.extend.com/em")]
     public enum DeviceTypeNames {
@@ -1575,7 +1592,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1633,7 +1650,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1826,7 +1843,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1884,7 +1901,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2030,7 +2047,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2113,7 +2130,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2293,7 +2310,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://opencase.extend.com/em")]
     public enum EntitlementStatus {
@@ -2644,10 +2661,36 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         }
         
         /// <remarks/>
-        public GetMemirDetailsResult Result {
+        public STBData[] Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((GetMemirDetailsResult)(this.results[0]));
+                return ((STBData[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void OrcaLoginCompletedEventHandler(object sender, OrcaLoginCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class OrcaLoginCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal OrcaLoginCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
             }
         }
     }

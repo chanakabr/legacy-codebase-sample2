@@ -209,14 +209,23 @@ namespace TVPApiModule.Objects
         }
 
 
-        public override OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)//TVPApiModule.Objects.Enums.eGalleryType galleryType)
+        public override OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid)
         {
             logger.DebugFormat("ImplementationYes::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
 
             OrcaResponse retVal = new OrcaResponse();
 
             // get ORCA response
-            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType);
+            object orcaResponse = GetOrcaResponse(initObj.SiteGuid, groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType, coGuid);
+
+            if (orcaResponse is string && orcaResponse == "INVALID_CREDENTIALS")
+            {
+                // update the token by doing SignIn again 
+                ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
+                var userData = usersService.GetUserData(initObj.SiteGuid);
+                usersService.SignInWithToken(userData.m_user.m_oDynamicData.m_sUserData.Where(d => d.m_sDataType == "TVcookie").FirstOrDefault().m_sValue, string.Empty, string.Empty, initObj.UDID, false);
+                orcaResponse = GetOrcaResponse(initObj.SiteGuid, groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType, coGuid);
+            }
 
             if (orcaResponse == null ||
                 (orcaResponse is List<VideoRecommendation> && (orcaResponse as List<VideoRecommendation>).Count == 0) ||
@@ -289,7 +298,7 @@ namespace TVPApiModule.Objects
             else return string.Empty;
         }
 
-        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType)
+        private object GetOrcaResponse(string siteGuid, int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType, string coGuid)
         {
             object orcaResponse = null;
             string stringOrcaResponse = null;
@@ -298,7 +307,6 @@ namespace TVPApiModule.Objects
             var orcaConfiguration = ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration;
 
             // get params for ORCA request
-            string userToken = string.Empty; // Change later
             int maxResults = orcaConfiguration.Data.MaxResults;
             int defaultParentalLevel = orcaConfiguration.Data.DefaultParentalLevel;
 
@@ -317,7 +325,16 @@ namespace TVPApiModule.Objects
             string type = galleryConfiguration.GalleryTypeData.type;
             string genres = galleryConfiguration.GalleryTypeData.genres;
 
-            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform);
+            // get orca user token
+            string userToken = null;
+            var userData = new ApiUsersService(groupID, platform).GetUserData(siteGuid);
+            if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null && userData.m_user.m_oDynamicData.m_sUserData != null)
+            {
+                var dynamicData = userData.m_user.m_oDynamicData.m_sUserData.Where(d => d.m_sDataType == "OrcaToken").FirstOrDefault();
+                userToken = dynamicData.m_sValue;
+            }
+
+            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform, coGuid);
 
             try
             {
@@ -504,31 +521,43 @@ namespace TVPApiModule.Objects
         {
             yes.tvinci.ITProxy.Entitlement[] ent = null;
 
-            using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+            // get media
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
+
+            if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
             {
-                ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
-                UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null)
+                // check if media is allowed for anonymous users
+                if (mediaInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains("Product type"))
                 {
-                    UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
-                    if (dynamicData != null)
+                    string productTypeTagValue = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product key"].ToString();
+                    if (productTypeTagValue == "FVOD")
                     {
-                        string sAccountUuid = dynamicData.m_sValue;
-
-                        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-                        dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
-
-                        if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
+                        ent = new yes.tvinci.ITProxy.Entitlement[1];
+                    }
+                    else
+                    {
+                        using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
                         {
-                            if (mediaInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains("Product key"))
+                            ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
+                            UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
+                            if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null)
                             {
-                                string[] sProductPKs = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product key"].ToString().Split('|');
-                                int[] iProductPKs = sProductPKs.Select(x => int.Parse(x)).ToArray();
-                                ent = proxy.GetEntitlements(sAccountUuid, iProductPKs);
-                            }
-                            else
-                            {
-                                ent = new yes.tvinci.ITProxy.Entitlement[1];
+                                UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
+                                if (dynamicData != null)
+                                {
+                                    string sAccountUuid = dynamicData.m_sValue;
+                                    if (mediaInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains("Product key"))
+                                    {
+                                        string[] sProductPKs = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product key"].ToString().Split('|');
+                                        int[] iProductPKs = sProductPKs.Select(x => int.Parse(x)).ToArray();
+                                        ent = proxy.GetEntitlements(sAccountUuid, iProductPKs);
+                                    }
+                                    else
+                                    {
+                                        ent = new yes.tvinci.ITProxy.Entitlement[1];
+                                    }
+                                }
                             }
                         }
                     }
@@ -536,6 +565,7 @@ namespace TVPApiModule.Objects
             }
             return ent;
         }
+
         private bool YesCheckLogin(string sUserName, string sPassword)
         {
             //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://192.116.126.212/justauth");
@@ -617,7 +647,17 @@ namespace TVPApiModule.Objects
             RecordAllResult retVal = null;
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
-                retVal = proxy.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId);
+                retVal = proxy.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, versionId);
+            }
+            return retVal;
+        }
+
+        public override TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId)
+        {
+            TVPApiModule.yes.tvinci.ITProxy.STBData[] retVal = null;
+            using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+            {
+                retVal = proxy.GetMemirDetails(accountNumber, serviceAddressId);
             }
             return retVal;
         }

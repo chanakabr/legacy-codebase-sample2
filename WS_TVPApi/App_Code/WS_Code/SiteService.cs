@@ -1300,6 +1300,33 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Account STBs")]
+        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId, string SerialNumber)
+        {
+            TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    response = impl.GetMemirDetails(accountNumber, serviceAddressId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }
