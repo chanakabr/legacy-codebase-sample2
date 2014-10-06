@@ -66,7 +66,7 @@ namespace DAL
                         casDoc = _client.GetWithCas<CrowdsourceFeedDoc>(doc.Id);
                     }
                     casDoc.Value.Items.Insert(0,csItem.Value);
-                    casDoc.Value.Items = casDoc.Value.Items.Take(TCMClient.Settings.Instance.GetValue<int>("FEED_NUM_OF_ITEMS")).ToList();
+                    casDoc.Value.Items = casDoc.Value.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
 
                     return _client.CasWithRetry(casDoc.Value, casDoc.DocVersion, 10, 1000);
                 }
