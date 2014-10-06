@@ -1482,12 +1482,11 @@ namespace Catalog
 
                 if (searcher == null)
                 {
-                    _logger.ErrorFormat("Unable to get searcher (ISearcher) instance");
-                    return epgReponse;
+                    throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", request != null ? request.ToString() : "null"));
                 }
 
                 #region SearchPrograms
-                _logger.InfoFormat("Build Epg Search Object And Call Search Epgs at searching service. groupID={0}", request.m_nGroupID);
+                
                 try
                 {
                     isLucene = searcher is LuceneWrapper;
@@ -1509,8 +1508,6 @@ namespace Catalog
                         }
                         else
                         {
-                            // no linear medias returned from searcher
-                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
                             return epgReponse;
                         }
                     }
@@ -1526,10 +1523,9 @@ namespace Catalog
 
                     return epgReponse;
                 }
-
                 catch (Exception ex)
                 {
-                    _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
+                    _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0} , st: {1}", ex.Message, ex.StackTrace);
                     epgReponse = null;
                 }
                 #endregion
@@ -1539,7 +1535,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
+                _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0} , st: {1}", ex.Message, ex.StackTrace);
                 return null;
             }
         }
@@ -1550,8 +1546,7 @@ namespace Catalog
             {
                 List<string> lSearchList = new List<string>();
                 EpgSearchObj searcherEpgSearch = new EpgSearchObj();
-                _logger.InfoFormat("BuildEpgSearchObject groupID = {0},search = {1}, dates {2}-{3} ", request.m_nGroupID, request.m_sSearch, request.m_dStartDate, request.m_dEndDate);
-
+                
                 searcherEpgSearch.m_bExact = request.m_bExact;
                 searcherEpgSearch.m_dEndDate = request.m_dEndDate;
                 searcherEpgSearch.m_dStartDate = request.m_dStartDate;
@@ -1563,7 +1558,7 @@ namespace Catalog
                 // set parent group by request.m_nGroupID                              
                 searcherEpgSearch.m_nGroupID = request.m_nGroupID;
 
-                //List<EpgSearchValue> esvList = new List<EpgSearchValue>();
+                
                 string sVal = string.Empty;
 
                 List<SearchValue> dAnd = new List<SearchValue>();
@@ -1601,7 +1596,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.ErrorFormat("BuildEpgSearchObject failed ex = {0}", ex.Message); //TO DO what to print from request ???
+                _logger.ErrorFormat("BuildEpgSearchObject failed ex = {0} req: {1} st: {2}", ex.Message, request != null ? request.ToString() : "null", ex.StackTrace);
                 return null;
             }
         }

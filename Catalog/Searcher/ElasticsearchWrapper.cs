@@ -394,15 +394,15 @@ namespace Catalog
         public virtual SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
             SearchResultsObj epgResponse = null;
+
+            if (epgSearch == null || epgSearch.m_nGroupID == 0)
+            {
+                Logger.Logger.Log("Info", "SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ", "ElasticSearch");
+                return null;
+            }
             try
             {
-                if (epgSearch == null || epgSearch.m_nGroupID == 0)
-                {
-                    Logger.Logger.Log("Info", "SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ", "ElasticSearch");
-                    return null;
-                }
-                Logger.Logger.Log("Info", string.Format("SearchEpgs GroupID={0}, between Dates {1}- {2}", epgSearch.m_nGroupID, epgSearch.m_dStartDate.ToShortDateString(), epgSearch.m_dEndDate.ToShortDateString()), "ElasticSearch");
-
+                
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
                                 
@@ -443,7 +443,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("SearchEpgs ex={0}", ex.Message), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("SearchEpgs ex={0} st: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
             }
 
             return epgResponse;
@@ -669,12 +669,11 @@ namespace Catalog
         {
             if (listsOfChannelIDs != null && listsOfChannelIDs.Count > 0)
             {
-                int length = listsOfChannelIDs.Count;
                 List<string> indicesBehindAlias = m_oESApi.GetAliases(groupID + "");
                 if (indicesBehindAlias != null && indicesBehindAlias.Count > 0)
                 {
-                    List<List<string>> res = new List<List<string>>(length);
-                    for (int i = 0; i < length; i++)
+                    List<List<string>> res = new List<List<string>>(listsOfChannelIDs.Count);
+                    for (int i = 0; i < listsOfChannelIDs.Count; i++)
                     {
                         string sESAnswer = m_oESApi.MultiGetIDs("_percolator", indicesBehindAlias[0], listsOfChannelIDs[i], listsOfChannelIDs[i].Count);
                         if (!string.IsNullOrEmpty(sESAnswer))
