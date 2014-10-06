@@ -60,8 +60,8 @@ namespace Catalog
             catch (Exception ex)
             {
                 //previous log format
-                Logger.Logger.Log("Error", "Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");                
-                response = null; 
+                Logger.Logger.Log("Error", "Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
+                throw ex;
             }
 
             return response;
