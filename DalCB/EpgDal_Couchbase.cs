@@ -355,9 +355,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("GetChannelProgramsByStartDate: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                Logger.Logger.Log("Exception", string.Format("Exception at GetChannelProgramsByStartDate. Msg: {0} , ST: {1}", ex.Message, ex.StackTrace), "EpgDal_Couchbase");
             }
 
             return lRes;

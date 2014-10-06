@@ -2036,7 +2036,7 @@ namespace Catalog
                         default:
                             break;
                     }
-                    if (dicDocs != null)
+                    if (dicDocs != null && dicDocs.Keys != null && dicDocs.Keys.Count > 0)
                     {
                         Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(nParentGroupID);
                         foreach (int channelID in dicDocs.Keys)
@@ -2045,7 +2045,6 @@ namespace Catalog
                             if (dicDocs.TryGetValue(channelID, out epgList) && epgList != null && epgList.Count > 0)
                             {
                                 //build the response
-                                //resultPerChannel = createEpgResults(dicDocs[channelID], channelID);
                                 resultPerChannel = CreateEpgResults(epgList, channelID, groupTreeEpgUrls);
                                 epgResponse.Add(resultPerChannel);
                             }
@@ -2075,23 +2074,6 @@ namespace Catalog
                 return null;
             }
         }
-
-        //private static EpgResultsObj createEpgResults(List<EPGChannelProgrammeObject> epgList, int nChannelID)
-        //{
-        //    EpgResultsObj resultPerChannel = new EpgResultsObj();
-        //    resultPerChannel.m_nChannelID = nChannelID;
-        //    resultPerChannel.m_nTotalItems = epgList.Count;
-
-        //    //complete the full url for picURL 
-        //    resultPerChannel.m_lEpgProgram = epgList;
-        //    List<ApiObjects.EPGChannelProgrammeObject> tempEpgList = Utils.CompleteFullEpgPicURL(epgList);
-        //    if (tempEpgList != null)
-        //    {
-        //        resultPerChannel.m_lEpgProgram = tempEpgList;
-        //    }
-
-        //    return resultPerChannel;
-        //}
 
         private static EpgResultsObj CreateEpgResults(List<EPGChannelProgrammeObject> epgList, int nChannelID,
             Dictionary<int, List<string>> groupTreeEpgPicUrl)
