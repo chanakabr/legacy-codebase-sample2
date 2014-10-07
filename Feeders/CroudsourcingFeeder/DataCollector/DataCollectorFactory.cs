@@ -18,7 +18,7 @@ namespace CrowdsourcingFeeder.DataCollector
                         dataCollector = new RealTimeViewsDataCollector(groupId);
 
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error parsing channelId", DateTime.UtcNow, collectorType), "Crowdsourcing");
+                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing channelId", collectorType), "Crowdsourcing");
                     break;
 
                 case eCrowdsourceType.SlidingWindow:
@@ -26,7 +26,7 @@ namespace CrowdsourcingFeeder.DataCollector
                         dataCollector = new SlidingWindowDataCollector(int.Parse(assetId), groupId);
 
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error parsing channelId", DateTime.UtcNow, collectorType), "Crowdsourcing");
+                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing channelId", collectorType), "Crowdsourcing");
                     break;
                 case eCrowdsourceType.Orca:
                     
@@ -35,7 +35,7 @@ namespace CrowdsourcingFeeder.DataCollector
                         dataCollector = new OrcaDataCollector(groupId, galleryType);
                     
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error parsing GalleryType", DateTime.UtcNow, collectorType), "Crowdsourcing");
+                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing GalleryType", collectorType), "Crowdsourcing");
                     break;
             }
             return dataCollector;
