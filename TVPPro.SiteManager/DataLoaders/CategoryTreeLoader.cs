@@ -5,6 +5,9 @@ using System.Text;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.CategoriesTree;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -25,6 +28,20 @@ namespace TVPPro.SiteManager.DataLoaders
             {
                 Parameters.SetParameter<int>(eParameterType.Retrieve, "CategoryId", value);
 
+            }
+        }
+
+        public override dsCategory Execute()
+        {
+            bool shouldUseNewCache;
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
+            {
+                CatalogLoaders.CategoryLoader categoryLoader = new CatalogLoaders.CategoryLoader(m_tvmUser, SiteHelper.GetClientIP(), CategoryId);
+                return categoryLoader.Execute() as dsCategory;
+            }
+            else
+            {
+                return base.Execute();
             }
         }
 

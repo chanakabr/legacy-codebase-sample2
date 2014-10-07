@@ -22,19 +22,19 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         #region Constructors
 
-        public AssetStatsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
-            : base(groupID, userIP, pageSize, pageIndex)
-        {
-            AssetIDs = assetIDs;
-            StartTime = startTime;
-            EndTime = endTime;
-            AssetType = assetType;
-        }
+            public AssetStatsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+                : base(groupID, userIP, pageSize, pageIndex)
+            {
+                AssetIDs = assetIDs;
+                StartTime = startTime;
+                EndTime = endTime;
+                AssetType = assetType;
+            }
 
-        public AssetStatsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, assetIDs, assetType, startTime, endTime)
-        {
-        }
+            public AssetStatsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+                : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, assetIDs, assetType, startTime, endTime)
+            {
+            }
 
         #endregion
 
