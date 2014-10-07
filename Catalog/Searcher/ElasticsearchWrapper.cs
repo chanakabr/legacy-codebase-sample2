@@ -479,9 +479,13 @@ namespace Catalog
 
                 foreach (Task<string> task in tAliasRequests)
                 {
-                    if (!string.IsNullOrEmpty(task.Result))
+                    if (task != null)
                     {
-                        lAliasResult.Add(task.Result);
+                        if (!string.IsNullOrEmpty(task.Result))
+                        {
+                            lAliasResult.Add(task.Result);
+                        }
+                        task.Dispose();
                     }
                 }
             }
