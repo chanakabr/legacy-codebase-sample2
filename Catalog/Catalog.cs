@@ -2503,9 +2503,8 @@ namespace Catalog
 
         private static List<long> ExtractMediaIDs(SearchResultsObj sro)
         {
-            int length = sro.n_TotalItems;
-            List<long> res = new List<long>(length);
-            for (int i = 0; i < length; i++)
+            List<long> res = new List<long>(sro.n_TotalItems);
+            for (int i = 0; i < sro.n_TotalItems; i++)
             {
                 res.Add(sro.m_resultIDs[i].assetID);
             }
