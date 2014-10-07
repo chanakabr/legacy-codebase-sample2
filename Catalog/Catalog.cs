@@ -1483,7 +1483,9 @@ namespace Catalog
                     isLucene = searcher is LuceneWrapper;
                     EpgSearchObj epgSearch = null;
                     List<List<string>> jsonizedChannelsDefinitions = null;
-                    if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
+                    // when we search only by dates and channels we don't need to use ipno filtering because we already have the
+                    // epg channel ids
+                    if (!request.SearchOnlyDatesAndChannels && IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
                     {
                         Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
                         MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
@@ -1582,6 +1584,8 @@ namespace Catalog
                 searcherEpgSearch.m_nPageSize = request.m_nPageSize;
 
                 searcherEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
+
+                searcherEpgSearch.SearchOnlyDatesAndChannels = request.SearchOnlyDatesAndChannels;
 
                 return searcherEpgSearch;
             }
@@ -1884,7 +1888,6 @@ namespace Catalog
                 {
                     bool bWhiteSpace = searcher is LuceneWrapper;
 
-                    //EpgSearchObj epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
                     EpgSearchObj epgSearch = null;
                     List<List<string>> jsonizedChannelsDefinitions = null;
                     if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))

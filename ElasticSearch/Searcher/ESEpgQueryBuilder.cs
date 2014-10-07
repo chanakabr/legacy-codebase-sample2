@@ -21,7 +21,7 @@ namespace ElasticSearch.Searcher
         
         public ESEpgQueryBuilder()
         {
-            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"epg_id\"", "\"name\", \"cache_date\"" };
+            ReturnFields = new List<string>(8) { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"epg_id\"", "\"name\", \"cache_date\"" };
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
                 MAX_RESULTS = 100000;

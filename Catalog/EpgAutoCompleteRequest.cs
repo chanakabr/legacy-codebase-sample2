@@ -68,7 +68,7 @@ namespace Catalog
                 {   
                     oResponse.m_sList.AddRange(epgAutoList);
                 }
-                return (BaseResponse)oResponse;
+                return oResponse;
             }
             catch (Exception ex)
             {

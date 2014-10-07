@@ -28,7 +28,7 @@ namespace Catalog
 
         [DataMember]
         public string m_sSearch;
-        
+
         [DataMember]
         public DateTime m_dStartDate;
         [DataMember]
@@ -36,6 +36,36 @@ namespace Catalog
 
         [DataMember]
         public List<long> m_oEPGChannelIDs;
+
+
+        /*
+         * SearchOnlyDatesAndChannels - explanation.
+         * 1. EpgSearchRequest is created by either
+         *    a. TvpApi OR
+         *    b. EpgRequest flow.
+         * 2. When it is created by the TvpApi we want to invoke the regular flow (The original flow until Oct 2014) which is:
+         *    a. Query ElasticSearch according to the search parameters TvpApi decided.
+         *    b. Return the epg programme ids to TvpApi
+         * 3. When it is created by EpgRequest flow, we want:
+         *    a. Suppress IPNO Filtering (In order to optimize performance)
+         *    b. Alter the EpgSearchObj sent to ElasticSearch so ES will receive a different query.
+         *    c. After ElasticSearch returns the epg programme ids, We query Couchbase to get the full details of the epg programmes.
+         * 4. Hence, we distinguish by these two flows by setting true to SearchOnlyDatesAndChannels when EpgSearchRequest is created
+         *    as part of EpgRequest flow.
+         * 
+         */
+        private bool searchOnlyDatesAndChannels;
+        internal bool SearchOnlyDatesAndChannels
+        {
+            get
+            {
+                return searchOnlyDatesAndChannels;
+            }
+            set
+            {
+                searchOnlyDatesAndChannels = value;
+            }
+        }
 
         public EpgSearchRequest()
             : base()
@@ -53,7 +83,7 @@ namespace Catalog
         }
 
         public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,
-            List<KeyValue> andList, List<KeyValue> orList) 
+            List<KeyValue> andList, List<KeyValue> orList)
             : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, epgChannelIDs, andList, orList);
@@ -78,7 +108,7 @@ namespace Catalog
 
         protected void CheckEPGRequestIsValid(EpgSearchRequest request)
         {
-            if (request == null || request.m_nGroupID == 0 || 
+            if (request == null || request.m_nGroupID == 0 ||
                 (string.IsNullOrEmpty(request.m_sSearch) && (request.m_AndList == null || request.m_AndList.Count == 0) &&
                 (request.m_OrList == null || request.m_OrList.Count == 0)))
             {
@@ -96,7 +126,7 @@ namespace Catalog
 
                 CheckEPGRequestIsValid(request);
                 CheckSignature(request);
-                
+
 
                 //GetMediaIds With Searcher service
                 bool isLucene = false;
@@ -140,20 +170,17 @@ namespace Catalog
             SearchResult oProgramRes = new SearchResult();
 
             DataTable dt = CatalogDAL.Get_EpgProgramUpdateDate(lPrograms);
-            if (dt != null)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                if (dt.Columns != null)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    for (int i = 0; i < dt.Rows.Count; i++)
+                    oProgramRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "ID");
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["UPDATE_DATE"].ToString()))
                     {
-                        oProgramRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "ID");
-                        if (!string.IsNullOrEmpty(dt.Rows[i]["UPDATE_DATE"].ToString()))
-                        {
-                            oProgramRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                        }
-                        lProgramRes.Add(oProgramRes);
-                        oProgramRes = new SearchResult();
+                        oProgramRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
                     }
+                    lProgramRes.Add(oProgramRes);
+                    oProgramRes = new SearchResult();
                 }
             }
             return lProgramRes;
