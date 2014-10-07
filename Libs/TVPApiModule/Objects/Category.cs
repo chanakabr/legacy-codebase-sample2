@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
@@ -18,14 +19,17 @@ namespace TVPApi
         public string Title { get; set; }
         public string ID { get; set; }
         public string PicURL { get; set; }
+        public string  CoGuid { get; set; }
 
-        public Category(dsCategory.CategoriesRow catRow)
+        public Category(CategoryResponse categoryResponse, string picSize)
         {
-            Title = catRow.Title;
-            ID = catRow.ID;
-            if (!catRow.IsPicURLNull())
+            Title = categoryResponse.m_sTitle;
+            ID = categoryResponse.ID.ToString();
+            CoGuid = categoryResponse.m_sCoGuid;
+            if (!string.IsNullOrEmpty(picSize))
             {
-                PicURL = catRow.PicURL;
+                var pic = categoryResponse.m_lPics.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
+                PicURL = pic.m_sURL;
             }
         }
 
@@ -34,6 +38,7 @@ namespace TVPApi
             Title = string.Empty;
             ID = string.Empty;
             PicURL = string.Empty;
+            CoGuid = string.Empty;
         }
 
 

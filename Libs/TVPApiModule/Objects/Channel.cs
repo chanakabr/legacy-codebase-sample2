@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
@@ -18,26 +19,19 @@ namespace TVPApi
         private int MediaCount { get; set; }
         public string PicURL { get; set; }
 
-        public Channel(dsCategory.ChannelsRow channelRow)
+        public Channel(channelObj channelObj, string picSize)
         {
             Title = string.Empty;
             ChannelID = 0;
             MediaCount = 0;
-            if (!channelRow.IsTitleNull())
-            {
-                Title = channelRow.Title;
-            }
-            ChannelID = channelRow.ID;
-
-            if (!channelRow.IsPicURLNull())
-            {
-                PicURL = channelRow.PicURL;
-            }
             
-            if (!channelRow.IsNumOfItemsNull())
-            {
-                MediaCount = channelRow.NumOfItems;
-            }
+            Title = channelObj.m_sTitle;
+            ChannelID = channelObj.m_nChannelID;
+
+            var pic = channelObj.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
+            if (pic != null)
+                PicURL = pic.m_sURL;
+            //MediaCount = channelObj;
         }
 
         public Channel(dsItemInfo.ChannelRow channelRow)

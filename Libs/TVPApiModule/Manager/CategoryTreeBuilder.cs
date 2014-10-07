@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
@@ -13,38 +14,43 @@ namespace TVPApi
     public class CategoryTreeBuilder
     {
         private string m_rootID;
-        private dsCategory m_categoryDS;
+        private CategoryResponse m_categoryResponse;
+        private string m_picSize;
 
-        public CategoryTreeBuilder(string rootID, dsCategory categoryDS)
+        public CategoryTreeBuilder(string rootID, CategoryResponse categoryResponse, string picSize)
         {
             m_rootID = rootID;
-            m_categoryDS = categoryDS;
+            m_categoryResponse = categoryResponse;
+            m_picSize = picSize; 
         }
 
         public CategoryTreeBuilder()
         {
             m_rootID = string.Empty;
-            m_categoryDS = null;
+            m_categoryResponse = null;
+            m_picSize = string.Empty;
         }
 
         public Category BuildCategoryTree()
         {
             Category retVal = null;
-            dsCategory.CategoriesRow rootRow = (from categories in m_categoryDS.Categories
-                                                where categories.ID.Equals(m_rootID)
-                                                select categories).FirstOrDefault();
+            //CategoryResponse rootCategory = (from categories in m_categoryResponse.m_oChildCategories
+            //                                    where categories.ID.Equals(m_rootID)
+            //                                    select categories).FirstOrDefault();
 
 
-            IEnumerable<dsCategory.CategoriesRow> innerCategories = (from categories in m_categoryDS.Categories
-                                                                     where !(categories.ID.Equals(m_rootID))
-                                                                     select categories);
+            //IEnumerable<CategoryResponse> innerCategories = (from categories in m_categoryResponse.m_oChildCategories
+            //                                                         where !(categories.ID.Equals(m_rootID))
+            //                                                         select categories);
+            CategoryResponse rootCategory = m_categoryResponse;
+            IEnumerable<CategoryResponse> innerCategories = m_categoryResponse.m_oChildCategories;
 
-            if (rootRow != null)
+            if (rootCategory != null)
             {
-                retVal = CreateCategory(rootRow);
-                foreach (dsCategory.CategoriesRow catRow in innerCategories)
+                retVal = CreateCategory(rootCategory);
+                foreach (CategoryResponse cat in innerCategories)
                 {
-                    Category innerCat = CreateCategory(catRow);
+                    Category innerCat = CreateCategory(cat);
                     if (retVal.InnerCategories == null)
                     {
                         retVal.InnerCategories = new List<Category>();
@@ -55,14 +61,13 @@ namespace TVPApi
             return retVal;
         }
 
-        private Category CreateCategory(dsCategory.CategoriesRow catRow)
+        private Category CreateCategory(CategoryResponse categoryResponse)
         {
             Category retVal = null;
-            retVal = new Category(catRow);
-            dsCategory.ChannelsRow[] channels = catRow.GetChannelsRows();
+            retVal = new Category(categoryResponse, m_picSize);
             retVal.Channels = new List<Channel>();
-            foreach (dsCategory.ChannelsRow channel in channels)                            
-                retVal.Channels.Add(new Channel(channel));
+            foreach (channelObj channel in categoryResponse.m_oChannels)                            
+                retVal.Channels.Add(new Channel(channel, m_picSize));
             
             return retVal;
         }
@@ -70,26 +75,28 @@ namespace TVPApi
         public Category BuildFullCategoryTree()
         {
             Category retVal = null;
-            dsCategory.CategoriesRow rootRow = (from categories in m_categoryDS.Categories
-                                                where categories.ID.Equals(m_rootID)
-                                                select categories).FirstOrDefault();
+            //CategoryResponse rootCategory = (from categories in m_categoryResponse.m_oChildCategories
+            //                                    where categories.ID.Equals(m_rootID)
+            //                                    select categories).FirstOrDefault();
 
-            if (rootRow != null)
-                retVal = BuildRecursive(rootRow);
+            CategoryResponse rootCategory = m_categoryResponse;
+
+            if (rootCategory != null)
+                retVal = BuildRecursive(rootCategory);
 
             return retVal;
         }
 
-        private Category BuildRecursive(dsCategory.CategoriesRow row)
+        private Category BuildRecursive(CategoryResponse categoryResponse)
         {
-            if (row == null)
+            if (categoryResponse == null)
                 return null;
 
-            Category currentCat = CreateCategory(row);
+            Category currentCat = CreateCategory(categoryResponse);
 
             currentCat.InnerCategories = new List<Category>();
 
-            foreach (dsCategory.CategoriesRow child in row.GetChildRows("CategoryToParent"))
+            foreach (CategoryResponse child in categoryResponse.m_oChildCategories)
                 currentCat.InnerCategories.Add(BuildRecursive(child));
 
             return currentCat;

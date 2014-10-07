@@ -883,7 +883,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retCategory = CategoryTreeHelper.GetCategoryTree(categoryID, groupID, initObj.Platform);
+                    retCategory = CategoryTreeHelper.GetCategoryTree(categoryID, groupID, initObj.Platform, initObj.Locale.LocaleLanguage);
                 }
                 catch (Exception ex)
                 {
@@ -909,7 +909,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retCategory = CategoryTreeHelper.GetFullCategoryTree(categoryID, picSize, groupID, initObj.Platform);
+                    retCategory = CategoryTreeHelper.GetFullCategoryTree(categoryID, picSize, groupID, initObj.Platform, initObj.Locale.LocaleLanguage);
                 }
                 catch (Exception ex)
                 {
