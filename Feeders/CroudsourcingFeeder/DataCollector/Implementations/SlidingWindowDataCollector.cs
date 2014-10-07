@@ -40,7 +40,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_sSignString = catalogSignString,
                     m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                     m_nPageIndex = 0,
-                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
+                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                 });
 
                 if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
@@ -96,7 +96,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
                                 TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
-
+                        
                     });
 
                     // get language specific info

@@ -81,7 +81,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                     while (tryCount < 5)
                     {
                         Random rand = new Random();
-                        int randomLocation = rand.Next(0, collectedItems.Length - 1);
+                        int randomLocation = rand.Next(0, collectedItems.Length);
                         int newId = collectedItems[randomLocation];
                         if (newId != lastItem)
                         {
