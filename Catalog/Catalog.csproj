@@ -117,6 +117,8 @@
     <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
     <Compile Include="BuzzMeterResponse.cs" />
+    <Compile Include="CategoryRequest.cs" />
+    <Compile Include="CategoryResponse.cs" />
     <Compile Include="ChannelObjRequest.cs" />
     <Compile Include="ChannelObjResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
