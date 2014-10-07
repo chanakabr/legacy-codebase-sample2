@@ -106,38 +106,6 @@
     </None>
     <None Include="Service References\WS_Catalog\Service2.wsdl" />
     <None Include="Service References\WS_Catalog\Service21.wsdl" />
-    <None Include="Service References\WS_Catalog\Service22.wsdl" />
-    <None Include="Service References\WS_Catalog\Service23.wsdl" />
-    <None Include="Service References\WS_Catalog\Service8.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service81.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service82.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service83.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service84.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service85.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service86.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service87.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service88.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service89.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\WS_Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -183,9 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\WS_Catalog\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
