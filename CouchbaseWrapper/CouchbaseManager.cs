@@ -54,9 +54,9 @@ namespace CouchbaseWrapper
 
         }
 
-        private static GenericCouchbaseClient createNewInstance(string bucketName)
+        private static GenericCouchbaseClient createNewInstance(string bucketConfigName)
         {
-            ClientConfig tcmConfig = TCMClient.Settings.Instance.GetValue<ClientConfig>(String.Concat("cb_", bucketName));
+            ClientConfig tcmConfig = TCMClient.Settings.Instance.GetValue<ClientConfig>(bucketConfigName);
             if (tcmConfig != null)
             {
                 CouchbaseClientConfiguration clientConfig = new CouchbaseClientConfiguration()
@@ -71,7 +71,7 @@ namespace CouchbaseWrapper
             else
             {
                 GenericCouchbaseClient oRes = null;
-                var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucketName.ToLower()));
+                var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucketConfigName.ToLower()));
                 oRes = new GenericCouchbaseClient(socialBucketSection);
                 return oRes;
             }
