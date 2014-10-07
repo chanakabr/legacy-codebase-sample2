@@ -1104,18 +1104,9 @@ namespace Catalog
             return retVal;
         }
 
-        public static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
+        private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
         {
-            try
-            {
-                int retVal = 0;
-                retVal = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-                return retVal;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
+            return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
         }
 
 
@@ -1486,7 +1477,7 @@ namespace Catalog
                 }
 
                 #region SearchPrograms
-                
+
                 try
                 {
                     isLucene = searcher is LuceneWrapper;
@@ -1546,7 +1537,7 @@ namespace Catalog
             {
                 List<string> lSearchList = new List<string>();
                 EpgSearchObj searcherEpgSearch = new EpgSearchObj();
-                
+
                 searcherEpgSearch.m_bExact = request.m_bExact;
                 searcherEpgSearch.m_dEndDate = request.m_dEndDate;
                 searcherEpgSearch.m_dStartDate = request.m_dStartDate;
@@ -1558,7 +1549,7 @@ namespace Catalog
                 // set parent group by request.m_nGroupID                              
                 searcherEpgSearch.m_nGroupID = request.m_nGroupID;
 
-                
+
                 string sVal = string.Empty;
 
                 List<SearchValue> dAnd = new List<SearchValue>();
@@ -2089,7 +2080,7 @@ namespace Catalog
         }
 
         private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList,
-            string baseEpgPicUrl, string epgPicWidth, string epgPicHeight) 
+            string baseEpgPicUrl, string epgPicWidth, string epgPicHeight)
         {
             foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
             {
@@ -2496,9 +2487,8 @@ namespace Catalog
             DataTable dt = CatalogDAL.Get_EPGChannelsIDsByMediaIDs(ipnoEPGChannelsMediaIDs);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                int length = dt.Rows.Count;
-                res = new List<long>(length);
-                for (int i = 0; i < length; i++)
+                res = new List<long>(dt.Rows.Count);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     res.Add(ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["ID"]));
                 }

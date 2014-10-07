@@ -1757,8 +1757,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@DeviceUDID", sUDID);
             sp.AddParameter("@Platform", nPlatform);
 
-            int mediaID = sp.ExecuteReturnValue<int>();
-            return mediaID;
+            return sp.ExecuteReturnValue<int>();
         }
     }
 }
