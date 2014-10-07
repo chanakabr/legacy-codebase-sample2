@@ -78,10 +78,11 @@ namespace Catalog
 
         protected void CheckEPGRequestIsValid(EpgSearchRequest request)
         {
-            if (request == null || request.m_nGroupID == 0 || (string.IsNullOrEmpty(request.m_sSearch) && request.m_AndList == null && request.m_OrList == null
-                && request.m_AndList.Count == 0 && request.m_OrList.Count == 0))
+            if (request == null || request.m_nGroupID == 0 || 
+                (string.IsNullOrEmpty(request.m_sSearch) && (request.m_AndList == null || request.m_AndList.Count == 0) &&
+                (request.m_OrList == null || request.m_OrList.Count == 0)))
             {
-                throw new Exception("Request object is null or missing search text or group id");
+                throw new ArgumentException("Request object is null or missing search text or group id");
             }
         }
 

@@ -23,11 +23,11 @@ namespace Catalog
                     // Create the container
                     container = new Container();
                     Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
-                    Type cacheType = Type.GetType(Utils.GetWSURL("cache_wrapper"));
+                    //Type cacheType = Type.GetType(Utils.GetWSURL("cache_wrapper"));
                     
                     // Register your types, for instance:
                     container.Register(typeof(ISearcher), searcherType);
-                    container.RegisterOpenGeneric(typeof(ICache<>), cacheType);
+                    //container.RegisterOpenGeneric(typeof(ICache<>), cacheType);
                     
 
                     // Register the container to the SimpleInjectorServiceHostFactory.
