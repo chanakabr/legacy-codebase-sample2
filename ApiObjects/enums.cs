@@ -195,4 +195,12 @@ namespace ApiObjects
         NOTIFICATION
     }
 
+
+    public enum eEPGFormatType
+    {
+        Catchup,
+        StartOver,
+        LivePause
+    }
+
 }

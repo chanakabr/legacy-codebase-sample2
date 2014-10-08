@@ -439,5 +439,47 @@ namespace ConditionalAccess
             return bDummy;
         }
 
+
+
+
+
+        public override string GetEPGLink(int nProgramId, DateTime dStartTime, eEPGFormatType format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        {
+            string url = string.Empty;
+            try
+            {
+
+                string sBaseLink = GetLicensedLink(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                //GetLicensedLink return empty link no need to continue
+                if (string.IsNullOrEmpty(sBaseLink))
+                {
+                    Logger.Logger.Log("LicensedLink",
+                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "LicensedLink");
+                    return string.Empty;
+                }
+
+                //call api service to get the epg_url_link 
+                TvinciAPI.API api = new TvinciAPI.API();
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+
+                string sApiWSUrl = Utils.GetWSURL("api_ws");
+                if (!string.IsNullOrEmpty(sApiWSUrl))
+                {
+                    api.Url = sApiWSUrl;
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, "GetEPGLink", ref sWSUserName, ref sWSPass);
+
+                //TO DO fixth e format enum
+                url = api.GetEPGLink(sWSUserName, sWSPass, sBasicLink, nMediaFileID, nProgramId, dStartTime, (TvinciAPI.eEPGFormatType)format);
+                return url;
+
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
     }
 }
