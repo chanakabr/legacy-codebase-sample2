@@ -7,7 +7,6 @@ using SimpleInjector.Extensions;
 using SimpleInjector.Integration.Wcf;
 using ApiObjects.SearchObjects;
 using Catalog.Searchers;
-using ApiObjects.Cache;
 namespace Catalog
 {
     public static class Bootstrapper
@@ -22,12 +21,10 @@ namespace Catalog
                 {
                     // Create the container
                     container = new Container();
-                    Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
-                    Type cacheType = Type.GetType(Utils.GetWSURL("cache_wrapper"));
+                    Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));                   
                     
                     // Register your types, for instance:
-                    container.Register(typeof(ISearcher), searcherType);
-                    container.RegisterOpenGeneric(typeof(ICache<>), cacheType);
+                    container.Register(typeof(ISearcher), searcherType);                   
                     
 
                     // Register the container to the SimpleInjectorServiceHostFactory.
