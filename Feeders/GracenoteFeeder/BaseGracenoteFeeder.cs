@@ -136,7 +136,7 @@ namespace GracenoteFeeder
 
                 if (channelID > 0)
                 {
-                    Logger.Logger.Log("KDG SaveChannels", string.Format("\r\n START EPG Channel = {0} \r\n", channelID), "GracenoteFeeder");
+                    Logger.Logger.Log("KDG SaveChannels", string.Format("START EPG Channel = {0}", channelID), "GracenoteFeeder");
 
                     List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(groupID);
 
@@ -184,21 +184,9 @@ namespace GracenoteFeeder
                         SetMappingValues(FieldEntityMapping, node);
                         #endregion
 
-                        #region Delete Programs by channel + date
-
-
                         XmlNode tvAirNode = xmlDoc.DocumentElement.SelectSingleNode("//TVAIRING[@GN_ID='" + EPGGuid + "']"); // get node by attribute value
                         string start_date = GetSingleAttributeValue(tvAirNode, "START");
                         string end_date = GetSingleAttributeValue(tvAirNode, "END");
-
-                        DateTime dDate = Utils.ParseEPGStrToDate(start_date, "000000");// get all day start from 00:00:00
-                        if (!deletedDays.Contains(dDate))
-                        {
-                            deletedDays.Add(dDate);
-                            Utils.DeleteProgramsByChannelAndDate(channelID, dDate, parentGroupID);
-                        }
-
-                        #endregion
 
                         #region Generate EPG CB
 
@@ -208,13 +196,22 @@ namespace GracenoteFeeder
                         bool parseEnd = Utils.ParseEPGStrToDate(end_date, ref dProgEndDate);
                         if (parseStart && parseEnd) // if both dates exsits and parse OK 
                         {
+                            #region Delete Programs by channel + date
+                            DateTime dDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
+                            if (!deletedDays.Contains(dDate))
+                            {
+                                deletedDays.Add(dDate);
+                                Utils.DeleteProgramsByChannelAndDate(channelID, dDate, parentGroupID);
+                            }
+                            #endregion
+
                             EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, groupID, parentGroupID, FieldEntityMapping);
                             epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
                         }
                         else
                         {
-                            Logger.Logger.Log("KDG", string.Format("\r\n can't insert channel_id ={0},  GN_ID= {1} , startDate={2}, endDate={3} , TvinciChannelID = {4} \r\n",
-                                channel_id, EPGGuid, string.IsNullOrEmpty(start_date) ? "string.empty" : start_date, string.IsNullOrEmpty(end_date) ? "string.empty" : end_date, channelID), "GraceNoteFeeder");
+                            Logger.Logger.Log("Dates Error", string.Format("channel_id={0}, GN_ID={1}, startDate={2}, endDate={3}, TvinciChannelID={4}",
+                                channel_id, EPGGuid, start_date, end_date, channelID), "GraceNoteFeeder");
                         }
                         #endregion
                     }
@@ -231,18 +228,15 @@ namespace GracenoteFeeder
                         if (epg != null && epg.EpgID > 0)
                         {
                             bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
+                            ulProgram.Add(epg.EpgID);
 
                             if (nCount >= nCountPackage)
                             {
-                                ulProgram.Add(epg.EpgID);
                                 bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, parentGroupID, ApiObjects.eAction.Update);
                                 ulProgram = new List<ulong>();
                                 nCount = 0;
                             }
-                            else
-                            {
-                                ulProgram.Add(epg.EpgID);
-                            }
+                           
                         }
                         #endregion
                     }
@@ -255,11 +249,11 @@ namespace GracenoteFeeder
                     //start Upload proccess Queue
                     UploadQueue.UploadQueueHelper.SetJobsForUpload(groupID);
 
-                    Logger.Logger.Log("KDG", string.Format("\r\n END EPG Channel {0} \r\n", channelID), "GraceNoteFeeder");
+                    Logger.Logger.Log("KDG", string.Format("END EPG Channel {0}", channelID), "GraceNoteFeeder");
                 }
                 else
                 {
-                    Logger.Logger.Log("KDG", string.Format("ChannelID = {0} , do nothing", channelID), "GraceNoteFeederChannelNotExist");
+                    Logger.Logger.Log("Missing Channel ID", string.Format("GetExistChannel() ChannelID = {0}", channel_id), "GraceNoteFeeder");
                 }
             }
             catch (Exception exp)
