@@ -53,7 +53,8 @@ namespace EpgBL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertEpg", string.Format("Failed Insert Epg ex = {0} ", ex.Message), "BaseEpgBL");
+                Logger.Logger.Log("InsertEpg", string.Format("Failed Insert Epg ex = {0} EpgID={1},EpgIdentifier={2},ChannelID={3}",
+                    ex.Message, newEpgItem != null ? newEpgItem.EpgID : 0, newEpgItem != null ? newEpgItem.EpgIdentifier : "string.emmpty", newEpgItem != null ? newEpgItem.ChannelID : 0), "BaseEpgBL");
             }
             return bRes;
         }
