@@ -204,14 +204,19 @@ namespace GracenoteFeeder
 
                         DateTime dProgStartDate = DateTime.MinValue;
                         DateTime dProgEndDate = DateTime.MaxValue;
-                        Utils.ParseEPGStrToDate(start_date, ref dProgStartDate);
-                        Utils.ParseEPGStrToDate(end_date, ref dProgEndDate);
-
-                        EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, groupID, parentGroupID, FieldEntityMapping);
-
+                        bool parseStart = Utils.ParseEPGStrToDate(start_date, ref dProgStartDate);
+                        bool parseEnd = Utils.ParseEPGStrToDate(end_date, ref dProgEndDate);
+                        if (parseStart && parseEnd) // if both dates exsits and parse OK 
+                        {
+                            EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, groupID, parentGroupID, FieldEntityMapping);
+                            epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("KDG", string.Format("\r\n can't insert channel_id ={0},  GN_ID= {1} , startDate={2}, endDate={3} , TvinciChannelID = {4} \r\n",
+                                channel_id, EPGGuid, string.IsNullOrEmpty(start_date) ? "string.empty" : start_date, string.IsNullOrEmpty(end_date) ? "string.empty" : end_date, channelID), "GraceNoteFeeder");
+                        }
                         #endregion
-
-                        epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
                     }
 
                     //insert EPGs to DB in batches
@@ -221,25 +226,24 @@ namespace GracenoteFeeder
                     {
                         nCount++;
 
-                        #region Insert EpgProgram to CB
+                        #region Insert EpgProgram to CB + ES
                         ulong epgID = 0;
-                        bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
-                        #endregion
-
-                        #region Insert EpgProgram ES
-
-                        if (nCount >= nCountPackage)
+                        if (epg != null && epg.EpgID > 0)
                         {
-                            ulProgram.Add(epg.EpgID);
-                            bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, parentGroupID, ApiObjects.eAction.Update);
-                            ulProgram = new List<ulong>();
-                            nCount = 0;
-                        }
-                        else
-                        {
-                            ulProgram.Add(epg.EpgID);
-                        }
+                            bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
 
+                            if (nCount >= nCountPackage)
+                            {
+                                ulProgram.Add(epg.EpgID);
+                                bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, parentGroupID, ApiObjects.eAction.Update);
+                                ulProgram = new List<ulong>();
+                                nCount = 0;
+                            }
+                            else
+                            {
+                                ulProgram.Add(epg.EpgID);
+                            }
+                        }
                         #endregion
                     }
 
