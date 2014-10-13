@@ -195,4 +195,21 @@ namespace ApiObjects
         NOTIFICATION
     }
 
+
+    public enum eEPGFormatType
+    {
+        Catchup,
+        StartOver,
+        LivePause
+    }
+
+    public enum eStreamType
+    {
+        HLS,
+        SS,
+        DASH
+    }
+
+
+
 }

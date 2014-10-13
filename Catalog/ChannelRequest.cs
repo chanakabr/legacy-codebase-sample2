@@ -16,7 +16,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
-using ApiObjects.Cache;
+
 using Catalog.Cache;
 using GroupsCacheManager;
 

@@ -10,7 +10,7 @@ using Logger;
 using Tvinci.Core.DAL;
 using DAL;
 using Newtonsoft.Json;
-using ApiObjects.Cache;
+
 using Enyim.Caching.Memcached;
 using System.Data;
 using Catalog.Cache;
