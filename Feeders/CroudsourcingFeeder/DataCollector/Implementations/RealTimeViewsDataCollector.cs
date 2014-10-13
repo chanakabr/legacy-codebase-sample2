@@ -69,14 +69,15 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     retDictionary = new Dictionary<int, BaseCrowdsourceItem>();
 
                     Dictionary<LanguageObj, MediaResponse> mediaInfoDict = GetLangAndInfo(GroupId, item.Id);
-                    
+                    long epochDateTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     string catalogSignString = Guid.NewGuid().ToString();
                     foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                     {
                         RealTimeViewsItem crowdsourceItem = new RealTimeViewsItem()
                         {
                             MediaId = item.Id,
-                            Order = item.Order
+                            Order = item.Order,
+                            TimeStamp = epochDateTime
                         };
                         
                         if (mediaInfo.Value != null && mediaInfo.Value.m_lObj[0] != null)
@@ -104,16 +105,16 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                 m_nLanguage = mediaInfo.Key.ID,
                                 m_bOnlyActiveMedia = true
                             },
-                            m_sSignString = "",
+                            m_sSignString = catalogSignString,
                             m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                         });
 
                         if (programInfoForLanguage != null && mediaInfo.Value.m_lObj[0] != null)
                         {
-                            crowdsourceItem.TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                             crowdsourceItem.ProgramId = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].EPG_ID;
                             crowdsourceItem.ProgramImage = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].PIC_URL;
                             crowdsourceItem.ProgramName = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].NAME;
+                            crowdsourceItem.EpgStartTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(TVinciShared.DateUtils.GetDateFromStr(programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].START_DATE));
                         }
                         retDictionary.Add(mediaInfo.Key.ID, crowdsourceItem);
                     }
