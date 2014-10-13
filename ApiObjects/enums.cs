@@ -203,4 +203,13 @@ namespace ApiObjects
         LivePause
     }
 
+    public enum eStreamType
+    {
+        HLS,
+        SS,
+        DASH
+    }
+
+
+
 }
