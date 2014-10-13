@@ -2176,21 +2176,26 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sBaseLink" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nProgramId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
-            <s:element minOccurs="1" maxOccurs="1" name="format" type="tns:eEPGFormatType" />
+            <s:element minOccurs="0" maxOccurs="1" name="epgLink" type="tns:EpgLink" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:simpleType name="eEPGFormatType">
-        <s:restriction base="s:string">
-          <s:enumeration value="Catchup" />
-          <s:enumeration value="StartOver" />
-          <s:enumeration value="LivePause" />
-        </s:restriction>
-      </s:simpleType>
+      <s:complexType name="EpgLink">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_lParams" type="tns:ArrayOfEpgLinkItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgLinkItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgLinkItem" nillable="true" type="tns:EpgLinkItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgLinkItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_value" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetEPGLinkResponse">
         <s:complexType>
           <s:sequence>
@@ -3063,18 +3068,6 @@
   <wsdl:message name="GetMediaConcurrencyRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaConcurrencyRule" />
   </wsdl:message>
-  <wsdl:message name="GetEPGLinkHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sBaseLink" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-    <wsdl:part name="nProgramId" type="s:string" />
-    <wsdl:part name="startTime" type="s:string" />
-    <wsdl:part name="format" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGLinkHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
-  </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -3533,10 +3526,6 @@
     <wsdl:operation name="GetMediaConcurrencyRules">
       <wsdl:input message="tns:GetMediaConcurrencyRulesHttpPostIn" />
       <wsdl:output message="tns:GetMediaConcurrencyRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGLink">
-      <wsdl:input message="tns:GetEPGLinkHttpPostIn" />
-      <wsdl:output message="tns:GetEPGLinkHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -5187,15 +5176,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetMediaConcurrencyRules">
       <http:operation location="/GetMediaConcurrencyRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGLink">
-      <http:operation location="/GetEPGLink" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

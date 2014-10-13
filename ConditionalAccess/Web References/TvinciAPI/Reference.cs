@@ -28,6 +28,7 @@ namespace ConditionalAccess.TvinciAPI {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="APISoap", Namespace="http://api.tvinci.com/")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EpgLinkItem[]))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
@@ -2869,36 +2870,28 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetEPGLink", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetEPGLink(string sWSUserName, string sWSPassword, string sBaseLink, int nMediaFileID, int nProgramId, System.DateTime startTime, eEPGFormatType format) {
+        public string GetEPGLink(string sWSUserName, string sWSPassword, EpgLink epgLink) {
             object[] results = this.Invoke("GetEPGLink", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sBaseLink,
-                        nMediaFileID,
-                        nProgramId,
-                        startTime,
-                        format});
+                        epgLink});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, string sBaseLink, int nMediaFileID, int nProgramId, System.DateTime startTime, eEPGFormatType format) {
-            this.GetEPGLinkAsync(sWSUserName, sWSPassword, sBaseLink, nMediaFileID, nProgramId, startTime, format, null);
+        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, EpgLink epgLink) {
+            this.GetEPGLinkAsync(sWSUserName, sWSPassword, epgLink, null);
         }
         
         /// <remarks/>
-        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, string sBaseLink, int nMediaFileID, int nProgramId, System.DateTime startTime, eEPGFormatType format, object userState) {
+        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, EpgLink epgLink, object userState) {
             if ((this.GetEPGLinkOperationCompleted == null)) {
                 this.GetEPGLinkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEPGLinkOperationCompleted);
             }
             this.InvokeAsync("GetEPGLink", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sBaseLink,
-                        nMediaFileID,
-                        nProgramId,
-                        startTime,
-                        format}, this.GetEPGLinkOperationCompleted, userState);
+                        epgLink}, this.GetEPGLinkOperationCompleted, userState);
         }
         
         private void OnGetEPGLinkOperationCompleted(object arg) {
@@ -3142,6 +3135,60 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sFileQualityField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgLinkItem {
+        
+        private string m_keyField;
+        
+        private object m_valueField;
+        
+        /// <remarks/>
+        public string m_key {
+            get {
+                return this.m_keyField;
+            }
+            set {
+                this.m_keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public object m_value {
+            get {
+                return this.m_valueField;
+            }
+            set {
+                this.m_valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgLink {
+        
+        private EpgLinkItem[] m_lParamsField;
+        
+        /// <remarks/>
+        public EpgLinkItem[] m_lParams {
+            get {
+                return this.m_lParamsField;
+            }
+            set {
+                this.m_lParamsField = value;
             }
         }
     }
@@ -7933,22 +7980,6 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         Subscription,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eEPGFormatType {
-        
-        /// <remarks/>
-        Catchup,
-        
-        /// <remarks/>
-        StartOver,
-        
-        /// <remarks/>
-        LivePause,
     }
     
     /// <remarks/>
