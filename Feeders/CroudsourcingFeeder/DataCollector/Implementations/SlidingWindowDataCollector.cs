@@ -64,6 +64,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 Dictionary<int, BaseCrowdsourceItem> normalizedDictionary = null;
 
                 string catalogSignString = Guid.NewGuid().ToString();
+                long epochDateTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 // Get channel info
                 ChannelObjResponse channelObjResponse = (ChannelObjResponse)CatalogClient.GetResponse(new ChannelObjRequest()
@@ -121,10 +122,11 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                                 Size = pic.m_sSize,
                                                 URL = pic.m_sURL
                                             }).ToArray(),
-                                    TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    TimeStamp = epochDateTime,
                                     Order = item.Order,
-
+                                    Period = channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id
                                 };
+
                                 switch (croudsourceItem.Action)
                                 {
                                     case OrderBy.VIEWS:
