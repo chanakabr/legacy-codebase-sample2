@@ -26,7 +26,6 @@ namespace Catalog
                     // Register your types, for instance:
                     container.Register(typeof(ISearcher), searcherType);                   
                     
-
                     // Register the container to the SimpleInjectorServiceHostFactory.
                     SimpleInjectorServiceHostFactory.SetContainer(container);
 

@@ -895,6 +895,22 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetMediaFileTypeDescription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaFileTypeDescriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaFileTypeDescriptionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetAdminTokenValues">
         <s:complexType>
           <s:sequence>
@@ -1346,25 +1362,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1383,44 +1380,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseWithPreviewModuleRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1455,7 +1414,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+      <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
@@ -1472,6 +1431,25 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
             </s:sequence>
           </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
@@ -2193,6 +2171,38 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetEPGLink">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="epgLink" type="tns:EpgLink" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EpgLink">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_lParams" type="tns:ArrayOfEpgLinkItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgLinkItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgLinkItem" nillable="true" type="tns:EpgLinkItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgLinkItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_value" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEPGLinkResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEPGLinkResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2362,6 +2372,12 @@
   </wsdl:message>
   <wsdl:message name="GetMediaFileTypeIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetMediaFileTypeIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaFileTypeDescription" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaFileTypeDescriptionResponse" />
   </wsdl:message>
   <wsdl:message name="GetAdminTokenValuesSoapIn">
     <wsdl:part name="parameters" element="tns:GetAdminTokenValues" />
@@ -2627,6 +2643,12 @@
   <wsdl:message name="GetMediaConcurrencyRulesSoapOut">
     <wsdl:part name="parameters" element="tns:GetMediaConcurrencyRulesResponse" />
   </wsdl:message>
+  <wsdl:message name="GetEPGLinkSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEPGLink" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGLinkSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEPGLinkResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2679,6 +2701,14 @@
   </wsdl:message>
   <wsdl:message name="GetMediaFileTypeIDHttpPostOut">
     <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
   <wsdl:message name="GetChannelsMediaIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3131,6 +3161,10 @@
       <wsdl:input message="tns:GetMediaFileTypeIDSoapIn" />
       <wsdl:output message="tns:GetMediaFileTypeIDSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <wsdl:input message="tns:GetMediaFileTypeDescriptionSoapIn" />
+      <wsdl:output message="tns:GetMediaFileTypeDescriptionSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetAdminTokenValues">
       <wsdl:input message="tns:GetAdminTokenValuesSoapIn" />
       <wsdl:output message="tns:GetAdminTokenValuesSoapOut" />
@@ -3307,6 +3341,10 @@
       <wsdl:input message="tns:GetMediaConcurrencyRulesSoapIn" />
       <wsdl:output message="tns:GetMediaConcurrencyRulesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLink">
+      <wsdl:input message="tns:GetEPGLinkSoapIn" />
+      <wsdl:output message="tns:GetEPGLinkSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
     <wsdl:operation name="InsertEPGSchedule">
@@ -3332,6 +3370,10 @@
     <wsdl:operation name="GetMediaFileTypeID">
       <wsdl:input message="tns:GetMediaFileTypeIDHttpPostIn" />
       <wsdl:output message="tns:GetMediaFileTypeIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <wsdl:input message="tns:GetMediaFileTypeDescriptionHttpPostIn" />
+      <wsdl:output message="tns:GetMediaFileTypeDescriptionHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetChannelsMediaIDs">
       <wsdl:input message="tns:GetChannelsMediaIDsHttpPostIn" />
@@ -3688,6 +3730,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetMediaFileTypeID">
       <soap:operation soapAction="http://api.tvinci.com/GetMediaFileTypeID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaFileTypeDescription" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4091,6 +4142,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLink">
+      <soap:operation soapAction="http://api.tvinci.com/GetEPGLink" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4294,6 +4354,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetMediaFileTypeID">
       <soap12:operation soapAction="http://api.tvinci.com/GetMediaFileTypeID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaFileTypeDescription" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4697,6 +4766,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLink">
+      <soap12:operation soapAction="http://api.tvinci.com/GetEPGLink" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
@@ -4747,6 +4825,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetMediaFileTypeID">
       <http:operation location="/GetMediaFileTypeID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <http:operation location="/GetMediaFileTypeDescription" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

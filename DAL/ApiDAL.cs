@@ -1358,5 +1358,19 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
+        {
+            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileTypeDescription");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return  ds.Tables[0];
+            return null;
+        }        
     }
 }
