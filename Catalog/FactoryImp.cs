@@ -98,7 +98,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgSearchRequest)
             {
-                return new EpgSearchRequest();
+                return (EpgSearchRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgAutoCompleteRequest)
             {
@@ -138,7 +138,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgRequest)
             {
-                return new EpgRequest();
+                return (EpgRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EPGProgramsByScidsRequest)
             {

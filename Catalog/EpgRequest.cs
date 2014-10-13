@@ -7,14 +7,17 @@ using System.Reflection;
 using Logger;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using System.Diagnostics;
+using EpgBL;
 
 namespace Catalog
 {
     [DataContract]
-    public class EpgRequest : BaseRequest, IRequestImp
+    public class EpgRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
 
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = Catalog.GetCurrentRequestDaysOffset();
 
         [DataMember]
         public List<int> m_nChannelIDs;
@@ -77,23 +80,80 @@ namespace Catalog
 
         }
 
-        private void CheckRequestValidness(EpgRequest request)
+        private void CheckRequestValidness()
         {
-            if (request == null || request.m_nGroupID < 1 || request.m_nChannelIDs == null || request.m_nChannelIDs.Count == 0)
+            if (m_nGroupID < 1 || m_nChannelIDs == null || m_nChannelIDs.Count == 0)
                 throw new ArgumentException("Request is null or does not contain any channels or has invalid group id");
         }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            EpgRequest request = oBaseRequest as EpgRequest;
             EpgResponse response = new EpgResponse();
             List<EpgResultsObj> result = null;
             try
             {
-                CheckRequestValidness(request);
-                CheckSignature(request);
+                //EpgSearchRequest esr = new EpgSearchRequest();
+                //esr.SearchOnlyDatesAndChannels = true;
+                //esr.m_dStartDate = DateTime.UtcNow.AddDays(-40);
+                //esr.m_dEndDate = DateTime.UtcNow.AddDays(1);
+                //esr.m_nGroupID = request.m_nGroupID;
+                //esr.m_oEPGChannelIDs = request.m_nChannelIDs.Select(item => (long)item).ToList();
+                //bool isLucene = false;
+                //SearchResultsObj sro = Catalog.GetProgramIdsFromSearcher(esr, ref isLucene);
+                CheckRequestValidness();
+                CheckSignature(this);
+                Stopwatch sw = Stopwatch.StartNew();
+                SearchResultsObj sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
+                List<EPGChannelProgrammeObject> lst = null;
+                if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
+                {
+                    response = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID);
+                }
+                else
+                {
+                    // log
+                }
 
-                result = Catalog.GetEPGPrograms(request);
+                sw.Stop();
+                StringBuilder sb = new StringBuilder();
+                //if (lst != null && lst.Count > 0)
+                //{
+                //    for (int i = 0; i < lst.Count; i++)
+                //    {
+                //        sb.Append(String.Concat(lst[i].EPG_ID, ";"));
+                //    }
+                //}
+                if (response != null && response.programsPerChannel != null && response.programsPerChannel.Count > 0)
+                {
+                    for (int j = 0; j < response.programsPerChannel.Count; j++)
+                    {
+                        EpgResultsObj ero = response.programsPerChannel[j];
+                        for (int i = 0; i < ero.m_lEpgProgram.Count; i++)
+                        {
+                            sb.Append(String.Concat(ero.m_lEpgProgram[i].EPG_ID, ";"));
+                        }
+                    }
+                }
+
+                Logger.Logger.Log("ES", sb.ToString(), "Regression");
+                Logger.Logger.Log("ES Time", String.Concat("ES Time: ", sw.ElapsedMilliseconds), "Regression");
+                Stopwatch cbSw = Stopwatch.StartNew();
+                result = Catalog.GetEPGPrograms(this);
+                cbSw.Stop();
+                StringBuilder cbSb = new StringBuilder();
+                if (result != null && result.Count > 0)
+                {
+                    for (int j = 0; j < result.Count; j++)
+                    {
+                        EpgResultsObj ero = result[j];
+                        for (int i = 0; i < ero.m_lEpgProgram.Count; i++)
+                        {
+                            cbSb.Append(String.Concat(ero.m_lEpgProgram[i].EPG_ID, ";"));
+                        }
+                    }
+                }
+                Logger.Logger.Log("CB", cbSb.ToString(), "Regression");
+                Logger.Logger.Log("CB Time", String.Concat("CB Time: ", cbSw.ElapsedMilliseconds), "Regression");
                 if (result != null)
                 {
                     response.programsPerChannel = result;
@@ -113,6 +173,41 @@ namespace Catalog
             return response;
         }
 
+
+        public EpgSearchObj BuildEPGSearchObject()
+        {
+            EpgSearchObj res = new EpgSearchObj();
+            res.m_bSearchOnlyDatesAndChannels = true;
+            res.m_oEpgChannelIDs = m_nChannelIDs.Select(item => (long)item).ToList<long>();
+            res.m_nGroupID = m_nGroupID;
+            res.m_nPageSize = m_nPageSize;
+            res.m_nPageIndex = m_nPageIndex;
+            res.m_lSearchOr = new List<SearchValue>(0);
+            res.m_lSearchAnd = new List<SearchValue>(0);
+            switch (m_eSearchType)
+            {
+                case EpgSearchType.Current:
+                    {
+                        res.m_bIsCurrent = true;
+                        res.m_nNextTop = m_nNextTop;
+                        res.m_nPrevTop = m_nPrevTop;
+                        DateTime now = DateTime.UtcNow;
+                        res.m_dEndDate = now.AddDays(CURRENT_REQUEST_DAYS_OFFSET);
+                        res.m_dStartDate = now.AddDays(-CURRENT_REQUEST_DAYS_OFFSET);
+                        break;
+                    }
+                default:
+                    {
+                        // ByDate
+                        res.m_bIsCurrent = false;
+                        res.m_dEndDate = m_dEndDate;
+                        res.m_dStartDate = m_dStartDate;
+                        break;
+                    }
+            }
+
+            return res;
+        }
     }
 
 

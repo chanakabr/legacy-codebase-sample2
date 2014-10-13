@@ -439,7 +439,7 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries)
+        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
         {
             string sRes = string.Empty;
 
@@ -447,24 +447,29 @@ namespace ElasticSearch.Common
                 return sRes;
 
             StringBuilder sb = new StringBuilder();
+            string routingStr = string.Empty;
+            if (lRouting != null && lRouting.Count > 0)
+            {
+                routingStr = lRouting.Aggregate((current, next) => String.Concat(current, ",", next));
+            }
 
             foreach (string query in lSearchQueries)
             {
                 if (string.IsNullOrEmpty(query))
                     continue;
 
-
-                #region add index info
                 sb.Append("{");
-                sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
+                if (routingStr.Length > 0)
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
+                }
+                else
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\", \"routing\":\"{2}\"", sIndex, sType, routingStr);
+                }
                 sb.Append("}\n");
-                #endregion
-
-                #region add query
                 sb.Append(query);
                 sb.Append("\n");
-                #endregion query
-
             }
 
             string sUrl = string.Format("{0}/_msearch", ES_URL);

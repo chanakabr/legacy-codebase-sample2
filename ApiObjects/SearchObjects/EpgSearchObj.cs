@@ -9,7 +9,10 @@ namespace ApiObjects.SearchObjects
     [DataContract]
     public class EpgSearchObj
     {
-        private bool searchOnlyDatesAndChannels;
+        public bool m_bSearchOnlyDatesAndChannels;
+        public bool m_bIsCurrent;
+        public int m_nNextTop;
+        public int m_nPrevTop;
 
         public bool m_bSearchAnd;
         public bool m_bDesc;
@@ -29,17 +32,6 @@ namespace ApiObjects.SearchObjects
         public CutWith m_eInterCutWith { get; set; }
         public List<long> m_oEpgChannelIDs { get; set; }
 
-        public bool SearchOnlyDatesAndChannels
-        {
-            get
-            {
-                return searchOnlyDatesAndChannels;
-            }
-            set
-            {
-                searchOnlyDatesAndChannels = value;
-            }
-        }
 
         public EpgSearchObj()
         {
@@ -62,7 +54,10 @@ namespace ApiObjects.SearchObjects
             m_lSearchOr = new List<SearchValue>();
             m_lSearchAnd = new List<SearchValue>();
 
-            SearchOnlyDatesAndChannels = false;
+            m_bSearchOnlyDatesAndChannels = false;
+            m_nNextTop = 0;
+            m_nPrevTop = 0;
+            m_bIsCurrent = false;
         }
 
         public bool ContainSearchKey(string key, ref SearchValue searchVal)

@@ -26,7 +26,7 @@ namespace Catalog
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
-
+        
         public static string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);

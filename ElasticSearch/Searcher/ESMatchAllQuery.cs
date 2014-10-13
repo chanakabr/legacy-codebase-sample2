@@ -7,7 +7,7 @@ namespace ElasticSearch.Searcher
 {
     public class ESMatchAllQuery : IESTerm
     {
-        private static readonly string MATCH_ALL_ES_CMD = "{\"match_all\":{}}";
+        private static readonly string MATCH_ALL_ES_QUERY = "{\"match_all\":{}}";
 
         public ESMatchAllQuery()
         {
@@ -27,7 +27,7 @@ namespace ElasticSearch.Searcher
 
         public override string ToString()
         {
-            return MATCH_ALL_ES_CMD;
+            return MATCH_ALL_ES_QUERY;
         }
     }
 }

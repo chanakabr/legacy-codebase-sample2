@@ -14,7 +14,7 @@ using Tvinci.Core.DAL;
 namespace Catalog
 {
     [DataContract]
-    public class EpgSearchRequest : BaseRequest, IRequestImp
+    public class EpgSearchRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -37,35 +37,7 @@ namespace Catalog
         [DataMember]
         public List<long> m_oEPGChannelIDs;
 
-
-        /*
-         * SearchOnlyDatesAndChannels - explanation.
-         * 1. EpgSearchRequest is created by either
-         *    a. TvpApi OR
-         *    b. EpgRequest flow.
-         * 2. When it is created by the TvpApi we want to invoke the regular flow (The original flow until Oct 2014) which is:
-         *    a. Query ElasticSearch according to the search parameters TvpApi decided.
-         *    b. Return the epg programme ids to TvpApi
-         * 3. When it is created by EpgRequest flow, we want:
-         *    a. Suppress IPNO Filtering (In order to optimize performance)
-         *    b. Alter the EpgSearchObj sent to ElasticSearch so ES will receive a different query.
-         *    c. After ElasticSearch returns the epg programme ids, We query Couchbase to get the full details of the epg programmes.
-         * 4. Hence, we distinguish by these two flows by setting true to SearchOnlyDatesAndChannels when EpgSearchRequest is created
-         *    as part of EpgRequest flow.
-         * 
-         */
-        private bool searchOnlyDatesAndChannels;
-        internal bool SearchOnlyDatesAndChannels
-        {
-            get
-            {
-                return searchOnlyDatesAndChannels;
-            }
-            set
-            {
-                searchOnlyDatesAndChannels = value;
-            }
-        }
+        private bool m_bIsLucene;
 
         public EpgSearchRequest()
             : base()
@@ -80,6 +52,7 @@ namespace Catalog
 
             m_sSearch = string.Empty;
             m_oEPGChannelIDs = new List<long>();
+            m_bIsLucene = false;
         }
 
         public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,
@@ -106,11 +79,11 @@ namespace Catalog
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, null, andList, orList);
         }
 
-        protected void CheckEPGRequestIsValid(EpgSearchRequest request)
+        protected void CheckEPGRequestIsValid()
         {
-            if (request == null || request.m_nGroupID == 0 ||
-                (string.IsNullOrEmpty(request.m_sSearch) && (request.m_AndList == null || request.m_AndList.Count == 0) &&
-                (request.m_OrList == null || request.m_OrList.Count == 0)))
+            if (m_nGroupID == 0 ||
+                (string.IsNullOrEmpty(m_sSearch) && (m_AndList == null || m_AndList.Count == 0) &&
+                (m_OrList == null || m_OrList.Count == 0)))
             {
                 throw new ArgumentException("Request object is null or missing search text or group id");
             }
@@ -121,16 +94,12 @@ namespace Catalog
         {
             try
             {
-                EpgSearchRequest request = oBaseRequest as EpgSearchRequest;
                 EpgSearchResponse oResponse = new EpgSearchResponse();
 
-                CheckEPGRequestIsValid(request);
-                CheckSignature(request);
+                CheckEPGRequestIsValid();
+                CheckSignature(this);
 
-
-                //GetMediaIds With Searcher service
-                bool isLucene = false;
-                SearchResultsObj epgSearchResponse = Catalog.GetProgramIdsFromSearcher(request, ref isLucene);
+                SearchResultsObj epgSearchResponse = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
                 if (epgSearchResponse == null)
                 {
                     oResponse = new EpgSearchResponse();
@@ -142,16 +111,7 @@ namespace Catalog
                     //Complete max updatedate per mediaId
                     if (epgSearchResponse.m_resultIDs != null)
                     {
-                        switch (isLucene)
-                        {
-                            case true: // if Lucene need to complete UpdateDate from DB
-                                List<SearchResult> lProgramRes = GetProgramUpdateDate(epgSearchResponse.m_resultIDs.Select(item => item.assetID).ToList());
-                                oResponse.m_nEpgIds = lProgramRes;
-                                break;
-                            default:
-                                oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
-                                break;
-                        }
+                        oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
                     }
                 }
 
@@ -206,6 +166,43 @@ namespace Catalog
             sb.Append(String.Concat(" ", base.ToString()));
 
             return sb.ToString();
+        }
+
+        public EpgSearchObj BuildEPGSearchObject()
+        {
+            EpgSearchObj res = null;
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null)
+            {
+                throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", ToString()));
+            }
+            List<List<string>> jsonizedChannelsDefinitions = null;
+            if (Catalog.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
+            {
+                Dictionary<string, string> dict = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(m_nGroupID);
+                MediaSearchObj linearChannelMediaIDsRequest = Catalog.BuildLinearChannelsMediaIDsRequest(m_nGroupID,
+                    dict, jsonizedChannelsDefinitions);
+                SearchResultsObj searcherAnswer = searcher.SearchMedias(m_nGroupID, linearChannelMediaIDsRequest, 0, true, m_nGroupID);
+
+                if (searcherAnswer.n_TotalItems > 0)
+                {
+                    List<long> ipnoEPGChannelsMediaIDs = Catalog.ExtractMediaIDs(searcherAnswer);
+                    List<long> epgChannelsIDs = Catalog.GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
+                    m_oEPGChannelIDs = epgChannelsIDs;
+                    res = Catalog.BuildEpgSearchObject(this, false);
+                }
+                else
+                {
+                    throw new Exception(String.Concat("Failed to extract EPG Channel IDs for IPNO Filtering. Request: ", ToString()));
+                }
+            }
+            else
+            {
+                res = Catalog.BuildEpgSearchObject(this, false);
+            }
+
+            return res;
         }
     }
 
