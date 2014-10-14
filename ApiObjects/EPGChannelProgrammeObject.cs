@@ -67,7 +67,17 @@ namespace ApiObjects
             LIKE_COUNTER = nLikeCounter;
 
         }
+
+        public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>
+        {
+
+            public int Compare(EPGChannelProgrammeObject x, EPGChannelProgrammeObject y)
+            {
+                return x.START_DATE.CompareTo(y.START_DATE);
+            }
+        }
     }
+
     public class EPGMultiChannelProgrammeObject
     {
         public string EPG_CHANNEL_ID;

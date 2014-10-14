@@ -114,33 +114,6 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-       /* public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
-        {
-            List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
-            List<UserMediaMark> lRes = new List<UserMediaMark>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            List<string> docKeysList = new List<string>();
-            
-            int nUserID = 0;
-            int.TryParse(sSiteGuid, out nUserID);
-
-            foreach (int nMediaID in nMediaIDs)
-            {
-                docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
-            }
-
-            IDictionary<string, object> res = m_oClient.Get(docKeysList);
-
-            foreach (string sKey in res.Keys)
-            {
-                mediaMarkLogList.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
-            }
-
-            List<MediaMarkLog> sortedMediaMarksList = mediaMarkLogList.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
-            lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
-            return lRes;
-        }*/
-
         public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
         {
             List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
@@ -1445,32 +1418,6 @@ namespace Tvinci.Core.DAL
 
             return domainMarks.devices;
         }
-
-        //public static List<UserMediaMark> GetMediaConcurrencyByDomain(int nDomainID, int ttl)
-        //{
-        //    var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-
-        //    string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
-        //    var data = m_oClient.Get<string>(docKey);
-
-        //    if (data == null)
-        //        return null;
-
-        //    Random r = new Random();
-        //    var domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-
-        //    //Cleaning old ones...
-        //    int limitRetries = RETRY_LIMIT;
-        //    while (limitRetries >= 0)
-        //    {
-        //        var marks = m_oClient.GetWithCas<string>(docKey);
-
-        //        DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks.Result);
-        //        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-        //    }
-
-        //    return domainMarks.devices;
-        //}
 
         public static Dictionary<int, int> GetMediaMarkUserCount(List<int> usersList)
         {

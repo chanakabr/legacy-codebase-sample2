@@ -162,38 +162,37 @@ namespace ElasticSearch.Searcher
                      * 6. In Mathematical language we search for the following:
                      *    (request.endDate >= programme.endDate >= request.startDate) || (request.startDate <= programme.endDate <= request.endDate)
                      */
+
+                    FilteredQuery fq = new FilteredQuery();
+
+                    fq.Query = new ESMatchAllQuery();
+                    fq.PageIndex = m_oEpgSearchObj.m_nPageIndex;
+                    fq.PageSize = m_oEpgSearchObj.m_nPageSize;
+                    fq.ESSort.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
+
+                    QueryFilter filter = new QueryFilter();
+                    BaseFilterCompositeType filterComposite = new FilterCompositeType(CutWith.AND);
+
+                    BaseFilterCompositeType datesContraints = new FilterCompositeType(CutWith.OR);
+
+                    // Section 4 boolean expression described above
+                    ESRange startDateRange = new ESRange(false) { Key = "start_date" };
+                    startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
+                    startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
+                    ESRange endDateRange = new ESRange(false) { Key = "end_date" };
+                    endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
+                    endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
+                    ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
+
+                    datesContraints.AddChild(startDateRange);
+                    datesContraints.AddChild(endDateRange);
+
+                    filterComposite.AddChild(isActiveTerm);
+                    filterComposite.AddChild(datesContraints);
                     for (int i = 0; i < m_oEpgSearchObj.m_oEpgChannelIDs.Count; i++)
                     {
-                        FilteredQuery fq = new FilteredQuery();
-
-                        fq.Query = new ESMatchAllQuery();
-                        fq.PageIndex = m_oEpgSearchObj.m_nPageIndex;
-                        fq.PageSize = m_oEpgSearchObj.m_nPageSize;
-                        fq.ESSort.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
-
-                        QueryFilter filter = new QueryFilter();
-                        BaseFilterCompositeType filterComposite = new FilterCompositeType(CutWith.AND);
-                        
-                        BaseFilterCompositeType datesContraints = new FilterCompositeType(CutWith.OR); 
-
-                        // Section 4 boolean expression described above
-                        ESRange startDateRange = new ESRange(false) { Key = "start_date" };
-                        startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
-                        startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
-                        ESRange endDateRange = new ESRange(false) { Key = "end_date" };
-                        endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
-                        endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
-                        ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
-
-                        datesContraints.AddChild(startDateRange);
-                        datesContraints.AddChild(endDateRange);
-
-                        filterComposite.AddChild(isActiveTerm);
-                        filterComposite.AddChild(datesContraints);
-
                         filter.FilterSettings = new EpgChannelsFilterCompositeType(filterComposite, new List<long>(1) { m_oEpgSearchObj.m_oEpgChannelIDs[i] });
                         fq.Filter = filter;
-
                         res.Add(fq.ToString());
                     }
                 }
@@ -226,7 +225,7 @@ namespace ElasticSearch.Searcher
             else
             {
                 res.ESSort.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
-                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, startDate));
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, startDate));
                 res.PageSize = m_oEpgSearchObj.m_nNextTop;
             }
 
@@ -237,104 +236,6 @@ namespace ElasticSearch.Searcher
             res.Filter = filter;
 
             return res;
-        }
-
-        public virtual string BuildSearchQueryString()
-        {
-            string sResult = string.Empty;
-
-            if (m_oEpgSearchObj == null)
-                return sResult;
-
-            FilteredQuery filteredQuery = new FilteredQuery();
-
-            if (m_oEpgSearchObj.m_bSearchOnlyDatesAndChannels)
-            {
-                /*
-                 * Here we search only by
-                 * 1. Dates AND
-                 * 2. EPG Channels IDs AND
-                 * 3. Is Active AND
-                 * 4. GroupID
-                 * 
-                 * The filter already does it for us hence we send match_all query
-                 */
-
-                filteredQuery.Query = new ESMatchAllQuery();
-            }
-            else
-            {
-
-                ESWildcard wildCard;
-                BoolQuery mainBooleanQuery = new BoolQuery();
-
-                BoolQuery textBooleanQueryOR = new BoolQuery();
-                BoolQuery textBooleanQueryAnd = new BoolQuery();
-
-                //And OR List search rexts
-                foreach (SearchValue kvp in m_oEpgSearchObj.m_lSearchOr)
-                {
-                    if (!m_oEpgSearchObj.m_bExact)
-                    {
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
-                    }
-                    else
-                    {
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
-                    }
-                    textBooleanQueryOR.AddChild(wildCard, CutWith.OR);
-                }
-
-                mainBooleanQuery.AddChild(textBooleanQueryOR, CutWith.AND);
-
-                if (m_oEpgSearchObj.m_bExact && m_oEpgSearchObj != null && m_oEpgSearchObj.m_lSearchAnd.Count > 0)
-                {
-                    foreach (SearchValue kvp in m_oEpgSearchObj.m_lSearchAnd)
-                    {
-
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
-
-                        textBooleanQueryAnd.AddChild(wildCard, CutWith.AND);
-                    }
-
-                    mainBooleanQuery.AddChild(textBooleanQueryAnd, CutWith.AND);
-                }
-
-
-                filteredQuery.Query = mainBooleanQuery;
-            }
-
-            //QueryFilter filter = new QueryFilter();
-            //BaseFilterCompositeType filterComposite = new FilterCompositeType(CutWith.AND);
-
-            //string sStartDate = this.m_oEpgSearchObj.m_dStartDate.ToString("yyyyMMddHHmmss");
-            //string sStartMin = this.m_oEpgSearchObj.m_dStartDate.AddDays(-1).ToString("yyyyMMddHHmmss");
-            //string sStartMax = this.m_oEpgSearchObj.m_dEndDate.AddDays(1).AddSeconds(-1).ToString("yyyyMMddHHmmss");
-
-            //ESRange minStartDateRange = new ESRange(false) { Key = "start_date" };
-            //minStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sStartMin));
-            //minStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sStartMax));
-
-            //ESRange maxStartDateRange = new ESRange(false) { Key = "end_date" };
-            //maxStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sStartDate));
-
-            //ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
-
-
-            //filterComposite.AddChild(minStartDateRange);
-            //filterComposite.AddChild(maxStartDateRange);
-            //filterComposite.AddChild(isActiveTerm);
-
-            //FillFilterSettings(ref filter, filterComposite);
-
-
-            filteredQuery.Filter = CreateFilterForSearchQueryString();
-
-
-            filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
-            filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
-
-            return filteredQuery.ToString();
         }
 
         protected virtual QueryFilter CreateFilterForSearchQueryString()

@@ -496,7 +496,6 @@ namespace Catalog
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
         {
-            Logger.Logger.Log("Info", string.Format("{0}:{1}", "Auto Complete", oSearch.m_nGroupID.ToString()), "ElasticSearch");
 
             List<string> resultFinalList = null;
 

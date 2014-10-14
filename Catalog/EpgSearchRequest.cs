@@ -190,7 +190,7 @@ namespace Catalog
                     List<long> ipnoEPGChannelsMediaIDs = Catalog.ExtractMediaIDs(searcherAnswer);
                     List<long> epgChannelsIDs = Catalog.GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
                     m_oEPGChannelIDs = epgChannelsIDs;
-                    res = Catalog.BuildEpgSearchObject(this, false);
+                    res = BuildEPGSearchObjectInner();
                 }
                 else
                 {
@@ -199,10 +199,89 @@ namespace Catalog
             }
             else
             {
-                res = Catalog.BuildEpgSearchObject(this, false);
+                res = BuildEPGSearchObjectInner();
             }
 
             return res;
+        }
+
+        private EpgSearchObj BuildEPGSearchObjectInner()
+        {
+            List<string> lSearchList = new List<string>();
+            EpgSearchObj searcherEpgSearch = new EpgSearchObj();
+
+            searcherEpgSearch.m_bExact = m_bExact;
+            searcherEpgSearch.m_dEndDate = m_dEndDate;
+            searcherEpgSearch.m_dStartDate = m_dStartDate;
+
+            //deafult values for OrderBy object 
+            searcherEpgSearch.m_bDesc = true;
+            searcherEpgSearch.m_sOrderBy = "start_date";
+
+            // set parent group by request.m_nGroupID                              
+            searcherEpgSearch.m_nGroupID = m_nGroupID;
+
+            List<SearchValue> dAnd = new List<SearchValue>();
+            List<SearchValue> dOr = new List<SearchValue>();
+            if (m_bExact) // free text search - based on  Exact tags and metas 
+            {
+                EpgSearchAddParams(ref dAnd, ref dOr);
+            }
+            else  // free text search - based on  metas/tags "isSearchable" setting 
+            {
+                searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
+                //Get all tags and meta for group
+                Catalog.GetGroupsTagsAndMetas(m_nGroupID, ref lSearchList);
+                if (lSearchList == null)
+                    return null;
+                string sVal = string.Empty;
+                foreach (string item in lSearchList)
+                {
+                    sVal = m_sSearch;
+                    dOr.Add(new SearchValue(item, sVal));
+                }
+            }
+            //initialize the search list with And / Or values
+            searcherEpgSearch.m_lSearchOr = dOr;
+            searcherEpgSearch.m_lSearchAnd = dAnd;
+
+            searcherEpgSearch.m_nPageIndex = m_nPageIndex;
+            searcherEpgSearch.m_nPageSize = m_nPageSize;
+
+            searcherEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
+            searcherEpgSearch.m_nNextTop = 0;
+            searcherEpgSearch.m_nPrevTop = 0;
+            searcherEpgSearch.m_bIsCurrent = false;
+            searcherEpgSearch.m_bSearchOnlyDatesAndChannels = false;
+
+            return searcherEpgSearch;
+        }
+
+        private void EpgSearchAddParams(ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
+        {
+            if (m_AndList != null)
+            {
+                foreach (KeyValue andKeyValue in m_AndList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
+                    search.m_sValue = andKeyValue.m_sValue;
+                    m_dAnd.Add(search);
+                }
+            }
+
+            if (m_OrList != null)
+            {
+                foreach (KeyValue orKeyValue in m_OrList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = orKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                    search.m_sValue = orKeyValue.m_sValue;
+                    m_dOr.Add(search);
+                }
+            }
         }
     }
 
