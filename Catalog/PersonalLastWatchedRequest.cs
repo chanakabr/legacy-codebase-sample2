@@ -51,10 +51,8 @@ namespace Catalog
                     throw new ArgumentNullException("request object is null or Required variables is null");
 
                 CheckSignature(request);
-
-                GroupManager groupManager = new GroupManager();
-                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
-                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
+                               
+                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid);
                 if (dt != null)
                 {
                     if (dt.Columns != null)
