@@ -955,139 +955,61 @@ namespace ConditionalAccess
             return ret;
         }
 
-        public override string GetEPGLink(int nProgramId, DateTime startTime, eEPGFormatType format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
-
-            // Validate inputs
-            if ((nProgramId <= 0) ||
-                (string.IsNullOrEmpty(sBasicLink)) ||
-                (string.IsNullOrEmpty(sSiteGUID)))
-            {
-                return string.Empty;
-            }
-
-            TvinciAPI.API api = null;
-
+            TvinciAPI.API api = new TvinciAPI.API();
             try
             {
-                
-                string sWSUserName = "";
-                string sWSPass = "";
-
-                string host = (new Uri(sBasicLink)).Host;
-                if (string.IsNullOrEmpty(host))
+                // Validate inputs
+                if ((nProgramId <= 0) || (string.IsNullOrEmpty(sBasicLink)) || (string.IsNullOrEmpty(sSiteGUID)))
                 {
                     return string.Empty;
                 }
 
-
-                string sBaseLink = GetLicensedLink(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
-                Logger.Logger.Log("LicensedLink", "Finished base link", "LicensedLink");
-
-                if (string.IsNullOrEmpty(sBaseLink))
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                //GetLicensedLink return empty link no need to continue
+                if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
+                    Logger.Logger.Log("LicensedLink",
+                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
                     return string.Empty;
                 }
 
                 string sRightMargin = Utils.GetValueFromConfig("right_margin");
                 string sLeftMargin = Utils.GetValueFromConfig("left_margin");
-
                 int nRightMargin = !string.IsNullOrEmpty(sRightMargin) ? int.Parse(sRightMargin) : RIGHT_MARGIN;
                 int nLeftMargin = !string.IsNullOrEmpty(sLeftMargin) ? int.Parse(sLeftMargin) : LEFT_MARGIN;
 
-
-                Dictionary<string, object> parametersToInjectInUrl = new Dictionary<string, object>();
-
-                if (!string.IsNullOrEmpty(host))
+                // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
+                string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
+                int timeMultFactor = 10000;
+                if (!string.IsNullOrEmpty(sTimeMultFactor))
                 {
-                    parametersToInjectInUrl.Add("host", host);
+                    int.TryParse(sTimeMultFactor, out timeMultFactor);
                 }
 
-                string sChannelName = string.Empty;
+                //call api service to get the epg_url_link 
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
 
-                api = new TvinciAPI.API();
                 string sApiWSUrl = Utils.GetWSURL("api_ws");
-
                 if (!string.IsNullOrEmpty(sApiWSUrl))
+                {
                     api.Url = sApiWSUrl;
+                }
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, "GetEPGLink", ref sWSUserName, ref sWSPass);
-                Logger.Logger.Log("LicensedLink", "Started getting coguid for media file id", "LicensedLink");
 
-                sChannelName = api.GetCoGuidByMediaFileId(sWSUserName, sWSPass, nMediaFileID);
+                // add all values too send to API service
+                ApiObjects.eEPGFormatType eFormat = (ApiObjects.eEPGFormatType)format;
+                ConditionalAccess.TvinciAPI.EpgLink epgLink = BuildEpgLinkObjectEU(nProgramId, dStartTime, eFormat, nMediaFileID, sBasicLink, nRightMargin, nLeftMargin, timeMultFactor);
 
-                Logger.Logger.Log("LicensedLink", "Finished getting coguid for media file id", "LicensedLink");
-
-                if (!string.IsNullOrEmpty(sChannelName))
-                {
-                    parametersToInjectInUrl.Add("name", sChannelName);
-
-                    Logger.Logger.Log("LicensedLink", "Getting stream type", "LicensedLink");
-
-                    eStreamType streamType = Utils.GetStreamType(sBaseLink);
-
-                    Logger.Logger.Log("LicensedLink", "Finished getting stream type", "LicensedLink");
-
-                    url = Utils.GetStreamTypeAndFormatLink(streamType, format); // Getting the url which matches both the epg format and the stream type
-
-                    long nStartTime;
-                    long nEndTime;
-
-                    // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
-                    string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
-                    int timeMultFactor = 10000;
-
-                    if (!string.IsNullOrEmpty(sTimeMultFactor))
-                    {
-                        int.TryParse(sTimeMultFactor, out timeMultFactor);
-                    }
-
-                    ConditionalAccess.TvinciAPI.Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
-
-                    switch (format)
-                    {
-                        case eEPGFormatType.Catchup:
-                        case eEPGFormatType.StartOver:
-                            {
-                                if (scheduling != null)
-                                {
-                                    nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.ToUniversalTime().AddMinutes(nLeftMargin)));
-                                    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.ToUniversalTime().AddMinutes(nRightMargin)));
-
-                                    parametersToInjectInUrl.Add("start", nStartTime);
-                                    parametersToInjectInUrl.Add("end", nEndTime);
-                                }
-                            }
-
-                            break;
-
-                        case eEPGFormatType.LivePause:
-
-                            DateTime startTimeUTC = startTime.ToUniversalTime();
-                            if (DateTime.Compare(startTimeUTC, DateTime.UtcNow) <= 0)
-                            {
-                                nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTimeUTC.AddMinutes(nLeftMargin)));
-                                nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
-                                parametersToInjectInUrl.Add("start", nStartTime);
-                                parametersToInjectInUrl.Add("end", nEndTime);
-                            }
-
-                            break;
-
-                        default:
-                            url = string.Empty;
-                            break;
-                    }
-
-                    // Injecting the parameters values to the url
-                    if (!string.IsNullOrEmpty(url))
-                    {
-                        Utils.ReplaceSubStr(ref url, parametersToInjectInUrl);
-                    }
-                }
-
+                // call API Sevice to get the right url by provider 
+                url = api.GetEPGLink(sWSUserName, sWSPass, epgLink);
+                return url;
             }
+
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at GetEPGLink. ");
@@ -1095,7 +1017,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Program ID: ", nProgramId));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" Media File ID: ", nMediaFileID));
-                sb.Append(String.Concat(" Start time: ", startTime.ToString()));
+                sb.Append(String.Concat(" Start time: ", dStartTime.ToString()));
                 sb.Append(String.Concat(" User IP: ", sUserIP));
                 sb.Append(String.Concat(" Coupon: ", sCouponCode));
                 sb.Append(String.Concat(" Format: ", format.ToString()));
@@ -1111,6 +1033,41 @@ namespace ConditionalAccess
             }
 
             return url;
+        }
+
+        private EpgLink BuildEpgLinkObjectEU(int nProgramId, DateTime dStartTime, ApiObjects.eEPGFormatType format, int nMediaFileID, string sBasicLink, int nRightMargin, int nLeftMargin, int timeMultFactor)
+        {
+            try
+            {
+                EpgLink oEpgLink = BuildEpgLinkObject(nProgramId, dStartTime, format, nMediaFileID, sBasicLink);
+                if (oEpgLink != null)
+                {
+                    List<ConditionalAccess.TvinciAPI.EpgLinkItem> lEpgLinkParams = new List<ConditionalAccess.TvinciAPI.EpgLinkItem>();
+                    lEpgLinkParams = oEpgLink.m_lParams.ToList<ConditionalAccess.TvinciAPI.EpgLinkItem>();
+                    
+                    ConditionalAccess.TvinciAPI.EpgLinkItem oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
+                    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.RIGHT_MARGIN;
+                    oEpgLinkItem.m_value = nRightMargin;
+                    lEpgLinkParams.Add(oEpgLinkItem);
+
+                    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
+                    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.LEFT_MARGIN;
+                    oEpgLinkItem.m_value = nLeftMargin;
+                    lEpgLinkParams.Add(oEpgLinkItem);
+
+                    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
+                    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.TIME_MULT_FACTOR;
+                    oEpgLinkItem.m_value = timeMultFactor;
+                    lEpgLinkParams.Add(oEpgLinkItem);
+
+                    oEpgLink.m_lParams = lEpgLinkParams.ToArray<ConditionalAccess.TvinciAPI.EpgLinkItem>();
+                }
+                return oEpgLink;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
     }

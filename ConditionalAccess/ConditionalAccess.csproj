@@ -285,6 +285,10 @@
     <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <None Include="Web References\TvinciAPI\Scheduling.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -340,6 +344,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\TvinciAPI\</RelPath>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\NotificationService\</RelPath>
@@ -361,17 +376,6 @@
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/TVMBilling/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
@@ -463,10 +467,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <None Include="Web References\TvinciPricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -640,9 +640,6 @@
     <None Include="Web References\NotificationService\NotificationService.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
@@ -659,6 +656,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -95,24 +95,19 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
+        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid)
         {
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
 
-            
             //Complete details from db
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter("@MediaID", nMediaIDs, "Id");
-            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-        }
+            DataTable dt = Get_MediaUpdateDate(nMediaIDs);
+            
+            return dt;
+            
+        }      
 
         public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
         {

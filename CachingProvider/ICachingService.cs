@@ -21,5 +21,7 @@ namespace CachingProvider
         bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset);      
         
         T Get<T>(string sKey) where T : class;
+
+        IDictionary<string, object> GetValues(List<string> keys);
     }
 }

@@ -436,6 +436,7 @@ namespace ElasticSearch.Common
                 Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes), ES_LOG_FILENAME);
                 sRes = string.Empty;
             }
+
             return sRes;
         }
 

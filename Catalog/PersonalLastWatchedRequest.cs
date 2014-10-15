@@ -9,7 +9,6 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
-using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -52,11 +51,8 @@ namespace Catalog
                     throw new ArgumentNullException("request object is null or Required variables is null");
 
                 CheckSignature(request);
-
-               GroupManager groupManager = new GroupManager();
-               int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
-                List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
-                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
+                               
+                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid);
                 if (dt != null)
                 {
                     if (dt.Columns != null)

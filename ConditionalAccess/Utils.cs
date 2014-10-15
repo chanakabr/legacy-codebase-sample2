@@ -47,7 +47,7 @@ namespace ConditionalAccess
             if (nImplID == 7)
                 t = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
             if (nImplID == 9)
-                t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
+                t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);          
         }
 
         public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, string sFunctionName, ref string sUN, ref string sPass)
@@ -213,7 +213,6 @@ namespace ConditionalAccess
 
         internal static bool ValidateBaseLink(Int32 nGroupID, Int32 nMediaFileID, string sBaseLink)
         {
-
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
@@ -222,15 +221,8 @@ namespace ConditionalAccess
                 if (apiUrl.Length > 0)
                     m.Url = apiUrl;
                 bool bRet = false;
-                string sCacheKey = GetCachingManagerKey("ValidateBaseLink", String.Concat(nMediaFileID.ToString(), "_", sBaseLink), nGroupID);
-                if (CachingManager.CachingManager.Exist(sCacheKey))
-                    bRet = (bool)(CachingManager.CachingManager.GetCachedData(sCacheKey));
-                else
-                {
-                    GetWSCredentials(nGroupID, eWSModules.API, "ValidateBaseLink", ref sWSUserName, ref sWSPass);
-                    bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
-                    CachingManager.CachingManager.SetCachedData(sCacheKey, bRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                }
+                GetWSCredentials(nGroupID, eWSModules.API, "ValidateBaseLink", ref sWSUserName, ref sWSPass);
+                bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
                 return bRet;
             }
         }
@@ -247,35 +239,29 @@ namespace ConditionalAccess
 
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
-
             TvinciAPI.API m = null;
-
             TvinciAPI.MeidaMaper[] mapper = null;
+            
             try
             {
                 string nMediaFilesIDsToCache = ConvertArrayIntToStr(nMediaFilesIDs);
-                string sCacheKey = Utils.GetCachingManagerKey("MapMediaFiles", nMediaFilesIDsToCache, nGroupID);
-                if (CachingManager.CachingManager.Exist(sCacheKey))
-                    mapper = (TvinciAPI.MeidaMaper[])(CachingManager.CachingManager.GetCachedData(sCacheKey));
+
+                m = new ConditionalAccess.TvinciAPI.API();
+                string sWSUrl = GetWSURL("api_ws");
+                if (sWSUrl.Length > 0)
+                    m.Url = sWSUrl;
+
+                if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
+                {
+                    GetWSCredentials(nGroupID, eWSModules.API, "MapMediaFiles", ref sWSUserName, ref sWSPass);
+                    mapper = m.MapMediaFiles(sWSUserName, sWSPass, nMediaFilesIDs);
+                }
                 else
                 {
-                    m = new ConditionalAccess.TvinciAPI.API();
-                    string sWSUrl = GetWSURL("api_ws");
-                    if (sWSUrl.Length > 0)
-                        m.Url = sWSUrl;
-
-                    if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
-                    {
-                        GetWSCredentials(nGroupID, eWSModules.API, "MapMediaFiles", ref sWSUserName, ref sWSPass);
-                        mapper = m.MapMediaFiles(sWSUserName, sWSPass, nMediaFilesIDs);
-                    }
-                    else
-                    {
-                        mapper = m.MapMediaFiles(sAPIUsername, sAPIPassword, nMediaFilesIDs);
-                    }
-                    CachingManager.CachingManager.SetCachedData(sCacheKey, mapper, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    mapper = m.MapMediaFiles(sAPIUsername, sAPIPassword, nMediaFilesIDs);
                 }
             }
+
             finally
             {
                 #region Disposing
@@ -301,28 +287,21 @@ namespace ConditionalAccess
             string sWSPass = string.Empty;
             Int32 nRet = 0;
 
-            string sCacheKey = GetCachingManagerKey("GetMediaFileTypeID", nMediaFileID + "", nGroupID, string.Empty, string.Empty, string.Empty);
-            if (CachingManager.CachingManager.Exist(sCacheKey))
-                nRet = (Int32)(CachingManager.CachingManager.GetCachedData(sCacheKey));
-            else
+            using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
             {
-                using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
+                string apiUrl = GetWSURL("api_ws");
+                if (apiUrl.Length > 0)
+                    m.Url = apiUrl;
+                if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
                 {
-                    string apiUrl = GetWSURL("api_ws");
-                    if (apiUrl.Length > 0)
-                        m.Url = apiUrl;
-                    if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
-                    {
-                        GetWSCredentials(nGroupID, eWSModules.API, "GetMediaFileTypeID", ref sWSUserName, ref sWSPass);
-                        nRet = m.GetMediaFileTypeID(sWSUserName, sWSPass, nMediaFileID);
-                    }
-                    else
-                    {
-                        nRet = m.GetMediaFileTypeID(sAPIUsername, sAPIPassword, nMediaFileID);
-                    }
-                    CachingManager.CachingManager.SetCachedData(sCacheKey, nRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    GetWSCredentials(nGroupID, eWSModules.API, "GetMediaFileTypeID", ref sWSUserName, ref sWSPass);
+                    nRet = m.GetMediaFileTypeID(sWSUserName, sWSPass, nMediaFileID);
                 }
-            }
+                else
+                {
+                    nRet = m.GetMediaFileTypeID(sAPIUsername, sAPIPassword, nMediaFileID);
+                }              
+            }            
 
             return nRet;
         }
@@ -1353,17 +1332,15 @@ namespace ConditionalAccess
             Int32[] nMediaFilesIDs = { nMediaFileID };
             TvinciAPI.MeidaMaper[] mapper = null;
             string nMediaFilesIDsForCache = ConvertArrayIntToStr(nMediaFilesIDs);
-            if (CachingManager.CachingManager.Exist("GetMediaMapper" + nMediaFilesIDsForCache + "_" + nGroupID.ToString()) == true)
-                mapper = (TvinciAPI.MeidaMaper[])(CachingManager.CachingManager.GetCachedData("GetMediaMapper" + nMediaFilesIDsForCache + "_" + nGroupID.ToString()));
-            else
-            {
-                mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
-                CachingManager.CachingManager.SetCachedData("GetMediaMapper" + nMediaFilesIDsForCache + "_" + nGroupID.ToString(), mapper, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-            }
+
+            mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
+
             if (mapper == null || mapper.Length == 0)
                 return 0;
+
             if (mapper[0].m_nMediaFileID == nMediaFileID)
                 return mapper[0].m_nMediaID;
+
             return 0;
         }
 

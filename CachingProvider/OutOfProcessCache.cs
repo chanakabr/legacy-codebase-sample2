@@ -33,6 +33,8 @@ namespace CachingProvider
 
         public abstract bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset);
 
-        public abstract bool SetWithVersion<T>(string sKey, BaseModuleCache oValue);        
+        public abstract bool SetWithVersion<T>(string sKey, BaseModuleCache oValue);
+
+        public abstract IDictionary<string, object> GetValues(List<string> keys);
     }
 }

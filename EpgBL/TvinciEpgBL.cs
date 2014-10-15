@@ -29,6 +29,8 @@ namespace EpgBL
             bool bRes = false;
             try
             {
+                if (newEpgItem == null)
+                    return false;
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
@@ -41,12 +43,16 @@ namespace EpgBL
                     {
                         epgID = nNewID;
                     }
+                    else
+                    {
+                        Logger.Logger.Log("InsertEpg", string.Format("Failed insert to CB id={0}", nNewID), "InsertCBEpg");
+                    }
                 }
-
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertEpg", string.Format("Failed Insert Epg ex = {0} ST: {1}", ex.Message, ex.StackTrace), "BaseEpgBL");
+                Logger.Logger.Log("InsertEpg", string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
             }
             return bRes;
         }

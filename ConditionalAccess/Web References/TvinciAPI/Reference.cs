@@ -28,6 +28,7 @@ namespace ConditionalAccess.TvinciAPI {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="APISoap", Namespace="http://api.tvinci.com/")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EpgLinkItem[]))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
@@ -75,6 +76,8 @@ namespace ConditionalAccess.TvinciAPI {
         private System.Threading.SendOrPostCallback CheckGeoCommerceBlockOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetMediaFileTypeIDOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetMediaFileTypeDescriptionOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetAdminTokenValuesOperationCompleted;
         
@@ -163,6 +166,8 @@ namespace ConditionalAccess.TvinciAPI {
         private System.Threading.SendOrPostCallback GetProgramDetailsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetMediaConcurrencyRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetEPGLinkOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -270,6 +275,9 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         public event GetMediaFileTypeIDCompletedEventHandler GetMediaFileTypeIDCompleted;
+        
+        /// <remarks/>
+        public event GetMediaFileTypeDescriptionCompletedEventHandler GetMediaFileTypeDescriptionCompleted;
         
         /// <remarks/>
         public event GetAdminTokenValuesCompletedEventHandler GetAdminTokenValuesCompleted;
@@ -402,6 +410,9 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         public event GetMediaConcurrencyRulesCompletedEventHandler GetMediaConcurrencyRulesCompleted;
+        
+        /// <remarks/>
+        public event GetEPGLinkCompletedEventHandler GetEPGLinkCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1241,6 +1252,39 @@ namespace ConditionalAccess.TvinciAPI {
             if ((this.GetMediaFileTypeIDCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetMediaFileTypeIDCompleted(this, new GetMediaFileTypeIDCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaFileTypeDescription", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetMediaFileTypeDescription(string sWSUserName, string sWSPassword, int nMediaFileID) {
+            object[] results = this.Invoke("GetMediaFileTypeDescription", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaFileID});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetMediaFileTypeDescriptionAsync(string sWSUserName, string sWSPassword, int nMediaFileID) {
+            this.GetMediaFileTypeDescriptionAsync(sWSUserName, sWSPassword, nMediaFileID, null);
+        }
+        
+        /// <remarks/>
+        public void GetMediaFileTypeDescriptionAsync(string sWSUserName, string sWSPassword, int nMediaFileID, object userState) {
+            if ((this.GetMediaFileTypeDescriptionOperationCompleted == null)) {
+                this.GetMediaFileTypeDescriptionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaFileTypeDescriptionOperationCompleted);
+            }
+            this.InvokeAsync("GetMediaFileTypeDescription", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaFileID}, this.GetMediaFileTypeDescriptionOperationCompleted, userState);
+        }
+        
+        private void OnGetMediaFileTypeDescriptionOperationCompleted(object arg) {
+            if ((this.GetMediaFileTypeDescriptionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetMediaFileTypeDescriptionCompleted(this, new GetMediaFileTypeDescriptionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2825,6 +2869,39 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetEPGLink", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetEPGLink(string sWSUserName, string sWSPassword, EpgLink epgLink) {
+            object[] results = this.Invoke("GetEPGLink", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgLink});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, EpgLink epgLink) {
+            this.GetEPGLinkAsync(sWSUserName, sWSPassword, epgLink, null);
+        }
+        
+        /// <remarks/>
+        public void GetEPGLinkAsync(string sWSUserName, string sWSPassword, EpgLink epgLink, object userState) {
+            if ((this.GetEPGLinkOperationCompleted == null)) {
+                this.GetEPGLinkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEPGLinkOperationCompleted);
+            }
+            this.InvokeAsync("GetEPGLink", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgLink}, this.GetEPGLinkOperationCompleted, userState);
+        }
+        
+        private void OnGetEPGLinkOperationCompleted(object arg) {
+            if ((this.GetEPGLinkCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetEPGLinkCompleted(this, new GetEPGLinkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3058,6 +3135,60 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sFileQualityField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgLinkItem {
+        
+        private string m_keyField;
+        
+        private object m_valueField;
+        
+        /// <remarks/>
+        public string m_key {
+            get {
+                return this.m_keyField;
+            }
+            set {
+                this.m_keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public object m_value {
+            get {
+                return this.m_valueField;
+            }
+            set {
+                this.m_valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgLink {
+        
+        private EpgLinkItem[] m_lParamsField;
+        
+        /// <remarks/>
+        public EpgLinkItem[] m_lParams {
+            get {
+                return this.m_lParamsField;
+            }
+            set {
+                this.m_lParamsField = value;
             }
         }
     }
@@ -4223,13 +4354,13 @@ namespace ConditionalAccess.TvinciAPI {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
@@ -4480,12 +4611,15 @@ namespace ConditionalAccess.TvinciAPI {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : MailRequestObj {
+    public partial class PurchaseMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
         
@@ -4616,6 +4750,45 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sAddressField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseFailRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+        
+        private string m_sPreviewModuleEndDateField;
+        
+        /// <remarks/>
+        public string m_sPreviewModuleEndDate {
+            get {
+                return this.m_sPreviewModuleEndDateField;
+            }
+            set {
+                this.m_sPreviewModuleEndDateField = value;
             }
         }
     }
@@ -4767,288 +4940,6 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTransactionNumber {
-            get {
-                return this.m_sTransactionNumberField;
-            }
-            set {
-                this.m_sTransactionNumberField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseWithPreviewModuleRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTransactionNumber {
-            get {
-                return this.m_sTransactionNumberField;
-            }
-            set {
-                this.m_sTransactionNumberField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class CinepolisPurchaseMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
@@ -5129,147 +5020,6 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTransactionNumber {
-            get {
-                return this.m_sTransactionNumberField;
-            }
-            set {
-                this.m_sTransactionNumberField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
             }
         }
     }
@@ -8832,6 +8582,32 @@ namespace ConditionalAccess.TvinciAPI {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetMediaFileTypeDescriptionCompletedEventHandler(object sender, GetMediaFileTypeDescriptionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetMediaFileTypeDescriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetMediaFileTypeDescriptionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     public delegate void GetAdminTokenValuesCompletedEventHandler(object sender, GetAdminTokenValuesCompletedEventArgs e);
     
     /// <remarks/>
@@ -10002,6 +9778,32 @@ namespace ConditionalAccess.TvinciAPI {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((MediaConcurrencyRule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetEPGLinkCompletedEventHandler(object sender, GetEPGLinkCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetEPGLinkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetEPGLinkCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
             }
         }
     }

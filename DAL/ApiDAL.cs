@@ -528,9 +528,14 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
-            MediaMarkObject ret = new MediaMarkObject();
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
+            
+            MediaMarkObject ret = new MediaMarkObject();
+            ret.nGroupID = nGroupID;
+            ret.nMediaID = nMediaID;
+            ret.sSiteGUID = sSiteGUID;
+
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);         
 
@@ -540,9 +545,6 @@ namespace DAL
                 MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                 ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
                 ret.sDeviceID = mediaMarkLogObject.LastMark.UDID;
-                ret.nGroupID = nGroupID;
-                ret.nMediaID = nMediaID;
-                ret.sSiteGUID = sSiteGUID;
 
                 if (string.IsNullOrEmpty(mediaMarkLogObject.LastMark.UDID))
                 {
@@ -561,10 +563,6 @@ namespace DAL
                         ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
                     }
                 }
-            }
-            else
-            {
-                return null;
             }
 
             return ret;
@@ -1358,5 +1356,19 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
+        {
+            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileTypeDescription");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return  ds.Tables[0];
+            return null;
+        }        
     }
 }

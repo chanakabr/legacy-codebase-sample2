@@ -219,6 +219,11 @@ namespace CachingProvider
             }
         }
 
+        public override IDictionary<string, object> GetValues(List<string> keys)
+        {
+            return null;
+        }
+
       
       
     }

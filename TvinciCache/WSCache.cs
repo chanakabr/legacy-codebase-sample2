@@ -94,5 +94,14 @@ namespace TvinciCache
             BaseModuleCache bModule = new BaseModuleCache(obj);
             return obj != null && cache.Add(key, bModule);
         }
+
+
+        public IDictionary<string, object> GetValues(List<string> keys)
+        {
+            if (keys == null || keys.Count ==0)
+                return null;
+
+            return cache.GetValues(keys);
+        }
     }
 }
