@@ -89,7 +89,6 @@ namespace Catalog
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             EpgResponse response = new EpgResponse();
-            List<EpgResultsObj> result = null;
             try
             {
                 CheckRequestValidness();

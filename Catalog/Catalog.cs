@@ -1836,18 +1836,7 @@ namespace Catalog
                 #region Logging
                 StringBuilder sb = new StringBuilder("Failed to retrieve epg programmes from cb. ");
                 sb.Append(String.Concat("G ID: ", parentGroupID));
-                if (epgIDs != null && epgIDs.Count > 0)
-                {
-                    sb.Append(String.Concat(" EPG IDs: "));
-                    for (int i = 0; i < epgIDs.Count; i++)
-                    {
-                        sb.Append(String.Concat(epgIDs[i], ";"));
-                    }
-                }
-                else
-                {
-                    sb.Append("EPG IDs is either null or empty. ");
-                }
+                sb.Append(String.Concat("sizeof(epgIDs) : ", epgIDs != null ? epgIDs.Count : 0));
                 Logger.Logger.Log("Error", sb.ToString(), "GetEPGProgramsFromCB");
                 #endregion
             }
