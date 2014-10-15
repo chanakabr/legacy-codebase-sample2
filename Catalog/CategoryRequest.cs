@@ -260,54 +260,6 @@ namespace Catalog
             return lChildren;
         }
 
-        private CategoryResponse ConvertTree(Utils.TreeItem<CategoryResponse> treeNode)
-        {
-            CategoryResponse resCat = treeNode.Item;
-
-            resCat.m_oChildCategories = new List<CategoryResponse>();
-
-            List<Utils.TreeItem<CategoryResponse>> lChildNodes = treeNode.Children.ToList();
-
-            for (int i = 0; i < treeNode.Children.Count(); i++)
-            {
-                if (resCat.m_oChildCategories.Any(cc => cc.ID == lChildNodes[i].Item.ID))
-                {
-                    continue;
-                }
-
-                resCat.m_oChildCategories.Add(ConvertTree(lChildNodes[i]));
-            }
-                
-            return resCat;
-        }
-
-        
-
-        //private Dictionary<int, ApiObjects.CategoryObject> GetCategoriesDict(DataTable dtCat)
-        //{
-        //    Dictionary<int, ApiObjects.CategoryObject> dCats = new Dictionary<int,ApiObjects.CategoryObject>();
-
-        //    if (dtCat != null && dtCat.Rows != null && dtCat.Rows.Count > 0)
-        //    {
-        //        //lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
-        //        for (int i = 0; i < dtCat.Rows.Count; i++)
-        //        {
-        //            DataRow dr = dtCat.Rows[i];
-
-        //            ApiObjects.CategoryObject cat = new ApiObjects.CategoryObject();
-        //            cat.m_nID = Utils.GetIntSafeVal(dr, "id");
-        //            cat.m_sTitle = Utils.GetStrSafeVal(dr, "category_name");
-        //            cat.m_sCoGuid = Utils.GetStrSafeVal(dr, "co_guid");
-        //            cat.m_nPicID = Utils.GetIntSafeVal(dr, "pic_id");
-
-        //            dCats[cat.m_nID] = cat;
-        //        }
-        //    }
-
-        //    return dCats;
-        //}
-
-
         private channelObj GetChannelFromDbRow(DataRow chRow)
         {
             channelObj chObj = new channelObj();
