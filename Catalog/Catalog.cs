@@ -1486,138 +1486,47 @@ namespace Catalog
             return searcher.SearchEpgs(epgSearchReq);
         }
 
-        internal static EpgSearchObj BuildEpgSearchObject(EpgSearchRequest request, bool bWhiteSpace)
-        {
-            List<string> lSearchList = new List<string>();
-            EpgSearchObj searcherEpgSearch = new EpgSearchObj();
-
-            searcherEpgSearch.m_bExact = request.m_bExact;
-            searcherEpgSearch.m_dEndDate = request.m_dEndDate;
-            searcherEpgSearch.m_dStartDate = request.m_dStartDate;
-
-            //deafult values for OrderBy object 
-            searcherEpgSearch.m_bDesc = true;
-            searcherEpgSearch.m_sOrderBy = "start_date";
-
-            // set parent group by request.m_nGroupID                              
-            searcherEpgSearch.m_nGroupID = request.m_nGroupID;
-
-
-            string sVal = string.Empty;
-
-            List<SearchValue> dAnd = new List<SearchValue>();
-            List<SearchValue> dOr = new List<SearchValue>();
-            if (request.m_bExact) // free text search - based on  Exact tags and metas 
-            {
-                EpgSearchAddParams(request, ref dAnd, ref dOr);
-            }
-            else  // free text search - based on  metas/tags "isSearchable" setting 
-            {
-                searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
-                //Get all tags and meta for group
-                GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-                if (lSearchList == null)
-                    return null;
-                foreach (string item in lSearchList)
-                {
-                    if (bWhiteSpace)
-                        sVal = request.m_sSearch.Replace(' ', '_');
-                    else
-                        sVal = request.m_sSearch;
-                    dOr.Add(new SearchValue(item, sVal));
-                }
-            }
-            //initialize the search list with And / Or values
-            searcherEpgSearch.m_lSearchOr = dOr;
-            searcherEpgSearch.m_lSearchAnd = dAnd;
-
-            searcherEpgSearch.m_nPageIndex = request.m_nPageIndex;
-            searcherEpgSearch.m_nPageSize = request.m_nPageSize;
-
-            searcherEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
-            searcherEpgSearch.m_nNextTop = 0;
-            searcherEpgSearch.m_nPrevTop = 0;
-            searcherEpgSearch.m_bIsCurrent = false;
-            searcherEpgSearch.m_bSearchOnlyDatesAndChannels = false;
-
-            return searcherEpgSearch;
-
-        }
-
-        /*Build Full search object*/
-        private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
-        {
-            if (request.m_AndList != null)
-            {
-                foreach (KeyValue andKeyValue in request.m_AndList)
-                {
-                    SearchValue search = new SearchValue();
-                    search.m_sKey = andKeyValue.m_sKey;
-                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
-                    search.m_sValue = andKeyValue.m_sValue;
-                    m_dAnd.Add(search);
-                }
-            }
-
-            if (request.m_OrList != null)
-            {
-                foreach (KeyValue orKeyValue in request.m_OrList)
-                {
-                    SearchValue search = new SearchValue();
-                    search.m_sKey = orKeyValue.m_sKey;
-                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
-                    search.m_sValue = orKeyValue.m_sValue;
-                    m_dOr.Add(search);
-                }
-            }
-        }
-
-
         internal static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
         {
-            try
+
+            GroupManager groupManager = new GroupManager();
+            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
+            List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
+
+            DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
+
+            lSearchList.Add("name");
+            lSearchList.Add("description");
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
             {
-                GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
-                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-
-                DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
-
-                lSearchList.Add("name");
-                lSearchList.Add("description");
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+                //Metas
+                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
-                    //Metas
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        foreach (DataRow row in ds.Tables[0].Rows)
+                        string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+                        if (!string.IsNullOrEmpty(filed))
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
-                            {
-                                lSearchList.Add(filed);
-                            }
+                            lSearchList.Add(filed);
                         }
                     }
-                    //Tags
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                }
+                //Tags
+                if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[1].Rows)
                     {
-                        foreach (DataRow row in ds.Tables[1].Rows)
+                        string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+                        if (!string.IsNullOrEmpty(filed))
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
-                            {
-                                lSearchList.Add(filed);
-                            }
+                            lSearchList.Add(filed);
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                lSearchList = null;
-            }
+
+
         }
 
 
@@ -1817,112 +1726,36 @@ namespace Catalog
             }
         }
 
-        internal static List<string> EpgAutoComplete(EpgAutoCompleteRequest request)
+        internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, ref ISearcher initializedSearcher,
+            ref List<List<string>> jsonizedChannelsDefinitions)
         {
-            try
+            List<long> res = new List<long>();
+            Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(groupID);
+            MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
+                dict, jsonizedChannelsDefinitions);
+            SearchResultsObj searcherAnswer = initializedSearcher.SearchMedias(groupID, linearChannelMediaIDsRequest, 0, true, groupID);
+
+            if (searcherAnswer.n_TotalItems > 0)
             {
-                List<string> result = null;
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-                if (searcher == null)
-                {
-                    throw new Exception("EpgAutoComplete. Failed to create searcher instance.");
-                }
-
-                try
-                {
-                    bool bWhiteSpace = searcher is LuceneWrapper;
-
-                    EpgSearchObj epgSearch = null;
-                    List<List<string>> jsonizedChannelsDefinitions = null;
-                    if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
-                    {
-                        Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
-                        MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
-                            dict, jsonizedChannelsDefinitions);
-                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true, request.m_nGroupID);
-
-                        if (searcherAnswer.n_TotalItems > 0)
-                        {
-                            List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
-                            List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
-                            request.m_oEPGChannelIDs = epgChannelsIDs;
-                            epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
-                        }
-                        else
-                        {
-                            // no linear medias returned from searcher
-                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
-                            return new List<string>(0);
-                        }
-                    }
-                    else
-                    {
-                        epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
-                    }
-
-                    if (epgSearch != null)
-                        result = searcher.GetEpgAutoCompleteList(epgSearch);
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                    else
-                        return null;
-                }
-
-                catch (Exception ex)
-                {
-                    _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                    result = null;
-                }
-                return result;
+                List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
+                res.AddRange(GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs));
             }
-            catch (Exception ex)
-            {
-                _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                return null;
-            }
+
+            return res;
         }
 
-        private static EpgSearchObj BuildEpgSearchObject(EpgAutoCompleteRequest request, bool bWhiteSpace)
+        internal static List<string> EpgAutoComplete(EpgSearchObj request)
         {
-            List<string> lSearchList = new List<string>();
-            EpgSearchObj oEpgSearch = new EpgSearchObj();
 
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
-            oEpgSearch.m_bSearchAnd = false; //search with or
-            oEpgSearch.m_bDesc = false;
-            oEpgSearch.m_sOrderBy = "name";
-
-            oEpgSearch.m_dEndDate = request.m_dEndDate;
-            oEpgSearch.m_dStartDate = request.m_dStartDate;
-            List<EpgSearchValue> dEsv = new List<EpgSearchValue>();
-            string sVal = string.Empty;
-            //Get all tags and meta for group
-            GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-
-            if (lSearchList == null)
-                return null;
-            foreach (string item in lSearchList)
+            if (searcher == null || request == null)
             {
-                if (bWhiteSpace)
-                    sVal = request.m_sSearch.Replace(' ', '_');
-                else
-                    sVal = request.m_sSearch;
-                dEsv.Add(new EpgSearchValue(item, sVal));
+                throw new Exception("EpgAutoComplete. Either EpgSearchObj or Searcher instance is null.");
             }
 
-            oEpgSearch.m_lSearch = dEsv;
+            return searcher.GetEpgAutoCompleteList(request);
 
-            // set parent group by request.m_nGroupID                
-            oEpgSearch.m_nGroupID = request.m_nGroupID;
-
-            oEpgSearch.m_nPageIndex = request.m_nPageIndex;
-            oEpgSearch.m_nPageSize = request.m_nPageSize;
-            oEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
-
-            return oEpgSearch;
         }
 
         /*
@@ -2062,46 +1895,11 @@ namespace Catalog
             }
         }
 
-        //insert default values to Top Next and Top prev, if they are 0
-        private static void getTopValues(EpgRequest request, ref int nNextTop, ref int nPrevTop)
-        {
-            if (request.m_eSearchType == EpgSearchType.Current)
-            {
-                int itemAmount;
-                bool succeedParse;
-                if (request.m_nNextTop == 0) //insert default value, to prevent querying everything
-                {
-                    succeedParse = int.TryParse(Utils.GetWSURL("EPG_NEXT_TOP_ITEMS"), out itemAmount);
-                    if (succeedParse)
-                        nNextTop = itemAmount;
-                    else
-                        nNextTop = 10;
-                }
-                else
-                {
-                    nNextTop = request.m_nNextTop;
-                }
-                if (request.m_nPrevTop == 0)//insert default value, to prevent querying everything
-                {
-                    succeedParse = int.TryParse(Utils.GetWSURL("EPG_PREV_TOP_ITEMS"), out itemAmount);
-                    if (succeedParse)
-                        nPrevTop = itemAmount;
-                    else
-                        nPrevTop = 10;
-                }
-                else
-                {
-                    nPrevTop = request.m_nPrevTop;
-                }
-            }
-        }
-
         public static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             List<AssetStatsResult> resList = null;
             DataSet ds;
             bool sendLog = false;
-
             try
             {
                 if (eType == StatsType.MEDIA)
@@ -2138,8 +1936,11 @@ namespace Catalog
                             sendLog = true;
                     }
                 }
+                if (sendLog)
+                {
+                    Logger.Logger.Log("Error", string.Format("GetAssetStatsResults. Failed to retrieve stats. G ID: {0} , SD: {1} , ED: {2} , Type: {3}", nGroupID, dStartDate.ToString(), dEndDate.ToString(), eType.ToString()), "GetAssetStatsResults");
+                }
             }
-
             catch (Exception ex)
             {
                 Logger.Logger.Log("Exception", string.Format("Exception at GetAssetStatsResults. Msg: {0} , ST: {1}", ex.Message, ex.StackTrace), "Catalog");

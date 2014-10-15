@@ -180,22 +180,9 @@ namespace Catalog
             List<List<string>> jsonizedChannelsDefinitions = null;
             if (Catalog.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
             {
-                Dictionary<string, string> dict = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(m_nGroupID);
-                MediaSearchObj linearChannelMediaIDsRequest = Catalog.BuildLinearChannelsMediaIDsRequest(m_nGroupID,
-                    dict, jsonizedChannelsDefinitions);
-                SearchResultsObj searcherAnswer = searcher.SearchMedias(m_nGroupID, linearChannelMediaIDsRequest, 0, true, m_nGroupID);
+                m_oEPGChannelIDs = Catalog.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher, ref jsonizedChannelsDefinitions);
+                res = BuildEPGSearchObjectInner();
 
-                if (searcherAnswer.n_TotalItems > 0)
-                {
-                    List<long> ipnoEPGChannelsMediaIDs = Catalog.ExtractMediaIDs(searcherAnswer);
-                    List<long> epgChannelsIDs = Catalog.GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
-                    m_oEPGChannelIDs = epgChannelsIDs;
-                    res = BuildEPGSearchObjectInner();
-                }
-                else
-                {
-                    throw new Exception(String.Concat("Failed to extract EPG Channel IDs for IPNO Filtering. Request: ", ToString()));
-                }
             }
             else
             {
@@ -232,13 +219,14 @@ namespace Catalog
                 searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
                 //Get all tags and meta for group
                 Catalog.GetGroupsTagsAndMetas(m_nGroupID, ref lSearchList);
+
                 if (lSearchList == null)
-                    return null;
-                string sVal = string.Empty;
+                {
+                    throw new Exception(String.Concat("Failed to retrieve groups tags and metas from DB. Req: ", ToString()));
+                }
                 foreach (string item in lSearchList)
                 {
-                    sVal = m_sSearch;
-                    dOr.Add(new SearchValue(item, sVal));
+                    dOr.Add(new SearchValue(item, m_sSearch));
                 }
             }
             //initialize the search list with And / Or values

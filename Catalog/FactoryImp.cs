@@ -102,7 +102,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgAutoCompleteRequest)
             {
-                return new EpgAutoCompleteRequest();
+                return (EpgAutoCompleteRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is MediaSearchFullRequest)
             {
