@@ -2767,7 +2767,7 @@ namespace TvinciImporter
 
                 if (!startDate.HasValue)
                 {
-                    //updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
                 }
                 else
                 {
@@ -2776,7 +2776,7 @@ namespace TvinciImporter
 
                 if (!endDate.HasValue)
                 {
-                    //updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
                 }
                 else
                 {
