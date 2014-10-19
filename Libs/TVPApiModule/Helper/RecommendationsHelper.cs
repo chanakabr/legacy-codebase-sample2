@@ -15,7 +15,7 @@ using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.api;
+
 
 namespace TVPApiModule.Helper
 {
