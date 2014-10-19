@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
-using System.Configuration;
 using ODBCWrapper;
 using ApiObjects;
 using ApiObjects.MediaMarks;
@@ -95,51 +93,18 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
+        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid)
         {
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
 
-            
             //Complete details from db
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter("@MediaID", nMediaIDs, "Id");
-            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-        }
-
-       /* public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
-        {
-            List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
-            List<UserMediaMark> lRes = new List<UserMediaMark>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            List<string> docKeysList = new List<string>();
+            DataTable dt = Get_MediaUpdateDate(nMediaIDs);
+            return dt;
             
-            int nUserID = 0;
-            int.TryParse(sSiteGuid, out nUserID);
-
-            foreach (int nMediaID in nMediaIDs)
-            {
-                docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
-            }
-
-            IDictionary<string, object> res = m_oClient.Get(docKeysList);
-
-            foreach (string sKey in res.Keys)
-            {
-                mediaMarkLogList.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
-            }
-
-            List<MediaMarkLog> sortedMediaMarksList = mediaMarkLogList.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
-            lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
-            return lRes;
-        }*/
+        }      
 
         public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
         {
@@ -1689,5 +1654,25 @@ namespace Tvinci.Core.DAL
             int mediaID = sp.ExecuteReturnValue<int>();
             return mediaID;
         }
+
+        public static DataSet GetGroupCategoriesAndChannels(int nGroupID, int nLangID = 0)
+        {
+            // SELECT ID, CATEGORY_NAME, PARENT_CATEGORY_ID, PIC_ID, ORDER_NUM, CO_GUID FROM CATEGORIES 
+            // SELECT CH.ID,CH.PIC_ID,CH.NAME,CH.DESCRIPTION,CH.EDITOR_REMARKS  
+
+            StoredProcedure sp = new StoredProcedure("Get_GroupCategoriesAndChannels");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", nGroupID);
+
+            if (nLangID > 0)
+            {
+                sp.AddParameter("@LanguageID", nLangID);
+            }
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return ds;
+        }
+
     }
 }

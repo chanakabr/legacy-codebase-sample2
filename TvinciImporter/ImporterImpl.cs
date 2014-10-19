@@ -1010,9 +1010,10 @@ namespace TvinciImporter
                         }
 
                         UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
-                    }                
-
+                    }
                 }
+                
+                UtilsDal.YesDeleteChannelsByOfferID();
 
                 return bOK;
             }
@@ -2487,7 +2488,7 @@ namespace TvinciImporter
                     int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
                     int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
 
-                    string size = nWidth + "x" + nHeight;
+                    string size = nWidth + "X" + nHeight;
                     lString.Add(size);                   
                 }
             }
@@ -2733,18 +2734,18 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
                 {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
                 {
@@ -2764,18 +2765,18 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    //updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
                 {
                     updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    //updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
                 {
