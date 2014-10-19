@@ -19,31 +19,61 @@ namespace Users
         {
             bool res = false;
 
-            try
+            string key = string.Format("users_StateInitialize_{0}", nStateID);
+            State oState;
+            res = UsersCache.GetItem<State>(key, out oState);
+            if (!res || oState == null )
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "SELECT STATE_NAME, STATE_CD2, COUNTRY_ID FROM STATES WITH (NOLOCK) WHERE ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nStateID);
-                if (selectQuery.Execute("query", true) != null)
+                try
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "SELECT STATE_NAME, STATE_CD2, COUNTRY_ID FROM STATES WITH (NOLOCK) WHERE ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nStateID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        string sCountryName = selectQuery.Table("query").DefaultView[0].Row["STATE_NAME"].ToString();
-                        string sCountryCode = selectQuery.Table("query").DefaultView[0].Row["STATE_CD2"].ToString();
-                        Int32 nCountryID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["COUNTRY_ID"].ToString());
-                        res = Initialize(nStateID, sCountryName, sCountryCode, nCountryID);
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount > 0)
+                        {
+                            string sCountryName = selectQuery.Table("query").DefaultView[0].Row["STATE_NAME"].ToString();
+                            string sCountryCode = selectQuery.Table("query").DefaultView[0].Row["STATE_CD2"].ToString();
+                            Int32 nCountryID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["COUNTRY_ID"].ToString());
+                            res = Initialize(nStateID, sCountryName, sCountryCode, nCountryID);
+                        }
+                    }
+                    selectQuery.Finish();
+                    selectQuery = null;
+                    if (res)
+                    {
+                        UsersCache.AddItem(key, this);
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
+                catch
+                {
+                    res = false;
+                }
             }
-            catch
+            else
             {
-                res = false;
+                res = Initialize(oState);
+            }
+            return res;
+        }
+
+        private bool Initialize(State oState)
+        {
+            try
+            {
+                m_Country = oState.m_Country;
+                m_nObjecrtID = oState.m_nObjecrtID;
+                m_sStateCode = oState.m_sStateCode;
+                m_sStateName = oState.m_sStateName;
+                return true;
+            }
+            catch 
+            {
+                return false;
             }
 
-            return res;
         }
 
         public bool Initialize(Int32 nStateID, string sStateName, string sStateCode , Int32 nCountryID)
@@ -61,32 +91,46 @@ namespace Users
         {
             bool bOK = false;
 
-            try
+            string key = string.Format("users_StateInitializeByCode_{0}_{1}", sCode, nCountryID);
+            State oState;
+            bOK = UsersCache.GetItem<State>(key, out oState);
+            if (!bOK || oState == null)
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "SELECT ID, STATE_NAME FROM STATES WITH (NOLOCK) WHERE ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATE_CD2", "=", sCode);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
-                if (selectQuery.Execute("query", true) != null)
+                try
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "SELECT ID, STATE_NAME FROM STATES WITH (NOLOCK) WHERE ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATE_CD2", "=", sCode);
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        Int32 nStateID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        string sStateName = selectQuery.Table("query").DefaultView[0].Row["STATE_NAME"].ToString();
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount > 0)
+                        {
+                            Int32 nStateID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                            string sStateName = selectQuery.Table("query").DefaultView[0].Row["STATE_NAME"].ToString();
 
-                        bOK = Initialize(nStateID, sStateName, sCode, nCountryID);
+                            bOK = Initialize(nStateID, sStateName, sCode, nCountryID);
+                        }
                     }
+                    selectQuery.Finish();
+                    selectQuery = null;
+                   
                 }
-                selectQuery.Finish();
-                selectQuery = null;
+                catch
+                {
+                    bOK = false;
+                }
+                if (bOK)
+                {
+                    UsersCache.AddItem(key, this);
+                }
             }
-            catch
+            else
             {
-                bOK = false;
+                bOK = Initialize(oState);
             }
-
             return bOK;
         }
 

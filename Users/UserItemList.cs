@@ -11,8 +11,6 @@ namespace Users
         public int? orderNum { get; set; }
     }
 
-
-
     public class UserItemList
     {
         public string siteGuid { get; set; }

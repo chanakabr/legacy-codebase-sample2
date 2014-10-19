@@ -36,12 +36,7 @@ namespace Users
             retVal.m_sSenderTo = sEmail;
             retVal.m_sUsername = sUserName;
             sActivation = UsersDal.GetActivationToken(m_nGroupID, sUserName);
-
-            //DataTable dt = UsersDal.GetActivationToken(m_nGroupID, sUserName);
-            //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            //    if (dt.Rows[0]["ACTIVATION_TOKEN"] != DBNull.Value)
-            //        sActivation = dt.Rows[0]["ACTIVATION_TOKEN"].ToString();
-
+            
             if (string.IsNullOrEmpty(sFacekookID))
             {
                 //not facebook registeration, user needs to activate his account.

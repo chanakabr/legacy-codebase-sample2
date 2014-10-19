@@ -12,9 +12,8 @@ namespace Users
     public class Utils
     {
         public const int USER_COGUID_LENGTH = 15;
-        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the
-        // default result of GetDateSafeVal in ODBCWrapper.Utils
-        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000;
+        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
+        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
         {
@@ -96,7 +95,10 @@ namespace Users
                 if (dr != null)
                 {
                     nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
-                    UsersCache.AddItem(key, nImplID);
+                    if (nImplID > 0)
+                    {
+                        UsersCache.AddItem(key, nImplID);
+                    }
                 }
             }
 
@@ -119,13 +121,11 @@ namespace Users
             }
 
         }
-
-
+        
         static public string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
-
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {   
@@ -420,6 +420,5 @@ namespace Users
 
             return res;
         }
-
     }
 }

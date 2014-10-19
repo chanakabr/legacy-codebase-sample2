@@ -200,8 +200,6 @@ namespace Users
             return saved;
         }
 
-        
-
         //generate a temporary table and insert to it all the data that need to be updated\inserted
         private bool UpdateAllDynamicData(int nUserID, int nGroupID, Dictionary<int, KeyValuePair<string, string>> dUpdate, List<KeyValuePair<string, string>> lInsert, List<int> lToRemove)
         {
@@ -364,16 +362,12 @@ namespace Users
 
             return copy;
         }
-
-
+        
         private void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
         }
-
-
+        
         public UserDynamicDataContainer[] m_sUserData;
-
     }
-
 }

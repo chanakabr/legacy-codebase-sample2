@@ -268,115 +268,7 @@ namespace Users
             // Tvinci signIn. password = username 
             return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-
-
-        #region OldSignIn
-        //public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
-        //{
-        //    UserResponseObject o = null;
-        //    // Get Yes User Details
-        //    Dictionary<string, string> yesUserData = GetYesUserDetails(sUN, sPass, false); //
-        //    string sUserCoGuid = string.Empty;
-        //    GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);
-
-        //    // If not valid return user not exist
-        //    if (string.IsNullOrEmpty(sUserCoGuid))
-        //    {
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //        return o;
-        //    }
-
-        //    // Check if user on Tvinci
-        //    UserResponseObject userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
-        //    if (userInfo.m_RespStatus == ResponseStatus.UserDoesNotExist)
-        //    {
-        //        // Create Tvinci user - set password = username
-        //        UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
-        //        UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
-
-        //        userInfo = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
-        //        if (userInfo.m_RespStatus != ResponseStatus.OK)
-        //        {
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-        //            return o;
-        //        }
-        //    }
-
-        //    // Check if Domain exist
-        //    string domainCoGuid = string.Empty;
-        //    int userID = int.Parse(userInfo.m_user.m_sSiteGUID);
-        //    Users.BaseDomain t = null;
-
-        //    string ip = "1.1.1.1";
-        //    string sWSUserName = string.Empty;
-        //    string sWSPass = string.Empty;
-        //    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "AddDomain", "domains", ip, ref sWSUserName, ref sWSPass);
-        //    Utils.GetGroupID(sWSUserName, sWSPass, "AddDomain", ref t);
-
-        //    if (t == null)
-        //    {
-        //        //Logger.Logger.Log("Creating Domain_WS Error", "Domain = " + t.ToString(), "Domains");
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-        //        return o;
-        //    }
-
-        //    GetUserContentInfo(ref domainCoGuid, "AccountUuid", yesUserData);
-
-        //    // get TVinci domain ID, if 0 domain is not exist yet
-        //    int domainID = t.GetDomainIDByCoGuid(domainCoGuid);
-        //    // get TVinci associated domain id from user info
-        //    int userTVinciDomainID = userInfo.m_user.m_domianID;
-
-        //    Users.DomainResponseObject dr = null;
-
-        //    // Create new TVDomain if domain CoGuid is not empty, TVinci user associated domain has no id and there is no domain related to that coGuid
-        //    if (!string.IsNullOrEmpty(domainCoGuid) && userTVinciDomainID == 0 && domainID == 0)
-        //    {
-        //        dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", userID, nGroupID, domainCoGuid);
-
-        //        if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
-        //        {
-        //            // Error adding to domain
-        //            //Logger.Logger.Log("Add Domain Error", "Domain = " + t.ToString(), "Domains");
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //            return o;
-        //        }
-        //    }
-        //    // join user to an active domain if Vinci user associated domain has no id, domain CoGuid is not empty and there is a domain related to that coGuid
-        //    else if (!string.IsNullOrEmpty(domainCoGuid) && userTVinciDomainID == 0 && domainID != 0)
-        //    {
-        //        Domain oDomain = t.GetDomainInfo(domainID, nGroupID);
-
-        //        // add user to domain
-        //        dr = t.AddUserToDomain(nGroupID, domainID, userID, oDomain.m_masterGUIDs[0], false);
-
-        //        if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
-        //        {
-        //            // Error join to domain
-        //            //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //            return o;
-        //        }
-
-        //    }
-        //    // if there is existing TVinci domain that associated with the current user return an error
-        //    else if (domainID != 0 && domainID != userTVinciDomainID)
-        //    {
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //        return o;
-        //    }
-
-        //    // Tvinci signIn. password = username 
-        //    return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
-        //} 
-        #endregion
-
+        
         //in case of Yes - the new domain is added seperatly, this is a dummy function
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
@@ -384,8 +276,6 @@ namespace Users
             dr.m_oDomainResponseStatus = DomainResponseStatus.OK;
             return dr;
         }
-
-
 
         private void GetUserContentInfo(ref string subject, string value, Dictionary<string, string> userInfo)
         {
@@ -463,7 +353,7 @@ namespace Users
         }
 
         // WARNING: Crazy code below
-        public string GetUserPermission(Dictionary<string, string> yesUserData)  //, string sUserName, string sUserType)
+        public string GetUserPermission(Dictionary<string, string> yesUserData)
         {
             // OK || LOGIN_MSG_{Excel line number}
             string sRet = "OK";
@@ -735,6 +625,5 @@ namespace Users
 
             return sRet;
         }
-
     }
 }

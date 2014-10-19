@@ -90,8 +90,7 @@ namespace Users
 
             return oNewDomain;
         }
-
-
+        
         public static Domain CheckAddMonkey(Domain dom)
         {
             if (dom == null)
@@ -156,6 +155,5 @@ namespace Users
 
             return resDomain;
         }
-
     }
 }

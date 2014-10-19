@@ -8,7 +8,6 @@ namespace Users
 {
     public class TvinciDomain : BaseDomain
     {
-
         protected TvinciDomain()
         {
         }

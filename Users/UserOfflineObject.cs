@@ -58,7 +58,7 @@ namespace Users
             selectquery += ") and ";
             selectquery += ODBCWrapper.Parameter.NEW_PARAM("uoi.Site_User_Guid", "=", sSiteGuid);
 
-          
+
 
             //Execute select query
             if (selectquery.Execute("query", true) != null)
@@ -116,7 +116,7 @@ namespace Users
         //    selectquery += ODBCWrapper.Parameter.NEW_PARAM("g.COMMERCE_GROUP_ID", "=", nGroupID);
         //    selectquery += ") and ";
         //    selectquery += ODBCWrapper.Parameter.NEW_PARAM("uoi.Site_User_Guid", "=", sSiteGuid);
-           
+
         //    if (!string.IsNullOrEmpty(sFileType))
         //    {
         //        selectquery += "and ";
@@ -144,7 +144,7 @@ namespace Users
         //            res[i] = offlineitem;
         //        }
 
-              
+
         //    }
 
         //    selectquery.Finish();
@@ -155,7 +155,7 @@ namespace Users
 
         //    return res;
         //}
-        
+
         /// <summary>
         /// Add user offline items
         /// </summary>
@@ -195,16 +195,16 @@ namespace Users
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
                         updatequery += " and ";
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
-                        
+
                         //Execute update query
                         res = updatequery.Execute();
                         updatequery.Finish();
                         updatequery = null;
 
                         //Write Log
-                        Logger.Logger.Log("Add User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid "+ sSiteGuid + "and GroupID "+ nGroupID +" to status=1", "users");
-                  
-                        
+                        Logger.Logger.Log("Add User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1", "users");
+
+
                     }
                     else
                     {
@@ -213,12 +213,12 @@ namespace Users
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
-                        
+
                         //Execute insert query
                         res = insertQuery.Execute();
                         insertQuery.Finish();
                         insertQuery = null;
-                       
+
                         //Write Log
                         Logger.Logger.Log("Add User Offline Items ", " Add MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID, "users");
 
@@ -226,11 +226,11 @@ namespace Users
                 }
 
 
-               
+
 
             }
-            
-            
+
+
             return res;
         }
         /// <summary>
@@ -242,48 +242,48 @@ namespace Users
         /// <returns>Return true if success update specific MediaID offline item to status equal 2 else return false </returns>
         public static bool RemoveUserOfflineItems(Int32 nGroupID, string sSiteGuid, string sMediaID)
         {
-             bool res = false;
+            bool res = false;
 
-             nGroupID = GetGroupIDByMediaId(sMediaID);
+            nGroupID = GetGroupIDByMediaId(sMediaID);
 
-             if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid) && !string.IsNullOrEmpty(sMediaID))
-             {
-                 //Check if MediaID offline exist
-                 ODBCWrapper.DataSetSelectQuery selectquery = new ODBCWrapper.DataSetSelectQuery();
-                 selectquery += "select * from users_offline_items where ";
-                 selectquery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
-                 selectquery += " and ";
-                 selectquery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
-                 selectquery += " and ";
-                 selectquery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
+            if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid) && !string.IsNullOrEmpty(sMediaID))
+            {
+                //Check if MediaID offline exist
+                ODBCWrapper.DataSetSelectQuery selectquery = new ODBCWrapper.DataSetSelectQuery();
+                selectquery += "select * from users_offline_items where ";
+                selectquery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
+                selectquery += " and ";
+                selectquery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
+                selectquery += " and ";
+                selectquery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
 
-                 if (selectquery.Execute("query", true) != null)
-                 {
-                     Int32 count = selectquery.Table("query").DefaultView.Count;
-                     if (count > 0)
-                     {
-                         //update 
-                         ODBCWrapper.UpdateQuery updatequery = new ODBCWrapper.UpdateQuery("users_offline_items");
-                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", "2");
-                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.Now);
-                         updatequery += " where ";
-                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
-                         updatequery += " and ";
-                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
-                         updatequery += " and ";
-                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
-                         
-                         //Execute
-                         res = updatequery.Execute();
-                         updatequery.Finish();
-                         updatequery = null;
-                         
-                         //Write Log
-                         Logger.Logger.Log("Remove User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2", "users");
-                     }
-                 }
-             }
-             return res;
+                if (selectquery.Execute("query", true) != null)
+                {
+                    Int32 count = selectquery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        //update 
+                        ODBCWrapper.UpdateQuery updatequery = new ODBCWrapper.UpdateQuery("users_offline_items");
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", "2");
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.Now);
+                        updatequery += " where ";
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
+                        updatequery += " and ";
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
+                        updatequery += " and ";
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Media_ID", "=", sMediaID);
+
+                        //Execute
+                        res = updatequery.Execute();
+                        updatequery.Finish();
+                        updatequery = null;
+
+                        //Write Log
+                        Logger.Logger.Log("Remove User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2", "users");
+                    }
+                }
+            }
+            return res;
         }
         /// <summary>
         /// Clear user offline items
@@ -314,7 +314,7 @@ namespace Users
                 //Write to LOG
                 Logger.Logger.Log("Clear User Offline Items ", " Update Exist All MediaID, SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2", "users");
 
-                
+
 
             }
 
@@ -363,9 +363,7 @@ namespace Users
         /// </summary>
         public string UpdateDate { get { return m_UpdateDate; } }
 
-       
+
         #endregion
-
-
     }
 }

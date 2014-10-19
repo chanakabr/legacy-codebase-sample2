@@ -117,8 +117,6 @@ namespace Users
             }
         }
 
-
-
         public virtual bool AddChannelMediaToFavorites(string sUserGUID, int domainID, string sDeviceUDID,
           string sItemType, string sChannelID, string sExtraData, Int32 nGroupID)
         {

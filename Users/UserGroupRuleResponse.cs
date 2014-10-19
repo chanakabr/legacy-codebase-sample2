@@ -32,6 +32,5 @@ namespace Users
             ChangePinToken = changePinToken;
             ResponseStatus = responseStatus;
         }
-
     }
 }

@@ -104,7 +104,6 @@ namespace Users
             return activStatus;
         }
 
-
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
             List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
@@ -115,8 +114,7 @@ namespace Users
 
             return activStatus;
         }
-
-
+        
         public override UserResponseObject CheckUserPassword(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
@@ -192,8 +190,7 @@ namespace Users
 
             return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-
-
+        
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
             Users.BaseDomain t = null;               
@@ -207,8 +204,7 @@ namespace Users
             }
             return dr;
         }
-
-
+        
         public override UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             string sUN = string.Empty;
@@ -582,8 +578,7 @@ namespace Users
             }            
             return succeded;
         }
-
-
+        
         protected bool SendMailImpl(User user)
         {
             string sMCTemplate = user.m_oDynamicData.GetValByKey("mailtemplate");
@@ -1365,8 +1360,7 @@ namespace Users
             }
             return response;
         }
-
-
+        
         protected TvinciAPI.ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
         {
             TvinciAPI.ForgotPasswordMailRequest retVal = new TvinciAPI.ForgotPasswordMailRequest();
@@ -1410,8 +1404,7 @@ namespace Users
             retVal.m_eMailType = TvinciAPI.eMailTemplateType.ChangedPin;
             return retVal;
         }
-
-
+        
         protected virtual TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
             string sMailData = string.Empty;
@@ -1642,6 +1635,7 @@ namespace Users
                 return false;
             }
         }
+
         public override bool RemoveUserOfflineItems(int nGroupID, string sSiteGuid, string sMediaID)
         {
             if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid) && !string.IsNullOrEmpty(sMediaID))
@@ -1653,6 +1647,7 @@ namespace Users
                 return false;
             }
         }
+
         public override bool ClearUserOfflineItems(int nGroupID, string sSiteGuid)
         {
             if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid))
@@ -1665,8 +1660,7 @@ namespace Users
             }
         }
         #endregion
-
-
+        
         public override Domain AddUserToDomain(int nGroupID, int nDomainID, int nUserID, bool bIsMaster)
         {
             //Create new domain

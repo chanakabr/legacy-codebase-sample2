@@ -40,8 +40,7 @@ namespace Users
             User user = new User(nUserID, nGroupID);
             return user;
         }
-
-
+        
         public static UserState DoUserAction(int siteGuid, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
         {
             UserState retVal = UserState.Unknown;
@@ -215,8 +214,7 @@ namespace Users
             int userID = Save(nGroupID);
             return userID;
         }
-
-
+        
         public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)
         {
             if (m_sSiteGUID != "")
@@ -516,8 +514,7 @@ namespace Users
 
             return nID;
         }
-
-
+        
         public bool SaveDynamicData(int nGroupID)
         {
             bool saved = false;
@@ -645,13 +642,7 @@ namespace Users
             retVal.m_userInstanceID = instanceID.ToString();
             return retVal;
         }
-
-        //static private bool IsDeviceRegistered(string udid, int siteGuid, int domainID)
-        //{
-        //    bool retVal = true;
-        //    return retVal;
-        //}
-
+        
         static private DateTime GetLastUserSessionDate(int nSiteGuid, string sIP, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
         {
             DateTime retVal = DateTime.MaxValue;
