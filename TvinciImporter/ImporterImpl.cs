@@ -664,6 +664,9 @@ namespace TvinciImporter
                 ProccessCategoryChildNodes(nGroupID, categorylID, ref theInnerCategories);
             }
 
+            int rootCategoryID = int.Parse(ConfigurationManager.AppSettings["ROOT_CATEGORY_ID"]);
+            DAL.ImporterImpDAL.StartCategoriesTransaction(rootCategoryID);
+
             return bOK;
         }
 
