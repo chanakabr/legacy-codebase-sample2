@@ -628,7 +628,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get (ORCA) recommended medias by gallery")]
-        public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType)
+        public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType, string coGuid)
         {
             logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
 
@@ -641,7 +641,7 @@ namespace TVPApiServices
                 try
                 {
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    retVal = impl.GetRecommendedMediasByGallery(initObj, groupID, mediaID, picSize, parentalLevel, galleryType);
+                    retVal = impl.GetRecommendedMediasByGallery(initObj, groupID, mediaID, picSize, parentalLevel, galleryType, coGuid);
 
 
                 }
@@ -1616,7 +1616,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, clientIp, initObj.SiteGuid, initObj.UDID, string.Empty, string.Empty, string.Empty);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, initObj.SiteGuid, initObj.UDID, string.Empty, string.Empty, string.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -2080,7 +2080,7 @@ namespace TVPApiServices
                 {
 
                     IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
-                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, null);
                 }
                 catch (Exception ex)
                 {

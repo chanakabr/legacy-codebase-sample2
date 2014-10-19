@@ -59,7 +59,7 @@ namespace TVPApiServices
         bool SendNewPassword(InitializationObject initObj, string sUserName);
 
         [OperationContract]
-        TVPApiModule.Services.ApiUsersService.LogInResponseData SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
 
         [OperationContract]
         bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
@@ -93,5 +93,11 @@ namespace TVPApiServices
 
         [OperationContract]
         bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs);
+
+        [OperationContract]
+        TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
+
+        [OperationContract]
+        TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId, string SerialNumber);
     }
 }

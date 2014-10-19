@@ -563,9 +563,8 @@ public partial class MethodFinder
                         {
                             InspectObjectForEnums(ref json, propInfo.PropertyType, propInfo.Name);
                         }
-                    }                    
-                }                
-
+                    }
+                }
             } while (false);
         }
 
@@ -574,18 +573,6 @@ public partial class MethodFinder
             if (HttpContext.Current.Items.Contains(methodName))
             {
                 string paramValues = HttpContext.Current.Items[methodName].ToString();//.Replace("'","\"");
-
-                InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
-
-                object ret = TypeDeSerialize(paramValues, MethodParam);
-
-                return ret;
-            }
-            else if ((HttpContext.Current.Items.Keys.Cast<string>().ToList()).Contains(methodName, StringComparer.OrdinalIgnoreCase))
-            {
-                string paramValues = (from key in HttpContext.Current.Items.Keys.Cast<string>().ToList()
-                                      where string.Compare(key, methodName, true) == 0
-                                      select HttpContext.Current.Items[key]).FirstOrDefault<object>().ToString();
 
                 InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
 
@@ -613,12 +600,6 @@ public partial class MethodFinder
 
         protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
         {
-            int tEnum = 0;
-            if (currValue != null && int.TryParse(currValue.ToString(), out tEnum))
-            {
-                currValue = Enum.Parse(EnumType, currValue.ToString());
-            }
-
             foreach (Enum e in Enum.GetValues(EnumType))
             {
                 if (currValue == null)
@@ -628,7 +609,7 @@ public partial class MethodFinder
                         json = Convert.ToInt32(e).ToString();
                         break;
                     }
-                }                
+                }
                 else if (e.ToString() == currValue.ToString())//.Replace("\"",""))
                 {
                     json = Convert.ToInt32(e).ToString();

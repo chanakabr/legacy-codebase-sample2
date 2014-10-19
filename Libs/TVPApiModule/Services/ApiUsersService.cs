@@ -198,32 +198,20 @@ namespace TVPApiModule.Services
             }
         }
 
-        public LogInResponseData SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
+        public UserResponseObject SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
         {
-            LogInResponseData loginData = default(LogInResponseData);
+            UserResponseObject response = null;
 
             try
             {
-                UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);                 
-
-                if (response != null && response.m_user != null)
-                {
-                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
-                    loginData.DomainID = response.m_user.m_domianID;
-                    loginData.LoginStatus = response.m_RespStatus;
-                    loginData.UserData = response.m_user;
-                }
-                else if (response != null)
-                {
-                    loginData.LoginStatus = response.m_RespStatus;
-                }
+                response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error recive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
             }
 
-            return loginData;
+            return response;
         }
 
         public UserResponseObject SSOCheckLogin(string sUserName, int nProviderID)

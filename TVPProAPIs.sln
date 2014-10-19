@@ -29,7 +29,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WS_TVPApi", "WS_TVPApi\", "
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "48882"
+		VWDPort = "52183"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPPro.Configuration", "..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj", "{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}"

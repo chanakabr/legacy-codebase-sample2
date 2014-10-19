@@ -514,7 +514,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators,initObj.Platform);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators);
                 }
                 catch (Exception ex)
                 {
@@ -530,9 +530,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "SSO Signin")]
-        public TVPApiModule.Services.ApiUsersService.LogInResponseData SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
+        public UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
         {
-            TVPApiModule.Services.ApiUsersService.LogInResponseData response = default(TVPApiModule.Services.ApiUsersService.LogInResponseData);
+            UserResponseObject response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOSignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1286,6 +1286,33 @@ namespace TVPApiServices
                 {
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
                     response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Account STBs")]
+        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId, string SerialNumber)
+        {
+            TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    response = impl.GetMemirDetails(accountNumber, serviceAddressId);
                 }
                 catch (Exception ex)
                 {

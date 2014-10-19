@@ -32,10 +32,10 @@ namespace TVPApiModule.Objects
                                        .GetConfig(_nGroupID, _initObj.Platform)
                                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
 
-            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, System.Web.HttpContext.Current.Session.SessionID ,_initObj.UDID, isSingleLogin);
+            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, _initObj.UDID, string.Empty, isSingleLogin);
         }
 
-        
+
         public virtual DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
             return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).AddDeviceToDomain(_initObj.DomainID, _initObj.UDID, sDeviceName, nDeviceBrandID);
@@ -47,13 +47,13 @@ namespace TVPApiModule.Objects
             return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).RemoveDeviceToDomain(_initObj.DomainID, _initObj.UDID);
 
         }
-        
+
         public virtual string MediaHit(int nMediaID, int nFileID, int nLocationID)
         {
             return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID);
         }
 
-        
+
         public virtual string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
             return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, _initObj.SiteGuid, sExtraParams, _initObj.UDID, sPaymentMethodID, sEncryptedCVV);
@@ -105,13 +105,13 @@ namespace TVPApiModule.Objects
             return sRet;
         }
 
-        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
+        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid)
         {
             return null;
         }
 
 
-        public virtual string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        public virtual string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP)
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
         }
@@ -119,6 +119,11 @@ namespace TVPApiModule.Objects
         public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
         {
             return null;
-        }       
+        }
+
+        public virtual TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId)
+        {
+            return null;
+        }
     }
 }

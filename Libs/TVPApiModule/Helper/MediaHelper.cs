@@ -715,7 +715,7 @@ namespace TVPApi
             CutWith newCutWith = (CutWith)cutWith + 1;
 
             List<Media> lstRet = new List<Media>();
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
            
             //lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy, null, newTagsMetas, newCutWith);
 
