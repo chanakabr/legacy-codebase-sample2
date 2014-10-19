@@ -664,7 +664,8 @@ namespace TvinciImporter
                 ProccessCategoryChildNodes(nGroupID, categorylID, ref theInnerCategories);
             }
 
-            int rootCategoryID = int.Parse(ConfigurationManager.AppSettings["ROOT_CATEGORY_ID"]);
+            //get value from tcm
+            int rootCategoryID = TVinciShared.WS_Utils.GetTcmIntValue("ROOT_CATEGORY_ID");            
             DAL.ImporterImpDAL.StartCategoriesTransaction(rootCategoryID);
 
             return bOK;
@@ -2361,10 +2362,7 @@ namespace TvinciImporter
                 EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
             }
             return nPicID;
-        }
-		
-		
-
+        }		
 
         static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
@@ -2410,8 +2408,7 @@ namespace TvinciImporter
             }
             return nPicID;
         }
-
-
+        
         private static string getPictureFileName(string sThumb)
         {
             char[] delim = { '/' };
@@ -2429,8 +2426,7 @@ namespace TvinciImporter
             }
             return sPicName;
         }
-
-        
+                
         //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
         private static string[] getEPGPicSizes(int nGroupID)
         {
@@ -2458,10 +2454,7 @@ namespace TvinciImporter
             str = lString.ToArray();
             return str;
         }
-
-
-
-
+        
         //according to 'bSetMediaThumb' there is "full" and "tn"
         //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
         private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
