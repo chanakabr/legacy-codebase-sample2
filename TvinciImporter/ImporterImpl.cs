@@ -1010,9 +1010,10 @@ namespace TvinciImporter
                         }
 
                         UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
-                    }                
-
+                    }
                 }
+                
+                UtilsDal.YesDeleteChannelsByOfferID();
 
                 return bOK;
             }

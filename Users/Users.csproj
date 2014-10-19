@@ -168,6 +168,11 @@
     <Compile Include="UserUpdateResponse.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValidationResponseObject.cs" />
+    <Compile Include="Web References\OrcaProxy\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="Web References\TvinciAPI\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -242,6 +247,11 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Web References\OrcaProxy\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\OrcaProxy\service.wsdl" />
     <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -315,6 +325,17 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://192.168.162.24/YesProxy/service.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\OrcaProxy\</RelPath>
+      <UpdateFromURL>http://192.168.162.24/YesProxy/service.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>Users_OrcaProxy_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
@@ -329,6 +350,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciAPI\api.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\OrcaProxy\service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
