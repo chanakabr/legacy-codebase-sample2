@@ -440,6 +440,33 @@ namespace DAL
         public static string getDomainMediaMarksDocKey(int nDomainID)
         {
             return string.Format("d{0}", nDomainID);
-        } 
+        }
+
+        #region YES
+        public static DataTable YesDeleteMediasByOfferID(string nOfferID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("sp_yesDeleteMediasByOfferID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@OfferID", nOfferID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable YesDeleteChannelsByOfferID()
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("sp_FixYesChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+        #endregion
     }
 }

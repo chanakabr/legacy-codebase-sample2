@@ -59,7 +59,7 @@
       <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
