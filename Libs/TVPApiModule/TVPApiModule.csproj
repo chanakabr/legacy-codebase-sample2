@@ -203,6 +203,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\ApiBase.cs" />
     <Compile Include="Services\ApiConditionalAccessService.cs" />
     <Compile Include="Services\ApiDomainsService.cs" />
     <Compile Include="Services\ApiNotificationService.cs" />
