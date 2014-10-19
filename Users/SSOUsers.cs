@@ -24,13 +24,25 @@ namespace Users
         {
             if (nSSOProvID == 0)
             {
-                int defaultOperatorId = DAL.UsersDal.GetDefaultGroupOperator(m_nGroupID);
-                if (defaultOperatorId == 0)
+                string key = string.Format("users_GetSSOImplementation_{0}", m_nGroupID);
+                int defaultOperatorId;
+                bool bRes = UsersCache.GetItem<int>(key, out  defaultOperatorId);
+                if (!bRes)
                 {
-                    Logger.Logger.Log("Default operatorId is 0","", "GetSSOImplementation error");
+                    defaultOperatorId = DAL.UsersDal.GetDefaultGroupOperator(m_nGroupID);
+                    if (defaultOperatorId == 0)
+                    {
+                        Logger.Logger.Log("Default operatorId is 0", "", "GetSSOImplementation error");
+                    }
+                    else
+                    {
+                        UsersCache.AddItem(key, defaultOperatorId);
+                    }
                 }
+
                 nSSOProvID = defaultOperatorId;
             }
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "SELECT * FROM groups_operators WHERE STATUS=1 AND IS_ACTIVE=1 AND";
             if (nSSOProvID != 0)
@@ -67,50 +79,3 @@ namespace Users
         }
     }
 }
-//User u = new User();
-
-//ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-//selectQuery.SetConnectionKey("users_connection");
-//selectQuery += "SELECT u.ID, u.External_Token, udd.Platform from users u, users_dynamic_data udd WHERE u.ID=udd.USER_ID AND";
-//selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.USERNAME", "=", sUN);
-//selectQuery += " AND ";
-//selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.GROUP_ID", "=", nGroupID);
-
-//if (selectQuery.Execute("query", true) != null)
-//{
-//    if (selectQuery.Table("query").DefaultView.Count > 0)
-//    {
-//        DataRow dr = selectQuery.Table("query").Rows[0];
-//        nUserID = int.Parse(dr["ID"].ToString());
-//        nUserPlatform = int.Parse(dr["Platform"].ToString());
-//        sExternalToken = dr["External_Token"].ToString();
-//        u.Initialize(nUserID, nGroupID);
-//    }
-//}
-//selectQuery.Finish();
-
-////Check if the password was changed and if so, updates the DB
-//private void CheckIfPasswordNeedsUpdate(string sPass, int siteGuid)
-//{
-//    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-//    selectQuery += "SELECT password FROM users WHERE";
-//    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", siteGuid);
-//    if (selectQuery.Execute("query", true) != null)
-//    {
-//        if (selectQuery.Table("query").DefaultView.Count > 0)
-//        {
-//            string dbPass = selectQuery.Table("query").Rows[0]["PASSWORD"].ToString();
-//            selectQuery.Finish();
-//            if (dbPass != sPass)
-//            {
-//                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
-//                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
-//                updateQuery += "WHERE";
-//                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", siteGuid);
-//                updateQuery.Execute();
-//                updateQuery.Finish();
-//            }
-//        }
-
-//    }
-//}

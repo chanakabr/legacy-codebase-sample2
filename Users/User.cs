@@ -381,15 +381,23 @@ namespace Users
             string sUserTypeDesc = string.Empty;
             int nIsDefault = 0;
 
-            DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
-            if (dtUserData != null && dtUserData.Rows.Count > 0)
+            string key = string.Format("users_GetGroupUserTypes_{0}_Default_1", nGroupID);
+            UserType userType;
+            bool bRes = UsersCache.GetItem<UserType>(key , out userType);
+            
+            if (!bRes)
             {
-                nUserTypeID     = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["ID"]);
-                sUserTypeDesc   = ODBCWrapper.Utils.GetSafeStr(dtUserData.DefaultView[0]["description"]);
-                nIsDefault      = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
-            }
+                DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
+                if (dtUserData != null && dtUserData.Rows.Count > 0)
+                {
+                    nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["ID"]);
+                    sUserTypeDesc = ODBCWrapper.Utils.GetSafeStr(dtUserData.DefaultView[0]["description"]);
+                    nIsDefault = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
+                }
 
-            UserType userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+             userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+             UsersCache.AddItem(key, userType);
+            }
 
             return userType;
         }
