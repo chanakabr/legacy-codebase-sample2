@@ -134,7 +134,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is AssetStatsRequest)
             {
-                return new AssetStatsRequest();
+                return (AssetStatsRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgRequest)
             {

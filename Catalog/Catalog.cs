@@ -2099,35 +2099,70 @@ namespace Catalog
             }
         }
 
+        private static bool IsBringAllStatsRegardlessDates(DateTime startDate, DateTime endDate)
+        {
+            return startDate.Equals(DateTime.MinValue) && endDate.Equals(DateTime.MaxValue);
+        }
+
+        private static string GetAssetStatsResultsLogMsg(string sMsg, int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
+        {
+            StringBuilder sb = new StringBuilder(sMsg);
+            sb.Append(String.Concat(" G ID: ", nGroupID));
+
+            return sb.ToString();
+        }
+
         public static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            List<AssetStatsResult> resList = null;
+            DataSet ds;
+            bool sendLog = false;
+            switch (eType)
             {
-                log.Method = "Catalog.GetMediaStatsResults";
-                List<AssetStatsResult> resList = null;
-                DataSet ds;
-                bool sendLog = false;
-
-                try
-                {
-                    if (eType == StatsType.MEDIA)
+                case StatsType.MEDIA:
                     {
                         GroupManager groupManager = new GroupManager();
                         List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+                        DateTime? startDateToPassToDB = null;
+                        DateTime? endDateToPassToDB = null;
+                        if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
+                        {
+                            //ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
+                            if (dict.Count > 0)
+                            {
+
+                            }
+                            else
+                            {
+                                // log here
+                            }
+                        }
+                        else
+                        {
+                            //ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
+                            startDateToPassToDB = dStartDate;
+                            endDateToPassToDB = dEndDate;
+                        }
+
+                        // bring media views from SQL
+
+                        // bring rating, votes, likes from CB
 
 
-                        if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
-                        else
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-                        if (ds != null)
-                            resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
-                        else
-                            sendLog = true;
+                        //if (ds != null)
+                        //{
+                        //    resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
+                        //}
+                        //else
+                        //{
+                        //    sendLog = true;
+                        //}
+                        break;
                     }
-                    else if (eType == StatsType.EPG)
+                case StatsType.EPG:
                     {
-                        if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
+                        if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
                             resList = getEpgStatFromBL(nGroupID, lAssetIDs);
                         }
@@ -2139,27 +2174,70 @@ namespace Catalog
                             if (ds != null)
                                 resList = getEpgStatFromDataSet(ds, lAssetIDs);
                             else
+                            {
                                 sendLog = true;
+                            }
                         }
+                        break;
                     }
-                    if (sendLog)
+                default:
                     {
-                        log.Message = string.Format("Could not retrieve the media Statistics from the DB - DataSet is empty. the response will be null." +
-                            "group ID: {0}, mediaIDs{1}, startTime: {2}, endTime: {3}", nGroupID.ToString(), lAssetIDs.ToString(), dStartDate.ToString(), dEndDate.ToString());
-                        log.Error(log.Message, false);
-                        return null;
+                        throw new NotImplementedException(String.Concat("Unsupported stats type: ", eType.ToString()));
                     }
-                }
 
-                catch (Exception ex)
-                {
-                    log.Message = string.Format("Could not retrieve the media Statistics in Catalog.GetMediaStatsResults from the DB."
-                                                + "exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                    log.Error(log.Message, false);
-                    return null;
-                }
-                return resList;
+            } // switch
+
+            if (sendLog)
+            {
+
+                return null;
             }
+
+            return resList;
+
+            //if (eType == StatsType.MEDIA)
+            //{
+            //    GroupManager groupManager = new GroupManager();
+            //    List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+
+
+            //    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
+            //        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
+            //    else
+            //        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
+            //    if (ds != null)
+            //        resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
+            //    else
+            //    {
+            //        sendLog = true;
+            //    }
+            //}
+            //else if (eType == StatsType.EPG)
+            //{
+            //    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
+            //    {
+            //        resList = getEpgStatFromBL(nGroupID, lAssetIDs);
+            //    }
+            //    else
+            //    {
+            //        GroupManager groupManager = new GroupManager();
+            //        List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+            //        ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
+            //        if (ds != null)
+            //            resList = getEpgStatFromDataSet(ds, lAssetIDs);
+            //        else
+            //        {
+            //            sendLog = true;
+            //        }
+            //    }
+            //}
+            //if (sendLog)
+            //{
+
+            //    return null;
+            //}
+
+            //return resList;
         }
 
         private static List<AssetStatsResult> getEpgStatFromDataSet(DataSet ds, List<int> lAssetIDs)
@@ -2201,29 +2279,21 @@ namespace Catalog
         {
             List<AssetStatsResult> resList = new List<AssetStatsResult>();
             AssetStatsResult epgStat;
-            try
+
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
+            List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
+            foreach (EPGChannelProgrammeObject epg in lEpg)
             {
-                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
-                List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
-                foreach (EPGChannelProgrammeObject epg in lEpg)
+                if (epg != null)
                 {
-                    if (epg != null)
-                    {
-                        epgStat = new AssetStatsResult();
-                        epgStat.m_nAssetID = (int)epg.EPG_ID;
-                        epgStat.m_nLikes = epg.LIKE_COUNTER;
-                        resList.Add(epgStat);
-                    }
+                    epgStat = new AssetStatsResult();
+                    epgStat.m_nAssetID = (int)epg.EPG_ID;
+                    epgStat.m_nLikes = epg.LIKE_COUNTER;
+                    resList.Add(epgStat);
                 }
             }
-            catch (Exception ex)
-            {
-                BaseLog log = new BaseLog(eLogType.WcfRequest, DateTime.UtcNow, true);
-                log.Method = "Catalog.getMediaStatFromDataSet";
-                log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet . exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                log.Error(log.Message, false);
-                return null;
-            }
+
+
             return resList;
         }
 
@@ -2656,7 +2726,7 @@ namespace Catalog
 
         private static bool IsBrand(DataRow dr)
         {
-            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0")) 
+            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0"))
                 || (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "RECURRING_TYPE_ID")) && !dr["RECURRING_TYPE_ID"].ToString().Equals("0"));
         }
 

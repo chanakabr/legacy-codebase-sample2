@@ -43,33 +43,22 @@ namespace Catalog
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            AssetStatsRequest request = (AssetStatsRequest)oBaseRequest;
             AssetStatsResponse response = new AssetStatsResponse();
 
             try
             {
-                if (request == null)
-                    throw new ArgumentNullException("request object is null");
+                CheckSignature(this);
 
-                CheckSignature(request);
-
-                //get the results
-                response.m_lAssetStat = Catalog.GetAssetStatsResults(request.m_nGroupID, request.m_nAssetIDs, request.m_dStartDate, request.m_dEndDate, request.m_type);                    
+                response.m_lAssetStat = Catalog.GetAssetStatsResults(m_nGroupID, m_nAssetIDs, m_dStartDate, m_dEndDate, m_type);                    
               
             }
             catch (Exception ex)
             {
-                BaseLog log = new BaseLog(eLogType.WcfRequest, DateTime.UtcNow, true);
-                log.Method = "MediaStatsRequest GetResponse";                
-                log.Message = string.Format("Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. the response will be null. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace);                                
-                log.Error(log.Message, false);
- 
-                //previous log format
-                Logger.Logger.Log("Error", "Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");                
-                response = null; 
+                Logger.Logger.Log("Exception", String.Concat("Req: ", ToString(), " Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "AssetStatsRequest");
+                throw ex;
             }
 
-            return (BaseResponse)response;
+            return response;
         }
     }
 }
