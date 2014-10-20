@@ -92,19 +92,24 @@ namespace Users
         }
         static public FavoritObject[] GetFavorites(Int32 nGroupID , string sUserGUID, int domainID, string sUDID, string sType)
         {
-            FavoritObject[] ret = new FavoritObject[0];
+            if (string.IsNullOrEmpty(sUserGUID))
+            {
+                return new FavoritObject[0];
+            }
+
+            List<FavoritObject> favorits = new List<FavoritObject>();
             
             #region Get Single Media's user Favorit
             ODBCWrapper.DataSetSelectQuery selectquery = new ODBCWrapper.DataSetSelectQuery();
             selectquery += "select * from users_favorites where is_active=1 and status=1 and IS_CHANNEL=0";
             selectquery += " and ";
             selectquery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sUserGUID);
-            if (sUDID != "")
+            if (!string.IsNullOrEmpty(sUDID))
             {
                 selectquery += " and ";
                 selectquery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", sUDID);
             }
-            if (sType != "")
+            if (!string.IsNullOrEmpty(sType))
             {
                 selectquery += " and ";
                 selectquery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", sType);
@@ -115,23 +120,17 @@ namespace Users
                 Int32 nCount = selectquery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    Int32 nID = int.Parse(selectquery.Table("query").DefaultView[i].Row["ID"].ToString());
-                    string sIUserGUID = selectquery.Table("query").DefaultView[i].Row["SITE_USER_GUID"].ToString();
-                    string sDeviceUDID = selectquery.Table("query").DefaultView[i].Row["DEVICE_UDID"].ToString();
-                    string sIType = selectquery.Table("query").DefaultView[i].Row["TYPE_CODE"].ToString();
-                    string sItemCode = selectquery.Table("query").DefaultView[i].Row["ITEM_CODE"].ToString();
-                    string sExtraData = selectquery.Table("query").DefaultView[i].Row["EXTRA_DATA"].ToString();
-                    string sDeviceName = string.Empty;
-                    if (selectquery.Table("query").DefaultView[i].Row["DEVICE_NAME"] != System.DBNull.Value && selectquery.Table("query").DefaultView[i].Row["DEVICE_NAME"] != null)
-                    {
-                        sDeviceName = selectquery.Table("query").DefaultView[i].Row["DEVICE_NAME"].ToString();
-                    }
-                    DateTime dUpdate = (DateTime)(selectquery.Table("query").DefaultView[i].Row["UPDATE_DATE"]);
-                    ret = (FavoritObject[])(TVinciShared.ProtocolsFuncs.ResizeArray(ret, ret.Length + 1));
-                    //Device device = new Device();
-                    //device.Initialize(sDeviceUDID, domainID, nGroupID);
-                    ret[ret.Length - 1] = new FavoritObject();
-                    ret[ret.Length - 1].Initialize(nID, sIUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, sItemCode, sExtraData, dUpdate);
+                    int nID = ODBCWrapper.Utils.GetIntSafeVal(selectquery, "ID", i);
+                    string sDeviceUDID = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_UDID", i);
+                    string sIType = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "TYPE_CODE", i); 
+                    string sItemCode = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "ITEM_CODE", i);
+                    string sExtraData = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "EXTRA_DATA", i);
+                    string sDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_NAME", i);
+                    DateTime dUpdate = ODBCWrapper.Utils.GetDateSafeVal(selectquery, "UPDATE_DATE", i);
+
+                    FavoritObject fo = new FavoritObject();
+                    fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, sItemCode, sExtraData, dUpdate);
+                    favorits.Add(fo);
                 }
             }
             selectquery.Finish();
@@ -157,19 +156,13 @@ namespace Users
                 Int32 nCount = selectchannelquery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    int isChannel = int.Parse(selectchannelquery.Table("query").DefaultView[i].Row["IS_Channel"].ToString());
-                    Int32 nID = int.Parse(selectchannelquery.Table("query").DefaultView[i].Row["ID"].ToString());
-                    string sIUserGUID = selectchannelquery.Table("query").DefaultView[i].Row["SITE_USER_GUID"].ToString();
-                    string sDeviceUDID = selectchannelquery.Table("query").DefaultView[i].Row["DEVICE_UDID"].ToString();
-                    string sIType = selectchannelquery.Table("query").DefaultView[i].Row["TYPE_CODE"].ToString();
-                    int sChannelCode = int.Parse(selectchannelquery.Table("query").DefaultView[i].Row["ITEM_CODE"].ToString());
-                    string sExtraData = selectchannelquery.Table("query").DefaultView[i].Row["EXTRA_DATA"].ToString();
-                    string sDeviceName = string.Empty;
-                    if (selectchannelquery.Table("query").DefaultView[i].Row["DEVICE_NAME"] != System.DBNull.Value && selectchannelquery.Table("query").DefaultView[i].Row["DEVICE_NAME"] != null)
-                    {
-                        sDeviceName = selectchannelquery.Table("query").DefaultView[i].Row["DEVICE_NAME"].ToString();
-                    }
-                    DateTime dUpdate = (DateTime)(selectchannelquery.Table("query").DefaultView[i].Row["UPDATE_DATE"]);
+                    int nID = ODBCWrapper.Utils.GetIntSafeVal(selectquery, "ID", i);
+                    string sDeviceUDID = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_UDID", i);
+                    string sIType = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "TYPE_CODE", i);
+                    int sChannelCode = ODBCWrapper.Utils.GetIntSafeVal(selectquery, "ITEM_CODE", i);
+                    string sExtraData = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "EXTRA_DATA", i);
+                    string sDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_NAME", i);
+                    DateTime dUpdate = ODBCWrapper.Utils.GetDateSafeVal(selectquery, "UPDATE_DATE", i);
                     
                     int nDeviceUDID = 0;
                     int.TryParse(sDeviceUDID,out nDeviceUDID);
@@ -177,7 +170,6 @@ namespace Users
                     Int32 nChannelGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("channels", "group_id", sChannelCode, "MAIN_CONNECTION_STRING").ToString());
                     TVinciShared.Channel ch = new TVinciShared.Channel(sChannelCode, false, 0, true, 0, nDeviceUDID, nChannelGroupID, "MAIN_CONNECTION_STRING");
 
-                   
                     string MediaIDs = "";
                     if (!string.IsNullOrEmpty(sType))
                     {
@@ -196,9 +188,9 @@ namespace Users
 
                         for (int j = 0; j < MediaIDsArray.Length; j++)
                         {
-                            ret = (FavoritObject[])(TVinciShared.ProtocolsFuncs.ResizeArray(ret, ret.Length + 1));
-                            ret[ret.Length - 1] = new FavoritObject();
-                            ret[ret.Length - 1].Initialize(nID, sIUserGUID, domainID, sDeviceName, sDeviceUDID, sType, MediaIDsArray[j], sExtraData, dUpdate, isChannel);
+                            FavoritObject fo = new FavoritObject();
+                            fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, MediaIDsArray[j], sExtraData, dUpdate, 1);
+                            favorits.Add(fo);
                         }
                     }
                 }
@@ -207,7 +199,7 @@ namespace Users
             selectchannelquery = null;
             #endregion
 
-            return ret;
+            return favorits.Count > 0 ? favorits.ToArray<FavoritObject>() : new FavoritObject[0];
         }
 
         static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID , Int32 nID)
