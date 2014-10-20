@@ -31,10 +31,11 @@ namespace ConditionalAccess
                 string sWSPass = "";
                 TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL != "")
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
-                Utils.GetWSCredentials(groupID, eWSModules.PRICING, "", ref sWSUserName, ref sWSPass); 
+                }
+                Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass); 
                 PasswordGenerator p = new PasswordGenerator();
                 p.Maximum = 16;
                 p.Minimum = 12;
@@ -124,46 +125,8 @@ namespace ConditionalAccess
             selectQuery.Finish();
             selectQuery = null;
 
-            string sFirstName = "";
-            string sLastName = "";
-            
-            //TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-            //string sIP = "1.1.1.1";
-            //string sWSUserName = "";
-            //string sWSPass = "";
-            //TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-            //string sWSURL = Utils.GetWSURL("users_ws");
-            //if (sWSURL != "")
-            //    u.Url = sWSURL;
-
-            //ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, cai.m_siteGuid.ToString());
-            //if (uObj.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
-            //{
-            //    if (uObj.m_user != null)
-            //    {
-                    
-            //        if (groupID == 109 || groupID == 110 || groupID == 111 || groupID == 112 || groupID == 113 || groupID == 114)
-            //        {
-            //            if (uObj.m_user.m_oDynamicData != null && uObj.m_user.m_oDynamicData.m_sUserData != null)
-            //            {
-            //                foreach (UserDynamicDataContainer dynamicData in uObj.m_user.m_oDynamicData.m_sUserData)
-            //                {
-            //                    if (dynamicData != null && dynamicData.m_sDataType.Equals("NickName"))
-            //                    {
-            //                        sFirstName = dynamicData.m_sValue;
-            //                        break;
-            //                    }
-            //                }
-            //            }
-
-            //        }
-            //        else
-            //        {
-            //            sFirstName = uObj.m_user.m_oBasicData.m_sFirstName;
-            //        }
-            //        sLastName = uObj.m_user.m_oBasicData.m_sLastName;
-            //    }
-            //}
+            string sFirstName = string.Empty;
+           
             m_fromName = cai.m_senderName;
             TVinciShared.Mailer t = new TVinciShared.Mailer(0);
             t.SetMailServer(m_mailServer, m_mailUser, m_mailPass, sFirstName , mailFromAdd);
@@ -178,23 +141,8 @@ namespace ConditionalAccess
             mt.Replace("VOUCHERCODE", voucherCode);
             mt.Replace("SENDERNAME", cai.m_senderName);
             mt.Replace("LINK", cai.m_mediaLink);
-            //mt.Replace("MEDIANAME", cai.);
-            //mt.Replace("ITEMNAME", sItemName);
-            //mt.Replace("PAYMENTMETHOD", sPaymentMethod);
-            //mt.Replace("DATEOFPURCHASE", sDateOfPurchase);
-            //mt.Replace("RECNUMBER", sRecNumner);
-            //mt.Replace("PRICE", sPrice);
-
-
-            //string sActivation = "";
-            //if (sActivation != "")
-            //{
-            //mt.Replace("ACTIVATION", "UserName=" + sUserName + "&Token=" + sActivation);
-            //}
             string sMailData = mt.GetAsString();
             return sMailData;
-
-
         }
 
         protected void SendMail(string sText, string sEmail,  Int32 nGroupID)
@@ -209,4 +157,3 @@ namespace ConditionalAccess
         }
     }
 }
-

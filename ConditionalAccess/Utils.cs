@@ -50,7 +50,7 @@ namespace ConditionalAccess
                 t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);          
         }
 
-        public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, string sFunctionName, ref string sUN, ref string sPass)
+        public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
         {
             Credentials uc = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.CONDITIONALACCESS, nGroupID, eWSModule);
             sUN = uc.m_sUsername;
@@ -218,10 +218,12 @@ namespace ConditionalAccess
             using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
             {
                 string apiUrl = GetWSURL("api_ws");
-                if (apiUrl.Length > 0)
+                if (!string.IsNullOrEmpty(apiUrl))
+                {
                     m.Url = apiUrl;
+                }
                 bool bRet = false;
-                GetWSCredentials(nGroupID, eWSModules.API, "ValidateBaseLink", ref sWSUserName, ref sWSPass);
+                GetWSCredentials(nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
                 bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
                 return bRet;
             }
@@ -253,7 +255,7 @@ namespace ConditionalAccess
 
                 if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
                 {
-                    GetWSCredentials(nGroupID, eWSModules.API, "MapMediaFiles", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
                     mapper = m.MapMediaFiles(sWSUserName, sWSPass, nMediaFilesIDs);
                 }
                 else
@@ -290,11 +292,13 @@ namespace ConditionalAccess
             using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
             {
                 string apiUrl = GetWSURL("api_ws");
-                if (apiUrl.Length > 0)
+                if (!string.IsNullOrEmpty(apiUrl))
+                {
                     m.Url = apiUrl;
+                }
                 if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
                 {
-                    GetWSCredentials(nGroupID, eWSModules.API, "GetMediaFileTypeID", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
                     nRet = m.GetMediaFileTypeID(sWSUserName, sWSPass, nMediaFileID);
                 }
                 else
@@ -534,9 +538,10 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
             {
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
+                }
                 TvinciPricing.PPVModule theBundle = null;
                 TvinciPricing.UsageModule u = null;
 
@@ -547,7 +552,7 @@ namespace ConditionalAccess
                     case eBundleType.SUBSCRIPTION:
                         {
                             TvinciPricing.Subscription theSub = null;
-                            Utils.GetWSCredentials(groupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
+                            Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                             theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
                             u = theSub.m_oSubscriptionUsageModule;
                             theBundle = theSub;
@@ -558,7 +563,7 @@ namespace ConditionalAccess
                     case eBundleType.COLLECTION:
                         {
                             TvinciPricing.Collection theCol = null;
-                            Utils.GetWSCredentials(groupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
+                            Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                             theCol = m.GetCollectionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
                             u = theCol.m_oCollectionUsageModule;
                             theBundle = theCol;
@@ -930,13 +935,14 @@ namespace ConditionalAccess
                 using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
                 {
                     string pricingUrl = GetWSURL("pricing_ws");
-                    if (pricingUrl.Length > 0)
+                    if (!string.IsNullOrEmpty(pricingUrl))
+                    {
                         m.Url = pricingUrl;
-
+                    }
 
                     TvinciPricing.CouponData theCouponData = null;
 
-                    GetWSCredentials(nGroupID, eWSModules.PRICING, "GetCouponStatus", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     theCouponData = m.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
 
 
@@ -1096,10 +1102,11 @@ namespace ConditionalAccess
 
                 //set web service pricing url
                 string pricingUrl = GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
+                if (!string.IsNullOrEmpty(pricingUrl))
+                {
                     m.Url = pricingUrl;
-
-                GetWSCredentials(nGroupID, eWSModules.PRICING, "GetSubscriptionData", ref sWSUserName, ref sWSPass);
+                }
+                GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 s = m.GetSubscriptionData(sWSUserName, sWSPass, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
             }
@@ -1173,9 +1180,11 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
             {
                 string sPricingURL = GetWSURL("pricing_ws");
-                if (sPricingURL.Length > 0)
+                if (!string.IsNullOrEmpty(sPricingURL))
+                {
                     m.Url = sPricingURL;
-                GetWSCredentials(nGroupID, eWSModules.PRICING, "GetSubscriptionData", ref sWSUserName, ref sWSPass);
+                }
+                GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 s = m.GetSubscriptionData(sWSUserName, sWSPass, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                 theSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
                 if (s == null)
@@ -1225,9 +1234,11 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
             {
                 string pricingUrl = GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
+                if (!string.IsNullOrEmpty(pricingUrl))
+                {
                     m.Url = pricingUrl;
-                GetWSCredentials(nGroupID, eWSModules.PRICING, "GetCollectionData", ref sWSUserName, ref sWSPass);
+                }
+                GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 collection = m.GetCollectionData(sWSUserName, sWSPass, sColCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                 theCol = TVinciShared.ObjectCopier.Clone<TvinciPricing.Collection>((TvinciPricing.Collection)(collection));
                 if (collection == null)
@@ -1283,11 +1294,13 @@ namespace ConditionalAccess
                 using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
                 {
                     string pricingUrl = GetWSURL("pricing_ws");
-                    if (pricingUrl.Length > 0)
+                    if (!string.IsNullOrEmpty(pricingUrl))
+                    {
                         m.Url = pricingUrl;
+                    }
                     TvinciPricing.PrePaidModule ppModule = null;
 
-                    GetWSCredentials(nGroupID, eWSModules.PRICING, "GetPrePaidData", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     ppModule = m.GetPrePaidModuleData(sWSUserName, sWSPass, int.Parse(sPrePaidCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                     thePrePaid = TVinciShared.ObjectCopier.Clone<TvinciPricing.PrePaidModule>((TvinciPricing.PrePaidModule)(ppModule));
                     if (thePrePaid == null)
@@ -1426,10 +1439,8 @@ namespace ConditionalAccess
             string sPricingPassword = string.Empty;
             //Utils.GetApiAndPricingCredentials(nGroupID, ref sPricingUsername, ref sPricingPassword, ref sAPIUsername, ref sAPIPassword);
 
-            Utils.GetWSCredentials(nGroupID, eWSModules.API, "", ref sAPIUsername, ref sAPIPassword);
-            Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, "GetPPVModuleListForMediaFiles", ref sPricingUsername, ref sPricingPassword);
-
-
+            Utils.GetWSCredentials(nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
+            Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
 
             if (nMediaFileID > 0)
@@ -1649,8 +1660,10 @@ namespace ConditionalAccess
                                     theReason = PriceReason.PrePaidPurchased;
                                     m = new ConditionalAccess.TvinciPricing.mdoule();
                                     string pricingUrl = GetWSURL("pricing_ws");
-                                    if (pricingUrl.Length > 0)
+                                    if (!string.IsNullOrEmpty(pricingUrl))
+                                    {
                                         m.Url = pricingUrl;
+                                    }
                                     relevantPP = m.GetPrePaidModuleData(sPricingUsername, sPricingPassword, int.Parse(sPPCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                                 }
@@ -1866,14 +1879,16 @@ namespace ConditionalAccess
                 using (TvinciAPI.API apiWS = new TvinciAPI.API())
                 {
                     string apiUrl = GetWSURL("api_ws");
-                    if (apiUrl.Length > 0)
+                    if (!string.IsNullOrEmpty(apiUrl))
+                    {
                         apiWS.Url = apiUrl;
+                    }
 
                     string apiWSUser = string.Empty;
                     string apiWSPass = string.Empty;
                     if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
                     {
-                        Utils.GetWSCredentials(nGroupID, eWSModules.API, "CheckGeoCommerceBlock", ref apiWSUser, ref apiWSPass);
+                        Utils.GetWSCredentials(nGroupID, eWSModules.API, ref apiWSUser, ref apiWSPass);
                         res = apiWS.CheckGeoCommerceBlock(apiWSUser, apiWSPass, nSubGeoCommerceID, sClientIP);
                     }
                     else
@@ -1917,9 +1932,10 @@ namespace ConditionalAccess
                 GetUsersAndDomainsCredentials(nGroupID, ref sUsersUsername, ref sUsersPassword, ref sDomainsUsername, ref sDomainsPassword);
 
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     u.Url = sWSURL;
-
+                }
                 TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID);
 
                 if (userResponseObj.m_RespStatus == TvinciUsers.ResponseStatus.OK && userResponseObj.m_user.m_domianID != 0)
@@ -1950,11 +1966,13 @@ namespace ConditionalAccess
                 string sWSPass = string.Empty;
                 string[] usersList = null;
                 string sWSURL = Utils.GetWSURL("domains_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     bm.Url = sWSURL;
+                }
                 if (string.IsNullOrEmpty(sDomainsUsername) || string.IsNullOrEmpty(sDomainsPassword))
                 {
-                    GetWSCredentials(nGroupID, eWSModules.DOMAINS, "GetDomainUserList", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
                     usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
                 }
                 else
@@ -2006,12 +2024,13 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
             {
                 string pricingUrl = Utils.GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
+                if (!string.IsNullOrEmpty(pricingUrl))
+                {
                     m.Url = pricingUrl;
-
+                }
                 TvinciPricing.CouponData theCouponData = null;
 
-                GetWSCredentials(nGroupID, eWSModules.PRICING, "GetCouponStatus", ref sWSUserName, ref sWSPass);
+                GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 theCouponData = m.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
 
                 if (theCouponData.m_oCouponGroup != null &&
@@ -2042,12 +2061,13 @@ namespace ConditionalAccess
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                GetWSCredentials(nGroupID, eWSModules.PRICING, "GetSubscriptionByProductCode", ref sWSUserName, ref sWSPass);
+                GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
 
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     p.Url = sWSURL;
-
+                }
                 return p.GetSubscriptionDataByProductCode(sWSUserName, sWSPass, sProductCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
             }
         }
@@ -2346,13 +2366,13 @@ namespace ConditionalAccess
                 {
                     string sWSUserName = "";
                     string sWSPass = "";
-                    GetWSCredentials(nGroupID, eWSModules.PRICING, "GetGoogleSignature", ref sWSUserName, ref sWSPass);
+                    GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
 
                     string sWSURL = Utils.GetWSURL("pricing_ws");
-                    if (sWSURL.Length > 0)
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
                         p.Url = sWSURL;
-
-
+                    }
 
                     switch (sType)
                     {
@@ -2641,11 +2661,12 @@ namespace ConditionalAccess
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
 
-                Utils.GetWSCredentials(nGroupID, eWSModules.USERS, "GetUserData", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     u.Url = sWSURL;
-
+                }
                 res = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
             }
             finally
@@ -2671,11 +2692,13 @@ namespace ConditionalAccess
                     p = new TvinciPricing.mdoule();
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, "GetCouponStatus", ref sWSUserName, ref sWSPass);
+                    Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
 
                     string sWSURL = Utils.GetWSURL("pricing_ws");
-                    if (sWSURL.Length > 0)
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
                         p.Url = sWSURL;
+                    }
                     TvinciPricing.CouponData couponData = p.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
                     if (couponData != null && couponData.m_CouponStatus != TvinciPricing.CouponsStatus.Valid)
                     {
@@ -2721,9 +2744,10 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
             {
                 string pricingUrl = GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
+                if (!string.IsNullOrEmpty(pricingUrl))
+                {
                     m.Url = pricingUrl;
-
+                }
                 return m.GetPPVModuleData(wsUsername, wsPassword, ppvCode.ToString(), countryCd, langCode, deviceName);
             }
         }
@@ -2738,9 +2762,10 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
             {
                 string pricingUrl = Utils.GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
+                if (!string.IsNullOrEmpty(pricingUrl))
+                {
                     m.Url = pricingUrl;
-
+                }
                 return m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCode.ToString(), countryCode, langCode, deviceName);
             }
 

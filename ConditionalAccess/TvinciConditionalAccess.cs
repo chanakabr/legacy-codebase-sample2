@@ -61,10 +61,11 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
                 if (camp != null)
                 {
@@ -86,10 +87,11 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, "GetPPVModuleData", ref sWSUserName, ref sWSPass);
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = null;
                 if (campaignID > 0)
                 {
@@ -471,7 +473,7 @@ namespace ConditionalAccess
                 {
                     api.Url = sApiWSUrl;
                 }
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, "GetEPGLink", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
 
                 // add all values too send to API service
                 ApiObjects.eEPGFormatType eFormat = (ApiObjects.eEPGFormatType)format;

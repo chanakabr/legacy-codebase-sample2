@@ -867,7 +867,18 @@ namespace Users
 
             try
             {
-                DataTable dtFields = UsersDal.GetGroupUsersSearchFields(m_nGroupID);
+                string mainKey = string.Format("{0}_GetGroupUsersSearchFields_{1}", eWSModules.USERS, m_nGroupID);
+                DataTable dtFields;
+                bool bExists = UsersCache.GetItem<DataTable>(mainKey, out dtFields);
+                if (!bExists)
+                {
+                    dtFields = UsersDal.GetGroupUsersSearchFields(m_nGroupID);
+                    if (dtFields != null && dtFields.Rows != null && dtFields.Rows.Count > 0)
+                    {
+                        UsersCache.AddItem(mainKey, dtFields);
+                    }
+                }
+
 
                 if (dtFields != null && dtFields.Rows.Count > 0)
                 {
@@ -890,17 +901,19 @@ namespace Users
                     if (sGroupUsersSearchFields != null && sGroupUsersSearchFields.Length > 0)
                     {
                         DataTable dtGroupUsers = null;
+                        string key = string.Format("{0}_GroupUsers_{1}", eWSModules.USERS, m_nGroupID);
+                        string dateTimeKey = string.Format("{0}_GroupUsersTimeStamp_{1}", eWSModules.USERS, m_nGroupID);
 
-                        if (CachingManager.CachingManager.Exist("GroupUsers" + m_nGroupID.ToString()) == true)
+                        bool bRes = UsersCache.GetItem<DataTable>(key, out dtGroupUsers);
+                        if (bRes)
                         {
-                            dtGroupUsers = (DataTable)CachingManager.CachingManager.GetCachedData("GroupUsers" + m_nGroupID.ToString());
-
                             int cache_period = 10;
 
                             if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD") != string.Empty)
                                 int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD"), out cache_period);
 
-                            DateTime timeStamp = (DateTime)CachingManager.CachingManager.GetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString());
+                            DateTime timeStamp;
+                            bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
 
                             if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                             {
@@ -908,7 +921,7 @@ namespace Users
                                 {
                                     lock (lockObj)
                                     {
-                                        timeStamp = (DateTime)CachingManager.CachingManager.GetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString());
+                                        bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
 
                                         if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                                         {
@@ -916,8 +929,8 @@ namespace Users
 
                                             if (dtGroupUsers != null)
                                             {
-                                                CachingManager.CachingManager.SetCachedData("GroupUsers" + m_nGroupID.ToString(), dtGroupUsers, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
-                                                CachingManager.CachingManager.SetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString(), DateTime.UtcNow, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                                                UsersCache.AddItem(key, dtGroupUsers);
+                                                UsersCache.AddItem(dateTimeKey, DateTime.UtcNow);
                                             }
                                         }
                                     }
@@ -932,8 +945,8 @@ namespace Users
 
                             if (dtGroupUsers != null)
                             {
-                                CachingManager.CachingManager.SetCachedData("GroupUsers" + m_nGroupID.ToString(), dtGroupUsers, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
-                                CachingManager.CachingManager.SetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString(), DateTime.UtcNow, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                                UsersCache.AddItem(key, dtGroupUsers);
+                                UsersCache.AddItem(dateTimeKey, DateTime.UtcNow);
                             }
                         }
 

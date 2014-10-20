@@ -21,10 +21,11 @@ namespace ConditionalAccess
             string sWSPass = "";
             TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
             string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
+            if (!string.IsNullOrEmpty(sWSURL))
+            {
                 m.Url = sWSURL;
-
-            Utils.GetWSCredentials(groupID, eWSModules.PRICING, "GetCouponsGroupData", ref sWSUserName, ref sWSPass);
+            }
+            Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
             PasswordGenerator p = new PasswordGenerator();
             p.Maximum = 16;
             p.Minimum = 12;

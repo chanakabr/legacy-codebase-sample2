@@ -118,9 +118,9 @@ namespace ConditionalAccess
 
                 // Check user validity
                 u = new ConditionalAccess.TvinciUsers.UsersService();
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, "GetUserData", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     u.Url = sWSURL;
                 }
@@ -158,7 +158,7 @@ namespace ConditionalAccess
 
                 m = new global::ConditionalAccess.TvinciPricing.mdoule();
                 sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     m.Url = sWSURL;
                 }
@@ -166,7 +166,7 @@ namespace ConditionalAccess
                 int[] nMediaFiles = { nMediaFileID };
                 TvinciPricing.MediaFilePPVModule[] oModules = null;
 
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, "GetPPVModuleListForMediaFiles", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                 int nCount = 0;
@@ -283,9 +283,9 @@ namespace ConditionalAccess
                                 bm = new ConditionalAccess.TvinciBilling.module();
                                 sWSUserName = string.Empty;
                                 sWSPass = string.Empty;
-                                Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, "CC_ChargeUser", ref sWSUserName, ref sWSPass);
+                                Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                                 sWSURL = Utils.GetWSURL("billing_ws");
-                                if (sWSURL.Length > 0)
+                                if (!string.IsNullOrEmpty(sWSURL))
                                 {
                                     bm.Url = sWSURL;
                                 }
@@ -696,9 +696,9 @@ namespace ConditionalAccess
                 u = new ConditionalAccess.TvinciUsers.UsersService();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, "GetUserData", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     u.Url = sWSURL;
                 }
@@ -845,10 +845,10 @@ namespace ConditionalAccess
                 {
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, "CC_ChargeUser", ref sWSUserName, ref sWSPass);
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                     string sWSURL = Utils.GetWSURL("billing_ws");
 
-                    if (sWSURL.Length > 0)
+                    if (!string.IsNullOrEmpty(sWSURL))
                     {
                         bm.Url = sWSURL;
                     }
@@ -999,7 +999,7 @@ namespace ConditionalAccess
                     api.Url = sApiWSUrl;
                 }
 
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, "GetEPGLink", ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
 
                 // add all values too send to API service
                 ApiObjects.eEPGFormatType eFormat = (ApiObjects.eEPGFormatType)format;

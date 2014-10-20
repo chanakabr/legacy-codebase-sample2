@@ -84,6 +84,7 @@
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
     <Compile Include="CinepolisConditionalAccess.cs" />
+    <Compile Include="ConditionalAccessCache.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
