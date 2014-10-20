@@ -31,7 +31,17 @@ namespace CommonWithSL
         public List<Forcast> Forcast { get; private set; }
         public Dictionary<string, string> Metas { get; private set; }
         public Dictionary<string, string> Tags { get; private set; }
-
+        public bool IsAnonymousFreeContent
+        {
+            get
+            {
+                if (Tags != null && Tags.ContainsKey("Product type") && Tags["Product type"] == CommonWithSL.Enums.ProductType.FVOD)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
         public Media()
         {
             Metas = new Dictionary<string, string>();

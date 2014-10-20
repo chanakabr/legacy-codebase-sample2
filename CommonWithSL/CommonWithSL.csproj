@@ -42,6 +42,7 @@
     <Compile Include="Enums\FileType.cs" />
     <Compile Include="Enums\GalleryItemType.cs" />
     <Compile Include="Enums\MediaTypeID.cs" />
+    <Compile Include="Enums\ProductType.cs" />
     <Compile Include="Forcast.cs" />
     <Compile Include="Interfaces\IGalleryItemConverter.cs" />
     <Compile Include="Interfaces\IItemTemplate.cs" />
