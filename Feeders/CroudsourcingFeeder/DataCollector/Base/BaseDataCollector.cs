@@ -29,9 +29,9 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                         Dictionary<int, BaseCrowdsourceItem> itemsByLangDict = Normalize(SelectedItem);
                         if (UpdateDataStore(itemsByLangDict))
                         {
-                            DAL.CrowdsourceDAL.SetLastItemId(GroupId, CollectorType, AssetId, SelectedItem.Id);
+                           return DAL.CrowdsourceDAL.SetLastItemId(GroupId, CollectorType, AssetId, SelectedItem.Id);
                         }
-                        return true;
+                        else return false;
                     }
                     Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error selecting singular item", CollectorType), "Crowdsourcing");
                     return false;
@@ -106,7 +106,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
 
         protected bool UpdateDataStore(Dictionary<int, BaseCrowdsourceItem> itemsByLangDict)
         {
-            if (itemsByLangDict != null)
+            if (itemsByLangDict != null && itemsByLangDict.Count > 0)
             {
                 foreach (KeyValuePair<int, BaseCrowdsourceItem> croudsourceItem in itemsByLangDict)
                 {
