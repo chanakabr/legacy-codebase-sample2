@@ -177,7 +177,13 @@ namespace Catalog
                 return new BundlesContainingMediaRequest();
             }
             if (m_oBaseRequest is MediaFilesRequest)
-                return (MediaFilesRequest)m_oBaseRequest;
+            {
+                return (MediaFilesRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is CategoryRequest)
+            {
+                return new CategoryRequest();
+            }
 
 
             return null;
