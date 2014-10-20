@@ -147,11 +147,11 @@ namespace TVPPro.Configuration.Technical
 
 		private void TechDataModified(TechnicalData data)
 		{
-			logger.Info("Start handling technical configuration data changed");
+            //logger.Info("Start handling technical configuration data changed");
 
 			if (data == null)
 			{
-				logger.Info("Cannot extract data object.");
+                //logger.Info("Cannot extract data object.");
 				return;
 			}
 
@@ -200,12 +200,12 @@ namespace TVPPro.Configuration.Technical
 				//        m_dynamicDefinitions[string.Concat(category.ID, "_", item.ID)] = item.Value;
 				//    }
 				//}
-				logger.Info("Finished handling technical configuration data changed");
+                //logger.Info("Finished handling technical configuration data changed");
 			}
 			catch (Exception e)
 			{
 				m_TVMConfiguration = null;
-				logger.Error("Error occured while handling technical configuration data changed", e);
+                //logger.Error("Error occured while handling technical configuration data changed", e);
 			}
 			finally
 			{

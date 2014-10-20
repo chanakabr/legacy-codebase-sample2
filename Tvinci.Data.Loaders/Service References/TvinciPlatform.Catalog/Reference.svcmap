@@ -20,21 +20,22 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://localhost/ws_catalog/service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://192.168.192.146/webservices/catalog/service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service10.xsd" MetadataType="Schema" ID="299f9213-fa59-4bcf-91b3-19a8ef1abe06" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service6.xsd" MetadataType="Schema" ID="294415a9-d42a-4a91-8f30-85cadf2ffabf" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service12.xsd" MetadataType="Schema" ID="7ebba129-c6a2-4bb8-bd5a-b3c701381d11" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd7" />
-    <MetadataFile FileName="Service2.disco" MetadataType="Disco" ID="712d1bd0-c097-43d9-b1a4-9fa347ecb237" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?disco" />
-    <MetadataFile FileName="Service9.xsd" MetadataType="Schema" ID="ae62d662-2423-4ede-b79e-6cf3a290d618" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd5" />
-    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="3afa2668-122c-4d1c-965e-7c0483eb8a71" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?wsdl=wsdl0" />
-    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="fc58699d-e4be-4920-a66c-8dbd0f5c98db" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?wsdl" />
-    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="0425a4ab-ca8f-4705-8c75-919e1442ec9e" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service7.xsd" MetadataType="Schema" ID="94da7b0d-4fdd-48be-ada7-288e8468ce83" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service8.xsd" MetadataType="Schema" ID="d6fd6b13-fd61-4847-bd90-3306d05ece1e" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd6" />
-    <MetadataFile FileName="Service11.xsd" MetadataType="Schema" ID="841d78d0-4304-49ca-b6a6-f3492f80ec0e" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd4" />
-    <MetadataFile FileName="Service13.xsd" MetadataType="Schema" ID="f5799334-7708-44d7-9ade-5a5502fef3bf" SourceId="1" SourceUrl="http://localhost/ws_catalog/Service.svc?xsd=xsd8" />
+    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="0c59543f-d39b-4d03-b788-6eddab1014f0" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd6" />
+    <MetadataFile FileName="Service2.disco" MetadataType="Disco" ID="654a7524-ccde-4c09-b875-643bc27685a2" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?disco" />
+    <MetadataFile FileName="Service6.xsd" MetadataType="Schema" ID="83d0d060-2a5e-4958-800c-d4d2edabba5b" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service7.xsd" MetadataType="Schema" ID="98c8009e-b366-4d28-a4bd-c0f5c1f77e06" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd9" />
+    <MetadataFile FileName="Service8.xsd" MetadataType="Schema" ID="8fbaefe1-9da7-4b6c-8d5e-c23722ac9400" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service9.xsd" MetadataType="Schema" ID="07fa1ab0-c640-41e8-970f-013cb566772e" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd7" />
+    <MetadataFile FileName="Service10.xsd" MetadataType="Schema" ID="3526bde4-e469-4550-871a-07c1f50318de" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd5" />
+    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="e6714867-ce63-4944-a86d-a6e5d491cd7b" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?wsdl" />
+    <MetadataFile FileName="Service11.xsd" MetadataType="Schema" ID="52defacf-ee28-45c1-a7e2-e570b5a303c9" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service12.xsd" MetadataType="Schema" ID="5b23dcb7-362c-414d-afd8-33b9832a4326" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="99020054-26e3-4f52-9e1b-f503f04d733f" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="Service13.xsd" MetadataType="Schema" ID="d5d8a0aa-18f1-4502-b2da-48af0689ccef" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service14.xsd" MetadataType="Schema" ID="8c6316a9-ae94-4670-9b0b-53969adee61f" SourceId="1" SourceUrl="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd8" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

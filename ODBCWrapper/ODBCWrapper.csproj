@@ -134,7 +134,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System">
@@ -206,8 +207,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{72228ef8-6afa-4c0c-9c8a-59eddac688fb}</Project>
+    <ProjectReference Include="..\..\TvinciCommon\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
   </ItemGroup>
