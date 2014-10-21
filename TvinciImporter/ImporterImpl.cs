@@ -1766,24 +1766,9 @@ namespace TvinciImporter
             string sBasePath = GetBasePath(nGroupID);
             string sPicBaseName1 = getPictureFileName(sThumb);
 
-            //char[] delim = { '/' };
-            //string[] splited1 = sThumb.Split(delim);
-            //string sPicBaseName1 = splited1[splited1.Length - 1];
-            //if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
-            //{
-            //    Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
-            //    Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
-            //    if (nEnd != 4)
-            //        sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
-            //    else
-            //        sPicBaseName1 = sPicBaseName1.Substring(nStart);
-            //    sPicBaseName1 += ".jpg";
-            //}
-
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicBaseName1, nGroupID);
 
-            //string sPicName = sName;
             if (nPicID == 0)
             {
                 string sUploadedFile = "";
@@ -2398,7 +2383,6 @@ namespace TvinciImporter
 
         private static string getPictureFileName(string sThumb)
         {
-            string[] splited = sThumb.Split(delim);
             string sPicName = sThumb;
 
             if (sPicName.IndexOf("?") != -1 && sPicName.IndexOf("uuid") != -1)
@@ -2411,6 +2395,12 @@ namespace TvinciImporter
                     sPicName = sPicName.Substring(nStart);
                 sPicName += ".jpg";
             }
+
+            if (sPicName.Length >= 255) // the column in DB limit with 255 char
+            {
+                sPicName = sThumb.Substring(sThumb.Length - 255); // get all 255 chars from the end !!
+            }
+
             return sPicName;
         }
 
