@@ -2112,7 +2112,7 @@ namespace Catalog
             return sb.ToString();
         }
 
-        public static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
+        internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             List<AssetStatsResult> resList = null;
             DataSet ds;
