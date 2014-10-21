@@ -1759,25 +1759,26 @@ namespace TvinciImporter
         }
 
         static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
-        {
+        {   
             if (sThumb.Trim() == "")
                 return 0;
 
             string sBasePath = GetBasePath(nGroupID);
+            string sPicBaseName1 = getPictureFileName(sThumb);
 
-            char[] delim = { '/' };
-            string[] splited1 = sThumb.Split(delim);
-            string sPicBaseName1 = splited1[splited1.Length - 1];
-            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
-            {
-                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
-                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
-                if (nEnd != 4)
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
-                else
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
-                sPicBaseName1 += ".jpg";
-            }
+            //char[] delim = { '/' };
+            //string[] splited1 = sThumb.Split(delim);
+            //string sPicBaseName1 = splited1[splited1.Length - 1];
+            //if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            //{
+            //    Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+            //    Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+            //    if (nEnd != 4)
+            //        sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+            //    else
+            //        sPicBaseName1 = sPicBaseName1.Substring(nStart);
+            //    sPicBaseName1 += ".jpg";
+            //}
 
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicBaseName1, nGroupID);
@@ -1829,22 +1830,9 @@ namespace TvinciImporter
 
 
                 nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
-            }
-            // Liat comment this update 02.02.2014
-            //if (nPicID != 0)
-            //{
-            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
-            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
-            //    updateQuery += " where ";
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
-            //    updateQuery.Execute();
-            //    updateQuery.Finish();
-            //    updateQuery = null;
-            //}
+            }         
             return nPicID;
         }
-
 
         static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
@@ -1852,8 +1840,8 @@ namespace TvinciImporter
                 return 0;
 
             //string sBasePath = GetBasePath(nGroupID);
-            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);     
-            string sPicName = getPictureFileName(sThumb);   
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);            
+            string sPicName = getPictureFileName(sThumb);
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);                        
           
@@ -2410,9 +2398,9 @@ namespace TvinciImporter
 
         private static string getPictureFileName(string sThumb)
         {
-            char[] delim = { '/' };
             string[] splited = sThumb.Split(delim);
-            string sPicName = splited[splited.Length - 1];
+            string sPicName = sThumb;
+
             if (sPicName.IndexOf("?") != -1 && sPicName.IndexOf("uuid") != -1)
             {
                 Int32 nStart = sPicName.IndexOf("uuid=", 0) + 5;
