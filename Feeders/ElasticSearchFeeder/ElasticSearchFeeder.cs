@@ -113,10 +113,11 @@ namespace ElasticSearchFeeder
 
                     if (sType == "epg_delete_channels")
                     {
+                        eFeederType = eESFeederType.EPG;
                         epgChannelIDsToDelete = new List<int>();
                         if (items.Length == 4)
                         {
-                            string epgChannelsAsStr = items[4];
+                            string epgChannelsAsStr = items[3];
                             if (!string.IsNullOrEmpty(epgChannelsAsStr))
                             {
                                 string[] channels = epgChannelsAsStr.Split(';');
@@ -140,7 +141,7 @@ namespace ElasticSearchFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Error while parsing init parameters. params={0}. Ex={1}", m_sParameters, ex.Message), "ElasticSearchFeeder");
+                Logger.Logger.Log("Error", string.Format("Error while parsing init parameters. params={0}. Ex={1} ST: {2}", m_sParameters, ex.Message, ex.StackTrace), "ElasticSearchFeeder");
                 throw new ArgumentException("Invalid arguments passed to Elasticsearch feeder");
             }
         }
