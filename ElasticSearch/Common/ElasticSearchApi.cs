@@ -436,11 +436,11 @@ namespace ElasticSearch.Common
                 Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes), ES_LOG_FILENAME);
                 sRes = string.Empty;
             }
-            //Logger.Logger.Log("Search Query", string.Format("Query:{0} Response:{1}", sSearchQuery, sRes), "ELasticSearchQueries"); 
+
             return sRes;
         }
 
-        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries)
+        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
         {
             string sRes = string.Empty;
 
@@ -448,24 +448,29 @@ namespace ElasticSearch.Common
                 return sRes;
 
             StringBuilder sb = new StringBuilder();
+            string routingStr = string.Empty;
+            if (lRouting != null && lRouting.Count > 0)
+            {
+                routingStr = lRouting.Aggregate((current, next) => String.Concat(current, ",", next));
+            }
 
             foreach (string query in lSearchQueries)
             {
                 if (string.IsNullOrEmpty(query))
                     continue;
 
-
-                #region add index info
                 sb.Append("{");
-                sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
+                if (routingStr.Length > 0)
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
+                }
+                else
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\", \"routing\":\"{2}\"", sIndex, sType, routingStr);
+                }
                 sb.Append("}\n");
-                #endregion
-
-                #region add query
                 sb.Append(query);
                 sb.Append("\n");
-                #endregion query
-
             }
 
             string sUrl = string.Format("{0}/_msearch", ES_URL);

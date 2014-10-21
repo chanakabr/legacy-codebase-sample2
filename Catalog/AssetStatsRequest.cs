@@ -43,7 +43,7 @@ namespace Catalog
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            AssetStatsRequest request = (AssetStatsRequest)oBaseRequest;
+            AssetStatsRequest request = oBaseRequest as AssetStatsRequest;
             AssetStatsResponse response = new AssetStatsResponse();
 
             try
@@ -59,17 +59,12 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                BaseLog log = new BaseLog(eLogType.WcfRequest, DateTime.UtcNow, true);
-                log.Method = "MediaStatsRequest GetResponse";                
-                log.Message = string.Format("Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. the response will be null. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace);                                
-                log.Error(log.Message, false);
- 
                 //previous log format
-                Logger.Logger.Log("Error", "Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");                
-                response = null; 
+                Logger.Logger.Log("Error", "Could not retrieve the media Statistics from Catalog.GetMediaStatsResults. exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
+                throw ex;
             }
 
-            return (BaseResponse)response;
+            return response;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Catalog
                 if (!isInitialized)
                 {
                     // Create the container
+
                     container = new Container();
                     Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));                   
                     
@@ -35,7 +36,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Catalog", "Exception :" + ex.Message, "Bootstrapper");
+                Logger.Logger.Log("Catalog", String.Concat("Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "Bootstrapper");
             }
         }
 

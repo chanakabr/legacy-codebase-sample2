@@ -9,6 +9,7 @@ namespace ElasticSearch.Common
     public static class Utils
     {
         public static readonly string ES_STATS_TYPE = "stats";
+        public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
         public static string GetWSURL(string sKey)
         {

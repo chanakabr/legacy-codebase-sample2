@@ -38,9 +38,19 @@ namespace Catalog
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
+        private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
+
+        internal static int GetCurrentRequestDaysOffset()
+        {
+            int res = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
+            string daysOffset = Utils.GetWSURL("CURRENT_REQUEST_DAYS_OFFSET");
+            if (daysOffset.Length > 0 && Int32.TryParse(daysOffset, out res) && res > 0)
+                return res;
+            return DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
+        }
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
-        public static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
+        internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
         {
             //Int32 nMedia;
             MediaObj oMediaObj = new MediaObj();
@@ -108,7 +118,7 @@ namespace Catalog
                     }
                 }
 
-                _logger.Info(string.Format("Finish Complete Details for {0} MediaIds", nEndIndex));
+
                 return true;
             }
 
@@ -512,7 +522,7 @@ namespace Catalog
                     GroupManager groupManager = new GroupManager();
                     int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                     Group groupInCache = groupManager.GetGroup(nParentGroupID);
-        
+
                     if (groupInCache != null)
                     {
                         LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
@@ -1104,18 +1114,9 @@ namespace Catalog
             return retVal;
         }
 
-        public static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
+        private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
         {
-            try
-            {
-                int retVal = 0;
-                retVal = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-                return retVal;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
+            return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
         }
 
 
@@ -1472,214 +1473,60 @@ namespace Catalog
         }
         #endregion
 
-        internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchRequest request, ref bool isLucene)
+        internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchObj epgSearchReq)
         {
-            try
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null)
             {
-                SearchResultsObj epgReponse = null;
-
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-                if (searcher == null)
-                {
-                    _logger.ErrorFormat("Unable to get searcher (ISearcher) instance");
-                    return epgReponse;
-                }
-
-                #region SearchPrograms
-                _logger.InfoFormat("Build Epg Search Object And Call Search Epgs at searching service. groupID={0}", request.m_nGroupID);
-                try
-                {
-                    isLucene = searcher is LuceneWrapper;
-                    EpgSearchObj epgSearch = null;
-                    List<List<string>> jsonizedChannelsDefinitions = null;
-                    if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
-                    {
-                        Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
-                        MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
-                            dict, jsonizedChannelsDefinitions);
-                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true, request.m_nGroupID);
-
-                        if (searcherAnswer.n_TotalItems > 0)
-                        {
-                            List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
-                            List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
-                            request.m_oEPGChannelIDs = epgChannelsIDs;
-                            epgSearch = BuildEpgSearchObject(request, isLucene);
-                        }
-                        else
-                        {
-                            // no linear medias returned from searcher
-                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
-                            return epgReponse;
-                        }
-                    }
-                    else
-                    {
-                        epgSearch = BuildEpgSearchObject(request, isLucene);
-                    }
-
-
-                    if (epgSearch != null)
-                        epgReponse = searcher.SearchEpgs(epgSearch);
-
-
-                    return epgReponse;
-                }
-
-                catch (Exception ex)
-                {
-                    _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                    epgReponse = null;
-                }
-                #endregion
-
-                return epgReponse;
-
+                throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", epgSearchReq != null ? epgSearchReq.ToString() : "null"));
             }
-            catch (Exception ex)
-            {
-                _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                return null;
-            }
+
+            return searcher.SearchEpgs(epgSearchReq);
         }
 
-        private static EpgSearchObj BuildEpgSearchObject(EpgSearchRequest request, bool bWhiteSpace)
+        internal static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
         {
-            try
+
+            GroupManager groupManager = new GroupManager();
+            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
+            List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
+
+            DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
+
+            lSearchList.Add("name");
+            lSearchList.Add("description");
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
             {
-                List<string> lSearchList = new List<string>();
-                EpgSearchObj searcherEpgSearch = new EpgSearchObj();
-                _logger.InfoFormat("BuildEpgSearchObject groupID = {0},search = {1}, dates {2}-{3} ", request.m_nGroupID, request.m_sSearch, request.m_dStartDate, request.m_dEndDate);
-
-                searcherEpgSearch.m_bExact = request.m_bExact;
-                searcherEpgSearch.m_dEndDate = request.m_dEndDate;
-                searcherEpgSearch.m_dStartDate = request.m_dStartDate;
-
-                //deafult values for OrderBy object 
-                searcherEpgSearch.m_bDesc = true;
-                searcherEpgSearch.m_sOrderBy = "start_date";
-
-                // set parent group by request.m_nGroupID                              
-                searcherEpgSearch.m_nGroupID = request.m_nGroupID;
-
-                //List<EpgSearchValue> esvList = new List<EpgSearchValue>();
-                string sVal = string.Empty;
-
-                List<SearchValue> dAnd = new List<SearchValue>();
-                List<SearchValue> dOr = new List<SearchValue>();
-                if (request.m_bExact) // free text search - based on  Exact tags and metas 
+                //Metas
+                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
-                    EpgSearchAddParams(request, ref dAnd, ref dOr);
-                }
-                else  // free text search - based on  metas/tags "isSearchable" setting 
-                {
-                    searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
-                    //Get all tags and meta for group
-                    GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-                    if (lSearchList == null)
-                        return null;
-                    foreach (string item in lSearchList)
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        if (bWhiteSpace)
-                            sVal = request.m_sSearch.Replace(' ', '_');
-                        else
-                            sVal = request.m_sSearch;
-                        dOr.Add(new SearchValue(item, sVal));
-                    }
-                }
-                //initialize the search list with And / Or values
-                searcherEpgSearch.m_lSearchOr = dOr;
-                searcherEpgSearch.m_lSearchAnd = dAnd;
-
-                searcherEpgSearch.m_nPageIndex = request.m_nPageIndex;
-                searcherEpgSearch.m_nPageSize = request.m_nPageSize;
-
-                searcherEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
-
-                return searcherEpgSearch;
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorFormat("BuildEpgSearchObject failed ex = {0}", ex.Message); //TO DO what to print from request ???
-                return null;
-            }
-        }
-
-        /*Build Full search object*/
-        private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
-        {
-            if (request.m_AndList != null)
-            {
-                foreach (KeyValue andKeyValue in request.m_AndList)
-                {
-                    SearchValue search = new SearchValue();
-                    search.m_sKey = andKeyValue.m_sKey;
-                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
-                    search.m_sValue = andKeyValue.m_sValue;
-                    m_dAnd.Add(search);
-                }
-            }
-
-            if (request.m_OrList != null)
-            {
-                foreach (KeyValue orKeyValue in request.m_OrList)
-                {
-                    SearchValue search = new SearchValue();
-                    search.m_sKey = orKeyValue.m_sKey;
-                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
-                    search.m_sValue = orKeyValue.m_sValue;
-                    m_dOr.Add(search);
-                }
-            }
-        }
-
-
-        private static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
-        {
-            try
-            {
-                GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
-                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-
-                DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
-
-                lSearchList.Add("name");
-                lSearchList.Add("description");
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    //Metas
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
+                        string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+                        if (!string.IsNullOrEmpty(filed))
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
-                            {
-                                lSearchList.Add(filed);
-                            }
+                            lSearchList.Add(filed);
                         }
                     }
-                    //Tags
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                }
+                //Tags
+                if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[1].Rows)
                     {
-                        foreach (DataRow row in ds.Tables[1].Rows)
+                        string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+                        if (!string.IsNullOrEmpty(filed))
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
-                            {
-                                lSearchList.Add(filed);
-                            }
+                            lSearchList.Add(filed);
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                lSearchList = null;
-            }
+
+
         }
 
 
@@ -1711,7 +1558,13 @@ namespace Catalog
                 if (pRequest.m_lProgramsIds != null && lEpgProg != null)
                 {
                     pResponse.m_nTotalItems = lEpgProg.Count;
-                    lEpgProg = Utils.CompleteFullEpgPicURL(lEpgProg);
+
+                    string epgPicBaseUrl = string.Empty;
+                    string epgPicWidth = string.Empty;
+                    string epgPicHeight = string.Empty;
+                    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+                    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
                 }
                 foreach (int nProgram in pRequest.m_lProgramsIds)
                 {
@@ -1733,8 +1586,6 @@ namespace Catalog
                 }
                 pResponse.m_lObj = lProgramObj;
 
-
-                _logger.Info(string.Format("Finish Complete Details for {0} ProgramIds", nEndIndex));
                 return true;
             }
 
@@ -1751,9 +1602,6 @@ namespace Catalog
             try
             {
                 ProgramObj oProgramObj = new ProgramObj();
-
-                // get mediaID and complete all details per media
-                _logger.Info(string.Format("ProgramID : {0}", nProgramID));
 
                 DataSet ds = EpgDal.GetEpgProgramDetails(pRequest.m_nGroupID, nProgramID);
 
@@ -1878,317 +1726,216 @@ namespace Catalog
             }
         }
 
-        internal static List<string> EpgAutoComplete(EpgAutoCompleteRequest request)
+        internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, ref ISearcher initializedSearcher,
+            ref List<List<string>> jsonizedChannelsDefinitions)
         {
-            try
+            List<long> res = new List<long>();
+            Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(groupID);
+            MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
+                dict, jsonizedChannelsDefinitions);
+            SearchResultsObj searcherAnswer = initializedSearcher.SearchMedias(groupID, linearChannelMediaIDsRequest, 0, true, groupID);
+
+            if (searcherAnswer.n_TotalItems > 0)
             {
-                List<string> result = null;
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
+                res.AddRange(GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs));
+            }
 
-                if (searcher == null)
+            return res;
+        }
+
+        internal static List<string> EpgAutoComplete(EpgSearchObj request)
+        {
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null || request == null)
+            {
+                throw new Exception("EpgAutoComplete. Either EpgSearchObj or Searcher instance is null.");
+            }
+
+            return searcher.GetEpgAutoCompleteList(request);
+
+        }
+
+        /*
+         * We set isSortResults to true when we are unable to bring the results sorted from CB. In this case the code will verify that the
+         * results are sorted.
+         * When we are able to bring the results from CV sorted, we set this flag to false.
+         * 
+         */
+        private static ICollection<EPGChannelProgrammeObject> GetEPGProgramsCollectionFactory(bool isSortResults)
+        {
+            if (isSortResults)
+                return new SortedSet<EPGChannelProgrammeObject>(new EPGChannelProgrammeObject.EPGChannelProgrammeObjectStartDateComparer());
+            return new List<EPGChannelProgrammeObject>();
+        }
+
+        internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs)
+        {
+            EpgResponse res = new EpgResponse();
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(parentGroupID);
+            List<EPGChannelProgrammeObject> epgs = epgBL.GetEpgs(epgIDs);
+            if (epgs != null && epgs.Count > 0)
+            {
+                Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
+                string epgPicBaseUrl = string.Empty;
+                string epgPicWidth = string.Empty;
+                string epgPicHeight = string.Empty;
+                GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
+                bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
+                bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+                string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
+                string dot = ".";
+                int totalItems = 0;
+                Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
+                for (int i = 0; i < epgs.Count; i++)
                 {
-                    _logger.ErrorFormat("Unable to get searcher (ISearcher) instance");
-                    return null;
-                }
-
-                #region AutoComplete
-                _logger.InfoFormat("Build Epg Search Object And Call Search Epgs at serch service, groupID={0}", request.m_nGroupID);
-                try
-                {
-                    bool bWhiteSpace = searcher is LuceneWrapper;
-
-                    //EpgSearchObj epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
-                    EpgSearchObj epgSearch = null;
-                    List<List<string>> jsonizedChannelsDefinitions = null;
-                    if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
+                    int tempEpgChannelID = 0;
+                    if (epgs[i] == null || !Int32.TryParse(epgs[i].EPG_CHANNEL_ID, out tempEpgChannelID) || tempEpgChannelID < 1)
                     {
-                        Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
-                        MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
-                            dict, jsonizedChannelsDefinitions);
-                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true, request.m_nGroupID);
+                        continue;
+                    }
 
-                        if (searcherAnswer.n_TotalItems > 0)
+                    // mutate epg pic url
+                    if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
+                    {
+                        if (epgPicWidthExists && epgPicHeightExists)
                         {
-                            List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
-                            List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
-                            request.m_oEPGChannelIDs = epgChannelsIDs;
-                            epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                            epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
                         }
-                        else
-                        {
-                            // no linear medias returned from searcher
-                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
-                            return new List<string>(0);
-                        }
+                        epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
+                    }
+
+                    if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
+                    {
+                        channelIdsToProgrammesMapping[tempEpgChannelID].Add(epgs[i]);
                     }
                     else
                     {
-                        epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                        channelIdsToProgrammesMapping.Add(tempEpgChannelID, GetEPGProgramsCollectionFactory(isSortResults));
+                        channelIdsToProgrammesMapping[tempEpgChannelID].Add(epgs[i]);
                     }
 
-                    if (epgSearch != null)
-                        result = searcher.GetEpgAutoCompleteList(epgSearch);
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                    else
-                        return null;
-                }
+                } // for
 
-                catch (Exception ex)
+                // build response in the same order we rcvd the epg channel ids.
+                for (int i = 0; i < epgChannelIDs.Count; i++)
                 {
-                    _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                    result = null;
+                    if (channelIdsToProgrammesMapping.ContainsKey(epgChannelIDs[i]))
+                    {
+                        res.programsPerChannel.Add(BuildResObjForChannel(channelIdsToProgrammesMapping[epgChannelIDs[i]], epgChannelIDs[i], ref totalItems));
+                    }
                 }
+                res.m_nTotalItems = totalItems;
+
+            }
+            else
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Failed to retrieve epg programmes from cb. ");
+                sb.Append(String.Concat("G ID: ", parentGroupID));
+                sb.Append(String.Concat("sizeof(epgIDs) : ", epgIDs != null ? epgIDs.Count : 0));
+                Logger.Logger.Log("Error", sb.ToString(), "GetEPGProgramsFromCB");
                 #endregion
-                return result;
             }
-            catch (Exception ex)
-            {
-                _logger.ErrorFormat("GetProgramIdsFromSearcher ex={0}", ex.Message);
-                return null;
-            }
+
+            return res;
         }
 
-        private static EpgSearchObj BuildEpgSearchObject(EpgAutoCompleteRequest request, bool bWhiteSpace)
+        private static EpgResultsObj BuildResObjForChannel(ICollection<EPGChannelProgrammeObject> programmes, int epgChannelID, ref int totalItems)
         {
-            try
-            {
-                List<string> lSearchList = new List<string>();
-                EpgSearchObj oEpgSearch = new EpgSearchObj();
-                _logger.InfoFormat("BuildEpgSearchObject groupID = {0},search = {1}, dates {2}-{3} ", request.m_nGroupID, request.m_sSearch, request.m_dStartDate, request.m_dEndDate);
+            EpgResultsObj res = new EpgResultsObj();
+            res.m_lEpgProgram.AddRange(programmes);
+            res.m_nChannelID = epgChannelID;
+            res.m_nTotalItems = programmes.Count;
+            totalItems += programmes.Count;
 
-                oEpgSearch.m_bSearchAnd = false; //search with or
-                oEpgSearch.m_bDesc = false;
-                oEpgSearch.m_sOrderBy = "name";
-
-                oEpgSearch.m_dEndDate = request.m_dEndDate;
-                oEpgSearch.m_dStartDate = request.m_dStartDate;
-                List<EpgSearchValue> dEsv = new List<EpgSearchValue>();
-                string sVal = string.Empty;
-                //Get all tags and meta for group
-                GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-
-                if (lSearchList == null)
-                    return null;
-                foreach (string item in lSearchList)
-                {
-                    if (bWhiteSpace)
-                        sVal = request.m_sSearch.Replace(' ', '_');
-                    else
-                        sVal = request.m_sSearch;
-                    dEsv.Add(new EpgSearchValue(item, sVal));
-                }
-
-                oEpgSearch.m_lSearch = dEsv;
-
-                // set parent group by request.m_nGroupID                
-                oEpgSearch.m_nGroupID = request.m_nGroupID;
-
-                oEpgSearch.m_nPageIndex = request.m_nPageIndex;
-                oEpgSearch.m_nPageSize = request.m_nPageSize;
-                oEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
-
-                return oEpgSearch;
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorFormat("BuildEpgSearchObject failed ex = {0}", ex.Message); //TO DO what to print from request ???
-                return null;
-            }
+            return res;
         }
 
-        //returns a list of EpgIDsResultsObj, per channel, each one has a list of epgID and its update date
-        //the amount of epgs that are returned, in case of 'current' is limited only by the 'NextTop' and 'PrevTop' paramters inside the request (not by page size and page index), per channel
-        public static List<EpgResultsObj> GetEPGPrograms(EpgRequest request)
+        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList,
+            string baseEpgPicUrl, string epgPicWidth, string epgPicHeight)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
             {
-                log.Method = "Catalog.GetEPGProgramIds";
-                try
+                if (oProgram != null && !string.IsNullOrEmpty(baseEpgPicUrl) && !string.IsNullOrEmpty(oProgram.PIC_URL))
                 {
-                    if (request == null || request.m_nGroupID == 0)
+                    if (!string.IsNullOrEmpty(epgPicWidth) && !string.IsNullOrEmpty(epgPicHeight))
                     {
-                        log.Error("SearchEpgsByParams return null due to epgSearch == null || epgSearch.m_nGroupID==0", false);
-                        return null;
+                        oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight));
                     }
-
-                    List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
-                    EpgResultsObj resultPerChannel;
-                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
-                    GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
-                    Group group = groupManager.GetGroup(nParentGroupID);
-
-                    if (group != null)
-                    {
-                        ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dicDocs = null;
-                        if (request.m_eSearchType == EpgSearchType.ByDate)
-                        {
-                            //page size and page index of the request effect only per channel (and not the total amount of results) 
-                            dicDocs = epgBL.GetMultiChannelProgramsDic(request.m_nPageSize, request.m_nPageIndex, request.m_nChannelIDs, request.m_dStartDate, request.m_dEndDate);
-                            log.Message = string.Format("SearchEpgs by params of GroupID={0}, between Dates {1} - {2} in channels {3}",
-                                request.m_nGroupID, request.m_dStartDate.ToShortDateString(), request.m_dEndDate.ToShortDateString(), request.m_nChannelIDs.ToString());
-                        }
-                        else if (request.m_eSearchType == ApiObjects.EpgSearchType.Current)
-                        {
-                            int nNextTop = 0;
-                            int nPrevTop = 0;
-                            getTopValues(request, ref nNextTop, ref nPrevTop); //insert default values, if needed                            
-
-                            //all results return, according to m_nPrevTop and m_nNextTop (and not page size and page index)
-                            dicDocs = epgBL.GetMultiChannelProgramsDicCurrent(nNextTop, nPrevTop, request.m_nChannelIDs);
-                            log.Message = string.Format("SearchEpgs for current epgs by params of GroupID={0}, last {1} and next {2} epgs of channels {3}",
-                                request.m_nGroupID, nPrevTop.ToString(), nNextTop.ToString(), request.m_nChannelIDs.ToString());
-                        }
-                        log.Info(log.Message, false);
-                        if (dicDocs != null)
-                        {
-                            foreach (int channelID in dicDocs.Keys)
-                            {
-                                List<EPGChannelProgrammeObject> epgList;
-                                if (dicDocs.TryGetValue(channelID, out epgList) && epgList != null && epgList.Count > 0)
-                                {
-                                    //build the response
-                                    resultPerChannel = createEpgResults(dicDocs[channelID], channelID);
-                                    epgResponse.Add(resultPerChannel);
-                                }
-                            }
-                        }
-                        else
-                            log.Error("Dictionary of results per channel returned empty, response will by empty.", false);
-                    }
-                    else
-                    {
-                        log.Error("returning null because group was not retrieved from the Group Cache ", false);
-                        return null;
-                    }
-                    return epgResponse;
-                }
-                catch (Exception ex)
-                {
-                    log.Message = string.Format("SearchEpgsByParams had an exception: ex={0} in {1}", ex.Message, ex.StackTrace);
-                    log.Error(log.Message, false);
-                    return null;
+                    oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
                 }
             }
         }
 
-        private static EpgResultsObj createEpgResults(List<EPGChannelProgrammeObject> epgList, int nChannelID)
+        private static void GetEpgPicUrlData(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<string>> groupTreeEpgPicUrl,
+            ref string epgPicBaseUrl, ref string epgPicWidth, ref string epgPicHeight)
         {
-            EpgResultsObj resultPerChannel = new EpgResultsObj();
-            resultPerChannel.m_nChannelID = nChannelID;
-            resultPerChannel.m_nTotalItems = epgList.Count();
-
-            //complete the full url for picURL 
-            resultPerChannel.m_lEpgProgram = epgList;
-            List<ApiObjects.EPGChannelProgrammeObject> tempEpgList = Utils.CompleteFullEpgPicURL(epgList);
-            if (tempEpgList != null)
+            int groupID = 0;
+            if (epgList != null && epgList.Count > 0 && epgList[0] != null && Int32.TryParse(epgList[0].GROUP_ID, out groupID)
+                && groupID > 0 && groupTreeEpgPicUrl.ContainsKey(groupID))
             {
-                resultPerChannel.m_lEpgProgram = tempEpgList;
-            }
-
-            return resultPerChannel;
-        }
-
-        //insert default values to Top Next and Top prev, if they are 0
-        private static void getTopValues(EpgRequest request, ref int nNextTop, ref int nPrevTop)
-        {
-            if (request.m_eSearchType == EpgSearchType.Current)
-            {
-                int itemAmount;
-                bool succeedParse;
-                if (request.m_nNextTop == 0) //insert default value, to prevent querying everything
-                {
-                    succeedParse = int.TryParse(Utils.GetWSURL("EPG_NEXT_TOP_ITEMS"), out itemAmount);
-                    if (succeedParse)
-                        nNextTop = itemAmount;
-                    else
-                        nNextTop = 10;
-                }
-                else
-                {
-                    nNextTop = request.m_nNextTop;
-                }
-                if (request.m_nPrevTop == 0)//insert default value, to prevent querying everything
-                {
-                    succeedParse = int.TryParse(Utils.GetWSURL("EPG_PREV_TOP_ITEMS"), out itemAmount);
-                    if (succeedParse)
-                        nPrevTop = itemAmount;
-                    else
-                        nPrevTop = 10;
-                }
-                else
-                {
-                    nPrevTop = request.m_nPrevTop;
-                }
+                epgPicBaseUrl = groupTreeEpgPicUrl[groupID][0];
+                epgPicWidth = groupTreeEpgPicUrl[groupID][1];
+                epgPicHeight = groupTreeEpgPicUrl[groupID][2];
             }
         }
 
         public static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            List<AssetStatsResult> resList = null;
+            DataSet ds;
+            bool sendLog = false;
+            try
             {
-                log.Method = "Catalog.GetMediaStatsResults";
-                List<AssetStatsResult> resList = null;
-                DataSet ds;
-                bool sendLog = false;
-
-                try
+                if (eType == StatsType.MEDIA)
                 {
-                    if (eType == StatsType.MEDIA)
+                    GroupManager groupManager = new GroupManager();
+                    int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
+                    List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
+
+
+                    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
+                        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
+                    else
+                        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
+                    if (ds != null)
+                        resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
+                    else
+                        sendLog = true;
+                }
+                else if (eType == StatsType.EPG)
+                {
+                    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
+                    {
+                        resList = getEpgStatFromBL(nGroupID, lAssetIDs);
+                    }
+                    else
                     {
                         GroupManager groupManager = new GroupManager();
                         int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
                         List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-
-
-                        if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
-                        else
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
+                        ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
                         if (ds != null)
-                            resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
+                            resList = getEpgStatFromDataSet(ds, lAssetIDs);
                         else
                             sendLog = true;
                     }
-                    else if (eType == StatsType.EPG)
-                    {
-                        if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-                        {
-                            resList = getEpgStatFromBL(nGroupID, lAssetIDs);
-                        }
-                        else
-                        {
-                            GroupManager groupManager = new GroupManager();
-                            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
-                            List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-                            ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-                            if (ds != null)
-                                resList = getEpgStatFromDataSet(ds, lAssetIDs);
-                            else
-                                sendLog = true;
-                        }
-                    }
-                    if (sendLog)
-                    {
-                        log.Message = string.Format("Could not retrieve the media Statistics from the DB - DataSet is empty. the response will be null." +
-                            "group ID: {0}, mediaIDs{1}, startTime: {2}, endTime: {3}", nGroupID.ToString(), lAssetIDs.ToString(), dStartDate.ToString(), dEndDate.ToString());
-                        log.Error(log.Message, false);
-                        return null;
-                    }
                 }
-
-                catch (Exception ex)
+                if (sendLog)
                 {
-                    log.Message = string.Format("Could not retrieve the media Statistics in Catalog.GetMediaStatsResults from the DB."
-                                                + "exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                    log.Error(log.Message, false);
-                    return null;
+                    Logger.Logger.Log("Error", string.Format("GetAssetStatsResults. Failed to retrieve stats. G ID: {0} , SD: {1} , ED: {2} , Type: {3}", nGroupID, dStartDate.ToString(), dEndDate.ToString(), eType.ToString()), "GetAssetStatsResults");
                 }
-                return resList;
             }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("Exception at GetAssetStatsResults. Msg: {0} , ST: {1}", ex.Message, ex.StackTrace), "Catalog");
+                return null;
+            }
+            return resList;
         }
 
         private static List<AssetStatsResult> getEpgStatFromDataSet(DataSet ds, List<int> lAssetIDs)
@@ -2217,10 +1964,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                BaseLog log = new BaseLog(eLogType.WcfRequest, DateTime.UtcNow, true);
-                log.Method = "Catalog.getMediaStatFromDataSet";
-                log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet . exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                log.Error(log.Message, false);
+                Logger.Logger.Log("Exception", string.Format("Exception at getEpgStatFromDataSet. Msg: {0} , ST: {1}", ex.Message, ex.StackTrace), "Catalog");
                 return null;
             }
             return resList;
@@ -2258,138 +2002,130 @@ namespace Catalog
 
         private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs, int nGroupID)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            List<AssetStatsResult> resList = new List<AssetStatsResult>();
+            AssetStatsResult mediaStat;
+            try
             {
-                log.Method = "Catalog.getMediaStatFromDataSet";
-                List<AssetStatsResult> resList = new List<AssetStatsResult>();
-                AssetStatsResult mediaStat;
-                try
+                //Complete BuzzMeter data from CB
+                BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
+
+                //if the request was sent without dates, the select is only on 1 table
+                if (ds.Tables != null && ds.Tables.Count == 1)
                 {
-                    //Complete BuzzMeter data from CB
-                    BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
-                    Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
-
-                    //if the request was sent without dates, the select is only on 1 table
-                    if (ds.Tables != null && ds.Tables.Count == 1)
+                    //getting only medias that were in the DB
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                     {
-                        //getting only medias that were in the DB
-                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                        foreach (DataRow row in ds.Tables[0].Rows)
                         {
-                            foreach (DataRow row in ds.Tables[0].Rows)
+                            if (row != null)
                             {
-                                if (row != null)
+                                mediaStat = new AssetStatsResult();
+                                mediaStat.m_nAssetID = Utils.GetIntSafeVal(row, "ID");
+                                mediaStat.m_nViews = Utils.GetIntSafeVal(row, "VIEWS");
+                                mediaStat.m_nVotes = Utils.GetIntSafeVal(row, "VOTES_COUNT");
+                                int sumVotes = Utils.GetIntSafeVal(row, "VOTES_SUM");
+                                if (mediaStat.m_nVotes != 0)
+                                    mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
+                                mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
+
+                                //BuzzMeter 
+                                if (lBM != null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
                                 {
-                                    mediaStat = new AssetStatsResult();
-                                    mediaStat.m_nAssetID = Utils.GetIntSafeVal(row, "ID");
-                                    mediaStat.m_nViews = Utils.GetIntSafeVal(row, "VIEWS");
-                                    mediaStat.m_nVotes = Utils.GetIntSafeVal(row, "VOTES_COUNT");
-                                    int sumVotes = Utils.GetIntSafeVal(row, "VOTES_SUM");
-                                    if (mediaStat.m_nVotes != 0)
-                                        mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
-                                    mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
-
-                                    //BuzzMeter 
-                                    if (lBM != null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
-                                    {
-                                        mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
-                                    }
-
-                                    resList.Add(mediaStat);
+                                    mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
                                 }
+
+                                resList.Add(mediaStat);
                             }
                         }
                     }
-                    //if the request was sent with dates, 4 tables will return from the DB
-                    else if (ds.Tables != null && ds.Tables.Count == 4)
-                    {
-                        Dictionary<int, AssetStatsResult> resultDic = new Dictionary<int, AssetStatsResult>();
-                        foreach (int id in mediaIDs)
-                            resultDic.Add(id, new AssetStatsResult());
-                        //retrieving only medias that were in the DB
-                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[0].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "ID");
-                                    resultDic[id].m_nAssetID = id;
-                                }
-                            }
-                        }
-                        //retrieving the relevant views
-                        if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[1].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
-                                    int views = Utils.GetIntSafeVal(row, "VIEWS");
-                                    resultDic[id].m_nViews = views;
-                                }
-                            }
-                        }
-                        //retrieving the relevant Rate and Vote count
-                        if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[2].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
-                                    int votesCount = Utils.GetIntSafeVal(row, "VOTES_COUNT");
-                                    resultDic[id].m_nVotes = votesCount;
-                                    int votesSum = Utils.GetIntSafeVal(row, "VOTES_SUM");
-                                    if (resultDic[id].m_nVotes != 0)
-                                        resultDic[id].m_dRate = (double)votesSum / resultDic[id].m_nVotes;
-                                }
-                            }
-                        }
-                        //retrieving the relevant likes
-                        if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[3].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "media_id");
-                                    int likes = Utils.GetIntSafeVal(row, "like_counter");
-                                    resultDic[id].m_nLikes = likes;
-                                }
-                            }
-                        }
-
-                        //BuzzMeter 
-                        foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
-                        {
-                            if (lBM != null && lBM.ContainsKey(asset.Key.ToString()))
-                            {
-                                resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
-                            }
-                        }
-                        resList = resultDic.Values.ToList();
-                    }
-                    else
-                    {
-                        log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet from the dataSet,"
-                                                    + "dataSet is empty or number of retrieved tables is unexpected");
-                        log.Error(log.Message, false);
-                        return null;
-                    }
-
-
-
                 }
-                catch (Exception ex)
+                //if the request was sent with dates, 4 tables will return from the DB
+                else if (ds.Tables != null && ds.Tables.Count == 4)
                 {
-                    log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet . exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                    log.Error(log.Message, false);
+                    Dictionary<int, AssetStatsResult> resultDic = new Dictionary<int, AssetStatsResult>();
+                    foreach (int id in mediaIDs)
+                        resultDic.Add(id, new AssetStatsResult());
+                    //retrieving only medias that were in the DB
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            if (row != null)
+                            {
+                                int id = Utils.GetIntSafeVal(row, "ID");
+                                resultDic[id].m_nAssetID = id;
+                            }
+                        }
+                    }
+                    //retrieving the relevant views
+                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[1].Rows)
+                        {
+                            if (row != null)
+                            {
+                                int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
+                                int views = Utils.GetIntSafeVal(row, "VIEWS");
+                                resultDic[id].m_nViews = views;
+                            }
+                        }
+                    }
+                    //retrieving the relevant Rate and Vote count
+                    if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[2].Rows)
+                        {
+                            if (row != null)
+                            {
+                                int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
+                                int votesCount = Utils.GetIntSafeVal(row, "VOTES_COUNT");
+                                resultDic[id].m_nVotes = votesCount;
+                                int votesSum = Utils.GetIntSafeVal(row, "VOTES_SUM");
+                                if (resultDic[id].m_nVotes != 0)
+                                    resultDic[id].m_dRate = (double)votesSum / resultDic[id].m_nVotes;
+                            }
+                        }
+                    }
+                    //retrieving the relevant likes
+                    if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[3].Rows)
+                        {
+                            if (row != null)
+                            {
+                                int id = Utils.GetIntSafeVal(row, "media_id");
+                                int likes = Utils.GetIntSafeVal(row, "like_counter");
+                                resultDic[id].m_nLikes = likes;
+                            }
+                        }
+                    }
+
+                    //BuzzMeter 
+                    foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
+                    {
+                        if (lBM != null && lBM.ContainsKey(asset.Key.ToString()))
+                        {
+                            resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
+                        }
+                    }
+                    resList = resultDic.Values.ToList();
+                }
+                else
+                {
                     return null;
                 }
 
-                return resList;
+
+
             }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("Exception at getMediaStatFromDataSet. Msg: {0} , Type: {1} , ST: {2}", ex.Message, ex.GetType().Name, ex.StackTrace), "Catalog");
+                return null;
+            }
+
+            return resList;
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
@@ -2465,15 +2201,14 @@ namespace Catalog
             return res;
         }
 
-        private static List<long> GetEPGChannelsIDs(List<long> ipnoEPGChannelsMediaIDs)
+        internal static List<long> GetEPGChannelsIDs(List<long> ipnoEPGChannelsMediaIDs)
         {
             List<long> res;
             DataTable dt = CatalogDAL.Get_EPGChannelsIDsByMediaIDs(ipnoEPGChannelsMediaIDs);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                int length = dt.Rows.Count;
-                res = new List<long>(length);
-                for (int i = 0; i < length; i++)
+                res = new List<long>(dt.Rows.Count);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     res.Add(ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["ID"]));
                 }
@@ -2486,11 +2221,10 @@ namespace Catalog
             return res;
         }
 
-        private static List<long> ExtractMediaIDs(SearchResultsObj sro)
+        internal static List<long> ExtractMediaIDs(SearchResultsObj sro)
         {
-            int length = sro.n_TotalItems;
-            List<long> res = new List<long>(length);
-            for (int i = 0; i < length; i++)
+            List<long> res = new List<long>(sro.n_TotalItems);
+            for (int i = 0; i < sro.n_TotalItems; i++)
             {
                 res.Add(sro.m_resultIDs[i].assetID);
             }
@@ -2499,7 +2233,7 @@ namespace Catalog
         }
 
 
-        private static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
+        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
         {
             MediaSearchObj res = new MediaSearchObj();
             res.m_nGroupId = nGroupID;
@@ -2521,7 +2255,7 @@ namespace Catalog
             return DEFAULT_SEARCHER_MAX_RESULTS_SIZE;
         }
 
-        private static Dictionary<string, string> GetLinearMediaTypeIDsAndWatchRuleIDs(int nGroupID)
+        internal static Dictionary<string, string> GetLinearMediaTypeIDsAndWatchRuleIDs(int nGroupID)
         {
             Dictionary<string, string> res = new Dictionary<string, string>(2);
 
@@ -2624,7 +2358,7 @@ namespace Catalog
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
             string sWSUrl = string.Empty;
-           
+
             //get username + password from wsCache
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.DOMAINS);
             if (oCredentials != null)
@@ -2639,11 +2373,11 @@ namespace Catalog
             }
 
             using (WS_Domains.module domains = new WS_Domains.module())
-            { 
+            {
                 sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID, null);
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0, nMediaID, null);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;
@@ -2703,7 +2437,7 @@ namespace Catalog
 
         private static bool IsBrand(DataRow dr)
         {
-            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0")) 
+            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0"))
                 || (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "RECURRING_TYPE_ID")) && !dr["RECURRING_TYPE_ID"].ToString().Equals("0"));
         }
 

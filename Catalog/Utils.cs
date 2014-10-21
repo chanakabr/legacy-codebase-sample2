@@ -26,107 +26,26 @@ namespace Catalog
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
-
-        /*Build some of the "where" query part : the range date by the params*/
-        static public string GetDateRangeQuery(string sEndDateField, bool bUseStartDate)
-        {
-            string sQuery = string.Empty;
-
-            if (bUseStartDate)
-            {
-                sQuery += " start_date <= getdate() and (" + sEndDateField + " >= getdate() or " + sEndDateField + " is null  )";
-            }
-            else
-            {
-                sQuery += "(" + sEndDateField + " >= getdate() or " + sEndDateField + " is null  )";
-            }
-
-            return sQuery;
-
-        }
-
+        
         public static string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
-        public static string GetLuceneUrl()
-        {
-            string sLuceneURL = string.Empty;
-
-            try
-            {
-                sLuceneURL = GetWSURL("LUCENE_WCF");
-            }
-            catch (Exception ex)
-            {
-                _logger.Info("Failed getting lucene client url from config", ex);
-            }
-
-            return sLuceneURL;
-        }
-
-        public static string GetLuceneUrl(int nGroupID)
-        {
-            return GetLuceneUrl();
-        }
 
         public static string GetSignature(string sSigningString, Int32 nGroupID)
         {
             string retVal;
-            //Get key from DB
-            // string hmacSecret = ODBCWrapper.Utils.GetTableSingleVal("groups", "Signature" ,"group_id", "=",nGroupID).ToString();
-            //string hmacSecret = Utils.GetWSURL("hmacSecret");
-            string hmacSecret = GetWSURL("CatalogSignatureKey");
-            // The HMAC secret as configured in the skin
 
-            // Values are always transferred using UTF-8 encoding
+            string hmacSecret = GetWSURL("CatalogSignatureKey");
+
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
-            // Calculate the HMAC
-            // signingString is the SignString from the request
-            HMACSHA1 myhmacsha1 = new HMACSHA1(encoding.GetBytes(hmacSecret));
-            retVal = System.Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(sSigningString)));
-            myhmacsha1.Clear();
+            using (HMACSHA1 myhmacsha1 = new HMACSHA1(encoding.GetBytes(hmacSecret)))
+            {
+                retVal = System.Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(sSigningString)));
+            }
             return retVal;
-        }
-
-        /* get only the relevant medias by paging */
-
-        public static List<int> GetMediaForPaging(int[] medias, BaseRequest request)
-        {
-            List<int> mediaList = new List<int>();
-            try
-            {
-                if (medias.Count() == 0)
-                    return mediaList;
-
-                int startIndex = 0;
-                int countItems = medias.Count();
-
-                if (request.m_nPageIndex > 0)
-                    startIndex = request.m_nPageIndex * request.m_nPageSize;//first page index = 0
-
-                if (request.m_nPageSize > 0)
-                    countItems = request.m_nPageSize;
-                else
-                    countItems = medias.Count() - startIndex;
-
-                if (medias.Count() < startIndex)
-                    return mediaList;
-
-                if ((startIndex + countItems) > medias.Count())
-                    countItems = medias.Count() - startIndex;
-
-                mediaList = medias.ToList<int>().GetRange(startIndex, countItems);
-
-                return mediaList;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex.Message, ex);
-                return null;
-            }
         }
 
 
@@ -212,40 +131,33 @@ namespace Catalog
 
             if (nLanguage == 0)
                 return bIsMain;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select g.LANGUAGE_ID from groups g (nolock) where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    Int32 nMainLangID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["LANGUAGE_ID"].ToString());
-                    if (nLanguage == nMainLangID)
-                        bIsMain = true;
-                    else
-                        bIsMain = false;
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return bIsMain;
-        }
-
-        public static double GetSafeDouble(DataRow dr, string sField)
-        {
-            double retVal = 0.0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                if (dr != null && dr[sField] != DBNull.Value)
-                    retVal = double.Parse(dr[sField].ToString());
-                return retVal;
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select g.LANGUAGE_ID from groups g (nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        Int32 nMainLangID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["LANGUAGE_ID"].ToString());
+                        if (nLanguage == nMainLangID)
+                            bIsMain = true;
+                        else
+                            bIsMain = false;
+                    }
+                }
             }
-            catch
+            finally
             {
-                return 0.0;
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
+            return bIsMain;
         }
 
         public static string GetStrSafeVal(DataRow dr, string sField)
@@ -274,19 +186,6 @@ namespace Catalog
             {
                 return 0;
             }
-        }
-
-
-        internal static MutexSecurity CreateMutex()
-        {
-            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            MutexSecurity mutexSecurity = new MutexSecurity();
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-            return mutexSecurity;
-
         }
 
         /// <summary>
@@ -319,94 +218,6 @@ namespace Catalog
             }
 
             return bIsValidRange;
-        }
-
-        internal static DateTime GetSlidingWindowStart(int minPeriodId)
-        {
-            switch (minPeriodId)
-            {
-                case 1:
-                    return DateTime.UtcNow.AddMinutes(-1);
-                case 5:
-                    return DateTime.UtcNow.AddMinutes(-5);
-                case 10:
-                    return DateTime.UtcNow.AddMinutes(-10);
-                case 30:
-                    return DateTime.UtcNow.AddMinutes(-30);
-                case 60:
-                    return DateTime.UtcNow.AddHours(-1);
-                case 120:
-                    return DateTime.UtcNow.AddHours(-2);
-                case 180:
-                    return DateTime.UtcNow.AddHours(-3);
-                case 360:
-                    return DateTime.UtcNow.AddHours(-6);
-                case 540:
-                    return DateTime.UtcNow.AddHours(-9);
-                case 720:
-                    return DateTime.UtcNow.AddHours(-12);
-                case 1080:
-                    return DateTime.UtcNow.AddHours(-18);
-                case 1440:
-                    return DateTime.UtcNow.AddDays(-1);
-                case 2880:
-                    return DateTime.UtcNow.AddDays(-2);
-                case 4320:
-                    return DateTime.UtcNow.AddDays(-3);
-                case 7200:
-                    return DateTime.UtcNow.AddDays(-5);
-                case 10080:
-                    return DateTime.UtcNow.AddDays(-7);
-                case 20160:
-                    return DateTime.UtcNow.AddDays(-14);
-                case 30240:
-                    return DateTime.UtcNow.AddDays(-21);
-                case 40320:
-                    return DateTime.UtcNow.AddDays(-28);
-                case 40321:
-                    return DateTime.UtcNow.AddDays(-28);
-                case 43200:
-                    return DateTime.UtcNow.AddDays(-30);
-                case 44600:
-                    return DateTime.UtcNow.AddDays(-31);
-                case 1111111:
-                    return DateTime.UtcNow.AddMonths(-1);
-                case 2222222:
-                    return DateTime.UtcNow.AddMonths(-2);
-                case 3333333:
-                    return DateTime.UtcNow.AddMonths(-3);
-                case 4444444:
-                    return DateTime.UtcNow.AddMonths(-4);
-                case 5555555:
-                    return DateTime.UtcNow.AddMonths(-5);
-                case 6666666:
-                    return DateTime.UtcNow.AddMonths(-6);
-                case 9999999:
-                    return DateTime.UtcNow.AddMonths(-7);
-                case 11111111:
-                    return DateTime.UtcNow.AddYears(-1);
-                case 22222222:
-                    return DateTime.UtcNow.AddYears(-2);
-                case 33333333:
-                    return DateTime.UtcNow.AddYears(-3);
-                case 44444444:
-                    return DateTime.UtcNow.AddYears(-4);
-                case 55555555:
-                    return DateTime.UtcNow.AddYears(-5);
-                case 66666666:
-                    return DateTime.UtcNow.AddYears(-6);
-                case 77777777:
-                    return DateTime.UtcNow.AddYears(-7);
-                case 88888888:
-                    return DateTime.UtcNow.AddYears(-8);
-                case 99999999:
-                    return DateTime.UtcNow.AddYears(-9);
-                case 100000000:
-                    return DateTime.UtcNow.AddYears(-10);
-
-                default:
-                    return DateTime.MinValue;
-            }
         }
 
         public static void OrderMediasByStats(List<int> medias, int nOrderType, int nOrderDirection)
@@ -627,7 +438,7 @@ namespace Catalog
             return channelViews;
         }
 
-        public static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action)
+        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action)
         {
             List<int> result = new List<int>();
 
@@ -702,7 +513,7 @@ namespace Catalog
             return result;
         }
 
-        public static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
+        internal static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
         {
             List<int> result = new List<int>();
 
@@ -778,78 +589,7 @@ namespace Catalog
             return result;
         }
 
-        public static bool KeyInGroupTags(int nGroupID, string sTagType)
-        {
-            bool bRes = false;
-                       
-            GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
-            Group group = groupManager.GetGroup(nParentGroupID);
-            
-            if (group != null)
-            {
-                if (group.m_oGroupTags.ContainsValue(sTagType))
-                {
-                    bRes = true;
-                }
-            }
-
-            return bRes;
-        }
-
-        internal static List<ApiObjects.EPGChannelProgrammeObject> CompleteFullEpgPicURL(List<ApiObjects.EPGChannelProgrammeObject> epgList)
-        {
-            try
-            {
-                string sBaseURL = string.Empty;
-                string sWidth = string.Empty;
-                string sHeight = string.Empty;
-                if (epgList != null && epgList.Count > 0 && epgList[0] != null)
-                {
-                    int groupID = int.Parse(epgList[0].GROUP_ID);
-                    DataTable dtPic = Tvinci.Core.DAL.CatalogDAL.GetPicEpgURL(groupID);
-                    if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
-                    {
-                        sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
-                        sWidth = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "WIDTH");
-                        sHeight = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "HEIGHT");
-                        if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
-                        {
-                            sBaseURL = string.Format("{0}/", sBaseURL);
-                        }
-                    }
-
-                    foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
-                    {
-                        if (oProgram != null && !string.IsNullOrEmpty(sBaseURL) && !string.IsNullOrEmpty(oProgram.PIC_URL))
-                        {
-                            if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
-                            {
-                                oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", sWidth, sHeight));
-                            }
-                            oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgram.PIC_URL);
-                        }
-                    }
-                }
-                return epgList;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
-        public static double GetDoubleValFromConfig(string sKey)
-        {
-            double nRes = 0;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue(sKey) != string.Empty)
-            {
-                double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKey), out nRes);
-            }
-            return nRes;
-        }
-
-        public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
+        internal static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
         {
             List<T> result = new List<T>();
 
@@ -866,7 +606,7 @@ namespace Catalog
             return result;
         }
 
-        public static int GetUserType(string sSiteGuid, int nGroupID)
+        internal static int GetUserType(string sSiteGuid, int nGroupID)
         {
             int nUserTypeID = 0;
             ws_users.UsersService u = null;

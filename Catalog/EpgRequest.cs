@@ -7,17 +7,20 @@ using System.Reflection;
 using Logger;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using System.Diagnostics;
+using EpgBL;
 
 namespace Catalog
 {
     [DataContract]
-    public class EpgRequest : BaseRequest, IRequestImp
+    public class EpgRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
 
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = Catalog.GetCurrentRequestDaysOffset();
 
         [DataMember]
-        public List<int> m_nChannelIDs; 
+        public List<int> m_nChannelIDs;
 
         [DataMember]
         public DateTime m_dStartDate;
@@ -51,50 +54,95 @@ namespace Catalog
             m_nPrevTop = nPrevTop;
         }
 
-        
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat("EpgRequest. St. Date: ", m_dStartDate));
+            sb.Append(String.Concat(" End Date: ", m_dEndDate));
+            sb.Append(String.Concat(" Search Type: ", m_eSearchType.ToString()));
+            sb.Append(String.Concat(" Next Top: ", m_nNextTop));
+            sb.Append(String.Concat(" Prev Top: ", m_nPrevTop));
+            if (m_nChannelIDs != null && m_nChannelIDs.Count > 0)
+            {
+                sb.Append(" Channels: ");
+                for (int i = 0; i < m_nChannelIDs.Count; i++)
+                {
+                    sb.Append(m_nChannelIDs[i].ToString());
+                }
+            }
+            else
+            {
+                sb.Append(" Channel list is empty. ");
+            }
+
+            sb.Append(String.Concat(" Base Req: ", base.ToString()));
+
+            return sb.ToString();
+
+        }
+
+        private void CheckRequestValidness()
+        {
+            if (m_nGroupID < 1 || m_nChannelIDs == null || m_nChannelIDs.Count == 0 || (m_eSearchType == EpgSearchType.Current && (m_nNextTop == 0 || m_nPrevTop == 0)))
+                throw new ArgumentException("Request either does not contain any channels or has invalid group id");
+        }
+
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            EpgRequest request = oBaseRequest as EpgRequest;
-            EpgResponse response = new EpgResponse();           
-            List<EpgResultsObj> result;
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            EpgResponse response = new EpgResponse();
+            try
             {
-                log.Method = "EpgProgramIDsRequest GetResponse";
-                try
+                CheckRequestValidness();
+                CheckSignature(this);
+                SearchResultsObj sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
+                if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                 {
-                    if (request == null)
-                        throw new ArgumentException("request object is null");
-
-                    if (request.m_nChannelIDs == null || request.m_nChannelIDs.Count == 0)
-                        throw new ArgumentException("Request does not contain any channels");
-
-                    CheckSignature(request);
-
-                    result = Catalog.GetEPGPrograms(request);
-                    if (result != null)
-                    {
-                        response.programsPerChannel = result;
-                        response.m_nTotalItems = result.Count;
-                    }
-                    else
-                    {
-                        log.Message = string.Format("Result from Catalog.GetEPGProgramIds was null. request startDate : {0}, requst endDate: {1}"
-                                        , request.m_dStartDate.ToString(), request.m_dEndDate.ToString());
-                        log.Error(log.Message, false);
-                        response = null;
-                    }
+                    response = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, m_eSearchType == EpgSearchType.Current, m_nChannelIDs);
                 }
-                catch (Exception ex)
-                {   
-                    log.Message = string.Format("Could not retrieve the EPGIDs from Catalog.GetEPGProgramIds. Exception message: {0}, stack: {1}", ex.Message, ex.StackTrace);
-                    log.Error(log.Message, false);
-                    response = null;
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Exception thrown at EpgRequest.GetResponse", ex);
+                throw ex;
             }
 
             return response;
         }
-       
+
+
+        public EpgSearchObj BuildEPGSearchObject()
+        {
+            EpgSearchObj res = new EpgSearchObj();
+            res.m_bSearchOnlyDatesAndChannels = true;
+            res.m_oEpgChannelIDs = m_nChannelIDs.Select(item => (long)item).ToList<long>();
+            res.m_nGroupID = m_nGroupID;
+            res.m_nPageSize = m_nPageSize;
+            res.m_nPageIndex = m_nPageIndex;
+            res.m_lSearchOr = new List<SearchValue>(0);
+            res.m_lSearchAnd = new List<SearchValue>(0);
+            switch (m_eSearchType)
+            {
+                case EpgSearchType.Current:
+                    {
+                        res.m_bIsCurrent = true;
+                        res.m_nNextTop = m_nNextTop;
+                        res.m_nPrevTop = m_nPrevTop;
+                        DateTime now = DateTime.UtcNow;
+                        res.m_dEndDate = now.AddDays(CURRENT_REQUEST_DAYS_OFFSET);
+                        res.m_dStartDate = now.AddDays(-CURRENT_REQUEST_DAYS_OFFSET);
+                        break;
+                    }
+                default:
+                    {
+                        // ByDate
+                        res.m_bIsCurrent = false;
+                        res.m_dEndDate = m_dEndDate;
+                        res.m_dStartDate = m_dStartDate;
+                        break;
+                    }
+            }
+
+            return res;
+        }
     }
 
 

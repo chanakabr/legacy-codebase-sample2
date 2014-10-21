@@ -160,6 +160,7 @@
     <Compile Include="FactoryImp.cs" />
     <Compile Include="FileMedia.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="IEpgSearchable.cs" />
     <Compile Include="IFactoryImp.cs" />
     <Compile Include="IMediasProtocolRequest.cs" />
     <Compile Include="IProgramsRequest.cs" />

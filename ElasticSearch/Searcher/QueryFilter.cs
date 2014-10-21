@@ -28,7 +28,7 @@ namespace ElasticSearch.Searcher
             if (FilterSettings != null && !FilterSettings.IsEmpty())
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("\"filter\": {");
+                sb.Append("\"filter\":{");
                 sb.Append(FilterSettings.ToString());
                 sb.Append("}");
                 sRes = sb.ToString();
@@ -63,7 +63,7 @@ namespace ElasticSearch.Searcher
 
         public bool IsEmpty()
         {
-            return (string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key)) ? true : false;
+            return string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key);
 
         }
 
@@ -76,24 +76,24 @@ namespace ElasticSearch.Searcher
             StringBuilder sb = new StringBuilder();
 
             if (bNot)
-                sb.Append("{ \"not\": ");
+                sb.Append("{\"not\":");
 
-            sb.Append("{ \"term\": {");
-            sb.AppendFormat("\"{0}\": ", Key);
+            sb.Append("{\"term\":{");
+            sb.AppendFormat("\"{0}\":", Key);
             sb.Append("{");
 
             if (m_bIsNumeric)
             {
-                sb.AppendFormat(" \"value\": {0}", Value);
+                sb.AppendFormat("\"value\":{0}", Value);
             }
             else
             {
-                sb.AppendFormat(" \"value\": \"{0}\"", Value);
+                sb.AppendFormat("\"value\":\"{0}\"", Value);
             }
 
             if (Boost > 0.0f)
             {
-                sb.AppendFormat(", \"boost\": {0}", Boost);
+                sb.AppendFormat(",\"boost\":{0}", Boost);
             }
 
             sb.Append("}}}");
@@ -169,11 +169,11 @@ namespace ElasticSearch.Searcher
             StringBuilder sb = new StringBuilder();
 
             if (bNot)
-                sb.Append(" {\"not\": ");
+                sb.Append("{\"not\":");
 
-            sb.Append("{ \"terms\": { \"");
+            sb.Append("{\"terms\":{\"");
             sb.Append(Key);
-            sb.Append("\": [");
+            sb.Append("\":[");
             if (m_bIsNumeric)
             {
                 sb.Append(Value.Aggregate((current, next) => current + "," + next));
@@ -188,7 +188,7 @@ namespace ElasticSearch.Searcher
                 
                 sb.Append(Value.Aggregate((current, next) => current + "," + next));
             }
-            sb.Append("] } }");
+            sb.Append("]}}");
 
             if (bNot)
                 sb.Append("}");
@@ -216,7 +216,7 @@ namespace ElasticSearch.Searcher
 
         public bool IsEmpty()
         {
-            return (string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0) ? true : false;
+            return string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0;
         }
 
         public override string ToString()
@@ -227,18 +227,18 @@ namespace ElasticSearch.Searcher
             StringBuilder sb = new StringBuilder();
 
             if (bNot)
-                sb.Append("{ \"not\": ");
+                sb.Append("{\"not\":");
 
-            sb.Append("{ \"range\": { \"");
+            sb.Append("{\"range\":{\"");
             sb.Append(Key);
-            sb.Append("\": {");
+            sb.Append("\":{");
             List<string> tempList = new List<string>();
 
             if (m_bIsNumeric)
             {
                 foreach (var item in Value)
                 {
-                    tempList.Add(string.Format("\"{0}\": {1}", item.Key.ToString().ToLower(), item.Value));
+                    tempList.Add(string.Format("\"{0}\":{1}", item.Key.ToString().ToLower(), item.Value));
                 }
                 sb.Append(tempList.Aggregate((current, next) => current + "," + next));
 
@@ -247,11 +247,11 @@ namespace ElasticSearch.Searcher
             {
                 foreach (var item in Value)
                 {
-                    tempList.Add(string.Format("\"{0}\": \"{1}\"", item.Key.ToString().ToLower(), item.Value));
+                    tempList.Add(string.Format("\"{0}\":\"{1}\"", item.Key.ToString().ToLower(), item.Value));
                 }
                 sb.Append(tempList.Aggregate((current, next) => current + "," + next));
             }
-            sb.Append("} } }");
+            sb.Append("}}}");
 
             if (bNot)
                 sb.Append("}");
@@ -276,16 +276,16 @@ namespace ElasticSearch.Searcher
             StringBuilder sb = new StringBuilder();
 
             if(bNot)
-                sb.Append("{ \"not\": ");
+                sb.Append("{\"not\":");
 
-            sb.Append("{ \"wildcard\": {");
-            sb.AppendFormat("\"{0}\": ",Key);
+            sb.Append("{\"wildcard\":{");
+            sb.AppendFormat("\"{0}\":",Key);
             sb.Append("{");
-            sb.AppendFormat(" \"value\": \"{0}\"", Value);
+            sb.AppendFormat("\"value\":\"{0}\"", Value);
 
             if (Boost > 0.0f)
             {
-                sb.AppendFormat(", \"boost\": {0}", Boost);
+                sb.AppendFormat(",\"boost\":{0}", Boost);
             }
 
             sb.Append("}}}");
@@ -322,10 +322,10 @@ namespace ElasticSearch.Searcher
             StringBuilder sb = new StringBuilder();
 
             if (bNot)
-                sb.Append("{ \"not\": ");
+                sb.Append("{\"not\":");
 
-            sb.Append("{ \"exists\": {");
-             sb.AppendFormat(" \"field\": \"{0}\"", Value);
+            sb.Append("{\"exists\":{");
+             sb.AppendFormat("\"field\":\"{0}\"", Value);
 
             sb.Append("}}");
 
@@ -346,7 +346,8 @@ namespace ElasticSearch.Searcher
         BOOL_QUERY,
         MULTI_MATCH,
         EXISTS,
-        MATCH
+        MATCH,
+        MATCH_ALL
     }
 
     public enum eRangeComp

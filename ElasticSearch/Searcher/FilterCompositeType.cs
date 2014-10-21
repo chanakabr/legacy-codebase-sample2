@@ -19,7 +19,7 @@ namespace ElasticSearch.Searcher
 
         public override bool IsEmpty()
         {
-            return (m_lComposite.Count == 0 && m_lTerms.Count == 0) ? true : false;
+            return m_lComposite.Count == 0 && m_lTerms.Count == 0;
         }
 
         public override string ToString()

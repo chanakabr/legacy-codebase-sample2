@@ -5,11 +5,12 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Logger;
+using ApiObjects.SearchObjects;
 
 namespace Catalog
 {
     [DataContract]
-    public class EpgAutoCompleteRequest :  BaseRequest, IRequestImp
+    public class EpgAutoCompleteRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -24,51 +25,57 @@ namespace Catalog
         [DataMember]
         public List<long> m_oEPGChannelIDs;
 
-         public EpgAutoCompleteRequest() : base()
+        public EpgAutoCompleteRequest()
+            : base()
         {
-            m_nProgramID = 0;           
+            m_nProgramID = 0;
 
             m_dStartDate = DateTime.UtcNow;
             m_dEndDate = DateTime.UtcNow.AddDays(7);
             m_sSearch = string.Empty;
-            
+
         }
 
-         public EpgAutoCompleteRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString)
-            : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)          
+        public EpgAutoCompleteRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString)
+            : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, nProgramID);
         }
 
-         private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID)
-        {            
+        private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID)
+        {
             this.m_dEndDate = dEndDate;
             this.m_dStartDate = dStartDate;
             this.m_sSearch = sSearch;
             this.m_nProgramID = nProgramID;
         }
 
+        private void CheckRequestValidness()
+        {
+            if (string.IsNullOrEmpty(m_sSearch) || m_nGroupID == 0)
+            {
+                throw new ArgumentException("request object null or miss 'must' parameters ");
+            }
+        }
+
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             try
             {
-                EpgAutoCompleteRequest request = oBaseRequest as EpgAutoCompleteRequest;
                 EpgAutoCompleteResponse oResponse = new EpgAutoCompleteResponse();
 
-                if (request == null || string.IsNullOrEmpty(request.m_sSearch) || request.m_nGroupID == 0)
-                {
-                    throw new Exception("request object null or miss 'must' parameters ");
-                }
-                CheckSignature(request);
+                CheckRequestValidness();
+                CheckSignature(this);
 
                 //Auto Complete with Searcher               
-                List<string> epgAutoList = Catalog.EpgAutoComplete(request);
+                List<string> epgAutoList = Catalog.EpgAutoComplete(BuildEPGSearchObject());
 
                 if (epgAutoList != null)
-                {   
+                {
                     oResponse.m_sList.AddRange(epgAutoList);
                 }
-                return (BaseResponse)oResponse;
+
+                return oResponse;
             }
             catch (Exception ex)
             {
@@ -77,5 +84,58 @@ namespace Catalog
             }
         }
 
+
+        public EpgSearchObj BuildEPGSearchObject()
+        {
+            EpgSearchObj res = null;
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            List<List<string>> jsonizedChannelsDefinitions = null;
+            if (Catalog.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
+            {
+                m_oEPGChannelIDs = Catalog.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher, ref jsonizedChannelsDefinitions);
+                res = BuildEPGSearchObjectInner();
+            }
+            else
+            {
+                res = BuildEPGSearchObjectInner();
+            }
+
+            return res;
+        }
+
+        private EpgSearchObj BuildEPGSearchObjectInner()
+        {
+            List<string> lSearchList = new List<string>();
+            EpgSearchObj oEpgSearch = new EpgSearchObj();
+
+
+            oEpgSearch.m_bSearchAnd = false; //search with or
+            oEpgSearch.m_bDesc = false;
+            oEpgSearch.m_sOrderBy = "name";
+
+            oEpgSearch.m_dEndDate = m_dEndDate;
+            oEpgSearch.m_dStartDate = m_dStartDate;
+            List<EpgSearchValue> dEsv = new List<EpgSearchValue>();
+            //Get all tags and meta for group
+            Catalog.GetGroupsTagsAndMetas(m_nGroupID, ref lSearchList);
+
+            if (lSearchList == null)
+                throw new Exception(String.Concat("Failed to retrieve groups tags and metas from DB. Req: ", ToString()));
+            foreach (string item in lSearchList)
+            {
+                dEsv.Add(new EpgSearchValue(item, m_sSearch));
+            }
+
+            oEpgSearch.m_lSearch = dEsv;
+
+            // set parent group by request.m_nGroupID                
+            oEpgSearch.m_nGroupID = m_nGroupID;
+
+            oEpgSearch.m_nPageIndex = m_nPageIndex;
+            oEpgSearch.m_nPageSize = m_nPageSize;
+            oEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
+
+            return oEpgSearch;
+        }
     }
 }

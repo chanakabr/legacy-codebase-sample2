@@ -20,7 +20,7 @@ namespace ElasticSearch.Searcher
 
         public bool IsEmpty()
         {
-            return (Fields.Count == 0 || string.IsNullOrEmpty(Query)) ? true : false;
+            return Fields.Count == 0 || string.IsNullOrEmpty(Query);
         }
 
         public override string ToString()
