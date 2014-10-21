@@ -54,7 +54,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net4">
+    <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TvmCore\External\net40\Microsoft.CompilerServices.AsyncTargetingPack.Net4.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Threading.Tasks">
@@ -96,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseESMedia.cs" />
+    <Compile Include="ESDeleteEPGChannelsImplementor.cs" />
     <Compile Include="IndexBuilders\AbstractIndexBuilder.cs" />
     <Compile Include="ElasticSearchAbstract.cs" />
     <Compile Include="ElasticSearchFeeder.cs" />
