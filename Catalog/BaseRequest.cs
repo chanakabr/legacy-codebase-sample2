@@ -50,6 +50,7 @@ namespace Catalog
     [KnownType(typeof(BuzzMeterRequest))]
     [KnownType(typeof(MediaLastPositionRequest))]
     [KnownType(typeof(MediaLastPositionResponse))]
+    [KnownType(typeof(CategoryRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
 

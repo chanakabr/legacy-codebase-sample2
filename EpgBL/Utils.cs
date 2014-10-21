@@ -22,11 +22,13 @@ namespace EpgBL
             {
                 case YES_REGULAR:
                     {
-                        return new YesEpgBL(YES);
+                        return new TvinciEpgBL(nGroupID);
+                        //return new YesEpgBL(YES);                        
                     }
                 case YES:
                     {
-                        return new YesEpgBL(YES_REGULAR);
+                        return new TvinciEpgBL(nGroupID);
+                        //return new YesEpgBL(YES_REGULAR);
                     }
                 default:
                     {

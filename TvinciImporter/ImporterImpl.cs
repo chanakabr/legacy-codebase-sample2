@@ -664,6 +664,10 @@ namespace TvinciImporter
                 ProccessCategoryChildNodes(nGroupID, categorylID, ref theInnerCategories);
             }
 
+            //get value from tcm
+            int rootCategoryID = TVinciShared.WS_Utils.GetTcmIntValue("ROOT_CATEGORY_ID");            
+            DAL.ImporterImpDAL.StartCategoriesTransaction(rootCategoryID);
+
             return bOK;
         }
 
@@ -1010,9 +1014,10 @@ namespace TvinciImporter
                         }
 
                         UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
-                    }                
-
+                    }
                 }
+                
+                UtilsDal.YesDeleteChannelsByOfferID();
 
                 return bOK;
             }
@@ -2357,10 +2362,7 @@ namespace TvinciImporter
                 EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
             }
             return nPicID;
-        }
-		
-		
-
+        }		
 
         static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
@@ -2406,8 +2408,7 @@ namespace TvinciImporter
             }
             return nPicID;
         }
-
-
+        
         private static string getPictureFileName(string sThumb)
         {
             char[] delim = { '/' };
@@ -2425,8 +2426,7 @@ namespace TvinciImporter
             }
             return sPicName;
         }
-
-        
+                
         //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
         private static string[] getEPGPicSizes(int nGroupID)
         {
@@ -2454,10 +2454,7 @@ namespace TvinciImporter
             str = lString.ToArray();
             return str;
         }
-
-
-
-
+        
         //according to 'bSetMediaThumb' there is "full" and "tn"
         //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
         private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
@@ -2487,7 +2484,7 @@ namespace TvinciImporter
                     int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
                     int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
 
-                    string size = nWidth + "x" + nHeight;
+                    string size = nWidth + "X" + nHeight;
                     lString.Add(size);                   
                 }
             }
@@ -2733,18 +2730,18 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
                 {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
                 {
@@ -2764,18 +2761,18 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
                 }
                 else
                 {
                     updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
                 }
                 else
                 {

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
-using System.Configuration;
 using ODBCWrapper;
 using ApiObjects;
 using ApiObjects.MediaMarks;
@@ -1701,5 +1699,25 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static DataSet GetGroupCategoriesAndChannels(int nGroupID, int nLangID = 0)
+        {
+            // SELECT ID, CATEGORY_NAME, PARENT_CATEGORY_ID, PIC_ID, ORDER_NUM, CO_GUID FROM CATEGORIES 
+            // SELECT CH.ID,CH.PIC_ID,CH.NAME,CH.DESCRIPTION,CH.EDITOR_REMARKS  
+
+            StoredProcedure sp = new StoredProcedure("Get_GroupCategoriesAndChannels");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", nGroupID);
+
+            if (nLangID > 0)
+            {
+                sp.AddParameter("@LanguageID", nLangID);
+            }
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return ds;
+        }
+
     }
 }
