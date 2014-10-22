@@ -210,14 +210,24 @@ namespace ElasticSearch.Common
                 int nStatus = 0;
 
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
-                bResult = (nStatus == 200) ? true : false;
+                Logger.Logger.Log("Status", string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery), ES_LOG_FILENAME);
+                bResult = nStatus == 200;
 
-                return bResult;
             }
             catch (Exception ex)
             {
-                return false;
+                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), ES_LOG_FILENAME);
+                bResult = false;
             }
+
+            return bResult;
         }
 
         public List<string> GetAliases(string sIndex)
