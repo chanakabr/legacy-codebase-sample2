@@ -31,6 +31,10 @@ namespace Catalog
 
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
+        private static readonly int ASSET_STATS_VIEWS_INDEX = 0;
+        private static readonly int ASSET_STATS_VOTES_INDEX = 1;
+        private static readonly int ASSET_STATS_VOTES_SUM_INDEX = 2;
+        private static readonly int ASSET_STATS_LIKES_INDEX = 3;
 
         private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 100000;
 
@@ -2108,46 +2112,114 @@ namespace Catalog
         {
             StringBuilder sb = new StringBuilder(sMsg);
             sb.Append(String.Concat(" G ID: ", nGroupID));
-
+            sb.Append(String.Concat(" SD: ", dStartDate.ToString()));
+            sb.Append(String.Concat(" ED: ", dEndDate.ToString()));
+            sb.Append(String.Concat(" Type: ", eType.ToString()));
+            if (lAssetIDs != null && lAssetIDs.Count > 0)
+            {
+                sb.Append(" Asset IDs: ");
+                for (int i = 0; i < lAssetIDs.Count; i++)
+                {
+                    sb.Append(String.Concat(lAssetIDs[i], ";"));
+                }
+            }
+            else
+            {
+                sb.Append(String.Concat(" Asset IDs list is null or empty. "));
+            }
             return sb.ToString();
+        }
+
+        private static void InitializeAssetStatsResultsDataStructs(List<int> assetIds,
+            ref SortedSet<AssetStatsResult.IndexedAssetStatsResult> set,
+            ref Dictionary<int, AssetStatsResult> assetIdToAssetStatsResultMapping)
+        {
+            set = new SortedSet<AssetStatsResult.IndexedAssetStatsResult>();
+            assetIdToAssetStatsResultMapping = new Dictionary<int, AssetStatsResult>(assetIds.Count);
+            for (int i = 0; i < assetIds.Count; i++)
+            {
+                if (assetIds[i] > 0)
+                {
+                    AssetStatsResult result = new AssetStatsResult();
+                    result.m_nAssetID = assetIds[i];
+                    if (!assetIdToAssetStatsResultMapping.ContainsKey(assetIds[i]))
+                    {
+                        set.Add(new AssetStatsResult.IndexedAssetStatsResult(i, result));
+                        assetIdToAssetStatsResultMapping.Add(assetIds[i], result);
+                    }
+                }
+            }
         }
 
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             List<AssetStatsResult> resList = null;
-            DataSet ds;
-            bool sendLog = false;
+
+            // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
+            SortedSet<AssetStatsResult.IndexedAssetStatsResult> set = null;
+            Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
+            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);
+
+            DataSet ds = null;
             switch (eType)
             {
                 case StatsType.MEDIA:
                     {
-                        GroupManager groupManager = new GroupManager();
-                        List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
-                        DateTime? startDateToPassToDB = null;
-                        DateTime? endDateToPassToDB = null;
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
-                            //ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
+                            /*
+                             * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
+                             */ 
                             Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
                             if (dict.Count > 0)
                             {
-
+                                foreach(KeyValuePair<int, int[]> kvp in dict) 
+                                {
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    {
+                                        int votesCount = kvp.Value[ASSET_STATS_VOTES_INDEX];
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nVotes = votesCount;
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
+                                        if (votesCount > 0)
+                                        {
+                                            assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double) kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
-                                // log here
+                                // log here no data retrieved from media table.
+                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
                             }
                         }
                         else
                         {
-                            //ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-                            startDateToPassToDB = dStartDate;
-                            endDateToPassToDB = dEndDate;
+                            /*
+                             * When we have valid dates in Media Asset Stats request we fetch the data as follows:
+                             * 1. Views are taking by counting how many times each media appears in play_cycle_keys table in SQL DB.
+                             * 2. VotesSum, VotesCount, Likes are taken from CB social bucket.
+                             * 
+                             */ 
+
+                            // bring media views from SQL DB.
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            if (dict.Count > 0)
+                            {
+                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                {
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    {
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                    }
+                                }
+                            }
+
+                            // bring social actions from CB social bucket
+
+
                         }
-
-                        // bring media views from SQL
-
-                        // bring rating, votes, likes from CB
 
 
                         //if (ds != null)
@@ -2162,9 +2234,37 @@ namespace Catalog
                     }
                 case StatsType.EPG:
                     {
+                        /*
+                         * Notice: In EPG we bring only likes!!
+                         * 
+                         */ 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
-                            resList = getEpgStatFromBL(nGroupID, lAssetIDs);
+                            /*
+                             * When we don't have dates we bring the likes count from epg_channels_schedule bucket in CB
+                             * 
+                             */
+                            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
+                            List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
+                            if (lEpg != null && lEpg.Count > 0)
+                            {
+                                for (int i = 0; i < lEpg.Count; i++)
+                                {
+                                    int currEpgId = (int)lEpg[i].EPG_ID;
+                                    if (assetIdToAssetStatsMapping.ContainsKey(currEpgId))
+                                    {
+                                        assetIdToAssetStatsMapping[currEpgId].m_nLikes = lEpg[i].LIKE_COUNTER;
+                                    }
+                                } // for
+                            }
+                            else
+                            {
+                                // log here no epgs retrieved from epg_channels_schedule CB bucket.
+                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                            }
+
+                            //resList = getEpgStatFromBL(nGroupID, lAssetIDs);
+
                         }
                         else
                         {
@@ -2175,7 +2275,7 @@ namespace Catalog
                                 resList = getEpgStatFromDataSet(ds, lAssetIDs);
                             else
                             {
-                                sendLog = true;
+                                // log here.
                             }
                         }
                         break;
@@ -2187,13 +2287,7 @@ namespace Catalog
 
             } // switch
 
-            if (sendLog)
-            {
-
-                return null;
-            }
-
-            return resList;
+            return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
 
             //if (eType == StatsType.MEDIA)
             //{

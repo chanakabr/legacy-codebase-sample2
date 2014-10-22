@@ -66,6 +66,47 @@ namespace Catalog
             m_buzzAverScore = oBuzzAverScore;
         }
 
+        internal class IndexedAssetStatsResult : IComparable<IndexedAssetStatsResult>
+        {
+            private AssetStatsResult assetStatsResult;
+            private int index;
+
+            public AssetStatsResult Result
+            {
+                get
+                {
+                    return assetStatsResult;
+                }
+                private set
+                {
+                    assetStatsResult = value;
+                }
+            }
+
+            public int Index
+            {
+                get
+                {
+                    return index;
+                }
+                private set
+                {
+                    index = value;
+                }
+            }
+
+            public IndexedAssetStatsResult(int index, AssetStatsResult result)
+            {
+                Index = index;
+                Result = result;
+            }
+
+            public int CompareTo(IndexedAssetStatsResult other)
+            {
+                return Index.CompareTo(other.Index);
+            }
+        }
+
 
     }
 }
