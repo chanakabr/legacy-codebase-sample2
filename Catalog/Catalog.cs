@@ -2165,12 +2165,23 @@ namespace Catalog
             {
                 case StatsType.MEDIA:
                     {
+                        BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                        Dictionary<string, BuzzWeightedAverScore> buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
+                        // log that buzz meter returned empty. 
+                        if (!isBuzzNotEmpty)
+                        {
+                            Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("Buzz Meter dictionary returned empty. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                        }
+
+
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
                             /*
                              * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
                              */ 
                             Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
+
                             if (dict.Count > 0)
                             {
                                 foreach(KeyValuePair<int, int[]> kvp in dict) 
@@ -2185,9 +2196,21 @@ namespace Catalog
                                         {
                                             assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double) kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
                                         }
+                                        if(isBuzzNotEmpty) 
+                                        {
+                                            string strAssetID = kvp.Key.ToString();
+                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                            {
+                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                            }
+                                            else
+                                            {
+                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                            }
+                                        }
                                     }
-                                }
-                            }
+                                } // foreach
+                            } // end if dict is not empty
                             else
                             {
                                 // log here no data retrieved from media table.
@@ -2212,8 +2235,24 @@ namespace Catalog
                                     if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
                                     {
                                         assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        if (isBuzzNotEmpty)
+                                        {
+                                            string strAssetID = kvp.Key.ToString();
+                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                            {
+                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                            }
+                                            else
+                                            {
+                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                            }
+                                        }
                                     }
-                                }
+                                } // foreach
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
                             }
 
                             // bring social actions from CB social bucket
