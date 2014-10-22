@@ -18,7 +18,7 @@ namespace ImageResizeHandler
             // convert multiple spaces into one space   
             str = Regex.Replace(str, @"\s+", " ").Trim();
             // cut and trim 
-            str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
+            str = str.Substring(0, str.Length <= 255 ? str.Length : 255).Trim();
             str = Regex.Replace(str, @"\s", "-"); // hyphens   
             return str;
         }
@@ -53,8 +53,10 @@ namespace ImageResizeHandler
                 if (_useFileSystem)
                 {
                     bool isMutexAlreadyReleased = false;
+                    
+                    string fileName = generateSlug(System.IO.Path.GetFullPath(uri.LocalPath));
 
-                    Mutex mutex = new Mutex(false, "ImageResizeHandlerMutex_" + System.IO.Path.GetFileName(uri.LocalPath));
+                    Mutex mutex = new Mutex(false, "IRHM_" + fileName);
 
                     try
                     {
@@ -70,8 +72,6 @@ namespace ImageResizeHandler
                         {
                             Directory.CreateDirectory(imagesBasePath);
                         }
-
-                        string fileName = generateSlug(System.IO.Path.GetFullPath(uri.LocalPath));
 
                         FileInfo fileInf = new FileInfo(imagesBasePath + fileName);
 
