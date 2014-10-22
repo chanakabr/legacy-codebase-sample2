@@ -44,7 +44,16 @@ namespace DalCB
                 }
                 bResult = true;
             }
-            catch (Couchbase.Exceptions.ViewException vEx) { 
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialFeed. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" SG: ", sSiteGuid));
+                sb.Append(String.Concat(" Skip: ", nSkip));
+                sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
             }
 
             return bResult;
@@ -61,6 +70,12 @@ namespace DalCB
             }
             catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Action: ", sSocialActionID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
             }
 
             return bSuccess;
@@ -95,7 +110,7 @@ namespace DalCB
                             {
                                 Logger.Logger.Log("Error", string.Format("Deserialization of SocialActivityDoc failed. str obj={0}, ex={1}, stack={2}", retObj, ex.Message, ex.StackTrace), LOGGER_FILENAME);
                             }
-                            
+
                         }
                     }
                 }
@@ -129,8 +144,16 @@ namespace DalCB
 
                 bResult = true;
             }
-            catch (Couchbase.Exceptions.ViewException vEx)
+            catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" SG: ", sSiteGuid));
+                sb.Append(String.Concat(" Skip: ", nSkip));
+                sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
             }
 
             return bResult;
@@ -139,10 +162,19 @@ namespace DalCB
         public bool DeleteUserSocialAction(string sDocID)
         {
             bool bResult = false;
-                try
-                {
-                    bResult = m_oClient.Remove(sDocID);
-                }catch{}
+            try
+            {
+                bResult = m_oClient.Remove(sDocID);
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at DeleteUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Doc ID: ", sDocID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+            }
 
             return bResult;
         }
@@ -163,7 +195,17 @@ namespace DalCB
                         lDocIDs.Add(feed.ItemId);
                     }
                 }
-            }catch{}
+            }
+            catch(Exception ex) 
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetFeedsByActorID. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Actor SG: ", sActorSiteGuid));
+                sb.Append(String.Concat(" Num Of Docs: ", nNumOfDocs));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+            }
 
             return bResult;
 
@@ -177,7 +219,16 @@ namespace DalCB
             {
                 bRes = m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, oDoc);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at InsertUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Doc ID: ", sDocID));
+                sb.Append(String.Concat(" Num Of Docs: ", oDoc != null ? oDoc.ToString() : "null"));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+            }
 
             return bRes;
         }
@@ -189,7 +240,15 @@ namespace DalCB
             {
                 res = JsonConvert.DeserializeObject<T>(sJson);
             }
-            catch { }
+            catch(Exception ex) 
+            {
+                StringBuilder sb = new StringBuilder("Exception at Deserialize. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" JSON: ", sJson));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+            }
 
             return res;
         }

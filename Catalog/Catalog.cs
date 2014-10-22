@@ -2259,16 +2259,6 @@ namespace Catalog
 
 
                         }
-
-
-                        //if (ds != null)
-                        //{
-                        //    resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
-                        //}
-                        //else
-                        //{
-                        //    sendLog = true;
-                        //}
                         break;
                     }
                 case StatsType.EPG:
@@ -2301,8 +2291,6 @@ namespace Catalog
                                 // log here no epgs retrieved from epg_channels_schedule CB bucket.
                                 Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
                             }
-
-                            //resList = getEpgStatFromBL(nGroupID, lAssetIDs);
 
                         }
                         else
