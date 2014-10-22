@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using ImageResizer;
 using Newtonsoft.Json;
@@ -9,6 +10,25 @@ namespace ImageResizeHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private string generateSlug(string phrase)
+        {
+            string str = removeAccent(phrase).ToLower();
+            // invalid chars           
+            str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            // convert multiple spaces into one space   
+            str = Regex.Replace(str, @"\s+", " ").Trim();
+            // cut and trim 
+            str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
+            str = Regex.Replace(str, @"\s", "-"); // hyphens   
+            return str;
+        }
+
+        private string removeAccent(string txt)
+        {
+            byte[] bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
+            return System.Text.Encoding.ASCII.GetString(bytes);
+        }
+
         public string HandleTask(string data)
         {
             string res = null;
@@ -51,7 +71,9 @@ namespace ImageResizeHandler
                             Directory.CreateDirectory(imagesBasePath);
                         }
 
-                        FileInfo fileInf = new FileInfo(imagesBasePath + System.IO.Path.GetFileName(uri.LocalPath));
+                        string fileName = generateSlug(System.IO.Path.GetFullPath(uri.LocalPath));
+
+                        FileInfo fileInf = new FileInfo(imagesBasePath + fileName);
 
                         if (fileInf.Exists)
                         {
