@@ -10093,7 +10093,7 @@ namespace ConditionalAccess
                     {
                         lRuleIDS.Add(mcRule.RuleID); // for future use
                         TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                            TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID, userDomain);
+                            TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
                             response = validationResponse.m_eStatus;

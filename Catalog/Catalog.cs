@@ -2622,7 +2622,7 @@ namespace Catalog
             {
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID, null);
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;

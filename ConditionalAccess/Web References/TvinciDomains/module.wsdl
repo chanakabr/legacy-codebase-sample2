@@ -726,7 +726,6 @@
             <s:element minOccurs="1" maxOccurs="1" name="nRuleID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="nMediaConcurrencyLimit" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="domain" type="tns:Domain" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -762,6 +761,7 @@
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
       <s:element name="ArrayOfHomeNetwork" nillable="true" type="tns:ArrayOfHomeNetwork" />
+      <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1231,6 +1231,21 @@
   <wsdl:message name="GetDomainHomeNetworksHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfHomeNetwork" />
   </wsdl:message>
+  <wsdl:message name="ValidateLimitationModuleHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUDID" type="s:string" />
+    <wsdl:part name="nDeviceBrandID" type="s:string" />
+    <wsdl:part name="lSiteGuid" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="eValidation" type="s:string" />
+    <wsdl:part name="nRuleID" type="s:string" />
+    <wsdl:part name="nMediaConcurrencyLimit" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationModuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:ValidationResponseObject" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -1477,6 +1492,10 @@
     <wsdl:operation name="GetDomainHomeNetworks">
       <wsdl:input message="tns:GetDomainHomeNetworksHttpPostIn" />
       <wsdl:output message="tns:GetDomainHomeNetworksHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationModule">
+      <wsdl:input message="tns:ValidateLimitationModuleHttpPostIn" />
+      <wsdl:output message="tns:ValidateLimitationModuleHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2308,6 +2327,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainHomeNetworks">
       <http:operation location="/GetDomainHomeNetworks" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationModule">
+      <http:operation location="/ValidateLimitationModule" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

@@ -513,11 +513,11 @@ namespace Users
         }
 
         public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
-            int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0, Domain domain = null )
+            int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
-            if (domain == null)
-                domain = GetDomainForValidation(lSiteGuid, lDomainID);
+           
+            Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
                 res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
