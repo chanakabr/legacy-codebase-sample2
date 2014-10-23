@@ -1606,7 +1606,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<int, int[]> Get_MediaStatistics(DateTime? startDate, DateTime? endDate, int parentGroupID, List<int> mediaIDs)
         {
             Dictionary<int, int[]> mediaToViewsCountMapping = null;
-            StoredProcedure sp = new StoredProcedure("Get_MediaViewsStats");
+            StoredProcedure sp = new StoredProcedure("Get_MediaStatistics");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);

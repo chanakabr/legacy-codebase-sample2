@@ -41,15 +41,23 @@ namespace Catalog
             m_nAssetIDs = nMediaIDs;
         }
 
+        protected override void CheckRequestValidness()
+        {
+            if (m_nAssetIDs == null || m_nAssetIDs.Count == 0)
+                throw new ArgumentException("No asset ids provided.");
+        }
+
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             AssetStatsResponse response = new AssetStatsResponse();
 
             try
             {
+                CheckRequestValidness();
                 CheckSignature(this);
-
-                response.m_lAssetStat = Catalog.GetAssetStatsResults(m_nGroupID, m_nAssetIDs, m_dStartDate, m_dEndDate, m_type);                    
+                
+                response.m_lAssetStat = Catalog.GetAssetStatsResults(m_nGroupID, m_nAssetIDs.Distinct<int>().ToList<int>(), m_dStartDate, m_dEndDate, m_type);
+                response.m_nTotalItems = response.m_lAssetStat.Count;
               
             }
             catch (Exception ex)

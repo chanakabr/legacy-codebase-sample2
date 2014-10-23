@@ -19,6 +19,7 @@ using EpgBL;
 using Catalog.Cache;
 using StatisticsBL;
 using ApiObjects.Statistics;
+using DalCB;
 
 namespace Catalog
 {
@@ -2153,14 +2154,12 @@ namespace Catalog
 
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
-            List<AssetStatsResult> resList = null;
 
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
             SortedSet<AssetStatsResult.IndexedAssetStatsResult> set = null;
             Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
             InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);
 
-            DataSet ds = null;
             switch (eType)
             {
                 case StatsType.MEDIA:
@@ -2168,12 +2167,6 @@ namespace Catalog
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
                         Dictionary<string, BuzzWeightedAverScore> buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
-                        // log that buzz meter returned empty. 
-                        if (!isBuzzNotEmpty)
-                        {
-                            Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("Buzz Meter dictionary returned empty. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
-                        }
-
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
@@ -2256,7 +2249,29 @@ namespace Catalog
                             }
 
                             // bring social actions from CB social bucket
-
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) => 
+                                { 
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate); 
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
 
                         }
                         break;
@@ -2295,15 +2310,31 @@ namespace Catalog
                         }
                         else
                         {
-                            GroupManager groupManager = new GroupManager();
-                            List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
-                            ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-                            if (ds != null)
-                                resList = getEpgStatFromDataSet(ds, lAssetIDs);
-                            else
+                            // we bring data from social bucket in CB.
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                // log here.
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
                             }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
+
                         }
                         break;
                     }
@@ -2315,50 +2346,45 @@ namespace Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
+        }
 
-            //if (eType == StatsType.MEDIA)
-            //{
-            //    GroupManager groupManager = new GroupManager();
-            //    List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+        private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
+            DateTime startDate, DateTime endDate)
+        {
+            SocialDAL_Couchbase socialDal = new SocialDAL_Couchbase(groupId);
+            AssetStatsResult.SocialPartialAssetStatsResult res = new AssetStatsResult.SocialPartialAssetStatsResult() { assetId = assetId };
+            switch (statsTypes)
+            {
+                case StatsType.MEDIA:
+                    {
+                        // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
+                        int votesCount = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
+                        double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
+                        if (votesCount > 0)
+                        {
+                            res.rate = votesSum / votesCount;
+                        }
+                        else
+                        {
+                            res.rate = 0d;
+                        }
+                        break;
+                    }
+                case StatsType.EPG:
+                    {
+                        // in epg we bring just likes.
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.PROGRAM, eUserAction.LIKE, startDate, endDate);
+                        res.rate = 0d;
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            } // switch
 
-
-            //    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-            //        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
-            //    else
-            //        ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-            //    if (ds != null)
-            //        resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
-            //    else
-            //    {
-            //        sendLog = true;
-            //    }
-            //}
-            //else if (eType == StatsType.EPG)
-            //{
-            //    if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-            //    {
-            //        resList = getEpgStatFromBL(nGroupID, lAssetIDs);
-            //    }
-            //    else
-            //    {
-            //        GroupManager groupManager = new GroupManager();
-            //        List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
-            //        ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
-            //        if (ds != null)
-            //            resList = getEpgStatFromDataSet(ds, lAssetIDs);
-            //        else
-            //        {
-            //            sendLog = true;
-            //        }
-            //    }
-            //}
-            //if (sendLog)
-            //{
-
-            //    return null;
-            //}
-
-            //return resList;
+            return res;
         }
 
         private static List<AssetStatsResult> getEpgStatFromDataSet(DataSet ds, List<int> lAssetIDs)

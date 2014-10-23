@@ -128,6 +128,14 @@ namespace Catalog
                 throw new Exception("Signatures don't match");
         }
 
+        protected virtual void CheckRequestValidness()
+        {
+            /*
+             * To be overriden in the inheriting class
+             * 
+             */ 
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat("this is: ", this.GetType().Name));

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using ApiObjects.Statistics;
+using System.Xml.Serialization;
 
 namespace Catalog
 {
@@ -104,6 +105,27 @@ namespace Catalog
             public int CompareTo(IndexedAssetStatsResult other)
             {
                 return Index.CompareTo(other.Index);
+            }
+        }
+
+        internal class SocialPartialAssetStatsResult
+        {
+            public int assetId;
+            public int likesCounter;
+            public double rate;
+
+            public SocialPartialAssetStatsResult()
+            {
+                this.assetId = 0;
+                this.likesCounter = 0;
+                this.rate = 0d;
+            }
+
+            public SocialPartialAssetStatsResult(int assetId, int likesCounter, double rate)
+            {
+                this.assetId = assetId;
+                this.likesCounter = likesCounter;
+                this.rate = rate;
             }
         }
 
