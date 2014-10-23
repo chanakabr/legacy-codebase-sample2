@@ -448,19 +448,14 @@ namespace EpgBL
 
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {
-            List<string> lIdsStrings = new List<string>();
-            lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
+            List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
             List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
             
-            //remove items that do not match the group ID
-            int count = lResCB.Count;
-            for (int i = 0; i < count; i++)
+            List<EPGChannelProgrammeObject> lRes = null;
+            if (lResCB != null)
             {
-                if (lResCB[i] != null && lResCB[i].ParentGroupID != m_nGroupID)
-                    lResCB.RemoveAt(i);
+                lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
             }
-
-            List<EPGChannelProgrammeObject> lRes = ConvertEpgCBtoEpgProgramm(lResCB);
             return lRes;
         }
 
@@ -502,7 +497,7 @@ namespace EpgBL
             return oProg;
         }
 
-        private static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(List<EpgCB> epgList)
+        private static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(IEnumerable<EpgCB> epgList)
         {
             List<EPGChannelProgrammeObject> lProg = new List<EPGChannelProgrammeObject>();
             foreach (EpgCB epg in epgList)

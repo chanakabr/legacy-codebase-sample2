@@ -42,7 +42,7 @@ namespace Catalog
         }
 
 
-        private void CheckRequestValidness()
+        protected override void CheckRequestValidness()
         {
             if ((m_lMediaFileIDs == null || m_lMediaFileIDs.Count == 0) && (m_lCoGuids == null || m_lCoGuids.Count == 0))
                 throw new ArgumentException("No Media File IDs or Media Co Guids were provided.");

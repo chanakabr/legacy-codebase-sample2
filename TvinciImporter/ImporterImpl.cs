@@ -2399,7 +2399,7 @@ namespace TvinciImporter
 
             if (sPicName.Length >= 200) // the column in DB limit with 255 char
             {
-                sPicName = sThumb.Substring(sThumb.Length - 200); // get all 255 chars from the end !!
+                sPicName = sThumb.Substring(sThumb.Length - 200); // get all 200 chars from the end !!
             }
 
             return sPicName;

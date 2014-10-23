@@ -44,7 +44,18 @@ namespace DalCB
                 }
                 bResult = true;
             }
-            catch (Couchbase.Exceptions.ViewException vEx) { 
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialFeed. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" SG: ", sSiteGuid));
+                sb.Append(String.Concat(" Skip: ", nSkip));
+                sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
             }
 
             return bResult;
@@ -61,6 +72,14 @@ namespace DalCB
             }
             catch (Exception ex)
             {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Action: ", sSocialActionID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
             }
 
             return bSuccess;
@@ -95,7 +114,7 @@ namespace DalCB
                             {
                                 Logger.Logger.Log("Error", string.Format("Deserialization of SocialActivityDoc failed. str obj={0}, ex={1}, stack={2}", retObj, ex.Message, ex.StackTrace), LOGGER_FILENAME);
                             }
-                            
+
                         }
                     }
                 }
@@ -129,8 +148,18 @@ namespace DalCB
 
                 bResult = true;
             }
-            catch (Couchbase.Exceptions.ViewException vEx)
+            catch (Exception ex)
             {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" SG: ", sSiteGuid));
+                sb.Append(String.Concat(" Skip: ", nSkip));
+                sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
             }
 
             return bResult;
@@ -139,10 +168,21 @@ namespace DalCB
         public bool DeleteUserSocialAction(string sDocID)
         {
             bool bResult = false;
-                try
-                {
-                    bResult = m_oClient.Remove(sDocID);
-                }catch{}
+            try
+            {
+                bResult = m_oClient.Remove(sDocID);
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at DeleteUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Doc ID: ", sDocID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
+            }
 
             return bResult;
         }
@@ -163,7 +203,19 @@ namespace DalCB
                         lDocIDs.Add(feed.ItemId);
                     }
                 }
-            }catch{}
+            }
+            catch(Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetFeedsByActorID. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Actor SG: ", sActorSiteGuid));
+                sb.Append(String.Concat(" Num Of Docs: ", nNumOfDocs));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
+            }
 
             return bResult;
 
@@ -177,10 +229,123 @@ namespace DalCB
             {
                 bRes = m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, oDoc);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at InsertUserSocialAction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Doc ID: ", sDocID));
+                sb.Append(String.Concat(" Num Of Docs: ", oDoc != null ? oDoc.ToString() : "null"));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
+            }
 
             return bRes;
         }
+
+        public int GetAssetSocialActionCount(int assetId, eAssetType assetType, eUserAction actionType, DateTime startDate, DateTime endDate) 
+        {
+            int res = 0;
+            try
+            {
+                object[] startKey = new object[4] { assetId, 2, (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
+                object endKey = new object[4] { assetId, (int)assetType, (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
+                IView<int> view = m_oClient.GetView<int>(CB_FEED_DESGIN, "AssetStats").StartKey(startKey).EndKey(endKey).Reduce(true);
+                if (view.Count() > 0)
+                {
+                    res = view.First<int>();
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetAssetSocialActionCount. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Asset ID: ", assetId));
+                sb.Append(String.Concat(" Asset Type: ", (int)assetType));
+                sb.Append(String.Concat(" Action Type: ", (int)actionType));
+                sb.Append(String.Concat(" SD: ", startDate.ToString()));
+                sb.Append(String.Concat(" ED: ", endDate));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
+
+            }
+
+            return res;
+        }
+
+        public double GetRatesSum(int assetId, eAssetType assetType, DateTime startDate, DateTime endDate)
+        {
+            double res = 0d;
+            try
+            {
+                object[] startKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(startDate) };
+                object endKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(endDate) };
+                IView<double> view = m_oClient.GetView<double>(CB_FEED_DESGIN, "AssetStatsRateSum").StartKey(startKey).EndKey(endKey).Reduce(true);
+                if (view.Count() > 0)
+                {
+                    res = view.First<double>();
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetRatesSum. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Asset ID: ", assetId));
+                sb.Append(String.Concat(" Asset Type: ", assetType));
+                sb.Append(String.Concat(" SD: ", startDate.ToString()));
+                sb.Append(String.Concat(" ED: ", endDate));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                #endregion
+
+            }
+
+            return res;
+        }
+
+        //public bool GetUserSocialAction(string sSiteGuid, int nNumOfRecords, int nSkip, out List<SocialActivityDoc> lUserActivities)
+        //{
+        //    bool bResult = false;
+        //    lUserActivities = new List<SocialActivityDoc>();
+        //    try
+        //    {
+        //        long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+        //        object[] startKey = new object[] { sSiteGuid, epochTime };
+        //        object[] endKey = new object[] { sSiteGuid, 0 };
+
+
+        //        var retval = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
+        //                                       : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true);
+        //        if (retval != null)
+        //        {
+        //            lUserActivities = retval.ToList();
+        //        }
+
+        //        bResult = true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        #region Logging
+        //        StringBuilder sb = new StringBuilder("Exception at GetUserSocialAction. ");
+        //        sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+        //        sb.Append(String.Concat(" SG: ", sSiteGuid));
+        //        sb.Append(String.Concat(" Skip: ", nSkip));
+        //        sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
+        //        sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+        //        sb.Append(String.Concat(" ST: ", ex.StackTrace));
+        //        Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+        //        #endregion
+        //    }
+
+        //    return bResult;
+        //}
 
         private static T Deserialize<T>(string sJson) where T : class
         {
@@ -189,7 +354,15 @@ namespace DalCB
             {
                 res = JsonConvert.DeserializeObject<T>(sJson);
             }
-            catch { }
+            catch(Exception ex) 
+            {
+                StringBuilder sb = new StringBuilder("Exception at Deserialize. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" JSON: ", sJson));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+            }
 
             return res;
         }
