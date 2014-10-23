@@ -44,7 +44,7 @@ namespace Catalog
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
-        public static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
+        internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
         {
             //Int32 nMedia;
             MediaObj oMediaObj = new MediaObj();
@@ -1134,7 +1134,7 @@ namespace Catalog
             return retCountryID;
         }
 
-        public static int GetMediaActionID(string sAction)
+        internal static int GetMediaActionID(string sAction)
         {
             int retActionID = 0;
 
@@ -1146,7 +1146,7 @@ namespace Catalog
             return retActionID;
         }
 
-        public static string GetMediaPlayResponse(MediaPlayResponse response)
+        internal static string GetMediaPlayResponse(MediaPlayResponse response)
         {
             string retXml = string.Empty;
 
@@ -2385,199 +2385,6 @@ namespace Catalog
             } // switch
 
             return res;
-        }
-
-        private static List<AssetStatsResult> getEpgStatFromDataSet(DataSet ds, List<int> lAssetIDs)
-        {
-            List<AssetStatsResult> resList = new List<AssetStatsResult>();
-            AssetStatsResult epgStat;
-            try
-            {
-                if (ds.Tables != null && ds.Tables.Count == 1)
-                {
-                    //getting only medias that were in the DB
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            if (row != null)
-                            {
-                                epgStat = new AssetStatsResult();
-                                epgStat.m_nAssetID = Utils.GetIntSafeVal(row, "ID");
-                                epgStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
-                                resList.Add(epgStat);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                BaseLog log = new BaseLog(eLogType.WcfRequest, DateTime.UtcNow, true);
-                log.Method = "Catalog.getMediaStatFromDataSet";
-                log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet . exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                log.Error(log.Message, false);
-                return null;
-            }
-            return resList;
-        }
-
-        private static List<AssetStatsResult> getEpgStatFromBL(int nGroupID, List<int> lAssetIDs)
-        {
-            List<AssetStatsResult> resList = new List<AssetStatsResult>();
-            AssetStatsResult epgStat;
-
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
-            List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
-            foreach (EPGChannelProgrammeObject epg in lEpg)
-            {
-                if (epg != null)
-                {
-                    epgStat = new AssetStatsResult();
-                    epgStat.m_nAssetID = (int)epg.EPG_ID;
-                    epgStat.m_nLikes = epg.LIKE_COUNTER;
-                    resList.Add(epgStat);
-                }
-            }
-
-
-            return resList;
-        }
-
-        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs, int nGroupID)
-        {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
-            {
-                log.Method = "Catalog.getMediaStatFromDataSet";
-                List<AssetStatsResult> resList = new List<AssetStatsResult>();
-                AssetStatsResult mediaStat;
-                try
-                {
-                    //Complete BuzzMeter data from CB
-                    BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
-                    Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
-
-                    //if the request was sent without dates, the select is only on 1 table
-                    if (ds.Tables != null && ds.Tables.Count == 1)
-                    {
-                        //getting only medias that were in the DB
-                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[0].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    mediaStat = new AssetStatsResult();
-                                    mediaStat.m_nAssetID = Utils.GetIntSafeVal(row, "ID");
-                                    mediaStat.m_nViews = Utils.GetIntSafeVal(row, "VIEWS");
-                                    mediaStat.m_nVotes = Utils.GetIntSafeVal(row, "VOTES_COUNT");
-                                    int sumVotes = Utils.GetIntSafeVal(row, "VOTES_SUM");
-                                    if (mediaStat.m_nVotes != 0)
-                                        mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
-                                    mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
-
-                                    //BuzzMeter 
-                                    if (lBM != null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
-                                    {
-                                        mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
-                                    }
-
-                                    resList.Add(mediaStat);
-                                }
-                            }
-                        }
-                    }
-                    //if the request was sent with dates, 4 tables will return from the DB
-                    else if (ds.Tables != null && ds.Tables.Count == 4)
-                    {
-                        Dictionary<int, AssetStatsResult> resultDic = new Dictionary<int, AssetStatsResult>();
-                        foreach (int id in mediaIDs)
-                            resultDic.Add(id, new AssetStatsResult());
-                        //retrieving only medias that were in the DB
-                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[0].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "ID");
-                                    resultDic[id].m_nAssetID = id;
-                                }
-                            }
-                        }
-                        //retrieving the relevant views
-                        if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[1].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
-                                    int views = Utils.GetIntSafeVal(row, "VIEWS");
-                                    resultDic[id].m_nViews = views;
-                                }
-                            }
-                        }
-                        //retrieving the relevant Rate and Vote count
-                        if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[2].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "MEDIA_ID");
-                                    int votesCount = Utils.GetIntSafeVal(row, "VOTES_COUNT");
-                                    resultDic[id].m_nVotes = votesCount;
-                                    int votesSum = Utils.GetIntSafeVal(row, "VOTES_SUM");
-                                    if (resultDic[id].m_nVotes != 0)
-                                        resultDic[id].m_dRate = (double)votesSum / resultDic[id].m_nVotes;
-                                }
-                            }
-                        }
-                        //retrieving the relevant likes
-                        if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
-                        {
-                            foreach (DataRow row in ds.Tables[3].Rows)
-                            {
-                                if (row != null)
-                                {
-                                    int id = Utils.GetIntSafeVal(row, "media_id");
-                                    int likes = Utils.GetIntSafeVal(row, "like_counter");
-                                    resultDic[id].m_nLikes = likes;
-                                }
-                            }
-                        }
-
-                        //BuzzMeter 
-                        foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
-                        {
-                            if (lBM != null && lBM.ContainsKey(asset.Key.ToString()))
-                            {
-                                resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
-                            }
-                        }
-                        resList = resultDic.Values.ToList();
-                    }
-                    else
-                    {
-                        log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet from the dataSet,"
-                                                    + "dataSet is empty or number of retrieved tables is unexpected");
-                        log.Error(log.Message, false);
-                        return null;
-                    }
-
-
-
-                }
-                catch (Exception ex)
-                {
-                    log.Message = string.Format("Could not retrieve the media Statistics in Catalog.getMediaStatFromDataSet . exception message: {0}, stack: {1}", ex.Message, ex.StackTrace, "Catalog");
-                    log.Error(log.Message, false);
-                    return null;
-                }
-
-                return resList;
-            }
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
