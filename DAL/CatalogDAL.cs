@@ -1674,5 +1674,55 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        public static Dictionary<int, int[]> Get_MediaStatistics(DateTime? startDate, DateTime? endDate, int parentGroupID, List<int> mediaIDs)
+        {
+            Dictionary<int, int[]> mediaToViewsCountMapping = null;
+            StoredProcedure sp = new StoredProcedure("Get_MediaStatistics");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@StartDate", startDate);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@GroupID", parentGroupID);
+            sp.AddIDListParameter("@MediaIDs", mediaIDs, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    bool isWithSocialActions = !startDate.HasValue || !endDate.HasValue;
+                    mediaToViewsCountMapping = new Dictionary<int, int[]>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["media_id"]);
+                        int viewsCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["views"]);
+                        int votes = 0;
+                        int likes = 0;
+                        int votesSum = 0;
+                        if (isWithSocialActions)
+                        {
+                            votes = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["votes_count"]);
+                            votesSum = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["votes_sum"]);
+                            likes = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["like_counter"]);
+                        }
+                        if (mediaId > 0 && !mediaToViewsCountMapping.ContainsKey(mediaId))
+                        {
+                            mediaToViewsCountMapping.Add(mediaId, new int[4] { viewsCount, votes, votesSum, likes });
+                        }
+                    }
+                }
+                else
+                {
+                    mediaToViewsCountMapping = new Dictionary<int, int[]>(0);
+                }
+            }
+            else
+            {
+                mediaToViewsCountMapping = new Dictionary<int, int[]>(0);
+            }
+
+            return mediaToViewsCountMapping;
+        }
+
     }
 }
