@@ -446,13 +446,6 @@ namespace EpgBL
             List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
             List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
             
-            //remove items that do not match the group ID
-            //int count = lResCB.Count;
-            //for (int i = 0; i < count; i++)
-            //{
-            //    if (lResCB[i] != null && lResCB[i].ParentGroupID != m_nGroupID)
-            //        lResCB.RemoveAt(i);
-            //}
             List<EPGChannelProgrammeObject> lRes = null;
             if (lResCB != null)
             {
