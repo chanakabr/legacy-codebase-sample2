@@ -8,7 +8,7 @@ using System.Reflection;
 
 
 namespace Catalog
-{   
+{
     [DataContract]
     public class MediasProtocolRequest : BaseRequest, IMediasProtocolRequest
     {
@@ -16,14 +16,14 @@ namespace Catalog
 
         [DataMember]
         public List<Int32> m_lMediasIds;
-      
-        public MediasProtocolRequest(Int32 nPageSize, Int32 nPageIndex,string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
+
+        public MediasProtocolRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
         {
         }
-        public MediasProtocolRequest() 
+        public MediasProtocolRequest()
             : base()
-        {          
+        {
         }
 
         /*Get Media Details By MediasIds*/
@@ -36,11 +36,11 @@ namespace Catalog
             try
             {
 
-                CheckRequestValidness(mediaRequest);
+                CheckRequestValidness();
 
-                CheckSignature(mediaRequest);
+                CheckSignature(this);
 
-                Catalog.CompleteDetailsForMediaResponse(mediaRequest, ref mediaResponse, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex + mediaRequest.m_nPageSize);
+                Catalog.CompleteDetailsForMediaResponse(this, ref mediaResponse, m_nPageSize * m_nPageIndex, m_nPageSize * m_nPageIndex + m_nPageSize);
 
                 return mediaResponse;
             }
@@ -51,10 +51,10 @@ namespace Catalog
             }
         }
 
-        private void CheckRequestValidness(MediasProtocolRequest request)
+        protected override void CheckRequestValidness()
         {
-            if (request == null || request.m_lMediasIds == null || request.m_lMediasIds.Count == 0
-                || request.m_oFilter == null)
+            if (m_lMediasIds == null || m_lMediasIds.Count == 0
+                || m_oFilter == null)
             {
                 throw new ArgumentException("At least one of the arguments is not valid");
             }

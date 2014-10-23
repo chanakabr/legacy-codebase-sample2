@@ -134,7 +134,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is AssetStatsRequest)
             {
-                return new AssetStatsRequest();
+                return (AssetStatsRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgRequest)
             {
@@ -174,7 +174,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is BundlesContainingMediaRequest)
             {
-                return new BundlesContainingMediaRequest();
+                return (BundlesContainingMediaRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is MediaFilesRequest)
                 return (MediaFilesRequest)m_oBaseRequest;
