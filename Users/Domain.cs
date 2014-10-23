@@ -257,10 +257,16 @@ namespace Users
                 m_DomainStatus = DomainStatus.Error;
                 return false;
             }
-
-            m_sName = sName;
-            m_sDescription = sDescription;
-
+            
+            if (!string.IsNullOrEmpty(sName))
+            {
+                m_sName = sName;
+            }
+            if (!string.IsNullOrEmpty(sDescription))
+            {
+                m_sDescription = sDescription;
+            }
+            
             DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID);   // OK or NoUsersInDomain
 
             int numOfDevices = GetDeviceList();
