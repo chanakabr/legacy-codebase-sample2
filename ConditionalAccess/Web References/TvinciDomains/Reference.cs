@@ -1296,7 +1296,7 @@ namespace ConditionalAccess.TvinciDomains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ValidateLimitationModule", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain) {
+        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID) {
             object[] results = this.Invoke("ValidateLimitationModule", new object[] {
                         sWSUsername,
                         sWSPassword,
@@ -1307,18 +1307,17 @@ namespace ConditionalAccess.TvinciDomains {
                         eValidation,
                         nRuleID,
                         nMediaConcurrencyLimit,
-                        nMediaID,
-                        domain});
+                        nMediaID});
             return ((ValidationResponseObject)(results[0]));
         }
         
         /// <remarks/>
-        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain) {
-            this.ValidateLimitationModuleAsync(sWSUsername, sWSPassword, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID, domain, null);
+        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID) {
+            this.ValidateLimitationModuleAsync(sWSUsername, sWSPassword, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID, null);
         }
         
         /// <remarks/>
-        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain, object userState) {
+        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, object userState) {
             if ((this.ValidateLimitationModuleOperationCompleted == null)) {
                 this.ValidateLimitationModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateLimitationModuleOperationCompleted);
             }
@@ -1332,8 +1331,7 @@ namespace ConditionalAccess.TvinciDomains {
                         eValidation,
                         nRuleID,
                         nMediaConcurrencyLimit,
-                        nMediaID,
-                        domain}, this.ValidateLimitationModuleOperationCompleted, userState);
+                        nMediaID}, this.ValidateLimitationModuleOperationCompleted, userState);
         }
         
         private void OnValidateLimitationModuleOperationCompleted(object arg) {
