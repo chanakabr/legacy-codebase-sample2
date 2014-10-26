@@ -3115,7 +3115,7 @@ namespace ConditionalAccess
             request.m_sUserIP = string.Empty;
             request.m_sSignString = Guid.NewGuid().ToString();
             request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-            request.m_lCoGuids = new string[1] { siteGuid };
+            request.m_lCoGuids = new string[1] { coGuid };
             using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
             {
                 catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(GetWSURL("WS_Catalog"));
