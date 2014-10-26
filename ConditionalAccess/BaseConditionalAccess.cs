@@ -10136,7 +10136,7 @@ namespace ConditionalAccess
                             {
                                 if (sBasicLink.ToLower().Equals(fileMainUrl.ToLower())) //(Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
                                 {
-                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, sUserIP, nMediaFileID, sDeviceName, prices, nMediaID, ref lRuleIDS, userDomain);
+                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, userDomain);   
                                     if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                     {
                                         if (IsItemPurchased(prices[0]))
@@ -10254,7 +10254,7 @@ namespace ConditionalAccess
         }
 
         private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
-            int nMediaID, ref List<int> lRuleIDS, TvinciDomains.Domain userDomain)
+            int nMediaID, string sUserIP, ref List<int> lRuleIDS, TvinciDomains.Domain userDomain)
         {
             TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
             TvinciDomains.module domainsWS = null;
