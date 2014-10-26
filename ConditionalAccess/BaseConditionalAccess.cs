@@ -10134,9 +10134,9 @@ namespace ConditionalAccess
 
                             if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
                             {
-                                if (sBasicLink.ToLower().Equals(fileMainUrl.ToLower())) //(Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
+                                if (sBasicLink.ToLower().EndsWith(fileMainUrl.ToLower())) //(Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
                                 {
-                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, userDomain);   
+                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, userDomain);
                                     if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                     {
                                         if (IsItemPurchased(prices[0]))
