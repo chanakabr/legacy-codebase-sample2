@@ -182,7 +182,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is CategoryRequest)
             {
-                return new CategoryRequest();
+                return (CategoryRequest)m_oBaseRequest;
             }
 
 
