@@ -158,10 +158,27 @@ namespace ConditionalAccess
         [EnumMember]
         Collection
     }
+    
     internal enum BundleToUse : byte
     {
         All = 0,
         Subscription = 1,
         Collection = 2
+    }
+
+    public enum eLicensedLinkStatus
+    {
+        Unknown = 0,
+        OK = 1,
+        Error = 2,
+        InvalidInput = 3,
+        InvalidDevice = 4,
+        InvalidPrice = 5,
+        Concurrency = 6,
+        MediaConcurrency = 7,
+        InvalidBaseLink = 8,
+        InvalidFileData = 9
+
+
     }
 }
