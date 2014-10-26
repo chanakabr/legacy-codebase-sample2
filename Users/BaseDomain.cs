@@ -529,7 +529,7 @@ namespace Users
                             {
                                 res.m_eStatus = domain.ValidateMediaConcurrency(nRuleID, nMediaConcurrencyLimit, res.m_lDomainID, nMediaID);
                             }
-                            if (res.m_eStatus == DomainResponseStatus.OK) // if it's MediaConcurrencyLimitation no need to check this one 
+                            if (res.m_eStatus == DomainResponseStatus.OK || res.m_eStatus == DomainResponseStatus.UnKnown) // if it's MediaConcurrencyLimitation no need to check this one 
                             {
                                 res.m_eStatus = domain.ValidateConcurrency(sUDID, nDeviceBrandID, res.m_lDomainID);
                             }
