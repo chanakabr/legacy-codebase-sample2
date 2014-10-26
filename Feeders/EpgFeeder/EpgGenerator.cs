@@ -352,7 +352,7 @@ namespace EpgFeeder
             try
             {
                 Dictionary<string, List<string>> dEpgTags = new Dictionary<string, List<string>>();
-
+                EpgTagTranslate ett;
                 foreach (Tag tag in prog.lTags)
                 {
                     foreach (TagValues value in tag.TagValues)
@@ -373,13 +373,13 @@ namespace EpgFeeder
                             // convert language to int value                             
                             LanguageObj oLanguage = lLanguage.FirstOrDefault<LanguageObj>(x => x.Code.ToUpper() == value.Language.ToUpper());
                             // save all metas in main dictionary
+                            ett = new EpgTagTranslate(oLanguage.ID, value.TagValue, value.TagValueMain);
                             if (dTags.ContainsKey(tag.TagType))
-                            {
-                                dTags[tag.TagType].Add(new EpgTagTranslate(oLanguage.ID, value.TagValue, value.TagValueMain));
+                            {   
+                                dTags[tag.TagType].Add(ett);
                             }
                             else
                             {
-                                EpgTagTranslate ett = new EpgTagTranslate(oLanguage.ID, value.TagValue, value.TagValueMain);
                                 dTags.Add(tag.TagType, new List<EpgTagTranslate>() { ett });
                             }
                         }                        
@@ -605,9 +605,7 @@ namespace EpgFeeder
                  Dictionary<KeyValuePair<EpgTagTranslate, int>, List<string>> newTagValueEpgsTranslate = new Dictionary<KeyValuePair<EpgTagTranslate, int>, List<string>>();// new tag values and the EPGs that have them
                 
                  //create dictionary  with key = tagTypeId and value = KeyValuePair<tagvalue, tagValueId> - main language
-                 Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);//return relevant tag value ID, if they exist in the DB
-
-               
+                 Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);//return relevant tag value ID, if they exist in the DB               
 
                  InsertEPG_Channels_sched(ref epgDic, m_Channels.MainLangu); //for Future use -  main language
                  // no need no to insert to DB epg_channels_schedule translate
