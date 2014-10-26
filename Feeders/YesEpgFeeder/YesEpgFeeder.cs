@@ -23,11 +23,13 @@ namespace YesEpgFeeder
 
          #region members        
 
+        public int FeederType { get; set;} // type Feeder = 1 , Notification = 2
         public int GroupID { get; set; }
         public string StartTime { get; set; } // format YYYY-MM-DDThh:mm:ssZ
         public int Duration  { get; set; }
         public string Language { get; set; }        
         public string ChannelID {get; set; }
+        public List<string> lChannelIds { get; set; }
 
         private string URL { get; set; }
         private int ParentGroupID { get; set; }
@@ -48,11 +50,23 @@ namespace YesEpgFeeder
             try
             {
                 string[] item = m_sParameters.Split(spliter);
-                GroupID = ODBCWrapper.Utils.GetIntSafeVal(item[0]);
-                StartTime = item[1];
-                Duration =  ODBCWrapper.Utils.GetIntSafeVal(item[2]);
-                Language = item[3];
-                ChannelID = item[4];                
+                FeederType = ODBCWrapper.Utils.GetIntSafeVal(item[0]);
+                GroupID = ODBCWrapper.Utils.GetIntSafeVal(item[1]);
+                StartTime = item[2];
+                Duration =  ODBCWrapper.Utils.GetIntSafeVal(item[3]);
+                Language = item[4];
+                if (item.Count() >= 6)
+                {
+                    ChannelID = item[5];
+                    //if type = notification , can be list of channels ids
+                    if (item.Count() >= 7)
+                    {
+                        if (FeederType == 2 && !string.IsNullOrEmpty(item[6]))
+                        {
+                            lChannelIds = item[6].Split(';').ToList<string>();
+                        }
+                    }
+                }
                 ParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
                 URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
                 Region = TVinciShared.WS_Utils.GetTcmConfigValue("regionId");
@@ -80,20 +94,39 @@ namespace YesEpgFeeder
         protected override bool DoTheTaskInner()
         {
             try
-            {  
-                // get one (or more) xmlDocumnet from sisco server by get request
-                XmlDocument xmlDoc = getXmlTVChannel();
+            {
+                if (FeederType == 1) // YesFeeder
+                {
+                    SaveChannelByXML();
 
-                // run over and insert the programs
-                if (xmlDoc != null)
-                {
-                    bool res = SaveChannel(xmlDoc);
+                    // Update last time invoke parameter only on Feeder Type
+                    DateTime dDate = new DateTime(int.Parse(StartTime.Substring(0,4)), int.Parse(StartTime.Substring(5,2)), int.Parse(StartTime.Substring(8,2)));// 2014-08-12
+                    string parameters = string.Format("{0}||{1}||{2}||{3}||{4}", 1, GroupID , dDate.AddMinutes(Duration), Duration, Language);
+
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PARAMETERS", "=", parameters);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nTaskID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
                 }
-                else
+                else if (FeederType == 2) //Notification
                 {
-                    Logger.Logger.Log("No xml return from httpRequest", string.Format("group:{0}, URL:{1}, ChannelID={2}, StartTime={3}, Duration={4}, Language={5}", GroupID, URL, ChannelID, StartTime, Duration, Language),
-                       LogFileName);
+                    if (lChannelIds == null || lChannelIds.Count == 0)
+                    {
+                        SaveChannelByXML();
+                    }
+                    foreach (string sChannel in lChannelIds)
+                    {
+                        URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
+                        ChannelID = sChannel;
+                        SaveChannelByXML();
+                    }
                 }
+
+               
+
             }
             catch (Exception ex)
             {
@@ -102,135 +135,165 @@ namespace YesEpgFeeder
             return true;
         }
 
+        private void SaveChannelByXML()
+        {
+            XmlDocument xmlDoc = getXmlTVChannel();
+
+            // run over and insert the programs
+            if (xmlDoc != null)
+            {
+                bool res = SaveChannel(xmlDoc);
+            }
+            else
+            {
+                Logger.Logger.Log("No xml return from httpRequest", string.Format("group:{0}, URL:{1}, ChannelID={2}, StartTime={3}, Duration={4}, Language={5}", GroupID, URL, ChannelID, StartTime, Duration, Language),
+                   LogFileName);
+            }
+        }
+
         private bool SaveChannel(XmlDocument xmlDoc)
         {
 
             try
             {
+                Dictionary<string, int> dExistChannel = new Dictionary<string, int>();
                 string channel_id = "";
                 int channelID = 0;
 
                 XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("evt");
                 XmlNode node;
-                if (xmlnodelist.Count > 0)
+
+                List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(GroupID);
+                Dictionary<string, KeyValuePair<string, string>> dParentalRating = GetParentalRating();
+
+                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(GroupID);
+                string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+                int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+                int nCount = 0;
+
+                List<ulong> ulProgram = new List<ulong>();
+                List<DateTime> deletedDays = new List<DateTime>();
+                Dictionary<int, List<DateTime>> channelDeletedDays = new Dictionary<int, List<DateTime>>();
+
+                Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
+
+                foreach (XmlNode evt in xmlnodelist)
                 {
-                    node = xmlnodelist[0];
+                    node = evt;
                     channel_id = TVinciShared.XmlUtils.GetNodeValue(ref node, "cns/cn");
-                    channelID = GetExistChannel(channel_id);
-                }
-
-                if (channelID > 0)
-                {
-                    Logger.Logger.Log("SaveChannels", string.Format("\r\n START EPG Channel = {0} \r\n", channelID), LogFileName);
-
-                    List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(GroupID);
-                    Dictionary<string, KeyValuePair<string,string>> dParentalRating = GetParentalRating();
-                    
-                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(GroupID);
-                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
-                    int nCount = 0;
-                    
-                    List<ulong> ulProgram = new List<ulong>();
-                    List<DateTime> deletedDays = new List<DateTime>();
-                    Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
-
-                    foreach (XmlNode evt in xmlnodelist)
+                    // check if channel Exist
+                    channelID = IsChannelExist(channel_id, ref dExistChannel);
+                    if (channelID == 0)
                     {
-                        #region Basic xml Data
-                        node = evt;
-
-                        string EPGGuid = TVinciShared.XmlUtils.GetNodeValue(ref node, "pid");
-                        #region  basic (name)
-                        string name = TVinciShared.XmlUtils.GetNodeValue(ref node, "ts");
-                        if (string.IsNullOrEmpty(name)) 
-                        {
-                            name = TVinciShared.XmlUtils.GetNodeValue(ref node, "ept");
-                        }
-                        #endregion
-                        string description = TVinciShared.XmlUtils.GetNodeValue(ref node, "dss"); //basic (Description)
-                        #endregion
-
-                        // get the pic Url - if there is none , get the default picture from GraceNote API
-                        string epg_url = TVinciShared.XmlUtils.GetNodeValue(ref node, "is/i"); // pic url -- should be mapped without prefix
-                       
-                        #region Set field mapping valus
-                        SetMappingValues(FieldEntityMapping, node, dParentalRating);                        
-                        #endregion
-
-                        #region Delete Programs by channel + date
-
-                        string start_date = TVinciShared.XmlUtils.GetNodeValue(ref node, "sdt");
-                        string end_date = TVinciShared.XmlUtils.GetNodeValue(ref node, "edt");
-
-                        DateTime dDate = Utils.ParseEPGStrToDate(start_date, "000000");// get all day start from 00:00:00
-                        if (!deletedDays.Contains(dDate))
-                        {
-                            deletedDays.Add(dDate);
-                            Utils.DeleteProgramsByChannelAndDate(channelID, dDate, ParentGroupID);
-                        }
-
-                        #endregion
-
-                        #region Generate EPG CB
-
-                        DateTime dProgStartDate = DateTime.ParseExact(start_date, format, null);
-                        DateTime dProgEndDate = DateTime.ParseExact(end_date, format, null);
-
-                        EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
-
-                        #endregion
-
-                        epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+                        continue;
                     }
 
-                    //insert EPGs to DB in batches
-                    InsertEpgsDBBatches(ref epgDic, GroupID, nCountPackage, FieldEntityMapping);
+                    #region Basic xml Data
 
-                    if (!DBOnly)
+                    string EPGGuid = TVinciShared.XmlUtils.GetNodeValue(ref node, "pid");
+                    string scid = TVinciShared.XmlUtils.GetNodeValue(ref node, "scid");
+
+                    #region  basic (name)
+                    string name = TVinciShared.XmlUtils.GetNodeValue(ref node, "ts");
+                    if (string.IsNullOrEmpty(name))
                     {
-                        foreach (EpgCB epg in epgDic.Values)
+                        name = TVinciShared.XmlUtils.GetNodeValue(ref node, "ept");
+                    }
+                    #endregion
+                    string description = TVinciShared.XmlUtils.GetNodeValue(ref node, "dss"); //basic (Description)
+                    #endregion
+
+                    // get the pic Url - if there is none , get the default picture from GraceNote API
+                    string epg_url = TVinciShared.XmlUtils.GetNodeValue(ref node, "is/i"); // pic url -- should be mapped without prefix
+
+                    #region Set field mapping valus
+                    SetMappingValues(FieldEntityMapping, node, dParentalRating);
+                    #endregion
+
+                    #region Delete Programs by channel + date
+
+                    string start_date = TVinciShared.XmlUtils.GetNodeValue(ref node, "sdt");
+                    string end_date = TVinciShared.XmlUtils.GetNodeValue(ref node, "edt");
+
+                    DateTime dDate = Utils.ParseEPGStrToDate(start_date, "000000");// get all day start from 00:00:00
+                    if (!channelDeletedDays.ContainsKey(channelID) || (channelDeletedDays.ContainsKey(channelID) && !channelDeletedDays[channelID].Contains(dDate)))
+                    {
+                        if (!channelDeletedDays.ContainsKey(channelID))
                         {
-                            nCount++;
-
-                            #region Insert EpgProgram to CB
-                            ulong epgID = 0;
-                            bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
-                            #endregion
-
-                            #region Insert EpgProgram ES
-
-                            if (nCount >= nCountPackage)
-                            {
-                                ulProgram.Add(epg.EpgID);
-                                bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, ParentGroupID, ApiObjects.eAction.Update);
-                                ulProgram = new List<ulong>();
-                                nCount = 0;
-                            }
-                            else
-                            {
-                                ulProgram.Add(epg.EpgID);
-                            }
-
-                            #endregion
+                            channelDeletedDays.Add(channelID, new List<DateTime>() { dDate });
                         }
-
-                        if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+                        else
                         {
+                            channelDeletedDays[channelID].Add(dDate);
+                        }
+                        Utils.DeleteProgramsByChannelAndDate(channelID, dDate, ParentGroupID);
+                    }
+
+                    #endregion
+
+                    #region Generate EPG CB
+
+                    DateTime dProgStartDate = DateTime.ParseExact(start_date, format, null);
+                    DateTime dProgEndDate = DateTime.ParseExact(end_date, format, null);
+
+                    EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID,scid /*EPGGuid*/, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
+
+                    #endregion
+                    if (!epgDic.ContainsKey(scid))
+                    {
+                        epgDic.Add(scid, newEpgItem);
+                    }
+                }
+
+                //insert EPGs to DB in batches
+                InsertEpgsDBBatches(ref epgDic, GroupID, nCountPackage, FieldEntityMapping);
+
+                if (!DBOnly)
+                {
+                    foreach (EpgCB epg in epgDic.Values)
+                    {
+                        nCount++;
+
+                        #region Insert EpgProgram to CB
+                        ulong epgID = 0;
+                        bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
+                        #endregion
+
+                        #region Insert EpgProgram ES
+
+                        if (nCount >= nCountPackage)
+                        {
+                            ulProgram.Add(epg.EpgID);
                             bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, ParentGroupID, ApiObjects.eAction.Update);
+                            ulProgram = new List<ulong>();
+                            nCount = 0;
                         }
-                    }
-                    //start Upload proccess Queue
-                    UploadQueue.UploadQueueHelper.SetJobsForUpload(GroupID);
+                        else
+                        {
+                            ulProgram.Add(epg.EpgID);
+                        }
 
-                    Logger.Logger.Log("Yes", string.Format("\r\n END EPG Channel {0} \r\n", channelID), LogFileName);
-                    return true;
+                        #endregion
+                    }
+
+                    if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+                    {
+                        bool resultEpgIndex = Utils.UpdateEpgIndex(ulProgram, ParentGroupID, ApiObjects.eAction.Update);
+                    }
                 }
-                else
+                //start Upload proccess Queue
+                UploadQueue.UploadQueueHelper.SetJobsForUpload(GroupID);
+                
+                //write to log all the non exists channels 
+                foreach (KeyValuePair<string, int> item in dExistChannel)
                 {
-                    Logger.Logger.Log("Yes", string.Format("ChannelID = {0} , do nothing", channelID), LogFileName+"NotExist");
-                    return false;
+                    if (item.Value == 0)
+                    {
+                        Logger.Logger.Log("Yes", string.Format("ChannelID = {0} , do nothing", item.Key), LogFileName + "NotExist");
+                    }
                 }
+
+                return true;
             }
             catch (Exception exp)
             {
@@ -240,6 +303,35 @@ namespace YesEpgFeeder
             }
             finally
             {
+            }
+        }
+
+        private int IsChannelExist(string channel_id, ref Dictionary<string, int> dExistChannel)
+        {
+            try
+            {
+                
+                if (dExistChannel.ContainsKey(channel_id))
+                {
+                    return dExistChannel[channel_id];
+                }
+
+                int channelID = GetExistChannel(channel_id);               
+                
+                if (!dExistChannel.ContainsKey(channel_id))
+                {
+                    dExistChannel.Add(channel_id, channelID);
+                }
+                else
+                {
+                    dExistChannel[channel_id] =  channelID;
+                }
+                
+                return channelID;
+            }
+            catch 
+            {
+                return 0;
             }
         }
 
@@ -412,7 +504,7 @@ namespace YesEpgFeeder
                 GetYestUrl();
                 string sXml = TVinciShared.WS_Utils.SendXMLHttpReq(URL, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, "GET");
 
-                sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
+            //    sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
                 
                 xmlDoc = new XmlDocument();
                 Encoding encoding = Encoding.UTF8;
@@ -441,10 +533,13 @@ namespace YesEpgFeeder
 
         private void GetYestUrl()
         {            
-            URL = string.Format("{0}schedules?", URL);            
+            URL = string.Format("{0}/schedules?", URL);            
             URL = string.Format("{0}regionId={1}", URL, Region);
             URL = string.Format("{0}&startTime={1}",URL, StartTime);
-            URL = string.Format("{0}&filters=cn:equals:{1}", URL, ChannelID);
+            if (!string.IsNullOrEmpty(ChannelID))
+            {
+                URL = string.Format("{0}&filters=cn:equals:{1}", URL, ChannelID);
+            }
             URL = string.Format("{0}&locale={1}", URL , Language);
             if (Duration> 0)
             {
