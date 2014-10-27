@@ -21,7 +21,7 @@ namespace YesEpgFeeder
         private const string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
         #endregion
 
-         #region members        
+        #region members        
 
         public int FeederType { get; set;} // type Feeder = 1 , Notification = 2
         public int GroupID { get; set; }
@@ -101,7 +101,7 @@ namespace YesEpgFeeder
 
                     // Update last time invoke parameter only on Feeder Type
                     DateTime dDate = new DateTime(int.Parse(StartTime.Substring(0,4)), int.Parse(StartTime.Substring(5,2)), int.Parse(StartTime.Substring(8,2)));// 2014-08-12
-                    string parameters = string.Format("{0}||{1}||{2}||{3}||{4}", 1, GroupID , dDate.AddMinutes(Duration), Duration, Language);
+                    string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID , dDate.AddMinutes(Duration).ToString("yyyy-MM-ddTHH:mm:ssZ"), Duration, Language);
 
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PARAMETERS", "=", parameters);
@@ -124,9 +124,6 @@ namespace YesEpgFeeder
                         SaveChannelByXML();
                     }
                 }
-
-               
-
             }
             catch (Exception ex)
             {
@@ -153,7 +150,6 @@ namespace YesEpgFeeder
 
         private bool SaveChannel(XmlDocument xmlDoc)
         {
-
             try
             {
                 Dictionary<string, int> dExistChannel = new Dictionary<string, int>();
@@ -289,7 +285,7 @@ namespace YesEpgFeeder
                 {
                     if (item.Value == 0)
                     {
-                        Logger.Logger.Log("Yes", string.Format("ChannelID = {0} , do nothing", item.Key), LogFileName + "NotExist");
+                        Logger.Logger.Log("SaveChannel", string.Format("ChannelID = {0} , do nothing", item.Key), LogFileName + "NotExist");
                     }
                 }
 
@@ -502,6 +498,9 @@ namespace YesEpgFeeder
             try
             {
                 GetYestUrl();
+
+                Logger.Logger.Log("getXmlTVChannel", string.Format("GetYestUrl:{0}", URL), LogFileName);
+
                 string sXml = TVinciShared.WS_Utils.SendXMLHttpReq(URL, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, "GET");
 
             //    sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
@@ -526,6 +525,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("getXmlTVChannel", string.Format("Exception:{0}", ex.Message), LogFileName);
                 return null;
             }
         }

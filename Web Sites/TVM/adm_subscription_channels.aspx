@@ -56,7 +56,7 @@
 
     function callback_init_dobj(ret) {
         //alert(ret);
-        debugger;
+        //debugger;
         var flashObj1 = document.getElementById("DualList");        
         var split_array = ret.split("~~|~~");
         if (split_array.length == 3) {
