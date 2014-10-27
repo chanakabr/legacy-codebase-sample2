@@ -166,6 +166,7 @@
           <s:enumeration value="RequestFailed" />
           <s:enumeration value="InvalidUser" />
           <s:enumeration value="ConcurrencyLimitation" />
+          <s:enumeration value="MediaConcurrencyLimitation" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddDomainWithCoGuid">

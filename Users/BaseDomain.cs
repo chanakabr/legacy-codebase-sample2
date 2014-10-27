@@ -520,7 +520,16 @@ namespace Users
             Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
+                //to add here isDevicePlayValid
+                bool bisDevicePlayValid = IsDevicePlayValid(lSiteGuid.ToString(), sUDID, domain);
+
                 res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
+                if (!bisDevicePlayValid)
+                {
+                    res.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                    return res;
+                }
+
                 switch (eValidationType)
                 {
                     case ValidationType.Concurrency:
@@ -572,6 +581,94 @@ namespace Users
             return res;
         }
 
+        // return True if device recognize in Domain false another case (assumption : user is valid !)
+        protected bool IsDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, Domain userDomain)
+        {
+            bool isDeviceRecognized = false;
+            try
+            {
+                if (userDomain != null)
+                {
+                    List<DeviceContainer> deviceContainers = userDomain.m_deviceFamilies;
+                    if (deviceContainers != null && deviceContainers.Count() > 0)
+                    {
+                        List<int> familyIDs = new List<int>();
+                        for (int i = 0; i < deviceContainers.Count(); i++)
+                        {
+                            DeviceContainer container = deviceContainers[i];
+
+                            if (container != null)
+                            {
+                                if (!familyIDs.Contains(container.m_deviceFamilyID))
+                                {
+                                    familyIDs.Add(container.m_deviceFamilyID);
+                                }
+
+                                if (container.DeviceInstances != null && container.DeviceInstances.Count() > 0)
+                                {
+                                    for (int j = 0; j < container.DeviceInstances.Count(); j++)
+                                    {
+                                        Device device = container.DeviceInstances[j];
+                                        if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
+                                        {
+                                            isDeviceRecognized = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    familyIDs.Add(container.m_deviceFamilyID);
+                                }
+
+                                if (container.DeviceInstances != null && container.DeviceInstances.Count() > 0)
+                                {
+                                    for (int j = 0; j < container.DeviceInstances.Count(); j++)
+                                    {
+                                        Device device = container.DeviceInstances[j];
+                                        if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
+                                        {
+                                            isDeviceRecognized = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //Patch!!
+                                    if (container.m_deviceFamilyID == 5 && (string.IsNullOrEmpty(sDEVICE_NAME) || sDEVICE_NAME.ToLower().Equals("web site")))
+                                    {
+                                        isDeviceRecognized = true;
+                                    }
+                                }
+                                if (isDeviceRecognized)
+                                {
+                                    break;
+                                }
+
+                            }
+                        }
+                        if (!familyIDs.Contains(5) && string.IsNullOrEmpty(sDEVICE_NAME) || (familyIDs.Contains(5) && familyIDs.Count == 0) || (!familyIDs.Contains(5) && sDEVICE_NAME.ToLower().Equals("web site")))
+                        {
+                            isDeviceRecognized = true;
+                        }
+                    }
+                    else
+                    {
+                        // No Domain - No device check!!
+                        isDeviceRecognized = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("IsDevicePlayValid", string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, sSiteGUID, sDEVICE_NAME, userDomain != null ? userDomain.m_nDomainID : 0),
+                    "BaseDomain");
+                isDeviceRecognized = false;
+            }
+
+            return isDeviceRecognized;
+        }
         #endregion
 
         #region Protected abstract
