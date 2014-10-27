@@ -2026,6 +2026,9 @@ namespace ConditionalAccess.TvinciDomains {
         
         /// <remarks/>
         ConcurrencyLimitation,
+        
+        /// <remarks/>
+        MediaConcurrencyLimitation,
     }
     
     /// <remarks/>

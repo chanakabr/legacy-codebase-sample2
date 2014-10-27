@@ -1862,7 +1862,7 @@ namespace Users
                     List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
                     if (lMediaConcurrency != null && lMediaConcurrency.Count >= nMediaConcurrencyLimit)
                     {
-                        res = DomainResponseStatus.ConcurrencyLimitation;
+                        res = DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
             }
