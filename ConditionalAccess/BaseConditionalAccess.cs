@@ -9935,8 +9935,8 @@ namespace ConditionalAccess
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                         res.status = mediaConcurrencyResponse.ToString();
 
-                                        Logger.Logger.Log("GetLicensedLinks", string.Format("Media Concurrency, user:{0}, MFID:{1}",
-                                            sSiteGuid, nMediaFileID), GetLogFilename());
+                                        Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
+                                            mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
                                     }
                                 }
                                 else
