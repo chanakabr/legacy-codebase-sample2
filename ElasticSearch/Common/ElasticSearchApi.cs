@@ -281,7 +281,7 @@ namespace ElasticSearch.Common
                 int nStatus  = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
 
-                bRes = (nStatus == 200) ? true : false;
+                bRes = nStatus == 200;
             }
 
             return bRes;

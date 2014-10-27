@@ -154,7 +154,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is ChannelViewsRequest)
             {
-                return new ChannelViewsRequest();
+                return (ChannelViewsRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is BuzzMeterRequest)
             {

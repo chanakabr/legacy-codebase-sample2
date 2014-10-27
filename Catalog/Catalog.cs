@@ -21,6 +21,7 @@ using StatisticsBL;
 using ApiObjects.Statistics;
 using GroupsCacheManager;
 using DalCB;
+using ElasticSearch.Searcher;
 
 namespace Catalog
 {
@@ -2589,6 +2590,117 @@ namespace Catalog
             }
         }
 
+        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
+        {
+            List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
+
+            #region Define Facet Query
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupID.ToString() });
+
+            #region define date filter
+            ESRange dateRange = new ESRange(false) { Key = "action_date" };
+            string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string sMin = DateTime.UtcNow.AddSeconds(-30.0).ToString("yyyyMMddHHmmss");
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            filter.AddChild(dateRange);
+            #endregion
+
+            #region define action filter
+            ESTerms esActionTerm = new ESTerms(false) { Key = "action" };
+            esActionTerm.Value.Add("mediahit");
+            filter.AddChild(esActionTerm);
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
+            facet.Query = filteredQuery;
+            #endregion
+
+            string sFacetQuery = facet.ToString();
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupID);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue("channel_views", out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nChannelID;
+                            if (int.TryParse(sFacetKey, out nChannelID))
+                            {
+                                channelViews.Add(new ChannelViewsResult(nChannelID, count));
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return channelViews;
+        }
+
+        internal static bool IsAnonymousUser(string siteGuid)
+        {
+            int nSiteGuid = 0;
+            return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
+        }
+
+        internal static bool GetMediaMarkHitInitialData(string userIP, int mediaID, int mediaFileID, ref int countryID,
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        {
+            bool res = false;
+            long ipVal = ParseIPOutOfString(userIP);
+            if (ipVal > 0)
+            {
+                if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID,
+                    ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                {
+                    res = true;
+                }
+            }
+
+            return res;
+        }
+
+
+        private static long ParseIPOutOfString(string userIP)
+        {
+            long nIPVal = 0;
+
+            if (!string.IsNullOrEmpty(userIP))
+            {
+                string[] splited = userIP.Split('.');
+
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+            }
+
+            return nIPVal;
+
+        }
 
     }
 

@@ -114,85 +114,101 @@ namespace Catalog
             {
                 Int32.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
-            int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
-            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
-
-            
-            bool bValidMediaAction = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
-
-            int nSiteGuid;
-            //anonymous user - write new play cycle when first play
-            if (string.IsNullOrEmpty(m_oMediaPlayRequestData.m_sSiteGuid) || !int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid) || nSiteGuid == 0)
+            int nCountryID = 0;
+            //int nCountryID = Catalog.GetCountryIDByIP(m_sUserIP);
+            //Catalog.GetMediaPlayData(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+            //                         ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID
+            //);
+            if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
             {
-                if (bValidMediaAction && mediaMarkAction == MediaPlayActions.FIRST_PLAY)
-                {
-                    CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, this.m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
-                }
-
-                return oMediaMarkResponse;
+                throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
 
-            // do for all non-anonymous users
-            if (bValidMediaAction)
+            bool isTerminateRequest = false;
+            if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                bool isError = false;
-                bool isConcurrent = false;
-                HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                      ref nFirstPlay, ref sPlayCycleKey, ref isConcurrent, ref isError, ref nSwhoosh);
-
-                if (isError)
+                if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
                 {
-                    return oMediaMarkResponse;
-                }
-                else if (isConcurrent)
-                {
-                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-                    return oMediaMarkResponse;
-                }
-            }
-
-            if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
-            {
-                nActionID = Catalog.GetMediaActionID(this.m_oMediaPlayRequestData.m_sAction);
-            }
-
-            if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
-            {
-                if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
-                {
-                    if (string.IsNullOrEmpty(sPlayCycleKey))
+                    isTerminateRequest = true;
+                    if (mediaMarkAction == MediaPlayActions.FIRST_PLAY)
                     {
-                        sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);
+                        CatalogDAL.Insert_NewPlayCycleKey(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
                     }
-                    CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
-                                                  nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, this.m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
-                                                  this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
                 }
-            }
-
-            if (nActionID != 0)
-            {
-                CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID,
-                                                        nCDNID, nActionID, nCountryID, nPlayerID, this.m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID);
-
-                if (nActionID == 4) // update only when first_play
+                else
                 {
+                    bool isError = false;
+                    bool isConcurrent = false;
+                    HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
+                                          ref nFirstPlay,/* ref sPlayCycleKey,*/ ref isConcurrent, ref isError, ref nSwhoosh);
+                    if (isConcurrent)
                     {
-                        ApiDAL.Update_MediaViews(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID);
+                        isTerminateRequest = true;
+                        oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+
+                    }
+                    else
+                    {
+                        if (isError)
+                        {
+                            isTerminateRequest = true;
+                        }
                     }
                 }
             }
-            else
+
+            if (!isTerminateRequest)
             {
-                oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ACTION_NOT_RECOGNIZED);
+                if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
+                {
+                    nActionID = Catalog.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
+                }
+
+                if (m_oMediaPlayRequestData.m_nMediaID != 0)
+                {
+                    if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
+                    {
+                        //if (string.IsNullOrEmpty(sPlayCycleKey))
+                        //{
+                        //    sPlayCycleKey = Catalog.GetLastPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, nPlatform, nCountryID);
+                        //}
+                        //CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
+                        //                              nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
+                        //                              m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
+                        CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID,
+                            m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
+                            nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                            m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
+                    }
+                }
+
+                if (nActionID != 0)
+                {
+                    CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID,
+                                                            nCDNID, nActionID, nCountryID, nPlayerID, this.m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID);
+
+                    if (IsFirstPlay(nActionID)) // update only when first_play
+                    {
+                            ApiDAL.Update_MediaViews(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID);
+                    }
+                }
+                else
+                {
+                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ACTION_NOT_RECOGNIZED);
+                }
             }
 
             return oMediaMarkResponse;
         }
 
+        private bool IsFirstPlay(int actionId)
+        {
+            return actionId == 4;
+        }
+
         private void HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
-                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref string sPlayCycleKey, ref bool isConcurrent, ref bool isError, ref int nSwoosh)
+                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, /*ref string sPlayCycleKey, */ref bool isConcurrent, ref bool isError, ref int nSwoosh)
         {
             if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
             {

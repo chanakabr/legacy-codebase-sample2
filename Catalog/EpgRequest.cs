@@ -80,7 +80,7 @@ namespace Catalog
 
         }
 
-        private void CheckRequestValidness()
+        protected override void CheckRequestValidness()
         {
             if (m_nGroupID < 1 || m_nChannelIDs == null || m_nChannelIDs.Count == 0 || (m_eSearchType == EpgSearchType.Current && (m_nNextTop == 0 || m_nPrevTop == 0)))
                 throw new ArgumentException("Request either does not contain any channels or has invalid group id");

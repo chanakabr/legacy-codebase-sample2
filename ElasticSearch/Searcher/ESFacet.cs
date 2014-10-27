@@ -64,57 +64,72 @@ namespace ElasticSearch.Searcher
 
         public override string ToString()
         {
+            string sRes = string.Empty;
             StringBuilder sb = new StringBuilder();
-            System.IO.StringWriter sw = new System.IO.StringWriter(sb);
-            Newtonsoft.Json.JsonWriter jsonWriter = new Newtonsoft.Json.JsonTextWriter(sw);
+            System.IO.StringWriter sw = null;
+            Newtonsoft.Json.JsonWriter jsonWriter = null;
+            try
             {
-                jsonWriter.WriteRawValue("{");
-                if (Query != null)
+                sw = new System.IO.StringWriter(sb);
+                jsonWriter = new Newtonsoft.Json.JsonTextWriter(sw);
                 {
-                    Query.m_bIsRoot = false;
-                    jsonWriter.WriteRawValue(Query.ToString());
-                    jsonWriter.WriteRawValue(",");
-                }
-
-                if (facetItems != null)
-                {
-                    jsonWriter.WriteRawValue("\"facets\":");
-                    jsonWriter.WriteStartObject();
-                    foreach (ESTermsFacet.ESTermsFacetItem termsFacetItem in this.facetItems)
+                    jsonWriter.WriteRawValue("{");
+                    if (Query != null)
                     {
-                        jsonWriter.WritePropertyName(termsFacetItem.FacetName);
+                        Query.m_bIsRoot = false;
+                        jsonWriter.WriteRawValue(Query.ToString());
+                        jsonWriter.WriteRawValue(",");
+                    }
 
-                        //1
+                    if (facetItems != null)
+                    {
+                        jsonWriter.WriteRawValue("\"facets\":");
                         jsonWriter.WriteStartObject();
-                        jsonWriter.WritePropertyName("terms");
-                        jsonWriter.WriteStartObject();
-                        jsonWriter.WritePropertyName("field");
-                        jsonWriter.WriteValue(termsFacetItem.Field);
-                        jsonWriter.WritePropertyName("size");
-                        jsonWriter.WriteValue(termsFacetItem.Size);
-                        jsonWriter.WriteEndObject();
-                        //1
-
-                        //2
-                        if (termsFacetItem.FacetFilter != null && !termsFacetItem.FacetFilter.IsEmpty())
+                        foreach (ESTermsFacet.ESTermsFacetItem termsFacetItem in this.facetItems)
                         {
-                            jsonWriter.WritePropertyName("facet_filter");
+                            jsonWriter.WritePropertyName(termsFacetItem.FacetName);
+
+                            //1
                             jsonWriter.WriteStartObject();
-                            jsonWriter.WriteRaw(termsFacetItem.FacetFilter.ToString());
+                            jsonWriter.WritePropertyName("terms");
+                            jsonWriter.WriteStartObject();
+                            jsonWriter.WritePropertyName("field");
+                            jsonWriter.WriteValue(termsFacetItem.Field);
+                            jsonWriter.WritePropertyName("size");
+                            jsonWriter.WriteValue(termsFacetItem.Size);
+                            jsonWriter.WriteEndObject();
+                            //1
+
+                            //2
+                            if (termsFacetItem.FacetFilter != null && !termsFacetItem.FacetFilter.IsEmpty())
+                            {
+                                jsonWriter.WritePropertyName("facet_filter");
+                                jsonWriter.WriteStartObject();
+                                jsonWriter.WriteRaw(termsFacetItem.FacetFilter.ToString());
+                                jsonWriter.WriteEndObject();
+                            }
+                            //2
                             jsonWriter.WriteEndObject();
                         }
-                        //2
                         jsonWriter.WriteEndObject();
                     }
-                    jsonWriter.WriteEndObject();
+
+                    jsonWriter.WriteRawValue("}");
                 }
+                sRes = sw.ToString();
 
-                jsonWriter.WriteRawValue("}");
             }
-            string sRes = sw.ToString();
-
-            jsonWriter.Close();
-            sw.Close();
+            finally
+            {
+                if (jsonWriter != null)
+                {
+                    jsonWriter.Close();
+                }
+                if (sw != null)
+                {
+                    sw.Close();
+                }
+            }
 
             return sRes;
         }
