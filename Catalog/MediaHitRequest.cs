@@ -15,6 +15,7 @@ using Tvinci.Core.DAL;
 using ApiObjects.Statistics;
 using Catalog.Cache;
 using GroupsCacheManager;
+using System.Threading.Tasks;
 
 namespace Catalog
 {
@@ -167,16 +168,28 @@ namespace Catalog
 
                 int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
 
+                // very old
                 //MediaView view = new MediaView() { GroupID = nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
                 //WriteLiveViewsToES(view);
-                if (!Catalog.InsertStatisticsRequestToES(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, nPlayTime))
-                {
-                    Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. Req: ", mediaHitRequest.ToString()), "MediaHitRequest");
-                }
+
+                //old
+                //if (!Catalog.InsertStatisticsRequestToES(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, nPlayTime))
+                //{
+                //    Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. Req: ", mediaHitRequest.ToString()), "MediaHitRequest");
+                //}
+                Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, nPlayTime));
             }
 
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             return oMediaHitResponse;
+        }
+
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
+        {
+            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
+            {
+                Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID), "MediaHitRequest");
+            }
         }
 
         //private bool WriteLiveViewsToES(MediaView oMediaView)

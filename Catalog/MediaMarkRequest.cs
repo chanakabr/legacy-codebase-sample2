@@ -12,6 +12,7 @@ using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
+using System.Threading.Tasks;
 
 namespace Catalog
 {
@@ -190,11 +191,14 @@ namespace Catalog
 
                     if (IsFirstPlay(nActionID)) // update only when first_play
                     {
-                        ApiDAL.Update_MediaViews(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID);
-                        if (!Catalog.InsertStatisticsRequestToES(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, nPlayTime))
-                        {
-                            Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
-                        }
+                        //old
+                        //ApiDAL.Update_MediaViews(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID);
+                        //if (!Catalog.InsertStatisticsRequestToES(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, nPlayTime))
+                        //{
+                        //    Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
+                        //}
+                        Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                            m_nGroupID, nMediaTypeID, nPlayTime));
                     }
                 }
                 else
@@ -204,6 +208,15 @@ namespace Catalog
             }
 
             return oMediaMarkResponse;
+        }
+
+        private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime)
+        {
+            ApiDAL.Update_MediaViews(mediaID, mediaFileID);
+            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+            {
+                Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
+            }
         }
 
         private bool IsFirstPlay(int actionId)

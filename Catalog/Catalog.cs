@@ -1112,20 +1112,6 @@ namespace Catalog
             }
         }
 
-        public static string GetLastPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
-        {
-            string retVal = string.Empty;
-            retVal = CatalogDAL.Get_LastPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-
-            if (string.IsNullOrEmpty(retVal))
-            {
-                retVal = Guid.NewGuid().ToString();
-                CatalogDAL.Insert_NewPlayCycleKey(nGroupID, nMediaID, nMediaFileID, sSiteGuid, nPlatform, sUDID, nCountryID, retVal);
-            }
-
-            return retVal;
-        }
-
         private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
         {
             return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
@@ -1140,29 +1126,6 @@ namespace Catalog
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
             if (nDomainID > 0)
                 CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
-        }
-
-        public static int GetCountryIDByIP(string sIP)
-        {
-            int retCountryID = 0;
-
-            if (!string.IsNullOrEmpty(sIP))
-            {
-                long nIPVal = 0;
-                string[] splited = sIP.Split('.');
-
-                if (splited != null && splited.Length >= 3)
-                {
-                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-                }
-
-                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-                if (dtCountry != null && dtCountry.Rows.Count > 0)
-                {
-                    retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
-                }
-            }
-            return retCountryID;
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -2165,64 +2128,11 @@ namespace Catalog
                         {
                             /*
                              * When we have valid dates in Media Asset Stats request we fetch the data as follows:
-                             * 1. Views are taking by counting how many times each media appears in play_cycle_keys table in SQL DB.
-                             * 2. VotesSum, VotesCount, Likes are taken from CB social bucket.
+                             * 1. Views Rating and Likes from ES statistics index.
+                             * 
                              * 
                              */
-                            bool test = GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
-                            // bring media views from SQL DB.
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
-                            if (dict.Count > 0)
-                            {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
-                                {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                                    {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        if (isBuzzNotEmpty)
-                                        {
-                                            string strAssetID = kvp.Key.ToString();
-                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                            {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                            }
-                                            else
-                                            {
-                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
-                                            }
-                                        }
-                                    }
-                                } // foreach
-                            }
-                            else
-                            {
-                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
-                            }
-
-                            // bring social actions from CB social bucket
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                {
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                    }
-                                }
-                                tasks[i].Dispose();
-                            }
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
 
                         }
 
@@ -2246,10 +2156,13 @@ namespace Catalog
                             {
                                 for (int i = 0; i < lEpg.Count; i++)
                                 {
-                                    int currEpgId = (int)lEpg[i].EPG_ID;
-                                    if (assetIdToAssetStatsMapping.ContainsKey(currEpgId))
+                                    if (lEpg[i] != null)
                                     {
-                                        assetIdToAssetStatsMapping[currEpgId].m_nLikes = lEpg[i].LIKE_COUNTER;
+                                        int currEpgId = (int)lEpg[i].EPG_ID;
+                                        if (assetIdToAssetStatsMapping.ContainsKey(currEpgId))
+                                        {
+                                            assetIdToAssetStatsMapping[currEpgId].m_nLikes = lEpg[i].LIKE_COUNTER;
+                                        }
                                     }
                                 } // for
                             }
@@ -2262,32 +2175,8 @@ namespace Catalog
                         }
                         else
                         {
-                            // we bring data from social bucket in CB.
-                            bool res = GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                {
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                    }
-                                }
-                                tasks[i].Dispose();
-                            }
-
+                            // we bring data from ES statistics index.
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                         }
                         break;
                     }
@@ -2299,45 +2188,6 @@ namespace Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
-        }
-
-        private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
-            DateTime startDate, DateTime endDate)
-        {
-            SocialDAL_Couchbase socialDal = new SocialDAL_Couchbase(groupId);
-            AssetStatsResult.SocialPartialAssetStatsResult res = new AssetStatsResult.SocialPartialAssetStatsResult() { assetId = assetId };
-            switch (statsTypes)
-            {
-                case StatsType.MEDIA:
-                    {
-                        // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
-                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
-                        int votesCount = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
-                        double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
-                        if (votesCount > 0)
-                        {
-                            res.rate = votesSum / votesCount;
-                        }
-                        else
-                        {
-                            res.rate = 0d;
-                        }
-                        break;
-                    }
-                case StatsType.EPG:
-                    {
-                        // in epg we bring just likes.
-                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.PROGRAM, eUserAction.LIKE, startDate, endDate);
-                        res.rate = 0d;
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            } // switch
-
-            return res;
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
@@ -2934,39 +2784,6 @@ namespace Catalog
         {
             List<int> result = new List<int>();
 
-            //#region Define Facet Query
-            //ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
-            //filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            //BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            //filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupId.ToString() });
-
-            //#region define date filter
-            //ESRange dateRange = new ESRange(false) { Key = "action_date" };
-            //string sMax = DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            //string sMin = dtStartDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            //dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            //dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            //filter.AddChild(dateRange);
-            //#endregion
-
-            //#region define action filter
-            //ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
-            //filter.AddChild(esActionTerm);
-            //#endregion
-
-            //#region define media id filter
-            //ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
-            //esMediaIdTerms.Value.AddRange(lMediaIds.Select(item => item.ToString()));
-            //filter.AddChild(esMediaIdTerms);
-            //#endregion
-
-            //filteredQuery.Filter.FilterSettings = filter;
-
-            //ESTermsFacet facet = new ESTermsFacet("sliding_window", "media_id", 100000);
-            //facet.Query = filteredQuery;
-            //#endregion
-
             string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
 
@@ -3049,43 +2866,8 @@ namespace Catalog
         {
             List<int> result = new List<int>();
 
-            //#region Define Facet Query
-            //ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
-            //filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            //BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            //filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupId.ToString() });
-
-            //#region define date filter
-            //ESRange dateRange = new ESRange(false) { Key = "action_date" };
-            //string sMax = DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            //string sMin = dtStartDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            //dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            //dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            //filter.AddChild(dateRange);
-            //#endregion
-
-            //#region define action filter
-            //ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
-            //filter.AddChild(esActionTerm);
-            //#endregion
-
-            //#region define media id filter
-            //ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
-            //esMediaIdTerms.Value.AddRange(lMediaIds.Select(item => item.ToString()));
-            //filter.AddChild(esMediaIdTerms);
-            //#endregion
-
-            //filteredQuery.Filter.FilterSettings = filter;
-
-            //ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 100000);
-            //facet.Query = filteredQuery;
-            //#endregion
-
             string sFacetQuery = BuildSlidingWindowStatisticsFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
                 action, valueField);
-
-
 
             //Search
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);

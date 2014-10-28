@@ -1776,49 +1776,6 @@ namespace Tvinci.Core.DAL
             GetOrInsert_PlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform, nCountryID, nRuleID, nGroupID, true);
         }
 
-        public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,
-                                      int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter, int nExitFullScreenCounter, int nSendToFriendCounter,
-                                      int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID, int nSwooshCounter
-                                     )
-        {
-
-            ODBCWrapper.StoredProcedure spNewMediaEoh = new ODBCWrapper.StoredProcedure("Insert_NewMediaEoh");
-            spNewMediaEoh.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-            spNewMediaEoh.AddParameter("@WatcherID", nWatcherID);
-            spNewMediaEoh.AddParameter("@SessionID", sSessionID);
-            spNewMediaEoh.AddParameter("@GroupID", nGroupID);
-            spNewMediaEoh.AddParameter("@OwnerGroupID", nOwnerGroupID);
-            spNewMediaEoh.AddParameter("@MediaID", nMediaID);
-            spNewMediaEoh.AddParameter("@MediaFileID", nMediaFileID);
-            spNewMediaEoh.AddParameter("@BillingTypeID", nBillingTypeID);
-            spNewMediaEoh.AddParameter("@CdnID", nCDNID);
-            spNewMediaEoh.AddParameter("@Duration", nDuration);
-            spNewMediaEoh.AddParameter("@CountryID", nCountryID);
-            spNewMediaEoh.AddParameter("@PlayerID", nPLayerID);
-            spNewMediaEoh.AddParameter("@FirstPlayCounter", nFirstPlayCounter);
-            spNewMediaEoh.AddParameter("@PlayCounter", nPlayCounter);
-            spNewMediaEoh.AddParameter("@LoadCounter", nLoadCounter);
-            spNewMediaEoh.AddParameter("@PauseCounter", nPauseCounter);
-            spNewMediaEoh.AddParameter("@StopCounter", nStopCounter);
-            spNewMediaEoh.AddParameter("@FullScreenCounter", nFullScreenCounter);
-            spNewMediaEoh.AddParameter("@ExitFullScreenCounter", nExitFullScreenCounter);
-            spNewMediaEoh.AddParameter("@SendToFriendCounter", nSendToFriendCounter);
-            spNewMediaEoh.AddParameter("@PlayTimeCounter", nPlayTimeCounter);
-            spNewMediaEoh.AddParameter("@FileQualityID", nFileQualityID);
-            spNewMediaEoh.AddParameter("@FileFormatID", nFileFormatID);
-            spNewMediaEoh.AddParameter("@StartHourDate", dStartHourDate);
-            spNewMediaEoh.AddParameter("@UpdaterID", nUpdaterID);
-            spNewMediaEoh.AddParameter("@Browser", nBrowser);
-            spNewMediaEoh.AddParameter("@Platform", nPlatform);
-            spNewMediaEoh.AddParameter("@SiteGuid", sSiteGuid);
-            spNewMediaEoh.AddParameter("@DeviceUdID", sDeviceUdID);
-            spNewMediaEoh.AddParameter("@PlayCycleID", sPlayCycleID);
-            spNewMediaEoh.AddParameter("@SwooshCounter", nSwooshCounter);
-
-            spNewMediaEoh.ExecuteNonQuery();
-        }
-
         public static void Insert_MediaMarkHitActionData(long watcherID, string sessionID, long groupID, long ownerGroupID,
             long mediaID, long mediaFileID, long billingTypeID, long cdnID, long duration, long countryID, long playerID,
             long firstPlayCounter, long playCounter, long loadCounter, long pauseCounter, long stopCounter, long fullScreenCounter,

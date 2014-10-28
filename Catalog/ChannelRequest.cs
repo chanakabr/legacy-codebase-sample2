@@ -61,10 +61,10 @@ namespace Catalog
         {
             try
             {
-                ChannelRequest request = (ChannelRequest)oBaseRequest;
+                ChannelRequest request = oBaseRequest as ChannelRequest;
 
                 if (request == null || request.m_nChannelID == 0)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
 
@@ -83,7 +83,7 @@ namespace Catalog
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1}", request.m_nChannelID, ex.Message), "Catalog");
+                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), "Catalog");
                     group = null;
                     channel = null;
                 }
@@ -213,8 +213,8 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ES Error", "Received " + ex.Message + " From ES", "Elasticsearch");
-                _logger.Error(ex.Message, ex);
+                Logger.Logger.Log("ES Error", String.Concat("Exception. Req: ", ToString(), " Msg: ", ex.Message, " Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "Elasticsearch");
+                
                 throw ex;
             }
         }
