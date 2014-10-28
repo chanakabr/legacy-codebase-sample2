@@ -3786,7 +3786,7 @@ namespace ConditionalAccess
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
                 }
 
-                DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs);
+                DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs, sPPVMCd);
 
                 if (dtPPVUses != null && dtPPVUses.Rows != null && dtPPVUses.Rows.Count > 0)
                 {
