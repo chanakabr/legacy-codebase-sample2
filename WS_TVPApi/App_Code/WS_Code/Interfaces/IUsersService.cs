@@ -6,6 +6,7 @@ using System.ServiceModel;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.Objects;
 
 namespace TVPApiServices
 {
@@ -62,5 +63,8 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+
+        [OperationContract]
+        UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value);
     }
 }

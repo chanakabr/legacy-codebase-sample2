@@ -9,6 +9,7 @@ using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPApiModule.yes.tvinci.ITProxy;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Interfaces
 {
@@ -32,5 +33,7 @@ namespace TVPApiModule.Interfaces
         RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
 
         TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId);
+
+        UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value);
     }
 }

@@ -125,5 +125,26 @@ namespace TVPApiModule.Objects
         {
             return null;
         }
+
+
+        public virtual UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
+        {
+            UserResponse retVal = null;
+            if (new ApiUsersService(groupID, initObj.Platform).SetUserDynamicData(initObj.SiteGuid, key, value))
+            {
+                retVal = new UserResponse()
+                {
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK
+                };
+            }
+            else
+            {
+                retVal = new UserResponse()
+                {
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError
+                };
+            }
+            return retVal;
+        }
     }
 }

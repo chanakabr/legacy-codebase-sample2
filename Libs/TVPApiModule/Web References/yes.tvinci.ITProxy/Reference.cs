@@ -57,6 +57,8 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         private System.Threading.SendOrPostCallback OrcaLoginOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdateEulaDateOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -136,6 +138,9 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         public event OrcaLoginCompletedEventHandler OrcaLoginCompleted;
+        
+        /// <remarks/>
+        public event UpdateEulaDateCompletedEventHandler UpdateEulaDateCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/AddDevice", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -662,6 +667,35 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
             if ((this.OrcaLoginCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.OrcaLoginCompleted(this, new OrcaLoginCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/UpdateEulaDate", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string UpdateEulaDate(string accountNumber) {
+            object[] results = this.Invoke("UpdateEulaDate", new object[] {
+                        accountNumber});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateEulaDateAsync(string accountNumber) {
+            this.UpdateEulaDateAsync(accountNumber, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateEulaDateAsync(string accountNumber, object userState) {
+            if ((this.UpdateEulaDateOperationCompleted == null)) {
+                this.UpdateEulaDateOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateEulaDateOperationCompleted);
+            }
+            this.InvokeAsync("UpdateEulaDate", new object[] {
+                        accountNumber}, this.UpdateEulaDateOperationCompleted, userState);
+        }
+        
+        private void OnUpdateEulaDateOperationCompleted(object arg) {
+            if ((this.UpdateEulaDateCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateEulaDateCompleted(this, new UpdateEulaDateCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2682,6 +2716,32 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         private object[] results;
         
         internal OrcaLoginCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void UpdateEulaDateCompletedEventHandler(object sender, UpdateEulaDateCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateEulaDateCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateEulaDateCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

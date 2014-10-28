@@ -661,5 +661,46 @@ namespace TVPApiModule.Objects
             }
             return retVal;
         }
+
+        public override UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
+        {
+            UserResponse retVal = null;
+            string eulaRes = null;
+
+            ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
+            if (key.ToLower() == "eulaflag_rac")
+            {
+                var userData = usersService.GetUserData(initObj.SiteGuid);
+                if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null && userData.m_user.m_oDynamicData.m_sUserData != null)
+                {
+                    var acountNumber = userData.m_user.m_oDynamicData.m_sUserData.Where(u => u.m_sDataType.ToLower() == "accnum").FirstOrDefault();
+                    if (acountNumber != null)
+                    {
+                        using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+                        {
+                            eulaRes = proxy.UpdateEulaDate(acountNumber.m_sValue);
+                        }
+                    }
+                }
+            }
+            if (usersService.SetUserDynamicData(initObj.SiteGuid, key, value) && (eulaRes == "00002" || key.ToLower() != "eulaflag_rac"))
+            {
+                retVal = new UserResponse()
+                {
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
+                    StatusCode = eulaRes
+                };
+            }
+            else
+            {
+                retVal = new UserResponse()
+                {
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
+                    StatusCode = eulaRes
+                };
+            }
+
+            return retVal;
+        }
     }
 }

@@ -15,6 +15,7 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using System.Web;
+using TVPApiModule.Interfaces;
 
 namespace TVPApiServices
 {
@@ -553,6 +554,33 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
             return response.ToString();
+        }
+
+        [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
+        public UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value)
+        {
+            UserResponse retVal = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserDynamicData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    retVal = impl.SetUserDynamicData(initObj, groupID, key, value);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+        
+            return retVal; 
         }
 
         #endregion
