@@ -6,7 +6,7 @@
       <Value Profile="(Default)">http://platform-us.tvinci.com/tvapi.asmx</Value>
     </Setting>
     <Setting Name="TVPApiModule_yes_tvinci_ITProxy_Service" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/YesProxy/service.asmx</Value>
+      <Value Profile="(Default)">http://itproxy.tvinci.yes/service.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

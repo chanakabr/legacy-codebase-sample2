@@ -36,7 +36,7 @@ namespace TVPApiModule.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/YesProxy/service.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://itproxy.tvinci.yes/service.asmx")]
         public string TVPApiModule_yes_tvinci_ITProxy_Service {
             get {
                 return ((string)(this["TVPApiModule_yes_tvinci_ITProxy_Service"]));
