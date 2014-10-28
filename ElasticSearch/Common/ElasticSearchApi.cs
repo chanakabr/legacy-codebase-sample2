@@ -470,7 +470,7 @@ namespace ElasticSearch.Common
                     continue;
 
                 sb.Append("{");
-                if (routingStr.Length > 0)
+                if (routingStr.Length == 0)
                 {
                     sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
                 }

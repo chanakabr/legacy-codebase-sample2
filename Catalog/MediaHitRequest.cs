@@ -167,33 +167,37 @@ namespace Catalog
 
                 int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
 
-                MediaView view = new MediaView() { GroupID = nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
-                WriteLiveViewsToES(view);
+                //MediaView view = new MediaView() { GroupID = nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
+                //WriteLiveViewsToES(view);
+                if (!Catalog.InsertStatisticsRequestToES(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, nPlayTime))
+                {
+                    Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. Req: ", mediaHitRequest.ToString()), "MediaHitRequest");
+                }
             }
 
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             return oMediaHitResponse;
         }
 
-        private bool WriteLiveViewsToES(MediaView oMediaView)
-        {
-            bool bRes = false;
-            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+        //private bool WriteLiveViewsToES(MediaView oMediaView)
+        //{
+        //    bool bRes = false;
+        //    ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
-            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
+        //    string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+        //    string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
 
-            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-            {
-                Guid guid = Guid.NewGuid();
+        //    if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+        //    {
+        //        Guid guid = Guid.NewGuid();
 
-                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
+        //        bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
-                if (!bRes)
-                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
-            }
+        //        if (!bRes)
+        //            _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
+        //    }
 
-            return bRes;
-        }
+        //    return bRes;
+        //}
     }
 }

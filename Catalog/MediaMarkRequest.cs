@@ -185,12 +185,16 @@ namespace Catalog
 
                 if (nActionID != 0)
                 {
-                    CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID,
-                                                            nCDNID, nActionID, nCountryID, nPlayerID, this.m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID);
+                    CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
+                                                            nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
 
                     if (IsFirstPlay(nActionID)) // update only when first_play
                     {
-                            ApiDAL.Update_MediaViews(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID);
+                        ApiDAL.Update_MediaViews(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID);
+                        if (!Catalog.InsertStatisticsRequestToES(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, nPlayTime))
+                        {
+                            Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
+                        }
                     }
                 }
                 else
@@ -296,7 +300,7 @@ namespace Catalog
                             isConcurrent = true;
                         }
                         else
-                        {   
+                        {
                             Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, nDomainID);
                         }
                         break;

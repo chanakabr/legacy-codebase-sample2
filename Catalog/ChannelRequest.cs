@@ -93,7 +93,6 @@ namespace Catalog
                 {
                     channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage());
 
-                    DateTime start = DateTime.Now;
                     List<int> medias = new List<int>();
                     int nPageIndex = 0;
                     int nPageSize = 0;
@@ -187,12 +186,11 @@ namespace Catalog
 
                     if (medias == null || medias.Count() == 0)
                     {
-                        _logger.Info("No Media Found");
                         response.m_nMedias = null;
                         response.m_nTotalItems = 0;
                         return response;
                     }
-                    _logger.Info(string.Format("{0} : {1} ", medias.Count(), "MediasId returned"));
+                    
 
                     response.m_nTotalItems = nTotalItems;
 
@@ -236,20 +234,20 @@ namespace Catalog
         private List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
         {
             List<int> result;
-
+            DateTime now = DateTime.UtcNow;
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "mediahit");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_MEDIA_HIT);
                     break;
                 case OrderBy.RATING:
-                    result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rates", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
+                    result = Catalog.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
                     break;
                 case OrderBy.VOTES_COUNT:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "rates");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES);
                     break;
                 case OrderBy.LIKE_COUNTER:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "like");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_LIKE);
                     break;
                 default:
                     result = media;
