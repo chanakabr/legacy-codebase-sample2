@@ -5190,30 +5190,29 @@ namespace ConditionalAccess
                             if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
                                 bOK = true;
                         }
-                        if (!bOK)
+                        if (!bOK && !bDummy)
                         {
-                            if (!bDummy)
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "This PPVModule does not belong to item";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        }
+                        
+                        if (bDummy)
+                        {
+                            bOK = true;
+                            if (nCount > 0)
                             {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                            }
-                            else
-                            {
-                                bOK = true;
-                                if (nCount > 0)
-                                {
-                                    sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
-                                    dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
-                                    sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                    if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
-                                    { // Cinepolis patch
-                                        dPrice = 0d;
-                                    }
+                                sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
+                                dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
+                                sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                                if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                                { // Cinepolis patch
+                                    dPrice = 0d;
                                 }
                             }
                         }
+
                         if (bOK)
                         {
                             PriceReason theReason = PriceReason.UnKnown;
@@ -7666,7 +7665,7 @@ namespace ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
-            if (theSub != null && theSub.m_oPreviewModule != null &&  theSub.m_oPreviewModule.m_tsFullLifeCycle != null && previewEntitled)
+            if (theSub != null && theSub.m_oPreviewModule != null && theSub.m_oPreviewModule.m_tsFullLifeCycle != null && previewEntitled)
             {
                 sb.Append("<prevlc>");
                 sb.Append(theSub.m_oPreviewModule.m_tsFullLifeCycle);
