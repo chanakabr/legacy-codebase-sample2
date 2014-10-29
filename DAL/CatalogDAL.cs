@@ -1748,7 +1748,7 @@ namespace Tvinci.Core.DAL
             string res = string.Empty;
             StoredProcedure sp = new StoredProcedure("GetOrInsert_PlayCycleKey");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@SiteGuid", siteGuid ?? string.Empty);
             sp.AddParameter("@MediaID", mediaID);
             sp.AddParameter("@MediaFileID", mediaFileID);
             sp.AddParameter("@DeviceUDID", udid);

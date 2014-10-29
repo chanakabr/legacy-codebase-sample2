@@ -1907,7 +1907,7 @@ namespace Catalog
             }
         }
 
-        private static bool GetDataForGetAssetStatsFromES(int parentGroupID, List<int> assetIDs, DateTime startDate,
+        private static void GetDataForGetAssetStatsFromES(int parentGroupID, List<int> assetIDs, DateTime startDate,
             DateTime endDate, StatsType type, Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(parentGroupID);
@@ -1964,8 +1964,6 @@ namespace Catalog
                         break;
                     }
             }
-
-            return true;
 
         }
 

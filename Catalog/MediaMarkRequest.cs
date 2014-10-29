@@ -134,7 +134,10 @@ namespace Catalog
                     isTerminateRequest = true;
                     if (mediaMarkAction == MediaPlayActions.FIRST_PLAY)
                     {
-                        CatalogDAL.Insert_NewPlayCycleKey(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
+                        //CatalogDAL.Insert_NewPlayCycleKey(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
+                        Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                            m_nGroupID, nMediaTypeID, nPlayTime, true, m_oMediaPlayRequestData.m_sSiteGuid,
+                            m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
                 else
@@ -198,7 +201,7 @@ namespace Catalog
                         //    Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
                         //}
                         Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
-                            m_nGroupID, nMediaTypeID, nPlayTime));
+                            m_nGroupID, nMediaTypeID, nPlayTime, false, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
                 else
@@ -210,8 +213,13 @@ namespace Catalog
             return oMediaMarkResponse;
         }
 
-        private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime)
+        private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
+            bool isAnonymousUser, string siteGuid, string udid, int platform, int countryID)
         {
+            if (isAnonymousUser)
+            {
+                CatalogDAL.Insert_NewPlayCycleKey(groupID, mediaID, mediaFileID, siteGuid, platform, udid, countryID, string.Empty);
+            }
             ApiDAL.Update_MediaViews(mediaID, mediaFileID);
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
             {
