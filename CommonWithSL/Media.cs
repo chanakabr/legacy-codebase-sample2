@@ -35,10 +35,10 @@ namespace CommonWithSL
         {
             get
             {
-                /*if (Tags != null && Tags.ContainsKey("Product type") && Tags["Product type"] == CommonWithSL.Enums.ProductType.FVOD)
+                if (Tags != null && Tags.ContainsKey("Product type") && Tags["Product type"] == CommonWithSL.Enums.ProductType.FVOD)
                 {
                     return true;
-                }*/
+                }
                 return false;
             }
         }
