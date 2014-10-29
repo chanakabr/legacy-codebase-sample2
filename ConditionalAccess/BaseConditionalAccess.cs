@@ -3013,6 +3013,9 @@ namespace ConditionalAccess
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref TvinciDomains.Domain userDomain)
         {
+            if (Utils.IsAnonymousUser(sSiteGUID))
+                return true;
+
             TvinciUsers.UsersService u = null;
             TvinciDomains.module domainsWS = null;
             bool isDeviceRecognized = false;
@@ -3783,7 +3786,7 @@ namespace ConditionalAccess
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
                 }
 
-                DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs);
+                DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs, sPPVMCd);
 
                 if (dtPPVUses != null && dtPPVUses.Rows != null && dtPPVUses.Rows.Count > 0)
                 {
@@ -10086,10 +10089,9 @@ namespace ConditionalAccess
             try
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
-                int streamingCoID = 0;
-                TvinciDomains.Domain userDomain = null;
+                int streamingCoID = 0;               
 
-                if ((sBasicLink != null && nMediaFileID > 0) && (Utils.IsAnonymousUser(sSiteGuid) || isDevicePlayValid(sSiteGuid, sDeviceName, ref userDomain)))
+                if ((!string.IsNullOrEmpty(sBasicLink) && nMediaFileID > 0))
                 {
                     if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                     {
@@ -10118,10 +10120,10 @@ namespace ConditionalAccess
                                 fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
                             if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
-                            {
-                                if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
+                            {   
+                                if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()))
                                 {
-                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, sUserIP, nMediaFileID, sDeviceName, prices, nMediaID, ref lRuleIDS, userDomain);
+                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
                                     if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                     {
                                         if (IsItemPurchased(prices[0]))
@@ -10132,7 +10134,7 @@ namespace ConditionalAccess
                                         res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                         licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                         res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
-
+                                        res.status = mediaConcurrencyResponse.ToString();
                                         // create PlayCycle
                                         CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
                                     }
@@ -10140,66 +10142,67 @@ namespace ConditionalAccess
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                                        res.status = mediaConcurrencyResponse.ToString();
 
-                                        Logger.Logger.Log("Media Concurrency", string.Format("user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
+                                        Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
+                                            mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
                                     }
                                 }
                                 else
                                 {
                                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                                    res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
 
-                                    Logger.Logger.Log("Error ValidateBaseLink", string.Format("user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
+                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", 
+                                        sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
                                 }
                             }
                             else
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                                res.status = eLicensedLinkStatus.InvalidPrice.ToString();
 
-                                Logger.Logger.Log("Price not valid", string.Format("user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, nMediaFileID,
-                                    prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
+                                Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, 
+                                    nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
                             }
                         }
                         else
                         {
-                            // failed to retrieve data from catalog.
-                            #region Logging
-                            StringBuilder catalogErr = new StringBuilder("Error at GetLicensedLinks. Failed to retrieve data from Catalog. ");
-                            catalogErr.Append(String.Concat("Site Guid: ", sSiteGuid));
-                            catalogErr.Append(String.Concat(" MF ID: ", nMediaFileID));
-                            catalogErr.Append(String.Concat(" User IP: ", sUserIP));
-                            catalogErr.Append(String.Concat(" this is: ", this.GetType().Name));
+                            res.altUrl = GetErrorLicensedLink(sBasicLink);
+                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                            res.status = eLicensedLinkStatus.InvalidFileData.ToString();
 
-                            Logger.Logger.Log("Error", catalogErr.ToString(), GetLogFilename());
-                            #endregion
+                            Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
+                                sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
                         }
                     }
                     else
                     {
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
 
-                        Logger.Logger.Log("Error", string.Format("GetItemsPrices (GetLicensedLinks) Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
+                        Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                     }
                 }
                 else
                 {
-                    // log here that input is incorrect
-                    #region Logging
-                    StringBuilder inputWrong = new StringBuilder("Error at GetLicensedLinks. Either input is invalid or the device is not valid. ");
-                    inputWrong.Append(String.Concat("Site Guid: ", sSiteGuid));
-                    inputWrong.Append(String.Concat(" Media File ID: ", nMediaFileID));
-                    inputWrong.Append(String.Concat(" Basic Link: ", sBasicLink));
-                    inputWrong.Append(String.Concat(" Device Name: ", sDeviceName));
+                    res.altUrl = GetErrorLicensedLink(sBasicLink);
+                    res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
 
-                    Logger.Logger.Log("Error", inputWrong.ToString(), GetLogFilename());
-
-                    #endregion
+                    Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
+                        sSiteGuid, nMediaFileID, sDeviceName, sBasicLink), GetLogFilename());
                 }
             }
             catch (Exception ex)
             {
+                res.altUrl = GetErrorLicensedLink(sBasicLink);
+                res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                res.status = eLicensedLinkStatus.Error.ToString();
+
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
@@ -10237,8 +10240,8 @@ namespace ConditionalAccess
             Tvinci.Core.DAL.CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, nMediaID, nMediaFileID, sSiteGuid, 0, sDeviceName, nCountryID, sPlayCycleKey, nRuleID);
         }
 
-        private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, string sUserIP, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices, int nMediaID, ref List<int> lRuleIDS, TvinciDomains.Domain userDomain)
-
+        private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
+            int nMediaID, string sUserIP, ref List<int> lRuleIDS)
         {
             TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
             TvinciDomains.module domainsWS = null;
@@ -10251,7 +10254,6 @@ namespace ConditionalAccess
 
             try
             {
-                
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
 
@@ -10283,29 +10285,29 @@ namespace ConditionalAccess
                 }
 
                 TvinciAPI.MediaConcurrencyRule[] mcRules = apiWs.GetMediaConcurrencyRules(sWSUserName, sWSPass, nMediaID, sUserIP, bmID, eBM);
+                TvinciDomains.ValidationResponseObject validationResponse = new TvinciDomains.ValidationResponseObject();
+                /*MediaConurrency Check */
+                domainsWS = new TvinciDomains.module();
+                sWSUserName = string.Empty;
+                sWSPass = string.Empty;
+
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
+                sWSURL = Utils.GetWSURL("domains_ws");
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    domainsWS.Url = sWSURL;
+                }
+                int nDeviceFamilyBrand = 0;
+                long lSiteGuid = 0;
+                long.TryParse(sSiteGuid, out lSiteGuid);
+
                 if (mcRules != null && mcRules.Count() > 0)
                 {
-                    /*MediaConurrency Check */
-                    domainsWS = new TvinciDomains.module();
-                    sWSUserName = string.Empty;
-                    sWSPass = string.Empty;
-
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
-                    sWSURL = Utils.GetWSURL("domains_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        domainsWS.Url = sWSURL;
-                    }
-                    int nDeviceFamilyBrand = 0;
-                    int domainID = userDomain.m_nDomainID;
-                    long lSiteGuid = 0;
-                    long.TryParse(sSiteGuid, out lSiteGuid);
-
                     foreach (TvinciAPI.MediaConcurrencyRule mcRule in mcRules)
                     {
                         lRuleIDS.Add(mcRule.RuleID); // for future use
 
-                        TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
+                        validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
@@ -10313,6 +10315,13 @@ namespace ConditionalAccess
                         }
                     }
                 }
+                else
+                {
+                    validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
+                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
+                    response = validationResponse.m_eStatus;
+                }
+                return response;
             }
             catch (Exception ex)
             {
@@ -10342,7 +10351,6 @@ namespace ConditionalAccess
             }
 
             return response;
-
         }
 
         private Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,

@@ -1494,19 +1494,22 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_AllDomainPPVUsesByMediaFiles(long groupID, List<int> usersInDomain, List<int> relatedMediaFileIDs)
+        public static DataTable Get_AllDomainPPVUsesByMediaFiles(long groupID, List<int> usersInDomain, List<int> relatedMediaFileIDs, string sPPVMCd)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllDomainPPVUsesByMediaFiles");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddIDListParameter<int>("@UsersInDomain", usersInDomain, "Id");
             sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
             sp.AddParameter("@GroupID", groupID);
-
+            if (!string.IsNullOrEmpty(sPPVMCd))
+            {
+                sp.AddParameter("@PPVModuleCode", sPPVMCd);
+            }
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static bool Get_LatestMediaFilesUse(List<int> usersList, List<int> mediaFileIDs, ref string ppvModuleCode,
             ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
