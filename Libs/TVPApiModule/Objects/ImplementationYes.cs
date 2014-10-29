@@ -688,7 +688,9 @@ namespace TVPApiModule.Objects
                 retVal = new UserResponse()
                 {
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
+                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK.ToString(),
                     StatusCode = eulaRes
+                   
                 };
             }
             else
@@ -696,6 +698,7 @@ namespace TVPApiModule.Objects
                 retVal = new UserResponse()
                 {
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
+                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString(),
                     StatusCode = eulaRes
                 };
             }

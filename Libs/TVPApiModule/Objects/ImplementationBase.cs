@@ -134,14 +134,16 @@ namespace TVPApiModule.Objects
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
+                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK.ToString()
                 };
             }
             else
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError
+                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
+                    Message= TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString()
                 };
             }
             return retVal;
