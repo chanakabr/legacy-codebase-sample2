@@ -513,7 +513,7 @@ namespace Tvinci.Core.DAL
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
                 var data = m_oClient.GetWithCas<string>(docKey);
-                var dev = new UserMediaMark()
+                UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
                     UDID = sUDID,
@@ -533,7 +533,7 @@ namespace Tvinci.Core.DAL
                 else
                 {
                     mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
-                    var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+                    UserMediaMark existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
                         mm.devices.Remove(existdev);
@@ -557,7 +557,7 @@ namespace Tvinci.Core.DAL
             while (limitRetries >= 0)
             {
                 var data = m_oClient.GetWithCas<string>(mmKey);
-                var dev = new UserMediaMark()
+                UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
                     UDID = sUDID,
@@ -576,7 +576,7 @@ namespace Tvinci.Core.DAL
                 else
                 {
                     umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
-                    var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+                    UserMediaMark existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
                         umm.devices.Remove(existdev);
