@@ -116,10 +116,7 @@ namespace Catalog
                 Int32.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
             int nCountryID = 0;
-            //int nCountryID = Catalog.GetCountryIDByIP(m_sUserIP);
-            //Catalog.GetMediaPlayData(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
-            //                         ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID
-            //);
+
             if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                 ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
             {
@@ -134,7 +131,6 @@ namespace Catalog
                     isTerminateRequest = true;
                     if (mediaMarkAction == MediaPlayActions.FIRST_PLAY)
                     {
-                        //CatalogDAL.Insert_NewPlayCycleKey(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
                         Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                             m_nGroupID, nMediaTypeID, nPlayTime, true, m_oMediaPlayRequestData.m_sSiteGuid,
                             m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
@@ -145,7 +141,7 @@ namespace Catalog
                     bool isError = false;
                     bool isConcurrent = false;
                     HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay,/* ref sPlayCycleKey,*/ ref isConcurrent, ref isError, ref nSwhoosh);
+                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh);
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
@@ -173,13 +169,6 @@ namespace Catalog
                 {
                     if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
                     {
-                        //if (string.IsNullOrEmpty(sPlayCycleKey))
-                        //{
-                        //    sPlayCycleKey = Catalog.GetLastPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, nPlatform, nCountryID);
-                        //}
-                        //CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
-                        //                              nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
-                        //                              m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
                         CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID,
                             m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
                             nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
@@ -192,14 +181,8 @@ namespace Catalog
                     CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
                                                             nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
 
-                    if (IsFirstPlay(nActionID)) // update only when first_play
+                    if (IsFirstPlay(nActionID))
                     {
-                        //old
-                        //ApiDAL.Update_MediaViews(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID);
-                        //if (!Catalog.InsertStatisticsRequestToES(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, nPlayTime))
-                        //{
-                        //    Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
-                        //}
                         Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                             m_nGroupID, nMediaTypeID, nPlayTime, false, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
@@ -233,7 +216,7 @@ namespace Catalog
         }
 
         private void HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
-                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, /*ref string sPlayCycleKey, */ref bool isConcurrent, ref bool isError, ref int nSwoosh)
+                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh)
         {
             if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
             {

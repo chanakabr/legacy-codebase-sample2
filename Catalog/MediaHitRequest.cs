@@ -120,9 +120,7 @@ namespace Catalog
             }
 
             int nCountryID = 0;
-            //int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
 
-            //Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
             if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                 ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
             {
@@ -137,11 +135,6 @@ namespace Catalog
             //non-anonymous user
             if (nSiteGuid != 0)
             {
-                //string sPlayCycleKey = Catalog.GetLastPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, nPlatform, nCountryID);
-
-                //CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                //                              nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
-                //                              nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
                 CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID,
                     m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad,
                     nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
@@ -165,18 +158,6 @@ namespace Catalog
             //if this is not a bit rate change, log for mediahit for statistics
             if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
             {
-
-                //int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
-
-                // very old
-                //MediaView view = new MediaView() { GroupID = nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
-                //WriteLiveViewsToES(view);
-
-                //old
-                //if (!Catalog.InsertStatisticsRequestToES(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, nPlayTime))
-                //{
-                //    Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. Req: ", mediaHitRequest.ToString()), "MediaHitRequest");
-                //}
                 Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, nPlayTime));
             }
 
@@ -192,25 +173,5 @@ namespace Catalog
             }
         }
 
-        //private bool WriteLiveViewsToES(MediaView oMediaView)
-        //{
-        //    bool bRes = false;
-        //    ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-        //    string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
-        //    string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
-
-        //    if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-        //    {
-        //        Guid guid = Guid.NewGuid();
-
-        //        bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
-
-        //        if (!bRes)
-        //            _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
-        //    }
-
-        //    return bRes;
-        //}
     }
 }

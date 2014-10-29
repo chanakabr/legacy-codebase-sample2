@@ -51,6 +51,7 @@ namespace Catalog
         internal static readonly string STAT_ACTION_LIKE = "like";
         internal static readonly string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
+        internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
 
         internal static int GetCurrentRequestDaysOffset()
         {
@@ -1933,9 +1934,9 @@ namespace Catalog
 
                         Dictionary<int, int> views = null, likes = null;
                         List<ESTermsStatsFacet.StatisticFacetResult> rates = null;
-                        viewsRaw.TryGetValue("sliding_window", out views);
-                        likesRaw.TryGetValue("sliding_window", out likes);
-                        ratesRaw.TryGetValue("sliding_window", out rates);
+                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
+                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
+                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
                         InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0), 
                             likes != null ? likes : new Dictionary<int, int>(0), 
                             rates != null ? rates : new List<ESTermsStatsFacet.StatisticFacetResult>(0));
@@ -1950,7 +1951,7 @@ namespace Catalog
                         {
                             Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref esResp);
                             Dictionary<int, int> likes = null;
-                            likesRaw.TryGetValue("sliding_window", out likes);
+                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
                             if (likes != null && likes.Count > 0)
                             {
                                 InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
@@ -2019,51 +2020,6 @@ namespace Catalog
 
             return res;
         }
-
-        //public static Dictionary<string, Dictionary<string, int>> FacetResults(ref string resJson)
-        //{
-        //    Dictionary<string, Dictionary<string, int>> dFacetResults = new Dictionary<string, Dictionary<string, int>>();
-        //    if (!string.IsNullOrEmpty(resJson))
-        //    {
-        //        try
-        //        {
-        //            var jObject = JObject.Parse(resJson);
-        //            var facets = jObject["facets"];
-
-        //            foreach (JToken token in facets)
-        //            {
-        //                var facetKey = token.Value<JProperty>();
-        //                var fkey = facetKey.Name;
-        //                var fvalue = facetKey.Value;
-
-        //                var terms = fvalue["terms"];
-
-        //                var dict = new Dictionary<string, int>();
-        //                foreach (JToken term in terms)
-        //                {
-        //                    try
-        //                    {
-        //                        var tm = term["term"];
-        //                        var count = term["count"];
-        //                        dict[tm.Value<string>()] = count.Value<int>();
-        //                    }
-        //                    catch (Exception ex)
-        //                    {
-        //                        Logger.Logger.Log("Error", string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
-        //                    }
-        //                }
-
-        //                dFacetResults[fkey] = dict;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Logger.Logger.Log("Error", string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
-        //        }
-        //    }
-
-        //    return dFacetResults;
-        //}
 
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
@@ -2770,7 +2726,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet("sliding_window", "media_id", 100000);
+            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 100000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -2799,7 +2755,7 @@ namespace Catalog
                 {
                     Dictionary<string, int> dFacetResult;
                     //retrieve channel_views facet results
-                    dFacets.TryGetValue("sliding_window", out dFacetResult);
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
 
                     if (dFacetResult != null && dFacetResult.Count > 0)
                     {
@@ -2852,7 +2808,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 100000);
+            ESTermsStatsFacet facet = new ESTermsStatsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", valueField, 100000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -2881,7 +2837,7 @@ namespace Catalog
                 {
                     List<ESTermsStatsFacet.StatisticFacetResult> lFacetResult;
                     //retrieve channel_views facet results
-                    dFacets.TryGetValue("sliding_window", out lFacetResult);
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out lFacetResult);
 
                     if (lFacetResult != null && lFacetResult.Count > 0)
                     {
