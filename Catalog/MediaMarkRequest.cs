@@ -53,7 +53,7 @@ namespace Catalog
 
                 if (oBaseRequest != null)
                 {
-                    oMediaMarkRequest = (MediaMarkRequest)oBaseRequest;
+                    oMediaMarkRequest = oBaseRequest as MediaMarkRequest;
                     oMediaMarkResponse = ProcessMediaMarkRequest(oMediaMarkRequest);
                 }
                 else

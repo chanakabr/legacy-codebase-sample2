@@ -54,7 +54,7 @@ namespace Catalog
 
                 if (oBaseRequest != null)
                 {
-                    oMediaHitRequest = (MediaHitRequest)oBaseRequest;
+                    oMediaHitRequest = oBaseRequest as MediaHitRequest;
                     oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
                 }
                 else
@@ -108,15 +108,15 @@ namespace Catalog
 
             MediaPlayActions action;
 
-            if (this.m_oMediaPlayRequestData.m_nLoc > 0)
+            if (m_oMediaPlayRequestData.m_nLoc > 0)
             {
-                nPlayTime = this.m_oMediaPlayRequestData.m_nLoc;
+                nPlayTime = m_oMediaPlayRequestData.m_nLoc;
             }
-            int.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
+            int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
             if (this.m_oFilter != null)
             {
-                int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
+                int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
 
             int nCountryID = 0;
@@ -129,10 +129,10 @@ namespace Catalog
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
 
-            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
+            bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             int nSiteGuid;
-            int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
             //non-anonymous user
             if (nSiteGuid != 0)
@@ -166,7 +166,7 @@ namespace Catalog
             if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
             {
 
-                int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
+                //int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
 
                 // very old
                 //MediaView view = new MediaView() { GroupID = nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
