@@ -21,6 +21,8 @@ using StatisticsBL;
 using ApiObjects.Statistics;
 using GroupsCacheManager;
 using DalCB;
+using ElasticSearch.Searcher;
+using Newtonsoft.Json.Linq;
 
 namespace Catalog
 {
@@ -44,6 +46,12 @@ namespace Catalog
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
+        internal static readonly string STAT_ACTION_MEDIA_HIT = "mediahit";
+        internal static readonly string STAT_ACTION_FIRST_PLAY = "firstplay";
+        internal static readonly string STAT_ACTION_LIKE = "like";
+        internal static readonly string STAT_ACTION_RATES = "rates";
+        internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
+        internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
 
         internal static int GetCurrentRequestDaysOffset()
         {
@@ -1105,20 +1113,6 @@ namespace Catalog
             }
         }
 
-        public static string GetLastPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
-        {
-            string retVal = string.Empty;
-            retVal = CatalogDAL.Get_LastPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-
-            if (string.IsNullOrEmpty(retVal))
-            {
-                retVal = Guid.NewGuid().ToString();
-                CatalogDAL.Insert_NewPlayCycleKey(nGroupID, nMediaID, nMediaFileID, sSiteGuid, nPlatform, sUDID, nCountryID, retVal);
-            }
-
-            return retVal;
-        }
-
         private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
         {
             return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
@@ -1133,29 +1127,6 @@ namespace Catalog
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
             if (nDomainID > 0)
                 CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
-        }
-
-        public static int GetCountryIDByIP(string sIP)
-        {
-            int retCountryID = 0;
-
-            if (!string.IsNullOrEmpty(sIP))
-            {
-                long nIPVal = 0;
-                string[] splited = sIP.Split('.');
-
-                if (splited != null && splited.Length >= 3)
-                {
-                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-                }
-
-                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-                if (dtCountry != null && dtCountry.Rows.Count > 0)
-                {
-                    retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
-                }
-            }
-            return retCountryID;
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -1937,6 +1908,119 @@ namespace Catalog
             }
         }
 
+        private static void GetDataForGetAssetStatsFromES(int parentGroupID, List<int> assetIDs, DateTime startDate,
+            DateTime endDate, StatsType type, Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
+        {
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(parentGroupID);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            
+
+            switch (type)
+            {
+                case StatsType.MEDIA:
+                    {
+                        List<string> facets = new List<string>(3);
+                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
+                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
+                        facets.Add(BuildSlidingWindowStatisticsFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, facets, null);
+                        List<string> responses = ParseResponsesFromMultiFacet(esResp);
+                        string currResp = responses[0];
+                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        currResp = responses[1];
+                        Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        currResp = responses[2];
+                        Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratesRaw = ESTermsStatsFacet.FacetResults(ref currResp);
+
+                        Dictionary<int, int> views = null, likes = null;
+                        List<ESTermsStatsFacet.StatisticFacetResult> rates = null;
+                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
+                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
+                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
+                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0), 
+                            likes != null ? likes : new Dictionary<int, int>(0), 
+                            rates != null ? rates : new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                        break;
+                    }
+                case StatsType.EPG:
+                    {
+                        // in epg we bring just likes
+                        string likesFacet = BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
+                        string esResp = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesFacet);
+                        if (!string.IsNullOrEmpty(esResp))
+                        {
+                            Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref esResp);
+                            Dictionary<int, int> likes = null;
+                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
+                            if (likes != null && likes.Count > 0)
+                            {
+                                InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
+                                    new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                            }
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
+
+        }
+
+        private static void InjectResultsIntoAssetStatsResponse(Dictionary<int, AssetStatsResult> assetIDsToStatsMapping,
+            Dictionary<int, int> views, Dictionary<int, int> likes,
+            List<ESTermsStatsFacet.StatisticFacetResult> rates)
+        {
+
+            // views and likes
+
+            foreach (KeyValuePair<int, AssetStatsResult> kvp in assetIDsToStatsMapping)
+            {
+                if (views.ContainsKey(kvp.Key))
+                {
+                    kvp.Value.m_nViews = views[kvp.Key];
+                }
+                if (likes.ContainsKey(kvp.Key))
+                {
+                    kvp.Value.m_nLikes = likes[kvp.Key];
+                }
+            }
+
+            // rates
+            for (int i = 0; i < rates.Count; i++)
+            {
+                int assetId = 0;
+
+                if (Int32.TryParse(rates[i].term, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
+                {
+                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].mean;
+                }
+
+            }
+        }
+
+        private static List<string> ParseResponsesFromMultiFacet(string esResp)
+        {
+            List<string> res = new List<string>();
+            if (!string.IsNullOrEmpty(esResp))
+            {
+                JObject jObj = JObject.Parse(esResp);
+                JToken responses = jObj["responses"];
+                if (responses != null && responses.Count() > 0)
+                {
+                    foreach (var response in responses)
+                    {
+                        res.Add(response.ToString());
+                    }
+                }
+
+
+            }
+
+            return res;
+        }
+
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
@@ -1956,12 +2040,12 @@ namespace Catalog
                         {
                             /*
                              * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
-                             */ 
+                             */
                             Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
 
                             if (dict.Count > 0)
                             {
-                                foreach(KeyValuePair<int, int[]> kvp in dict) 
+                                foreach (KeyValuePair<int, int[]> kvp in dict)
                                 {
                                     if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
                                     {
@@ -1971,9 +2055,9 @@ namespace Catalog
                                         assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
                                         if (votesCount > 0)
                                         {
-                                            assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double) kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
+                                            assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double)kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
                                         }
-                                        if(isBuzzNotEmpty) 
+                                        if (isBuzzNotEmpty)
                                         {
                                             string strAssetID = kvp.Key.ToString();
                                             if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
@@ -1998,64 +2082,11 @@ namespace Catalog
                         {
                             /*
                              * When we have valid dates in Media Asset Stats request we fetch the data as follows:
-                             * 1. Views are taking by counting how many times each media appears in play_cycle_keys table in SQL DB.
-                             * 2. VotesSum, VotesCount, Likes are taken from CB social bucket.
+                             * 1. Views Rating and Likes from ES statistics index.
                              * 
-                             */ 
-
-                            // bring media views from SQL DB.
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
-                            if (dict.Count > 0)
-                            {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
-                                {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                                    {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        if (isBuzzNotEmpty)
-                                        {
-                                            string strAssetID = kvp.Key.ToString();
-                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                            {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                            }
-                                            else
-                                            {
-                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
-                                            }
-                                        }
-                                    }
-                                } // foreach
-                            }
-                            else
-                            {
-                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
-                            }
-
-                            // bring social actions from CB social bucket
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) => 
-                                { 
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate); 
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                    }
-                                }
-                                tasks[i].Dispose();
-                            }
+                             * 
+                             */
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
 
                         }
 
@@ -2066,7 +2097,7 @@ namespace Catalog
                         /*
                          * Notice: In EPG we bring only likes!!
                          * 
-                         */ 
+                         */
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
                             /*
@@ -2079,10 +2110,13 @@ namespace Catalog
                             {
                                 for (int i = 0; i < lEpg.Count; i++)
                                 {
-                                    int currEpgId = (int)lEpg[i].EPG_ID;
-                                    if (assetIdToAssetStatsMapping.ContainsKey(currEpgId))
+                                    if (lEpg[i] != null)
                                     {
-                                        assetIdToAssetStatsMapping[currEpgId].m_nLikes = lEpg[i].LIKE_COUNTER;
+                                        int currEpgId = (int)lEpg[i].EPG_ID;
+                                        if (assetIdToAssetStatsMapping.ContainsKey(currEpgId))
+                                        {
+                                            assetIdToAssetStatsMapping[currEpgId].m_nLikes = lEpg[i].LIKE_COUNTER;
+                                        }
                                     }
                                 } // for
                             }
@@ -2095,31 +2129,8 @@ namespace Catalog
                         }
                         else
                         {
-                            // we bring data from social bucket in CB.
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                {
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                    }
-                                }
-                                tasks[i].Dispose();
-                            }
-
+                            // we bring data from ES statistics index.
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                         }
                         break;
                     }
@@ -2131,45 +2142,6 @@ namespace Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
-        }
-
-        private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
-            DateTime startDate, DateTime endDate)
-        {
-            SocialDAL_Couchbase socialDal = new SocialDAL_Couchbase(groupId);
-            AssetStatsResult.SocialPartialAssetStatsResult res = new AssetStatsResult.SocialPartialAssetStatsResult() { assetId = assetId };
-            switch (statsTypes)
-            {
-                case StatsType.MEDIA:
-                    {
-                        // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
-                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
-                        int votesCount = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
-                        double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
-                        if (votesCount > 0)
-                        {
-                            res.rate = votesSum / votesCount;
-                        }
-                        else
-                        {
-                            res.rate = 0d;
-                        }
-                        break;
-                    }
-                case StatsType.EPG:
-                    {
-                        // in epg we bring just likes.
-                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.PROGRAM, eUserAction.LIKE, startDate, endDate);
-                        res.rate = 0d;
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            } // switch
-
-            return res;
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
@@ -2421,7 +2393,7 @@ namespace Catalog
                 sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID);
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0, nMediaID);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;
@@ -2589,6 +2561,303 @@ namespace Catalog
             }
         }
 
+        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
+        {
+            List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
+
+            #region Define Facet Query
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupID.ToString() });
+
+            #region define date filter
+            ESRange dateRange = new ESRange(false) { Key = "action_date" };
+            string sMax = DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            string sMin = DateTime.UtcNow.AddSeconds(-30.0).ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            filter.AddChild(dateRange);
+            #endregion
+
+            #region define action filter
+            ESTerms esActionTerm = new ESTerms(false) { Key = "action" };
+            esActionTerm.Value.Add(STAT_ACTION_MEDIA_HIT);
+            filter.AddChild(esActionTerm);
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
+            facet.Query = filteredQuery;
+            #endregion
+
+            string sFacetQuery = facet.ToString();
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupID);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue("channel_views", out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nChannelID;
+                            if (int.TryParse(sFacetKey, out nChannelID))
+                            {
+                                channelViews.Add(new ChannelViewsResult(nChannelID, count));
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return channelViews;
+        }
+
+        internal static bool IsAnonymousUser(string siteGuid)
+        {
+            int nSiteGuid = 0;
+            return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
+        }
+
+        internal static bool GetMediaMarkHitInitialData(string userIP, int mediaID, int mediaFileID, ref int countryID,
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        {
+            bool res = false;
+            long ipVal = ParseIPOutOfString(userIP);
+            if (ipVal > 0)
+            {
+                if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID,
+                    ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                {
+                    res = true;
+                }
+            }
+
+            return res;
+        }
+
+
+        private static long ParseIPOutOfString(string userIP)
+        {
+            long nIPVal = 0;
+
+            if (!string.IsNullOrEmpty(userIP))
+            {
+                string[] splited = userIP.Split('.');
+
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+            }
+
+            return nIPVal;
+
+        }
+
+        internal static bool InsertStatisticsRequestToES(int groupID, int mediaID, int mediaTypeID, string action, int playTime)
+        {
+            int parentGroupID = CatalogCache.GetParentGroup(groupID);
+            MediaView view = new MediaView() { GroupID = parentGroupID, MediaID = mediaID, Location = playTime, MediaType = mediaTypeID.ToString(), Action = action, Date = DateTime.UtcNow };
+
+            bool bRes = false;
+            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+
+            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(view);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(view.GroupID);
+
+            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+            {
+                string guidStr = Guid.NewGuid().ToString();
+
+                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guidStr, sJsonView);
+            }
+
+            return bRes;
+        }
+
+        private static string BuildSlidingWindowCountFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
+            string action)
+        {
+            #region Define Facet Query
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = groupID.ToString() });
+
+            #region define date filter
+            ESRange dateRange = new ESRange(false) { Key = "action_date" };
+            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            filter.AddChild(dateRange);
+            #endregion
+
+            #region define action filter
+            ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
+            filter.AddChild(esActionTerm);
+            #endregion
+
+            #region define media id filter
+            ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
+            esMediaIdTerms.Value.AddRange(mediaIDs.Select(item => item.ToString()));
+            filter.AddChild(esMediaIdTerms);
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 100000);
+            facet.Query = filteredQuery;
+            #endregion
+
+            return facet.ToString();
+        }
+
+        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+            DateTime dtEndDate, string action)
+        {
+            List<int> result = new List<int>();
+
+            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nMediaId;
+                            if (int.TryParse(sFacetKey, out nMediaId))
+                            {
+                                result.Add(nMediaId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static string BuildSlidingWindowStatisticsFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate,
+            DateTime endDate, string action, string valueField)
+        {
+            #region Define Facet Query
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = groupID.ToString() });
+
+            #region define date filter
+            ESRange dateRange = new ESRange(false) { Key = "action_date" };
+            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            filter.AddChild(dateRange);
+            #endregion
+
+            #region define action filter
+            ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
+            filter.AddChild(esActionTerm);
+            #endregion
+
+            #region define media id filter
+            ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
+            esMediaIdTerms.Value.AddRange(mediaIDs.Select(item => item.ToString()));
+            filter.AddChild(esMediaIdTerms);
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            ESTermsStatsFacet facet = new ESTermsStatsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", valueField, 100000);
+            facet.Query = filteredQuery;
+            #endregion
+
+            return facet.ToString();
+        }
+
+        internal static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+            DateTime dtEndDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
+        {
+            List<int> result = new List<int>();
+
+            string sFacetQuery = BuildSlidingWindowStatisticsFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
+                action, valueField);
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> dFacets = ESTermsStatsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    List<ESTermsStatsFacet.StatisticFacetResult> lFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out lFacetResult);
+
+                    if (lFacetResult != null && lFacetResult.Count > 0)
+                    {
+                        int mediaId;
+
+                        lFacetResult.Sort(new ESTermsStatsFacet.FacetCompare(compareType));
+
+                        foreach (var stats in lFacetResult)
+                        {
+                            if (int.TryParse(stats.term, out mediaId))
+                            {
+                                result.Add(mediaId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
 
     }
 
