@@ -1387,7 +1387,7 @@ namespace Tvinci.Core.DAL
                 return null;
 
             Random r = new Random();
-            var domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
 
             //Cleaning old ones...
             int limitRetries = RETRY_LIMIT;
