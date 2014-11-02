@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\APICrowdsourceLoader.cs" />
