@@ -7,7 +7,7 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
-  <wsdl:import namespace="" location="http://192.168.16.66/WS_Catalog/Service.svc?wsdl=wsdl0" />
+  <wsdl:import namespace="" location="http://192.168.192.146/webservices/catalog/Service.svc?wsdl=wsdl0" />
   <wsdl:types />
   <wsdl:binding name="WSHttpBinding_Iservice" type="Iservice">
     <wsp:PolicyReference URI="#WSHttpBinding_Iservice_policy" />
@@ -57,8 +57,44 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateChannelIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetProgramsByIDs">
       <soap12:operation soapAction="urn:Iservice/GetProgramsByIDs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateOperator">
+      <soap12:operation soapAction="urn:Iservice/UpdateOperator" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateEpgIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgIndex" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -69,9 +105,9 @@
   </wsdl:binding>
   <wsdl:service name="Service">
     <wsdl:port name="WSHttpBinding_Iservice" binding="tns:WSHttpBinding_Iservice">
-      <soap12:address location="http://192.168.16.66/WS_Catalog/Service.svc" />
+      <soap12:address location="http://192.168.192.146/webservices/catalog/Service.svc" />
       <wsa10:EndpointReference>
-        <wsa10:Address>http://192.168.16.66/WS_Catalog/Service.svc</wsa10:Address>
+        <wsa10:Address>http://192.168.192.146/webservices/catalog/Service.svc</wsa10:Address>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

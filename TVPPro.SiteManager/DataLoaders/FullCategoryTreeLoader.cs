@@ -6,6 +6,8 @@ using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.CategoriesTree;
 using Tvinci.Data.TVMDataLoader.Protocols.MH_CategoriesTree;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -62,6 +64,20 @@ namespace TVPPro.SiteManager.DataLoaders
             {
                 Parameters.SetParameter<string>(eParameterType.Retrieve, "TVMPass", value);
 
+            }
+        }
+
+        public override dsCategory Execute()
+        {
+            bool shouldUseNewCache;
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
+            {
+                CatalogLoaders.CategoryLoader categoryLoader = new CatalogLoaders.CategoryLoader(TVMUser, SiteHelper.GetClientIP(), CategoryId);
+                return categoryLoader.Execute() as dsCategory;
+            }
+            else
+            {
+                return base.Execute();
             }
         }
 
