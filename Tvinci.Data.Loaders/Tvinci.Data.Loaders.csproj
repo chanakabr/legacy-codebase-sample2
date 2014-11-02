@@ -96,22 +96,11 @@
     <None Include="Service References\TvinciPlatform.Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service21.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service3.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service4.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service41.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service42.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service43.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service5.xsd">
@@ -146,7 +135,16 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <WCFMetadataStorage Include="Service References\TvinciPlatform.Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\TvinciPlatform.Catalog\configuration91.svcinfo" />
@@ -162,18 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\TvinciPlatform.Catalog\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
-      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
-      <Name>TVPPro.Configuration</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\Service2.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
