@@ -19,5 +19,14 @@ namespace ApiObjects.MediaMarks
         public int Location { get; set; }
         [JsonProperty("ts")]
         public DateTime CreatedAt { get; set; }
+
+        public class UMMDateComparer : IComparer<UserMediaMark>
+        {
+
+            public int Compare(UserMediaMark x, UserMediaMark y)
+            {
+                return x.CreatedAt.CompareTo(y.CreatedAt);
+            }
+        }
     }
 }
