@@ -333,9 +333,9 @@ namespace CouchbaseMediaMarksFeeder
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at WriteUserMediaJSONFile. Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Filename: ", filename));
-                sb.Append(String.Concat(" JSON: ", outputJson));
-                sb.Append(String.Concat(" At iteration num: ", iteration));
+                sb.Append(String.Concat(" Filename: |~~~|", filename));
+                sb.Append(String.Concat("|~~~| JSON: |~%~|", outputJson));
+                sb.Append(String.Concat("|~%~| At iteration num: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), UM_JSONS_LOG_FILE);
@@ -369,9 +369,9 @@ namespace CouchbaseMediaMarksFeeder
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at WriteDomainJSONFile. Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Filename: ", filename));
-                sb.Append(String.Concat(" DMM JSON: ", outputJson));
-                sb.Append(String.Concat(" At Iteration Num: ", iteration));
+                sb.Append(String.Concat(" Filename: |~~~|", filename));
+                sb.Append(String.Concat("|~~~| DMM JSON: |~%~|", outputJson));
+                sb.Append(String.Concat("|~%~| At Iteration Num: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), DOMAIN_JSONS_LOG_FILE);
