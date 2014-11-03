@@ -1652,7 +1652,8 @@ namespace Tvinci.Core.DAL
             return mediaToViewsCountMapping;
         }
 
-        public static bool Get_UMMsToCB(int parentGroupID, DateTime from, int bulkSize,
+        public static bool Get_UMMsToCB(int parentGroupID, int fromUserIndexInclusive, int toUserIndexInclusive,
+            int numOfUsersPerBulk, DateTime fromDate, DateTime toDate,
             ref Dictionary<int, List<UserMediaMark>> domainIdToUserMediaMarksMapping,
             ref Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping,
             ref List<int> userIDsWithNoDomain)
@@ -1663,8 +1664,8 @@ namespace Tvinci.Core.DAL
             userIDsWithNoDomain = new List<int>();
             StoredProcedure sp = new StoredProcedure("Get_UMMsToCB");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@From", from);
-            sp.AddParameter("@BulkSize", bulkSize);
+            //sp.AddParameter("@From", from);
+            //sp.AddParameter("@BulkSize", bulkSize);
             sp.AddParameter("@ParentGroupID", parentGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
