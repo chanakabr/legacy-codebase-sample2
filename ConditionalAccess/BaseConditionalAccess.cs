@@ -3148,7 +3148,7 @@ namespace ConditionalAccess
         public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
         {
             LicensedLinkResponse llr = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE,
-                sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
+                sLANGUAGE_CODE, sDEVICE_NAME, couponCode, eObjectType.Media);
 
             return llr.mainUrl;
         }
@@ -3163,7 +3163,7 @@ namespace ConditionalAccess
             if (Int32.TryParse(sMediaFileCoGuid, out mediaFileID) && mediaFileID > 0)
             {
                 LicensedLinkResponse llr = GetLicensedLinks(sSiteGUID, mediaFileID, sBasicLink, sUserIP, sRefferer,
-                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
+                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode, eObjectType.Media);
                 return llr.mainUrl;
             }
 
@@ -10081,8 +10081,14 @@ namespace ConditionalAccess
             return res;
         }
 
-        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
             string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
+         {
+             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media);
+         }
+
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType)
         {
             LicensedLinkResponse res = new LicensedLinkResponse();
 
@@ -10130,11 +10136,24 @@ namespace ConditionalAccess
                                         {
                                             HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
                                         }
+                                        
+                                        // TO DO if dynamic call to right provider to get the URL
+                                        if (eLinkType == eObjectType.Media)
+                                        {
+                                            bool bIsDynamic = GetStreamingUrlType(fileMainStreamingCoID);
+                                            if (bIsDynamic)
+                                            {
+                                                //TODO !!!!!
+                                                //call the right provider to get the link 
+
+                                            }
+                                        }
 
                                         res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                         licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                         res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                                         res.status = mediaConcurrencyResponse.ToString();
+
                                         // create PlayCycle
                                         CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
                                     }
@@ -10223,6 +10242,38 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private bool GetStreamingUrlType(int fileMainStreamingCoID)
+        {
+            bool isDynamic = false;
+
+            string key = string.Format("{0}_GetStreamingUrlType_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
+            bool res = ConditionalAccessCache.GetItem<bool>(key, out isDynamic);
+            if (!res)
+            {
+                try
+                {
+                    int nUrlType = DAL.ConditionalAccessDAL.GetStreamingUrlType(fileMainStreamingCoID);
+                    switch (nUrlType)
+                    {
+                        case (int)eUrlType.Dynamic:
+                            isDynamic = true;
+                            break;                        
+                        case (int)eUrlType.Static:
+                            break;
+                        default:
+                            break;
+                    }
+                    ConditionalAccessCache.AddItem(key, isDynamic);
+                }
+                catch (Exception)
+                {
+                    isDynamic = false;
+                }
+            }
+
+            return isDynamic;            
         }
 
         /*******************************************************************************************

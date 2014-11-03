@@ -178,7 +178,11 @@ namespace ConditionalAccess
         MediaConcurrency = 7,
         InvalidBaseLink = 8,
         InvalidFileData = 9
+    }
 
-
+    public enum eUrlType
+    {
+        Static = 0,        
+        Dynamic = 1
     }
 }

@@ -1668,5 +1668,26 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+
+        public static int GetStreamingUrlType(int fileMainStreamingCoID)
+        {
+            int nUrlType = 0;
+            StoredProcedure sp = new StoredProcedure("Get_StreamingCoUrlType");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@StreamingCoID", fileMainStreamingCoID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    nUrlType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "URL_TYPE");
+                }
+            }
+
+            return nUrlType;
+        }
     }
 }

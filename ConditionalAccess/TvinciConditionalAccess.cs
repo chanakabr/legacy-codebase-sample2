@@ -454,7 +454,7 @@ namespace ConditionalAccess
             try
             {
                 
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
