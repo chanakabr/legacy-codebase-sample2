@@ -177,7 +177,7 @@ namespace CouchbaseMediaMarksFeeder
         {
             bool res = false;
             bool isTerminate = false;
-
+            ChunkManager manager = null;
             lock (isRunningMutex)
             {
                 if (isRunning)
@@ -205,8 +205,11 @@ namespace CouchbaseMediaMarksFeeder
                 }
 
                 Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Starting migration process", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
-                ChunkManager manager = new ChunkManager();
-                manager.Initialize(numOfUsersPerBulk);
+                manager = new ChunkManager();
+                if (!manager.Initialize(numOfUsersPerBulk))
+                {
+                    throw new Exception("Failed to initialize Chunk Manager.");
+                }
                 Task[] workers = new Task[DEFAULT_NUM_OF_WORKER_THREADS];
                 for (int i = 0; i < workers.Length; i++)
                 {
@@ -303,6 +306,12 @@ namespace CouchbaseMediaMarksFeeder
             }
             finally
             {
+                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Main thread finally block. ", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                if (manager != null)
+                {
+                    Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
+                        from, to, null), LOG_FILE);
+                }
                 lock (isRunningMutex)
                 {
                     if (isRunning)
