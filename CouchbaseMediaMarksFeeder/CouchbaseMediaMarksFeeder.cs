@@ -1,0 +1,281 @@
+﻿using ApiObjects.MediaMarks;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Tvinci.Core.DAL;
+
+namespace CouchbaseMediaMarksFeeder
+{
+    public class CouchbaseMediaMarksFeeder
+    {
+        private static object isRunningMutex = new object();
+        private static bool isRunning = false;
+        private static CouchbaseMediaMarksFeeder instance = null;
+
+        private static readonly string JSON_FILE_ENDING = ".json";
+        private static readonly string LOG_FILE = "CouchbaseMediaMarksFeeder";
+        private static readonly string DATETIME_PRINT_FORMAT = "yyyyMMddHHmmss";
+        private static readonly string LOG_HEADER_STATUS = "Status";
+        private static readonly string LOG_HEADER_ERROR = "Error";
+        private static readonly string LOG_HEADER_EXCEPTION = "Exception";
+        private static readonly string USERS_WITH_NO_DOMAIN_LOG_FILE = "UsersWithNoDomain";
+        private static readonly string DOMAIN_JSONS_LOG_FILE = "DomainJSONsFailures";
+        private static readonly string UM_JSONS_LOG_FILE = "UserMediaJSONsFailures";
+        private static readonly int MAX_STRINGBUILDER_SIZE = 2048;
+        private static readonly int MAX_DB_FAIL_COUNT = 10;
+
+        public bool Execute(int groupID, string outputDirectory, int numOfUsersPerBulk, DateTime from)
+        {
+            bool res = false;
+            bool isTerminate = false;
+            try
+            {
+                lock (isRunningMutex)
+                {
+                    if (isRunning)
+                    {
+                        isTerminate = true;
+                    }
+                    else
+                    {
+                        isRunning = true;
+                    }
+                }
+
+                if (isTerminate)
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Process already running", groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                    return false;
+                }
+
+                if (!Directory.Exists(outputDirectory))
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                    return false;
+                }
+
+                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Starting migration process", groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                bool keepRunning = true;
+                int databaseFailCount = 0;
+                for (int i = 0; keepRunning; i++)
+                {
+                    Dictionary<int, List<UserMediaMark>> domainIDToMediaMarksMapping = null;
+                    Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping = null;
+                    List<int> usersWithNoDomain = null;
+                    if (CatalogDAL.Get_UMMsToCB(groupID, from, numOfUsersPerBulk, ref domainIDToMediaMarksMapping,
+                        ref userMediaToMediaMarksMapping, ref usersWithNoDomain))
+                    {
+                        Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg(GetSuccessStatusMsg(i, domainIDToMediaMarksMapping, userMediaToMediaMarksMapping,
+                            usersWithNoDomain), groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+
+                        keepRunning = domainIDToMediaMarksMapping.Count > 0 || userMediaToMediaMarksMapping.Count > 0 ||
+                            usersWithNoDomain.Count > 0;
+
+                        if (!keepRunning)
+                        {
+                            Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg(String.Concat("Breaking loop at iteration num: ", i), groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                            break;
+                        }
+                        LogUsersWithNoDomain(i, usersWithNoDomain);
+                        int domainFailCount = 0;
+
+
+                        foreach(KeyValuePair<int, List<UserMediaMark>> kvp in domainIDToMediaMarksMapping) 
+                        {
+                            if (!WriteDomainJSONFile(kvp.Key, kvp.Value, outputDirectory, i))
+                            {
+                                domainFailCount++;
+                            }
+                        } // for
+
+                        if (domainFailCount > 0)
+                        {
+                            Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, i, DOMAIN_JSONS_LOG_FILE), LOG_FILE);
+                        }
+                        else
+                        {
+                            Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Domain JSONS at iteration: ", i, " were created successfully."), LOG_FILE);
+                        }
+
+                        int userMediaFailCount = 0;
+
+                        foreach (KeyValuePair<UserMediaKey, List<UserMediaMark>> kvp in userMediaToMediaMarksMapping)
+                        {
+                            if (!WriteUserMediaJSONFile(kvp.Key, kvp.Value, outputDirectory, i))
+                            {
+                                userMediaFailCount++;
+                            }
+                        } // for
+                        if (userMediaFailCount > 0)
+                        {
+                            Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Failed to create {0} user media jsons at iteration num {1} , Refer to log file: {2} for more details.", userMediaFailCount, i, UM_JSONS_LOG_FILE), LOG_FILE);
+                        }
+                        else
+                        {
+                            Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("User Media JSONS at iteration: ", i, " were created successfully."), LOG_FILE);
+                        }
+                    }
+                    else
+                    {
+                        // failed to access SQL DB.
+                        Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg(String.Concat("Failed to fetch data from DB. Iteration num: ", i, " (Iteration count starts from zero)"),
+                            groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                        if (++databaseFailCount > MAX_DB_FAIL_COUNT)
+                        {
+                            Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Reached max DB fail count. Terminating process.", groupID, outputDirectory, numOfUsersPerBulk, from, null), LOG_FILE);
+                            break;
+                        }
+                    }
+                } // for
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception occurred", groupID, outputDirectory, numOfUsersPerBulk, from, ex), LOG_FILE);
+            }
+            finally
+            {
+                lock (isRunningMutex)
+                {
+                    if (isRunning)
+                    {
+                        isRunning = false;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        private bool WriteUserMediaJSONFile(UserMediaKey umk, List<UserMediaMark> devices, string outputDirectory, int iteration)
+        {
+            bool res = false;
+            StreamWriter file = null;
+            string outputJson = string.Empty;
+            MediaMarkLog mml = new MediaMarkLog() { devices = devices, LastMark = devices.LastOrDefault() };
+            string filename = String.Concat(outputDirectory, umk.ToString(), JSON_FILE_ENDING);
+            try
+            {
+                outputJson = JsonConvert.SerializeObject(mml, Formatting.None);
+                file = new StreamWriter(filename);
+                file.Write(outputJson);
+                file.Flush();
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at WriteUserMediaJSONFile. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Filename: ", filename));
+                sb.Append(String.Concat(" JSON: ", outputJson));
+                sb.Append(String.Concat(" At iteration num: ", iteration));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), UM_JSONS_LOG_FILE);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private bool WriteDomainJSONFile(int domainID, List<UserMediaMark> devices, string outputDirectory, int iteration)
+        {
+            bool res = false;
+            StreamWriter file = null;
+            string outputJson = string.Empty;
+            DomainMediaMark dmm = new DomainMediaMark() { domainID = domainID, devices = devices };
+            string filename = String.Concat(outputDirectory, dmm.ToString(), JSON_FILE_ENDING);
+            try
+            {
+                outputJson = JsonConvert.SerializeObject(dmm, Formatting.None);
+                file = new StreamWriter(filename);
+                file.Write(outputJson);
+                file.Flush();
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at WriteDomainJSONFile. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Filename: ", filename));
+                sb.Append(String.Concat(" DMM JSON: ", outputJson));
+                sb.Append(String.Concat(" At Iteration Num: ", iteration));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), DOMAIN_JSONS_LOG_FILE);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private void LogUsersWithNoDomain(int iteration, List<int> usersWithNoDomain)
+        {
+            if (usersWithNoDomain == null || usersWithNoDomain.Count == 0)
+            {
+                Logger.Logger.Log(LOG_HEADER_STATUS, string.Format("No users without domain at iteration: {0} (Iteration count starts from zero)", iteration), LOG_FILE);
+            }
+            else 
+            {
+                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("At iteration num: {0} , encountered {1} users with no domain. Refer to {2} log file. (Iteration count starts from zero)", iteration, usersWithNoDomain.Count, USERS_WITH_NO_DOMAIN_LOG_FILE), LOG_FILE);
+                Logger.Logger.Log(LOG_HEADER_ERROR, String.Concat("Starting. Users with no domain at iteration: ", iteration), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < usersWithNoDomain.Count; i++)
+                {
+                    sb.Append(String.Concat(usersWithNoDomain[i], ";"));
+                    if (sb.Length > MAX_STRINGBUILDER_SIZE)
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                        sb = new StringBuilder();
+                    }
+                } // for
+                if (sb.Length > 0)
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                }
+                Logger.Logger.Log(LOG_HEADER_ERROR, String.Concat("End. Users with no domain at iteration: ", iteration), USERS_WITH_NO_DOMAIN_LOG_FILE);
+            }
+        }
+
+        private string GetSuccessStatusMsg(int iteration, Dictionary<int, List<UserMediaMark>> domainIDToMediaMarksMapping,
+            Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping, List<int> usersWithNoDomain)
+        {
+            StringBuilder sb = new StringBuilder(String.Concat("Extracted data successfully from DB at iteration num: ", iteration));
+            sb.Append(String.Concat(" Domain ID to Media Marks Dictionary size: ", domainIDToMediaMarksMapping.Count));
+            sb.Append(String.Concat(" UserMedia to Media Marks Dictionary size: ", userMediaToMediaMarksMapping.Count));
+            sb.Append(String.Concat(" Users with no domain count: ", usersWithNoDomain.Count));
+
+            return sb.ToString();
+        }
+
+        private string GetLogMsg(string msg, int groupID, string outputDir, int numOfUsersPerBulk, DateTime from, Exception ex)
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(msg, ". "));
+            sb.Append(String.Concat(" G ID: ", groupID));
+            sb.Append(String.Concat(" Output Dir: ", outputDir));
+            sb.Append(String.Concat(" Num Of Users Per Bulk: ", numOfUsersPerBulk));
+            sb.Append(String.Concat(" From: ", from.ToString(DATETIME_PRINT_FORMAT)));
+            if (ex != null)
+            {
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+            }
+            return sb.ToString();
+        }
+    }
+}
