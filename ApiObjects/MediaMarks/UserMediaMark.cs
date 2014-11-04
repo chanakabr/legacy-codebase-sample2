@@ -20,12 +20,12 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("ts")]
         public DateTime CreatedAt { get; set; }
 
-        public class UMMDateComparer : IComparer<UserMediaMark>
+        public class UMMDateComparerDesc : IComparer<UserMediaMark>
         {
 
             public int Compare(UserMediaMark x, UserMediaMark y)
             {
-                return x.CreatedAt.CompareTo(y.CreatedAt);
+                return y.CreatedAt.CompareTo(x.CreatedAt);
             }
         }
     }

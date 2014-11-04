@@ -1653,7 +1653,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static bool Get_UMMsToCB(int parentGroupID, int fromUserIndexInclusive, int toUserIndexInclusive,
-            int numOfUsersPerBulk, DateTime fromDate, DateTime toDate,
+            DateTime fromDate, DateTime toDate,
             ref Dictionary<int, List<UserMediaMark>> domainIdToUserMediaMarksMapping,
             ref Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping,
             ref List<int> userIDsWithNoDomain)
@@ -1664,9 +1664,10 @@ namespace Tvinci.Core.DAL
             userIDsWithNoDomain = new List<int>();
             StoredProcedure sp = new StoredProcedure("Get_UMMsToCB");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //sp.AddParameter("@From", from);
-            //sp.AddParameter("@BulkSize", bulkSize);
-            sp.AddParameter("@ParentGroupID", parentGroupID);
+            sp.AddParameter("@FromIndex", fromUserIndexInclusive);
+            sp.AddParameter("@ToIndex", toUserIndexInclusive);
+            sp.AddParameter("@FromDate", fromDate);
+            sp.AddParameter("@ToDate", toDate);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
@@ -1733,13 +1734,32 @@ namespace Tvinci.Core.DAL
                     } // for
                 }
             }
-            IComparer<UserMediaMark> ummComparer = new UserMediaMark.UMMDateComparer();
+            IComparer<UserMediaMark> ummComparer = new UserMediaMark.UMMDateComparerDesc();
             foreach (KeyValuePair<UserMediaKey, List<UserMediaMark>> kvp in userMediaToMediaMarksMapping)
             {
                 kvp.Value.Sort(ummComparer);
             }
 
             return res;
+        }
+
+        public static int Create_SiteGuidsTableForUMMMigration(DateTime from, DateTime to, long groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Create_SiteGuidsTableForUMMMigration");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@From", from);
+            sp.AddParameter("@To", to);
+            sp.AddParameter("@GroupID", groupID);
+
+            return sp.ExecuteReturnValue<int>();    
+        }
+
+        public static bool Drop_SiteGuidsTableForUMMMigration()
+        {
+            StoredProcedure sp = new StoredProcedure("Drop_SiteGuidsTableForUMMMigration");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
     }
