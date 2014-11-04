@@ -20,6 +20,7 @@ namespace CouchbaseMediaMarksFeeder
         private DateTime fromDate;
         private DateTime toDate;
         private int groupID;
+        private readonly object locker;
 
 
         internal ChunkManager(DateTime fromDate, DateTime toDate, int groupID, int bulkSize)
@@ -28,6 +29,7 @@ namespace CouchbaseMediaMarksFeeder
             {
                 throw new ArgumentException("Incorrect input.");
             }
+            this.locker = new object();
             this.bulkSize = bulkSize;
             this.fromDate = fromDate;
             this.toDate = toDate;
@@ -40,7 +42,7 @@ namespace CouchbaseMediaMarksFeeder
         public bool Initialize()
         {
             bool res = true;
-            lock (this)
+            lock (locker)
             {
                 int totalAmtAccToDB = CatalogDAL.Create_SiteGuidsTableForUMMMigration(fromDate, toDate, groupID);
                 if (totalAmtAccToDB == 0)
@@ -60,7 +62,7 @@ namespace CouchbaseMediaMarksFeeder
         public bool GetNextOffsets(ref int from, ref int to, ref int currIndex)
         {
             bool res = false;
-            lock (this)
+            lock (locker)
             {
                 if (index * bulkSize > total)
                 {
@@ -88,7 +90,7 @@ namespace CouchbaseMediaMarksFeeder
 
         public void Dispose()
         {
-            lock (this)
+            lock (locker)
             {
                 // drop the table site_guids_for_umms_migration
                 isInitialized = false;
