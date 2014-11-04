@@ -1,41 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace CouchbaseMediaMarksFeeder
 {
+    /*
+     * 1. This class is thread-safe (unless you temper with it)
+     */ 
     internal class ChunkManager : IDisposable
     {
         private int index;
         private bool isInitialized;
         private int total;
         private int bulkSize;
+        private DateTime fromDate;
+        private DateTime toDate;
+        private int groupID;
 
-        internal ChunkManager()
+
+        internal ChunkManager(DateTime fromDate, DateTime toDate, int groupID, int bulkSize)
         {
-            index = 0;
-            isInitialized = false;
-            total = 0;
+            if (bulkSize < 1 || groupID < 1 || fromDate.CompareTo(toDate) > -1)
+            {
+                throw new ArgumentException("Incorrect input.");
+            }
+            this.bulkSize = bulkSize;
+            this.fromDate = fromDate;
+            this.toDate = toDate;
+            this.groupID = groupID;
+            this.index = 0;
+            this.isInitialized = false;
+            this.total = 0;
         }
 
-        public bool Initialize(int bulkSize)
+        public bool Initialize()
         {
+            bool res = true;
             lock (this)
             {
-                if (bulkSize < 1)
+                int totalAmtAccToDB = CatalogDAL.Create_SiteGuidsTableForUMMMigration(fromDate, toDate, groupID);
+                if (totalAmtAccToDB == 0)
                 {
-                    throw new ArgumentException("Incorrect value for bulkSize.");
+                    res = false;
                 }
-                /* 0. Check the bulk size is > 0
-                 * 1. Invoke SP that creates site_guids_for_umms_migration
-                 * 2. Populate it from users_media_mark table
-                 * 3. Count num of rows in site_guids_for_umms_migration, and assign the value that returns to total.
-                 * 4. set isInitialized=true, index = 0;
-                 */
+                this.total = totalAmtAccToDB;
+                this.isInitialized = true;
             }
-            throw new NotImplementedException();
+
+            return res;
         }
 
         /*
@@ -55,7 +71,7 @@ namespace CouchbaseMediaMarksFeeder
                     res = true;
                     currIndex = index;
                     from = index * bulkSize + 1;
-                    int tempTo = (++index * bulkSize) + 1;
+                    int tempTo = (++index * bulkSize);
                     if (tempTo > total)
                     {
                         to = total;
@@ -76,7 +92,10 @@ namespace CouchbaseMediaMarksFeeder
             {
                 // drop the table site_guids_for_umms_migration
                 isInitialized = false;
-
+                if (!CatalogDAL.Drop_SiteGuidsTableForUMMMigration())
+                {
+                    Logger.Logger.Log("Error", "Failed to drop umms_site_guids table in the DB.", "ChunkManager");
+                }
             }
         }
     }

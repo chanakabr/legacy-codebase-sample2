@@ -82,7 +82,7 @@ namespace CouchbaseMediaMarksFeeder
                         Dictionary<int, List<UserMediaMark>> domainIDToMediaMarksMapping = null;
                         Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping = null;
                         List<int> usersWithNoDomain = null;
-                        if (CatalogDAL.Get_UMMsToCB(groupID, from, to, numOfUsersPerBulk, fromDate, toDate,
+                        if (CatalogDAL.Get_UMMsToCB(groupID, from, to, fromDate, toDate,
                             ref domainIDToMediaMarksMapping,
                             ref userMediaToMediaMarksMapping, ref usersWithNoDomain))
                         {
@@ -205,10 +205,10 @@ namespace CouchbaseMediaMarksFeeder
                 }
 
                 Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Starting migration process", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
-                manager = new ChunkManager();
-                if (!manager.Initialize(numOfUsersPerBulk))
+                manager = new ChunkManager(from, to, groupID, numOfUsersPerBulk);
+                if (!manager.Initialize())
                 {
-                    throw new Exception("Failed to initialize Chunk Manager.");
+                    throw new Exception("Failed to initialize Chunk Manager. Refer to ODBC logs.");
                 }
                 Task[] workers = new Task[DEFAULT_NUM_OF_WORKER_THREADS];
                 for (int i = 0; i < workers.Length; i++)
@@ -311,6 +311,7 @@ namespace CouchbaseMediaMarksFeeder
                 {
                     Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
                         from, to, null), LOG_FILE);
+                    manager.Dispose();
                 }
                 lock (isRunningMutex)
                 {
