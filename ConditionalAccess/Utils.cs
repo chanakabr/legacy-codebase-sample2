@@ -1924,8 +1924,6 @@ namespace ConditionalAccess
                     string sPPCode = string.Empty;
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
-                    int tempPurchasedAsMediaFileID = 0;
-                    string tempPurchasedBySiteGuid = string.Empty;
                     if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, 
                         ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
                     {
@@ -1935,8 +1933,6 @@ namespace ConditionalAccess
 
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
-                            purchasedBySiteGuid = tempPurchasedBySiteGuid;
-                            purchasedAsMediaFileID = tempPurchasedAsMediaFileID;
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
