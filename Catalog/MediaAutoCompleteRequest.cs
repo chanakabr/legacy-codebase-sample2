@@ -49,11 +49,7 @@ namespace Catalog
 
                     if (request.m_MediaTypes != null && request.m_MediaTypes.Count > 0)
                     {
-                        foreach (int mediaType in request.m_MediaTypes) // filter by types
-                        {
-                            searchObj.m_sMediaTypes += mediaType.ToString() + ";";
-                        }
-                        searchObj.m_sMediaTypes = searchObj.m_sMediaTypes.Remove(searchObj.m_sMediaTypes.Length - 1, 1);
+                        searchObj.m_sMediaTypes = string.Join(";", request.m_MediaTypes.Select((i) => i.ToString()).ToArray()); 
                     }                  
 
                     GroupManager groupManager = new GroupManager();
