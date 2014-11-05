@@ -28,5 +28,15 @@ namespace ApiObjects.MediaMarks
                 return y.CreatedAt.CompareTo(x.CreatedAt);
             }
         }
+
+        public class UMMMediaComparer : IComparer<UserMediaMark>
+        {
+
+            public int Compare(UserMediaMark x, UserMediaMark y)
+            {
+                return x.MediaID.CompareTo(y.MediaID);
+            }
+        }
+
     }
 }
