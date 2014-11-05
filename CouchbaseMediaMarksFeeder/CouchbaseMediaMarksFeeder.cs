@@ -251,6 +251,155 @@ namespace CouchbaseMediaMarksFeeder
             return res;
         }
 
+        private bool UpdateOrCreateUserMediaJSONFile(UserMediaKey umk, List<UserMediaMark> devices, string outputDirectory, int iteration)
+        {
+            bool res = false;
+            string json = string.Empty;
+            string newJson = string.Empty;
+            string filename = String.Concat(outputDirectory, umk.ToString(), JSON_FILE_ENDING);
+            FileStream file = null;
+            try
+            {
+                if (File.Exists(filename))
+                {
+                    file = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+                    byte[] fileContent = new byte[file.Length];
+                    int numBytesToRead = (int)file.Length;
+                    int numBytesRead = 0;
+                    while (numBytesToRead > 0)
+                    {
+                        int readNow = file.Read(fileContent, numBytesRead, numBytesToRead);
+                        if (readNow == 0)
+                            break;
+                        numBytesRead += readNow;
+                        numBytesToRead -= readNow;
+                    }
+                    json = Encoding.UTF8.GetString(fileContent);
+                    MediaMarkLog oldMml = JsonConvert.DeserializeObject<MediaMarkLog>(json);
+                    oldMml.LastMark = devices.FirstOrDefault();
+                    oldMml.devices = devices;
+                    // flush, in order to move from read operation to write operation
+                    file.Flush();
+                    file.SetLength(0);
+                    // flush again, in order to make sure the file is erased.
+                    file.Flush();
+                    newJson = JsonConvert.SerializeObject(oldMml, Formatting.None);
+                    byte[] dataToWrite = Encoding.UTF8.GetBytes(newJson);
+                    file.Write(dataToWrite, 0, dataToWrite.Length);
+                    file.Flush();
+                    res = true;
+                }
+                else
+                {
+                    return WriteUserMediaJSONFile(umk, devices, outputDirectory, iteration);
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at UpdateOrCreateUserMediaJSONFile. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Filename: |~~~|", filename));
+                sb.Append(String.Concat("|~~~| Old JSON: |~%~|", json));
+                sb.Append(String.Concat("|~%~| New JSON: ", newJson));
+                sb.Append(String.Concat("|~%~| Iteration: ", iteration));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), UM_JSONS_LOG_FILE);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private bool UpdateOrCreateDomainJSONFile(int domainID, List<UserMediaMark> devices, string outputDirectory, int iteration)
+        {
+            bool res = false;
+            FileStream file = null;
+            string filename = string.Empty;
+            string json = string.Empty;
+            string newJson = string.Empty;
+            try
+            {
+                filename = String.Concat(outputDirectory, "d", domainID, JSON_FILE_ENDING);
+                if (File.Exists(filename))
+                {
+                    file = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+                    byte[] fileContent = new byte[file.Length];
+                    int numBytesToRead = (int)file.Length;
+                    int numBytesRead = 0;
+                    // read file
+                    while (numBytesToRead > 0)
+                    {
+                        int readNow = file.Read(fileContent, numBytesRead, numBytesToRead);
+                        if (readNow == 0)
+                            break;
+                        numBytesRead += readNow;
+                        numBytesToRead -= readNow;
+                    }
+
+                    //deserialize json
+                    json = Encoding.UTF8.GetString(fileContent);
+                    DomainMediaMark dmm = JsonConvert.DeserializeObject<DomainMediaMark>(json);
+
+                    // assuming SUS by this move. In MUS we could lose data.
+                    SortedSet<UserMediaMark> set = new SortedSet<UserMediaMark>(dmm.devices, new UserMediaMark.UMMMediaComparer());
+                    set.SymmetricExceptWith(devices); // we have here old umms xor new umms
+                    // now add here all new umms, so the intersection of old umms and new umms will be up-to-date
+                    for (int i = 0; i < devices.Count; i++)
+                    {
+                        set.Add(devices[i]);
+                    }
+                    
+                    // flush, in order to move from read operation to write operation
+                    file.Flush();
+                    file.SetLength(0);
+                    // flush again, in order to make sure the file is erased.
+                    file.Flush();
+
+                    DomainMediaMark newDmms = new DomainMediaMark();
+                    newDmms.domainID = domainID;
+                    newDmms.devices = set.ToList<UserMediaMark>();
+                    newJson = JsonConvert.SerializeObject(newDmms, Formatting.None);
+
+                    byte[] dataToWrite = Encoding.UTF8.GetBytes(newJson);
+                    file.Write(dataToWrite, 0, dataToWrite.Length);
+                    file.Flush();
+                    res = true;
+
+                }
+                else
+                {
+                    // domain media mark does not exist. create new one.
+                    return WriteDomainJSONFile(domainID, devices, outputDirectory, iteration);
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at UpdateOrCreateDomainJSONFile. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Filename: |~~~|", filename));
+                sb.Append(String.Concat("|~~~| Old DMM JSON: |~%~|", json));
+                sb.Append(String.Concat("|~%~| New DMM JSON: ", newJson));
+                sb.Append(String.Concat("|~%~| At Iteration Num: ", iteration));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), DOMAIN_JSONS_LOG_FILE);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+            return res;
+        }
+
         private bool UpdateWorkerDelegate(ChunkManager manager, int groupID, string outputDirectory, int numOfUsersPerBulk,
             DateTime fromDate, DateTime toDate)
         {
@@ -453,7 +602,7 @@ namespace CouchbaseMediaMarksFeeder
             bool res = false;
             StreamWriter file = null;
             string outputJson = string.Empty;
-            MediaMarkLog mml = new MediaMarkLog() { devices = devices, LastMark = devices.LastOrDefault() };
+            MediaMarkLog mml = new MediaMarkLog() { devices = devices, LastMark = devices.FirstOrDefault() };
             string filename = String.Concat(outputDirectory, umk.ToString(), JSON_FILE_ENDING);
             try
             {
