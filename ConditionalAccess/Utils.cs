@@ -1924,7 +1924,8 @@ namespace ConditionalAccess
                     string sPPCode = string.Empty;
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, 
+
+                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, 
                         ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
                     {
                         p.m_dPrice = 0;
