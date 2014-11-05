@@ -527,8 +527,7 @@ namespace CouchbaseMediaMarksFeeder
             return res;
         }
 
-        public bool Update(int groupID, string outputDirectory, int numOfUsersPerBulk, DateTime from, DateTime to,
-            bool isKeepFilePtrsInMem)
+        public bool Update(int groupID, string outputDirectory, int numOfUsersPerBulk, DateTime from, DateTime to)
         {
             bool res = false;
             bool isTerminate = false;
@@ -576,7 +575,7 @@ namespace CouchbaseMediaMarksFeeder
                 Task[] workers = new Task[DEFAULT_NUM_OF_WORKER_THREADS];
                 for (int i = 0; i < workers.Length; i++)
                 {
-                    workers[i] = Task.Factory.StartNew(() => WorkerDelegate(manager, groupID, outputDirectory, numOfUsersPerBulk,
+                    workers[i] = Task.Factory.StartNew(() => UpdateWorkerDelegate(manager, groupID, outputDirectory, numOfUsersPerBulk,
                         from, to));
                 }
                 Task.WaitAll(workers);
