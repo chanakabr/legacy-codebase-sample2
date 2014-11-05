@@ -125,6 +125,11 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         dr_tokenize.Initialize("Token Provider", "adm_table_header_nbg", "FormInput", "TOKENIZE_IMPL_ID", false);
         theRecord.AddRecord(dr_tokenize);
 
+        DataRecordCheckBoxField dr_url_type = new DataRecordCheckBoxField(true);
+        dr_url_type.Initialize("Url Type Dynamic", "adm_table_header_nbg", "FormInput", "url_type", false);
+        theRecord.AddRecord(dr_url_type);
+             
+
         string sTable = theRecord.GetTableHTML("");
 
         return sTable;
