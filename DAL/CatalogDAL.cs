@@ -97,13 +97,30 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid)
         {
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataTable dt = null;
+
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
+            bool bContunueWithCB = (nMediaIDs != null && nMediaIDs.Count > 0) ? true : false;
 
-            //Complete details from db
-            DataTable dt = Get_MediaUpdateDate(nMediaIDs);
+            if (bContunueWithCB)
+            {
+                //Complete details from db
+                dt = Get_MediaUpdateDate(nMediaIDs);
+            }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
+                spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPersonalLastWatched.AddParameter("@GroupID", nGroupID);
+                spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
+                DataSet ds = spPersonalLastWatched.ExecuteDataSet();
+                if (ds != null)
+                    dt = ds.Tables[0];                
+            }
             return dt;
             
         }      
@@ -164,29 +181,40 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.OrderByDescending(x => x.CreatedAt).Select(x => x.MediaID).ToList();
-            
-            if (nMediaIDs != null && nMediaIDs.Count > 0)
+            bool bContunueWithCB = (nMediaIDs != null && nMediaIDs.Count > 0) ? true : false;
+
+            if (bContunueWithCB)
             {
                 int nMediaID = 0;
                 int.TryParse(nMediaIDs[0].ToString(), out nMediaID);
 
                 ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended_C");
                 spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
-
                 spPersonalRecommended.AddParameter("@GroupID", nGroupID);
                 spPersonalRecommended.AddParameter("@MediaId", nMediaID);
                 spPersonalRecommended.AddParameter("@Top", Top);
                 spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
-                DataSet ds = spPersonalRecommended.ExecuteDataSet();
-                if (ds != null)
-                    return ds.Tables[0];
+                ds = spPersonalRecommended.ExecuteDataSet();                
             }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended");
+                spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPersonalRecommended.AddParameter("@GroupID", nGroupID);
+                spPersonalRecommended.AddParameter("@SiteGuid", sSiteGuid);
+                spPersonalRecommended.AddParameter("@Top", Top);
+                ds = spPersonalRecommended.ExecuteDataSet();
+            }
+            if (ds != null)
+                return ds.Tables[0];
             return null;
         }
 
@@ -215,6 +243,9 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
+
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             int nNumOfUsers = 30;
@@ -225,9 +256,9 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
 
-            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)? true: false;
+            if (bContunueWithCB)
             {
-
                 Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid).GroupBy(g => g.MediaID).ToDictionary(k => k.Key, k => k.Count());
                 List<int> otherMediasList = dictMediaWatchersCount.OrderByDescending(x => x.Value).Take(nNumOfMedias).ToDictionary(x => x.Key, x => x.Value).Keys.ToList();
 
@@ -240,18 +271,28 @@ namespace Tvinci.Core.DAL
                 spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
                 spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
                 spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-
-
-                DataSet ds = spPWWAWProtocol.ExecuteDataSet();
-
-                if (ds != null)
-                    return ds.Tables[0];
+                ds = spPWWAWProtocol.ExecuteDataSet();
+            }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPWWAWProtocol = new ODBCWrapper.StoredProcedure("Get_PWWAWProtocol");
+                spPWWAWProtocol.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPWWAWProtocol.AddParameter("@MediaID", nMediaID);
+                spPWWAWProtocol.AddParameter("@GroupID", nGroupID);
+                spPWWAWProtocol.AddParameter("@Language", nLanguage);
+                spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
+                spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
+                spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
+                spPWWAWProtocol.AddParameter("@SiteGuid", sSiteGuid);
+                ds = spPWWAWProtocol.ExecuteDataSet();
             }
 
-
+            if (ds != null)
+                return ds.Tables[0];
             return null;
         }
-
+        
+       
         public static DataTable Get_ChannelsBySubscription(int nGroupID, int nSubscriptionID)
         {
             ODBCWrapper.StoredProcedure spCatalog = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");
@@ -1081,7 +1122,8 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
             int nNumOfMedias = 8;
@@ -1091,8 +1133,8 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
 
-
-            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0) ? true : false;
+            if (bContunueWithCB)
             {
                 List<int> mediaUsersList = sortedMediaMarksList.Select(x => x.UserID).ToList();
                 List<int> operatorUsersList = DomainDal.GetOperatorUsers(nOperatorID, mediaUsersList);
@@ -1112,13 +1154,27 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@EndDateField", sEndDate);
                     sp.AddParameter("@DeviceID", nDeviceId);
 
-                    DataSet ds = sp.ExecuteDataSet();
-
-                    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                        return ds.Tables[0];
+                    ds = sp.ExecuteDataSet();                   
                 }
             }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IPWWAWProtocol");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@MediaID", nMediaID);
+                sp.AddParameter("@GroupID", nGroupID);
+                sp.AddParameter("@Language", nLanguage);
+                sp.AddParameter("@CountryID", nCountryID);
+                sp.AddParameter("@EndDateField", sEndDate);
+                sp.AddParameter("@DeviceID", nDeviceId);
+                sp.AddParameter("@SiteGuid", sSiteGuid);
+                sp.AddParameter("@OperatorID", nOperatorID);
 
+                ds = sp.ExecuteDataSet();
+
+            }
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
             return null;
         }
 
@@ -1310,20 +1366,19 @@ namespace Tvinci.Core.DAL
         
         public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
         {
-              var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.ToList().OrderByDescending(x => x.CreatedAt).Take(nTop).ToList();
-
+           
 
             if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
             {
                 List<int> mediasList = sortedMediaMarksList.Select(x => x.MediaID).ToList();
                 List<int> mediaIds = null;
-
 
                 if (mediasList.Count > 1)
                 {

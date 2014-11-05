@@ -528,6 +528,8 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");            
+
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
             
@@ -539,8 +541,10 @@ namespace DAL
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);         
 
-            var data = m_oClient.Get<string>(docKey); 
-            if (!string.IsNullOrEmpty(data))
+            var data = m_oClient.Get<string>(docKey);
+            bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
+
+            if (bContunueWithCB)
             {
                 MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                 ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
@@ -564,9 +568,51 @@ namespace DAL
                     }
                 }
             }
+            else if (bGetDBData)
+            {
+                Get_MediaMark_DB(nMediaID, sSiteGUID, nGroupID, ret);
+            }
 
             return ret;
 
+        }
+
+        private static void Get_MediaMark_DB(int nMediaID, string sSiteGUID, int nGroupID, MediaMarkObject ret)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spMediaMark = new ODBCWrapper.StoredProcedure("Get_MediaMark");
+                spMediaMark.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spMediaMark.AddParameter("@MediaID", nMediaID);
+                spMediaMark.AddParameter("@SiteGUID", sSiteGUID);
+                spMediaMark.AddParameter("@GroupID", nGroupID);
+                DataSet ds = spMediaMark.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0];
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        DataRow dr = ds.Tables[0].Rows[0];
+                        ret.nLocationSec = ODBCWrapper.Utils.GetIntSafeVal(dr, "location_sec");
+                        ret.sDeviceID = ODBCWrapper.Utils.GetSafeStr(dr, "device_udid");
+
+                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                        {
+                            ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                        }
+                        else
+                        {
+                            ret.sDeviceName = "N/A";
+                            ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
+                        }
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                ret = new MediaMarkObject();
+            }
         }
 
         public static DataTable Get_GeoCommerceValue(int nGroupID, int SubscriptionGeoCommerceID)
