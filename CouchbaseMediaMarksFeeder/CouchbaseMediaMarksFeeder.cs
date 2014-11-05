@@ -24,6 +24,7 @@ namespace CouchbaseMediaMarksFeeder
         private static readonly string USERS_WITH_NO_DOMAIN_LOG_FILE = "UsersWithNoDomain";
         private static readonly string DOMAIN_JSONS_LOG_FILE = "DomainJSONsFailures";
         private static readonly string UM_JSONS_LOG_FILE = "UserMediaJSONsFailures";
+        private static readonly string ZIP_LOG_FILE = "ZipProcess";
         private static readonly int MAX_STRINGBUILDER_SIZE = 2048;
         private static readonly int MAX_DB_FAIL_COUNT = 10;
         private static readonly int DEFAULT_NUM_OF_WORKER_THREADS = 4;
@@ -743,6 +744,105 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
             }
             return sb.ToString();
+        }
+
+        public bool Zip(int numOfCouchbaseInstances, string jsonsDirectory, string zipsDirectory, int numOfJsonsInZip)
+        {
+            bool isTerminate = false;
+            bool res = false;
+
+            if (string.IsNullOrEmpty(jsonsDirectory) || string.IsNullOrEmpty(zipsDirectory) || numOfCouchbaseInstances < 1
+                || numOfCouchbaseInstances < 1)
+            {
+                Logger.Logger.Log(LOG_HEADER_ERROR, "Zip. Input is invalied.", ZIP_LOG_FILE);
+                return false;
+            }
+
+            lock (isRunningMutex)
+            {
+                if (isRunning)
+                {
+                    isTerminate = true;
+                }
+                else
+                {
+                    isRunning = true;
+                }
+            }
+
+            if (isTerminate)
+            {
+                Logger.Logger.Log(LOG_HEADER_ERROR, "Different Execute/Update/Zip is already running", ZIP_LOG_FILE);
+                return false;
+            }
+            if (!jsonsDirectory.EndsWith("\\"))
+            {
+                jsonsDirectory = String.Concat(jsonsDirectory, "\\");
+            }
+            if (!zipsDirectory.EndsWith("\\"))
+            {
+                zipsDirectory = String.Concat(zipsDirectory, "\\");
+            }
+
+            try
+            {
+                Logger.Logger.Log(LOG_HEADER_STATUS, "Zip. Entering try block.", ZIP_LOG_FILE);
+                if (!Directory.Exists(jsonsDirectory) || !Directory.Exists(zipsDirectory))
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, "Either directory of jsons or target directory of zips does not exist.", ZIP_LOG_FILE);
+                    return false;
+                }
+
+                // get domains json files
+                string[] domainsJsonsFiles = Directory.GetFiles(jsonsDirectory, "d*");
+                if (domainsJsonsFiles != null && domainsJsonsFiles.Length > 0)
+                {
+                    Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", domainsJsonsFiles.Length, " domain jsons files."), ZIP_LOG_FILE);
+                }
+                else
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, "No domains jsons were found.", ZIP_LOG_FILE);
+                }
+                // attach two worker threads to process the domains jsons.
+
+                // get user-media json files
+                string[] umJsonsFiles = Directory.GetFiles(jsonsDirectory, "u*m*");
+                if (umJsonsFiles != null && umJsonsFiles.Length > 0)
+                {
+                    Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", umJsonsFiles.Length, " user media jsons files."), ZIP_LOG_FILE);
+                }
+                else
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, "No domains jsons were found.", ZIP_LOG_FILE);
+                }
+                // attach two worker threads to process those jsons
+                
+                
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at Zip. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Num of CB instances: ", numOfCouchbaseInstances));
+                sb.Append(String.Concat(" JSONs Dir: ", jsonsDirectory));
+                sb.Append(String.Concat(" Zips Dir: ", zipsDirectory));
+                sb.Append(String.Concat(" Num Of JSONs in Zip: ", numOfJsonsInZip));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), ZIP_LOG_FILE);
+            }
+            finally
+            {
+                Logger.Logger.Log(LOG_HEADER_STATUS, "Entered finally block at Zip method.", ZIP_LOG_FILE);
+                lock (isRunningMutex)
+                {
+                    if (isRunning)
+                    {
+                        isRunning = false;
+                    }
+                }
+            }
+
+            return res;
         }
     }
 }
