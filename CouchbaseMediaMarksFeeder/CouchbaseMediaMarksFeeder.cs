@@ -440,7 +440,8 @@ namespace CouchbaseMediaMarksFeeder
 
                             foreach (KeyValuePair<int, List<UserMediaMark>> kvp in domainIDToMediaMarksMapping)
                             {
-                                if (!WriteDomainJSONFile(kvp.Key, kvp.Value, outputDirectory, currIndex))
+
+                                if (!UpdateOrCreateDomainJSONFile(kvp.Key, kvp.Value, outputDirectory, currIndex))
                                 {
                                     domainFailCount++;
                                 }
@@ -448,18 +449,18 @@ namespace CouchbaseMediaMarksFeeder
 
                             if (domainFailCount > 0)
                             {
-                                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE), LOG_FILE);
+                                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Update. Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE), LOG_FILE);
                             }
                             else
                             {
-                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Domain JSONS at iteration: ", currIndex, " were created successfully."), LOG_FILE);
+                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Update. Domain JSONS at iteration: ", currIndex, " were created successfully."), LOG_FILE);
                             }
 
                             int userMediaFailCount = 0;
 
                             foreach (KeyValuePair<UserMediaKey, List<UserMediaMark>> kvp in userMediaToMediaMarksMapping)
                             {
-                                if (!WriteUserMediaJSONFile(kvp.Key, kvp.Value, outputDirectory, currIndex))
+                                if (!UpdateOrCreateUserMediaJSONFile(kvp.Key, kvp.Value, outputDirectory, currIndex))
                                 {
                                     userMediaFailCount++;
                                 }
@@ -467,13 +468,13 @@ namespace CouchbaseMediaMarksFeeder
 
                             if (userMediaFailCount > 0)
                             {
-                                string logMsg = string.Format("Failed to create {0} user media jsons at iteration num {1} , Refer to log file: {2} for more details.", userMediaFailCount, currIndex, UM_JSONS_LOG_FILE);
+                                string logMsg = string.Format("Update. Failed to create {0} user media jsons at iteration num {1} , Refer to log file: {2} for more details.", userMediaFailCount, currIndex, UM_JSONS_LOG_FILE);
                                 Logger.Logger.Log(LOG_HEADER_ERROR, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk,
                                     fromDate, toDate, currIndex, from, to, null), LOG_FILE);
                             }
                             else
                             {
-                                string logMsg = String.Concat("User Media JSONS at iteration: ", currIndex, " were created successfully.");
+                                string logMsg = String.Concat("Update. User Media JSONS at iteration: ", currIndex, " were created successfully.");
                                 Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
                             }
 
@@ -499,14 +500,14 @@ namespace CouchbaseMediaMarksFeeder
                             res = true; // finished consuming the data.
                         }
 
-                        Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(String.Concat("Terminating Worker. Success: ", res.ToString().ToLower()),
+                        Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(String.Concat("Update. Terminating Worker. Success: ", res.ToString().ToLower()),
                             groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
                         break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetWorkerLogMsg("Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
+                    Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetWorkerLogMsg("Update. Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
                         fromDate, toDate, currIndex, from, to, ex), LOG_FILE);
                 }
             } // for
