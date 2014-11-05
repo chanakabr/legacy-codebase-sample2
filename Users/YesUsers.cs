@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
-using System.Xml;
 using System.Web.Script.Serialization;
-using System.Configuration;
 using ApiObjects;
 
 namespace Users
@@ -439,7 +436,8 @@ namespace Users
             "permissionid_rac",
             "recommendflag_rac",
             "eulaFlag_rac",
-            "offerid_rac"
+            "offerid_rac",
+            "USER_PERMISSIONS"
         };
 
         private UserDynamicData GetUserDynamicData(Dictionary<string, string> yesUserData)
