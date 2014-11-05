@@ -34,31 +34,29 @@ namespace Catalog
             m_nCategoryID = nCategoryID;
         }
 
-        protected override void CheckRequestValidness()
-        {
-            if (m_oFilter == null)
-                throw new ArgumentException("Filter is null.");
-        }
-
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             CategoryResponse response = new CategoryResponse();
 
             try
             {
-                CheckRequestValidness();
+                CategoryRequest request = (CategoryRequest)oBaseRequest;    
 
-                CheckSignature(this);
+                if (request == null || request.m_oFilter == null)
+                    throw new Exception("request object is null or required variable is null");
+
+                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
+                if (sCheckSignature != request.m_sSignature)
+                    throw new Exception("Signatures do not match");
 
                 //Get Channels For CategoryID
-
                 int nLanguage = 0;
-                if (m_oFilter != null)
+                if (request.m_oFilter != null)
                 {
-                    nLanguage = m_oFilter.m_nLanguage;
+                    nLanguage = request.m_oFilter.m_nLanguage;
                 }
 
-                DataSet dsCatAndChannels = CatalogDAL.GetGroupCategoriesAndChannels(m_nGroupID, nLanguage);
+                DataSet dsCatAndChannels = CatalogDAL.GetGroupCategoriesAndChannels(request.m_nGroupID, nLanguage);
                 if (dsCatAndChannels != null && dsCatAndChannels.Tables.Count > 0)
                 {
                     DataTable dtCat = dsCatAndChannels.Tables[0];
@@ -73,10 +71,12 @@ namespace Catalog
                         Description = r.Field<string>("DESCRIPTION"),
                         EditorRemarks = r.Field<string>("EDITOR_REMARKS"),
                         LinearStartTime = r.Field<DateTime>("LINEAR_START_TIME")
+                        //,
+                        //PicUrl = r.Field<string>("PIC_URL"),
+                        //PicSize = r.Field<string>("PIC_SIZE")
                     }).Distinct()
                         .GroupBy(cc => cc.CategoryID)
                         .ToDictionary(cc => cc.Key, cc => cc.ToList());
-
 
                     // Make category-pictures dictionary
                     Dictionary<long, List<Picture>> dChanPics = dtCatChan.AsEnumerable()
@@ -91,11 +91,13 @@ namespace Catalog
                         .ToDictionary(c => c.Key, c => c.ToList()
                             .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
 
-
                     List<CategoryResponse> cats = dtCat.AsEnumerable().Select(r => new CategoryResponse()
                                                 {
                                                     ID = (int)r.Field<long>("ID"),
                                                     m_sTitle = r.Field<string>("NAME"),
+                                                        //((nLanguage == 0 || nLanguage == groupLangID) ? 
+                                                        //            r.Field<string>("CATEGORY_NAME") :
+                                                        //            r.Field<string>("NAME")),
                                                     m_nParentCategoryID = (int)r.Field<long>("PARENT_CATEGORY_ID"),
                                                     m_sCoGuid = r.Field<string>("CO_GUID")
                                                 })
@@ -118,7 +120,7 @@ namespace Catalog
 
 
                     // If requested category not found, return empty response
-                    if (!cats.Any(c => c.ID == m_nCategoryID))
+                    if (!cats.Any(c => c.ID == request.m_nCategoryID))
                     {
                         return response;
                     }
@@ -140,7 +142,7 @@ namespace Catalog
                                                 .Select(cc => new channelObj()
                                                                 {
                                                                     m_nChannelID = (int) cc.ChannelID,
-                                                                    m_nGroupID = m_nGroupID,
+                                                                    m_nGroupID = request.m_nGroupID,
                                                                     m_sDescription = cc.Description,
                                                                     m_sEditorRemarks = cc.EditorRemarks,
                                                                     m_sTitle = cc.Title,
@@ -152,7 +154,7 @@ namespace Catalog
                         });
                     }
 
-                    CategoryResponse cRoot = cats.FirstOrDefault(c => c.ID == m_nCategoryID);
+                    CategoryResponse cRoot = cats.FirstOrDefault(c => c.ID == request.m_nCategoryID);
 
                     if (cRoot != null)
                     {
@@ -162,14 +164,15 @@ namespace Catalog
                     return cRoot;
 
                 }
+                 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                Logger.Logger.Log("Exception", string.Format("msg:{0}, st:{1}", ex.Message, ex.StackTrace), "CategoryRequest");
                 throw ex;
             }
 
-            return response;
+            return (BaseResponse) response;
         }
 
         private List<CategoryResponse> FindTreeChildren(List<CategoryResponse> cats, int parentCategoryID)
