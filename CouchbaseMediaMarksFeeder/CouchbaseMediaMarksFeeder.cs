@@ -196,6 +196,16 @@ namespace CouchbaseMediaMarksFeeder
 
             try
             {
+                outputDirectory = outputDirectory.Trim();
+                if (string.IsNullOrEmpty(outputDirectory))
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    return false;
+                }
+                if (!outputDirectory.EndsWith("\\"))
+                {
+                    outputDirectory = String.Concat(outputDirectory, "\\");
+                }
                 if (!Directory.Exists(outputDirectory))
                 {
                     Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
@@ -543,6 +553,16 @@ namespace CouchbaseMediaMarksFeeder
             }
             try
             {
+                outputDirectory = outputDirectory.Trim();
+                if (string.IsNullOrEmpty(outputDirectory))
+                {
+                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    return false;
+                }
+                if (!outputDirectory.EndsWith("\\"))
+                {
+                    outputDirectory = String.Concat(outputDirectory, "\\");
+                }
                 if (!Directory.Exists(outputDirectory))
                 {
                     Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Update. Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
