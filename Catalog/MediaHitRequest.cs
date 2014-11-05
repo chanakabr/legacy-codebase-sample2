@@ -15,6 +15,7 @@ using Tvinci.Core.DAL;
 using ApiObjects.Statistics;
 using Catalog.Cache;
 using GroupsCacheManager;
+using System.Threading.Tasks;
 
 namespace Catalog
 {
@@ -53,7 +54,7 @@ namespace Catalog
 
                 if (oBaseRequest != null)
                 {
-                    oMediaHitRequest = (MediaHitRequest)oBaseRequest;
+                    oMediaHitRequest = oBaseRequest as MediaHitRequest;
                     oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
                 }
                 else
@@ -107,88 +108,70 @@ namespace Catalog
 
             MediaPlayActions action;
 
-            if (this.m_oMediaPlayRequestData.m_nLoc > 0)
+            if (m_oMediaPlayRequestData.m_nLoc > 0)
             {
-                nPlayTime = this.m_oMediaPlayRequestData.m_nLoc;
+                nPlayTime = m_oMediaPlayRequestData.m_nLoc;
             }
-            int.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
+            int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
             if (this.m_oFilter != null)
             {
-                int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
+                int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
 
-            int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
-            
-            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
+            int nCountryID = 0;
 
-            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
+            if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
+            {
+                throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
+            }
+
+            bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             int nSiteGuid;
-            int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
             //non-anonymous user
             if (nSiteGuid != 0)
             {
-                string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);
+                CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID,
+                    m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad,
+                    nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
+                    m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
 
-                CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                              nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
-                                              nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
-
-                if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
+                if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, this.m_oMediaPlayRequestData.m_sUDID);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID);
                 }
 
-                if (this.m_oMediaPlayRequestData.m_nAvgBitRate > 0)
+                if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
                     int siteGuid = 0;
                     int status = 1;
-                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                                               this.m_oMediaPlayRequestData.m_nAvgBitRate, this.m_oMediaPlayRequestData.m_nCurrentBitRate, this.m_oMediaPlayRequestData.m_nTotalBitRate,
-                                                               nPlayTime, nBrowser, nPlatform, nCountryID, status, this.m_nGroupID);
+                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                                                               m_oMediaPlayRequestData.m_nAvgBitRate, m_oMediaPlayRequestData.m_nCurrentBitRate, m_oMediaPlayRequestData.m_nTotalBitRate,
+                                                               nPlayTime, nBrowser, nPlatform, nCountryID, status, m_nGroupID);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics
-            if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
+            if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
             {
-
-                GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(mediaHitRequest.m_nGroupID);
-                Group oGroup = groupManager.GetGroup(nParentGroupID);
-
-                if (oGroup != null)
-                {
-                    MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
-                    WriteLiveViewsToES(view);
-                }
+                Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, nPlayTime));
             }
 
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             return oMediaHitResponse;
         }
 
-        private bool WriteLiveViewsToES(MediaView oMediaView)
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
         {
-            bool bRes = false;
-            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
-
-            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
             {
-                Guid guid = Guid.NewGuid();
-
-                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
-
-                if (!bRes)
-                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
+                Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID), "MediaHitRequest");
             }
-
-            return bRes;
         }
+
     }
 }

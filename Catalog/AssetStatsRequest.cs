@@ -61,7 +61,6 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                //previous log format
                 Logger.Logger.Log("Exception", String.Concat("Req: ", ToString(), " Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "AssetStatsRequest");
                 throw ex;
             }

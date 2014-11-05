@@ -3187,13 +3187,18 @@ namespace ConditionalAccess
 
         private List<int> GetRelatedMediaFiles(MediaFileItemPricesContainer price, int mediaFileID)
         {
+            List<int> lRelatedMediaFiles = new List<int>();
+
             if (price != null && price.m_oItemPrices != null && price.m_oItemPrices.Length > 0 &&
                 price.m_oItemPrices[0].m_lRelatedMediaFileIDs != null && price.m_oItemPrices[0].m_lRelatedMediaFileIDs.Length > 0)
             {
-                return price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList();
+                lRelatedMediaFiles.AddRange(price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList());
             }
-
-            return new List<int>(1) { mediaFileID };
+            if (!lRelatedMediaFiles.Contains(mediaFileID))
+            {
+                lRelatedMediaFiles.Add(mediaFileID);
+            }
+            return lRelatedMediaFiles;
         }
 
         private string GetCountryCodeForHandlePlayUses(string userIP, string countryCode)
@@ -5196,30 +5201,29 @@ namespace ConditionalAccess
                             if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
                                 bOK = true;
                         }
-                        if (!bOK)
+                        if (!bOK && !bDummy)
                         {
-                            if (!bDummy)
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "This PPVModule does not belong to item";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        }
+                        
+                        if (bDummy)
+                        {
+                            bOK = true;
+                            if (nCount > 0)
                             {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                            }
-                            else
-                            {
-                                bOK = true;
-                                if (nCount > 0)
-                                {
-                                    sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
-                                    dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
-                                    sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                    if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
-                                    { // Cinepolis patch
-                                        dPrice = 0d;
-                                    }
+                                sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
+                                dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
+                                sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                                if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                                { // Cinepolis patch
+                                    dPrice = 0d;
                                 }
                             }
                         }
+
                         if (bOK)
                         {
                             PriceReason theReason = PriceReason.UnKnown;
