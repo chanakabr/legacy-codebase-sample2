@@ -41,13 +41,6 @@ namespace Catalog
             try
             {
                 CategoryRequest request = (CategoryRequest)oBaseRequest;    
-                channelObj chObj;
-                //Picture pic;
-
-                string xmlresult = "";
-                xmlresult = SerializeToXML<CategoryRequest>(request);
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "CategoryRequest Start At", DateTime.Now));
 
                 if (request == null || request.m_oFilter == null)
                     throw new Exception("request object is null or required variable is null");
@@ -57,7 +50,6 @@ namespace Catalog
                     throw new Exception("Signatures do not match");
 
                 //Get Channels For CategoryID
-
                 int nLanguage = 0;
                 if (request.m_oFilter != null)
                 {
@@ -86,7 +78,6 @@ namespace Catalog
                         .GroupBy(cc => cc.CategoryID)
                         .ToDictionary(cc => cc.Key, cc => cc.ToList());
 
-
                     // Make category-pictures dictionary
                     Dictionary<long, List<Picture>> dChanPics = dtCatChan.AsEnumerable()
                         .Select(r => new
@@ -99,9 +90,6 @@ namespace Catalog
                         .GroupBy(c => c.ID)
                         .ToDictionary(c => c.Key, c => c.ToList()
                             .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
-
-
-                    //int groupLangID = dtGroupLang.AsEnumerable().Select(r => r.Field<int>("LANGUAGE_ID")).First();
 
                     List<CategoryResponse> cats = dtCat.AsEnumerable().Select(r => new CategoryResponse()
                                                 {
@@ -166,9 +154,6 @@ namespace Catalog
                         });
                     }
 
-                    //var root = Utils.GenerateTree(cats, c => c.ID, c => c.m_nParentCategoryID, cats.First(c => c.ID == request.m_nCategoryID));
-                    //CategoryObj catRoot = ConvertTree(root.First());
-
                     CategoryResponse cRoot = cats.FirstOrDefault(c => c.ID == request.m_nCategoryID);
 
                     if (cRoot != null)
@@ -180,57 +165,10 @@ namespace Catalog
 
                 }
                  
-
-
-
-                //GroupManager groupManager = new GroupManager();
-                //List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
-                //DataSet ds = CatalogDAL.Get_ChannelsListByCategory(request.m_nCategoryID, request.m_nGroupID, nLanguage, lSubGroupTree);
-
-                //if (ds != null && ds.Tables.Count > 0)
-                //{
-                //    if (ds.Tables[0].Columns != null)
-                //    {
-                //        for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-                //        {
-                //            chObj = GetChannelFromDbRow(ds.Tables[0].Rows[i]); 
-
-                //            if (ds.Tables[1].Columns != null)
-                //            {
-                //               DataRow[] dr = ds.Tables[1].Select("ID =" + chObj.m_nChannelID);
-
-                //                for (int j = 0; j < dr.Count(); j++)
-                //                {
-                //                    pic = new Picture();
-                //                    pic.m_sSize = Utils.GetStrSafeVal(dr[j], "PicSize");
-                //                    pic.m_sURL = Utils.GetStrSafeVal(dr[j], "m_sURL");
-                //                    chObj.m_lPic.Add(pic);
-                //                }
-                //            }
-
-                //            response.m_oChannels.Add(chObj);
-                //        }
-
-                //        response.m_nTotalItems = response.m_oChannels.Count;
-                //    }
-                //}
-
-                //response.m_oChildCategories = CatalogDAL.GetChildCategories(request.m_nCategoryID, request.m_nGroupID);
-
-
-
-                //xmlresult = "no results";
-                //if (response != null)
-                //{
-                //    xmlresult = SerializeToXML<ChannelDetailsResponse>(response);
-                //}
-
-                //_logger.Info(xmlresult);
-                //return (BaseResponse)response;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                Logger.Logger.Log("Exception", string.Format("msg:{0}, st:{1}", ex.Message, ex.StackTrace), "CategoryRequest");
                 throw ex;
             }
 
@@ -240,17 +178,6 @@ namespace Catalog
         private List<CategoryResponse> FindTreeChildren(List<CategoryResponse> cats, int parentCategoryID)
         {
             List<CategoryResponse> lChildren = cats.Where(c => c.m_nParentCategoryID == parentCategoryID).ToList();
-
-            //Dictionary<int, List<CategoryResponse>> dChildren = cats.Where(c => c.m_nParentCategoryID == parentCategoryID)
-            //                                                        .Distinct()
-            //                                                        .GroupBy(c => c.ID)
-            //                                                        .ToDictionary(c => c.Key, c => c.ToList());
-
-
-            //foreach (var cid in dChildren.Keys)
-            //{
-            //    lChildren.Add((dChildren[cid]).First());
-            //}
 
             foreach (var c in lChildren)
             {
