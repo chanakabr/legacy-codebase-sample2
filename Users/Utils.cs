@@ -129,7 +129,7 @@ namespace Users
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {   
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
 
             switch (nImplID)
             {
