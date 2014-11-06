@@ -60,7 +60,7 @@ namespace DAL
                 selectQuery += "select implementation_id from groups_modules_implementations with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", 1);
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", moduleID);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;

@@ -634,11 +634,7 @@ namespace Catalog
                 searchObj.m_nMediaID = request.m_nMediaID;
                 if (request.m_nMediaTypes != null && request.m_nMediaTypes.Count > 0)
                 {
-                    foreach (int mediaType in request.m_nMediaTypes)
-                    {
-                        searchObj.m_sMediaTypes += mediaType.ToString() + ";";
-                    }
-                    searchObj.m_sMediaTypes = searchObj.m_sMediaTypes.Remove(searchObj.m_sMediaTypes.Length - 1, 1);
+                    searchObj.m_sMediaTypes = string.Join(";", request.m_nMediaTypes.Select((i) => i.ToString()).ToArray()); 
                 }
                 else
                 {
