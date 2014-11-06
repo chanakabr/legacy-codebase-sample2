@@ -599,6 +599,10 @@
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj">
+      <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
+      <Name>StreamingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>

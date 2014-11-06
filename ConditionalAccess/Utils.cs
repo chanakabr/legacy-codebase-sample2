@@ -2820,5 +2820,55 @@ namespace ConditionalAccess
             }
             return retCountryID;
         }
+
+
+
+        internal static bool GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
+        {
+            bool isDynamic = false;
+            string sCDN = string.Empty;
+
+            string keyUrlType = string.Format("{0}_GetStreamingUrlType_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
+            string keyCDN = string.Format("{0}_GetStreamingCDN_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, CdnStrID);
+
+            bool resURL = ConditionalAccessCache.GetItem<bool>(keyUrlType, out isDynamic);
+            bool resCDN = ConditionalAccessCache.GetItem<string>(keyUrlType, out sCDN);
+
+            if (!resURL || !resCDN)
+            {
+                try
+                {
+                    int nUrlType = DAL.ConditionalAccessDAL.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+                    switch (nUrlType)
+                    {
+                        case (int)eUrlType.Dynamic:
+                            isDynamic = true;
+                            break;
+                        case (int)eUrlType.Static:
+                            break;
+                        default:
+                            break;
+                    }
+                    ConditionalAccessCache.AddItem(keyUrlType, isDynamic);
+                    ConditionalAccessCache.AddItem(keyCDN, sCDN);
+                }
+                catch (Exception)
+                {
+                    isDynamic = false;
+                    sCDN = string.Empty;
+                }
+            }
+
+            return isDynamic;
+        }
+
+        internal static string GetDateFormat(DateTime dateTime, string formatDate)
+        {
+            if (dateTime != null)
+            {
+                return dateTime.ToString(formatDate);
+            }
+            return string.Empty;
+        }
     }
 }

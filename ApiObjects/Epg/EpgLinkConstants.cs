@@ -13,6 +13,8 @@ namespace ApiObjects.Epg
         public static readonly string START_TIME = "start_time";
         public static readonly string EPG_FORMAT_TYPE = "epg_format_type";
 
+        public static readonly string IS_DYNAMIC = "is_dynamic";
+
         public static readonly string CHANNEL_NAME = "channel_name";
         public static readonly string PROGRAM_START = "program_start";
         public static readonly string PROGRAM_END = "program_end";

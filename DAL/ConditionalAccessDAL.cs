@@ -1679,7 +1679,7 @@ namespace DAL
         }
 
 
-        public static int GetStreamingUrlType(int fileMainStreamingCoID)
+        public static int GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
         {
             int nUrlType = 0;
             StoredProcedure sp = new StoredProcedure("Get_StreamingCoUrlType");
@@ -1693,7 +1693,8 @@ namespace DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    nUrlType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "URL_TYPE");
+                    nUrlType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "URL_TYPE"); // type of url dynamic or static
+                    CdnStrID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CDN_STR_ID"); // streaming provider name 
                 }
             }
 
