@@ -26,36 +26,4 @@ namespace ApiObjects.Epg
         public static readonly string LEFT_MARGIN = "left_margin";
 
     }
-
-
-    [Serializable]
-    public class EpgLinkItem
-    {
-        public string m_key { get; set; }
-        public object m_value { get; set; }
-        public EpgLinkItem()
-        {
-        }
-        public EpgLinkItem(string key, object value)
-        {
-            m_key = key;
-            m_value = value;
-        }
-    }
-    [Serializable]
-    public class EpgLink
-    {
-        public List<EpgLinkItem> m_lParams;
-
-        public EpgLink()
-        {
-            m_lParams = new List<EpgLinkItem>();
-        }
-
-        public void AddPair(string key, object value)
-        {
-            EpgLinkItem epgLinkItem = new EpgLinkItem(key, value);
-            this.m_lParams.Add(epgLinkItem);
-        }
-    }
 }
