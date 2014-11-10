@@ -1683,7 +1683,7 @@ namespace DAL
         {
             int nUrlType = 0;
             StoredProcedure sp = new StoredProcedure("Get_StreamingCoUrlType");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@StreamingCoID", fileMainStreamingCoID);
 
             DataSet ds = sp.ExecuteDataSet();

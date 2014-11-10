@@ -2825,14 +2825,13 @@ namespace ConditionalAccess
 
         internal static bool GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
         {
-            bool isDynamic = false;
-            string sCDN = string.Empty;
+            bool isDynamic = false;            
 
             string keyUrlType = string.Format("{0}_GetStreamingUrlType_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
-            string keyCDN = string.Format("{0}_GetStreamingCDN_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, CdnStrID);
+            string keyCDN = string.Format("{0}_GetStreamingCDN_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
 
             bool resURL = ConditionalAccessCache.GetItem<bool>(keyUrlType, out isDynamic);
-            bool resCDN = ConditionalAccessCache.GetItem<string>(keyUrlType, out sCDN);
+            bool resCDN = ConditionalAccessCache.GetItem<string>(keyCDN, out CdnStrID);
 
             if (!resURL || !resCDN)
             {
@@ -2848,14 +2847,14 @@ namespace ConditionalAccess
                             break;
                         default:
                             break;
-                    }
+                    }                    
                     ConditionalAccessCache.AddItem(keyUrlType, isDynamic);
-                    ConditionalAccessCache.AddItem(keyCDN, sCDN);
+                    ConditionalAccessCache.AddItem(keyCDN, CdnStrID);
                 }
                 catch (Exception)
                 {
                     isDynamic = false;
-                    sCDN = string.Empty;
+                    CdnStrID = string.Empty;
                 }
             }
 

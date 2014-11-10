@@ -10136,8 +10136,11 @@ namespace ConditionalAccess
                                 fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
                             if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
-                            {   
-                                if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()))
+                            {
+                                string CdnStrID = string.Empty;
+                                bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+
+                                if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)                                
                                 {
                                     mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
                                     if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
@@ -10148,24 +10151,20 @@ namespace ConditionalAccess
                                         }
                                         
                                         // TO DO if dynamic call to right provider to get the URL
-                                        if (eLinkType == eObjectType.Media)
+                                        if (eLinkType == eObjectType.Media && bIsDynamic)
                                         {
-                                            string CdnStrID = string.Empty;
-                                            bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
-                                            if (bIsDynamic)
-                                            {  
-                                                //call the right provider to get the link 
-                                                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
-                                                if (provider != null)
+                                            //call the right provider to get the link 
+                                            StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                                            if (provider != null)
+                                            {
+                                                string vodUrl = provider.GenerateVODLink(sBasicLink);
+                                                if (!string.IsNullOrEmpty(vodUrl))
                                                 {
-                                                    string vodUrl = provider.GenerateVODLink(sBasicLink);
-                                                    if (!string.IsNullOrEmpty(vodUrl))
-                                                    {
-                                                        licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
-                                                    }
+                                                    licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
                                                 }
                                             }
                                         }
+                                        
 
                                         res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                         licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;

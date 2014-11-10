@@ -482,6 +482,7 @@ namespace ConditionalAccess
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
                     eEPGFormatType eformat = (eEPGFormatType)format;
+                    dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
                     switch (eformat)
                     {
                         case eEPGFormatType.Catchup:
