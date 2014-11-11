@@ -49,6 +49,15 @@ namespace ConditionalAccess
 
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat("this is: ", this.GetType().Name));
+            sb.Append(String.Concat(" Site Guid: ", siteGuid));
+            sb.Append(String.Concat(" Asset ID: ", assetID));
+
+            return sb.ToString();
+        }
+
         protected abstract NPVRResponse ExecuteFlow(BaseConditionalAccess cas, int domainID);
 
     }
