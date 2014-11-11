@@ -17,6 +17,7 @@ namespace EpgBL
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
         public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
+        
         public abstract EpgCB GetEpgCB(ulong nProgramID);
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
 
@@ -26,6 +27,7 @@ namespace EpgBL
         public abstract List<EPGChannelProgrammeObject> SearchEPGContent(int groupID, string searchValue, int pageIndex, int pageSize);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByScids(int groupID, string[] scids, Language eLang, int duration);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration);
+        public abstract List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, int[] ids, string[] externalids, Language eLang, int duration);
 
         public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 

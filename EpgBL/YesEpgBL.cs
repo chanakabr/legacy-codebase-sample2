@@ -209,6 +209,13 @@ namespace EpgBL
             }
         }
 
+
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, int[] ids, string[] externalids, Language eLang, int duration)
+        {
+
+            return new List<EPGChannelProgrammeObject>();
+
+        }
         #endregion
 
         #region Privat

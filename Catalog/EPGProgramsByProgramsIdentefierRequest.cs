@@ -17,6 +17,7 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         [DataMember]
         string[] pids { get; set; }
+        // add ids int[]
        
         public EPGProgramsByProgramsIdentefierRequest()
             : base()
@@ -43,7 +44,8 @@ namespace Catalog
                  EpgProgramsResponse response = new EpgProgramsResponse();
                  BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
 
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByProgramsIdentefier(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                 List<EPGChannelProgrammeObject> retList = //epgBL.GetEPGProgramsByProgramsIdentefier(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                 epgBL.GetEPGPrograms(request.m_nGroupID, null, request.pids, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
                  {
                      response.lEpgList = retList;
