@@ -190,6 +190,7 @@ namespace ConditionalAccess
     {
         Unknown = 0,
         OK = 1,
-        Error = 2
+        Error = 2,
+        BadRequest = 3
     }
 }

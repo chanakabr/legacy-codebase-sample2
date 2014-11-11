@@ -17,12 +17,19 @@ namespace ConditionalAccess
             int groupID = Utils.GetGroupID(wsUsername, wsPassword, "GetNPVRResponse", ref t);
             if (groupID == 0 || t == null)
             {
-                throw new Exception("Either username or password is incorrect.");
+                return new NPVRResponse() { domainID = 0, status = NPVRStatus.BadRequest.ToString() };
             }
-            return ExecuteFlow(t);
+            int domainID = 0;
+            if (!Utils.IsUserValid(siteGuid, groupID, ref domainID))
+            {
+                return new NPVRResponse() { domainID = domainID, status = NPVRStatus.BadRequest.ToString() };
+            }
+
+            return ExecuteFlow(t, domainID);
 
         }
 
-        protected abstract NPVRResponse ExecuteFlow(BaseConditionalAccess cas);
+        protected abstract NPVRResponse ExecuteFlow(BaseConditionalAccess cas, int domainID);
+
     }
 }

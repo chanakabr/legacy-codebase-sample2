@@ -47,7 +47,7 @@ namespace ConditionalAccess
             if (nImplID == 7)
                 t = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
             if (nImplID == 9)
-                t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);          
+                t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
         }
 
         public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
@@ -243,7 +243,7 @@ namespace ConditionalAccess
             string sWSPass = string.Empty;
             TvinciAPI.API m = null;
             TvinciAPI.MeidaMaper[] mapper = null;
-            
+
             try
             {
                 string nMediaFilesIDsToCache = ConvertArrayIntToStr(nMediaFilesIDs);
@@ -304,8 +304,8 @@ namespace ConditionalAccess
                 else
                 {
                     nRet = m.GetMediaFileTypeID(sAPIUsername, sAPIPassword, nMediaFileID);
-                }              
-            }            
+                }
+            }
 
             return nRet;
         }
@@ -1614,7 +1614,7 @@ namespace ConditionalAccess
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
 
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, 
+                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID,
                         ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
                     {
                         p.m_dPrice = 0;
@@ -2825,7 +2825,7 @@ namespace ConditionalAccess
 
         internal static bool GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
         {
-            bool isDynamic = false;            
+            bool isDynamic = false;
 
             string keyUrlType = string.Format("{0}_GetStreamingUrlType_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
             string keyCDN = string.Format("{0}_GetStreamingCDN_{1}", ApiObjects.eWSModules.CONDITIONALACCESS, fileMainStreamingCoID);
@@ -2847,7 +2847,7 @@ namespace ConditionalAccess
                             break;
                         default:
                             break;
-                    }                    
+                    }
                     ConditionalAccessCache.AddItem(keyUrlType, isDynamic);
                     ConditionalAccessCache.AddItem(keyCDN, CdnStrID);
                 }
@@ -2868,6 +2868,36 @@ namespace ConditionalAccess
                 return dateTime.ToString(formatDate);
             }
             return string.Empty;
+        }
+
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID)
+        {
+            long temp = 0;
+            if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
+                return false;
+            string wsUsername = string.Empty;
+            string wsPassword = string.Empty;
+            Utils.GetWSCredentials(groupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
+            string url = Utils.GetWSURL("users_ws");
+            bool res = false;
+            using (UsersService u = new UsersService())
+            {
+                if (url.Length > 0)
+                    u.Url = url;
+                TvinciUsers.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
+                if (resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                {
+                    domainID = resp.m_user.m_domianID;
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
+                
+            }
+
+            return res;
         }
     }
 }
