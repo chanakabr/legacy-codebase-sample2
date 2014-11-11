@@ -856,7 +856,6 @@ namespace CouchbaseMediaMarksFeeder
                     }
                 }
                 res = true;
-                
             }
             catch (Exception ex)
             {
