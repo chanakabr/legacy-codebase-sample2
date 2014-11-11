@@ -895,53 +895,105 @@ namespace CouchbaseMediaMarksFeeder
             ZipArchive archive = null;
             try
             {
-                string currZipFile = string.Empty;
+                //string currZipFile = string.Empty;
+                //for (i = startIndexInclusive; i < endIndexExclusive; i++)
+                //{
+                //    if (zip == null)
+                //    {
+                //        currZipFile = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
+                //        zip = new FileStream(currZipFile, FileMode.Create);
+                //        archive = new ZipArchive(zip, ZipArchiveMode.Create);
+                //        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Started working on file: ", currZipFile, ". Iter num: ", i, " RR Ctr: ", roundRobinCounter), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                //    }
+                //    string errMsg = string.Empty;
+                //    string jsonFileContent = string.Empty;
+                //    jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
+                //    if (jsonFileContent.Length > 0)
+                //    {
+                //        string currJsonFilename = GetFilenameOutOfPath(jsonsFilenames[i]);
+                //        ZipArchiveEntry entry = archive.CreateEntry(currJsonFilename);
+                //        using (StreamWriter sw = new StreamWriter(entry.Open()))
+                //        {
+                //            sw.Write(jsonFileContent);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Error at iteration: ", i, " Failed to read JSON from file: ", jsonsFilenames[i], ". Err msg: ", errMsg), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                //    }
+                //    jsonFileInZipCounter++;
+                //    if (jsonFileInZipCounter == numOfJsonsInZip)
+                //    {
+                //        archive.Dispose();
+                //        archive = null;
+                //        zip.Close();
+                //        zip = null;
+                //        roundRobinCounter++;
+                //        jsonFileInZipCounter = 0;
+                //        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                //    }
+                //} // for
+                //if (jsonFileInZipCounter <= numOfJsonsInZip)
+                //{
+                //    archive.Dispose();
+                //    archive = null;
+                //    zip.Close();
+                //    zip = null;
+                //    roundRobinCounter++;
+                //    jsonFileInZipCounter = 0;
+                //    Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i - 1), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                //}
+                //res = true;
+                Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg("Worker thread started.", startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                List<KeyValuePair<string, string>> filenameToJsonMapping = new List<KeyValuePair<string, string>>(numOfJsonsInZip);
                 for (i = startIndexInclusive; i < endIndexExclusive; i++)
                 {
-                    if (zip == null)
+                    if (filenameToJsonMapping.Count == numOfJsonsInZip)
                     {
-                        currZipFile = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
-                        zip = new FileStream(currZipFile, FileMode.Create);
-                        archive = new ZipArchive(zip, ZipArchiveMode.Create);
-                        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Started working on file: ", currZipFile, ". Iter num: ", i, " RR Ctr: ", roundRobinCounter), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                        // create zip file.
+                        string statusMsg = string.Empty;
+                        if (!CreateZipFile(numOfCouchbaseInstances, roundRobinCounter, filenameToJsonMapping, jsonsDir,
+                            startIndexInclusive, endIndexExclusive, ref statusMsg))
+                        {
+                            // fail.
+                            Logger.Logger.Log(LOG_HEADER_ERROR, statusMsg, ZIP_LOG_FILE);
+                        }
+                        else
+                        {
+                            Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Success. ", statusMsg), ZIP_LOG_FILE);
+                        }
+                        // increment round robin counter
+                        roundRobinCounter++;
+                        // allocate new list.
+                        filenameToJsonMapping = new List<KeyValuePair<string, string>>(numOfJsonsInZip);
                     }
                     string errMsg = string.Empty;
-                    string jsonFileContent = string.Empty;
-                    jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
-                    if (jsonFileContent.Length > 0)
+                    string jsonFile = GetFilenameOutOfPath(jsonsFilenames[i]);
+                    string jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
+                    if (jsonFileContent.Length == 0)
                     {
-                        string currJsonFilename = GetFilenameOutOfPath(jsonsFilenames[i]);
-                        ZipArchiveEntry entry = archive.CreateEntry(currJsonFilename);
-                        using (StreamWriter sw = new StreamWriter(entry.Open()))
-                        {
-                            sw.Write(jsonFileContent);
-                        }
+                        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Failed to read json out of file: ", jsonsFilenames[i], " Iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                        continue;
+                    }
+                    filenameToJsonMapping.Add(new KeyValuePair<string, string>(jsonFile, jsonFileContent));
+
+                }
+                if (filenameToJsonMapping.Count > 0)
+                {
+                    // create zip file.
+                    string statusMsg = string.Empty;
+                    if (!CreateZipFile(numOfCouchbaseInstances, roundRobinCounter, filenameToJsonMapping, jsonsDir,
+                        startIndexInclusive, endIndexExclusive, ref statusMsg))
+                    {
+                        // fail.
+                        Logger.Logger.Log(LOG_HEADER_ERROR, statusMsg, ZIP_LOG_FILE);
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Error at iteration: ", i, " Failed to read JSON from file: ", jsonsFilenames[i], ". Err msg: ", errMsg), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Success. ", statusMsg), ZIP_LOG_FILE);
                     }
-                    jsonFileInZipCounter++;
-                    if (jsonFileInZipCounter == numOfJsonsInZip)
-                    {
-                        archive.Dispose();
-                        archive = null;
-                        zip.Close();
-                        zip = null;
-                        roundRobinCounter++;
-                        jsonFileInZipCounter = 0;
-                        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
-                    }
-                } // for
-                if (jsonFileInZipCounter <= numOfJsonsInZip)
-                {
-                    archive.Dispose();
-                    archive = null;
-                    zip.Close();
-                    zip = null;
+                    // increment round robin counter
                     roundRobinCounter++;
-                    jsonFileInZipCounter = 0;
-                    Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i - 1), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
                 }
                 res = true;
             }
@@ -961,11 +1013,57 @@ namespace CouchbaseMediaMarksFeeder
             }
             finally
             {
+                Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg("Worker thread reached finally block.", startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
                 if (archive != null)
                 {
                     archive.Dispose();
                 }
                 if (zip != null) 
+                {
+                    zip.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private bool CreateZipFile(int numOfCouchbaseInstances, int roundRobinCounter, List<KeyValuePair<string, string>> jsonFilenameToJsonContent,
+            string[] jsonsDir, int startIndexInclusive, int endIndexExclusive, ref string statusMsg)
+        {
+            bool res = false;
+            string zipFilename = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
+            FileStream zip = null;
+            ZipArchive archive = null;
+            int i = 0;
+            try
+            {
+                statusMsg = string.Format("Starting to zip chunk num: {0} startIndex: {1} , endIndex: {2} , num of files: {3} , into file: {4} , Thread ID: {5}", roundRobinCounter, startIndexInclusive, endIndexExclusive, jsonFilenameToJsonContent.Count, zipFilename, System.Threading.Thread.CurrentThread.ManagedThreadId);
+                zip = new FileStream(zipFilename, FileMode.CreateNew);
+                archive = new ZipArchive(zip, ZipArchiveMode.Create);
+                for (i = 0; i < jsonFilenameToJsonContent.Count; i++)
+                {
+                    string name = jsonFilenameToJsonContent[i].Key;
+                    string json = jsonFilenameToJsonContent[i].Value;
+                    ZipArchiveEntry entry = archive.CreateEntry(name);
+                    using (StreamWriter sw = new StreamWriter(entry.Open()))
+                    {
+                        sw.Write(json);
+                    }
+                }
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                res = false;
+                statusMsg = String.Concat(statusMsg, " || ", GetZipperWorkerLogMsg(String.Concat("Exception at iter: ", i, " in CreateZipFile."), startIndexInclusive, endIndexExclusive, ex));
+            }
+            finally
+            {
+                if (archive != null)
+                {
+                    archive.Dispose();
+                }
+                if (zip != null)
                 {
                     zip.Close();
                 }
