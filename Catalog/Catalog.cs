@@ -575,6 +575,18 @@ namespace Catalog
             }
         }
 
+        public static bool IsGroupUseFPNPC(int nGroupID) //FPNPC - First Play New Play Cycle
+        {
+            try
+            {
+                return Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIFPNPC", ';');
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         #region Build Search object for Searcher project.
 
         static internal MediaSearchObj BuildSearchObject(BaseMediaSearchRequest request, List<string> jsonizedChannelsDefinitionsToSearchIn,
