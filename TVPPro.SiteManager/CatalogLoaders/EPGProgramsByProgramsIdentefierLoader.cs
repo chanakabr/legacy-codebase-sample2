@@ -75,7 +75,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 {
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGProgramsByProgramsIdentefierRequest":
                         EPGProgramsByProgramsIdentefierRequest request = obj as EPGProgramsByProgramsIdentefierRequest;
-                        sText.AppendFormat("EPGProgramsByScidsRequest: GroupID = {0}, PageIndex = {1}, PageSize = {2}, searchText = {3}, duration = {4}, eLang = {5}, num of pids = {6}", request.m_nGroupID, request.m_nPageIndex, request.m_nPageSize, request.duration, request.eLang, request.pids.Count);
+                        sText.AppendFormat("EPGProgramsByScidsRequest: GroupID = {0}, PageIndex = {1}, PageSize = {2}, duration = {3}, eLang = {4}, num of pids = {5}", request.m_nGroupID, request.m_nPageIndex, request.m_nPageSize, request.duration, request.eLang, request.pids.Count);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramsResponse":
                         EpgProgramsResponse response = obj as EpgProgramsResponse;
