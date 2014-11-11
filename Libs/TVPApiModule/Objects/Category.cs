@@ -26,10 +26,10 @@ namespace TVPApi
             Title = categoryResponse.m_sTitle;
             ID = categoryResponse.ID.ToString();
             CoGuid = categoryResponse.m_sCoGuid;
-            if (!string.IsNullOrEmpty(picSize))
+            if (!string.IsNullOrEmpty(picSize) && categoryResponse.m_lPics != null)
             {
                 var pic = categoryResponse.m_lPics.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
-                PicURL = pic.m_sURL;
+                PicURL = pic == null ? string.Empty : pic.m_sURL;
             }
         }
 

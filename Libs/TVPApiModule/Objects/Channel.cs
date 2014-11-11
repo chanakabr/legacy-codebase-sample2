@@ -27,10 +27,12 @@ namespace TVPApi
             
             Title = channelObj.m_sTitle;
             ChannelID = channelObj.m_nChannelID;
-
-            var pic = channelObj.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
-            if (pic != null)
-                PicURL = pic.m_sURL;
+            if (channelObj.m_lPic != null)
+            {
+                var pic = channelObj.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
+                if (pic != null)
+                    PicURL = pic.m_sURL;
+            }
             //MediaCount = channelObj;
         }
 

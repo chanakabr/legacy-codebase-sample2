@@ -37,28 +37,6 @@ namespace TVPApiModule.Objects
         {
             ApiUsersService.LogInResponseData response = base.SignIn(sUsername, sPassword);
 
-            try
-            {
-                if (response.UserData != null && response.UserData.m_oDynamicData != null)
-                {
-                    string sUserType = response.UserData.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "Type").FirstOrDefault().m_sValue;
-                    using (yes.tvinci.ITProxy.Service service = new yes.tvinci.ITProxy.Service())
-                    {
-                        string perm = service.GetUserPermission(sUsername, sUserType);
-                        new ApiUsersService(_nGroupID, _initObj.Platform).SetUserDynamicData(response.SiteGuid, "USER_PERMISSIONS", perm);
-                        UserResponseObject userData = new ApiUsersService(_nGroupID, _initObj.Platform).GetUserData(response.SiteGuid);
-                        if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null)
-                        {
-                            response.UserData.m_oDynamicData = userData.m_user.m_oDynamicData;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-
             return response;
         }
 
@@ -148,7 +126,7 @@ namespace TVPApiModule.Objects
             string sRet = string.Empty;
             string sError = @"{{""Error"":{0}, ""Description"":""{1}""}}";
 
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
             dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
 
             // Error
@@ -522,7 +500,7 @@ namespace TVPApiModule.Objects
             yes.tvinci.ITProxy.Entitlement[] ent = null;
 
             // get media
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
             dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
 
             if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
@@ -541,7 +519,7 @@ namespace TVPApiModule.Objects
                         {
                             ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
                             UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                            if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null)
+                            if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null && userResponseObject.m_user.m_oDynamicData.m_sUserData != null)
                             {
                                 UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
                                 if (dynamicData != null)
@@ -639,7 +617,9 @@ namespace TVPApiModule.Objects
 
         private yes.tvinci.ITProxy.Entitlement[] GetValidEntitlements(yes.tvinci.ITProxy.Entitlement[] ent)
         {
-            return ent.Where(e => e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
+            if (ent != null)
+                return ent.Where(e => e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
+            else return null;
         }
 
         public override RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
