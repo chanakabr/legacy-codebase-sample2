@@ -22,7 +22,7 @@ namespace ConditionalAccess
             int domainID = 0;
             if (!Utils.IsUserValid(siteGuid, groupID, ref domainID))
             {
-                return new NPVRResponse() { domainID = domainID, status = NPVRStatus.BadRequest.ToString() };
+                return new NPVRResponse() { domainID = domainID, status = NPVRStatus.InvalidUser.ToString() };
             }
 
             return ExecuteFlow(t, domainID);

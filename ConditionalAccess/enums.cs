@@ -191,6 +191,7 @@ namespace ConditionalAccess
         Unknown = 0,
         OK = 1,
         Error = 2,
-        BadRequest = 3
+        BadRequest = 3,
+        InvalidUser = 4
     }
 }
