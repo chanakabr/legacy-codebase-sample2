@@ -2885,7 +2885,7 @@ namespace ConditionalAccess
                 if (url.Length > 0)
                     u.Url = url;
                 TvinciUsers.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
-                if (resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
                     res = true;
