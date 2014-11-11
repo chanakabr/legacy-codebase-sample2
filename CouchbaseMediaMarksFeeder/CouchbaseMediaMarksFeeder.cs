@@ -1031,7 +1031,7 @@ namespace CouchbaseMediaMarksFeeder
             string[] jsonsDir, int startIndexInclusive, int endIndexExclusive, ref string statusMsg)
         {
             bool res = false;
-            string zipFilename = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
+            string zipFilename = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", Guid.NewGuid().ToString().Replace("-", string.Empty), ZIP_FILE_ENDING);
             FileStream zip = null;
             ZipArchive archive = null;
             int i = 0;
