@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace CouchbaseMediaMarksFeeder
         private static bool isRunning = false;
 
         private static readonly string JSON_FILE_ENDING = ".json";
+        private static readonly string ZIP_FILE_ENDING = ".zip";
         private static readonly string LOG_FILE = "CouchbaseMediaMarksFeeder";
         private static readonly string DATETIME_PRINT_FORMAT = "yyyyMMddHHmmss";
         private static readonly string LOG_HEADER_STATUS = "Status";
@@ -792,12 +794,22 @@ namespace CouchbaseMediaMarksFeeder
                     Logger.Logger.Log(LOG_HEADER_ERROR, "Either directory of jsons or target directory of zips does not exist.", ZIP_LOG_FILE);
                     return false;
                 }
-
+                Task[] domainWorkers = null;
+                Task[] umWorkers = null;
+                string[] domainsJsonsDir = null;
+                string[] umJsonsDir = null;
+                CreateZipDirectories(numOfCouchbaseInstances, zipsDirectory, out domainsJsonsDir, out umJsonsDir);
+                Logger.Logger.Log(LOG_HEADER_STATUS, "Created directories for each couchbase instance.", ZIP_LOG_FILE);
                 // get domains json files
                 string[] domainsJsonsFiles = Directory.GetFiles(jsonsDirectory, "d*");
                 if (domainsJsonsFiles != null && domainsJsonsFiles.Length > 0)
                 {
                     Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", domainsJsonsFiles.Length, " domain jsons files."), ZIP_LOG_FILE);
+                    domainWorkers = new Task[DEFAULT_NUM_OF_WORKER_THREADS >> 1];
+                    domainWorkers[0] = Task.Factory.StartNew(() => ZipperWorker(domainsJsonsFiles, 0, domainsJsonsFiles.Length >> 1, 
+                        numOfCouchbaseInstances, domainsJsonsDir, numOfJsonsInZip));
+                    domainWorkers[1] = Task.Factory.StartNew(() => ZipperWorker(domainsJsonsFiles, domainsJsonsFiles.Length >> 1,
+                        domainsJsonsFiles.Length, numOfCouchbaseInstances, domainsJsonsDir, numOfJsonsInZip));
                 }
                 else
                 {
@@ -810,17 +822,45 @@ namespace CouchbaseMediaMarksFeeder
                 if (umJsonsFiles != null && umJsonsFiles.Length > 0)
                 {
                     Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", umJsonsFiles.Length, " user media jsons files."), ZIP_LOG_FILE);
+                    umWorkers = new Task[DEFAULT_NUM_OF_WORKER_THREADS >> 1];
+                    umWorkers[0] = Task.Factory.StartNew(() => ZipperWorker(umJsonsFiles, 0, umJsonsFiles.Length >> 1, numOfCouchbaseInstances,
+                        umJsonsDir, numOfJsonsInZip));
+                    umWorkers[1] = Task.Factory.StartNew(() => ZipperWorker(umJsonsFiles, umJsonsFiles.Length >> 1, umJsonsFiles.Length, numOfCouchbaseInstances,
+                        umJsonsDir, numOfJsonsInZip));
                 }
                 else
                 {
                     Logger.Logger.Log(LOG_HEADER_ERROR, "No domains jsons were found.", ZIP_LOG_FILE);
                 }
-                // attach two worker threads to process those jsons
-                
+
+                if (domainWorkers != null)
+                {
+                    Task.WaitAll(domainWorkers);
+                    for (int i = 0; i < domainWorkers.Length; i++)
+                    {
+                        if (domainWorkers[i] != null)
+                        {
+                            domainWorkers[i].Dispose();
+                        }
+                    }
+                }
+                if (umWorkers != null)
+                {
+                    Task.WaitAll(umWorkers);
+                    for (int i = 0; i < umWorkers.Length; i++)
+                    {
+                        if (umWorkers[i] != null)
+                        {
+                            umWorkers[i].Dispose();
+                        }
+                    }
+                }
+                res = true;
                 
             }
             catch (Exception ex)
             {
+                res = false;
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at Zip. Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Num of CB instances: ", numOfCouchbaseInstances));
                 sb.Append(String.Concat(" JSONs Dir: ", jsonsDirectory));
@@ -843,6 +883,178 @@ namespace CouchbaseMediaMarksFeeder
             }
 
             return res;
+        }
+
+        private bool ZipperWorker(string[] jsonsFilenames, int startIndexInclusive, int endIndexExclusive, int numOfCouchbaseInstances,
+            string[] jsonsDir, int numOfJsonsInZip)
+        {
+            int i=0;
+            int roundRobinCounter = 0;
+            int jsonFileInZipCounter = 0;
+            bool res = false;
+            FileStream zip = null;
+            ZipArchive archive = null;
+            try
+            {
+                string currZipFile = string.Empty;
+                for (i = startIndexInclusive; i < endIndexExclusive; i++)
+                {
+                    if (zip == null)
+                    {
+                        currZipFile = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
+                        zip = new FileStream(currZipFile, FileMode.Create);
+                        archive = new ZipArchive(zip, ZipArchiveMode.Create);
+                        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Started working on file: ", currZipFile, ". Iter num: ", i, " RR Ctr: ", roundRobinCounter), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                    }
+                    string errMsg = string.Empty;
+                    string jsonFileContent = string.Empty;
+                    jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
+                    if (jsonFileContent.Length > 0)
+                    {
+                        string currJsonFilename = GetFilenameOutOfPath(jsonsFilenames[i]);
+                        ZipArchiveEntry entry = archive.CreateEntry(currJsonFilename);
+                        using (StreamWriter sw = new StreamWriter(entry.Open()))
+                        {
+                            sw.Write(jsonFileContent);
+                        }
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Error at iteration: ", i, " Failed to read JSON from file: ", jsonsFilenames[i], ". Err msg: ", errMsg), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                    }
+                    jsonFileInZipCounter++;
+                    if (jsonFileInZipCounter == numOfJsonsInZip)
+                    {
+                        archive.Dispose();
+                        archive = null;
+                        zip.Close();
+                        zip = null;
+                        roundRobinCounter++;
+                        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                    }
+                } // for
+                if (jsonFileInZipCounter <= numOfJsonsInZip)
+                {
+                    archive.Dispose();
+                    archive = null;
+                    zip.Close();
+                    zip = null;
+                    roundRobinCounter++;
+                    Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i - 1), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                }
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                res = false;
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at ZipperWorker. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Iter Num: ", i));
+                sb.Append(String.Concat(" Thread ID: ", System.Threading.Thread.CurrentThread.ManagedThreadId));
+                sb.Append(String.Concat(" startIndex: ", startIndexInclusive));
+                sb.Append(String.Concat(" endIndex: ", endIndexExclusive));
+                sb.Append(String.Concat(" Num of CB instances: ", numOfCouchbaseInstances));
+                sb.Append(String.Concat(" Num Of Jsons In Zip: ", numOfJsonsInZip));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), ZIP_LOG_FILE);
+            }
+            finally
+            {
+                if (archive != null)
+                {
+                    archive.Dispose();
+                }
+                if (zip != null) 
+                {
+                    zip.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private string GetFilenameOutOfPath(string path)
+        {
+            int i = 0;
+            for (i = path.Length - 1; i > -1; i --)
+            {
+                if (path[i] == '\\')
+                    break;
+            }
+            return path.Substring(i);
+        }
+
+        private string GetZipperWorkerLogMsg(string msg, int startIndex, int endIndex, Exception ex)
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(msg, "."));
+            sb.Append(String.Concat(" Thread ID: ", System.Threading.Thread.CurrentThread.ManagedThreadId));
+            sb.Append(String.Concat(" SI: ", startIndex));
+            sb.Append(String.Concat(" EI: ", endIndex));
+            if (ex != null)
+            {
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+            }
+
+            return sb.ToString();
+        }
+
+        private string GetJsonFileContent(string path, ref string errorMsg)
+        {
+            string res = string.Empty;
+            FileStream file = null;
+            try
+            {
+                file = new FileStream(path, FileMode.Open, FileAccess.Read);
+                byte[] fileContent = new byte[file.Length];
+                int numBytesToRead = (int)file.Length;
+                int numBytesRead = 0;
+                // read file
+                while (numBytesToRead > 0)
+                {
+                    int readNow = file.Read(fileContent, numBytesRead, numBytesToRead);
+                    if (readNow == 0)
+                        break;
+                    numBytesRead += readNow;
+                    numBytesToRead -= readNow;
+                }
+
+                //deserialize json
+                res = Encoding.UTF8.GetString(fileContent);
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetJsonFileContent. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Path: ", path));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                errorMsg = sb.ToString();
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+            return res;
+        }
+
+        private void CreateZipDirectories(int numOfCouchbaseInstances, string zipsDirectory, out string[] domainJsonsDirs,
+            out string[] umJsonsDir)
+        {
+            domainJsonsDirs = new string[numOfCouchbaseInstances];
+            umJsonsDir = new string[numOfCouchbaseInstances];
+            for (int i = 0; i < numOfCouchbaseInstances; i++)
+            {
+                domainJsonsDirs[i] = String.Concat(zipsDirectory, "cb_", i + 1, "_d");
+                DirectoryInfo di1 = Directory.CreateDirectory(domainJsonsDirs[i]);
+                umJsonsDir[i] = String.Concat(zipsDirectory, "cb_", i + 1, "_um");
+                DirectoryInfo di2 = Directory.CreateDirectory(umJsonsDir[i]); 
+            }
+
         }
     }
 }
