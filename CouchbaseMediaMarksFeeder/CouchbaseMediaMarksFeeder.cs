@@ -929,6 +929,7 @@ namespace CouchbaseMediaMarksFeeder
                         zip.Close();
                         zip = null;
                         roundRobinCounter++;
+                        jsonFileInZipCounter = 0;
                         Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
                     }
                 } // for
@@ -939,6 +940,7 @@ namespace CouchbaseMediaMarksFeeder
                     zip.Close();
                     zip = null;
                     roundRobinCounter++;
+                    jsonFileInZipCounter = 0;
                     Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i - 1), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
                 }
                 res = true;
