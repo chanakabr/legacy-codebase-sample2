@@ -10,6 +10,7 @@ namespace ConditionalAccess
         public string wsUsername;
         public string wsPassword;
         public string siteGuid;
+        public string assetID; // may be either ALU Series ID or Tvinci EPG ID.
 
         public NPVRResponse Execute()
         {
