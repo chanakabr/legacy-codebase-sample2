@@ -980,7 +980,7 @@ namespace CouchbaseMediaMarksFeeder
                 if (path[i] == '\\')
                     break;
             }
-            return path.Substring(i);
+            return path.Substring(++i);
         }
 
         private string GetZipperWorkerLogMsg(string msg, int startIndex, int endIndex, Exception ex)
