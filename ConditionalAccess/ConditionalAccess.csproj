@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
     <Compile Include="BaseConditionalAccess.cs" />
+    <Compile Include="BaseNPVRCommand.cs" />
     <Compile Include="BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
@@ -89,6 +90,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LicensedLinkResponse.cs" />
+    <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>

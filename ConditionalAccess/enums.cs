@@ -185,4 +185,11 @@ namespace ConditionalAccess
         Static = 0,        
         Dynamic = 1
     }
+
+    public enum NPVRStatus : byte
+    {
+        Unknown = 0,
+        OK = 1,
+        Error = 2
+    }
 }
