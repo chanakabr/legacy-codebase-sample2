@@ -646,7 +646,7 @@ namespace Catalog
                 searchObj.m_nMediaID = request.m_nMediaID;
                 if (request.m_nMediaTypes != null && request.m_nMediaTypes.Count > 0)
                 {
-                    searchObj.m_sMediaTypes = string.Join(";", request.m_nMediaTypes.Select((i) => i.ToString()).ToArray()); 
+                    searchObj.m_sMediaTypes = string.Join(";", request.m_nMediaTypes.Select((i) => i.ToString()).ToArray());
                 }
                 else
                 {
@@ -1518,66 +1518,52 @@ namespace Catalog
         {
             ProgramObj oProgramObj = null;
             List<BaseObject> lProgramObj = new List<BaseObject>();
+            int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
+            int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
 
-            try
+            if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
+                nEndIndex = pRequest.m_lProgramsIds.Count();
+
+            //generate a list with the relevant EPG IDs (according to page size and page index)
+            List<int> lEpgIDs = new List<int>();
+            for (int i = nStartIndex; i < nEndIndex; i++)
             {
-                int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
-                int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
+                lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
+            }
 
-                if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
-                    nEndIndex = pRequest.m_lProgramsIds.Count();
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
+            EPGChannelProgrammeObject epgProg = null;
 
-                //generate a list with the relevant EPG IDs (according to page size and page index)
-                List<int> lEpgIDs = new List<int>();
-                for (int i = nStartIndex; i < nEndIndex; i++)
+            //keeping the original order and amount of items (some of the items might return as null)
+            if (pRequest.m_lProgramsIds != null && lEpgProg != null)
+            {
+                pResponse.m_nTotalItems = lEpgProg.Count;
+
+                string epgPicBaseUrl = string.Empty;
+                string epgPicWidth = string.Empty;
+                string epgPicHeight = string.Empty;
+                Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+                GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+            }
+            foreach (int nProgram in pRequest.m_lProgramsIds)
+            {
+                if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
                 {
-                    lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
-                }
+                    epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
+                    oProgramObj = new ProgramObj();
+                    oProgramObj.m_oProgram = epgProg;
+                    oProgramObj.m_nID = (int)epgProg.EPG_ID;
 
-                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
-                List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
-                EPGChannelProgrammeObject epgProg = null;
-
-                //keeping the original order and amount of items (some of the items might return as null)
-                if (pRequest.m_lProgramsIds != null && lEpgProg != null)
-                {
-                    pResponse.m_nTotalItems = lEpgProg.Count;
-
-                    string epgPicBaseUrl = string.Empty;
-                    string epgPicWidth = string.Empty;
-                    string epgPicHeight = string.Empty;
-                    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-                    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
-                }
-                foreach (int nProgram in pRequest.m_lProgramsIds)
-                {
-                    if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
-                    {
-                        epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
-                        oProgramObj = new ProgramObj();
-                        oProgramObj.m_oProgram = epgProg;
-                        oProgramObj.m_nID = (int)epgProg.EPG_ID;
-
-                        bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
-                    }
-                    else
-                    {
-                        oProgramObj = null;
-                    }
-
+                    bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
                     lProgramObj.Add(oProgramObj);
                 }
-                pResponse.m_lObj = lProgramObj;
 
-                return true;
             }
+            pResponse.m_lObj = lProgramObj;
 
-            catch (Exception ex)
-            {
-                _logger.Error("failed to complete details", ex);
-                throw ex;
-            }
+            return true;
         }
 
         private static ProgramObj GetProgramDetails(int nProgramID, EpgProgramDetailsRequest pRequest)
@@ -1921,7 +1907,7 @@ namespace Catalog
         {
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(parentGroupID);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            
+
 
             switch (type)
             {
@@ -1945,8 +1931,8 @@ namespace Catalog
                         viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
                         likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
                         ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
-                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0), 
-                            likes != null ? likes : new Dictionary<int, int>(0), 
+                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0),
+                            likes != null ? likes : new Dictionary<int, int>(0),
                             rates != null ? rates : new List<ESTermsStatsFacet.StatisticFacetResult>(0));
                         break;
                     }

@@ -26,10 +26,16 @@ namespace Catalog
         {  
         }
 
-        private void CheckRequestValidness(EpgProgramDetailsRequest programRequest)
+        //private void CheckRequestValidness(EpgProgramDetailsRequest programRequest)
+        //{
+        //    if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
+        //        throw new ArgumentException("request object is null or required variables are missing");
+        //}
+
+        protected override void CheckRequestValidness()
         {
-            if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
-                throw new ArgumentException("request object is null or required variables are missing");
+            if (m_lProgramsIds == null || m_lProgramsIds.Count == 0)
+                throw new ArgumentException("No programs ids in request.");
         }
 
         /*Get Program Details By ProgramsIds*/
@@ -39,19 +45,45 @@ namespace Catalog
           
             try
             {
-                CheckRequestValidness(programRequest);
+                CheckRequestValidness();
 
-                CheckSignature(programRequest);
+                CheckSignature(this);
 
-                Catalog.CompleteDetailsForProgramResponse(programRequest, ref pResponse);
+                Catalog.CompleteDetailsForProgramResponse(this, ref pResponse);
 
                 return pResponse;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                StringBuilder sb = new StringBuilder("Exception at GetProgramsByIDs. ");
+                sb.Append(String.Concat(" Req: ", ToString()));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "EpgProgramDetailsRequest");
                 throw ex;
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(base.ToString(), " || "));
+            
+            if (m_lProgramsIds != null && m_lProgramsIds.Count > 0)
+            {
+                sb.Append("P IDs: ");
+                for (int i = 0; i < m_lProgramsIds.Count; i++)
+                {
+                    sb.Append(String.Concat(m_lProgramsIds[i], ";"));
+                }
+            }
+            else
+            {
+                sb.Append("No program ids.");
+            }
+
+            return sb.ToString();
+
         }
     }
 }

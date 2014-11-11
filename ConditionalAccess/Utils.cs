@@ -2899,5 +2899,50 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        internal static string GetEpgProgramCoGuid(int groupID, string assetID)
+        {
+            WS_Catalog.IserviceClient client = null;
+            int progID = 0;
+            string res = string.Empty;
+            if (!Int32.TryParse(assetID, out progID) || progID < 1)
+            {
+                return string.Empty;
+            }
+            try
+            {
+                string catalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(catalogUrl))
+                {
+                    throw new Exception("Catalog address is not configured. ");
+                }
+                client = new WS_Catalog.IserviceClient();
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
+                WS_Catalog.EpgProgramDetailsRequest epdr = new WS_Catalog.EpgProgramDetailsRequest();
+                epdr.m_nGroupID = groupID;
+                epdr.m_oFilter = new WS_Catalog.Filter();
+                epdr.m_lProgramsIds = new int[1] { progID };
+                FillCatalogSignature(epdr);
+                WS_Catalog.EpgProgramResponse resp = client.GetProgramsByIDs(epdr) as WS_Catalog.EpgProgramResponse;
+                if (resp != null && resp.m_lObj != null && resp.m_lObj.Length > 0 && resp.m_lObj[0] != null)
+                {
+                    WS_Catalog.ProgramObj prog = resp.m_lObj[0] as WS_Catalog.ProgramObj;
+                    if (prog != null && prog.m_oProgram != null)
+                    {
+                        res = prog.m_oProgram.EPG_IDENTIFIER;
+                    }
+                }
+               
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return res;
+        }
     }
 }
