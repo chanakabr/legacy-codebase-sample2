@@ -153,7 +153,8 @@ namespace Users
             int nConcurrentLimit = 0;
             int nGroupConcurrentLimit = 0;
             int nDeviceFreqLimit = 0;
-            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
+            long npvrQuotaInMins = 0;
+            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInMins);
 
             bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
 

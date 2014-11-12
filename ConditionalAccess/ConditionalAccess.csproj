@@ -84,14 +84,18 @@
     <Compile Include="BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
+    <Compile Include="CancelNPVRCommand.cs" />
     <Compile Include="CinepolisConditionalAccess.cs" />
     <Compile Include="ConditionalAccessCache.cs" />
+    <Compile Include="DeleteNPVRCommand.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LicensedLinkResponse.cs" />
     <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
+    <Compile Include="RecordNPVRCommand.cs" />
+    <Compile Include="RetrieveNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

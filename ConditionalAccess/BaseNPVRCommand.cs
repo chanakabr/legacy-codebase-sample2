@@ -12,12 +12,13 @@ namespace ConditionalAccess
         public string wsUsername;
         public string wsPassword;
         public string siteGuid;
+        public long domainID;
+        public string udid;
         public string assetID; // may be either ALU Series ID or Tvinci EPG ID.
 
         public NPVRResponse Execute()
         {
             NPVRResponse res = null;
-            int domainID = 0;
             try
             {
                 BaseConditionalAccess t = null;
@@ -26,13 +27,8 @@ namespace ConditionalAccess
                 {
                     return new NPVRResponse() { status = NPVRStatus.BadRequest.ToString() };
                 }
-                domainID = 0;
-                if (!Utils.IsUserValid(siteGuid, groupID, ref domainID))
-                {
-                    return new NPVRResponse() { status = NPVRStatus.InvalidUser.ToString() };
-                }
 
-                res = ExecuteFlow(t, domainID);
+                res = ExecuteFlow(t);
             }
             catch (Exception ex)
             {
@@ -58,7 +54,7 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        protected abstract NPVRResponse ExecuteFlow(BaseConditionalAccess cas, int domainID);
+        protected abstract NPVRResponse ExecuteFlow(BaseConditionalAccess cas);
 
     }
 }

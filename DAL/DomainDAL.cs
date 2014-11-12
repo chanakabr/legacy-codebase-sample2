@@ -479,8 +479,17 @@ namespace DAL
 
             return GetDomainDefaultLimitsID(nGroupID, ref defaultDeviceLimit, ref defaultUserLimit, ref defaultConcurrentLimit, ref defaultGroupConcurrentLimit, ref nDeviceFreqLimitID);
         }
+        public static int GetDomainDefaultLimitsID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit,
+            ref int defaultConcurrentLimit, ref int defaultGroupConcurrentLimit, ref int defaultDeviceFreqLimit)
+        {
+            long npvrQuotaInMins = 0;
+            return GetDomainDefaultLimitsID(nGroupID, ref defaultDeviceLimit, ref defaultUserLimit, ref defaultConcurrentLimit,
+                ref defaultGroupConcurrentLimit, ref defaultDeviceFreqLimit, ref npvrQuotaInMins);
+        }
 
-        public static int GetDomainDefaultLimitsID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit, ref int defaultConcurrentLimit, ref int defaultGroupConcurrentLimit, ref int defaultDeviceFreqLimit)
+        public static int GetDomainDefaultLimitsID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit, 
+            ref int defaultConcurrentLimit, ref int defaultGroupConcurrentLimit, ref int defaultDeviceFreqLimit,
+            ref long npvrQuotaInMins)
         {
             int retVal = 0;
 
