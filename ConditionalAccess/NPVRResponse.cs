@@ -7,7 +7,6 @@ namespace ConditionalAccess
 {
     public class NPVRResponse
     {
-        public int domainID;
         public string status;
 
     }

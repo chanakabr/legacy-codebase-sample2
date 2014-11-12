@@ -24,12 +24,12 @@ namespace ConditionalAccess
                 int groupID = Utils.GetGroupID(wsUsername, wsPassword, "GetNPVRResponse", ref t);
                 if (groupID == 0 || t == null)
                 {
-                    return new NPVRResponse() { domainID = 0, status = NPVRStatus.BadRequest.ToString() };
+                    return new NPVRResponse() { status = NPVRStatus.BadRequest.ToString() };
                 }
                 domainID = 0;
                 if (!Utils.IsUserValid(siteGuid, groupID, ref domainID))
                 {
-                    return new NPVRResponse() { domainID = domainID, status = NPVRStatus.InvalidUser.ToString() };
+                    return new NPVRResponse() { status = NPVRStatus.InvalidUser.ToString() };
                 }
 
                 res = ExecuteFlow(t, domainID);
@@ -42,7 +42,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), NPVR_LOG_FILE);
-                res = new NPVRResponse() { domainID = domainID, status = NPVRStatus.Error.ToString() };
+                res = new NPVRResponse() { status = NPVRStatus.Error.ToString() };
             }
 
             return res;

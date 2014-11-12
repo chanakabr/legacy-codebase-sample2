@@ -124,6 +124,7 @@
     <Compile Include="TvinciConditionalAccess.cs" />
     <Compile Include="UserPrePaidContainer.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="VodafoneConditionalAccess.cs" />
     <Compile Include="VoucherCampaignImpl.cs" />
     <Compile Include="Web References\NotificationService\Reference.cs">
       <AutoGen>True</AutoGen>
