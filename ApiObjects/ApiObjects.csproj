@@ -143,6 +143,7 @@
     <Compile Include="MediaInfoStructObject.cs" />
     <Compile Include="MediaMarks\DomainMediaMark.cs" />
     <Compile Include="MediaMarks\MediaMarkLog.cs" />
+    <Compile Include="MediaMarks\UserMediaKey.cs" />
     <Compile Include="MediaMarks\UserMediaMark.cs" />
     <Compile Include="MediaObject.cs" />
     <Compile Include="MediaPersonalStatistics.cs" />
