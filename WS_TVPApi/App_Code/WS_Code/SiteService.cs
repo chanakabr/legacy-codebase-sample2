@@ -1274,7 +1274,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Record All")]
-        public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
         {
             TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;
 
@@ -1285,7 +1285,7 @@ namespace TVPApiServices
                 try
                 {
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId);
+                    response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, serialNumber);
                 }
                 catch (Exception ex)
                 {
@@ -1301,7 +1301,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Account STBs")]
-        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId, string SerialNumber)
+        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId)
         {
             TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
 
@@ -1326,7 +1326,7 @@ namespace TVPApiServices
 
             return response;
         }
-
+        
         #endregion
     }
 }

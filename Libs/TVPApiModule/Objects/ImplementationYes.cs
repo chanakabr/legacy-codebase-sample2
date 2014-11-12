@@ -20,6 +20,7 @@ using System.Configuration;
 using TVPApiModule.Objects.ORCARecommendations;
 using System.Text.RegularExpressions;
 using TVPPro.Configuration.OrcaRecommendations;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPApiModule.Objects
 {
@@ -251,7 +252,10 @@ namespace TVPApiModule.Objects
                 retVal.ContentType = eContentType.Live;
                 retVal.Content = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
             }
-            if (retVal == null || retVal.Content == null)
+            if (retVal == null || 
+                retVal.Content == null || 
+                (retVal.Content is List<EPGChannelProgrammeObject> && (retVal.Content as List<EPGChannelProgrammeObject>).Count == 0) ||
+                (retVal.Content is List<Media> && (retVal.Content as List<Media>).Count == 0))
             {
                 // get data from configuration
                 retVal = RecommendationsHelper.GetFailoverChannel(orcaResponse, groupID, initObj, picSize);
@@ -622,12 +626,12 @@ namespace TVPApiModule.Objects
             else return null;
         }
 
-        public override RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        public override RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
         {
             RecordAllResult retVal = null;
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
-                retVal = proxy.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, versionId);
+                retVal = proxy.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, serialNumber);
             }
             return retVal;
         }
@@ -645,7 +649,7 @@ namespace TVPApiModule.Objects
         public override UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
         {
             UserResponse retVal = null;
-            string eulaRes = null;
+            string eulaResStr = null;
 
             ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
             if (key.ToLower() == "eulaflag_rac")
@@ -658,18 +662,27 @@ namespace TVPApiModule.Objects
                     {
                         using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
                         {
-                            eulaRes = proxy.UpdateEulaDate(acountNumber.m_sValue);
+                            eulaResStr = proxy.UpdateEulaDate(acountNumber.m_sValue);
                         }
                     }
                 }
             }
-            if (usersService.SetUserDynamicData(initObj.SiteGuid, key, value) && (eulaRes == "00002" || key.ToLower() != "eulaflag_rac"))
+            string eulaResCode = string.Empty, eulaResMsg = string.Empty;
+            if (!string.IsNullOrEmpty(eulaResStr))
+            {
+                var match = Regex.Match(eulaResStr, @"(?<=errCode>)[\S\s]*?(?=\<\/errCode)");
+                eulaResCode = match.Success ? match.Value : string.Empty;
+                match = Regex.Match(eulaResStr, @"(?<=errMsg>)[\S\s]*?(?=\<\/errMsg)");
+                eulaResMsg = match.Success ? match.Value : string.Empty;
+            }
+
+            if (usersService.SetUserDynamicData(initObj.SiteGuid, key, value) && (eulaResCode == "00002" || key.ToLower() != "eulaflag_rac"))
             {
                 retVal = new UserResponse()
                 {
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK.ToString(),
-                    StatusCode = eulaRes
+                    Message = eulaResMsg,
+                    StatusCode = eulaResCode
                    
                 };
             }
@@ -678,8 +691,8 @@ namespace TVPApiModule.Objects
                 retVal = new UserResponse()
                 {
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString(),
-                    StatusCode = eulaRes
+                    Message = eulaResMsg,
+                    StatusCode = eulaResCode
                 };
             }
 

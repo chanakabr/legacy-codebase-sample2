@@ -30,8 +30,7 @@ namespace TVPApi
             if (channelObj.m_lPic != null)
             {
                 var pic = channelObj.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
-                if (pic != null)
-                    PicURL = pic.m_sURL;
+                PicURL = pic == null ? string.Empty : pic.m_sURL;
             }
             //MediaCount = channelObj;
         }

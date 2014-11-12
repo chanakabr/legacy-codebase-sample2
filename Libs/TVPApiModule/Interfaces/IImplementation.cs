@@ -30,7 +30,7 @@ namespace TVPApiModule.Interfaces
 
         string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP);
 
-        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
+        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber);
 
         TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId);
 
