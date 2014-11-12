@@ -271,15 +271,6 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_view_lc.Initialize("Default Waiver Period", "adm_table_header_nbg", "FormInput", "WAIVER_PERIOD", false);        
         theRecord.AddRecord(dr_view_lc);
 
-        //live streaming provider
-        // show only if it's parent group id 
-        if (nParentID == 1) //parent Group 
-        {
-            DataRecordDropDownField dr_ls_provider = new DataRecordDropDownField("lu_live_streaming_provider", "NAME", "id", "", null, 60, true);
-            dr_ls_provider.Initialize("Live Streaming Provider", "adm_table_header_nbg", "FormInput", "live_streaming_provider_id", false);
-            theRecord.AddRecord(dr_ls_provider);
-        }
-
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
