@@ -3231,13 +3231,18 @@ namespace ConditionalAccess
 
         private List<int> GetRelatedMediaFiles(MediaFileItemPricesContainer price, int mediaFileID)
         {
+            List<int> lRelatedMediaFiles = new List<int>();
+
             if (price != null && price.m_oItemPrices != null && price.m_oItemPrices.Length > 0 &&
                 price.m_oItemPrices[0].m_lRelatedMediaFileIDs != null && price.m_oItemPrices[0].m_lRelatedMediaFileIDs.Length > 0)
             {
-                return price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList();
+                lRelatedMediaFiles.AddRange(price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList());
             }
-
-            return new List<int>(1) { mediaFileID };
+            if (!lRelatedMediaFiles.Contains(mediaFileID))
+            {
+                lRelatedMediaFiles.Add(mediaFileID);
+            }
+            return lRelatedMediaFiles;
         }
 
         private string GetCountryCodeForHandlePlayUses(string userIP, string countryCode)

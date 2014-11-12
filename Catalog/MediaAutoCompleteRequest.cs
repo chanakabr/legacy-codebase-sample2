@@ -47,6 +47,11 @@ namespace Catalog
                     searchObj.m_nPageSize = request.m_nPageSize;
                     searchObj.m_nPageIndex = request.m_nPageIndex;
 
+                    if (request.m_MediaTypes != null && request.m_MediaTypes.Count > 0)
+                    {
+                        searchObj.m_sMediaTypes = string.Join(";", request.m_MediaTypes.Select((i) => i.ToString()).ToArray()); 
+                    }                  
+
                     GroupManager groupManager = new GroupManager();
                     Group oGroup = groupManager.GetGroup(request.m_nGroupID);
 
@@ -54,7 +59,10 @@ namespace Catalog
                     {
                         searchObj.m_oLangauge = oGroup.GetLanguage(request.m_oFilter.m_nLanguage);
                     }
-
+                    else 
+                    {
+                        request.m_oFilter = new Filter();
+                    }
                     searchObj.m_sName = request.m_sPrefix;
                     if (request.m_lMetas != null && request.m_lMetas.Count > 0)
                     {
