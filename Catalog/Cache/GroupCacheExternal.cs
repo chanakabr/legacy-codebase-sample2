@@ -15,6 +15,9 @@ namespace Catalog.Cache
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
         private static volatile GroupCacheExternal instance = null;
         private static object syncRoot = new Object(); // lock for create the instance
+        private static readonly string LOG_FILE = "GroupCacheExternal";
+        private static readonly string LOG_HEADER_STATUS = "Status";
+        private static readonly string LOG_HEADER_EXCEPTION = "Exception";
          #region CTOR
 
 
@@ -78,12 +81,15 @@ namespace Catalog.Cache
                             {
                                 bool createdNew = false;
                                 var mutexSecurity = Utils.CreateMutex();
-                                using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
+                                int threadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                                string mutexName = string.Concat("Group GID_", nGroupID);
+                                using (Mutex mutex = new Mutex(false, mutexName , out createdNew, mutexSecurity))
                                 {
                                     try
                                     {
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " is about to wait on mutex: ", mutexName), LOG_FILE);
                                         mutex.WaitOne(-1);
-
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " locked mutex: ", mutexName), LOG_FILE);
                                         Group tempGroup = GroupCacheUtils.BuildGroup(nGroupID, true);
                                         if (tempGroup != null)
                                         {
@@ -109,11 +115,13 @@ namespace Catalog.Cache
 
                                     catch (Exception ex)
                                     {
-                                        Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "Catalog");
+                                        Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("GetGroup. Couldn't get group {0}, ex = {1} ST: {2}", nGroupID, ex.Message, ex.StackTrace), LOG_FILE);
                                     }
                                     finally
                                     {
+
                                         mutex.ReleaseMutex();
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " released mutex: ", mutexName), LOG_FILE);
                                     }
                                 }
                             }
@@ -125,8 +133,8 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
-                return null;
+                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1} , ST: {2}", nGroupID, ex.Message, ex.StackTrace), LOG_FILE);
+                throw;
             }
         }
 
@@ -182,7 +190,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", nChannelId, ex.Message), "Catalog");
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("failed GetChannel nChannelId={0}, ex={1} ST: {2}", nChannelId, ex.Message, ex.StackTrace), LOG_FILE);
                 throw;
             }
         }
@@ -218,7 +226,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "Catalog");
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}, ST: {3}", nGroupID, nOperatorID, ex.Message, ex.StackTrace), LOG_FILE);
                 return false;
             }
         }
@@ -247,17 +255,31 @@ namespace Catalog.Cache
                             {
                                 bool createdNew = false;
                                 var mutexSecurity = Utils.CreateMutex();
-
-                                using (Mutex mutex = new Mutex(false, string.Concat("Cache ChannelID_", nChannelId), out createdNew, mutexSecurity))
+                                string mutexName = string.Concat("Cache ChannelID_", nChannelId);
+                                int threadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                                using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
                                 {
-                                    mutex.WaitOne(-1);
-                                    removedChannel = GroupCacheUtils.RemoveChannelByChannelId(nChannelId, ref group);
-                                    if (removedChannel != null)
+                                    try
                                     {
-                                        //try update to CB
-                                        isRemovingChannelSucceded = cache.Update(nGroupId.ToString(), group, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveChannel. Thread ID: ", threadID, " is about to wait on mutex: ", mutexName), LOG_FILE);
+                                        mutex.WaitOne(-1);
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveChannel. Thread ID: ", threadID, " locked mutex: ", mutexName), LOG_FILE);
+                                        removedChannel = GroupCacheUtils.RemoveChannelByChannelId(nChannelId, ref group);
+                                        if (removedChannel != null)
+                                        {
+                                            //try update to CB
+                                            isRemovingChannelSucceded = cache.Update(nGroupId.ToString(), group, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
+                                        }
                                     }
-                                    mutex.ReleaseMutex();
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at RemoveChannel. try-catch-finally block insing using block. C ID: {0} G ID: {1} Msg: {2} , Type: {3} , ST: {4}", nChannelId, nGroupId, ex.Message, ex.GetType().Name, ex.StackTrace), LOG_FILE);
+                                    }
+                                    finally
+                                    {
+                                        mutex.ReleaseMutex();
+                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveChannel. Thread ID: ", threadID, " released mutex: ", mutexName), LOG_FILE);
+                                    }
                                 }
                             }
                         }
@@ -267,6 +289,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at RemoveChannel. C ID: {0} G ID: {1} Msg: {2} , Type: {3} , ST: {4}", nChannelId, nGroupId, ex.Message, ex.GetType().Name, ex.StackTrace), LOG_FILE);
                 return false;
             }
         }
@@ -287,13 +310,27 @@ namespace Catalog.Cache
                     {
                         bool createdNew = false;
                         var mutexSecurity = Utils.CreateMutex();
-
-                        using (Mutex mutex = new Mutex(false, string.Concat("Cache DeleteGroupID_", nGroupID), out createdNew, mutexSecurity))
+                        string mutexName = string.Concat("Cache DeleteGroupID_", nGroupID);
+                        int threadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                        using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
                         {
-                            mutex.WaitOne(-1);
-                            //try update to CB
-                            isRemovingGroupSucceded = cache.Delete(nGroupID.ToString());
-                            mutex.ReleaseMutex();
+                            try
+                            {
+                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveGroup. Thread ID: ", threadID, " is about to wait on mutex: ", mutexName), LOG_FILE);
+                                mutex.WaitOne(-1);
+                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveGroup. Thread ID: ", threadID, " locked mutex: ", mutexName), LOG_FILE);
+                                //try update to CB
+                                isRemovingGroupSucceded = cache.Delete(nGroupID.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at RemoveGroup. try-catch-finally block insing using block. G ID: {0} Msg: {1} , Type: {2} , ST: {3}", nGroupID, ex.Message, ex.GetType().Name, ex.StackTrace), LOG_FILE);
+                            }
+                            finally
+                            {
+                                mutex.ReleaseMutex();
+                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("RemoveGroup. Thread ID: ", threadID, " released mutex: ", mutexName), LOG_FILE);
+                            }
                         }
                     }
                 }
@@ -301,6 +338,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at RemoveGroup. G ID: {0} Msg: {1} , Type: {2} , ST: {3}", nGroupID, ex.Message, ex.GetType().Name, ex.StackTrace), LOG_FILE);
                 return false;
             }
         }
@@ -378,7 +416,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "Catalog");
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at UpdateoOperatorChannels nGroupID={0}, operator={1}, ex={2} , ST: {3}", nGroupID, nOperatorID, ex.Message, ex.StackTrace), LOG_FILE);
                 return false;
             }
         }
@@ -414,6 +452,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("Exception at InsertChannels. G ID: {0} , Msg: {1} , Type: {2} , ST: {3}", nGroupID, ex.Message, ex.GetType().Name, ex.StackTrace), LOG_FILE);
                 return false;
             }
         }
@@ -459,19 +498,24 @@ namespace Catalog.Cache
                     Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
                     throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, group.m_nParentGroupID));
                 }
-                locker.EnterWriteLock();
-                if (operatorIDs.Contains(nOperatorID))
+                try
                 {
-                    GroupManager groupManager = new GroupManager();
-                    retVal = groupManager.AddChannelsToOperator(group.m_nParentGroupID, nOperatorID, channelIDs);
+                    locker.EnterWriteLock();
+                    if (operatorIDs.Contains(nOperatorID))
+                    {
+                        GroupManager groupManager = new GroupManager();
+                        retVal = groupManager.AddChannelsToOperator(group.m_nParentGroupID, nOperatorID, channelIDs);
+                    }
+                    else
+                    {
+                        // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                        retVal = false;
+                    }
                 }
-                else
+                finally
                 {
-                    // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
-                    retVal = false;
+                    locker.ExitWriteLock();
                 }
-
-                locker.ExitWriteLock();
             }
 
             return retVal;
