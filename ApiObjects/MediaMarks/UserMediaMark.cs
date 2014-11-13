@@ -26,8 +26,15 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("NpvrID", Required = Required.Default)]
         public string NpvrID { get; set; }
 
-        [JsonProperty("playType", Required = Required.Default)]        
+        [JsonProperty("playType", Required = Required.Default)]
         public string playType { get; set; }
+
+        public UserMediaMark()
+        {
+            /*default values to members from joker version*/
+            playType = ePlayType.MEDIA.ToString();
+            NpvrID = string.Empty;
+        }
 
         public class UMMDateComparerDesc : IComparer<UserMediaMark>
         {
