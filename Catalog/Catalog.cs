@@ -2107,7 +2107,62 @@ namespace Catalog
                              * 
                              * 
                              */
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            
+                            //////////////////// Wait for Next Version (Joker)
+                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            if (dict.Count > 0)
+                            {
+                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                {
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    {
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        if (isBuzzNotEmpty)
+                                        {
+                                            string strAssetID = kvp.Key.ToString();
+                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                            {
+                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                            }
+                                            else
+                                            {
+                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                            }
+                                        }
+                                    }
+                                } // foreach
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                            }
+
+                            // bring social actions from CB social bucket
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
 
                         }
 
@@ -2150,8 +2205,34 @@ namespace Catalog
                         }
                         else
                         {
+                            //////////////////// Wait for Next Version (Joker)
                             // we bring data from ES statistics index.
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+
+                            // we bring data from social bucket in CB.
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
                         }
                         break;
                     }
@@ -2163,6 +2244,45 @@ namespace Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
+        }
+
+        private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
+            DateTime startDate, DateTime endDate)
+        {
+            SocialDAL_Couchbase socialDal = new SocialDAL_Couchbase(groupId);
+            AssetStatsResult.SocialPartialAssetStatsResult res = new AssetStatsResult.SocialPartialAssetStatsResult() { assetId = assetId };
+            switch (statsTypes)
+            {
+                case StatsType.MEDIA:
+                    {
+                        // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
+                        int votesCount = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
+                        double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
+                        if (votesCount > 0)
+                        {
+                            res.rate = votesSum / votesCount;
+                        }
+                        else
+                        {
+                            res.rate = 0d;
+                        }
+                        break;
+                    }
+                case StatsType.EPG:
+                    {
+                        // in epg we bring just likes.
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.PROGRAM, eUserAction.LIKE, startDate, endDate);
+                        res.rate = 0d;
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            } // switch
+
+            return res;
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,

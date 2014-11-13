@@ -28,6 +28,24 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("playType", Required = Required.Default)]        
         public string playType { get; set; }
+
+        public class UMMDateComparerDesc : IComparer<UserMediaMark>
+        {
+
+            public int Compare(UserMediaMark x, UserMediaMark y)
+            {
+                return y.CreatedAt.CompareTo(x.CreatedAt);
+            }
+        }
+
+        public class UMMMediaComparer : IComparer<UserMediaMark>
+        {
+
+            public int Compare(UserMediaMark x, UserMediaMark y)
+            {
+                return x.MediaID.CompareTo(y.MediaID);
+            }
+        }
     }
         
 }

@@ -11,5 +11,13 @@ namespace ApiObjects.MediaMarks
     {
         [JsonProperty("devices")]
         public List<UserMediaMark> devices;
+
+        [NonSerialized]
+        public int domainID;
+
+        public override string ToString()
+        {
+            return String.Concat("d", domainID);
+        }
     }
 }
