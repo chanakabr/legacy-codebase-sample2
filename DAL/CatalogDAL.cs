@@ -1409,7 +1409,7 @@ namespace Tvinci.Core.DAL
             return umm.LastMark.Location;
         }
 
-        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl)
+        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
@@ -1429,7 +1429,19 @@ namespace Tvinci.Core.DAL
                 var marks = m_oClient.GetWithCas<string>(docKey);
 
                 DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks.Result);
-                dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                switch (ePlay)
+                {
+                    case ePlayType.MEDIA:
+                    case ePlayType.NPVR:
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+                        break;
+                    case ePlayType.ALL:
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                        break;
+                    default:
+                        break;
+                }
+               
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
 
                 if (!res.Result)
