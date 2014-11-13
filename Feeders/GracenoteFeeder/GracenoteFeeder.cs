@@ -58,12 +58,12 @@ namespace GracenoteFeeder
                     return false;
                 }
 
-                // foreach channel get the riht xml file       
+                // foreach channel get the right xml file       
                 List<RESPONSES> lResponse = getXmlTVChannel(channels);
 
                 // run over and insert the programs
                 bool res = InsertProgramsPerChannel(lResponse);
-
+                
                 // Clear pic urls to support pic updates
                 BaseGracenoteFeeder.dCategoryToDefaultPic.Clear();
             }
@@ -75,69 +75,29 @@ namespace GracenoteFeeder
             return true;
         }
 
+
+        //saves the EPGs and sends them to ALU
         private bool InsertProgramsPerChannel(List<RESPONSES> lResponse)
         {
             try
             {
-                foreach (RESPONSES response in lResponse)
+                List<XmlDocument> xmlList = getChannelXMLs(lResponse);
+
+                foreach (XmlDocument xml in xmlList)
                 {
-                    try
-                    {
-                        string sUrl = string.Empty;
-                        XmlDocument xmlDoc = null;
-                        if (IsStatusOK(response, out sUrl))
-                        {
-                            try
-                            {
-                                #region Load the xml string to XmlDocument
-                                string sXml = Utils.getXmlFromGracenote(string.Empty, "GET", sUrl);
+                    //send to ALU
+                    TransformAndSendToALU(xml);
 
-                                xmlDoc = new XmlDocument();
-                                Encoding encoding = Encoding.UTF8;
-
-                                // Encode the XML string in a byte array
-                                byte[] encodedString = encoding.GetBytes(sXml);
-
-                                // Put the byte array into a stream and rewind it to the beginning
-                                using (var ms = new MemoryStream(encodedString))
-                                {
-                                    ms.Flush();
-                                    ms.Position = 0;
-
-                                    // Build the XmlDocument from the MemorySteam of UTF-8 encoded bytes
-                                    xmlDoc.Load(ms);
-                                }
-                                #endregion
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Logger.Log("DoEpgFeeder", string.Format("sURL:{0}, ex:{1}", sUrl, ex.Message), "FailGetURL");
-                            }
-                            // Save epg programs for each xml documnet
-                            if (xmlDoc != null)
-                            {
-                                SaveChannel(xmlDoc);
-                            }
-                        }
-                        else
-                        {
-                            Logger.Logger.Log("DoEpgFeeder", string.Format("Response have error sUrl:{0}", sUrl), "FailGetURL");
-                        }
-                    }
-                    catch (Exception exp) // if one request faild don't fail it all
-                    {
-                        Logger.Logger.Log("DoEpgFeeder", string.Format("xml:{0}, ex:{1}", GroupID, exp.Message), "GracenoteFeeder");
-                    }
-
+                    // Save epg programs for each xml documnet
+                    SaveChannel(xml);
                 }
-                return true;
-
             }
             catch (Exception ex)
             {
-
+                
                 return false;
             }
+            return true;
         }
 
         private void SaveChannel(XmlDocument xmlDoc)
@@ -298,6 +258,100 @@ namespace GracenoteFeeder
                 Logger.Logger.Log("ConvertXmlToResponseObj", string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), "GracenoteFeeder");
                 return null;
             }
+        }
+
+        private List<XmlDocument> getChannelXMLs(List<RESPONSES> lResponse)
+        {
+            List<XmlDocument> xmlList = new List<XmlDocument>();
+
+            foreach (RESPONSES response in lResponse)
+            {
+                try
+                {
+                    string sUrl = string.Empty;
+                    XmlDocument xmlDoc = null;
+                    if (IsStatusOK(response, out sUrl))
+                    {
+                        try
+                        {
+                            #region Load the xml string to XmlDocument
+                            string sXml = Utils.getXmlFromGracenote(string.Empty, "GET", sUrl);
+
+                            xmlDoc = new XmlDocument();
+                            Encoding encoding = Encoding.UTF8;
+
+                            // Encode the XML string in a byte array
+                            byte[] encodedString = encoding.GetBytes(sXml);
+
+                            // Put the byte array into a stream and rewind it to the beginning
+                            using (var ms = new MemoryStream(encodedString))
+                            {
+                                ms.Flush();
+                                ms.Position = 0;
+
+                                // Build the XmlDocument from the MemorySteam of UTF-8 encoded bytes
+                                xmlDoc.Load(ms);
+                            }
+                            #endregion
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("getChannelXMLs", string.Format("sURL:{0}, ex:{1}", sUrl, ex.Message), "FailGetURL");
+                        }
+
+                        if (xmlDoc != null)
+                        {
+                            xmlList.Add(xmlDoc);
+                        }
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("getChannelXMLs", string.Format("Response has error sUrl:{0}", sUrl), "FailGetURL");
+                    }
+                }
+                catch (Exception exp) // if one request faild don't fail it all
+                {
+                    Logger.Logger.Log("getChannelXMLs", string.Format("xml:{0}, ex:{1}", GroupID, exp.Message), "GracenoteFeeder");
+                }
+            }
+            return xmlList;
+        }
+
+        private void TransformAndSendToALU(XmlDocument XMLDoc)
+        {
+            XmlDocument xmlResult = TransformToALU(XMLDoc);
+
+            SendToALU(XMLDoc);          
+        }
+
+        private XmlDocument TransformToALU(XmlDocument XMLDoc)
+        {
+            XmlDocument xmlResult = new XmlDocument();
+            GraceNoteTransform transformer = new GraceNoteTransform();
+            transformer.Init();
+            using (StringWriter writer = new StringWriter())
+            {
+                try
+                {
+                    transformer.Transform(XMLDoc, writer);
+                    xmlResult.LoadXml(writer.ToString());
+                }
+                catch (Exception exp)
+                {
+                    Logger.Logger.Log("Error", string.Format("Exception in transforming xml from graceNote to ALU format", exp.Message), "GraceNoteFeeder");
+                    return null;
+                }
+                return xmlResult;
+            }
+
+
+        }
+
+        //TODO 
+        private void SendToALU(XmlDocument XMLDoc)
+        {
+
+
         }
     }
 }
