@@ -47,7 +47,22 @@ namespace Catalog
                 if (oBaseRequest != null)
                 {
                     req = (MediaLastPositionRequest)oBaseRequest;
-                    res = ProcessMediaLastPositionRequest(req);
+                    if (req == null || req.data == null)
+                    {
+                        res = new MediaLastPositionResponse();
+                        res.m_sStatus = "BAD_REQUEST";
+                        res.m_sDescription = "Null request";
+                        return res;
+                    }
+                    bool bNpvr = string.IsNullOrEmpty(req.data.m_sNpvrID) ? false : true;
+                    if (!bNpvr)// Media
+                    {
+                        res = ProcessMediaLastPositionRequest(req);
+                    }
+                    else // Npvr
+                    {
+                        res = ProcessNpvrLastPositionRequest(req);
+                    }
                 }
                 else
                 {
@@ -63,6 +78,27 @@ namespace Catalog
                 _logger.Error("MediaLastPositionRequest.GetResponse", ex);
                 throw ex;
             }
+        }
+
+        private MediaLastPositionResponse ProcessNpvrLastPositionRequest(MediaLastPositionRequest request)
+        {
+            MediaLastPositionResponse response = new MediaLastPositionResponse();
+            int nSiteGuid = 0;
+            int pos = 0;
+
+            if (request.data == null || string.IsNullOrEmpty(request.data.m_sNpvrID ))
+            {
+                response.m_sStatus = "INVALID_PARAMS";
+            }
+            //non-anonymous user
+            else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid))          
+            {
+                pos = Catalog.GetLastPosition(request.data.m_sNpvrID, nSiteGuid);
+            }
+
+            response.Location = pos;
+
+            return response;
         }
 
         private MediaLastPositionResponse ProcessMediaLastPositionRequest(MediaLastPositionRequest request)

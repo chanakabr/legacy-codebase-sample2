@@ -599,5 +599,10 @@ namespace DAL
             return null;
         }
         #endregion
+
+        internal static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
+        {
+            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
+        }
     }
 }

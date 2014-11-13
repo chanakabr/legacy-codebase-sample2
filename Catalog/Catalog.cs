@@ -1127,14 +1127,27 @@ namespace Catalog
         }
 
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0, string sNpvrID = default(string), ePlayType eNPVR = ePlayType.MEDIA)
         {
             int opID = 0;
             bool isMaster = false;
             if (nDomainID < 1)
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
             if (nDomainID > 0)
-                CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+            {
+                switch (eNPVR)  
+                {
+                    case ePlayType.MEDIA:
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+                        break;
+                    case ePlayType.NPVR:
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sNpvrID, nGroupID, nPlayTime);
+                        break;
+                    default:
+                        break;
+                }
+               
+            }
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -2867,6 +2880,14 @@ namespace Catalog
             return result;
         }
 
+
+        internal static int GetLastPosition(string NpvrID, int userID)
+        {
+            if (string.IsNullOrEmpty(NpvrID) || userID == 0)
+                return 0;
+
+            return CatalogDAL.GetLastPosition(NpvrID, userID);
+        }
     }
 
 }

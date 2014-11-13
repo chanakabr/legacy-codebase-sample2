@@ -17,6 +17,8 @@ namespace Catalog
         [DataMember]
         public int m_nMediaID;
         [DataMember]
+        public string m_sNpvrID;
+        [DataMember]
         public string m_sSiteGuid;
         [DataMember]
         public string m_sAction;

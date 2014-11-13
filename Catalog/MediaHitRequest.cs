@@ -55,7 +55,17 @@ namespace Catalog
                 if (oBaseRequest != null)
                 {
                     oMediaHitRequest = oBaseRequest as MediaHitRequest;
-                    oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
+                    bool bNpvr = string.IsNullOrEmpty(oMediaHitRequest.m_oMediaPlayRequestData.m_sNpvrID) ? false : true;
+
+                    if (!bNpvr) // Media
+                    {
+                        oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
+                    }
+                    else //Npvr
+                    {
+                        oMediaHitResponse = ProcessNpvrHitRequest(oMediaHitRequest);
+                    }
+
                 }
                 else
                 {
@@ -73,7 +83,55 @@ namespace Catalog
             }
         }
 
+        private MediaHitResponse ProcessNpvrHitRequest(MediaHitRequest oMediaHitRequest)
+        {
+            MediaHitResponse oMediaHitResponse = new MediaHitResponse();
 
+            int nPlayTime = 30;
+            int nMediaDuration = 0;
+            DateTime dNow = DateTime.UtcNow;
+
+            string sSessionID = string.Empty;
+
+            int nPlatform = 0;
+
+            MediaPlayActions action;
+
+            if (m_oMediaPlayRequestData.m_nLoc > 0)
+            {
+                nPlayTime = m_oMediaPlayRequestData.m_nLoc;
+            }
+            int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
+
+            if (this.m_oFilter != null)
+            {
+                int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
+            }
+
+                   
+            bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
+
+            int nSiteGuid;
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+
+            //anonymous user - can't play npvr
+            if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
+            {
+                oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                oMediaHitResponse.m_sDescription = "Anonymous User Can't watch nPVR";
+            }
+            else
+            {
+                if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
+                {
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, 0, 
+                        oMediaHitRequest.m_oMediaPlayRequestData.m_sNpvrID, ApiObjects.ePlayType.NPVR);
+                }
+                
+                oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
+            }
+            return oMediaHitResponse;
+        }
 
 
         private MediaHitResponse ProcessMediaHitRequest(MediaHitRequest mediaHitRequest)
