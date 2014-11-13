@@ -50,7 +50,8 @@ namespace ConditionalAccess
             StringBuilder sb = new StringBuilder(String.Concat("this is: ", this.GetType().Name));
             sb.Append(String.Concat(" Site Guid: ", siteGuid));
             sb.Append(String.Concat(" Asset ID: ", assetID));
-
+            sb.Append(String.Concat(" UDID: ", udid));
+            sb.Append(String.Concat(" Domain ID: ", domainID));
             return sb.ToString();
         }
 
