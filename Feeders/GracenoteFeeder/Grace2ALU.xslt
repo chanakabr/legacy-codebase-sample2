@@ -105,16 +105,14 @@
           <xsl:value-of select="string(floor(number(string($program_current/*[local-name()='DATE']))))"/>
         </xsl:if>
       </xsl:element>
-      <xsl:if test="$program_current/*[local-name()='Season']/@GN_ID != ''">
+      <xsl:if test="$program_current/*[local-name()='SEASON']/*[local-name()='GN_ID'] != ''">
         <xsl:element name="series">
-
-          <xsl:value-of select="string($program_current/*[local-name()='Season']/@GN_ID)"/>
-
+          <xsl:value-of select="string($program_current/*[local-name()='SEASON']/*[local-name()='GN_ID'])"/>
         </xsl:element>
       </xsl:if>
-      <xsl:if test="$program_current/*[local-name()='Episode_Num'] != ''">
+      <xsl:if test="$program_current/*[local-name()='EPISODE_NUM'] != ''">
         <xsl:element name="syndicatedEpisodeNumber">
-          <xsl:value-of select="string($program_current/*[local-name()='Episode_Num'])"/>
+          <xsl:value-of select="string($program_current/*[local-name()='EPISODE_NUM'])"/>
         </xsl:element>
       </xsl:if>
     </xsl:element>
