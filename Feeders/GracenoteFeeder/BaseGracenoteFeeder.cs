@@ -61,7 +61,10 @@ namespace GracenoteFeeder
             string res = "";
             try
             {
-                res = node.SelectSingleNode(xpath).InnerText;
+                if (node.SelectSingleNode(xpath) != null)
+                {
+                    res = node.SelectSingleNode(xpath).InnerText;
+                }
             }
             catch (Exception exp)
             {
