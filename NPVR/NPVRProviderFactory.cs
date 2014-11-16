@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,20 @@ namespace NPVR
     {
         public static INPVRProvider GetProvider(int groupID)
         {
-            throw new NotImplementedException();
+            int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID);
+            if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
+            {
+                NPVRProvider provider = (NPVRProvider)npvrProviderID;
+                switch (provider)
+                {
+                    case NPVRProvider.None:
+                        throw new NotImplementedException(String.Concat("GroupID: ", groupID, " has no NPVR Provider configured."));
+                    default:
+                        throw new NotImplementedException(String.Concat("Unknown NPVR Provider. ID: ", npvrProviderID, " Name: ", provider.ToString()));
+                }
+            }
+
+            return null;
         }
     }
 }
