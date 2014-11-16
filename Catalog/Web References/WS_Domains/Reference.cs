@@ -91,6 +91,8 @@ namespace Catalog.WS_Domains {
         
         private System.Threading.SendOrPostCallback ValidateLimitationModuleOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ValidateLimitationNpvrOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -221,6 +223,9 @@ namespace Catalog.WS_Domains {
         
         /// <remarks/>
         public event ValidateLimitationModuleCompletedEventHandler ValidateLimitationModuleCompleted;
+        
+        /// <remarks/>
+        public event ValidateLimitationNpvrCompletedEventHandler ValidateLimitationNpvrCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1342,6 +1347,51 @@ namespace Catalog.WS_Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ValidateLimitationNpvr", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ValidationResponseObject ValidateLimitationNpvr(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nNpvrConcurrencyLimit, string sNpvrID) {
+            object[] results = this.Invoke("ValidateLimitationNpvr", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        sUDID,
+                        nDeviceBrandID,
+                        lSiteGuid,
+                        lDomainID,
+                        eValidation,
+                        nNpvrConcurrencyLimit,
+                        sNpvrID});
+            return ((ValidationResponseObject)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ValidateLimitationNpvrAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nNpvrConcurrencyLimit, string sNpvrID) {
+            this.ValidateLimitationNpvrAsync(sWSUsername, sWSPassword, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nNpvrConcurrencyLimit, sNpvrID, null);
+        }
+        
+        /// <remarks/>
+        public void ValidateLimitationNpvrAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nNpvrConcurrencyLimit, string sNpvrID, object userState) {
+            if ((this.ValidateLimitationNpvrOperationCompleted == null)) {
+                this.ValidateLimitationNpvrOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateLimitationNpvrOperationCompleted);
+            }
+            this.InvokeAsync("ValidateLimitationNpvr", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        sUDID,
+                        nDeviceBrandID,
+                        lSiteGuid,
+                        lDomainID,
+                        eValidation,
+                        nNpvrConcurrencyLimit,
+                        sNpvrID}, this.ValidateLimitationNpvrOperationCompleted, userState);
+        }
+        
+        private void OnValidateLimitationNpvrOperationCompleted(object arg) {
+            if ((this.ValidateLimitationNpvrCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ValidateLimitationNpvrCompleted(this, new ValidateLimitationNpvrCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2026,6 +2076,9 @@ namespace Catalog.WS_Domains {
         
         /// <remarks/>
         ConcurrencyLimitation,
+        
+        /// <remarks/>
+        MediaConcurrencyLimitation,
     }
     
     /// <remarks/>
@@ -3081,6 +3134,32 @@ namespace Catalog.WS_Domains {
         private object[] results;
         
         internal ValidateLimitationModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ValidationResponseObject Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ValidationResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void ValidateLimitationNpvrCompletedEventHandler(object sender, ValidateLimitationNpvrCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ValidateLimitationNpvrCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ValidateLimitationNpvrCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

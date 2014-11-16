@@ -184,6 +184,10 @@ namespace Catalog
             {
                 return (CategoryRequest) m_oBaseRequest;
             }
+            if (m_oBaseRequest is DomainLastPositionRequest)
+            {
+                return (DomainLastPositionRequest)m_oBaseRequest;
+            }
 
             return null;
         }

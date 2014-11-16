@@ -94,4 +94,11 @@ namespace Catalog
         SUBSCRIPTION = 0,
         COLLECTION = 1
     }
+
+    public enum eUserType
+    {
+        HOUSEHOLD = 0,
+        PERSONAL = 1
+    }
+
 }

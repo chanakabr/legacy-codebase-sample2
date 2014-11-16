@@ -2026,5 +2026,22 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+
+        // get all devices last position in domain by media_id 
+        public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
+        {
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // get domain document 
+            string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
+            var data = m_oClient.Get<string>(key);
+            if (data == null)
+                return null;
+
+            // get all last position order by desc              
+            var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
+            return dmm;
+        }
+
     }
 }
