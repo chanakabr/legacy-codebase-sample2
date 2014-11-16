@@ -496,7 +496,7 @@ namespace DAL
             return null;
         }
 
-        public static List<int> Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        public static List<int> Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes, int nMediaID)
         {
             List<int> res = null;
 
@@ -505,6 +505,7 @@ namespace DAL
             spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
             spGet_MediaFileByID.AddIDListParameter<int>("@fileTypes", relFileTypesStr, "Id");
             spGet_MediaFileByID.AddParameter("@isThereFileTypes", isThereFileTypes);
+            spGet_MediaFileByID.AddParameter("@mediaID", nMediaID);
 
             DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
 
