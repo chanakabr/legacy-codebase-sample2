@@ -1223,7 +1223,7 @@ namespace Catalog
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
-            if (!(lPermittedWatchRules == null) && lPermittedWatchRules.Count > 0)
+            if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
