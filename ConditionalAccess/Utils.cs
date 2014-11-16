@@ -1550,10 +1550,10 @@ namespace ConditionalAccess
             return GetCachingManagerKey(sMethodName, sBusinessModuleCode, nGroupID, string.Empty, string.Empty, string.Empty);
         }
 
-        private static List<int> GetFileIDs(List<int> mediaFilesList, int nMediaFileID, bool isMultiMediaTypes)
+        private static List<int> GetFileIDs(List<int> mediaFilesList, int nMediaFileID, bool isMultiMediaTypes, int nMediaID)
         {
             if (mediaFilesList != null && mediaFilesList.Count > 0)
-                return ConditionalAccessDAL.Get_MediaFileByID(mediaFilesList, nMediaFileID, isMultiMediaTypes);
+                return ConditionalAccessDAL.Get_MediaFileByID(mediaFilesList, nMediaFileID, isMultiMediaTypes, nMediaID);
             return new List<int>(0);
         }
 
@@ -1601,7 +1601,7 @@ namespace ConditionalAccess
                     bool isMultiMediaTypes = false;
                     List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
 
-                    List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes);
+                    List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
                     relatedMediaFileIDs.AddRange(FileIDs);
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
