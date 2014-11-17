@@ -166,6 +166,7 @@
           <s:enumeration value="RequestFailed" />
           <s:enumeration value="InvalidUser" />
           <s:enumeration value="ConcurrencyLimitation" />
+          <s:enumeration value="MediaConcurrencyLimitation" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddDomainWithCoGuid">
@@ -749,6 +750,28 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_eStatus" type="tns:DomainResponseStatus" />
         </s:sequence>
       </s:complexType>
+      <s:element name="ValidateLimitationNpvr">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUDID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDeviceBrandID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="lSiteGuid" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="lDomainID" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="eValidation" type="tns:ValidationType" />
+            <s:element minOccurs="1" maxOccurs="1" name="nNpvrConcurrencyLimit" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNpvrID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidateLimitationNpvrResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ValidateLimitationNpvrResult" type="tns:ValidationResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
@@ -949,6 +972,12 @@
   </wsdl:message>
   <wsdl:message name="ValidateLimitationModuleSoapOut">
     <wsdl:part name="parameters" element="tns:ValidateLimitationModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrSoapIn">
+    <wsdl:part name="parameters" element="tns:ValidateLimitationNpvr" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrSoapOut">
+    <wsdl:part name="parameters" element="tns:ValidateLimitationNpvrResponse" />
   </wsdl:message>
   <wsdl:message name="AddDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1246,6 +1275,20 @@
   <wsdl:message name="ValidateLimitationModuleHttpPostOut">
     <wsdl:part name="Body" element="tns:ValidationResponseObject" />
   </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUDID" type="s:string" />
+    <wsdl:part name="nDeviceBrandID" type="s:string" />
+    <wsdl:part name="lSiteGuid" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="eValidation" type="s:string" />
+    <wsdl:part name="nNpvrConcurrencyLimit" type="s:string" />
+    <wsdl:part name="sNpvrID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrHttpPostOut">
+    <wsdl:part name="Body" element="tns:ValidationResponseObject" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -1370,6 +1413,10 @@
     <wsdl:operation name="ValidateLimitationModule">
       <wsdl:input message="tns:ValidateLimitationModuleSoapIn" />
       <wsdl:output message="tns:ValidateLimitationModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <wsdl:input message="tns:ValidateLimitationNpvrSoapIn" />
+      <wsdl:output message="tns:ValidateLimitationNpvrSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -1496,6 +1543,10 @@
     <wsdl:operation name="ValidateLimitationModule">
       <wsdl:input message="tns:ValidateLimitationModuleHttpPostIn" />
       <wsdl:output message="tns:ValidateLimitationModuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <wsdl:input message="tns:ValidateLimitationNpvrHttpPostIn" />
+      <wsdl:output message="tns:ValidateLimitationNpvrHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -1772,6 +1823,15 @@
     </wsdl:operation>
     <wsdl:operation name="ValidateLimitationModule">
       <soap:operation soapAction="http://domains.tvinci.com/ValidateLimitationModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <soap:operation soapAction="http://domains.tvinci.com/ValidateLimitationNpvr" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2061,6 +2121,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <soap12:operation soapAction="http://domains.tvinci.com/ValidateLimitationNpvr" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2336,6 +2405,15 @@
     </wsdl:operation>
     <wsdl:operation name="ValidateLimitationModule">
       <http:operation location="/ValidateLimitationModule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <http:operation location="/ValidateLimitationNpvr" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

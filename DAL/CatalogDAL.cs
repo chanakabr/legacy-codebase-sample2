@@ -2036,6 +2036,7 @@ namespace Tvinci.Core.DAL
         }
 
 
+
         public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
@@ -2151,6 +2152,22 @@ namespace Tvinci.Core.DAL
                 return 0;
             var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
             return umm.LastMark.Location;
+        }
+
+        // get all devices last position in domain by media_id 
+        public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
+        {
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // get domain document 
+            string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
+            var data = m_oClient.Get<string>(key);
+            if (data == null)
+                return null;
+
+            // get all last position order by desc              
+            var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
+            return dmm;
         }
     }
 }

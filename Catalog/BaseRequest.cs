@@ -53,6 +53,7 @@ namespace Catalog
     [KnownType(typeof(CategoryRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
+    [ServiceKnownType(typeof(DomainLastPositionRequest))]
 
     [DataContract]
     public class BaseRequest
