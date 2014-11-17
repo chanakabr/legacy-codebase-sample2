@@ -12,6 +12,8 @@ namespace NPVR
     public enum NPVRProvider : int
     {
         None = 0,
-        AlcatelLucent = 1
+        AlcatelLucent = 1,
+        Kaltura = 2,
+        Harmonic = 3
     }
 }

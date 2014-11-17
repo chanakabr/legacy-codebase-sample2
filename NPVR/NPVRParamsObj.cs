@@ -34,5 +34,14 @@ namespace NPVR
                 this.entityID = value;
             }
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("NPVRParamsObj. ");
+            sb.Append(String.Concat("Asset ID: ", AssetID));
+            sb.Append(String.Concat(" Entity ID: ", EntityID));
+
+            return sb.ToString();
+        }
     }
 }
