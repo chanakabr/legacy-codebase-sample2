@@ -514,7 +514,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -530,9 +530,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "SSO Signin")]
-        public UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
+        public TVPApiModule.Services.ApiUsersService.LogInResponseData SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
         {
-            UserResponseObject response = null;
+            TVPApiModule.Services.ApiUsersService.LogInResponseData response = default(TVPApiModule.Services.ApiUsersService.LogInResponseData);
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOSignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -8,7 +8,7 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 
 namespace TVPApiModule.Services
 {
-    public class ApiDomainsService
+    public class ApiDomainsService : ApiBase
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiDomainsService));

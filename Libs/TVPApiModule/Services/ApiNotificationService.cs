@@ -8,7 +8,7 @@ using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
-    public class ApiNotificationService
+    public class ApiNotificationService : ApiBase
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiNotificationService));
         private static object instanceLock = new object();

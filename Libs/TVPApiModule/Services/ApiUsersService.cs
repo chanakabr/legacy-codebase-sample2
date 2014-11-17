@@ -12,7 +12,7 @@ using System.Web;
 
 namespace TVPApiModule.Services
 {
-    public class ApiUsersService
+    public class ApiUsersService : ApiBase
     {
         #region Variables
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiUsersService));
@@ -198,20 +198,32 @@ namespace TVPApiModule.Services
             }
         }
 
-        public UserResponseObject SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
+        public LogInResponseData SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
         {
-            UserResponseObject response = null;
+            LogInResponseData loginData = default(LogInResponseData);
 
             try
             {
-                response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+                UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);                 
+
+                if (response != null && response.m_user != null)
+                {
+                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                    loginData.DomainID = response.m_user.m_domianID;
+                    loginData.LoginStatus = response.m_RespStatus;
+                    loginData.UserData = response.m_user;
+                }
+                else if (response != null)
+                {
+                    loginData.LoginStatus = response.m_RespStatus;
+                }                
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error recive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
             }
 
-            return response;
+            return loginData;
         }
 
         public UserResponseObject SSOCheckLogin(string sUserName, int nProviderID)
