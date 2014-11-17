@@ -10,6 +10,7 @@ namespace NPVR
     {
         private string assetID;
         private string entityID;
+        private long quota;
 
         public virtual string AssetID
         {
@@ -35,12 +36,24 @@ namespace NPVR
             }
         }
 
+        public virtual long Quota // quota is in minutes.
+        {
+            get
+            {
+                return quota;
+            }
+            set
+            {
+                this.quota = value;
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("NPVRParamsObj. ");
             sb.Append(String.Concat("Asset ID: ", AssetID));
             sb.Append(String.Concat(" Entity ID: ", EntityID));
-
+            sb.Append(String.Concat(" Quota: ", Quota));
             return sb.ToString();
         }
     }

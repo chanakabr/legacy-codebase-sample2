@@ -8,9 +8,10 @@ namespace NPVR
 {
     public interface INPVRProvider
     {
-        bool CreateAccount(NPVRParamsObj args);
+        NPVRUserActionResponse CreateAccount(NPVRParamsObj args);
 
-        bool DeleteAccount(NPVRParamsObj args);
+        NPVRUserActionResponse DeleteAccount(NPVRParamsObj args);
+
 
 
     }
