@@ -216,7 +216,7 @@ namespace TVPPro.SiteManager.Services
             }
 
             return device;
-        }
+        }       
         
     }
 }
