@@ -9,6 +9,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using ApiObjects.Epg;
 using Tvinci.Core.DAL;
+using Newtonsoft.Json;
+
 
 namespace GracenoteFeeder
 {
@@ -51,7 +53,8 @@ namespace GracenoteFeeder
             try
             {
                 //call catalog to get all epg channel ids by group
-                List<string> channels = GetAllChannels();
+                Dictionary<string,KeyValuePair<int,string>> channelDic = GetAllChannels();
+                List<string> channels = channelDic.Keys.ToList();
                 if (channels != null && channels.Count == 0)
                 {
                     Logger.Logger.Log("Error", string.Format("group:{0} No channels exsits in DB for this group", GroupID), "GracenoteFeeder");
@@ -62,7 +65,7 @@ namespace GracenoteFeeder
                 List<RESPONSES> lResponse = getXmlTVChannel(channels);
 
                 // run over and insert the programs
-                bool res = InsertProgramsPerChannel(lResponse);
+                bool res = InsertProgramsPerChannel(lResponse, channelDic);
                 
                 // Clear pic urls to support pic updates
                 BaseGracenoteFeeder.dCategoryToDefaultPic.Clear();
@@ -77,30 +80,66 @@ namespace GracenoteFeeder
 
 
         //saves the EPGs and sends them to ALU
-        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse)
+        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse, Dictionary<string, KeyValuePair<int, string>> channelDic)
         {
             try
             {
                 List<XmlDocument> xmlList = getChannelXMLs(lResponse);
+                string sPath = TVinciShared.WS_Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
+                Dictionary<int, int> channelID_DB_ALU = null;
+                if (File.Exists(sPath))
+                {
+                    string json = File.ReadAllText(@sPath);
+                    channelID_DB_ALU = JsonConvert.DeserializeObject<Dictionary<int, int>>(json);
+                }
+                else
+                {
+                    Logger.Logger.Log("InsertProgramsPerChannel", string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath), "GracenoteFeeder");
+                }
 
                 foreach (XmlDocument xml in xmlList)
-                {
-                    //send to ALU
-                    TransformAndSendToALU(xml);
+                {                       
+                    int nChannelIDDB = 0;
+                    int nChannelIDALU = 0;
+                    string sChannelName = "";
+                    XmlNodeList xmlChannel = xml.GetElementsByTagName("TVGRIDBATCH");
+                    string sChannelID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
 
-                    // Save epg programs for each xml documnet
-                    SaveChannel(xml);
+                    if (channelDic.ContainsKey(sChannelID))
+                    {
+                        nChannelIDDB = channelDic[sChannelID].Key;
+                        if (channelID_DB_ALU.ContainsKey(nChannelIDDB))
+                        {
+                            nChannelIDALU = channelID_DB_ALU[nChannelIDDB];
+                            sChannelName = channelDic[sChannelID].Value;
+
+                            //send to ALU
+                            TransformAndSendToALU(xml, nChannelIDALU, sChannelName);
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0} with name {1}. channel cannot be sent to ALU", nChannelIDDB, sChannelName), "GracenoteFeeder");
+                        }
+
+                        // Save epg programs for each xml documnet
+                        SaveChannel(xml, nChannelIDDB, sChannelID);
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("InsertProgramsPerChannel", string.Format("Channel {0} was not found in DB, and cannot be sent to ALU", sChannelID), "GracenoteFeeder");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                
+                Logger.Logger.Log("InsertProgramsPerChannel", string.Format("Exception when proccing epg in group id {0}: {1}, at :{2}", GroupID, ex.Message, ex.StackTrace), "GracenoteFeeder");
                 return false;
             }
+        
             return true;
         }
 
-        private void SaveChannel(XmlDocument xmlDoc)
+        private void SaveChannel(XmlDocument xmlDoc, int nChannelID,string sChannelID)
         {   
             try
             {
@@ -108,7 +147,7 @@ namespace GracenoteFeeder
                  BaseGracenoteFeeder gnf = new BaseGracenoteFeeder(Client, User, GroupID, URL, ChannelXml, CategoryXml,nParentGroupID, 700);
                  if (gnf != null)
                  {
-                     gnf.SaveChannel(xmlDoc);
+                     gnf.SaveChannel(xmlDoc, nChannelID, sChannelID);
                  }
                  else
                  {
@@ -158,26 +197,33 @@ namespace GracenoteFeeder
         }
 
         // get all channels by group id from DB
-        private List<string> GetAllChannels()
+        //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' there is the DB ID and thechannel name.
+        private Dictionary<string, KeyValuePair<int, string>> GetAllChannels()
         {
+            Dictionary<string, KeyValuePair<int, string>> result = new Dictionary<string, KeyValuePair<int, string>>();
             try
-            {
-                List<string> channels = new List<string>();
+            {               
                 DataTable dt = EpgDal.GetAllEpgChannelsList(GroupID);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow row in dt.Rows)
                     {
                         string channelId = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
-                        channels.Add(channelId);
+                        string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        KeyValuePair<int, string> kvp = new KeyValuePair<int, string>(nID, name);
+                        if (!result.ContainsKey(channelId))
+                        {
+                            result.Add(channelId, kvp);
+                        }                      
                     }
                 }
-                return channels;
+                return result;
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("GetAllChannels", string.Format("faild to get channels for group:{0}, ex:{1}", GroupID, ex.Message), "GracenoteFeeder");
-                return new List<string>();
+                return new Dictionary<string, KeyValuePair<int, string>>();
             }
         }
 
@@ -317,18 +363,20 @@ namespace GracenoteFeeder
             return xmlList;
         }
 
-        private void TransformAndSendToALU(XmlDocument XMLDoc)
+        private void TransformAndSendToALU(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
         {
-            XmlDocument xmlResult = TransformToALU(XMLDoc);
+            XmlDocument xmlResult = TransformToALU(XMLDoc, channelIDALU, sChannelName);
 
             SendToALU(XMLDoc);          
         }
 
-        private XmlDocument TransformToALU(XmlDocument XMLDoc)
+        private XmlDocument TransformToALU(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
         {
             XmlDocument xmlResult = new XmlDocument();
             GraceNoteTransform transformer = new GraceNoteTransform();
-            transformer.Init();
+         
+            transformer.Init(channelIDALU, sChannelName);   
+
             using (StringWriter writer = new StringWriter())
             {
                 try
@@ -343,8 +391,6 @@ namespace GracenoteFeeder
                 }
                 return xmlResult;
             }
-
-
         }
 
         //TODO 

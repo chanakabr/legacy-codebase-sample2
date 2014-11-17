@@ -23,10 +23,12 @@ namespace GracenoteFeeder
         }
 
 
-        public void Init()
+        public void Init(int nChannelID, string sChannelName)
         {           
             m_oAdapter = new GraceNoteAdapter();         
             m_oXslArguments.AddExtensionObject("pda:Utils", m_oAdapter);
+            m_oXslArguments.AddParam("ID", "", nChannelID);
+            m_oXslArguments.AddParam("channelName", "", sChannelName);
             m_oXslt.Load(XSLT_DEFAULT_FILE);        
         }
         

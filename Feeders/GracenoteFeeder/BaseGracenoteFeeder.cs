@@ -56,7 +56,7 @@ namespace GracenoteFeeder
             return res;
         }
 
-        private string GetSingleNodeValue(XmlNode node, string xpath)
+        public static string GetSingleNodeValue(XmlNode node, string xpath)
         {
             string res = "";
             try
@@ -121,23 +121,13 @@ namespace GracenoteFeeder
          add new tags and metas if needed to DB
          * insert picture to queue (via Rabbit)
          */
-        public virtual void SaveChannel(XmlDocument xmlDoc)
+        public virtual void SaveChannel(XmlDocument xmlDoc, int channelID, string channel_id)
         {
             try
             {
-                string channel_id = "";
-                int channelID = 0;
+                XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("TVPROGRAM");               
 
-                XmlNodeList xmlChannel = xmlDoc.GetElementsByTagName("TVGRIDBATCH");
-                XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("TVPROGRAM");
-
-                if (xmlnodelist.Count > 0)
-                {
-                    channel_id = GetSingleNodeValue(xmlChannel[0], "GN_ID");
-                    channelID = GetExistChannel(channel_id);
-                }
-
-                if (channelID > 0)
+                if (xmlnodelist.Count > 0 && channelID > 0)
                 {
                     Logger.Logger.Log("KDG SaveChannels", string.Format("START EPG Channel = {0}", channelID), "GracenoteFeeder");
 

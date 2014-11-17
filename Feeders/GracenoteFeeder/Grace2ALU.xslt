@@ -1,19 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt"
                 exclude-result-prefixes="msxsl" xmlns:myUtils="pda:Utils">
-  <xsl:output method="xml" indent="yes"/>  
-  <xsl:param name="StationID" select="1" />
-  
+  <xsl:output method="xml" indent="yes"/>    
+  <xsl:param name="ID" select="1" />
+  <xsl:param name="channelName" select="_" />
   <xsl:template match="/">
     <xsl:element name="xtvd" xmlns="urn:TMSWebServices">
       <xsl:attribute name="xsi:schemaLocation" namespace="http://www.w3.org/2001/XMLSchema-instance">urn:TMSWebServices http://docs.tms.tribune.com/tech/xml/schemas/tmsxtvd.xsd</xsl:attribute>
       <xsl:element name="stations">
         <xsl:element name="station">
-          <xsl:call-template name="create_station">
-            <xsl:with-param name="StationID" select="$StationID" />
+          <xsl:call-template name="create_station">        
             <xsl:with-param name="response" select="."/>
           </xsl:call-template>
-          <xsl:element name="name"/>
+          <xsl:element name="name">
+            <xsl:value-of select="$channelName" />
+          </xsl:element> 
         </xsl:element>
       </xsl:element>
       <xsl:element name="schedules">
@@ -40,11 +41,10 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template name="create_station">
-    <xsl:param name="StationID" select="$StationID + 1" />
+  <xsl:template name="create_station">   
     <xsl:param name="response"/>
     <xsl:attribute name="id">
-      <xsl:value-of select="$StationID"/>
+      <xsl:value-of select="$ID"/>
     </xsl:attribute>
     <xsl:element name="callSign" xmlns="urn:TMSWebServices">
       <xsl:value-of select="$response /*[local-name()='TVGRIDBATCH']/*[local-name()='GN_ID']"/>
@@ -59,7 +59,7 @@
         <xsl:value-of select="string($tvairingCurrent/@GN_ID)"/>
       </xsl:attribute>
       <xsl:attribute name="station" namespace="">
-        <xsl:value-of select="$StationID"/>
+        <xsl:value-of select="$ID"/>
       </xsl:attribute>
       <xsl:attribute name="time" namespace="">
         <xsl:if test="$tvairingCurrent/@START != ''">
