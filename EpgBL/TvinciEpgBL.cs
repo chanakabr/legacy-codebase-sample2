@@ -460,16 +460,11 @@ namespace EpgBL
             return lRes;
         }
 
-        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, int[] ids, string[] externalids, Language eLang, int duration)
-        {
-            List<EPGChannelProgrammeObject> lResIDS = null;
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)
+        {            
             List<EPGChannelProgrammeObject> lRes = null;
             try
-            {
-                if (ids != null && ids.Count() > 0)
-                {
-                    lResIDS = GetEpgs(ids.ToList());
-                }
+            {               
                 if (externalids != null && externalids.Count() > 0)
                 {
                     List<EpgCB> lResCB = m_oEpgCouchbase.GetGroupPrograms(0, 0, groupID, externalids.ToList());
@@ -482,11 +477,7 @@ namespace EpgBL
                 if (lRes == null)
                 {
                     lRes = new List<EPGChannelProgrammeObject>();
-                }
-                if (lResIDS != null)
-                {
-                    lRes.AddRange(lResIDS);
-                }
+                }         
             }
             catch (Exception ex)
             {
