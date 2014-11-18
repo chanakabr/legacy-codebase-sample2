@@ -159,7 +159,7 @@
 									</td>
 								</tr>
 								<tr>
-								    <td onclick='window.document.location.href="adm_media_concurrency_business_modules.aspx?search_save=1&limit_module_id=<% GetGDID(); %>";'><a href="#" class="btn_back"></a></td>
+								    <td onclick='window.document.location.href="adm_device_limitation_modules.aspx";'><a href="#" class="btn_back"></a></td>
 								</tr>
 							</table>
 						</td>
