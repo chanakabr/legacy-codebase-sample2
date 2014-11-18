@@ -187,7 +187,7 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
     {
         bool bRet = false;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select RULE_ID from groups_device_media_concurrency_rules where status=1 and ";
+        selectQuery += "select MEDIA_CONCURRENCY_RULE_ID from groups_device_media_concurrency_rules where status=1 and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_CONCURRENCY_RULE_ID", "=", mcID);
         selectQuery += " and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_LIMITATION_ID", "=", dlID);
