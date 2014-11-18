@@ -139,6 +139,8 @@
     <Compile Include="CrowdsourceResponse.cs" />
     <Compile Include="Crowdsourcing.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
+    <Compile Include="DomainLastPositionRequest.cs" />
+    <Compile Include="DomainLastPositionResponse.cs" />
     <Compile Include="EpgAutoCompleteRequest.cs" />
     <Compile Include="EpgAutoCompleteResponse.cs" />
     <Compile Include="CommentRequest.cs" />
