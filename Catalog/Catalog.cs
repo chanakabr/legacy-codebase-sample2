@@ -2354,6 +2354,7 @@ namespace Catalog
                                     {
                                         assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
                                         assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
                                     }
                                 }
                                 tasks[i].Dispose();
