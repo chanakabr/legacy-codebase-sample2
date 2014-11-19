@@ -113,19 +113,22 @@ namespace Catalog
             public int assetId;
             public int likesCounter;
             public double rate;
+            public int votes;
 
             public SocialPartialAssetStatsResult()
             {
                 this.assetId = 0;
                 this.likesCounter = 0;
                 this.rate = 0d;
+                this.votes = 0;
             }
 
-            public SocialPartialAssetStatsResult(int assetId, int likesCounter, double rate)
+            public SocialPartialAssetStatsResult(int assetId, int likesCounter, double rate, int votes)
             {
                 this.assetId = assetId;
                 this.likesCounter = likesCounter;
                 this.rate = rate;
+                this.votes = votes;
             }
         }
 

@@ -43,7 +43,7 @@ namespace Catalog
                  EpgProgramsResponse response = new EpgProgramsResponse();
                  BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
 
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByProgramsIdentefier(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID,  request.pids, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
                  {
                      response.lEpgList = retList;
