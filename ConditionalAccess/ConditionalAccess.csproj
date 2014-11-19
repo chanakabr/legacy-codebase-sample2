@@ -99,6 +99,7 @@
     <Compile Include="RecordNPVRCommand.cs" />
     <Compile Include="RecordSeriesNPVRCommand.cs" />
     <Compile Include="RetrieveNPVRCommand.cs" />
+    <Compile Include="RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
