@@ -2291,6 +2291,7 @@ namespace Catalog
                                     {
                                         assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
                                         assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
                                     }
                                 }
                                 tasks[i].Dispose();
@@ -2382,11 +2383,11 @@ namespace Catalog
                     {
                         // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
                         res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
-                        int votesCount = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
+                        res.votes = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
                         double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
-                        if (votesCount > 0)
+                        if (res.votes > 0)
                         {
-                            res.rate = votesSum / votesCount;
+                            res.rate = votesSum / res.votes;
                         }
                         else
                         {
