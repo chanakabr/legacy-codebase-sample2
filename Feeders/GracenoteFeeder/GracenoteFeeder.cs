@@ -10,6 +10,9 @@ using System.Xml.Serialization;
 using ApiObjects.Epg;
 using Tvinci.Core.DAL;
 using Newtonsoft.Json;
+using QueueWrapper;
+using ApiObjects.MediaIndexingObjects;
+using QueueWrapper.Queues.QueueObjects;
 
 
 namespace GracenoteFeeder
@@ -85,17 +88,10 @@ namespace GracenoteFeeder
             try
             {
                 List<XmlDocument> xmlList = getChannelXMLs(lResponse);
-                string sPath = TVinciShared.WS_Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
-                Dictionary<int, int> channelID_DB_ALU = null;
-                if (File.Exists(sPath))
-                {
-                    string json = File.ReadAllText(@sPath);
-                    channelID_DB_ALU = JsonConvert.DeserializeObject<Dictionary<int, int>>(json);
-                }
-                else
-                {
-                    Logger.Logger.Log("InsertProgramsPerChannel", string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath), "GracenoteFeeder");
-                }
+
+                Dictionary<string, XmlDocument> channelXMLs = new Dictionary<string,XmlDocument>();
+
+                Dictionary<int, int> channelID_DB_ALU = getALUIDs();              
 
                 foreach (XmlDocument xml in xmlList)
                 {                       
@@ -121,14 +117,32 @@ namespace GracenoteFeeder
                             Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0} with name {1}. channel cannot be sent to ALU", nChannelIDDB, sChannelName), "GracenoteFeeder");
                         }
 
-                        // Save epg programs for each xml documnet
-                        SaveChannel(xml, nChannelIDDB, sChannelID);
+                        //generate dictionary for saving the channels in DB
+                        if (!channelXMLs.ContainsKey(sChannelID))
+                        {
+                            channelXMLs.Add(sChannelID, xml);
+                        }
+                        
                     }
                     else
                     {
                         Logger.Logger.Log("InsertProgramsPerChannel", string.Format("Channel {0} was not found in DB, and cannot be sent to ALU", sChannelID), "GracenoteFeeder");
                     }
                 }
+
+                //saving the channels in DB
+                foreach (string channelCallSign in channelXMLs.Keys)
+                {
+                    int nChannelIDDB = 0;
+                    if (channelDic.ContainsKey(channelCallSign))
+                    {
+                        nChannelIDDB = channelDic[channelCallSign].Key;
+
+                        // Save epg programs for each xml documnet
+                        SaveChannel(channelXMLs[channelCallSign], nChannelIDDB, channelCallSign);
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -367,7 +381,7 @@ namespace GracenoteFeeder
         {
             XmlDocument xmlResult = TransformToALU(XMLDoc, channelIDALU, sChannelName);
 
-            SendToALU(XMLDoc);          
+            SendToALU(xmlResult);          
         }
 
         private XmlDocument TransformToALU(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
@@ -393,11 +407,40 @@ namespace GracenoteFeeder
             }
         }
 
-        //TODO 
         private void SendToALU(XmlDocument XMLDoc)
         {
+            List<object> args = new List<object>();
+            string id = Guid.NewGuid().ToString();
+            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskEPG");
+            string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyEPG");
 
+            args.Add(XMLDoc);
+            
+            BaseCeleryData data = new BaseCeleryData(id, task, args);
+            BaseQueue queue = new EPGQueue();
+          
+            bool bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
+            if (!bIsUpdateSucceeded)
+            {
+                Logger.Logger.Log("Error", "EPGQueue was not updated  - xml was not sent to ALU ", "GraceNoteFeeder");
+            }
+        }
 
+        private Dictionary<int, int> getALUIDs()
+        {
+            string sPath = TVinciShared.WS_Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
+            Dictionary<int, int> channelID_DB_ALU = null;
+            if (File.Exists(sPath))
+            {
+                string json = File.ReadAllText(@sPath);
+                channelID_DB_ALU = JsonConvert.DeserializeObject<Dictionary<int, int>>(json);
+            }
+            else
+            {
+                Logger.Logger.Log("InsertProgramsPerChannel", string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath), "GracenoteFeeder");
+            }
+
+            return channelID_DB_ALU;
         }
     }
 }

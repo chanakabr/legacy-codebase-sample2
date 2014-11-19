@@ -45,7 +45,7 @@
     <xsl:param name="response"/>
     <xsl:attribute name="id">
       <xsl:value-of select="$ID"/>
-    </xsl:attribute>
+    </xsl:attribute>    
     <xsl:element name="callSign" xmlns="urn:TMSWebServices">
       <xsl:value-of select="$response /*[local-name()='TVGRIDBATCH']/*[local-name()='GN_ID']"/>
     </xsl:element>
@@ -122,8 +122,8 @@
   <xsl:template name="create_costumFields">
   <xsl:param name="program_current"/>
   <xsl:if test="$program_current/*[local-name()='URLGROUP']/*[local-name()='URL'] != ''">
-    <xsl:element name="custom">
-      <xsl:attribute name="program">
+    <xsl:element name="custom" xmlns="urn:TMSWebServices">     
+      <xsl:attribute name="program" >
         <xsl:value-of select="string($program_current/*[local-name()='GN_ID'])"/>
       </xsl:attribute>
       <xsl:element name="thumbnails">
