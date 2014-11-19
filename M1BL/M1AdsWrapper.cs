@@ -22,7 +22,7 @@ namespace M1BL
 
 
         private const string PROXIMITY_WS_FACADE_USER_NAME = "ToggleUser";
-        private const string PROXIMITY_WS_FACADE_PASSWORD = "wbX8OBRoedf73qnR";
+        private const string PROXIMITY_WS_FACADE_PASSWORD = "jLyeNfdqnWdWUgZ6"; //"wbX8OBRoedf73qnR";
         private const string PROXIMITY_WS_FACADE_ACCOUNT_TYPE = "SSOWebServices";
 
         private const string PROXIMITY_WS_INTERFACE_CHANNEL_ID = "CM101";
@@ -44,9 +44,11 @@ namespace M1BL
                                                             <MobileNo>{0}</MobileNo>
                                                             <Service ServiceId=""{1}"" Action=""ACRMV""></Service>
                                                             <EmailOrSMSIndicator>0</EmailOrSMSIndicator>
-                                                    </ServiceMaintenanceInput>";     
-        
-         
+                                                    </ServiceMaintenanceInput>";
+
+        //private const string    M1_ADSWRAPPER_LOG_FILE      = "M1AdsWrapper";
+        //private const string    M1_ADSWRAPPER_LOG_HEADER    = "M1 AdsWrapper";
+ 
 
 
 
@@ -168,7 +170,7 @@ namespace M1BL
             }
         }
 
-        public ADSResponse CheckSessionToken(string sSessionToken)
+        public ADSResponse CheckSessionToken(string sSessionToken, string sMsisdn)
         {
             ADSResponse retValue = new ADSResponse();
             HttpWebRequest request = null;
@@ -185,7 +187,7 @@ namespace M1BL
             {
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
-                string url = string.Format(m_sSessionValidationUrl, sSessionToken); 
+                string url = string.Format(m_sSessionValidationUrl, sSessionToken, m_sAppID, sMsisdn); 
 
                 request = (HttpWebRequest)WebRequest.Create(url);            
                 request.Method = "GET";
@@ -285,7 +287,7 @@ namespace M1BL
             try
             {
 
-                retValue = CheckSessionToken(sSessionToken);
+                retValue = CheckSessionToken(sSessionToken, sMsisdn);
                 if (!retValue.is_succeeded)
                 {
                     return retValue;
@@ -479,18 +481,29 @@ namespace M1BL
 
         private MobileOneBusinessFascadeService.StandardStringArrayResult CallProximityAction(string inputXml)
         {
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "CallProximityAction - inputXml= " + inputXml, M1_ADSWRAPPER_LOG_FILE);
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             SingleSignOnService.ServiceFacade oSSOService = new SingleSignOnService.ServiceFacade();
+
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "m_sWsServiceFacadeUrl= " + m_sWsServiceFacadeUrl, M1_ADSWRAPPER_LOG_FILE);
             oSSOService.Url = m_sWsServiceFacadeUrl;
+
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, 
+            //    "GetAuthenticationTicketForClients: PROXIMITY_WS_FACADE_USER_NAME: " + PROXIMITY_WS_FACADE_USER_NAME +
+            //                    " PROXIMITY_WS_FACADE_PASSWORD: " + PROXIMITY_WS_FACADE_PASSWORD + 
+            //                    " PROXIMITY_WS_FACADE_ACCOUNT_TYPE: " + PROXIMITY_WS_FACADE_ACCOUNT_TYPE,
+            //    M1_ADSWRAPPER_LOG_FILE);
+
             SingleSignOnService.GetAuthenticationTicketResult oTicket = oSSOService.GetAuthenticationTicketForClients(PROXIMITY_WS_FACADE_USER_NAME, PROXIMITY_WS_FACADE_PASSWORD, PROXIMITY_WS_FACADE_ACCOUNT_TYPE);
 
             //// to check return result
             if (oTicket != null && oTicket.ActionResult != null && oTicket.ActionResult.ErrorCode != 0)
             {
-
-                throw new Exception(string.Format("Failure result from oSSOService.GetAuthenticationTicketForClients() error code:{0}", oTicket.ActionResult.ErrorCode));
+                //string exMsg = string.Format("Failure result from oSSOService.GetAuthenticationTicketForClients() error code:{0}", oTicket.ActionResult.ErrorCode);
+                //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "oTicket Exception: " + exMsg, M1_ADSWRAPPER_LOG_FILE);
+                throw new Exception();
                 //                return (new ADSResponse(M1_API_ResponseReason.SINGLESIGNON_SERVICE_TICKET_ERROR, false, string.Format("Failure result from oSSOService.GetAuthenticationTicketForClients() error code:{0}", oTicket.ActionResult.ErrorCode)));
             }
 
@@ -498,6 +511,8 @@ namespace M1BL
             MobileOneBusinessFascadeService.ServiceInterface myInterface = new MobileOneBusinessFascadeService.ServiceInterface();
             //point to correct back-end server
             //myInterface.Url = myInterface.Url.Replace("localhost", this.serverName);
+
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "m_sWsServiceInterfaceUrl= " + m_sWsServiceInterfaceUrl, M1_ADSWRAPPER_LOG_FILE);
             myInterface.Url = m_sWsServiceInterfaceUrl;
             ////create authentication object
             MobileOneBusinessFascadeService.AuthenticationSoapHeader clTicket = new MobileOneBusinessFascadeService.AuthenticationSoapHeader();
@@ -508,7 +523,13 @@ namespace M1BL
             string userID = PROXIMITY_WS_INTERFACE_USER_ID;
             bool onErrorContinue = false;
 
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "MobileOneBusinessFascadeService: channelId= " + PROXIMITY_WS_INTERFACE_CHANNEL_ID +
+            //    " userID= " + PROXIMITY_WS_INTERFACE_USER_ID
+            //    , M1_ADSWRAPPER_LOG_FILE);
             MobileOneBusinessFascadeService.StandardStringArrayResult currResult = myInterface.Execute(inputXml, channelId, userID, onErrorContinue);
+
+            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "MobileOneBusinessFascadeService Result= " + currResult.WebServiceResult., M1_ADSWRAPPER_LOG_FILE);
+
             return currResult;
         }
 
