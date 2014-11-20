@@ -36,7 +36,7 @@ namespace NPVR
             }
         }
 
-        public virtual long Quota // quota is in minutes.
+        public virtual long Quota // quota is in seconds.
         {
             get
             {

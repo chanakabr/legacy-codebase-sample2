@@ -243,6 +243,47 @@ namespace TVinciShared
             }
         }
 
+        public static bool TrySendHttpGetRequest(string url, Encoding encoding, ref int responseStatus, ref string result,
+            ref string errorMsg)
+        {
+            HttpWebResponse webResponse = null;
+            Stream receiveStream = null;
+            StreamReader sr = null;
+            bool res = false;
+            try
+            {
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+                webResponse = (HttpWebResponse)webRequest.GetResponse();
+                responseStatus = (int)webResponse.StatusCode;
+                receiveStream = webResponse.GetResponseStream();
+                sr = new StreamReader(receiveStream, encoding);
+                result = sr.ReadToEnd();
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                errorMsg = String.Concat(errorMsg, " || Ex Msg: ", ex.Message, " || Ex Type: ", ex.GetType().Name, " || ST: ", ex.StackTrace, " || ");
+                res = false;
+            }
+            finally
+            {
+                if (sr != null)
+                {
+                    sr.Close();
+                }
+                if (receiveStream != null)
+                {
+                    receiveStream.Close();
+                }
+                if (webResponse != null)
+                {
+                    webResponse.Close();
+                }
+            }
+
+            return res;
+        }
+
         public static bool TrySendHttpPostRequest(string sUrl, string sToSend, string sContentType,
             Encoding encoding, ref string sResult, ref string sErrorMsg)
         {

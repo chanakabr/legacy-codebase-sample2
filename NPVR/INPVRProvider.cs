@@ -12,7 +12,7 @@ namespace NPVR
 
         NPVRUserActionResponse DeleteAccount(NPVRParamsObj args);
 
-
+        NPVRQuotaResponse GetQuotaData(NPVRParamsObj args);
 
     }
 }

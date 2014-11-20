@@ -110,15 +110,8 @@ namespace ConditionalAccess
         {
             m_nGroupID = nGroupID;
             m_bIsInitialized = false;
-            //Initialize(connKey);
         }
-        /// <summary>
-        /// Initialize
-        /// </summary>
-        //private void InitializePurchaseMailTemplate()
-        //{
-        //    InitializePurchaseMailTemplate(string.Empty);
-        //}
+
         /// <summary>
         /// Initialize
         /// </summary>

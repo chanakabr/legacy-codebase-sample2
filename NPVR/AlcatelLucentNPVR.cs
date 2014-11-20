@@ -15,9 +15,15 @@ namespace NPVR
         private static readonly string ALU_LOG_FILE = "AlcatelLucent";
         private static readonly string LOG_HEADER_EXCEPTION = "Exception";
 
-        private static readonly string ENDPOINT_RECORD = "Record";
-        private static readonly string ENDPOINT_SEASON = "Season"; // Series
-        private static readonly string ENDPOINT_USER = "User";
+        private static readonly string ALU_RESPONSE_FORM = "json";
+
+        private static readonly string ALU_ENDPOINT_RECORD = "Record";
+        private static readonly string ALU_ENDPOINT_SEASON = "Season"; // Series
+        private static readonly string ALU_ENDPOINT_USER = "User";
+
+        private static readonly string ALU_CREATE_ACCOUNT_COMMAND = "addById";
+        private static readonly string ALU_DELETE_ACCOUNT_COMMAND = "delete";
+        private static readonly string ALU_GET_QUOTA_COMMAND = "getProfile";
 
         private int groupID;
 
@@ -28,8 +34,12 @@ namespace NPVR
 
         private bool IsCreateInputValid(NPVRParamsObj args)
         {
-            long domainID = 0;
-            return args != null && args.Quota > 0 && !string.IsNullOrEmpty(args.EntityID) && Int64.TryParse(args.EntityID, out domainID) && domainID > 0;
+            return args != null && args.Quota > 0 && !string.IsNullOrEmpty(args.EntityID);
+        }
+
+        private string BuildUserEndpointRestCommand()
+        {
+            throw new NotImplementedException();
         }
 
         public NPVRUserActionResponse CreateAccount(NPVRParamsObj args)
@@ -56,24 +66,32 @@ namespace NPVR
             return res;
         }
 
+        private bool IsDeleteInputValid(NPVRParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID);
+        }
+
         public NPVRUserActionResponse DeleteAccount(NPVRParamsObj args)
         {
             NPVRUserActionResponse res = new NPVRUserActionResponse();
             try
             {
-
+                if (IsDeleteInputValid(args))
+                {
+                    Logger.Logger.Log("Delete", string.Format("Delete request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()), ALU_LOG_FILE);
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or domain id is empty.");
+                }
             }
             catch (Exception ex)
             {
-
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at Delete.", args, ex), ALU_LOG_FILE);
+                throw;
             }
 
             return res;
-        }
-
-        private long MinutesToSeconds(long quotaInMinutes)
-        {
-            return 60 * quotaInMinutes;
         }
 
         private string GetLogMsg(string msg, NPVRParamsObj obj, Exception ex)
@@ -91,5 +109,11 @@ namespace NPVR
             return sb.ToString();
         }
 
+
+
+        public NPVRQuotaResponse GetQuotaData(NPVRParamsObj args)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

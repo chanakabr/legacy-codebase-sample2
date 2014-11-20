@@ -16,4 +16,12 @@ namespace NPVR
         Kaltura = 2,
         Harmonic = 3
     }
+
+    public enum ProtectStatus : int
+    {
+        Protected = 0,
+        NotProtected = 1,
+        RecordingDoesNotExist = 2,
+        Error = 3
+    }
 }

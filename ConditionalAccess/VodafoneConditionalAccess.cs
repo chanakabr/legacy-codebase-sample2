@@ -14,7 +14,7 @@ namespace ConditionalAccess
         {
         }
 
-
+        // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
         public override NPVRResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
@@ -51,6 +51,7 @@ namespace ConditionalAccess
             return res;
         }
 
+        // here asset ID will be the recording ID in ALU.
         public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
@@ -88,6 +89,7 @@ namespace ConditionalAccess
 
         }
 
+        // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
