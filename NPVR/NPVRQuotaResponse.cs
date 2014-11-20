@@ -12,5 +12,6 @@ namespace NPVR
         public bool isOK;
         public long totalQuota;
         public long usedQuota;
+        public string msg;
     }
 }

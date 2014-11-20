@@ -167,11 +167,52 @@ namespace NPVR
             return sb.ToString();
         }
 
-
+        private bool IsGetQuotaInputValid(NPVRParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID);
+        }
 
         public NPVRQuotaResponse GetQuotaData(NPVRParamsObj args)
         {
-            throw new NotImplementedException();
+            NPVRQuotaResponse res = new NPVRQuotaResponse();
+            try
+            {
+                if (IsGetQuotaInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(2);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+
+                    string url = BuildUserEndpointRestCommand(ALU_GET_QUOTA_COMMAND, ALU_ENDPOINT_USER, urlParams);
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here the json.
+                    }
+                    else
+                    {
+                        // log here the error
+                        Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("GetQuotaData. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.isOK = false;
+                        res.totalQuota = -1;
+                        res.usedQuota = -1;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at GetQuotaData.", args, ex), GetLogFilename());
+                throw;
+            }
+            return res;
         }
     }
 }
