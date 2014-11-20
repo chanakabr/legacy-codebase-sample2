@@ -110,22 +110,22 @@ namespace ConditionalAccess
         {
             m_nGroupID = nGroupID;
             m_bIsInitialized = false;
-            Initialize(connKey);
+            //Initialize(connKey);
         }
         /// <summary>
         /// Initialize
         /// </summary>
-        public void Initialize()
-        {
-            Initialize(string.Empty);
-        }
+        //private void InitializePurchaseMailTemplate()
+        //{
+        //    InitializePurchaseMailTemplate(string.Empty);
+        //}
         /// <summary>
         /// Initialize
         /// </summary>
-        public void Initialize(string connectionKey)
+        private void InitializePurchaseMailTemplate(string connectionKey)
         {
             if (m_sPurchaseMailTemplate == null)
-                m_sPurchaseMailTemplate = "";
+                m_sPurchaseMailTemplate = string.Empty;
 
             string key = string.Format("{0}_InitializeBaseConditionalAccess_{1}", eWSModules.CONDITIONALACCESS.ToString(), m_nGroupID);
             BaseConditionalAccess bCas;
@@ -194,6 +194,7 @@ namespace ConditionalAccess
         protected TvinciAPI.PurchaseMailRequest GetPurchaseMailRequest(ref string sEmail, string sUserGUID, string sItemName,
             string sPaymentMethod, string sDateOfPurchase, string sRecNumner, double dPrice, string sCurrency, Int32 nGroupID)
         {
+            InitializePurchaseMailTemplate(string.Empty);
             TvinciAPI.PurchaseMailRequest retVal = new TvinciAPI.PurchaseMailRequest();
             string sFirstName = string.Empty;
             string sLastName = string.Empty;
@@ -237,25 +238,34 @@ namespace ConditionalAccess
                     }
                 }
                 double tax = 0;
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("billing_connection");
-                selectQuery += " select tax_value from groups_parameters with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                if (selectQuery.Execute("query", true) != null)
+                double taxDisc = 0;
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                try
                 {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery.SetConnectionKey("billing_connection");
+                    selectQuery += " select tax_value from groups_parameters with (nolock) where ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        object taxObj = selectQuery.Table("query").DefaultView[0].Row["tax_value"];
-                        if (taxObj != System.DBNull.Value && taxObj != null)
+                        int count = selectQuery.Table("query").DefaultView.Count;
+                        if (count > 0)
                         {
-                            tax = double.Parse(taxObj.ToString());
+                            object taxObj = selectQuery.Table("query").DefaultView[0].Row["tax_value"];
+                            if (taxObj != System.DBNull.Value && taxObj != null)
+                            {
+                                tax = double.Parse(taxObj.ToString());
+                            }
                         }
                     }
                 }
-                double taxDisc = 0;
-                selectQuery.Finish();
-                selectQuery = null;
+                finally
+                {
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
+                    }
+                }
                 double taxTotalDIsc = CalcPriceAfterTax(dPrice, tax, ref taxDisc);
                 retVal.m_eMailType = TvinciAPI.eMailTemplateType.Purchase;
                 retVal.m_sFirstName = sFirstName;
