@@ -248,7 +248,7 @@ public partial class adm_groups_new : System.Web.UI.Page
         theRecord.AddRecord(dr_npvr_provider);
 
         DataRecordShortIntField dr_npvr_quota = new DataRecordShortIntField(true, 30, 128);
-        dr_npvr_quota.Initialize("NPVR Quota", "adm_table_header_nbg", "FormInput", "npvr_quota_in_minutes", false);
+        dr_npvr_quota.Initialize("NPVR Quota", "adm_table_header_nbg", "FormInput", "npvr_quota_in_seconds", false);
         theRecord.AddRecord(dr_npvr_quota);
 
         string sTable = theRecord.GetTableHTML("adm_groups_new.aspx?submited=1");
