@@ -31,4 +31,11 @@ namespace NPVR
         AlreadyRecorded = 1,
         Error = 2
     }
+
+    public enum CancelDeleteStatus
+    {
+        OK = 0,
+        AlreadyCanceled = 1,
+        Error = 2
+    }
 }

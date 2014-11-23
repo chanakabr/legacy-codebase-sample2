@@ -16,5 +16,6 @@ namespace NPVR
 
         NPVRRecordResponse RecordAsset(NPVRParamsObj args);
 
+        NPVRCancelDeleteResponse CancelAsset(NPVRParamsObj args);
     }
 }

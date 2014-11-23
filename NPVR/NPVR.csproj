@@ -43,6 +43,7 @@
     <Compile Include="AlcatelLucentNPVR.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="INPVRProvider.cs" />
+    <Compile Include="NPVRCancelDeleteResponse.cs" />
     <Compile Include="NPVRParamsObj.cs" />
     <Compile Include="NPVRProtectResponse.cs" />
     <Compile Include="NPVRProviderFactory.cs" />

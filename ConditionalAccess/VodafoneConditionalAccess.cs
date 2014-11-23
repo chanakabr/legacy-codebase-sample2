@@ -28,7 +28,7 @@ namespace ConditionalAccess
                 {
                     if (isSeries)
                     {
-
+                        // series
                     }
                     else
                     {
@@ -111,15 +111,14 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = assetID;
-                    if (!string.IsNullOrEmpty(assetIDToALU))
+                    if (!string.IsNullOrEmpty(assetID))
                     {
 
                     }
                     else
                     {
                         // asset id is invalid
-                        Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg(String.Concat("Invalid Asset ID. ALU Asset ID: ", assetIDToALU), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                        Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg(String.Concat("Invalid Asset ID. ALU Asset ID: ", assetID), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
                         res.status = NPVRStatus.InvalidAssetID.ToString();
                     }
                 }
