@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NPVR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,7 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = isSeries ? assetID : GetEpgProgramCoGuid(m_nGroupID, assetID);
+                    string assetIDToALU = isSeries ? assetID : GetEpgProgramCoGuid(assetID);
                     if (!string.IsNullOrEmpty(assetIDToALU))
                     {
 
@@ -60,7 +61,7 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = isSeries ? assetID : GetEpgProgramCoGuid(m_nGroupID, assetID);
+                    string assetIDToALU = assetID;
                     if (!string.IsNullOrEmpty(assetIDToALU))
                     {
 
@@ -98,7 +99,7 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = isSeries ? assetID : GetEpgProgramCoGuid(m_nGroupID, assetID);
+                    string assetIDToALU = assetID;
                     if (!string.IsNullOrEmpty(assetIDToALU))
                     {
 
@@ -126,8 +127,56 @@ namespace ConditionalAccess
             return res;
         }
 
+        public override QuotaResponse GetNPVRQuota(string siteGuid)
+        {
+            QuotaResponse res = new QuotaResponse();
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRQuotaResponse response = npvr.GetQuotaData(new NPVRParamsObj() { EntityID = domainID.ToString() });
+                        if (response != null)
+                        {
+                            res.totalQuota = response.totalQuota;
+                            res.occupiedQuota = response.usedQuota;
+                            res.status = NPVRStatus.OK.ToString();
+                        }
+                        else
+                        {
+                            // log here response is null.
+                            Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("GetNPVRQuota. NPVR layer response is null. D ID: ", domainID), siteGuid, string.Empty, false, null), VODAFONE_NPVR_LOG);
+                            res.status = NPVRStatus.Error.ToString();
+                        }
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("Error", GetNPVRLogMsg("GetNPVRQuota. Failed to instantiate INPVRProvider instance.", siteGuid, string.Empty, false, null), VODAFONE_NPVR_LOG);
+                        res.status = NPVRStatus.Error.ToString();
+                    }
+                }
+                else
+                {
+                    // log here user does not exist or no domain id.
+                    Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("GetNPVRQuota. Either user or domain is not valid. D ID: ", domainID), siteGuid, string.Empty, false, null), VODAFONE_NPVR_LOG);
+                    res.status = NPVRStatus.Error.ToString();
 
-        private string GetEpgProgramCoGuid(int groupID, string assetID)
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetNPVRLogMsg("Exception at GetNPVRQuota.", siteGuid, string.Empty, false, ex), VODAFONE_NPVR_LOG);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
+
+
+        private string GetEpgProgramCoGuid(string assetID)
         {
             WS_Catalog.IserviceClient client = null;
             int progID = 0;
@@ -146,7 +195,7 @@ namespace ConditionalAccess
                 client = new WS_Catalog.IserviceClient();
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
                 WS_Catalog.EpgProgramDetailsRequest epdr = new WS_Catalog.EpgProgramDetailsRequest();
-                epdr.m_nGroupID = groupID;
+                epdr.m_nGroupID =m_nGroupID;
                 epdr.m_oFilter = new WS_Catalog.Filter();
                 epdr.m_lProgramsIds = new int[1] { progID };
                 Utils.FillCatalogSignature(epdr);

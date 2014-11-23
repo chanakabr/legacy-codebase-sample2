@@ -9,7 +9,7 @@ namespace NPVR
 
 
     // this enum must correspond to the table lu_npvr_providers in TVinci DB.
-    public enum NPVRProvider : int
+    public enum NPVRProvider
     {
         None = 0,
         AlcatelLucent = 1,
@@ -17,7 +17,7 @@ namespace NPVR
         Harmonic = 3
     }
 
-    public enum ProtectStatus : int
+    public enum ProtectStatus
     {
         Protected = 0,
         NotProtected = 1,

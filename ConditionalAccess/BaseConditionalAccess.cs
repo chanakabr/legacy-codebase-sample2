@@ -10464,6 +10464,11 @@ namespace ConditionalAccess
             throw new NotImplementedException("Not implemented yet.");
         }
 
+        public virtual QuotaResponse GetNPVRQuota(string siteGuid)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
         protected string GetNPVRLogMsg(string msg, string siteGuid, string assetID, bool isSeries, Exception ex)
         {
             StringBuilder sb = new StringBuilder(String.Concat(msg, "."));

@@ -94,6 +94,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LicensedLinkResponse.cs" />
+    <Compile Include="QuotaResponse.cs" />
     <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
     <Compile Include="RecordNPVRCommand.cs" />
@@ -601,6 +602,10 @@
     <ProjectReference Include="..\MCGroupRules\MCGroupRules.csproj">
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
       <Name>MCGroupRules</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
