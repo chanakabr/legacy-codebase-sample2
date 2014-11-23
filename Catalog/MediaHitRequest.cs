@@ -122,10 +122,9 @@ namespace Catalog
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             int nSiteGuid;
-            int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
             //non-anonymous user
-            if (nSiteGuid != 0)
+            if (int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid) && nSiteGuid > 0)
             {
                 string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);
 

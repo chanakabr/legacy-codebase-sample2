@@ -5205,7 +5205,7 @@ namespace ConditionalAccess
                             ret.m_sStatusDescription = "This PPVModule does not belong to item";
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         }
-                        
+
                         if (bDummy)
                         {
                             bOK = true;
@@ -9874,7 +9874,7 @@ namespace ConditionalAccess
             try
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
-                int streamingCoID = 0;              
+                int streamingCoID = 0;
                 if (!string.IsNullOrEmpty(sBasicLink) && nMediaFileID > 0 && isDevicePlayValid(sSiteGuid, sDeviceName))
                 {
                     if (IsAlterBasicLink(sBasicLink, nMediaFileID))
@@ -9892,14 +9892,14 @@ namespace ConditionalAccess
                         int fileMainStreamingCoID = 0;
                         int fileAltStreamingCoID = 0;
 
-                        if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
-                            ref fileAltStreamingCoID))
+                        if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
                         {
-                            Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
-                                fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-
-                            if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
+                            if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, 
+                                ref fileAltStreamingCoID))
                             {
+                                Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
+                                    fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+
                                 if (IsItemPurchased(prices[0]))
                                 {
                                     HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode,
@@ -9911,25 +9911,25 @@ namespace ConditionalAccess
                             }
                             else
                             {
-                                res.altUrl = GetErrorLicensedLink(sBasicLink);
+                                // failed to retrieve data from catalog.
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                            }                            
+                                res.altUrl = GetErrorLicensedLink(sBasicLink);
+
+                                #region Logging
+                                StringBuilder catalogErr = new StringBuilder("Error at GetLicensedLinks. Failed to retrieve data from Catalog. ");
+                                catalogErr.Append(String.Concat("Site Guid: ", sSiteGuid));
+                                catalogErr.Append(String.Concat(" MF ID: ", nMediaFileID));
+                                catalogErr.Append(String.Concat(" User IP: ", sUserIP));
+                                catalogErr.Append(String.Concat(" this is: ", this.GetType().Name));
+
+                                Logger.Logger.Log("Error", catalogErr.ToString(), GetLogFilename());
+                                #endregion
+                            }
                         }
                         else
                         {
-                            // failed to retrieve data from catalog.
-                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
                             res.altUrl = GetErrorLicensedLink(sBasicLink);
-
-                            #region Logging
-                            StringBuilder catalogErr = new StringBuilder("Error at GetLicensedLinks. Failed to retrieve data from Catalog. ");
-                            catalogErr.Append(String.Concat("Site Guid: ", sSiteGuid));
-                            catalogErr.Append(String.Concat(" MF ID: ", nMediaFileID));
-                            catalogErr.Append(String.Concat(" User IP: ", sUserIP));
-                            catalogErr.Append(String.Concat(" this is: ", this.GetType().Name));
-
-                            Logger.Logger.Log("Error", catalogErr.ToString(), GetLogFilename());
-                            #endregion
+                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
                         }
                     }
                 }
