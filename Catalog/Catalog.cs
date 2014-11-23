@@ -3104,7 +3104,7 @@ namespace Catalog
                     }
                     if (user == user_id)
                     {
-                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                        ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
                     }
                     else
                     {
@@ -3123,14 +3123,20 @@ namespace Catalog
                         {
                             continue;
                         }
-                        if (user != user_id)
+
+                        if (user == user_id)
+                        {
+                            ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
+                        }
+                        else
                         {
                             lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
                         }
+
                     }
                     //get position of specific user
                     umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
-                    if (umm != null)
+                    if (umm != null && ulp == null)
                     {
                         ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
                     }
