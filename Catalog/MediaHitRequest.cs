@@ -121,12 +121,35 @@ namespace Catalog
 
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
-            string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
+            int nSiteGuid;
+            int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
-            CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                          nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
-                                          nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
+            //non-anonymous user
+            if (nSiteGuid != 0)
+            {
+                string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);
 
+                CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                              nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
+                                              nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
+
+                if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
+                {
+                    Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, this.m_oMediaPlayRequestData.m_sUDID);
+                }
+
+                if (this.m_oMediaPlayRequestData.m_nAvgBitRate > 0)
+                {
+                    int siteGuid = 0;
+                    int status = 1;
+                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
+                                                               this.m_oMediaPlayRequestData.m_nAvgBitRate, this.m_oMediaPlayRequestData.m_nCurrentBitRate, this.m_oMediaPlayRequestData.m_nTotalBitRate,
+                                                               nPlayTime, nBrowser, nPlatform, nCountryID, status, this.m_nGroupID);
+                }
+            }
+
+            //if this is not a bit rate change, log for mediahit for statistics
             if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
             {
                 GroupManager groupManager = new GroupManager();
@@ -137,19 +160,8 @@ namespace Catalog
                     MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
                     WriteLiveViewsToES(view);
                 }
-
-                Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, this.m_oMediaPlayRequestData.m_sUDID);
             }
-
-            if (this.m_oMediaPlayRequestData.m_nAvgBitRate > 0)
-            {
-                int siteGuid = 0;
-                int status = 1;
-                int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, 
-                                                           this.m_oMediaPlayRequestData.m_nAvgBitRate, this.m_oMediaPlayRequestData.m_nCurrentBitRate, this.m_oMediaPlayRequestData.m_nTotalBitRate,
-                                                           nPlayTime, nBrowser, nPlatform, nCountryID, status, this.m_nGroupID);
-            }
+           
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT); 
             return oMediaHitResponse;         
         }

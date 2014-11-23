@@ -117,8 +117,24 @@ namespace Catalog
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
                                      ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
 
-            if (Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
+            bool bValidMediaAction = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
+
+            int nSiteGuid;
+            //anonymous user - write new play cycle when first play
+            if (string.IsNullOrEmpty(m_oMediaPlayRequestData.m_sSiteGuid) || !int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid) || nSiteGuid == 0)
             {
+                if (bValidMediaAction && mediaMarkAction == MediaPlayActions.FIRST_PLAY)
+                {
+                    CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, this.m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
+                }
+
+                return oMediaMarkResponse;
+            }
+
+
+            // do for all non-anonymous users
+            if (bValidMediaAction)
+             {
                 bool isError = false;
                 bool isConcurrent = false;
                 HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
