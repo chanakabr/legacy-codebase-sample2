@@ -193,6 +193,7 @@ namespace ConditionalAccess
         Error = 2,
         BadRequest = 3,
         InvalidUser = 4,
-        InvalidAssetID = 5
+        InvalidAssetID = 5,
+        AssetAlreadyScheduled = 6
     }
 }

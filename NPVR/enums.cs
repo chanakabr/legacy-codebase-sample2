@@ -24,4 +24,11 @@ namespace NPVR
         RecordingDoesNotExist = 2,
         Error = 3
     }
+
+    public enum RecordStatus
+    {
+        OK = 0,
+        AlreadyRecorded = 1,
+        Error = 2
+    }
 }

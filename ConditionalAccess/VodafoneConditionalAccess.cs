@@ -1,6 +1,7 @@
 ﻿using NPVR;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -9,6 +10,7 @@ namespace ConditionalAccess
     public class VodafoneConditionalAccess : TvinciConditionalAccess
     {
         private static readonly string VODAFONE_NPVR_LOG = "VodafoneNPVR";
+        private static readonly DateTime UNIX_ZERO_TIME = new DateTime(1970, 1, 1, 0, 0, 0);
 
         public VodafoneConditionalAccess(Int32 nGroupID)
             : base(nGroupID)
@@ -16,25 +18,73 @@ namespace ConditionalAccess
         }
 
         // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
-        public override NPVRResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
+        public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
-            NPVRResponse res = new NPVRResponse();
+            RecordResponse res = new RecordResponse();
             try
             {
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = isSeries ? assetID : GetEpgProgramCoGuid(assetID);
-                    if (!string.IsNullOrEmpty(assetIDToALU))
+                    if (isSeries)
                     {
 
                     }
                     else
                     {
-                        // asset id is invalid
-                        Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Invalid Asset ID. ALU Asset ID: ", assetIDToALU), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                        res.status = NPVRStatus.InvalidAssetID.ToString();
+                        // single asset
+                        string epgChannelID = string.Empty;
+                        DateTime programStartDate = DateTime.MinValue;
+                        string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
+                        if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
+                        {
+                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                            if (npvr != null)
+                            {
+                                NPVRRecordResponse response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                                if (response != null)
+                                {
+                                    switch (response.status)
+                                    {
+                                        case RecordStatus.OK:
+                                            res.status = NPVRStatus.OK.ToString();
+                                            res.recordingID = response.recordingID;
+                                            break;
+                                        case RecordStatus.AlreadyRecorded:
+                                            res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        case RecordStatus.Error:
+                                            res.status = NPVRStatus.Error.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        default:
+                                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Unidentified RecordStatus: ", response.status.ToString()), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                            res.status = NPVRStatus.Unknown.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Response returned from NPVR layer is null.", siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                    res.status = NPVRStatus.Error.ToString();
+                                }
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Failed to instantiate an INPVRProvider instance.", siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                res.status = NPVRStatus.Error.ToString();
+                            }
+                        }
+                        else
+                        {
+                            // asset id or epg channel id or program start date is invalid
+                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Either ALU Asset ID: ", assetIDToALU, " or Epg Channel ID: ", epgChannelID, " or StartDate: ", programStartDate.ToString(), " is invalid."), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                            res.status = NPVRStatus.InvalidAssetID.ToString();
+                        }
                     }
+
                 }
                 else
                 {
@@ -176,7 +226,7 @@ namespace ConditionalAccess
         }
 
 
-        private string GetEpgProgramCoGuid(string assetID)
+        private string GetEpgProgramCoGuid(string assetID, ref string epgChannelID, ref DateTime startDate)
         {
             WS_Catalog.IserviceClient client = null;
             int progID = 0;
@@ -206,6 +256,12 @@ namespace ConditionalAccess
                     if (prog != null && prog.m_oProgram != null)
                     {
                         res = prog.m_oProgram.EPG_IDENTIFIER;
+                        epgChannelID = prog.m_oProgram.EPG_CHANNEL_ID;
+                        if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "yyyyMMddHHmmss", new CultureInfo("de-DE"), DateTimeStyles.None, out startDate))
+                        {
+                            // failed to parse date.
+
+                        }
                     }
                 }
 

@@ -16,6 +16,8 @@ namespace NPVR
         private static readonly string LOG_HEADER_EXCEPTION = "Exception";
         private static readonly string LOG_HEADER_ERROR = "Error";
 
+        private static readonly string DATE_TIME_FORMAT = "yyyyMMddHHmmss";
+
         private static readonly string ALU_GENERIC_BODY = "scheduler/web/";
         private static readonly string ALU_ENDPOINT_RECORD = "Record/";
         private static readonly string ALU_ENDPOINT_SEASON = "Season/"; // Series
@@ -24,11 +26,15 @@ namespace NPVR
         private static readonly string ALU_CREATE_ACCOUNT_COMMAND = "addById";
         private static readonly string ALU_DELETE_ACCOUNT_COMMAND = "delete";
         private static readonly string ALU_GET_QUOTA_COMMAND = "getProfile";
+        private static readonly string ALU_ADD_BY_PROGRAM = "addByProgram";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
         private static readonly string ALU_SCHEMA_URL_PARAM = "schema";
         private static readonly string ALU_USER_ID_URL_PARAM = "userId";
+        private static readonly string ALU_PROGRAM_ID_URL_PARAM = "programId";
+        private static readonly string ALU_CHANNEL_ID_URL_PARAM = "channelId";
+        private static readonly string ALU_START_TIME_URL_PARAM = "startTime";
 
         private int groupID;
 
@@ -194,7 +200,7 @@ namespace NPVR
                     else
                     {
                         // log here the error
-                        Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("GetQuotaData. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("GetQuotaData. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
                         res.entityID = args.EntityID;
                         res.isOK = false;
                         res.totalQuota = -1;
@@ -212,6 +218,60 @@ namespace NPVR
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at GetQuotaData.", args, ex), GetLogFilename());
                 throw;
             }
+            return res;
+        }
+
+        private bool IsRecordAssetInputValid(NPVRParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.AssetID) && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.EpgChannelID);
+        }
+
+
+        public NPVRRecordResponse RecordAsset(NPVRParamsObj args)
+        {
+            NPVRRecordResponse res = new NPVRRecordResponse();
+            try
+            {
+                if (IsRecordAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
+                    urlParams.Add(new KeyValuePair<string,string>(ALU_START_TIME_URL_PARAM, args.StartDate.ToString(DATE_TIME_FORMAT)));
+
+                    string url = BuildUserEndpointRestCommand(ALU_ADD_BY_PROGRAM, ALU_ENDPOINT_RECORD, urlParams);
+                    
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if(TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg)) 
+                    {
+                        // parse here json
+                    }
+                    else 
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RecordAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = RecordStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty or epg channel id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RecordAsset", args, ex), GetLogFilename());
+                throw;
+            }
+
             return res;
         }
     }

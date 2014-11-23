@@ -14,5 +14,7 @@ namespace NPVR
 
         NPVRQuotaResponse GetQuotaData(NPVRParamsObj args);
 
+        NPVRRecordResponse RecordAsset(NPVRParamsObj args);
+
     }
 }

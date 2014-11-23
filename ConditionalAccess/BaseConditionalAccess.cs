@@ -10449,7 +10449,7 @@ namespace ConditionalAccess
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
         }
 
-        public virtual NPVRResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
+        public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
