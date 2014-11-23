@@ -7,88 +7,91 @@ using System.Threading.Tasks;
 
 namespace NPVR
 {
-    public static class NPVRProviderFactory
+    public class NPVRProviderFactory
     {
-        //private static readonly string FACTORY_LOG_FILE = "NPVRProviderFactory";
+        private static readonly object mutex = new object();
+        private static readonly object dictMutex = new object();
+        private static NPVRProviderFactory instance = null;
 
-        public static bool IsGroupHaveNPVRImpl(int groupID)
+        private Dictionary<int, NPVRProvider> groupsToNPVRImplMapping = null;
+
+        private NPVRProviderFactory()
         {
-            NPVRProvider provider = NPVRProvider.None;
-
-            return IsGroupHaveNPVRImpl(groupID, ref provider);
+            groupsToNPVRImplMapping = new Dictionary<int, NPVRProvider>();
         }
 
-        private static bool IsGroupHaveNPVRImpl(int groupID, ref NPVRProvider provider)
+        public static NPVRProviderFactory Instance()
         {
-            bool res = false;
-            int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID);
-            if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
+            if (instance == null)
             {
-                provider = (NPVRProvider)npvrProviderID;
-                switch (provider)
+                lock (mutex)
                 {
-                    case NPVRProvider.AlcatelLucent:
-                        res = true;
-                        break;
-                    case NPVRProvider.Kaltura:
-                    case NPVRProvider.Harmonic:
-                    default:
-                        break;
+                    if (instance == null)
+                    {
+                        instance = new NPVRProviderFactory();
+                    }
+                }
+            }
+
+            return instance;
+        }
+
+        private NPVRProvider GetGroupNPVRImpl(int groupID)
+        {
+            NPVRProvider provider = NPVRProvider.None;
+            if (!groupsToNPVRImplMapping.ContainsKey(groupID))
+            {
+                lock (dictMutex)
+                {
+                    if (!groupsToNPVRImplMapping.ContainsKey(groupID))
+                    {
+                        int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID);
+                        if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
+                        {
+                            provider = (NPVRProvider)npvrProviderID;
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("Error", string.Format("Unknown NPVR Provider ID extracted from DB. G ID: {0} , NPVR ID: {1}", groupID, npvrProviderID), "NPVRProviderFactory");
+                        }
+                    }
+                    else
+                    {
+                        provider = groupsToNPVRImplMapping[groupID];
+                    }
                 }
             }
             else
             {
-                provider = NPVRProvider.None;
+                provider = groupsToNPVRImplMapping[groupID];
             }
 
-            return res;
+            return provider;
+
         }
 
-        public static INPVRProvider GetProvider(int groupID)
+        public bool IsGroupHaveNPVRImpl(int groupID)
+        {
+            return GetProvider(groupID) != null;
+        }
+
+        public INPVRProvider GetProvider(int groupID)
         {
             INPVRProvider res = null;
-            //int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID);
-            //if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
-            //{
-            //    NPVRProvider provider = (NPVRProvider)npvrProviderID;
-            //    switch (provider)
-            //    {
-            //        case NPVRProvider.None:
-            //            throw new NotImplementedException(String.Concat("GroupID: ", groupID, " has no NPVR Provider configured."));
-            //        case NPVRProvider.AlcatelLucent:
-            //            res = new AlcatelLucentNPVR(groupID);
-            //            break;
-            //        case NPVRProvider.Kaltura:
-            //        case NPVRProvider.Harmonic:
-            //        default:
-            //            throw new NotImplementedException(String.Concat("NPVR Provider not implemented. ID: ", npvrProviderID, " Name: ", provider.ToString()));
-            //    }
-            //}
-            //else
-            //{
-            //    string msg = String.Concat("No NPVRProvider enum corresponds to: ", npvrProviderID);
-            //    Logger.Logger.Log("Error", msg, FACTORY_LOG_FILE);
-            //    throw new NotImplementedException(msg);
-            //}
-            NPVRProvider provider = NPVRProvider.None;
-            if (IsGroupHaveNPVRImpl(groupID, ref provider))
+            NPVRProvider provider = GetGroupNPVRImpl(groupID);
+            switch (provider)
             {
-                switch (provider)
-                {
-                    case NPVRProvider.None:
-                        throw new NotImplementedException(String.Concat("No NPVR Provider is configured for group: ", groupID));
-                    case NPVRProvider.AlcatelLucent:
-                        res = new AlcatelLucentNPVR(groupID);
-                        break;
-                    case NPVRProvider.Kaltura:
-                    case NPVRProvider.Harmonic:
-                    default:
-                        throw new NotImplementedException(String.Concat("NPVR Provider: ", provider.ToString(), " is not implemented. Group ID: ", groupID));
-                }
-            }
-            else
-            {
-                throw new NotImplementedException("Group has no NPVR provider configured.");
+                case NPVRProvider.None:
+                    break;
+                case NPVRProvider.AlcatelLucent:
+                    res = new AlcatelLucentNPVR(groupID);
+                    break;
+                case NPVRProvider.Kaltura:
+                    // fall through
+                case NPVRProvider.Harmonic:
+                    // fall through
+                default:
+                    break;
             }
 
             return res;
