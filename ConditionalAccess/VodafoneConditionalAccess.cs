@@ -113,7 +113,32 @@ namespace ConditionalAccess
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
+                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                        if (npvr != null)
+                        {
+                            if (isSeries)
+                            {
 
+                            }
+                            else
+                            {
+                                // single asset
+                                NPVRCancelDeleteResponse response = npvr.CancelAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                                if (response != null)
+                                {
+
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg("Failed to instantiate INPVRProvider object.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                            res.status = NPVRStatus.Error.ToString();
+                        }
                     }
                     else
                     {

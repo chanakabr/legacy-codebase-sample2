@@ -84,6 +84,7 @@
     <Compile Include="BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
+    <Compile Include="CancelDeleteResponse.cs" />
     <Compile Include="CancelNPVRCommand.cs" />
     <Compile Include="CancelSeriesNPVRCommand.cs" />
     <Compile Include="CinepolisConditionalAccess.cs" />
