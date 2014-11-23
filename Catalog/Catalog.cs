@@ -3076,18 +3076,40 @@ namespace Catalog
                 return res;
             }
             UserMediaMark umm = new UserMediaMark();
-
+            LastPosition ulp = null;
             if (bDefaultUser) // get all users position in domain
             {
                 foreach (int user in lUsers)
-                {                  
+                {
                     umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
+                    if (umm == null)
+                    {
+                        continue;
+                    }
+                    if (user == user_id)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                    }
+                    else
+                    {
+                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
+                    }
                 }
                 foreach (int user in lDeafultUsers)
                 {
                     umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                    if (umm == null)
+                    {
+                        continue;
+                    }
+                    if (user == user_id)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                    }
+                    else
+                    {
+                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                    }
                 }
             }
             else // get only user_id and the default_users_id position
@@ -3097,12 +3119,29 @@ namespace Catalog
                     foreach (int user in lDeafultUsers) // get position of default user
                     {
                         umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                        if (umm == null)
+                        {
+                            continue;
+                        }
+                        if (user != user_id)
+                        {
+                            lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                        }
                     }
                     //get position of specific user
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();                    
-                    lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
+                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
+                    if (umm != null)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                    }
                 }
+            }
+
+            //order list by location           
+            lUserMedia = lUserMedia.OrderByDescending(x => x.m_nLocation).ToList();
+            if (ulp != null)
+            {
+                lUserMedia.Insert(0, ulp); // add the userid in the first position in the list
             }
             res.m_sStatus = "OK";
             res.m_lPositions = lUserMedia;
