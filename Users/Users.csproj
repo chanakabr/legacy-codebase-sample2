@@ -210,6 +210,10 @@
       <Project>{31a03896-6fd2-4591-ab2e-a4278c24f8db}</Project>
       <Name>Notifiers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>

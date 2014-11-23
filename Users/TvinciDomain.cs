@@ -53,32 +53,54 @@ namespace Users
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
         {
-
-            Domain domain = DomainFactory.CreateDomain(sDomainName.Trim(), sDomainDescription.Trim(), nMasterUserGuid, nGroupID, sCoGuid);
-
-            DomainResponseObject oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UnKnown);
-
-            if (domain.m_DomainStatus != DomainStatus.OK)
+            try
             {
-                if (domain.m_DomainStatus == DomainStatus.DomainAlreadyExists)
+                Domain domain = DomainFactory.CreateDomain(sDomainName.Trim(), sDomainDescription.Trim(), nMasterUserGuid, nGroupID, sCoGuid);
+
+                DomainResponseObject oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UnKnown);
+
+                if (domain.m_DomainStatus != DomainStatus.OK)
                 {
-                    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
+                    switch (domain.m_DomainStatus)
+                    {
+                        case DomainStatus.DomainAlreadyExists:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
+                            break;
+                        case DomainStatus.HouseholdUserFailed:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
+                            break;
+                        case DomainStatus.Error:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                            break;
+                        default:
+                            Logger.Logger.Log("Error", string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid), GetLogFilename());
+                            break;
+                    }
+
+                    return oDomainResponseObject;
                 }
-                else if (domain.m_DomainStatus == DomainStatus.HouseholdUserFailed)
-                {
-                    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
-                }
-                else if (domain.m_DomainStatus == DomainStatus.Error)
-                {
-                    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-                }
+
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
                 return oDomainResponseObject;
             }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at AddDomain. ");
+                sb.Append(String.Concat(" D Name: ", sDomainName));
+                sb.Append(String.Concat(" D Desc: ", sDomainDescription));
+                sb.Append(String.Concat(" Master Site Guid: ", nMasterUserGuid));
+                sb.Append(String.Concat(" G ID: ", nGroupID));
+                sb.Append(String.Concat(" CoGuid: ", sCoGuid));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                throw;
+            }
 
-            return oDomainResponseObject;
+            
         }
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID)

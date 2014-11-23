@@ -7,6 +7,7 @@ using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using DAL;
 using System.Xml.Serialization;
+using NPVR;
 
 namespace Users
 {
@@ -153,8 +154,8 @@ namespace Users
             int nConcurrentLimit = 0;
             int nGroupConcurrentLimit = 0;
             int nDeviceFreqLimit = 0;
-            long npvrQuotaInMins = 0;
-            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInMins);
+            long npvrQuotaInSecs = 0;
+            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInSecs);
 
             bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
 
@@ -204,6 +205,38 @@ namespace Users
                 m_UsersIDs.Add(nMasterGuID);
             }
 
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                if (npvr != null)
+                {
+                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
+                    if (resp != null)
+                    {
+                        if (resp.isOK)
+                        {
+                            m_DomainStatus = DomainStatus.OK;
+                        }
+                        else
+                        {
+                            m_DomainStatus = DomainStatus.Error;
+                            Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg), "Domain");
+                        }
+                    }
+                    else
+                    {
+                        m_DomainStatus = DomainStatus.Error;
+                        Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                    }
+
+                }
+                else
+                {
+                    Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                }
+
+            }
+
             return this;
         }
 
@@ -222,23 +255,58 @@ namespace Users
 
         public DomainResponseStatus Remove()
         {
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
             int isActive = 2;   // Inactive
             int status = 2;     // Removed
 
             int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
-            return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            if (IsDomainRemovedSuccessfully(statusRes))
+            {
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
+
+                        if (response != null)
+                        {
+                            if (response.isOK)
+                            {
+                                res = DomainResponseStatus.OK;
+                            }
+                            else
+                            {
+                                res = DomainResponseStatus.Error;
+                                Logger.Logger.Log("Error", string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg), "Domain");
+                            }
+                        }
+                        else
+                        {
+                            res = DomainResponseStatus.Error;
+                            Logger.Logger.Log("Error", string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                        }
+                    }
+                    else
+                    {
+                        res = DomainResponseStatus.Error;
+                        Logger.Logger.Log("Error", string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                    }
+                }
+            }
+            else
+            {
+                res = DomainResponseStatus.Error;
+            }
+
+            return res;
         }
 
-        public DomainResponseStatus TryRemove()
+        private bool IsDomainRemovedSuccessfully(int statusRes)
         {
-            int isActive = 2;   // Inactive
-            int status = 2;     // Removed
-            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
-
-            return DomainResponseStatus.DomainNotExists;
-
-
+            return statusRes == 2;
         }
 
         /// <summary>

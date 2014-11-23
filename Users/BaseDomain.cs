@@ -119,15 +119,34 @@ namespace Users
 
         public virtual DomainResponseStatus RemoveDomain(int nDomainID)
         {
-            if (nDomainID < 1)
-                return DomainResponseStatus.DomainNotExists;
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
+            try
+            {
+                if (nDomainID < 1)
+                    return DomainResponseStatus.DomainNotExists;
 
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+                Domain domain = DomainInitializer(m_nGroupID, nDomainID);
 
-            if (domain == null)
-                return DomainResponseStatus.DomainNotExists;
+                if (domain == null)
+                    return DomainResponseStatus.DomainNotExists;
 
-            return domain.Remove();
+                res = domain.Remove();
+            }
+            catch (Exception ex)
+            {
+                res = DomainResponseStatus.Error;
+                StringBuilder sb = new StringBuilder("Exception at RemoveDomain. ");
+                sb.Append(String.Concat(" D ID: ", nDomainID));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                throw;
+            }
+
+            return res;
         }
 
         public virtual DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
@@ -690,6 +709,11 @@ namespace Users
         #endregion
 
         #region Protected implemented
+
+        protected string GetLogFilename()
+        {
+            return String.Concat("BaseDomain_", m_nGroupID);
+        }
 
         protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
         {
