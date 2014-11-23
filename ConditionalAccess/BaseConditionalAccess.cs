@@ -3064,6 +3064,9 @@ namespace ConditionalAccess
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME)
         {
+            if (Utils.IsAnonymousUser(sSiteGUID))
+                return true;
+
             TvinciUsers.UsersService u = null;
             TvinciDomains.module domainsWS = null;
             bool isDeviceRecognized = false;
@@ -9871,8 +9874,8 @@ namespace ConditionalAccess
             try
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
-                int streamingCoID = 0;
-                if (IsGetLicensedLinksInputValid(sSiteGuid, nMediaFileID, sBasicLink) && isDevicePlayValid(sSiteGuid, sDeviceName))
+                int streamingCoID = 0;              
+                if (!string.IsNullOrEmpty(sBasicLink) && nMediaFileID > 0 && isDevicePlayValid(sSiteGuid, sDeviceName))
                 {
                     if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                     {
@@ -9895,28 +9898,22 @@ namespace ConditionalAccess
                             Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
                                 fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
-                            if (IsFreeItem(prices[0]))
+                            if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
                             {
+                                if (IsItemPurchased(prices[0]))
+                                {
+                                    HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode,
+                                      sDeviceName, sCouponCode);
+                                }
                                 res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                 licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                 res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                             }
                             else
                             {
-                                if (IsItemPurchased(prices[0]) && Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
-                                {
-                                    HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode,
-                                        sDeviceName, sCouponCode);
-                                    res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
-                                    licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
-                                    res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
-                                }
-                                else
-                                {
-                                    res.altUrl = GetErrorLicensedLink(sBasicLink);
-                                    res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                }
-                            }
+                                res.altUrl = GetErrorLicensedLink(sBasicLink);
+                                res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                            }                            
                         }
                         else
                         {
