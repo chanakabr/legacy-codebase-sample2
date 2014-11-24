@@ -26,12 +26,6 @@ namespace Catalog
         {  
         }
 
-        //private void CheckRequestValidness(EpgProgramDetailsRequest programRequest)
-        //{
-        //    if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
-        //        throw new ArgumentException("request object is null or required variables are missing");
-        //}
-
         protected override void CheckRequestValidness()
         {
             if (m_lProgramsIds == null || m_lProgramsIds.Count == 0)
@@ -102,8 +96,8 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgProgramDetailsRequest", String.Concat("Failed ex={0}, siteGuid={1}, group_id={3} ", ex.Message,
-                  oBaseRequest.m_sSiteGuid, oBaseRequest.m_nGroupID), "EpgProgramDetailsRequest");
+                Logger.Logger.Log("EpgProgramDetailsRequest", String.Format("Failed ex={0}, siteGuid={1}, group_id={3} , ST: {4}", ex.Message,
+                  oBaseRequest.m_sSiteGuid, oBaseRequest.m_nGroupID, ex.StackTrace), "EpgProgramDetailsRequest");
                 return new EpgProgramResponse();
             }
 
