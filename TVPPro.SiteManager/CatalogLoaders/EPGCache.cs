@@ -38,7 +38,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             m_oRequest = new EpgProgramDetailsRequest()
             {
-                m_lProgramsIds = ProgramIDs.Select(program => program.assetID).ToList(),
+                m_lProgramsIds = ProgramIDs.Select(program => program.assetID).ToList()                
             };
 
         }

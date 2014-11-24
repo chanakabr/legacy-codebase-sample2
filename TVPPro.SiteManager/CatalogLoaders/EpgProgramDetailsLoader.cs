@@ -1,8 +1,8 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -10,40 +10,33 @@ using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
-    [Serializable]
-    public class EPGProgramsByProgramsIdentefierLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
+    public class EpgProgramDetailsLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGProgramsByProgramsIdentefierLoader));
+        private static ILog logger = log4net.LogManager.GetLogger(typeof(EpgProgramDetailsLoader));        
 
-        public List<string> PIDs { get; set; }
-        public int Duration { get; set; }
-        public Language Lang { get; set; }
+        public List<int> PIDs { get; set; }        
 
         #region Constructors
 
-        public EPGProgramsByProgramsIdentefierLoader(int groupID, string userIP, int pageSize, int pageIndex, List<string> pids, int duration, Language lang)
+        public EpgProgramDetailsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> pids)
             : base(groupID, userIP, pageSize, pageIndex)
         {
-            PIDs = pids;
-            Duration = duration;
-            Lang = lang;
+            PIDs = pids;            
 
         }
 
-        public EPGProgramsByProgramsIdentefierLoader(string userName, string userIP, int pageSize, int pageIndex, List<string> pids, int duration, Language lang)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, pids, duration, lang)
+        public EpgProgramDetailsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> pids)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, pids)
         {
-        }
+        }       
 
         #endregion
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new EPGProgramsByProgramsIdentefierRequest()
+            m_oRequest = new EpgProgramDetailsRequest()
             {
-                duration = Duration,
-                eLang = Lang,
-                pids = PIDs                
+                m_lProgramsIds = PIDs                                           
             };
         }
 
@@ -51,7 +44,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             object retVal = null;
             BuildRequest();
-            Log("TryExecuteGetBaseResponse:", m_oRequest);
+            Log("TryExecuteGetBaseResponse:", m_oResponse);
             if (m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse) == eProviderResult.Success)
             {
                 Log("Got:", m_oResponse);
@@ -73,9 +66,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             {
                 switch (obj.GetType().ToString())
                 {
-                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGProgramsByProgramsIdentefierRequest":
+                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramDetailsRequest":
                         EPGProgramsByProgramsIdentefierRequest request = obj as EPGProgramsByProgramsIdentefierRequest;
-                        sText.AppendFormat("EPGProgramsByScidsRequest: GroupID = {0}, PageIndex = {1}, PageSize = {2}, duration = {3}, eLang = {4}, num of pids = {5}", request.m_nGroupID, request.m_nPageIndex, request.m_nPageSize, request.duration, request.eLang, request.pids.Count);
+                        sText.AppendFormat("EPGProgramsByScidsRequest: GroupID = {0}, PageIndex = {1}, PageSize = {2}, num of pids = {5}", request.m_nGroupID, request.m_nPageIndex, request.m_nPageSize, request.pids.Count);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramsResponse":
                         EpgProgramsResponse response = obj as EpgProgramsResponse;

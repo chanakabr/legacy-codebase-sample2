@@ -118,9 +118,11 @@
     <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\CrowdsourceFeedLoader.cs" />
+    <Compile Include="CatalogLoaders\DomainLastPositionLoader .cs" />
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\EPGCache.cs" />
     <Compile Include="CatalogLoaders\EPGLoader.cs" />
+    <Compile Include="CatalogLoaders\EpgProgramDetailsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGProgramsByProgramsIdentefierLoader.cs" />
     <Compile Include="CatalogLoaders\EPGProgramsByScidsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGSearchContentLoader.cs" />
