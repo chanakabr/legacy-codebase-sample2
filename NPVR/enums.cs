@@ -29,13 +29,15 @@ namespace NPVR
     {
         OK = 0,
         AlreadyRecorded = 1,
-        Error = 2
+        Error = 2,
+        AssetDoesNotExist = 3
     }
 
     public enum CancelDeleteStatus
     {
         OK = 0,
         AlreadyCanceled = 1,
-        Error = 2
+        Error = 2,
+        AssetDoesNotExist = 3
     }
 }

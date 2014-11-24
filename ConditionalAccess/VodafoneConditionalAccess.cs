@@ -189,15 +189,57 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    string assetIDToALU = assetID;
-                    if (!string.IsNullOrEmpty(assetIDToALU))
+                    if (!string.IsNullOrEmpty(assetID))
                     {
+                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                        if (npvr != null)
+                        {
+                            if (isSeries)
+                            {
 
+                            }
+                            else
+                            {
+                                // single asset
+                                NPVRCancelDeleteResponse response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                                
+                                if (response != null)
+                                {
+                                    switch (response.status)
+                                    {
+                                        case CancelDeleteStatus.OK:
+                                            res.status = NPVRStatus.OK.ToString();
+                                            break;
+                                        case CancelDeleteStatus.AssetDoesNotExist:
+                                            res.status = NPVRStatus.InvalidAssetID.ToString();
+                                            break;
+                                        case CancelDeleteStatus.Error:
+                                            res.status = NPVRStatus.Error.ToString();
+                                            break;
+                                        default:
+                                            Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                            res.status = NPVRStatus.Unknown.ToString();
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    // log here response is null
+                                    Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg("NPVR layer response is null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                    res.status = NPVRStatus.Error.ToString();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // log here npvr layer instance is null
+                            Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg("INPVRProvider instance is null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                        }
                     }
                     else
                     {
                         // asset id is invalid
-                        Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg(String.Concat("Invalid Asset ID. ALU Asset ID: ", assetIDToALU), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                        Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg(String.Concat("Invalid Asset ID. ALU Asset ID: ", assetID), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
                         res.status = NPVRStatus.InvalidAssetID.ToString();
                     }
                 }

@@ -28,6 +28,7 @@ namespace NPVR
         private static readonly string ALU_GET_QUOTA_COMMAND = "getProfile";
         private static readonly string ALU_ADD_BY_PROGRAM_COMMAND = "addByProgram";
         private static readonly string ALU_CANCEL_COMMAND = "cancel";
+        private static readonly string ALU_DELETE_COMMAND = "delete";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
@@ -277,7 +278,7 @@ namespace NPVR
             return res;
         }
 
-        private bool IsCancelAssetInputValid(NPVRParamsObj args)
+        private bool IsCancelDeleteAssetInputValid(NPVRParamsObj args)
         {
             return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
         }
@@ -288,7 +289,7 @@ namespace NPVR
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
             try
             {
-                if (IsCancelAssetInputValid(args))
+                if (IsCancelDeleteAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string,string>(ALU_SCHEMA_URL_PARAM, "1.0"));
@@ -323,6 +324,52 @@ namespace NPVR
             catch (Exception ex)
             {
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at CancelAsset.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+
+        public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
+        {
+            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            try
+            {
+                if (IsCancelDeleteAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+
+                    string url = BuildUserEndpointRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here json
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = CancelDeleteStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteAsset.", args, ex), GetLogFilename());
                 throw;
             }
 
