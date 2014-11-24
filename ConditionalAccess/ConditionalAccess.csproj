@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="LicensedLinkResponse.cs" />
     <Compile Include="ProtectionResponse.cs" />
+    <Compile Include="ProtectNPVRCommand.cs" />
     <Compile Include="QuotaResponse.cs" />
     <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
