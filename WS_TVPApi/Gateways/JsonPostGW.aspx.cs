@@ -64,6 +64,6 @@ public partial class Gateways_JsonPostGW : BaseGateway
                                                         m_UsersService,
                                                         m_NotificationService);
 
-        queryServices.ProcessRequest(sJsonRequest);                     
+        queryServices.ProcessRequest(sJsonRequest);
     }
 }
