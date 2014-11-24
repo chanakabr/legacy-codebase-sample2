@@ -294,13 +294,85 @@ namespace ConditionalAccess
                 {
                     // log here user does not exist or no domain id.
                     Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("GetNPVRQuota. Either user or domain is not valid. D ID: ", domainID), siteGuid, string.Empty, false, null), VODAFONE_NPVR_LOG);
-                    res.status = NPVRStatus.Error.ToString();
+                    res.status = NPVRStatus.InvalidUser.ToString();
 
                 }
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Exception", GetNPVRLogMsg("Exception at GetNPVRQuota.", siteGuid, string.Empty, false, ex), VODAFONE_NPVR_LOG);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
+
+        public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
+        {
+            NPVRResponse res = new NPVRResponse();
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+
+                    if (npvr != null)
+                    {
+                        if (isSeries)
+                        {
+
+                        }
+                        else
+                        {
+                            // single asset
+                            NPVRProtectResponse response = npvr.SetAssetProtectionStatus(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID, IsProtect = isProtect });
+                            if (response != null)
+                            {
+                                switch (response.status)
+                                {
+                                    case ProtectStatus.Protected:
+                                        // fall through
+                                    case ProtectStatus.NotProtected:
+                                        res.status = NPVRStatus.OK.ToString();
+                                        break;
+                                    case ProtectStatus.RecordingDoesNotExist:
+                                        res.status = NPVRStatus.InvalidAssetID.ToString();
+                                        break;
+                                    case ProtectStatus.Error:
+                                        res.status = NPVRStatus.Error.ToString();
+                                        break;
+                                    default:
+                                        Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("SetNPVRProtectionStatus. Unrecognized ProtectStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                        res.status = NPVRStatus.Unknown.ToString();
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                // log here response is null.
+                                Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("SetNPVRProtectionStatus. NPVR layer response is null. D ID: ", domainID), siteGuid, string.Empty, false, null), VODAFONE_NPVR_LOG);
+                                res.status = NPVRStatus.Error.ToString();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // INPVRProvider instance is null
+                        Logger.Logger.Log("Error", GetNPVRLogMsg("SetNPVRProtectionStatus. Failed to instantiate INPVRProvider instance.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                        res.status = NPVRStatus.Error.ToString();
+                    }
+                }
+                else
+                {
+                    // either user does not exist or domain is not valid
+                    Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("SetNPVRProtectionStatus. Either user or domain is not valid. D ID: ", domainID), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetNPVRLogMsg("Exception at SetNPVRProtectionStatus.", siteGuid, assetID, isSeries, ex), VODAFONE_NPVR_LOG);
                 res.status = NPVRStatus.Error.ToString();
             }
 
@@ -315,6 +387,8 @@ namespace ConditionalAccess
             string res = string.Empty;
             if (!Int32.TryParse(assetID, out progID) || progID < 1)
             {
+                startDate = UNIX_ZERO_TIME;
+                epgChannelID = string.Empty;
                 return string.Empty;
             }
             try

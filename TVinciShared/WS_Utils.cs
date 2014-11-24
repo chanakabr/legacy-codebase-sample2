@@ -343,6 +343,11 @@ namespace TVinciShared
             return res;
         }
 
+
+        /*
+         * Before you change anything in this method, keep in mind it is used in Cinepolis billing process. Good luck :)
+         * 
+         */ 
         public static string BuildDelimiterSeperatedString(List<KeyValuePair<string, string>> lst, string sDelimiter, bool bIsPutDelimiterAtStart, bool bIsPutDelimiterAtEnd)
         {
             StringBuilder sb = new StringBuilder();

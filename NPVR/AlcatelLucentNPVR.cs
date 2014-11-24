@@ -29,6 +29,7 @@ namespace NPVR
         private static readonly string ALU_ADD_BY_PROGRAM_COMMAND = "addByProgram";
         private static readonly string ALU_CANCEL_COMMAND = "cancel";
         private static readonly string ALU_DELETE_COMMAND = "delete";
+        private static readonly string ALU_UPDATE_FIELD_COMMAND = "updateField";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
@@ -38,6 +39,8 @@ namespace NPVR
         private static readonly string ALU_CHANNEL_ID_URL_PARAM = "channelId";
         private static readonly string ALU_START_TIME_URL_PARAM = "startTime";
         private static readonly string ALU_ASSET_ID_URL_PARAM = "assetId";
+        private static readonly string ALU_NAME_URL_PARAM = "name";
+        private static readonly string ALU_VALUE_URL_PARAM = "value";
 
         private int groupID;
 
@@ -56,7 +59,7 @@ namespace NPVR
             return String.Concat(ALU_LOG_FILE, "_", groupID);
         }
 
-        private string BuildUserEndpointRestCommand(string method, string endPoint, List<KeyValuePair<string, string>> urlParams)
+        private string BuildRestCommand(string method, string endPoint, List<KeyValuePair<string, string>> urlParams)
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
@@ -77,7 +80,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string,string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string,string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildUserEndpointRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
+                    string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
@@ -128,7 +131,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildUserEndpointRestCommand(ALU_DELETE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
+                    string url = BuildRestCommand(ALU_DELETE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
@@ -192,7 +195,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildUserEndpointRestCommand(ALU_GET_QUOTA_COMMAND, ALU_ENDPOINT_USER, urlParams);
+                    string url = BuildRestCommand(ALU_GET_QUOTA_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
@@ -244,7 +247,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
                     urlParams.Add(new KeyValuePair<string,string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
 
-                    string url = BuildUserEndpointRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+                    string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
                     
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -296,7 +299,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildUserEndpointRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+                    string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -343,7 +346,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildUserEndpointRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+                    string url = BuildRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -370,6 +373,60 @@ namespace NPVR
             catch (Exception ex)
             {
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteAsset.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+        private bool IsSetAssetProtectionStatusInputValid(NPVRParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
+        }
+
+        public NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args)
+        {
+            NPVRProtectResponse res = new NPVRProtectResponse();
+            try
+            {
+                if (IsSetAssetProtectionStatusInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "protected"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.IsProtect.ToString().ToLower()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+
+                    string url = BuildRestCommand(ALU_UPDATE_FIELD_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here json
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("SetAssetProtectionStatus. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.recordingID = string.Empty;
+                        res.status = ProtectStatus.Error;
+                        res.entityID = args.EntityID;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+
+
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at SetAssetProtectionStatus.", args, ex), GetLogFilename());
                 throw;
             }
 

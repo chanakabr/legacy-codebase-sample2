@@ -11,5 +11,6 @@ namespace NPVR
         public string recordingID;
         public ProtectStatus status;
         public string msg;
+        public string entityID;
     }
 }

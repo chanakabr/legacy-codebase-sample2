@@ -40,4 +40,5 @@ namespace NPVR
         Error = 2,
         AssetDoesNotExist = 3
     }
+
 }

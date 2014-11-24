@@ -19,5 +19,7 @@ namespace NPVR
         NPVRCancelDeleteResponse CancelAsset(NPVRParamsObj args);
 
         NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args);
+
+        NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args);
     }
 }
