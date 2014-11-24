@@ -451,8 +451,9 @@ namespace ConditionalAccess
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
+            TvinciAPI.API api = null;
             try
-            {                
+            {
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
@@ -466,7 +467,7 @@ namespace ConditionalAccess
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
                 //call api service to get schedualing details
-                TvinciAPI.API api = new TvinciAPI.API();
+                api = new TvinciAPI.API();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
 
@@ -521,7 +522,7 @@ namespace ConditionalAccess
                         url = liveUrl;
                     }
                 }
-                
+
                 return url;
 
             }
@@ -532,42 +533,14 @@ namespace ConditionalAccess
                        "GetEPGLink");
                 return string.Empty;
             }
+            finally
+            {
+                if (api != null)
+                {
+                    api.Dispose();
+                }
+            }
         }
-
-        //protected static TvinciAPI.EpgLink BuildEpgLinkObject(int nProgramId, DateTime dStartTime, ApiObjects.eEPGFormatType format, Int32 nMediaFileID, string sBasicLink)
-        //{
-        //    List<ConditionalAccess.TvinciAPI.EpgLinkItem> lEpgLinkParams = new List<ConditionalAccess.TvinciAPI.EpgLinkItem>();
-        //    ConditionalAccess.TvinciAPI.EpgLinkItem oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
-
-        //    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.BASIC_LINK;
-        //    oEpgLinkItem.m_value = sBasicLink;
-        //    lEpgLinkParams.Add(oEpgLinkItem);
-
-        //    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
-        //    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.PROGRAM_ID;
-        //    oEpgLinkItem.m_value = nProgramId;
-        //    lEpgLinkParams.Add(oEpgLinkItem);
-
-        //    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
-        //    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.MEDIA_FILE_ID;
-        //    oEpgLinkItem.m_value = nMediaFileID;
-        //    lEpgLinkParams.Add(oEpgLinkItem);
-
-        //    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
-        //    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.START_TIME;
-        //    oEpgLinkItem.m_value = dStartTime;
-        //    lEpgLinkParams.Add(oEpgLinkItem);
-
-        //    oEpgLinkItem = new ConditionalAccess.TvinciAPI.EpgLinkItem();
-        //    oEpgLinkItem.m_key = ApiObjects.Epg.EpgLinkConstants.EPG_FORMAT_TYPE;
-        //    oEpgLinkItem.m_value = format;
-        //    lEpgLinkParams.Add(oEpgLinkItem);
-
-
-        //    ConditionalAccess.TvinciAPI.EpgLink epgLink = new ConditionalAccess.TvinciAPI.EpgLink();
-        //    epgLink.m_lParams = lEpgLinkParams.ToArray<ConditionalAccess.TvinciAPI.EpgLinkItem>();
-        //    return epgLink;
-        //}
 
     }
 }

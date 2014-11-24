@@ -959,7 +959,7 @@ namespace ConditionalAccess
         public override string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
-            TvinciAPI.API api = new TvinciAPI.API();
+            TvinciAPI.API api = null;
             try
             {
                 // Validate inputs
@@ -996,7 +996,7 @@ namespace ConditionalAccess
                 //call api service to get the epg_url_link 
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-
+                api = new TvinciAPI.API();
                 string sApiWSUrl = Utils.GetWSURL("api_ws");
                 if (!string.IsNullOrEmpty(sApiWSUrl))
                 {
