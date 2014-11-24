@@ -93,7 +93,6 @@ namespace Catalog
                 if (request == null)
                     throw new Exception("Request object is null");
 
-                _logger.Info(String.Concat(request.ToString(), " started at: ", DateTime.UtcNow, " ipno flow"));
 
                 GroupManager groupManager = new GroupManager();
                 int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);

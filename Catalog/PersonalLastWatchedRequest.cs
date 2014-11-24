@@ -41,12 +41,6 @@ namespace Catalog
                 MediaIdsResponse response = new MediaIdsResponse();
                 SearchResult oMediaObj;
 
-                string xmlresult = "";
-                xmlresult = SerializeToXML<PersonalLastWatchedRequest>(request);
-
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "PersonalLastWatchedRequest Start At", DateTime.Now));
-
                 if (request == null)
                     throw new ArgumentNullException("request object is null or Required variables is null");
 
@@ -73,12 +67,6 @@ namespace Catalog
                 response.m_nTotalItems = response.m_nMediaIds.Count;
                 response.m_nMediaIds = Utils.GetMediaForPaging(response.m_nMediaIds, request);
 
-                xmlresult = "no resultes";
-                if (response != null)
-                {
-                    xmlresult = SerializeToXML<MediaIdsResponse>(response);
-                }
-                _logger.Info(xmlresult);
                 return response;
             }
             catch (Exception ex)

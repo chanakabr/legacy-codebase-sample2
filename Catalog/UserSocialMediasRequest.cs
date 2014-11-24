@@ -39,12 +39,6 @@ namespace Catalog
                 SearchResult oMediaRes;
                 List<SearchResult> lMedias = new List<SearchResult>();
 
-                string xmlresult = "";
-                xmlresult = SerializeToXML<UserSocialMediasRequest>(request);
-
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "UserSocialMediasRequest Start At", DateTime.Now));
-
                 if (request == null)
                     throw new Exception("request object is null or Required variables is null");
 
@@ -68,12 +62,6 @@ namespace Catalog
                         response.m_nTotalItems = lMedias.Count;
                         response.m_nMediaIds = Utils.GetMediaForPaging(lMedias, request);
 
-                        xmlresult = "no resultes";
-                        if (response != null)
-                        {
-                            xmlresult = SerializeToXML<MediaIdsResponse>(response);
-                        }
-                        _logger.Info(xmlresult);
                         return response;
                     }
                 }
