@@ -48,6 +48,8 @@ namespace ConditionalAccess
                 t = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
             if (nImplID == 9)
                 t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
+            if (nImplID == 10)
+                t = new ConditionalAccess.VodafoneConditionalAccess(nGroupID);
         }
 
         public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)

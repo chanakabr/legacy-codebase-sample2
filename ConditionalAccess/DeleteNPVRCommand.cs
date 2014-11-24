@@ -9,7 +9,7 @@ namespace ConditionalAccess
     {
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            throw new NotImplementedException();
+            return cas.DeleteNPVR(siteGuid, assetID, false);
         }
     }
 }

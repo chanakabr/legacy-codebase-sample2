@@ -342,6 +342,7 @@ namespace ConditionalAccess
                         if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "yyyyMMddHHmmss", new CultureInfo("de-DE"), DateTimeStyles.None, out startDate))
                         {
                             // failed to parse date.
+                            startDate = UNIX_ZERO_TIME;
 
                         }
                     }
