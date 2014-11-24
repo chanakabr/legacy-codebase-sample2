@@ -777,10 +777,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
+    <WebReferenceUrl Include="http://192.168.162.36/ws_social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.162.36/ws_social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

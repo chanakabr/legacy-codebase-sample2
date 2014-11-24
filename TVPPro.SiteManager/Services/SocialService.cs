@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using log4net;
 using TVPPro.Configuration.PlatformServices;
+using TVPPro.SiteManager.TvinciPlatform.Social;
 
 namespace TVPPro.SiteManager.Services
 {
@@ -283,6 +284,22 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 res = m_Module.SetUserExternalActionShare(wsUserName, wsPassword, siteGuid, socialPlatform, userAction, actionPrivacy);
+            }
+            catch (Exception e)
+            {
+
+                logger.ErrorFormat("Error occurred in SetUserExternalActionPrivacy, Error : {0}", e.Message);
+            }
+            return res;
+        }
+
+        public FacebookTokenResponse FBTokenValidation(string sToken)
+        {
+            FacebookTokenResponse res = null;
+
+            try
+            {
+                res = m_Module.FBTokenValidation(wsUserName, wsPassword, sToken);
             }
             catch (Exception e)
             {

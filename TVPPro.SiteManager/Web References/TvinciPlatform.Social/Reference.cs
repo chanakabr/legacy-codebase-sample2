@@ -77,6 +77,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         private System.Threading.SendOrPostCallback FBUserUnmergeOperationCompleted;
         
+        private System.Threading.SendOrPostCallback FBTokenValidationOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -183,6 +185,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         public event FBUserUnmergeCompletedEventHandler FBUserUnmergeCompleted;
+        
+        /// <remarks/>
+        public event FBTokenValidationCompletedEventHandler FBTokenValidationCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUsersLikedMedia", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1024,6 +1029,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBTokenValidation", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FacebookTokenResponse FBTokenValidation(string sWSUserName, string sWSPassword, string sToken) {
+            object[] results = this.Invoke("FBTokenValidation", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sToken});
+            return ((FacebookTokenResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void FBTokenValidationAsync(string sWSUserName, string sWSPassword, string sToken) {
+            this.FBTokenValidationAsync(sWSUserName, sWSPassword, sToken, null);
+        }
+        
+        /// <remarks/>
+        public void FBTokenValidationAsync(string sWSUserName, string sWSPassword, string sToken, object userState) {
+            if ((this.FBTokenValidationOperationCompleted == null)) {
+                this.FBTokenValidationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBTokenValidationOperationCompleted);
+            }
+            this.InvokeAsync("FBTokenValidation", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sToken}, this.FBTokenValidationOperationCompleted, userState);
+        }
+        
+        private void OnFBTokenValidationOperationCompleted(object arg) {
+            if ((this.FBTokenValidationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.FBTokenValidationCompleted(this, new FBTokenValidationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1043,7 +1081,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1088,7 +1126,40 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class FacebookTokenResponse {
+        
+        private string statusField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public string status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1145,7 +1216,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1166,7 +1237,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1199,7 +1270,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1340,7 +1411,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1457,7 +1528,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1540,7 +1611,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialObjectReponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DoSocialActionResponse))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1585,7 +1656,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1606,7 +1677,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1639,7 +1710,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum SocialActionResponseStatus {
@@ -1694,7 +1765,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1727,7 +1798,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1796,7 +1867,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1865,7 +1936,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1935,7 +2006,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     
     /// <remarks/>
     [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eAssetType {
@@ -1951,7 +2022,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2092,7 +2163,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2129,7 +2200,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FacebookObjectRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(UserSocialActionQueryRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GetFriendsActionsRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2174,7 +2245,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum SocialPlatform {
@@ -2190,7 +2261,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2260,7 +2331,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     
     /// <remarks/>
     [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eUserAction {
@@ -2297,7 +2368,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2342,7 +2413,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eRequestType {
@@ -2359,7 +2430,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GetFriendsActionsRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2440,7 +2511,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2449,7 +2520,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eSocialPrivacy {
@@ -2474,7 +2545,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18058")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eSocialActionPrivacy {
@@ -3083,6 +3154,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((FacebookResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void FBTokenValidationCompletedEventHandler(object sender, FBTokenValidationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class FBTokenValidationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal FBTokenValidationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public FacebookTokenResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((FacebookTokenResponse)(this.results[0]));
             }
         }
     }
