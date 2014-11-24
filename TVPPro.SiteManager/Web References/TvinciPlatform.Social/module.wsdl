@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://social.tvinci.com/">
       <s:element name="GetUsersLikedMedia">
@@ -724,6 +724,28 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="FBTokenValidation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBTokenValidationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBTokenValidationResult" type="tns:FacebookTokenResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FacebookTokenResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="ArrayOfFriendWatchedObject" nillable="true" type="tns:ArrayOfFriendWatchedObject" />
       <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
@@ -734,6 +756,7 @@
       <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfSocialActivityDoc" nillable="true" type="tns:ArrayOfSocialActivityDoc" />
+      <s:element name="FacebookTokenResponse" nillable="true" type="tns:FacebookTokenResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetUsersLikedMediaSoapIn">
@@ -873,6 +896,12 @@
   </wsdl:message>
   <wsdl:message name="FBUserUnmergeSoapOut">
     <wsdl:part name="parameters" element="tns:FBUserUnmergeResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationSoapIn">
+    <wsdl:part name="parameters" element="tns:FBTokenValidation" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationSoapOut">
+    <wsdl:part name="parameters" element="tns:FBTokenValidationResponse" />
   </wsdl:message>
   <wsdl:message name="GetUsersLikedMediaHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1055,6 +1084,14 @@
   <wsdl:message name="FBUserUnmergeHttpPostOut">
     <wsdl:part name="Body" element="tns:FacebookResponseObject" />
   </wsdl:message>
+  <wsdl:message name="FBTokenValidationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookTokenResponse" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUsersLikedMedia">
       <wsdl:input message="tns:GetUsersLikedMediaSoapIn" />
@@ -1148,6 +1185,10 @@
       <wsdl:input message="tns:FBUserUnmergeSoapIn" />
       <wsdl:output message="tns:FBUserUnmergeSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <wsdl:input message="tns:FBTokenValidationSoapIn" />
+      <wsdl:output message="tns:FBTokenValidationSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetUsersLikedMedia">
@@ -1221,6 +1262,10 @@
     <wsdl:operation name="FBUserUnmerge">
       <wsdl:input message="tns:FBUserUnmergeHttpPostIn" />
       <wsdl:output message="tns:FBUserUnmergeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <wsdl:input message="tns:FBTokenValidationHttpPostIn" />
+      <wsdl:output message="tns:FBTokenValidationHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -1425,6 +1470,15 @@
     </wsdl:operation>
     <wsdl:operation name="FBUserUnmerge">
       <soap:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <soap:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1642,6 +1696,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <soap12:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -1807,16 +1870,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <http:operation location="/FBTokenValidation" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap:address location="http://192.168.162.36/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap12:address location="http://192.168.162.36/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <http:address location="http://192.168.162.36/ws_social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
