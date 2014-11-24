@@ -592,5 +592,30 @@ namespace TVPApiServices
 
             return response;
         }
+        
+        [WebMethod(EnableSession = true, Description = "Validate Facebook user by token")]
+        public FacebookTokenResponse FBTokenValidation(InitializationObject initObj, string token)
+        {
+            FacebookTokenResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserUnmerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiSocialService(groupId, initObj.Platform).FBTokenValidation(token);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
     }
 }

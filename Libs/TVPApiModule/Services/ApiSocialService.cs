@@ -526,5 +526,21 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public FacebookTokenResponse FBTokenValidation(string sToken)
+        {
+            FacebookTokenResponse res = null;
+
+            try
+            {
+                res = m_Module.FBTokenValidation(m_wsUserName, m_wsPassword, sToken);
+            }
+            catch (Exception e)
+            {
+
+                logger.ErrorFormat("Error occurred in SetUserExternalActionPrivacy, Error : {0}", e.Message);
+            }
+            return res;
+        }
     }
 }
