@@ -12,5 +12,11 @@ namespace TVPApiModule.Objects
             OR = 0,
             AND = 1
         }
+
+        public enum ProgramIdType
+        {
+            EXTERNAL = 0,
+            INTERNAL = 1
+        }
     }
 }

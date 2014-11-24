@@ -2305,6 +2305,46 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get EPG Programs by id")]
+        public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> GetEPGProgramsByIds(InitializationObject initObj,
+            TVPApiModule.Objects.Enums.ProgramIdType programIdType, 
+            List<string> programIds,
+            int pageSize,
+            int pageIndex)
+        {
+            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> ret = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramsByIds", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {                    
+                    switch (programIdType)
+                    {
+                        case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
+                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>)new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute();
+                            break;
+                        case TVPApiModule.Objects.Enums.ProgramIdType.INTERNAL:
+                            List<int> pidsToInt = programIds.Select(id => int.Parse(id)).ToList<int>();
+                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>)new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute();                            
+                            break;
+                        default:                            
+                            break;
+                    }                                                         
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
+
+            return ret;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(InitializationObject initObj, string channelID, string picSize, DateTime fromDate, DateTime toDate, int utcOffset)
         {
@@ -2999,6 +3039,37 @@ namespace TVPApiServices
         }
 
         #endregion
+
+        [WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
+        public DomainLastPositionResponse GetDomainLastPosition(InitializationObject initObj, int mediaID)
+        {
+            DomainLastPositionResponse sRet = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainLastPosition", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+
+                    sRet = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
+                    {
+                        DomainID = initObj.DomainID,
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as DomainLastPositionResponse;                    
+                    
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
+
+            return sRet;
+        }
 
     }
 }
