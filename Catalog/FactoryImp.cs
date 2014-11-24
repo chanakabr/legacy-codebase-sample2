@@ -98,11 +98,11 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgSearchRequest)
             {
-                return new EpgSearchRequest();
+                return (EpgSearchRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgAutoCompleteRequest)
             {
-                return new EpgAutoCompleteRequest();
+                return (EpgAutoCompleteRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is MediaSearchFullRequest)
             {
@@ -138,7 +138,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgRequest)
             {
-                return new EpgRequest();
+                return (EpgRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EPGProgramsByScidsRequest)
             {
@@ -183,6 +183,14 @@ namespace Catalog
             if (m_oBaseRequest is CategoryRequest)
             {
                 return (CategoryRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is DomainLastPositionRequest)
+            {
+                return (DomainLastPositionRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is EpgProgramDetailsRequest)
+            {
+                return (EpgProgramDetailsRequest) m_oBaseRequest;
             }
 
             return null;

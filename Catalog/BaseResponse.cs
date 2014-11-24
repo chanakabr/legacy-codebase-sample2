@@ -34,6 +34,7 @@ namespace Catalog
     [KnownType(typeof(ChannelObjResponse))]
     [KnownType(typeof(CrowdsourceResponse))]
     [KnownType(typeof(BundlesContainingMediaResponse))]
+    [KnownType(typeof(DomainLastPositionResponse))]
 
     public class BaseResponse
     {  

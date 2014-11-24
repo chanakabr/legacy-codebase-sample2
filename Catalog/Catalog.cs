@@ -23,6 +23,7 @@ using GroupsCacheManager;
 using DalCB;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
+using ApiObjects.MediaMarks;
 
 namespace Catalog
 {
@@ -1127,14 +1128,27 @@ namespace Catalog
         }
 
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0, string sNpvrID = default(string), ePlayType eNPVR = ePlayType.MEDIA)
         {
             int opID = 0;
             bool isMaster = false;
             if (nDomainID < 1)
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
             if (nDomainID > 0)
-                CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+            {
+                switch (eNPVR)
+                {
+                    case ePlayType.MEDIA:
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+                        break;
+                    case ePlayType.NPVR:
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sNpvrID, nGroupID, nPlayTime);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -1203,7 +1217,7 @@ namespace Catalog
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
-            if (!(lPermittedWatchRules == null) && lPermittedWatchRules.Count > 0)
+            if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
@@ -1523,6 +1537,8 @@ namespace Catalog
 
             if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                 nEndIndex = pRequest.m_lProgramsIds.Count();
+
+
 
             //generate a list with the relevant EPG IDs (according to page size and page index)
             List<int> lEpgIDs = new List<int>();
@@ -2080,7 +2096,63 @@ namespace Catalog
                              * 
                              * 
                              */
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+
+                            //////////////////// Wait for Next Version (Joker)
+                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            if (dict.Count > 0)
+                            {
+                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                {
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    {
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        if (isBuzzNotEmpty)
+                                        {
+                                            string strAssetID = kvp.Key.ToString();
+                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                            {
+                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                            }
+                                            else
+                                            {
+                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                            }
+                                        }
+                                    }
+                                } // foreach
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                            }
+
+                            // bring social actions from CB social bucket
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
 
                         }
 
@@ -2123,8 +2195,35 @@ namespace Catalog
                         }
                         else
                         {
+                            //////////////////// Wait for Next Version (Joker)
                             // we bring data from ES statistics index.
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+
+                            // we bring data from social bucket in CB.
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
                         }
                         break;
                     }
@@ -2136,6 +2235,45 @@ namespace Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
+        }
+
+        private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
+            DateTime startDate, DateTime endDate)
+        {
+            SocialDAL_Couchbase socialDal = new SocialDAL_Couchbase(groupId);
+            AssetStatsResult.SocialPartialAssetStatsResult res = new AssetStatsResult.SocialPartialAssetStatsResult() { assetId = assetId };
+            switch (statsTypes)
+            {
+                case StatsType.MEDIA:
+                    {
+                        // in media we bring likes and rates where rates := if ratesCount != 0 then ratesSum/ratesCount otherwise 0d
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.LIKE, startDate, endDate);
+                        res.votes = socialDal.GetAssetSocialActionCount(assetId, eAssetType.MEDIA, eUserAction.RATES, startDate, endDate);
+                        double votesSum = socialDal.GetRatesSum(assetId, eAssetType.MEDIA, startDate, endDate);
+                        if (res.votes > 0)
+                        {
+                            res.rate = votesSum / res.votes;
+                        }
+                        else
+                        {
+                            res.rate = 0d;
+                        }
+                        break;
+                    }
+                case StatsType.EPG:
+                    {
+                        // in epg we bring just likes.
+                        res.likesCounter = socialDal.GetAssetSocialActionCount(assetId, eAssetType.PROGRAM, eUserAction.LIKE, startDate, endDate);
+                        res.rate = 0d;
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            } // switch
+
+            return res;
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
@@ -2630,6 +2768,11 @@ namespace Catalog
             int nSiteGuid = 0;
             return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
         }
+        internal static bool IsAnonymousUser(string siteGuid, out int nSiteGuid)
+        {
+            nSiteGuid = 0;
+            return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
+        }
 
         internal static bool GetMediaMarkHitInitialData(string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
@@ -2853,6 +2996,151 @@ namespace Catalog
             return result;
         }
 
-    }
+        internal static int GetLastPosition(string NpvrID, int userID)
+        {
+            if (string.IsNullOrEmpty(NpvrID) || userID == 0)
+                return 0;
 
+            return CatalogDAL.GetLastPosition(NpvrID, userID);
+        }
+
+        /*This method return all last position (desc order by create date) by domain and user_id 
+         if userid is default - return all last positions of all users in domain by mediaid
+         else return last position of default user + user_id */
+        internal static DomainLastPositionResponse GetLastDomainPosition(int user_id, int media_id, int domain_id, int group_id, string sUDID)
+        {
+            DomainLastPositionResponse res = new DomainLastPositionResponse();
+            if (media_id == 0 || user_id == 0 || domain_id == 0 || group_id == 0)
+                return res;
+
+            string sWSUsername = string.Empty;
+            string sWSPassword = string.Empty;
+            string sWSUrl = string.Empty;
+            WS_Domains.Domain domainsResp = null;
+
+            List<int> lDeafultUsers = null;
+            List<int> lUsers = null;
+            bool bDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
+            List<LastPosition> lUserMedia = new List<LastPosition>();
+
+            //get username + password from wsCache
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, group_id, ApiObjects.eWSModules.DOMAINS);
+            if (oCredentials != null)
+            {
+                sWSUsername = oCredentials.m_sUsername;
+                sWSPassword = oCredentials.m_sPassword;
+            }
+
+            if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+            {
+                throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. user={0}, udid={1}, groupid={3}", user_id, sUDID, group_id));
+            }
+
+            // get domain info - to have the users list in domain + default users in domain
+            using (WS_Domains.module domains = new WS_Domains.module())
+            {
+                sWSUrl = Utils.GetWSURL("ws_domains");
+                if (sWSUrl.Length > 0)
+                    domains.Url = sWSUrl;
+                domainsResp = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
+            }
+
+            if (domainsResp != null)
+            {
+                lUsers = domainsResp.m_UsersIDs.ToList();
+                lDeafultUsers = domainsResp.m_DefaultUsersIDs.ToList();
+                if (lDeafultUsers != null)
+                {
+                    bDefaultUser = lDeafultUsers.Contains(user_id);
+                }
+            }
+
+            // get last position from domain by media_id - from DAL 
+            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, user_id, domain_id);
+            if (MediaMark == null || MediaMark.devices == null)
+            {
+                res.m_sStatus = "NO DATA";
+                res.m_sDescription = string.Format("no data found for this domain={0} and media={1}", domain_id, media_id);
+                return res;
+            }
+            UserMediaMark umm = new UserMediaMark();
+            LastPosition ulp = null;
+            if (bDefaultUser) // get all users position in domain
+            {
+                foreach (int user in lUsers)
+                {
+                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
+                    if (umm == null)
+                    {
+                        continue;
+                    }
+                    if (user == user_id)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                    }
+                    else
+                    {
+                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
+                    }
+                }
+                foreach (int user in lDeafultUsers)
+                {
+                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
+                    if (umm == null)
+                    {
+                        continue;
+                    }
+                    if (user == user_id)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
+                    }
+                    else
+                    {
+                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                    }
+                }
+            }
+            else // get only user_id and the default_users_id position
+            {
+                if (MediaMark.devices != null)
+                {
+                    foreach (int user in lDeafultUsers) // get position of default user
+                    {
+                        umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
+                        if (umm == null)
+                        {
+                            continue;
+                        }
+
+                        if (user == user_id)
+                        {
+                            ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
+                        }
+                        else
+                        {
+                            lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
+                        }
+
+                    }
+                    //get position of specific user
+                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
+                    if (umm != null && ulp == null)
+                    {
+                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
+                    }
+                }
+            }
+
+            //order list by location           
+            lUserMedia = lUserMedia.OrderByDescending(x => x.m_nLocation).ToList();
+            if (ulp != null)
+            {
+                lUserMedia.Insert(0, ulp); // add the userid in the first position in the list
+            }
+            res.m_sStatus = "OK";
+            res.m_lPositions = lUserMedia;
+            return res;
+        }
+
+    }
 }

@@ -448,9 +448,10 @@ namespace EpgBL
 
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {
-            List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
+            List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());           
+
             List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
-            
+
             List<EPGChannelProgrammeObject> lRes = null;
             if (lResCB != null)
             {
@@ -459,7 +460,35 @@ namespace EpgBL
             return lRes;
         }
 
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)
+        {            
+            List<EPGChannelProgrammeObject> lRes = null;
+            try
+            {               
+                if (externalids != null && externalids.Count() > 0)
+                {
+                    List<EpgCB> lResCB = m_oEpgCouchbase.GetGroupPrograms(0, 0, groupID, externalids.ToList());
+                    if (lResCB != null)
+                    {
+                        lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+                    }
+                }
+
+                if (lRes == null)
+                {
+                    lRes = new List<EPGChannelProgrammeObject>();
+                }         
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetEPGPrograms", string.Format("Failed ex={0}", ex.Message), "TvinciEpgBL");
+            }
+            return lRes;
+        }
+
+
         #region Private
+        
         private static EPGChannelProgrammeObject ConvertEpgCBtoEpgProgramm(EpgCB epg)
         {
             EPGChannelProgrammeObject oProg = new EPGChannelProgrammeObject();
@@ -507,6 +536,10 @@ namespace EpgBL
             }
             return lProg;
         }
+
+
+        
+
         #endregion
 
         #region Not Implement
@@ -521,8 +554,10 @@ namespace EpgBL
         }
         public override List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration)
         {
+
             return new List<EPGChannelProgrammeObject>();
         }
+        
         #endregion
     }
 }

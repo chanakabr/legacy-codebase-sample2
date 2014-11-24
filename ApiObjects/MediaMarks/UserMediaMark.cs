@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -12,13 +13,28 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("udid")]
         public string UDID { get; set; }
         [JsonProperty("mid")]
-        public int MediaID { get; set; }      
+        public int MediaID { get; set; }
         [JsonProperty("uid")]
         public int UserID { get; set; }
         [JsonProperty("loc")]
         public int Location { get; set; }
         [JsonProperty("ts")]
         public DateTime CreatedAt { get; set; }
+
+        /*VersionAdded  - Joker*/
+
+        [JsonProperty("NpvrID", Required = Required.Default)]
+        public string NpvrID { get; set; }
+
+        [JsonProperty("playType", Required = Required.Default)]
+        public string playType { get; set; }
+
+        public UserMediaMark()
+        {
+            /*default values to members from joker version*/
+            playType = ePlayType.MEDIA.ToString();
+            NpvrID = string.Empty;
+        }
 
         public class UMMDateComparerDesc : IComparer<UserMediaMark>
         {
@@ -37,6 +53,7 @@ namespace ApiObjects.MediaMarks
                 return x.MediaID.CompareTo(y.MediaID);
             }
         }
-
     }
+        
 }
+

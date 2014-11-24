@@ -601,6 +601,7 @@ namespace DAL
         }
         #endregion
 
+
         public static int Get_NPVRProviderID(long groupID)
         {
             int res = 0;
@@ -619,6 +620,12 @@ namespace DAL
             }
 
             return res;
+        }
+
+
+        internal static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
+        {
+            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
 
         }
     }

@@ -9,7 +9,7 @@ using Logger;
 namespace Catalog
 {
     [DataContract]
-    public class EpgProgramDetailsRequest : BaseRequest, IProgramsRequest
+    public class EpgProgramDetailsRequest : BaseRequest, IProgramsRequest , IRequestImp
     {
          private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -65,10 +65,11 @@ namespace Catalog
             }
         }
 
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat(base.ToString(), " || "));
-            
+
             if (m_lProgramsIds != null && m_lProgramsIds.Count > 0)
             {
                 sb.Append("P IDs: ");
@@ -83,6 +84,28 @@ namespace Catalog
             }
 
             return sb.ToString();
+        }
+
+
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        {   
+            try
+            {
+                EpgProgramDetailsRequest request = oBaseRequest as EpgProgramDetailsRequest;
+
+                if (request == null)
+                    throw new ArgumentException("request object is null or Required variables is null");
+
+                EpgProgramResponse oEpgProgramResponse = GetProgramsByIDs(request);
+
+                return oEpgProgramResponse;                
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("EpgProgramDetailsRequest", String.Concat("Failed ex={0}, siteGuid={1}, group_id={3} ", ex.Message,
+                  oBaseRequest.m_sSiteGuid, oBaseRequest.m_nGroupID), "EpgProgramDetailsRequest");
+                return new EpgProgramResponse();
+            }
 
         }
     }

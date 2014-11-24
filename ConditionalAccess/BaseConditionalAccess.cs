@@ -6495,7 +6495,7 @@ namespace ConditionalAccess
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-            if (p.m_dPrice != 0 || bDummy)
+            if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && bIsEntitledToPreviewModule))
             {
                 ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,

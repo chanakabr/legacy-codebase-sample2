@@ -580,6 +580,47 @@ namespace Users
             return res;
         }
 
+        /*This method return status via ValidationResponseObject object if there is a limitation to play this npvrID */
+        public virtual ValidationResponseObject ValidateLimitationNpvr(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
+            int nNpvrConcurrencyLimit = 0, string sNpvrID = default(string))
+        {
+            ValidationResponseObject res = new ValidationResponseObject();
+
+            Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
+            if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
+            {
+                //to add here isDevicePlayValid
+                bool bisDevicePlayValid = IsDevicePlayValid(lSiteGuid.ToString(), sUDID, domain);
+
+                res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
+                if (!bisDevicePlayValid)
+                {
+                    res.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                    return res;
+                }
+
+                switch (eValidationType)
+                {
+                    case ValidationType.Concurrency:
+                        {
+                            res.m_eStatus = domain.ValidateNpvrConcurrency(nNpvrConcurrencyLimit, res.m_lDomainID, sNpvrID);
+                            break;
+                        }
+                    case ValidationType.Frequency:
+                        {                           
+                            break;
+                        }
+                    default:
+                        {                         
+                            break;
+                        }
+                }
+            } // end if
+
+            return res;
+        }
+
+
         private Domain GetDomainForValidation(long lSiteGuid, long lDomainID)
         {
             Domain res = null;

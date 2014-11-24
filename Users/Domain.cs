@@ -1909,5 +1909,43 @@ namespace Users
             }
             return res;
         }
+
+        /***************************************************************************************************************
+        * This method get NPVRConcurrencyLimit (int) , domain and npvrID
+        * Get from CB all media play at the last 
+        ************************************************************************************************************* */
+        internal DomainResponseStatus ValidateNpvrConcurrency(int nNpvrConcurrencyLimit, long lDomainID, string sNPVR)
+        {
+            DomainResponseStatus res = DomainResponseStatus.OK;
+            try
+            {
+
+                if (nNpvrConcurrencyLimit == 0)
+                {
+                    // get limitation from DB ( get it from domain / group table - wait for future implementation)
+
+                }
+
+                if (nNpvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+                {
+                    List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD, ApiObjects.ePlayType.NPVR);
+                    if (lUserMediaMark != null)
+                    {
+                        List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.NpvrID == sNPVR && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                        if (lMediaConcurrency != null && lMediaConcurrency.Count >= nNpvrConcurrencyLimit)
+                        {
+                            res = DomainResponseStatus.MediaConcurrencyLimitation;
+                        }
+                    }
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ValidateNpvrConcurrency", String.Concat("Failed ex={0}, nNpvrConcurrencyLimit={1}, lDomainID={2}, sNPVR={3}",
+                    ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), "Domain");
+                throw;
+            }
+        }
     }
 }

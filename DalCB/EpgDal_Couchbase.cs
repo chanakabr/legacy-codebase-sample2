@@ -395,7 +395,39 @@ namespace DalCB
         }
 
 
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, int nParentGroupID , List<string> eIds)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> Keys = new List<object>();
+            try
+            {
+                foreach (string eID in eIds)
+                {
+                   List<object> obj = new List<object>(){nParentGroupID, eID.ToString()};
+                                   
+                    Keys.Add(obj);
+                }
+
+                var res = (nPageSize > 0) ? m_oClient.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys).Skip(nStartIndex).Limit(nPageSize) :
+                    m_oClient.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys);
+
+                if (res != null)
+                {
+                    lRes = res.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , nParentGroupID: {4}, ST: {5}",
+                    ex.Message, nPageSize, nStartIndex, ex.GetType().Name, nParentGroupID, ex.StackTrace), GetLogFileName());
+            }
+
+            return lRes;
+        }
+
+
 
     }
+   
 }
 

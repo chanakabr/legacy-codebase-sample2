@@ -210,6 +210,12 @@ namespace ApiObjects
         DASH
     }
 
+    public enum ePlayType
+    {
+        MEDIA = 0,
+        NPVR = 1,
+        ALL = 2
+    }
 
 
 }

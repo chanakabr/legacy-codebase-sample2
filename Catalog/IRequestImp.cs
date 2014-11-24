@@ -36,6 +36,8 @@ namespace Catalog
         [ServiceKnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
         [ServiceKnownType(typeof(EPGSearchContentRequest))]
         [ServiceKnownType(typeof(ChannelViewsRequest))]
+        [ServiceKnownType(typeof(DomainLastPositionRequest))]
+        [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
         
         [OperationContract]
         BaseResponse GetResponse(BaseRequest oBaseRequest);
