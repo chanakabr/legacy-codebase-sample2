@@ -7,7 +7,7 @@ using ElasticsearchTasksCommon;
 using Catalog;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
-using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ESIndexRebuildHandler.IndexBuilders
 {

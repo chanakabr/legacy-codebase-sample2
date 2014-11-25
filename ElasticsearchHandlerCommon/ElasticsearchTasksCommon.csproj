@@ -55,6 +55,10 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>

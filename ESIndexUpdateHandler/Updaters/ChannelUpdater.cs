@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ESIndexUpdateHandler.Updaters
 {

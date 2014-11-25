@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ElasticsearchTasksCommon
 {
