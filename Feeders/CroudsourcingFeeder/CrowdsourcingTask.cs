@@ -18,6 +18,11 @@ namespace CrowdsourcingFeeder
             
         }
 
+        public static ScheduledTasks.BaseTask GetInstance(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
+        {
+            return new CrowdsourcingTask(nTaskID, nIntervalInSec, sParameters);
+        }
+
         protected override bool DoTheTaskInner()
         {
             try
@@ -34,8 +39,9 @@ namespace CrowdsourcingFeeder
                 Logger.Logger.Log("Crowdsource", string.Format("{0} - Error parsing collectorType", paramsList[0]), "Crowdsourcing");
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("params={0}, ex={1}, st:{2}", m_sParameters, ex.Message, ex.StackTrace), "Crowdsourcing");
                 return false;
             }
         }
