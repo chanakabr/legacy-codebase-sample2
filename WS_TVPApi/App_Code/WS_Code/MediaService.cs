@@ -956,6 +956,7 @@ namespace TVPApiServices
         public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> programs = null;
+            int searchOffsetDays = int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]);
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -963,13 +964,17 @@ namespace TVPApiServices
             {
                 try
                 {
-                    programs = new APIEPGSearchContentLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, initObj.Locale.LocaleLanguage)
+                    var programsList = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, DateTime.UtcNow.AddDays(-searchOffsetDays), DateTime.UtcNow.AddDays(searchOffsetDays))
                     {
                         SiteGuid = initObj.SiteGuid,
-                    }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
+                        Culture = initObj.Locale.LocaleLanguage
+                    }.Execute() as List<BaseObject>;
+                    if (programsList != null)
+                        programs = programsList.Select(p => ((ProgramObj)p).m_oProgram).ToList();
                 }
                 catch (Exception ex)
                 {
+
                     HttpContext.Current.Items.Add("Error", ex);
                 }
             }
