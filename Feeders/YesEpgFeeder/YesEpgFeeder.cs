@@ -49,10 +49,18 @@ namespace YesEpgFeeder
         {
             try
             {
+                //1|154|2014-11-22T00:00:00Z|1440|iw_IL
                 string[] item = m_sParameters.Split(spliter);
                 FeederType = ODBCWrapper.Utils.GetIntSafeVal(item[0]);
                 GroupID = ODBCWrapper.Utils.GetIntSafeVal(item[1]);
-                StartTime = item[2];
+                if (item[2].Equals("NOW"))
+                {
+                    StartTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                }
+                else
+                {
+                    StartTime = item[2];
+                }
                 Duration =  ODBCWrapper.Utils.GetIntSafeVal(item[3]);
                 Language = item[4];
                 if (item.Count() >= 6)
@@ -99,9 +107,8 @@ namespace YesEpgFeeder
                 {
                     SaveChannelByXML();
 
-                    // Update last time invoke parameter only on Feeder Type
-                    DateTime dDate = new DateTime(int.Parse(StartTime.Substring(0,4)), int.Parse(StartTime.Substring(5,2)), int.Parse(StartTime.Substring(8,2)));// 2014-08-12
-                    string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID , dDate.AddMinutes(Duration).ToString("yyyy-MM-ddTHH:mm:ssZ"), Duration, Language);
+                    // Update last time invoke parameter only on Feeder Type                    
+                    string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID , "NOW", Duration, Language);
 
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PARAMETERS", "=", parameters);
