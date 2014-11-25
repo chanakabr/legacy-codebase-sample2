@@ -2306,13 +2306,13 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get EPG Programs by id")]
-        public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> GetEPGProgramsByIds(InitializationObject initObj,
+        public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> GetEPGProgramsByIds(InitializationObject initObj,
             TVPApiModule.Objects.Enums.ProgramIdType programIdType, 
             List<string> programIds,
             int pageSize,
             int pageIndex)
         {
-            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> ret = null;
+            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> ret = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramsByIds", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2323,11 +2323,11 @@ namespace TVPApiServices
                     switch (programIdType)
                     {
                         case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
-                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>)new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute();
+                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj>)new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute();
                             break;
                         case TVPApiModule.Objects.Enums.ProgramIdType.INTERNAL:
                             List<int> pidsToInt = programIds.Select(id => int.Parse(id)).ToList<int>();
-                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>)new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute();                            
+                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj>)new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute();                            
                             break;
                         default:                            
                             break;
