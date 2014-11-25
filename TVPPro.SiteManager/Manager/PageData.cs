@@ -813,7 +813,7 @@ namespace TVPPro.SiteManager.Manager
                                                 where ((!accounts.IsTvmTypeIDNull()) && accounts.TvmTypeID == tvmMediaID)
                                                 select accounts).FirstOrDefault();
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
             return retVal;
         }
 
@@ -824,7 +824,7 @@ namespace TVPPro.SiteManager.Manager
                                                 where (accounts.Base_Group_ID == groupID && !string.IsNullOrEmpty(accounts.Player_UN))
                                                 select accounts).FirstOrDefault();
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
             return retVal;
         }
 
@@ -834,7 +834,7 @@ namespace TVPPro.SiteManager.Manager
                                                 where (accounts.Player_UN == userName)
                                                 select accounts).FirstOrDefault();
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
             return retVal;
         }
 
@@ -847,7 +847,7 @@ namespace TVPPro.SiteManager.Manager
                                                 where accounts.Name == AccountName 
                                                 select accounts).FirstOrDefault();
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
             return retVal;
         }
 
@@ -859,7 +859,7 @@ namespace TVPPro.SiteManager.Manager
                                                 select accounts).FirstOrDefault();
 
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
             return retVal;
         }
 
@@ -919,14 +919,16 @@ namespace TVPPro.SiteManager.Manager
 
                 for (var i = 0; i < SiteConfiguration.Instance.Data.Pages.Heirarchies.Count; i++)
                 {
-                    if(ItemInfo.Item[0].MediaType.Equals(SiteConfiguration.Instance.Data.Pages.Heirarchies[i].MediaType, StringComparison.OrdinalIgnoreCase)){
+                    if (ItemInfo.Item[0].MediaType.Equals(SiteConfiguration.Instance.Data.Pages.Heirarchies[i].MediaType, StringComparison.OrdinalIgnoreCase))
+                    {
 
                         for (var j = 0; j < SiteConfiguration.Instance.Data.Pages.Heirarchies[i].Count; j++)
                         {
                             var sBreadCrumb = string.Empty;
                             var sLink = string.Empty;
 
-                            if(SiteConfiguration.Instance.Data.Pages.Heirarchies[i][j].Table.Equals("Tags", StringComparison.OrdinalIgnoreCase)){
+                            if (SiteConfiguration.Instance.Data.Pages.Heirarchies[i][j].Table.Equals("Tags", StringComparison.OrdinalIgnoreCase))
+                            {
                                 if (ItemInfo.Item.Rows.Count > 0 && ItemInfo.Item[0].GetChildRows("Item_Tags").Length > 0 && ItemInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains(SiteConfiguration.Instance.Data.Pages.Heirarchies[i][j].Value))
                                 {
                                     sBreadCrumb = ItemInfo.Item[0].GetChildRows("Item_Tags")[0][SiteConfiguration.Instance.Data.Pages.Heirarchies[i][j].Value].ToString();
