@@ -7,7 +7,6 @@ namespace NPVR
 {
     public class NPVRRetrieveParamsObj : NPVRParamsObj
     {
-        protected List<string> assetIDs;
         protected List<SearchByField> searchBy;
         protected int pageIndex;
         protected int pageSize;
@@ -16,19 +15,6 @@ namespace NPVR
         protected NPVRRecordingStatus recordingStatus;
         protected string epgProgramID;
 
-        public virtual List<string> AssetIDs
-        {
-            get
-            {
-                if (assetIDs == null)
-                    assetIDs = new List<string>();
-                return assetIDs;
-            }
-            set
-            {
-                assetIDs = value;
-            }
-        }
 
         public virtual List<SearchByField> SearchBy
         {
@@ -133,14 +119,6 @@ namespace NPVR
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat("NPVRRetrieveParamsObj. Base Obj:", base.ToString()));
-            sb.Append(String.Concat(" Asset IDs Count: ", AssetIDs.Count, " "));
-            if (AssetIDs.Count > 0)
-            {
-                for (int i = 0; i < AssetIDs.Count; i++)
-                {
-                    sb.Append(String.Concat(AssetIDs[i], ";"));
-                }
-            }
             sb.Append(String.Concat(" SearchBy Count: ", SearchBy.Count, " "));
             if (SearchBy.Count > 0)
             {
@@ -157,6 +135,11 @@ namespace NPVR
             sb.Append(String.Concat(" Epg Program ID: ", EpgProgramID));
 
             return sb.ToString();
+        }
+
+        public List<SearchByField> GetUniqueSearchBy()
+        {
+            return SearchBy.Distinct().ToList();
         }
     }
 }

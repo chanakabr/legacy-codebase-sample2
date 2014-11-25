@@ -9,7 +9,7 @@ namespace NPVR
     /*
      * Don't change the visibility of this class to public. Any communication with a third party NPVR Provider should be done via
      * the interface INPVRProvider.
-     */ 
+     */
     internal class AlcatelLucentNPVR : INPVRProvider
     {
         private static readonly string ALU_LOG_FILE = "AlcatelLucent";
@@ -31,6 +31,7 @@ namespace NPVR
         private static readonly string ALU_CANCEL_COMMAND = "cancel";
         private static readonly string ALU_DELETE_COMMAND = "delete";
         private static readonly string ALU_UPDATE_FIELD_COMMAND = "updateField";
+        private static readonly string ALU_READ_COMMAND = "read";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
@@ -42,6 +43,9 @@ namespace NPVR
         private static readonly string ALU_ASSET_ID_URL_PARAM = "assetId";
         private static readonly string ALU_NAME_URL_PARAM = "name";
         private static readonly string ALU_VALUE_URL_PARAM = "value";
+        private static readonly string ALU_COUNT_URL_PARAM = "count";
+        private static readonly string ALU_ENTRIES_START_INDEX = "entriesStartIndex";
+        private static readonly string ALU_ENTRIES_PAGE_SIZE = "entriesPageSize";
 
         private int groupID;
 
@@ -64,7 +68,7 @@ namespace NPVR
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
-            return String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?", 
+            return String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
         }
 
@@ -78,8 +82,8 @@ namespace NPVR
                     Logger.Logger.Log("CreateAccount", string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()), GetLogFilename());
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
-                    urlParams.Add(new KeyValuePair<string,string>(ALU_SCHEMA_URL_PARAM, "1.0"));
-                    urlParams.Add(new KeyValuePair<string,string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
                     string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;
@@ -247,19 +251,19 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
-                    urlParams.Add(new KeyValuePair<string,string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
-                    
+
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if(TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg)) 
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         // parse here json
                     }
-                    else 
+                    else
                     {
                         Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RecordAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
                         res.entityID = args.EntityID;
@@ -297,7 +301,7 @@ namespace NPVR
                 if (IsCancelDeleteAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
-                    urlParams.Add(new KeyValuePair<string,string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
@@ -437,16 +441,16 @@ namespace NPVR
 
         private bool IsRetrieveAssetsInputValid(NPVRRetrieveParamsObj args, ref ulong uniqueSearchBy)
         {
-            if (args != null && args.SearchBy.Count > 0 && !string.IsNullOrEmpty(args.EntityID))
+            if (args != null && args.SearchBy.Count > 0 && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0))
             {
                 bool seenUnique = false;
-                IEnumerable<SearchByField> distinct = args.SearchBy.Distinct();
+                IEnumerable<SearchByField> distinct = args.GetUniqueSearchBy();
                 foreach (SearchByField sbf in distinct)
                 {
                     switch (sbf)
                     {
                         case SearchByField.byAssetId:
-                            if ((string.IsNullOrEmpty(args.AssetID) && args.AssetIDs.Count == 0) || seenUnique)
+                            if (string.IsNullOrEmpty(args.AssetID) || seenUnique)
                                 return false;
                             seenUnique = true;
                             uniqueSearchBy = (ulong)SearchByField.byAssetId;
@@ -492,6 +496,60 @@ namespace NPVR
                 if (IsRetrieveAssetsInputValid(args, ref uniqueSearchBy))
                 {
 
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+                    if (args.PageSize > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX, args.PageIndex.ToString()));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE, args.PageSize.ToString()));
+                    }
+                    else
+                    {
+                        // bring all. just for readability. no code is supposed to be here.
+                    }
+
+                    IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
+                    foreach (SearchByField sbf in searchByFields)
+                    {
+                        switch (sbf)
+                        {
+                            case SearchByField.byAssetId:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
+                                break;
+                            case SearchByField.byChannelId:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
+                                break;
+                            case SearchByField.byProgramId:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgProgramID));
+                                break;
+                            case SearchByField.byStartTime:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+                                break;
+                            case SearchByField.byStatus:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.RecordingStatus.ToString().ToLower()));
+                                break;
+                            default:
+                                break;
+                        }
+                    } //foreach
+
+                    string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        // add status fail to response obj.
+                    }
                 }
                 else
                 {
