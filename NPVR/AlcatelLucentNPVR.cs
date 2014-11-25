@@ -17,6 +17,7 @@ namespace NPVR
         private static readonly string LOG_HEADER_ERROR = "Error";
 
         private static readonly string DATE_TIME_FORMAT = "yyyyMMddHHmmss";
+        private static readonly DateTime UNIX_ZERO_TIME = new DateTime(1970, 1, 1);
 
         private static readonly string ALU_GENERIC_BODY = "scheduler/web/";
         private static readonly string ALU_ENDPOINT_RECORD = "Record/";
@@ -428,6 +429,78 @@ namespace NPVR
             catch (Exception ex)
             {
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at SetAssetProtectionStatus.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+        private bool IsRetrieveAssetsInputValid(NPVRRetrieveParamsObj args, ref ulong uniqueSearchBy)
+        {
+            if (args != null && args.SearchBy.Count > 0 && !string.IsNullOrEmpty(args.EntityID))
+            {
+                bool seenUnique = false;
+                IEnumerable<SearchByField> distinct = args.SearchBy.Distinct();
+                foreach (SearchByField sbf in distinct)
+                {
+                    switch (sbf)
+                    {
+                        case SearchByField.byAssetId:
+                            if ((string.IsNullOrEmpty(args.AssetID) && args.AssetIDs.Count == 0) || seenUnique)
+                                return false;
+                            seenUnique = true;
+                            uniqueSearchBy = (ulong)SearchByField.byAssetId;
+                            break;
+                        case SearchByField.byStartTime:
+                            if ((args.StartDate.CompareTo(UNIX_ZERO_TIME) < 1) || seenUnique)
+                                return false;
+                            seenUnique = true;
+                            uniqueSearchBy = (ulong)SearchByField.byStartTime;
+                            break;
+                        case SearchByField.byProgramId:
+                            if (string.IsNullOrEmpty(args.EpgProgramID))
+                                return false;
+                            break;
+                        case SearchByField.byChannelId:
+                            if (string.IsNullOrEmpty(args.EpgChannelID))
+                                return false;
+                            break;
+                        case SearchByField.byStatus:
+                            seenUnique = true;
+                            uniqueSearchBy = (ulong)SearchByField.byStatus;
+                            break;
+                        default:
+                            break;
+
+                    }
+                } //foreach
+
+                return true;
+
+            }
+
+            return false;
+        }
+
+
+        public NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args)
+        {
+            NPVRRetrieveAssetsResponse res = new NPVRRetrieveAssetsResponse();
+            try
+            {
+                ulong uniqueSearchBy = 0;
+                if (IsRetrieveAssetsInputValid(args, ref uniqueSearchBy))
+                {
+
+                }
+                else
+                {
+                    throw new ArgumentException("Input is invalid.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveAssets.", args, ex), GetLogFilename());
                 throw;
             }
 

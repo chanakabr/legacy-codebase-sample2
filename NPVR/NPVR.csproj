@@ -49,6 +49,8 @@
     <Compile Include="NPVRProviderFactory.cs" />
     <Compile Include="NPVRQuotaResponse.cs" />
     <Compile Include="NPVRRecordResponse.cs" />
+    <Compile Include="NPVRRetrieveAssetsResponse.cs" />
+    <Compile Include="NPVRRetrieveParamsObj.cs" />
     <Compile Include="NPVRUserActionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

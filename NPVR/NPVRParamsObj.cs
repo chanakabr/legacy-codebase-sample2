@@ -8,12 +8,12 @@ namespace NPVR
 {
     public class NPVRParamsObj
     {
-        private string assetID;
-        private string entityID;
-        private long quota;
-        private DateTime startDate;
-        private string epgChannelID;
-        private bool isProtect; // true for protection, false for un-protection
+        protected string assetID;
+        protected string entityID;
+        protected long quota;
+        protected DateTime startDate;
+        protected string epgChannelID;
+        protected bool isProtect; // true for protection, false for un-protection
 
         public virtual string AssetID
         {

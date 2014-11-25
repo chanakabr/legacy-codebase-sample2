@@ -21,5 +21,7 @@ namespace NPVR
         NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args);
 
         NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args);
+
+        NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args);
     }
 }

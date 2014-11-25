@@ -41,4 +41,34 @@ namespace NPVR
         AssetDoesNotExist = 3
     }
 
+    public enum SearchByField : ulong
+    {
+        byAssetId = 1, // recording id
+        byStartTime = 2,
+        byStatus = 4,
+        byChannelId = 8,
+        byProgramId = 16 // epg program id
+    }
+
+    public enum NPVROrderDir
+    {
+        ASC = 0,
+        DESC = 1
+    }
+
+    public enum NPVROrderBy
+    {
+        startTime = 0,
+        name = 1,
+        channelId = 2
+    }
+
+    public enum NPVRRecordingStatus
+    {
+        Completed = 0,
+        Ongoing = 1,
+        Scheduled = 2,
+        Cancelled = 3
+    }
+
 }
