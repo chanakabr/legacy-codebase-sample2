@@ -264,5 +264,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<BaseCrowdsourceItem> GetCrowdsourceFeed(InitializationObject initObj, int pageSize, long epochLastTime);
+
+        [OperationContract]
+        string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP);
     }
 }

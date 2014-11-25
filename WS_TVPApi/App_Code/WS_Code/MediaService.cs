@@ -2095,6 +2095,35 @@ namespace TVPApiServices
             return sResponse;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Media License")]
+        public string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP)
+        {
+            string sResponse = string.Empty;
+
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+
+                    IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, clientIP);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return sResponse;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get user offline list")]
         public UserOfflineObject[] GetUserOfflineList(InitializationObject initObj)
         {
