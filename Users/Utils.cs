@@ -6,6 +6,8 @@ using System.Configuration;
 using System.Data;
 using DAL;
 using ApiObjects;
+using System.Security.Principal;
+using System.Security.AccessControl;
 
 namespace Users
 {
@@ -56,7 +58,7 @@ namespace Users
 
         static public void GetBaseUsersImpl(ref Users.BaseUsers t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
+            int nImplID = TvinciCache.ModulesImplementation<User>.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
 
             switch (nImplID)
             {
@@ -129,7 +131,7 @@ namespace Users
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {   
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation<Domain>.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
 
             switch (nImplID)
             {
@@ -146,7 +148,7 @@ namespace Users
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
         {     
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation<User>.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
             switch (nImplID)
             {
                 case 1:
@@ -308,7 +310,7 @@ namespace Users
                 {
                     client.Url = sWSURL;
                 }
-                
+
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModules.API);
                 if (oCredentials != null)
                 {
@@ -419,6 +421,19 @@ namespace Users
             }
 
             return res;
+        }
+
+       
+       internal static MutexSecurity CreateMutex()
+        {
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+            return mutexSecurity;
+        }
         }
     }
 }

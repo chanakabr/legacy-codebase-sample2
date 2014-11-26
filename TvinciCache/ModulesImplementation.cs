@@ -7,7 +7,7 @@ using TVinciShared;
 
 namespace TvinciCache
 {
-    public class ModulesImplementation
+    public class ModulesImplementation<T>
     {
         private static object lck = new object();
 
@@ -15,7 +15,7 @@ namespace TvinciCache
         {
             int nImplID = 0;
 
-            string key = string.Format("{0}_GetModuleID_{1}_{2}", eMainWSModule, nGroupID, nModuleID);            
+            string key = string.Format("{0}_GetModuleID_{1}_{2}", eMainWSModule, nGroupID, nModuleID);
 
             if ((nImplID = WSCache.Instance.Get<int>(key)) == 0)
             {

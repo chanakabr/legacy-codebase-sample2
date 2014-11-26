@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CachingProvider;
 using TVinciShared;
 
@@ -85,7 +87,7 @@ namespace TvinciCache
             }
             else
             {
-                return default(T); 
+                return default(T);
             }
         }
 
@@ -98,7 +100,7 @@ namespace TvinciCache
 
         public IDictionary<string, object> GetValues(List<string> keys)
         {
-            if (keys == null || keys.Count ==0)
+            if (keys == null || keys.Count == 0)
                 return null;
 
             return cache.GetValues(keys);

@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="BaseDevice.cs" />
     <Compile Include="BaseDomain.cs" />
+    <Compile Include="Cache\DomainCache.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />
@@ -189,6 +190,10 @@
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -359,6 +364,7 @@
   <ItemGroup>
     <None Include="Web References\OrcaProxy\service.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
