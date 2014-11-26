@@ -44,8 +44,9 @@ namespace NPVR
         private static readonly string ALU_NAME_URL_PARAM = "name";
         private static readonly string ALU_VALUE_URL_PARAM = "value";
         private static readonly string ALU_COUNT_URL_PARAM = "count";
-        private static readonly string ALU_ENTRIES_START_INDEX = "entriesStartIndex";
-        private static readonly string ALU_ENTRIES_PAGE_SIZE = "entriesPageSize";
+        private static readonly string ALU_ENTRIES_START_INDEX_URL_PARAM = "entriesStartIndex";
+        private static readonly string ALU_ENTRIES_PAGE_SIZE_URL_PARAM = "entriesPageSize";
+        private static readonly string ALU_ID_URL_PARAM = "id";
 
         private int groupID;
 
@@ -502,8 +503,8 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
                     if (args.PageSize > 0)
                     {
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX, args.PageIndex.ToString()));
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE, args.PageSize.ToString()));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
                     }
                     else
                     {
@@ -559,6 +560,146 @@ namespace NPVR
             catch (Exception ex)
             {
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveAssets.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+
+        public NPVRRecordResponse RecordSeries(NPVRParamsObj args)
+        {
+            NPVRRecordResponse res = new NPVRRecordResponse();
+            try
+            {
+                if (IsRecordAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+
+                    string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here the json
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RecordSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = RecordStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    // input is not valid
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty or epg channel id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RecordSeries.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+
+        public NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args)
+        {
+            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            try
+            {
+                if (IsCancelDeleteAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
+
+                    string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here json
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("CancelSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = CancelDeleteStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at CancelSeries.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+        public NPVRCancelDeleteResponse DeleteSeries(NPVRParamsObj args)
+        {
+            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            try
+            {
+                if (IsCancelDeleteAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
+
+                    string url = BuildRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        // parse here json
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = CancelDeleteStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteSeries.", args, ex), GetLogFilename());
                 throw;
             }
 

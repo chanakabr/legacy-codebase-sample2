@@ -10454,6 +10454,16 @@ namespace ConditionalAccess
             throw new NotImplementedException("Not implemented yet.");
         }
 
+        public virtual RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual RecordResponse RecordSeriesByName(string siteGuid, string seriesName)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
         public virtual NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             throw new NotImplementedException("Not implemented yet.");

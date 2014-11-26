@@ -5,11 +5,11 @@ using System.Text;
 
 namespace ConditionalAccess
 {
-    public class RecordSeriesNPVRCommand : BaseNPVRCommand
+    public class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand
     {
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            throw new NotImplementedException();
+            return cas.RecordSeriesByProgramID(siteGuid, assetID);
         }
     }
 }

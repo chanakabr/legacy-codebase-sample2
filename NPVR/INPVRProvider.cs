@@ -23,5 +23,11 @@ namespace NPVR
         NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args);
 
         NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args);
+
+        NPVRRecordResponse RecordSeries(NPVRParamsObj args);
+
+        NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args);
+
+        NPVRCancelDeleteResponse DeleteSeries(NPVRParamsObj args);
     }
 }

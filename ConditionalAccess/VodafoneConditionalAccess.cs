@@ -17,6 +17,67 @@ namespace ConditionalAccess
         {
         }
 
+        public override RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries)
+        {
+            return RecordNPVR(siteGuid, epgProgramIdAssignedToSeries, true);
+        }
+
+        public override RecordResponse RecordSeriesByName(string siteGuid, string seriesName)
+        {
+            RecordResponse res = new RecordResponse();
+            try
+            {
+                string epgProgramIDRelatedToSeries = GetEpgProgramIDRelatedToSeries(seriesName);
+                if (!string.IsNullOrEmpty(epgProgramIDRelatedToSeries))
+                {
+                    res = RecordSeriesByProgramID(siteGuid, epgProgramIDRelatedToSeries);
+                }
+                else
+                {
+                    res.status = NPVRStatus.Error.ToString();
+                    Logger.Logger.Log("RecordSeriesByName", GetNPVRLogMsg("epg program id related to series is empty", siteGuid, seriesName, false, null), VODAFONE_NPVR_LOG);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetNPVRLogMsg("Exception at RecordSeriesByName", siteGuid, seriesName, false, ex), VODAFONE_NPVR_LOG);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+
+        }
+
+        private string GetEpgProgramIDRelatedToSeries(string seriesName)
+        {
+            WS_Catalog.IserviceClient client = null;
+            string res = string.Empty;
+            try
+            {
+                string catalogUrl = Utils.GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(catalogUrl))
+                {
+                    throw new Exception("Catalog address is not configured. ");
+                }
+                client = new WS_Catalog.IserviceClient();
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
+
+                // instantiate here a Catalog request and parse the result.
+                throw new NotImplementedException("To be completed after a proper representation of Series in the DB will be defined.");
+
+
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return res;
+        }
+
         // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
         public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
@@ -26,63 +87,63 @@ namespace ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
                 {
-                    if (isSeries)
+                    string epgChannelID = string.Empty;
+                    DateTime programStartDate = DateTime.MinValue;
+                    string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
+                    if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
                     {
-                        // series
-                    }
-                    else
-                    {
-                        // single asset
-                        string epgChannelID = string.Empty;
-                        DateTime programStartDate = DateTime.MinValue;
-                        string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
-                        if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
+                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                        if (npvr != null)
                         {
-                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-                            if (npvr != null)
+                            NPVRRecordResponse response = null;
+                            if (isSeries)
                             {
-                                NPVRRecordResponse response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
-                                if (response != null)
+                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                            }
+                            else
+                            {
+                                response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                            }
+                            if (response != null)
+                            {
+                                switch (response.status)
                                 {
-                                    switch (response.status)
-                                    {
-                                        case RecordStatus.OK:
-                                            res.status = NPVRStatus.OK.ToString();
-                                            res.recordingID = response.recordingID;
-                                            break;
-                                        case RecordStatus.AlreadyRecorded:
-                                            res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
-                                            res.recordingID = string.Empty;
-                                            break;
-                                        case RecordStatus.Error:
-                                            res.status = NPVRStatus.Error.ToString();
-                                            res.recordingID = string.Empty;
-                                            break;
-                                        default:
-                                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Unidentified RecordStatus: ", response.status.ToString()), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
-                                            res.status = NPVRStatus.Unknown.ToString();
-                                            res.recordingID = string.Empty;
-                                            break;
-                                    }
-                                }
-                                else
-                                {
-                                    Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Response returned from NPVR layer is null.", siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
-                                    res.status = NPVRStatus.Error.ToString();
+                                    case RecordStatus.OK:
+                                        res.status = NPVRStatus.OK.ToString();
+                                        res.recordingID = response.recordingID;
+                                        break;
+                                    case RecordStatus.AlreadyRecorded:
+                                        res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                        res.recordingID = string.Empty;
+                                        break;
+                                    case RecordStatus.Error:
+                                        res.status = NPVRStatus.Error.ToString();
+                                        res.recordingID = string.Empty;
+                                        break;
+                                    default:
+                                        Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Unidentified RecordStatus: ", response.status.ToString()), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                        res.status = NPVRStatus.Unknown.ToString();
+                                        res.recordingID = string.Empty;
+                                        break;
                                 }
                             }
                             else
                             {
-                                Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Failed to instantiate an INPVRProvider instance.", siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Response returned from NPVR layer is null.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
                                 res.status = NPVRStatus.Error.ToString();
                             }
                         }
                         else
                         {
-                            // asset id or epg channel id or program start date is invalid
-                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Either ALU Asset ID: ", assetIDToALU, " or Epg Channel ID: ", epgChannelID, " or StartDate: ", programStartDate.ToString(), " is invalid."), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                            res.status = NPVRStatus.InvalidAssetID.ToString();
+                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Failed to instantiate an INPVRProvider instance.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                            res.status = NPVRStatus.Error.ToString();
                         }
+                    }
+                    else
+                    {
+                        // asset id or epg channel id or program start date is invalid
+                        Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Either ALU Asset ID: ", assetIDToALU, " or Epg Channel ID: ", epgChannelID, " or StartDate: ", programStartDate.ToString(), " is invalid."), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                        res.status = NPVRStatus.InvalidAssetID.ToString();
                     }
 
                 }
@@ -202,7 +263,7 @@ namespace ConditionalAccess
                             {
                                 // single asset
                                 NPVRCancelDeleteResponse response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
-                                
+
                                 if (response != null)
                                 {
                                     switch (response.status)
@@ -332,7 +393,7 @@ namespace ConditionalAccess
                                 switch (response.status)
                                 {
                                     case ProtectStatus.Protected:
-                                        // fall through
+                                    // fall through
                                     case ProtectStatus.NotProtected:
                                         res.status = NPVRStatus.OK.ToString();
                                         break;
@@ -380,6 +441,7 @@ namespace ConditionalAccess
         }
 
 
+
         private string GetEpgProgramCoGuid(string assetID, ref string epgChannelID, ref DateTime startDate)
         {
             WS_Catalog.IserviceClient client = null;
@@ -401,7 +463,7 @@ namespace ConditionalAccess
                 client = new WS_Catalog.IserviceClient();
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
                 WS_Catalog.EpgProgramDetailsRequest epdr = new WS_Catalog.EpgProgramDetailsRequest();
-                epdr.m_nGroupID =m_nGroupID;
+                epdr.m_nGroupID = m_nGroupID;
                 epdr.m_oFilter = new WS_Catalog.Filter();
                 epdr.m_lProgramsIds = new int[1] { progID };
                 Utils.FillCatalogSignature(epdr);
