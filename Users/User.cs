@@ -138,10 +138,13 @@ namespace Users
             return retVal;
         }
 
-        public static UserState GetCurrentUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
+        public static UserState GetCurrentUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID, int nGroupID)
         {
             UserState retVal = UserState.Unknown;
             int userID = 0;
+
+            long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(deviceID, nGroupID);
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select is_active, id from users_sessions with (nolock)  where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", siteGuid);
@@ -150,7 +153,7 @@ namespace Users
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_ip", "=", sIP);
             selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceID);
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", lIDInDevices > 0 ? lIDInDevices + "" : string.Empty);
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;
@@ -631,7 +634,7 @@ namespace Users
             UserState currentState = GetCurrentUserState(siteGuid);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
-            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices + "", currentState, UserAction.SignOut, false, ref instanceID);
+            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices+"" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();

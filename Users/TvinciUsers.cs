@@ -281,7 +281,7 @@ namespace Users
 
         public override UserState GetUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
         {
-            return User.GetCurrentUserInstanceState(siteGuid, sessionID, sIP, deviceID);
+            return User.GetCurrentUserInstanceState(siteGuid, sessionID, sIP, deviceID, m_nGroupID);
         }
 
         protected Int32 GetUserIDByUserName(string sUserName)
