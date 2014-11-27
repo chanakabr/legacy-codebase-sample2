@@ -48,7 +48,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             if (m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse) == eProviderResult.Success)
             {
                 Log("Got:", m_oResponse);
-                retVal = ((EpgProgramsResponse)m_oResponse).lEpgList;
+                retVal = ((EpgProgramResponse)m_oResponse).m_lObj;
             }
             else
             {
