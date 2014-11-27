@@ -135,6 +135,11 @@ namespace Users
             DomainResponseObject oDomainResponseObject = new DomainResponseObject();
             oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
 
+            if (string.IsNullOrEmpty(sUDID))
+            {
+                return oDomainResponseObject;
+            }
+
             Domain domain = DomainInitializer(nGroupID, nDomainID);
             if (domain == null)
             {
@@ -144,8 +149,15 @@ namespace Users
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                device.Initialize(sUDID, sDeviceName);
-                oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
+                bool res  = device.Initialize(sUDID, sDeviceName);
+                if (res)
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
+                }
+                else
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DeviceNotExists;
+                }
             }
 
             return oDomainResponseObject;
@@ -237,7 +249,7 @@ namespace Users
         {
             DomainResponseObject oDomainResponseObject;
 
-            if (nDomainID <= 0)
+            if (nDomainID <= 0 || string.IsNullOrEmpty(sDeviceUdid))
             {
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
             }

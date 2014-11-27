@@ -141,9 +141,9 @@ namespace Users
         public static UserState GetCurrentUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID, int nGroupID)
         {
             UserState retVal = UserState.Unknown;
-            int userID = 0;
+            int userSessionID = 0;
 
-            long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(deviceID, nGroupID);
+            long lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.Get_IDInDevicesByDeviceUDID(deviceID, nGroupID);
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select is_active, id from users_sessions with (nolock)  where ";
@@ -159,30 +159,27 @@ namespace Users
                 int count = selectQuery.Table("query").DefaultView.Count;
                 if (count > 0)
                 {
-                    if (selectQuery.Table("query").DefaultView[0].Row["is_active"] != null && selectQuery.Table("query").DefaultView[0].Row["is_active"] != System.DBNull.Value)
+                    int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "is_active", 0);
+                    if (isActive == 1)
                     {
-                        int isActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["is_active"].ToString());
-                        if (isActive == 1)
-                        {
-                            userID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                            retVal = UserState.SingleSignIn;
-                        }
-                        else
-                        {
-                            retVal = UserState.LoggedOut;
-                        }
+                        userSessionID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
+                        retVal = UserState.SingleSignIn;
+                    }
+                    else
+                    {
+                        retVal = UserState.LoggedOut;
                     }
                 }
             }
-
             selectQuery.Finish();
             selectQuery = null;
-            if (userID > 0)
+
+            if (userSessionID > 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_sessions");
                 updateQuery += "last_action_date = getdate()";
                 updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", userID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", userSessionID);
                 updateQuery.Execute();
                 updateQuery.Finish();
             }
