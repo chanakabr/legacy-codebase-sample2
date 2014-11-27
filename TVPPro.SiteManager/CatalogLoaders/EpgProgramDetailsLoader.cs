@@ -52,7 +52,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             }
             else
             {
-                retVal = new List<BaseObject>();
+                retVal = new List<ProgramObj>();
             }
             return retVal;
 
