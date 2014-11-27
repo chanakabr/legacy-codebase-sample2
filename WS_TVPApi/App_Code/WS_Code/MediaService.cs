@@ -956,6 +956,7 @@ namespace TVPApiServices
         public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> programs = null;
+            int searchOffsetDays = int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]);
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -963,13 +964,17 @@ namespace TVPApiServices
             {
                 try
                 {
-                    programs = new APIEPGSearchContentLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, initObj.Locale.LocaleLanguage)
+                    var programsList = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, DateTime.UtcNow.AddDays(-searchOffsetDays), DateTime.UtcNow.AddDays(searchOffsetDays))
                     {
                         SiteGuid = initObj.SiteGuid,
-                    }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
+                        Culture = initObj.Locale.LocaleLanguage
+                    }.Execute() as List<BaseObject>;
+                    if (programsList != null)
+                        programs = programsList.Select(p => ((ProgramObj)p).m_oProgram).ToList();
                 }
                 catch (Exception ex)
                 {
+
                     HttpContext.Current.Items.Add("Error", ex);
                 }
             }
@@ -2095,6 +2100,35 @@ namespace TVPApiServices
             return sResponse;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Media License")]
+        public string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP)
+        {
+            string sResponse = string.Empty;
+
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+
+                    IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, clientIP);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return sResponse;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get user offline list")]
         public UserOfflineObject[] GetUserOfflineList(InitializationObject initObj)
         {
@@ -2455,7 +2489,7 @@ namespace TVPApiServices
                     {
                         case EPGUnit.Days:
                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
-                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(-iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Hours:
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(-iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
