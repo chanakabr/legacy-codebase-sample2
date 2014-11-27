@@ -17,6 +17,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         private static ILog logger = log4net.LogManager.GetLogger(typeof(CategoryLoader));
 
         public int CategoryID { get; set; }
+        public string PicSize { get; set; }
 
          public CategoryLoader(int groupID, string userIP, int categoryID)
             : base(groupID, userIP, 0, 0)
@@ -55,44 +56,78 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         private dsCategory CategoryResponseToDsCategory(CategoryResponse categoryResponse)
         {
+            //dsCategory retVal = new dsCategory();
+            //dsCategory.CategoriesRow rootRow = retVal.Categories.NewCategoriesRow();
+            //rootRow.ID = categoryResponse.ID.ToString();
+            //rootRow.Title = "Root";
+            //foreach (channelObj rootChannel in categoryResponse.m_oChannels)
+            //{
+            //    dsCategory.ChannelsRow rootChannelRow = retVal.Channels.NewChannelsRow();
+            //    rootChannelRow.CategoryID = categoryResponse.ID.ToString();
+            //    rootChannelRow.ID = rootChannel.m_nChannelID;
+            //    rootChannelRow.Title = rootChannel.m_sTitle;
+            //    retVal.Channels.AddChannelsRow(rootChannelRow);
+            //}
+            //retVal.Categories.AddCategoriesRow(rootRow);
+            //if (categoryResponse.m_oChildCategories != null)
+            //{
+            //    foreach (CategoryResponse cat in categoryResponse.m_oChildCategories)
+            //    {
+            //        dsCategory.CategoriesRow catRow = retVal.Categories.NewCategoriesRow();
+            //        catRow.ID = cat.ID.ToString();
+            //        catRow.Title = cat.m_sTitle;
+            //        catRow.ParentCatID = cat.m_nParentCategoryID.ToString();
+            //        if (cat.m_oChannels != null)
+            //        {
+            //            foreach (channelObj catChannel in cat.m_oChannels)
+            //            {
+            //                dsCategory.ChannelsRow channelRow = retVal.Channels.NewChannelsRow();
+            //                channelRow.CategoryID = cat.ID.ToString();
+            //                channelRow.ID = catChannel.m_nChannelID;
+            //                channelRow.Title = catChannel.m_sTitle;
+            //                retVal.Channels.AddChannelsRow(channelRow);
+            //                //channelRow.NumOfItems = catChannel.media_count
+            //            }
+            //        }
+            //        retVal.Categories.AddCategoriesRow(catRow);
+            //    }
+            //}
+
+            //return retVal;
             dsCategory retVal = new dsCategory();
-            dsCategory.CategoriesRow rootRow = retVal.Categories.NewCategoriesRow();
-            rootRow.ID = categoryResponse.ID.ToString();
-            rootRow.Title = "Root";
-            foreach (channelObj rootChannel in categoryResponse.m_oChannels)
+            MakeCategory(categoryResponse, null, retVal, PicSize);
+            return retVal;
+        }
+
+        private void MakeCategory(CategoryResponse cat, dsCategory.CategoriesRow parent, dsCategory dsCat, string picSize)
+        {
+            if (cat == null)
+                return;
+
+            dsCategory.CategoriesRow currentRow = dsCat.Categories.NewCategoriesRow();
+            currentRow.ID = cat.ID.ToString();
+            currentRow.Title = cat.m_sTitle;
+            var pic = cat.m_lPics != null ? cat.m_lPics.Where(p => p.m_sSize == picSize).FirstOrDefault() : null;
+            currentRow.PicURL = pic != null ? pic.m_sURL : string.Empty;
+            //If we are root, there is no parent
+            currentRow.ParentCatID = parent != null ? parent.ID.ToString() : null;
+            dsCat.Categories.AddCategoriesRow(currentRow);
+
+            foreach (var rootChannel in cat.m_oChannels)
             {
-                dsCategory.ChannelsRow rootChannelRow = retVal.Channels.NewChannelsRow();
-                rootChannelRow.CategoryID = categoryResponse.ID.ToString();
-                rootChannelRow.ID = rootChannel.m_nChannelID;
-                rootChannelRow.Title = rootChannel.m_sTitle;
-                retVal.Channels.AddChannelsRow(rootChannelRow);
-            }
-            retVal.Categories.AddCategoriesRow(rootRow);
-            if (categoryResponse.m_oChildCategories != null)
-            {
-                foreach (CategoryResponse cat in categoryResponse.m_oChildCategories)
-                {
-                    dsCategory.CategoriesRow catRow = retVal.Categories.NewCategoriesRow();
-                    catRow.ID = cat.ID.ToString();
-                    catRow.Title = cat.m_sTitle;
-                    catRow.ParentCatID = cat.m_nParentCategoryID.ToString();
-                    if (cat.m_oChannels != null)
-                    {
-                        foreach (channelObj catChannel in cat.m_oChannels)
-                        {
-                            dsCategory.ChannelsRow channelRow = retVal.Channels.NewChannelsRow();
-                            channelRow.CategoryID = cat.ID.ToString();
-                            channelRow.ID = catChannel.m_nChannelID;
-                            channelRow.Title = catChannel.m_sTitle;
-                            retVal.Channels.AddChannelsRow(channelRow);
-                            //channelRow.NumOfItems = catChannel.media_count
-                        }
-                    }
-                    retVal.Categories.AddCategoriesRow(catRow);
-                }
+                dsCategory.ChannelsRow currentChannelRow = dsCat.Channels.NewChannelsRow();
+                currentChannelRow.CategoryID = cat.ID.ToString();
+                currentChannelRow.ID = rootChannel.m_nChannelID;
+                currentChannelRow.Title = rootChannel.m_sTitle;
+                var channelPic = rootChannel.m_lPic != null ? rootChannel.m_lPic.Where(p => p.m_sSize == picSize).FirstOrDefault() : null;
+                currentChannelRow.PicURL = channelPic != null ? pic.m_sURL : string.Empty;
+                dsCat.Channels.AddChannelsRow(currentChannelRow);
             }
 
-            return retVal;
+            foreach (var innerCat in cat.m_oChildCategories)
+            {
+                MakeCategory(innerCat, currentRow, dsCat, picSize);
+            }
         }
 
         protected override void Log(string message, object obj)
