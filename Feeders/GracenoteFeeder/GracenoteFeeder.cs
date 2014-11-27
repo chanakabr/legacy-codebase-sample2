@@ -338,6 +338,7 @@ namespace GracenoteFeeder
             args.Add(compressedXML);
 
             BaseCeleryData data = new BaseCeleryData(id, task, args);
+            data.GroupId = this.GroupID;
             BaseQueue queue = new EPGQueue();
 
             bool bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
