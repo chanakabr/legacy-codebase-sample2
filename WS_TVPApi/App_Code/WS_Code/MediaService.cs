@@ -2312,7 +2312,7 @@ namespace TVPApiServices
             int pageSize,
             int pageIndex)
         {
-            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> ret = null;
+            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> ret = new List<ProgramObj>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramsByIds", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2322,12 +2322,18 @@ namespace TVPApiServices
                 {                    
                     switch (programIdType)
                     {
-                        case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
-                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj>)new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute();
+                        case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:                            
+                            foreach (var obj in (new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<BaseObject>))
+                            {
+                                ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
+                            }
                             break;
                         case TVPApiModule.Objects.Enums.ProgramIdType.INTERNAL:
                             List<int> pidsToInt = programIds.Select(id => int.Parse(id)).ToList<int>();
-                            ret = (List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj>)new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute();                            
+                            foreach (var obj in (new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute() as List<BaseObject>))
+                            {
+                                ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
+                            }
                             break;
                         default:                            
                             break;
@@ -2398,10 +2404,10 @@ namespace TVPApiServices
                     {
                         case EPGUnit.Days:
                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
-                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(-iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Hours:
-                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(-iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Current:
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
@@ -2452,7 +2458,7 @@ namespace TVPApiServices
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(-iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Hours:
-                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(-iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Current:
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
