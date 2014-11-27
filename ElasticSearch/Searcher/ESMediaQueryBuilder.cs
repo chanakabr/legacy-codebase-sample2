@@ -530,9 +530,25 @@ namespace ElasticSearch.Searcher
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
 
+
+            ESTerms mediaTypesTerms = new ESTerms(true);
+            if (!string.IsNullOrEmpty(oSearchObject.m_sMediaTypes) && !oSearchObject.m_sMediaTypes.Equals("0"))
+            {
+                mediaTypesTerms.Key = "media_type_id";
+                string[] mediaTypeArr = oSearchObject.m_sMediaTypes.Split(';');
+                foreach (string mediaType in mediaTypeArr)
+                {
+                    if (!string.IsNullOrWhiteSpace(mediaType))
+                    {
+                        mediaTypesTerms.Value.Add(mediaType.Trim());
+                    }
+                }
+            }
+
             filterParent.AddChild(isActiveTerm);
             filterParent.AddChild(startDateRange);
             filterParent.AddChild(endDateRange);
+            filterParent.AddChild(mediaTypesTerms);
             FillFilterSettings(ref filter, filterParent);
 
             MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
