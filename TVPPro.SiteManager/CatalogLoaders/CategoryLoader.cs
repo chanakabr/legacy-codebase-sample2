@@ -75,6 +75,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     dsCategory.CategoriesRow catRow = retVal.Categories.NewCategoriesRow();
                     catRow.ID = cat.ID.ToString();
                     catRow.Title = cat.m_sTitle;
+                    catRow.ParentCatID = cat.m_nParentCategoryID.ToString();
                     if (cat.m_oChannels != null)
                     {
                         foreach (channelObj catChannel in cat.m_oChannels)
