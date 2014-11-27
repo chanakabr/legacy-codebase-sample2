@@ -808,7 +808,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(initObj.SiteGuid, System.Web.HttpContext.Current.Session.SessionID, initObj.UDID, SiteHelper.GetClientIP(), isSingleLogin);
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(initObj.SiteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
                 }
                 catch (Exception ex)
                 {
