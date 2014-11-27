@@ -484,7 +484,7 @@ namespace TVPPro.SiteManager.Services
                 req.m_InfoStruct.m_sPrefix = sPrefix;
                 req.m_iPageIndex = 0;
                 req.m_iPageSize = 10;
-                req.m_sLanguage = string.Empty;
+                req.m_sLanguage = SiteManager.Manager.TextLocalization.Instance.UserLanguageKey;
                 req.m_eRuleType = eCutType.Or;
 
                 wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;

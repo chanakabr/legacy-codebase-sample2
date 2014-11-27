@@ -200,6 +200,22 @@ namespace TVPPro.SiteManager.Services
             return bRes;
         }
 
+        public DeviceResponseObject GetDeviceInfo(string udid)
+        {
+            DeviceResponseObject device = null;
+
+            try
+            {
+                device = m_Module.GetDeviceInfo(wsUserName, wsPassword, udid, true);
+            }
+            catch (Exception e)
+            {
+                logger.ErrorFormat("Error occured in GetDeviceInfo, Error : {0} Parameters : Device UDID: {1}, IsUDID {2}", e.Message, udid, true);
+            }
+
+            return device;
+        }
+
         public DomainResponseObject AddDeviceToDomain(string udid, string deviceName)
         {
             int domainId = 0;
@@ -216,7 +232,7 @@ namespace TVPPro.SiteManager.Services
             }
 
             return device;
-        }
+        }       
         
     }
 }
