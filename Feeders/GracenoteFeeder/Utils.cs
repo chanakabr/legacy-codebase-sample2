@@ -15,6 +15,7 @@ using EpgBL;
 using GroupsCacheManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
+using System.IO.Compression;
 
 namespace GracenoteFeeder
 {    
@@ -818,6 +819,20 @@ namespace GracenoteFeeder
             catch (Exception ex)
             {
                 Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
+            }
+        }
+
+        public static string Compress(string s)
+        {
+            var bytes = Encoding.UTF8.GetBytes(s);
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream())
+            {
+                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                {
+                    msi.CopyTo(gs);
+                }
+                return Convert.ToBase64String(mso.ToArray());
             }
         }
 

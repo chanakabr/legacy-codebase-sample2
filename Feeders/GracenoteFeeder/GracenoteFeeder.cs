@@ -9,7 +9,6 @@ using System.Xml;
 using System.Xml.Serialization;
 using ApiObjects.Epg;
 using Tvinci.Core.DAL;
-using Newtonsoft.Json;
 using QueueWrapper;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper.Queues.QueueObjects;
@@ -55,8 +54,9 @@ namespace GracenoteFeeder
         {
             try
             {
-                //call catalog to get all epg channel ids by group
-                Dictionary<string,KeyValuePair<int,string>> channelDic = GetAllChannels();
+                //get all epg channel ids by group
+                Dictionary<string, KeyValuePair<int, string>> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
+                    //GetAllChannels();
                 List<string> channels = channelDic.Keys.ToList();
                 if (channels != null && channels.Count == 0)
                 {
@@ -88,58 +88,40 @@ namespace GracenoteFeeder
             try
             {
                 List<XmlDocument> xmlList = getChannelXMLs(lResponse);
+               
+                #region send to celery Queue if needed
+                bool bSendToQueue = false;
 
-                Dictionary<string, XmlDocument> channelXMLs = new Dictionary<string,XmlDocument>();
+                string groupIDs = TVinciShared.WS_Utils.GetTcmConfigValue("graceNoteXDTVTransformGroups");
+                string[] sSep = { ";" };
+                string[] sGroupArray = groupIDs.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
+                if (sGroupArray.Contains(GroupID.ToString()))
+                {
+                    bSendToQueue = true;
+                }
 
-                Dictionary<int, int> channelID_DB_ALU = getALUIDs();              
+                if (bSendToQueue)
+                {
+                    foreach (XmlDocument xml in xmlList)
+                    {
+                        SendToQueue(xml);                        
+                    }
+                }
+                #endregion
 
+                //saving the channels in DB
                 foreach (XmlDocument xml in xmlList)
-                {                       
+                {
                     int nChannelIDDB = 0;
-                    int nChannelIDALU = 0;
-                    string sChannelName = "";
                     XmlNodeList xmlChannel = xml.GetElementsByTagName("TVGRIDBATCH");
                     string sChannelID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
 
-                    if (channelDic.ContainsKey(sChannelID))
+                    if (channelDic.ContainsKey(sChannelID))             
                     {
                         nChannelIDDB = channelDic[sChannelID].Key;
-                        if (channelID_DB_ALU.ContainsKey(nChannelIDDB))
-                        {
-                            nChannelIDALU = channelID_DB_ALU[nChannelIDDB];
-                            sChannelName = channelDic[sChannelID].Value;
-
-                            //send to ALU
-                            TransformAndSendToALU(xml, nChannelIDALU, sChannelName);
-                        }
-                        else
-                        {
-                            Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0} with name {1}. channel cannot be sent to ALU", nChannelIDDB, sChannelName), "GracenoteFeeder");
-                        }
-
-                        //generate dictionary for saving the channels in DB
-                        if (!channelXMLs.ContainsKey(sChannelID))
-                        {
-                            channelXMLs.Add(sChannelID, xml);
-                        }
-                        
-                    }
-                    else
-                    {
-                        Logger.Logger.Log("InsertProgramsPerChannel", string.Format("Channel {0} was not found in DB, and cannot be sent to ALU", sChannelID), "GracenoteFeeder");
-                    }
-                }
-
-                //saving the channels in DB
-                foreach (string channelCallSign in channelXMLs.Keys)
-                {
-                    int nChannelIDDB = 0;
-                    if (channelDic.ContainsKey(channelCallSign))
-                    {
-                        nChannelIDDB = channelDic[channelCallSign].Key;
 
                         // Save epg programs for each xml documnet
-                        SaveChannel(channelXMLs[channelCallSign], nChannelIDDB, channelCallSign);
+                        SaveChannel(xml, nChannelIDDB, sChannelID);
                     }
                 }
 
@@ -207,37 +189,6 @@ namespace GracenoteFeeder
                                             response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty"), "GracenoteFeeder");
                 sUrl = string.Empty;
                 return res;
-            }
-        }
-
-        // get all channels by group id from DB
-        //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' there is the DB ID and thechannel name.
-        private Dictionary<string, KeyValuePair<int, string>> GetAllChannels()
-        {
-            Dictionary<string, KeyValuePair<int, string>> result = new Dictionary<string, KeyValuePair<int, string>>();
-            try
-            {               
-                DataTable dt = EpgDal.GetAllEpgChannelsList(GroupID);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        string channelId = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
-                        string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
-                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        KeyValuePair<int, string> kvp = new KeyValuePair<int, string>(nID, name);
-                        if (!result.ContainsKey(channelId))
-                        {
-                            result.Add(channelId, kvp);
-                        }                      
-                    }
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("GetAllChannels", string.Format("faild to get channels for group:{0}, ex:{1}", GroupID, ex.Message), "GracenoteFeeder");
-                return new Dictionary<string, KeyValuePair<int, string>>();
             }
         }
 
@@ -375,72 +326,26 @@ namespace GracenoteFeeder
                 }
             }
             return xmlList;
-        }
+        }      
 
-        private void TransformAndSendToALU(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
-        {
-            XmlDocument xmlResult = TransformToALU(XMLDoc, channelIDALU, sChannelName);
-
-            SendToALU(xmlResult);          
-        }
-
-        private XmlDocument TransformToALU(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
-        {
-            XmlDocument xmlResult = new XmlDocument();
-            GraceNoteTransform transformer = new GraceNoteTransform();
-         
-            transformer.Init(channelIDALU, sChannelName);   
-
-            using (StringWriter writer = new StringWriter())
-            {
-                try
-                {
-                    transformer.Transform(XMLDoc, writer);
-                    xmlResult.LoadXml(writer.ToString());
-                }
-                catch (Exception exp)
-                {
-                    Logger.Logger.Log("Error", string.Format("Exception in transforming xml from graceNote to ALU format", exp.Message), "GraceNoteFeeder");
-                    return null;
-                }
-                return xmlResult;
-            }
-        }
-
-        private void SendToALU(XmlDocument XMLDoc)
-        {
+        private void SendToQueue(XmlDocument XMLDoc)
+        {            
             List<object> args = new List<object>();
             string id = Guid.NewGuid().ToString();
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskEPG");
             string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyEPG");
+            string compressedXML = Utils.Compress(XMLDoc.InnerXml);
+            args.Add(compressedXML);
 
-            args.Add(XMLDoc);
-            
             BaseCeleryData data = new BaseCeleryData(id, task, args);
             BaseQueue queue = new EPGQueue();
-          
+
             bool bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
             if (!bIsUpdateSucceeded)
             {
                 Logger.Logger.Log("Error", "EPGQueue was not updated  - xml was not sent to ALU ", "GraceNoteFeeder");
             }
         }
-
-        private Dictionary<int, int> getALUIDs()
-        {
-            string sPath = TVinciShared.WS_Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
-            Dictionary<int, int> channelID_DB_ALU = null;
-            if (File.Exists(sPath))
-            {
-                string json = File.ReadAllText(@sPath);
-                channelID_DB_ALU = JsonConvert.DeserializeObject<Dictionary<int, int>>(json);
-            }
-            else
-            {
-                Logger.Logger.Log("InsertProgramsPerChannel", string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath), "GracenoteFeeder");
-            }
-
-            return channelID_DB_ALU;
-        }
+      
     }
 }
