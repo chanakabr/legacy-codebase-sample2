@@ -58,7 +58,7 @@ namespace Users
 
         static public void GetBaseUsersImpl(ref Users.BaseUsers t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation<User>.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
 
             switch (nImplID)
             {
@@ -131,7 +131,7 @@ namespace Users
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {   
-            int nImplID = TvinciCache.ModulesImplementation<Domain>.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
 
             switch (nImplID)
             {
@@ -148,7 +148,7 @@ namespace Users
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
         {     
-            int nImplID = TvinciCache.ModulesImplementation<User>.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
             switch (nImplID)
             {
                 case 1:
@@ -423,8 +423,8 @@ namespace Users
             return res;
         }
 
-       
-       internal static MutexSecurity CreateMutex()
+
+        internal static MutexSecurity CreateMutex()
         {
             var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
             MutexSecurity mutexSecurity = new MutexSecurity();
@@ -433,7 +433,6 @@ namespace Users
             mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
 
             return mutexSecurity;
-        }
         }
     }
 }

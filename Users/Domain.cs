@@ -7,6 +7,7 @@ using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using DAL;
 using System.Xml.Serialization;
+using Users.Cache;
 
 namespace Users
 {

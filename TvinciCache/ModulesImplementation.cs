@@ -7,7 +7,7 @@ using TVinciShared;
 
 namespace TvinciCache
 {
-    public class ModulesImplementation<T>
+    public class ModulesImplementation
     {
         private static object lck = new object();
 
