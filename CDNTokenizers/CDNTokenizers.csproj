@@ -46,9 +46,12 @@
   <ItemGroup>
     <Compile Include="CDNTokenizerFactory.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="enums.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiBase64.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AbstractAkamaiTokenizer.cs" />
+    <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiTokenConfig.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiTokenizerTypeD.cs" />
+    <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiTokenizerTurner.cs" />
     <Compile Include="Tokenizers\BaseCDNTokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tokenizers\ConcurrentCDNTokenizer.cs" />

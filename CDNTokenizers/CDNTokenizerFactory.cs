@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CDNTokenizers.Tokenizers.AkamaiTokenizers;
 
 namespace CDNTokenizers
 {
@@ -55,6 +56,9 @@ namespace CDNTokenizers
                         break;
                     case "limelight":
                         tokenizer = new MediaValutTokenizer(nGroupID, nStreamingCompanyID);
+                        break;
+                    case "akamai":
+                        tokenizer = new AkamaiTokenizerTurner(nGroupID, nStreamingCompanyID);
                         break;
                     default:
                         tokenizer = new BaseCDNTokenizer(nGroupID, nStreamingCompanyID);
