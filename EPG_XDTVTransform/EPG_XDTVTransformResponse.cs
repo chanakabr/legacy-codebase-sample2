@@ -19,18 +19,5 @@ namespace EPG_XDTVTransform
             account_id = accountID;
             epg_data = sXml;
         }
-
-
-
-        public override string ToString()
-        {
-            string [] strArray = new string [3];
-            strArray[0] = host;
-            strArray[1] = account_id;
-            strArray[2] = epg_data;
-
-            return string.Join("###", strArray); //needs to be changed to format
-        }
-
     }
 }

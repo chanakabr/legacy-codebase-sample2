@@ -8,6 +8,7 @@ using RemoteTasksCommon;
 using System.Xml;
 using System.IO;
 using Tvinci.Core.DAL;
+using System.IO.Compression;
 
 
 namespace EPG_XDTVTransform
@@ -21,9 +22,11 @@ namespace EPG_XDTVTransform
 
             EPG_XDTVTransformRequest request = JsonConvert.DeserializeObject<EPG_XDTVTransformRequest>(data);
 
-            // Load the xml string to XmlDocument
-            string sXml = request.sXml;
-            XmlDocument xmlDoc = Utils.stringToXMLDoc(sXml);
+            string sXml = Utils.Decompress(request.sXml);
+
+            XmlDocument xmlDoc = new XmlDocument();
+
+            xmlDoc.LoadXml(sXml);
 
             Dictionary<int, int> channelID_DB_ALU = getALUIDs();    
             Dictionary<string, KeyValuePair<int, string>> channelDic = EpgDal.GetAllEpgChannelsDic(request.nGroupID);   
@@ -54,7 +57,7 @@ namespace EPG_XDTVTransform
         {
             XmlDocument xmlResult = TransformToXDTV(XMLDoc, channelIDALU, sChannelName);
 
-            return getALUResponse(xmlResult, channelIDALU);
+            return Utils.Compress(xmlResult.InnerXml);
         }
 
         private XmlDocument TransformToXDTV(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
@@ -81,18 +84,6 @@ namespace EPG_XDTVTransform
             }
         }
 
-        private string getALUResponse(XmlDocument XMLDoc, int channelIDALU)
-        {
-            string res = "";  
-            string host = Utils.GetTcmConfigValue("alcatelLucentHost");
-            string sChannelID = channelIDALU.ToString();
-            string compressedXml = Utils.Compress(XMLDoc.InnerXml);
-
-            EPG_XDTVTransformResponse response = new EPG_XDTVTransformResponse(host, sChannelID, compressedXml);
-            res = response.ToString();
-            return res;          
-        }
-
         private Dictionary<int, int> getALUIDs()
         {
             string sPath = Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
@@ -109,6 +100,5 @@ namespace EPG_XDTVTransform
 
             return channelID_DB_ALU;
         }
-
     }
 }

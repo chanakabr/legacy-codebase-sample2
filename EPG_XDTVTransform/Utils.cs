@@ -57,26 +57,23 @@ namespace EPG_XDTVTransform
             }
         }
 
-        // Load the xml string to XmlDocument
-        public static XmlDocument stringToXMLDoc(string xmlString)
+        public static string Decompress(string s)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            Encoding encoding = Encoding.UTF8;
+            var bytes = Convert.FromBase64String(s);
 
-            // Encode the XML string in a byte array
-            byte[] encodedString = encoding.GetBytes(xmlString);
-
-            // Put the byte array into a stream and rewind it to the beginning
-            using (var ms = new MemoryStream(encodedString))
+            using (var msi = new MemoryStream(bytes))
+            using (var gs = new GZipStream(msi, CompressionMode.Decompress))
             {
-                ms.Flush();
-                ms.Position = 0;
+                using (var mso = new MemoryStream())
+                {
+                    gs.CopyTo(mso);
 
-                // Build the XmlDocument from the MemorySteam of UTF-8 encoded bytes
-                xmlDoc.Load(ms);
+                    bytes = mso.ToArray();
+                }
+
+                return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
             }
 
-            return xmlDoc;
         }
     }
 }
