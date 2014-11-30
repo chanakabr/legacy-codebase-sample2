@@ -1679,7 +1679,7 @@ namespace ConditionalAccess
                     }
 
 
-                    if (bEnd || bIsValidForPurchase)
+                    if (bEnd || !bIsValidForPurchase)
                     {
                         return p;
                     }
