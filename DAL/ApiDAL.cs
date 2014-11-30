@@ -992,16 +992,18 @@ namespace DAL
                     int i = 0;
                     foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
                     {
-                        double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
-                        if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
-                        { 
-                            if (i >= nNumOfItems || nNumOfItems == 0)
+                        if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.MediaID))
+                        {
+                            double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
+                            if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
                             {
-                                break;
+                                if (i >= nNumOfItems || nNumOfItems == 0)
+                                {
+                                    break;
+                                }
+                                retList.Add(mediaMarkLogObject.LastMark.MediaID);
+                                i++;
                             }
-                            retList.Add(mediaMarkLogObject.LastMark.MediaID);
-                            i++;
-                           
                         }
                     }
 
