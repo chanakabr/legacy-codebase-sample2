@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NPVR.AlcatelLucentResponses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NPVR
@@ -16,8 +19,10 @@ namespace NPVR
         private static readonly string LOG_HEADER_EXCEPTION = "Exception";
         private static readonly string LOG_HEADER_ERROR = "Error";
 
-        private static readonly string DATE_TIME_FORMAT = "yyyyMMddHHmmss";
         private static readonly DateTime UNIX_ZERO_TIME = new DateTime(1970, 1, 1);
+        private static readonly Regex JSON_UNBEAUTIFIER = new Regex("[\r\n\t ]");
+        private static readonly string EMPTY_JSON = "{}";
+        private static readonly int HTTP_STATUS_OK = 200;
 
         private static readonly string ALU_GENERIC_BODY = "scheduler/web/";
         private static readonly string ALU_ENDPOINT_RECORD = "Record/";
@@ -314,7 +319,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetCancelAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("CancelAsset. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -340,6 +352,47 @@ namespace NPVR
             return res;
         }
 
+        private void GetCancelAssetResponse(string responseJson, NPVRParamsObj args, NPVRCancelDeleteResponse initializedResp)
+        {
+
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                initializedResp.entityID = args.EntityID;
+                initializedResp.msg = string.Empty;
+                initializedResp.recordingID = args.AssetID;
+                initializedResp.status = CancelDeleteStatus.OK;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    initializedResp.recordingID = args.AssetID;
+                    initializedResp.entityID = args.EntityID;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            initializedResp.status = CancelDeleteStatus.AssetDoesNotExist;
+                            initializedResp.msg = "Asset does not exist.";
+                            break;
+                        case 409:
+                            initializedResp.status = CancelDeleteStatus.AssetAlreadyRecorded;
+                            initializedResp.msg = "Asset already recorded.";
+                            break;
+                        default:
+                            initializedResp.status = CancelDeleteStatus.Error;
+                            initializedResp.msg = error.Description;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetCancelAssetResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    throw;
+                }
+            }
+        }
 
         public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
         {
@@ -361,13 +414,20 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetDeleteAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("DeleteAsset. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
                         Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
                         res.entityID = args.EntityID;
-                        res.recordingID = string.Empty;
+                        res.recordingID = args.AssetID;
                         res.status = CancelDeleteStatus.Error;
                         res.msg = "An error occurred. Refer to server log files.";
                     }
@@ -384,6 +444,43 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private void GetDeleteAssetResponse(string responseJson, NPVRParamsObj args, NPVRCancelDeleteResponse initializedResp)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                initializedResp.entityID = args.EntityID;
+                initializedResp.msg = string.Empty;
+                initializedResp.recordingID = args.AssetID;
+                initializedResp.status = CancelDeleteStatus.OK;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    initializedResp.entityID = args.EntityID;
+                    initializedResp.recordingID = args.AssetID;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            initializedResp.msg = "Asset does not exist.";
+                            initializedResp.status = CancelDeleteStatus.AssetDoesNotExist;
+                            break;
+                        default:
+                            initializedResp.msg = error.Description;
+                            initializedResp.status = CancelDeleteStatus.Error;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetDeleteAssetResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    throw;
+                }
+            }
         }
 
         private bool IsSetAssetProtectionStatusInputValid(NPVRParamsObj args)
@@ -418,7 +515,7 @@ namespace NPVR
                     else
                     {
                         Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("SetAssetProtectionStatus. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
-                        res.recordingID = string.Empty;
+                        res.recordingID = args.AssetID;
                         res.status = ProtectStatus.Error;
                         res.entityID = args.EntityID;
                         res.msg = "An error occurred. Refer to server log files.";

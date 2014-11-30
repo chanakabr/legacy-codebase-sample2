@@ -38,7 +38,8 @@ namespace NPVR
         OK = 0,
         AlreadyCanceled = 1,
         Error = 2,
-        AssetDoesNotExist = 3
+        AssetDoesNotExist = 3,
+        AssetAlreadyRecorded = 4
     }
 
     public enum SearchByField : ulong
