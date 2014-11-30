@@ -17,5 +17,15 @@ namespace NPVR.AlcatelLucentResponses
 
         [JsonProperty("description")]
         public string Description { get; set; }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("GenericFailureResponseJSON. ");
+            sb.Append(String.Concat(" Result Code: ", ResultCode));
+            sb.Append(String.Concat(" Title: ", Title));
+            sb.Append(String.Concat(" Desc: ", Description));
+
+            return sb.ToString();
+        }
     }
 }

@@ -78,6 +78,41 @@ namespace NPVR
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
         }
 
+        private void GetCreateAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response)
+        {
+            try
+            {
+                // first, try to parse it as a json returned upon success
+                CreateAccountResponseJSON aluResp = JsonConvert.DeserializeObject<CreateAccountResponseJSON>(responseJson);
+                response.isOK = true;
+                response.entityID = aluResp.UserID;
+                response.quota = args.Quota;
+            }
+            catch (JsonReaderException jsonEx)
+            {
+                // failed to parse it as a json returned upon success. try to parse it as a json returned upon failure.
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.isOK = false;
+                    response.msg = error.Description;
+
+                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Failed to create account. {0}", error != null ? error.ToString() : "generic failure response is null"), args, null), GetLogFilename());
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Outer catch block. Resp JSON: {0} ", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
+        }
+
         public NPVRUserActionResponse CreateAccount(NPVRParamsObj args)
         {
             NPVRUserActionResponse res = new NPVRUserActionResponse();
@@ -97,7 +132,14 @@ namespace NPVR
                     string errorMsg = string.Empty;
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here the json, understand the response and fill the response object
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetCreateAccountResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("CreateAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
 
                     }
                     else
@@ -150,7 +192,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here the json, understand the response and fill the result obj.
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetDeleteAccountResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("DeleteAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -174,6 +223,36 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private void GetDeleteAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.isOK = true;
+                response.quota = 0;
+                response.entityID = args.EntityID;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.entityID = args.EntityID;
+                    response.msg = error.Description;
+                    response.quota = 0;
+                    response.isOK = false;
+
+                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Failed to delete account. Error resp: {0}", error != null ? error.ToString() : "generic failure response is null"), args, null), GetLogFilename());
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetDeleteAccountResponse. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
         }
 
         private string GetLogMsg(string msg, NPVRParamsObj obj, Exception ex)
