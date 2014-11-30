@@ -13,7 +13,8 @@ namespace NPVR
         protected NPVROrderDir direction;
         protected NPVROrderBy orderBy;
         protected NPVRRecordingStatus recordingStatus;
-        protected string epgProgramID;
+        protected List<string> epgProgramIDs;
+        protected List<string> assetIDs;
 
 
         public virtual List<SearchByField> SearchBy
@@ -104,15 +105,31 @@ namespace NPVR
             }
         }
 
-        public virtual string EpgProgramID
+        public virtual List<string> EpgProgramIDs
         {
             get
             {
-                return epgChannelID;
+                if (epgProgramIDs == null)
+                    epgProgramIDs = new List<string>();
+                return epgProgramIDs;
             }
             set
             {
-                epgProgramID = value;
+                epgProgramIDs = value;
+            }
+        }
+
+        public virtual List<string> AssetIDs
+        {
+            get
+            {
+                if (assetIDs == null)
+                    assetIDs = new List<string>();
+                return assetIDs;
+            }
+            set
+            {
+                assetIDs = value;
             }
         }
 
@@ -132,7 +149,6 @@ namespace NPVR
             sb.Append(String.Concat(" Order By: ", OrderBy.ToString()));
             sb.Append(String.Concat(" Order Dir: ", Direction.ToString()));
             sb.Append(String.Concat(" Recording Status: ", RecordingStatus.ToString()));
-            sb.Append(String.Concat(" Epg Program ID: ", EpgProgramID));
 
             return sb.ToString();
         }

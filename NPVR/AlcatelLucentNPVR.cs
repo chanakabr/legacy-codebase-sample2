@@ -451,7 +451,7 @@ namespace NPVR
                     switch (sbf)
                     {
                         case SearchByField.byAssetId:
-                            if (string.IsNullOrEmpty(args.AssetID) || seenUnique)
+                            if (seenUnique || (args.AssetIDs.Count == 0 && string.IsNullOrEmpty(args.AssetID)))
                                 return false;
                             seenUnique = true;
                             uniqueSearchBy = (ulong)SearchByField.byAssetId;
@@ -463,7 +463,7 @@ namespace NPVR
                             uniqueSearchBy = (ulong)SearchByField.byStartTime;
                             break;
                         case SearchByField.byProgramId:
-                            if (string.IsNullOrEmpty(args.EpgProgramID))
+                            if (args.EpgProgramIDs.Count == 0)
                                 return false;
                             break;
                         case SearchByField.byChannelId:
@@ -517,13 +517,20 @@ namespace NPVR
                         switch (sbf)
                         {
                             case SearchByField.byAssetId:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
+                                if (args.AssetIDs.Count > 0)
+                                {
+                                    urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.AssetIDs)));
+                                }
+                                else
+                                {
+                                    urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
+                                }
                                 break;
                             case SearchByField.byChannelId:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
                                 break;
                             case SearchByField.byProgramId:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgProgramID));
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs)));
                                 break;
                             case SearchByField.byStartTime:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
@@ -564,6 +571,18 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private string ConvertToMultipleURLParams<T>(List<T> args)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (args != null && args.Count > 0)
+            {
+                for (int i = 0; i < args.Count; i++)
+                    sb.Append(String.Concat(i == 0 ? string.Empty : ",", args[i].ToString()));
+            }
+
+            return sb.ToString();
         }
 
 
