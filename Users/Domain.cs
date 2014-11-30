@@ -681,8 +681,7 @@ namespace Users
             int status = 1;
             int isActive = 1;
 
-            if ((dbTypedUserIDs == null || dbTypedUserIDs.Count == 0) &&
-                (nUserID == nMasterUserGuid))
+            if ((dbTypedUserIDs == null || dbTypedUserIDs.Count == 0) && (nUserID == nMasterUserGuid))
             {
                 int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
 
@@ -691,7 +690,7 @@ namespace Users
                     m_UsersIDs.Add(nUserID);
                     m_masterGUIDs.Add(nUserID);
 
-                    m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
+                   m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
                     eDomainResponseStatus = DomainResponseStatus.OK;
 
                     return DomainResponseStatus.OK;
