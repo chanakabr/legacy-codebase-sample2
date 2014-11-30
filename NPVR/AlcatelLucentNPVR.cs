@@ -943,6 +943,30 @@ namespace NPVR
             return res;
         }
 
+        private void GetRecordSeriesResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
+        {
+            try
+            {
+
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
 
         public NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args)
         {
