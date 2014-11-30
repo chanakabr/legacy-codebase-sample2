@@ -88,7 +88,7 @@ namespace NPVR
                 response.entityID = aluResp.UserID;
                 response.quota = args.Quota;
             }
-            catch (JsonReaderException jsonEx)
+            catch (JsonException jsonEx)
             {
                 // failed to parse it as a json returned upon success. try to parse it as a json returned upon failure.
                 try
@@ -292,7 +292,14 @@ namespace NPVR
                     string errorMsg = string.Empty;
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here the json.
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetGetQuotaDataResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("GetQuotaData. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -316,6 +323,40 @@ namespace NPVR
                 throw;
             }
             return res;
+        }
+
+        private void GetGetQuotaDataResponse(string responseJson, NPVRParamsObj args, NPVRQuotaResponse response)
+        {
+            try
+            {
+                // first try to parse it as a json returned upon success
+                QuotaResponseJSON success = JsonConvert.DeserializeObject<QuotaResponseJSON>(responseJson);
+                response.isOK = true;
+                response.entityID = args.EntityID;
+                response.totalQuota = success.TotalQuota;
+                response.usedQuota = success.OccupiedQuota;
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.isOK = false;
+                    response.entityID = args.EntityID;
+                    response.totalQuota = 0;
+                    response.usedQuota = 0;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Outer catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
         }
 
         private bool IsRecordAssetInputValid(NPVRParamsObj args)
@@ -346,7 +387,15 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetRecordAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("RecordAsset. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+
                     }
                     else
                     {
@@ -370,6 +419,54 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private void GetRecordAssetResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
+        {
+            try
+            {
+                // try to parse it as a json returned upon success
+                RecordAssetResponseJSON success = JsonConvert.DeserializeObject<RecordAssetResponseJSON>(responseJson);
+                response.entityID = args.EntityID;
+                response.status = RecordStatus.OK;
+                response.recordingID = success.RecordingID;
+                response.msg = string.Empty;
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.entityID = args.EntityID;
+                    response.recordingID = string.Empty;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.status = RecordStatus.AssetDoesNotExist;
+                            response.msg = "Asset does not exist.";
+                            break;
+                        case 409:
+                            response.status = RecordStatus.AlreadyRecorded;
+                            response.msg = "Asset is already scheduled or recorded.";
+                            break;
+                        default:
+                            response.status = RecordStatus.Error;
+                            response.msg = "Unknown error";
+                            break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRecordAssetResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRecordAssetResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
         }
 
         private bool IsCancelDeleteAssetInputValid(NPVRParamsObj args)
@@ -614,6 +711,42 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private void GetSetAssetProtectionStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.entityID = args.EntityID;
+                response.msg = string.Empty;
+                response.recordingID = args.AssetID;
+                response.status = args.IsProtect ? ProtectStatus.Protected : ProtectStatus.NotProtected;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.entityID = args.EntityID;
+                    response.msg = error.Description;
+                    response.recordingID = args.AssetID;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.status = ProtectStatus.RecordingDoesNotExist;
+                            break;
+                        default:
+                            response.status = ProtectStatus.Error;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetProtectionStatusResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    throw;
+                }
+            }
         }
 
         private bool IsRetrieveAssetsInputValid(NPVRRetrieveParamsObj args, ref ulong uniqueSearchBy)
