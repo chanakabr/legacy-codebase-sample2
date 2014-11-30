@@ -150,14 +150,8 @@ namespace Users
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
                 bool res  = device.Initialize(sUDID, sDeviceName);
-                if (res)
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
-                }
-                else
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DeviceNotExists;
-                }
+                
+                oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
             return oDomainResponseObject;
