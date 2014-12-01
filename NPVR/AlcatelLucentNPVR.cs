@@ -24,6 +24,7 @@ namespace NPVR
         private static readonly Regex JSON_UNBEAUTIFIER = new Regex("[\r\n\t ]");
         private static readonly string EMPTY_JSON = "{}";
         private static readonly int HTTP_STATUS_OK = 200;
+        private static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
 
         private static readonly string ALU_GENERIC_BODY = "scheduler/web/";
         private static readonly string ALU_ENDPOINT_RECORD = "Record/";
@@ -687,7 +688,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetSetAssetProtectionStatusResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("SetAssetProtectionStatus. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -819,6 +827,7 @@ namespace NPVR
                     else
                     {
                         // bring all. just for readability. no code is supposed to be here.
+
                     }
 
                     IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
@@ -863,7 +872,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-
+                            GetRetrieveAssetsResponse(responseJson, args, res);
                         }
                         else
                         {
@@ -927,12 +936,20 @@ namespace NPVR
 
         private string GetEndTime(EntryJSON entry)
         {
-            throw new NotImplementedException();
+            long unixTime = 0;
+            if (!string.IsNullOrEmpty(entry.EndTime) && Int64.TryParse(entry.EndTime, out unixTime))
+                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).ToString(DATE_FORMAT);
+            if (entry.Duration > 0 && !string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
+                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).AddSeconds(entry.Duration).ToString(DATE_FORMAT);
+            return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
         private string GetStartTime(EntryJSON entry)
         {
-            throw new NotImplementedException();
+            long unixTime = 0;
+            if (!string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
+                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).ToString(DATE_FORMAT);
+            return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
         private void GetRetrieveAssetsResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveAssetsResponse response)
@@ -1011,7 +1028,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here the json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetRecordSeriesResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("RecordSeries. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -1041,22 +1065,42 @@ namespace NPVR
         {
             try
             {
-
+                RecordSeriesResponseJSON success = JsonConvert.DeserializeObject<RecordSeriesResponseJSON>(responseJson);
+                response.entityID = args.EntityID;
+                response.msg = string.Empty;
+                response.status = RecordStatus.OK;
+                response.recordingID = success.RecordingID;
             }
             catch (JsonException jsonEx)
             {
                 try
                 {
-
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.recordingID = string.Empty;
+                    response.msg = error.Description;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.status = RecordStatus.AssetDoesNotExist;
+                            break;
+                        case 409:
+                            response.status = RecordStatus.AlreadyRecorded;
+                            break;
+                        default:
+                            response.status = RecordStatus.Error;
+                            break;
+                    }
                 }
                 catch (Exception ex)
                 {
-
+                    Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                    throw;
                 }
             }
             catch (Exception ex)
             {
-
+                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Outer catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                throw;
             }
         }
 
