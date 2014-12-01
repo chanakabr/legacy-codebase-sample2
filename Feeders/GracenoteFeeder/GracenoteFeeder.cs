@@ -335,6 +335,12 @@ namespace GracenoteFeeder
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskEPG");
             string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyEPG");
             string compressedXML = Utils.Compress(XMLDoc.InnerXml);
+            string sUrlALUCheck = TVinciShared.WS_Utils.GetTcmConfigValue("alcatelLucentHostCheck");
+            string sUrlALUSend = TVinciShared.WS_Utils.GetTcmConfigValue("alcatelLucentHostSend");
+
+            args.Add(GroupID);
+            args.Add(sUrlALUCheck);
+            args.Add(sUrlALUSend);
             args.Add(compressedXML);
 
             BaseCeleryData data = new BaseCeleryData(id, task, args);
