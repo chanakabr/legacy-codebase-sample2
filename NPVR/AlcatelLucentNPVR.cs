@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using NPVR.AlcatelLucentResponses;
 using System;
 using System.Collections.Generic;
@@ -889,11 +890,63 @@ namespace NPVR
             return res;
         }
 
+        private List<RecordedEPGChannelProgrammeObject> ParseALUReadResponse(ReadResponseJSON aluResponse)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
+            if (aluResponse != null &&  aluResponse.entries != null && aluResponse.entries.Count > 0)
+            {
+                foreach (EntryJSON entry in aluResponse.entries)
+                {
+                    RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
+                    obj.RecordingID = entry.AssetID;
+                    obj.IsAssetProtected = entry.Protected;
+                    obj.ChannelName = entry.ChannelName;
+                    obj.DESCRIPTION = entry.Description;
+                    obj.START_DATE = GetStartTime(entry);
+                    obj.END_DATE = GetEndTime(entry);
+                    obj.EPG_CHANNEL_ID = entry.ChannelID;
+                    obj.EPG_ID = 0;
+                    obj.EPG_IDENTIFIER = entry.ProgramID;
+                    obj.EPG_Meta = new List<EPGDictionary>();
+                    obj.EPG_TAGS = new List<EPGDictionary>();
+                    obj.GROUP_ID = groupID.ToString();
+                    obj.IS_ACTIVE = "true";
+                    obj.LIKE_COUNTER = 0;
+                    obj.media_id = string.Empty;
+                    obj.NAME = entry.Name;
+                    obj.PIC_URL = entry.Thumbnail;
+                    obj.PUBLISH_DATE = string.Empty;
+                    obj.STATUS = entry.Status;
+                    res.Add(obj);
+
+                }
+            }
+
+            return res;
+        }
+
+        private string GetEndTime(EntryJSON entry)
+        {
+            throw new NotImplementedException();
+        }
+
+        private string GetStartTime(EntryJSON entry)
+        {
+            throw new NotImplementedException();
+        }
+
         private void GetRetrieveAssetsResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveAssetsResponse response)
         {
             try
             {
                 ReadResponseJSON success = JsonConvert.DeserializeObject<ReadResponseJSON>(responseJson);
+                response.entityID = args.EntityID;
+                response.isOK = true;
+                response.msg = string.Empty;
+                response.totalItems = success.EntriesLength;
+                response.results = ParseALUReadResponse(success);
+
+
 
             }
             catch (JsonException jsonEx)
@@ -901,6 +954,13 @@ namespace NPVR
                 try
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.isOK = false;
+                    response.entityID = args.EntityID;
+                    response.msg = error.Description;
+                    response.totalItems = 0;
+                    response.results = new List<RecordedEPGChannelProgrammeObject>(0);
+
+                    Logger.Logger.Log("Error", GetLogMsg(string.Format("An error occurred while trying to retrieve assets from ALU. Resp JSON: {0}", responseJson), args, null), GetLogFilename());
 
                 }
                 catch (Exception ex)
