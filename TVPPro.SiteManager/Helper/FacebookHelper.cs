@@ -13,19 +13,18 @@ namespace TVPPro.SiteManager.Helper
 {
     public class FacebookHelper
     {
+        class FacebookUserCachedData
+        {
+            public string userID;
+            public int domainID;
+            public string deviceDNA;
+            public string _sToken;
 
+            public Dictionary<string, object> config;
+            public Dictionary<string, object> userData;
+            public Dictionary<USER_ACTIONS, object> userActions = new Dictionary<USER_ACTIONS, object>();
+        }
 
-        public static bool IsFBConfigured = false;
-
-        static bool useTVPAPI = true;
-        static string userID;
-        static int domainID;
-        static string deviceDNA;
-        static string _sToken;
-
-        static Dictionary<string, object> config;
-        static Dictionary<string, object> userData;
-        public static Dictionary<USER_ACTIONS, object> userActions = new Dictionary<USER_ACTIONS, object>();
         public enum SOCIAL_PLATFORMS
         {
             UNKNOWN,
@@ -69,7 +68,31 @@ namespace TVPPro.SiteManager.Helper
             DONT_ALLOW
         }
 
+        public static bool IsFBConfigured
+        {
+            get
+            {
+                return SessionHelper.IsValueInSession(SessionHelper.SessionKeys.FacebookUserConfiguration);
+            }
+        }
 
+        public static Dictionary<USER_ACTIONS, object> userActions
+        {
+            get
+            {
+                if (IsFBConfigured)
+                {
+                    var fbConfig = getFacebookUserConfigurations();
+                    return fbConfig.userActions;
+                }
+                else
+                {
+                    return new Dictionary<USER_ACTIONS, object>();
+                }
+            }
+        }
+
+        public static bool useTVPAPI = true;
 
         private static void SetUserSocialPrivacy()
         {
@@ -85,21 +108,13 @@ namespace TVPPro.SiteManager.Helper
             // make the request
             if (useTVPAPI)
             {
-                var response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.SetUserSocialPrivacy, new JavaScriptSerializer().Serialize(postData));
-            }
-            else
-            {
-
+                TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.SetUserSocialPrivacy, new JavaScriptSerializer().Serialize(postData));
             }
         }
 
         public static string SetUserExternalActionShare(USER_ACTIONS UserAction, ACTION_PRIVACY ActionPrivacy)
         {
-            var response = "";
-            // prepare the postData
-            userID = UsersService.Instance.GetUserID();
-            domainID = UsersService.Instance.GetDomainID();
-            deviceDNA = DeviceDNAHelper.GetDeviceDNA();
+            string response = string.Empty;
 
             var postData = new
             {
@@ -114,6 +129,7 @@ namespace TVPPro.SiteManager.Helper
             {
                 response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.SetUserExternalActionShare, new JavaScriptSerializer().Serialize(postData));
             }
+
             return response;
         }
 
@@ -125,11 +141,7 @@ namespace TVPPro.SiteManager.Helper
 
         public static string GetUserExternalActionShare(USER_ACTIONS UserAction)
         {
-            var response = "";
-            // prepare the postData
-            userID = UsersService.Instance.GetUserID();
-            domainID = UsersService.Instance.GetDomainID();
-            deviceDNA = DeviceDNAHelper.GetDeviceDNA();
+            string response = string.Empty;
 
             var postData = new
             {
@@ -143,53 +155,69 @@ namespace TVPPro.SiteManager.Helper
             {
                 response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.GetUserExternalActionShare, new JavaScriptSerializer().Serialize(postData));
             }
+
             return response;
         }
 
-
         public static string DoUserAction(string action, int assetID = 0, string extraParams = null)
         {
+            return DoUserAction(action, assetID, extraParams, null);
+        }
+
+        public static string DoUserAction(string action, int assetID = 0, string extraParams = null, string assetType = null)
+        {
+            string response = string.Empty;
+
             USER_ACTIONS _action = (USER_ACTIONS)Enum.Parse(typeof(USER_ACTIONS), action, true);
-
-            var response = string.Empty;
-
-            if (useTVPAPI)
+            USER_ACTIONS actionEnum = (USER_ACTIONS)Enum.Parse(typeof(USER_ACTIONS), action, true);
+            string socialPlatform = SOCIAL_PLATFORMS.FACEBOOK.ToString();
+            string assetTypeName = (string.IsNullOrEmpty(assetType)) ? ASSET_TYPES.MEDIA.ToString() : ((ASSET_TYPES)Enum.Parse(typeof(ASSET_TYPES), assetType, true)).ToString();
+            if (IsFBConfigured)
             {
-                // prepare the postData
-                var postData = new
+                var fbConfig = getFacebookUserConfigurations();
+                if (useTVPAPI)
                 {
-                    userAction = _action.ToString(),
-                    initObj = getInitObj(),
-                    extraParams = new JavaScriptSerializer().DeserializeObject(extraParams),
-                    socialPlatform = SOCIAL_PLATFORMS.FACEBOOK.ToString(),
-                    assetType = ASSET_TYPES.MEDIA.ToString(),
-                    assetID = assetID
-                };
-                // make the request
-                response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.DoUserAction, new JavaScriptSerializer().Serialize(postData));
+                    // prepare the postData
+                    var postData = new
+                    {
+                        userAction = _action.ToString(),
+                        initObj = getInitObj(),
+                        extraParams = new JavaScriptSerializer().DeserializeObject(extraParams),
+                        socialPlatform = SOCIAL_PLATFORMS.FACEBOOK.ToString(),
+                        assetType = assetTypeName,
+                        assetID = assetID
+                    };
+                    // make the request
+                    response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.DoUserAction, new JavaScriptSerializer().Serialize(postData));
+                }
+                else
+                {
+                    TvinciPlatform.Social.eUserAction userAction = (TvinciPlatform.Social.eUserAction)Enum.Parse(typeof(TvinciPlatform.Social.eUserAction), _action.ToString());
+                    response = SocialService.Instance.DoSocialAction(assetID, fbConfig.userID, userAction, TvinciPlatform.Social.SocialPlatform.FACEBOOK, string.Empty);
+                }
             }
-            else
-            {
-                TvinciPlatform.Social.eUserAction userAction = (TvinciPlatform.Social.eUserAction)Enum.Parse(typeof(TvinciPlatform.Social.eUserAction), _action.ToString());
-                response = SocialService.Instance.DoSocialAction(assetID, userID, userAction, TvinciPlatform.Social.SocialPlatform.FACEBOOK, string.Empty);
-            }
-
-
             // return the response
             return response;
         }
 
         public static void SetFBConfig(string UserID, int DomainID, string DeviceDNA, bool UseTVPAPI)
         {
-            // save props
-            userID = UserID;
-            domainID = DomainID;
-            deviceDNA = DeviceDNA;
+            FacebookUserCachedData currentUserFBConfig = null;
             useTVPAPI = UseTVPAPI;
-
-            if (!string.IsNullOrEmpty(userID) && domainID != null && !string.IsNullOrEmpty(deviceDNA))
+            // save props
+            if (!SessionHelper.IsValueInSession(SessionHelper.SessionKeys.FacebookUserConfiguration))
             {
-                IsFBConfigured = true;
+                if (!string.IsNullOrEmpty(UserID) && !string.IsNullOrEmpty(DeviceDNA))
+                {
+                    currentUserFBConfig = new FacebookUserCachedData()
+                    {
+                        userID = UserID,
+                        domainID = DomainID,
+                        deviceDNA = DeviceDNA,
+
+                    };
+                    SessionHelper.SetValueInSession(SessionHelper.SessionKeys.FacebookUserConfiguration, currentUserFBConfig);
+                }
             }
         }
 
@@ -200,93 +228,110 @@ namespace TVPPro.SiteManager.Helper
 
         public static string GetFBConfig()
         {
-            if (useTVPAPI)
+            string response = string.Empty;
+
+            if (IsFBConfigured)
             {
-                // prepare the postData
-                var postData = new
+                var fbConfig = getFacebookUserConfigurations();
+                if (useTVPAPI)
                 {
-                    sSTG = 1,
-                    initObj = getInitObj(),
-                };
+                    // prepare the postData
+                    var postData = new
+                    {
+                        sSTG = 1,
+                        initObj = getInitObj(),
+                    };
 
-                // make the request
-                var response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.FBConfig, new JavaScriptSerializer().Serialize(postData));
+                    // make the request
+                    response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.FBConfig, new JavaScriptSerializer().Serialize(postData));
 
-                //deserialize the response
-                var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
-                config = deserializedResponse as Dictionary<string, object>;
-
-                // return the response
-                return response;
-            }
-            else
-            {
-                // make the request
-                TvinciPlatform.Social.FacebookConfig response = SocialService.Instance.getFBConfig();
-
-                if (config == null)
-                {
-                    config = new Dictionary<string, object>();
-                    config.Add("appId", response.sFBKey);
-                    config.Add("scope", response.sFBPermissions);
+                    //deserialize the response
+                    var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
+                    fbConfig.config = deserializedResponse as Dictionary<string, object>;
                 }
+                else
+                {
+                    // make the request
+                    TvinciPlatform.Social.FacebookConfig fbConfigResponse = SocialService.Instance.getFBConfig();
 
-                // return the response
-                return new JavaScriptSerializer().Serialize(config);
+                    if (fbConfig.config == null)
+                    {
+                        fbConfig.config = new Dictionary<string, object>();
+                        fbConfig.config.Add("appId", fbConfigResponse.sFBKey);
+                        fbConfig.config.Add("scope", fbConfigResponse.sFBPermissions);
+                    }
+
+                    // return the response
+                    response = new JavaScriptSerializer().Serialize(fbConfig.config);
+                }
             }
+            // return the response
+            return response;
         }
 
         public static string getFBUserData(string sToken)
         {
-            SetUserSocialPrivacy();
-            SetUserExternalActionShare();
+            string response = string.Empty;
 
-            _sToken = sToken;
-            if (useTVPAPI)
+            //SetUserSocialPrivacy();
+            //SetUserExternalActionShare();
+            if (IsFBConfigured)
             {
-                // prepare the postData
-                var postData = new
+                var fbConfig = getFacebookUserConfigurations();
+                fbConfig._sToken = sToken;
+                if (useTVPAPI)
                 {
-                    sSTG = 1,
-                    sToken = _sToken,
-                    initObj = getInitObj()
-                };
+                    // prepare the postData
+                    var postData = new
+                    {
+                        sSTG = 1,
+                        sToken = fbConfig._sToken,
+                        initObj = getInitObj()
+                    };
 
-                // make the request
-                var response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.GetFBUserData, new JavaScriptSerializer().Serialize(postData));
+                    // make the request
+                    response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.GetFBUserData, new JavaScriptSerializer().Serialize(postData));
 
-                //deserialize the response
-                var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
-                userData = deserializedResponse as Dictionary<string, object>;
+                    //deserialize the response
+                    var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
+                    fbConfig.userData = deserializedResponse as Dictionary<string, object>;
+                }
+                else
+                {
+                    // make the request
+                    TvinciPlatform.Social.FacebookResponseObject FbResponse = SocialService.Instance.getFBUserData(fbConfig._sToken);
 
-                // return the response
-                return response;
+                    fbConfig.userData = new Dictionary<string, object>();
+                    fbConfig.userData.Add("data", FbResponse.data);
+                    fbConfig.userData.Add("facebookName", FbResponse.facebookName);
+                    fbConfig.userData.Add("fbUser", FbResponse.fbUser);
+                    fbConfig.userData.Add("minFriends", FbResponse.minFriends);
+                    fbConfig.userData.Add("pic", FbResponse.pic);
+                    fbConfig.userData.Add("siteGuid", FbResponse.siteGuid);
+                    fbConfig.userData.Add("status", FbResponse.status);
+                    fbConfig.userData.Add("token", fbConfig._sToken);
+                    fbConfig.userData.Add("tvinciName", FbResponse.tvinciName);
 
+                    // return the response
+                    response = new JavaScriptSerializer().Serialize(fbConfig.userData);
+                }
             }
-            else
-            {
-                // make the request
-                TvinciPlatform.Social.FacebookResponseObject response = SocialService.Instance.getFBUserData(_sToken);
-
-                userData = new Dictionary<string, object>();
-                userData.Add("data", response.data);
-                userData.Add("facebookName", response.facebookName);
-                userData.Add("fbUser", response.fbUser);
-                userData.Add("minFriends", response.minFriends);
-                userData.Add("pic", response.pic);
-                userData.Add("siteGuid", response.siteGuid);
-                userData.Add("status", response.status);
-                userData.Add("token", _sToken);
-                userData.Add("tvinciName", response.tvinciName);
-
-                // return the response
-                return new JavaScriptSerializer().Serialize(userData);
-            }
+            // return the response
+            return response;
         }
 
-        public static string getFBUserAction(USER_ACTIONS action, int assetID, ASSET_TYPES assetType = ASSET_TYPES.UNKNOWN)
+        public static string GetFBUserAction(string action, int assetId, string assetTypeName)
         {
-            var response = "";
+            USER_ACTIONS actionValue = (USER_ACTIONS)Enum.Parse(typeof(USER_ACTIONS), action, true);
+            ASSET_TYPES assetType = (string.IsNullOrEmpty(assetTypeName)) ? ASSET_TYPES.MEDIA : ((ASSET_TYPES)Enum.Parse(typeof(ASSET_TYPES), assetTypeName, true));
+
+            return GetFBUserAction(actionValue, assetId, assetType);
+        }
+
+
+        public static string GetFBUserAction(USER_ACTIONS action, int assetID, ASSET_TYPES assetType = ASSET_TYPES.UNKNOWN)
+        {
+            string response = string.Empty;
             // prepare the postData
             var postData = new
             {
@@ -294,12 +339,12 @@ namespace TVPPro.SiteManager.Helper
                 initObj = getInitObj(),
                 socialPlatform = SOCIAL_PLATFORMS.FACEBOOK,
                 assetType = assetType,
-                assetID = 0,
+                assetID = assetID,
                 numOfRecords = 0,
                 startIndex = 0
             };
 
-            if (!userActions.ContainsKey(USER_ACTIONS.LIKE))
+            if (!userActions.ContainsKey(action))
             {
                 // make the request
                 response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.GetUserActions, new JavaScriptSerializer().Serialize(postData));
@@ -311,7 +356,6 @@ namespace TVPPro.SiteManager.Helper
             }
             else
             {
-
                 // make the request
                 response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.GetUserActions, new JavaScriptSerializer().Serialize(postData));
 
@@ -320,60 +364,78 @@ namespace TVPPro.SiteManager.Helper
                 userActions[action] = deserializedResponse;
             }
 
-
             // return the response
             return response;
         }
 
         private static object getInitObj()
         {
-            return new
-                    {
-                        Locale = new
+            if (IsFBConfigured)
+            {
+                var fbConfig = getFacebookUserConfigurations();
+                return new
                         {
-                            LocaleLanguage = "",
-                            LocaleCountry = "",
-                            LocaleDevice = "",
-                            LocaleUserState = "Unknown"
-                        },
-                        Platform = "iPad",
-                        SiteGuid = userID,
-                        DomainID = domainID,
-                        UDID = deviceDNA,
-                        ApiUser = "tvpapi_153",
-                        ApiPass = "11111"
-                    };
+                            Locale = new
+                            {
+                                LocaleLanguage = "",
+                                LocaleCountry = "",
+                                LocaleDevice = "",
+                                LocaleUserState = "Unknown"
+                            },
+                            Platform = "iPad",
+                            SiteGuid = fbConfig.userID,
+                            DomainID = fbConfig.domainID,
+                            UDID = fbConfig.deviceDNA,
+                            ApiUser = "tvpapi_153",
+                            ApiPass = "11111"
+                        };
+            }
+            return null;
         }
 
         public static string FBUserMerge(string username, string password)
         {
-            string FBID = (string)((Dictionary<string, object>)userData["fbUser"])["uid"];
-            if (useTVPAPI)
+            string response = string.Empty;
+
+            if (IsFBConfigured)
             {
-                // prepare the postData
-                var postData = new
+                var fbconfig = getFacebookUserConfigurations();
+                string FBID = (string)((Dictionary<string, object>)fbconfig.userData["fbUser"])["uid"];
+                if (useTVPAPI)
                 {
-                    sFBID = FBID,
-                    sUsername = username,
-                    sPassword = password,
-                    sToken = _sToken,
-                    initObj = getInitObj()
-                };
+                    // prepare the postData
+                    var postData = new
+                    {
+                        sFBID = FBID,
+                        sUsername = username,
+                        sPassword = password,
+                        sToken = fbconfig._sToken,
+                        initObj = getInitObj()
+                    };
 
-                // make the request
-                var response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.FBUserMerge, new JavaScriptSerializer().Serialize(postData));
+                    // make the request
+                    response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.FBUserMerge, new JavaScriptSerializer().Serialize(postData));
+                }
+                else
+                {
+                    TvinciPlatform.Social.FacebookResponseObject fbResponse = SocialService.Instance.FBUserMerge
+                        (fbconfig._sToken, FBID, username, password);
 
-                // return the response
-                return response;
+                    // return the response
+                    response = new JavaScriptSerializer().Serialize(fbResponse);
+                }
             }
-            else
-            {
-                TvinciPlatform.Social.FacebookResponseObject response = SocialService.Instance.FBUserMerge
-                    (_sToken, FBID, username, password);
+            return response;
+        }
 
-                // return the response
-                return new JavaScriptSerializer().Serialize(response);
-            }
+        private static FacebookUserCachedData getFacebookUserConfigurations()
+        {
+            FacebookUserCachedData fbConfig = null;
+            SessionHelper.GetValueFromSession<FacebookUserCachedData>(SessionHelper.SessionKeys.FacebookUserConfiguration, out fbConfig);
+
+            return fbConfig;
         }
     }
+
+
 }

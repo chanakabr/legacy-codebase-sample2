@@ -337,13 +337,42 @@ namespace TVPPro.SiteManager.Helper
             }
         }
 
+        private static string TryGetDeviceDNA()
+        {
+            string value = string.Empty;
+            try
+            {
+                SessionHelper.GetValueFromSession<string>("DeviceDNA", out value);
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    value = System.Web.HttpContext.Current.Request.Headers["X-DeviceDNA-UDID"];
+
+                    // This is for development purposes 
+                    if (!string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["deviceDNA_OR"]))
+                    {
+                        value = System.Configuration.ConfigurationManager.AppSettings["deviceDNA_OR"];
+                    }
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        DeviceDNA = value;
+                    }
+                }
+            }
+            catch
+            {
+                value = string.Empty;
+            }
+
+            return value;
+        }
+
         public static string DeviceDNA
         {
             get
             {
-                string retVal = string.Empty;
-                GetValueFromSession<string>("DeviceDNA", out retVal);
-                return retVal;
+                return TryGetDeviceDNA();
             }
             set
             {
@@ -430,6 +459,14 @@ namespace TVPPro.SiteManager.Helper
 
         }
 
+        public static void RemoveValueInSession(string key)
+        {
+            if (IsValueInSession(key))
+            {
+                HttpContext.Current.Session.Remove(key);
+            }
+        }
+
         public static TvinciPlatform.Users.Country IPCountry
         {
             get
@@ -442,6 +479,15 @@ namespace TVPPro.SiteManager.Helper
             {
                 SetValueInSession("IPCountry", value);
             }
+        }
+
+        public class SessionKeys
+        {
+            public const string UserPassword = "I";
+            public const string UserName = "username";
+            public const string KeepSessionAlive = "KeepSessionAlive";
+            public const string FacebookUserConfiguration = "FBUser";
+            public const string UsermIsDomainMaster = "UsermIsDomainMaster";
         }
     }
 }
