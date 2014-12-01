@@ -860,7 +860,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
 
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("RetrieveAssets. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -870,7 +877,7 @@ namespace NPVR
                 }
                 else
                 {
-                    throw new ArgumentException("Input is invalid.");
+                    throw new ArgumentException("RetrieveAssets. Input is invalid.");
                 }
             }
             catch (Exception ex)
@@ -880,6 +887,33 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private void GetRetrieveAssetsResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveAssetsResponse response)
+        {
+            try
+            {
+                ReadResponseJSON success = JsonConvert.DeserializeObject<ReadResponseJSON>(responseJson);
+
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse. Outer catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
         }
 
         private string ConvertToMultipleURLParams<T>(List<T> args)

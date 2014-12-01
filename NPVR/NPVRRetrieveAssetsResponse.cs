@@ -7,5 +7,8 @@ namespace NPVR
 {
     public class NPVRRetrieveAssetsResponse
     {
+        public string entityID;
+        public int totalItems;
+
     }
 }

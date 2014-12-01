@@ -88,4 +88,11 @@ namespace ApiObjects
             EPGChannelProgrammeObject = oEPGChannelProgrammeObject;
         }
     }
+
+    public class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject
+    {
+        public string RecordingID;
+        public bool IsAssetProtected;
+        public string ChannelName;
+    }
 }
