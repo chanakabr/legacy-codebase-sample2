@@ -46,8 +46,10 @@
   <ItemGroup>
     <Compile Include="AlcatelLucentNPVR.cs" />
     <Compile Include="AlcatelLucentResponses\CreateAccountResponseJSON.cs" />
+    <Compile Include="AlcatelLucentResponses\EntryJSON.cs" />
     <Compile Include="AlcatelLucentResponses\GenericFailureResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\QuotaResponseJSON.cs" />
+    <Compile Include="AlcatelLucentResponses\ReadResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordAssetResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordSeriesResponseJSON.cs" />
     <Compile Include="enums.cs" />

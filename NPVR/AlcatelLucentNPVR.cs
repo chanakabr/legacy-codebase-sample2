@@ -989,6 +989,14 @@ namespace NPVR
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetCancelAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("CancelSeries. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
@@ -1033,7 +1041,14 @@ namespace NPVR
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
-                        // parse here json
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetDeleteAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("DeleteSeries. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
                     }
                     else
                     {
