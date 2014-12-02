@@ -370,11 +370,11 @@ namespace TVPPro.SiteManager.Helper
 
         public static string FBTokenValidation(string sToken)
         {
-            string response = string.Empty;
+            string response;
             TvinciPlatform.Social.FacebookTokenResponse fbResponse = SocialService.Instance.FBTokenValidation(sToken);
 
             // return the response
-            response = (fbResponse != null) ? new JavaScriptSerializer().Serialize(fbResponse) : response;
+            response = (fbResponse != null) ? new JavaScriptSerializer().Serialize(fbResponse) : null;
             return response;
         }
 
@@ -433,6 +433,17 @@ namespace TVPPro.SiteManager.Helper
 
                     // return the response
                     response = new JavaScriptSerializer().Serialize(fbResponse);
+                }
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    //deserialize the response
+                    var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
+                    var userData = deserializedResponse as Dictionary<string, object>;
+                    if (userData.ContainsKey("status") && userData["status"] == "MERGEOK")
+                    {
+                        fbconfig.userData = userData;
+                    }
                 }
             }
             return response;
