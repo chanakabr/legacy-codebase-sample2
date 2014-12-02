@@ -368,6 +368,16 @@ namespace TVPPro.SiteManager.Helper
             return response;
         }
 
+        public static string FBTokenValidation(string sToken)
+        {
+            string response = string.Empty;
+            TvinciPlatform.Social.FacebookTokenResponse fbResponse = SocialService.Instance.FBTokenValidation(sToken);
+
+            // return the response
+            response = (fbResponse != null) ? new JavaScriptSerializer().Serialize(fbResponse) : response;
+            return response;
+        }
+
         private static object getInitObj()
         {
             if (IsFBConfigured)
