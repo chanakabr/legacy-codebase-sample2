@@ -106,9 +106,9 @@
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EPG_XDTVTransform\EPG_XDTVTransformHandler.csproj">
+    <ProjectReference Include="..\EPG_XDTVTransform\EPG_XDTVTransform.csproj">
       <Project>{4f57cbcf-abec-4645-a01a-3001f6be5c15}</Project>
-      <Name>EPG_XDTVTransformHandler</Name>
+      <Name>EPG_XDTVTransform</Name>
     </ProjectReference>
     <ProjectReference Include="..\ESIndexRebuildHandler\ESIndexRebuildHandler.csproj">
       <Project>{4f2abad8-e96e-4687-b8bc-210b44f4aa59}</Project>

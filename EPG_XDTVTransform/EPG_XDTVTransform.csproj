@@ -7,8 +7,8 @@
     <ProjectGuid>{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EPG_XDTVTransformHandler</RootNamespace>
-    <AssemblyName>EPG_XDTVTransformHandler</AssemblyName>
+    <RootNamespace>EPG_XDTVTransform</RootNamespace>
+    <AssemblyName>EPG_XDTVTransform</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EPG_XDTVTransformRequest.cs" />
+    <Compile Include="EPG_XDTVTransformResponse.cs" />
     <Compile Include="GraceNoteAdapter.cs" />
     <Compile Include="GraceNoteTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
