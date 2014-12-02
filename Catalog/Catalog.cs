@@ -2047,7 +2047,7 @@ namespace Catalog
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
-                        {
+                         {
                             /*
                              * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
                              */

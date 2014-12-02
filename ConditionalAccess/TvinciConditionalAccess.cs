@@ -443,10 +443,6 @@ namespace ConditionalAccess
             return bDummy;
         }
 
-
-
-
-
         public override string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
@@ -454,14 +450,32 @@ namespace ConditionalAccess
             TvinciAPI.API api = null;
             try
             {
+                if (!Enum.IsDefined(typeof(eEPGFormatType), format))
+                {
+                    throw new ArgumentException(String.Concat("Unknown format. Format: ", format));
+                }
+                eEPGFormatType eformat = (eEPGFormatType)format;
+                if (eformat == eEPGFormatType.NPVR)
+                {
+                    /*
+                     * 2.12.14
+                     * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)
+                     * CalcNPVRLicensedLink returns string.Empty unless it is Vodafone. Meaning, that if the account is not Vodafone,
+                     * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
+                     */ 
+                    string npvrLicensedLink = CalcNPVRLicensedLink(nProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
+                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                    if (npvrLicensedLink.Length > 0)
+                    {
+                        return npvrLicensedLink;
+                    }
+                }
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
-                    Logger.Logger.Log("LicensedLink",
-                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
-                    return string.Empty;
+                    throw new Exception("GetLicensedLinks returned empty response.");
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
@@ -482,7 +496,7 @@ namespace ConditionalAccess
                 if (scheduling != null)
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
-                    eEPGFormatType eformat = (eEPGFormatType)format;
+                    
                     dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
                     switch (eformat)
                     {
@@ -495,8 +509,26 @@ namespace ConditionalAccess
                         case eEPGFormatType.LivePause:
                             dURLParams.Add(EpgLinkConstants.PROGRAM_START, dStartTime);
                             break;
+                        case eEPGFormatType.NPVR:
                         default:
-                            break;
+                            {
+                                #region Logging
+                                StringBuilder sb = new StringBuilder(String.Concat("Error. Flow not implemented for format: ", eformat.ToString()));
+                                sb.Append(String.Concat(" P ID: ", nProgramId));
+                                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
+                                sb.Append(String.Concat(" SG :", sSiteGUID));
+                                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                                sb.Append(String.Concat(" BL: ", sBasicLink));
+                                sb.Append(String.Concat(" U IP: ", sUserIP));
+                                sb.Append(String.Concat(" Ref: ", sRefferer));
+                                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
+                                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
+                                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                #endregion
+                                break;
+                            }
                     }
                 }
                 else
@@ -528,9 +560,22 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEPGLink",
-                       string.Format("GetEPGLink return empty ex ={0}, programID={1}, sSiteGUID={2}, sBasicLink={3}, eEPGFormatType={4}", ex.Message, nProgramId, sSiteGUID, sBasicLink, format),
-                       "GetEPGLink");
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetEPGLink. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" P ID: ", nProgramId));
+                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
+                sb.Append(String.Concat(" SG :", sSiteGUID));
+                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                sb.Append(String.Concat(" BL: ", sBasicLink));
+                sb.Append(String.Concat(" U IP: ", sUserIP));
+                sb.Append(String.Concat(" Ref: ", sRefferer));
+                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
+                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 return string.Empty;
             }
             finally

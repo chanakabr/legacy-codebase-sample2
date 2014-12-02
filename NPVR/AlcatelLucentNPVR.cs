@@ -39,6 +39,7 @@ namespace NPVR
         private static readonly string ALU_DELETE_COMMAND = "delete";
         private static readonly string ALU_UPDATE_FIELD_COMMAND = "updateField";
         private static readonly string ALU_READ_COMMAND = "read";
+        private static readonly string ALU_GET_LOCATOR_COMMAND = "getLocator";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
@@ -54,6 +55,8 @@ namespace NPVR
         private static readonly string ALU_ENTRIES_START_INDEX_URL_PARAM = "entriesStartIndex";
         private static readonly string ALU_ENTRIES_PAGE_SIZE_URL_PARAM = "entriesPageSize";
         private static readonly string ALU_ID_URL_PARAM = "id";
+        private static readonly string ALU_STREAM_TYPE_URL_PARAM = "streamType";
+        private static readonly string ALU_HAS_FORMAT_URL_PARAM = "HASFormat";
 
         private int groupID;
 
@@ -902,7 +905,7 @@ namespace NPVR
         private List<RecordedEPGChannelProgrammeObject> ParseALUReadResponse(ReadResponseJSON aluResponse)
         {
             List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
-            if (aluResponse != null &&  aluResponse.entries != null && aluResponse.entries.Count > 0)
+            if (aluResponse != null && aluResponse.entries != null && aluResponse.entries.Count > 0)
             {
                 foreach (EntryJSON entry in aluResponse.entries)
                 {
@@ -1206,6 +1209,67 @@ namespace NPVR
             {
                 Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteSeries.", args, ex), GetLogFilename());
                 throw;
+            }
+
+            return res;
+        }
+
+        private bool IsLicensedLinkInputValid(NPVRParamsObj args)
+        {
+            if (!string.IsNullOrEmpty(args.AssetID))
+                return !(string.IsNullOrEmpty(args.HASFormat) ^ string.IsNullOrEmpty(args.StreamType));
+            return false;
+        }
+
+        public NPVRLicensedLinkResponse GetNPVRLicensedLink(NPVRParamsObj args)
+        {
+            NPVRLicensedLinkResponse res = new NPVRLicensedLinkResponse();
+            try
+            {
+                if (IsLicensedLinkInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+                    if (!string.IsNullOrEmpty(args.StreamType) && !string.IsNullOrEmpty(args.HASFormat))
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_STREAM_TYPE_URL_PARAM, args.StreamType));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_HAS_FORMAT_URL_PARAM, args.HASFormat));
+                    }
+
+                    string url = BuildRestCommand(ALU_GET_LOCATOR_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+
+                    }
+
+                }
+                else
+                {
+                    throw new ArgumentException("GetNPVRLicensedLink input is invalid.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+
             }
 
             return res;

@@ -104,7 +104,8 @@ namespace ConditionalAccess
     {
         Catchup,
         StartOver,
-        LivePause
+        LivePause,
+        NPVR
     }
 
     public enum eStreamType

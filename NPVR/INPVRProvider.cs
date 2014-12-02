@@ -29,5 +29,8 @@ namespace NPVR
         NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args);
 
         NPVRCancelDeleteResponse DeleteSeries(NPVRParamsObj args);
+
+        NPVRLicensedLinkResponse GetNPVRLicensedLink(NPVRParamsObj args);
+
     }
 }

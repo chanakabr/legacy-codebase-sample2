@@ -94,6 +94,7 @@
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LicensedLinkNPVRCommand.cs" />
     <Compile Include="LicensedLinkResponse.cs" />
     <Compile Include="ProtectionResponse.cs" />
     <Compile Include="ProtectNPVRCommand.cs" />

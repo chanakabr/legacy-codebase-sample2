@@ -2837,27 +2837,21 @@ namespace ConditionalAccess
 
             if (!resURL || !resCDN)
             {
-                try
+
+                int nUrlType = DAL.ConditionalAccessDAL.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+                switch (nUrlType)
                 {
-                    int nUrlType = DAL.ConditionalAccessDAL.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
-                    switch (nUrlType)
-                    {
-                        case (int)eUrlType.Dynamic:
-                            isDynamic = true;
-                            break;
-                        case (int)eUrlType.Static:
-                            break;
-                        default:
-                            break;
-                    }
-                    ConditionalAccessCache.AddItem(keyUrlType, isDynamic);
-                    ConditionalAccessCache.AddItem(keyCDN, CdnStrID);
+                    case (int)eUrlType.Dynamic:
+                        isDynamic = true;
+                        break;
+                    case (int)eUrlType.Static:
+                        break;
+                    default:
+                        break;
                 }
-                catch (Exception)
-                {
-                    isDynamic = false;
-                    CdnStrID = string.Empty;
-                }
+                ConditionalAccessCache.AddItem(keyUrlType, isDynamic);
+                ConditionalAccessCache.AddItem(keyCDN, CdnStrID);
+
             }
 
             return isDynamic;
@@ -2896,7 +2890,7 @@ namespace ConditionalAccess
                 {
                     res = false;
                 }
-                
+
             }
 
             return res;
