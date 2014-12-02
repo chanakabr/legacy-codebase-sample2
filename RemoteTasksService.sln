@@ -65,7 +65,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMergeHandler", "Socia
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupsCacheManager", "..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPG_XDTVTransform", "EPG_XDTVTransform\EPG_XDTVTransform.csproj", "{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPG_XDTVTransformHandler", "EPG_XDTVTransform\EPG_XDTVTransformHandler.csproj", "{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
