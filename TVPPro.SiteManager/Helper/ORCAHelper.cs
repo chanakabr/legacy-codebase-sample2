@@ -63,7 +63,7 @@ namespace TVPPro.SiteManager.Helper
                 {
                     object respoinseObj = json.DeserializeObject(response);
                     Dictionary<string, object> galleryDataDic = (respoinseObj != null) ? respoinseObj as Dictionary<string, object> : null;
-                    if (respoinseObj != null)
+                    if (galleryDataDic != null && !galleryDataDic.ContainsKey("Error"))
                     {
                         result = new ORCAGalleryResponse();
                         result.ContentType = int.Parse(galleryDataDic["ContentType"].ToString());

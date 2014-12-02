@@ -446,6 +446,7 @@ namespace TVPPro.SiteManager.Helper
                 value = (TValue)HttpContext.Current.Session[key];
                 return true;
             }
+            
             return false;
         }
 
@@ -487,7 +488,10 @@ namespace TVPPro.SiteManager.Helper
             public const string UserName = "username";
             public const string KeepSessionAlive = "KeepSessionAlive";
             public const string FacebookUserConfiguration = "FBUser";
-            public const string UsermIsDomainMaster = "UsermIsDomainMaster";
+            public const string IsDomainMaster = "IsDomainMaster";
+            public const string DomianID = "DomianID";
+            public const string SiteGUID = "SiteGUID";
+
         }
     }
 }
