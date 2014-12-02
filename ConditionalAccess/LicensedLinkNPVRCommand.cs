@@ -10,7 +10,10 @@ namespace ConditionalAccess
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            throw new NotImplementedException();
+            LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
+            throw new NotImplementedException("Add here the correct params.");
+
+            return res;
         }
     }
 }
