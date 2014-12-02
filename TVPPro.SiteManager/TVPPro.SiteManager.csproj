@@ -764,10 +764,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
+    <WebReferenceUrl Include="http://54.254.230.1:8030/api_v2_6/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.254.230.1:8030/api_v2_6/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
