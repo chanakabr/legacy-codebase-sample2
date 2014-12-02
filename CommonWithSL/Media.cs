@@ -50,6 +50,7 @@ namespace CommonWithSL
                 return gen.Next(100) < 20;
             }
         }
+
         public Media()
         {
             Metas = new Dictionary<string, string>();

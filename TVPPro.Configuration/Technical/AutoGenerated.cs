@@ -1021,11 +1021,24 @@ namespace TVPPro.Configuration.Technical
             set { __TrickPlayFileFormat = value; }
         }
 
+
+        [XmlElement(ElementName = "BlackoutFileFormat", IsNullable = false, Form = XmlSchemaForm.Qualified, DataType = "string")]
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public string __BlackoutFileFormat;
+
+        [XmlIgnore]
+        public string BlackoutFileFormat
+        {
+            get { return __BlackoutFileFormat; }
+            set { __BlackoutFileFormat = value; }
+        }
+
         public Player()
         {
             MainFileFormat = string.Empty;
             TrailerFileFormat = string.Empty;
             TrickPlayFileFormat = string.Empty;
+            BlackoutFileFormat = string.Empty;
         }
 
         public void MakeSchemaCompliant()

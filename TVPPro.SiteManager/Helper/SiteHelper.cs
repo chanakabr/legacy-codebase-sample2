@@ -48,6 +48,33 @@ namespace TVPPro.SiteManager.Helper
             }
         }
 
+        public static string SecureResource(string resourceUrl)
+        {
+            if (!string.IsNullOrEmpty(resourceUrl))
+            {
+                string isSecureVal = System.Configuration.ConfigurationManager.AppSettings["ISSecure"];
+                bool isSecure = (string.IsNullOrEmpty(isSecureVal)) ? false : bool.Parse(isSecureVal);
+                bool hasHttps = (resourceUrl.IndexOf("https", StringComparison.OrdinalIgnoreCase) >= 0);
+
+                if (isSecure)
+                {
+                    if (!hasHttps)
+                    {
+                        resourceUrl = resourceUrl.Replace("http", "https");
+                    }
+                }
+                else
+                {
+                    if (hasHttps)
+                    {
+                        resourceUrl = resourceUrl.Replace("https", "http");
+                    }
+                }
+            }
+
+            return resourceUrl;
+        }
+
         /// <summary>
         /// Returns the absolute path to the specific item.
         /// </summary>
@@ -289,6 +316,22 @@ namespace TVPPro.SiteManager.Helper
 
             return LinkHelper.ParseURL(sRet.ToLower().StartsWith("/") ? "~" + sRet : sRet);
         }
+
+
+        public static string GetEscapePageUri(string originalURL, bool useCharacterReplace)
+        {
+            string encodedUrl = Uri.EscapeUriString(originalURL);
+
+            if (useCharacterReplace && TechnicalConfiguration.Instance.Data.Translation.CharacterReplace != null)
+            {
+                foreach (Character replaceChar in TechnicalConfiguration.Instance.Data.Translation.CharacterReplace.CharacterCollection)
+                {
+                    encodedUrl = encodedUrl.Replace(replaceChar.OldChar.ToLower(), replaceChar.NewChar);
+                }
+            }
+            return encodedUrl;
+        }
+
 
         public static bool IsVirtualDirectory()
         {
@@ -813,7 +856,7 @@ namespace TVPPro.SiteManager.Helper
             return GetSearchPageUrl(Item, SearchType, false);
         }
 
-        public static string GetSearchPageUrl(object Item, Enums.eSearchType SearchType, bool urlEncoded = false,bool withFrindlyURL = true)
+        public static string GetSearchPageUrl(object Item, Enums.eSearchType SearchType, bool urlEncoded = false, bool withFrindlyURL = true)
         {
             if (TVPPro.Configuration.Site.SiteConfiguration.Instance.Data.Features.FriendlyURL.SupportFeature && withFrindlyURL)
             {
@@ -1351,7 +1394,7 @@ namespace TVPPro.SiteManager.Helper
                                 else
                                 {
                                     string url = string.Format("{0}={1}", tagName.Replace(' ', '+'), HttpUtility.UrlEncode(str.ToString()));
-                                    SeperatorLink = SiteHelper.GetSearchPageUrl(url, Enums.eSearchType.ByTag,false,false);
+                                    SeperatorLink = SiteHelper.GetSearchPageUrl(url, Enums.eSearchType.ByTag, false, false);
                                 }
 
                                 sb.Append(string.Format("<a href=\"{0}\" class=\"{1}\"><span>{2}</span></a>", SeperatorLink, SeperatorStyle, str));
