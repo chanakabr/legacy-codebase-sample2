@@ -496,9 +496,58 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override string CalcNPVRLicensedLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        private bool IsCalcNPVRLicensedLinkInputValid(string programID, string siteGuid, string deviceUDID)
         {
-            return string.Empty;
+            return !string.IsNullOrEmpty(programID) && !string.IsNullOrEmpty(siteGuid) && !string.IsNullOrEmpty(deviceUDID);
+        }
+
+        protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        {
+            // don't catch exceptions in this function!
+            string res = string.Empty;
+            if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = string.Empty, StreamType = string.Empty });
+                        if (resp != null)
+                        {
+                            if (resp.isOK)
+                            {
+                                res = resp.licensedLink;
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                            }
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Response from NPVR layer is null.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                        }
+                    }
+                    else
+                    {
+                        // INPVRProvider instance is null
+                        Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Failed to instantiate INPVRProvider instance.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                    }
+                }
+                else
+                {
+                    // user not valid.
+                    Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                }
+            }
+            else
+            {
+                Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Input not valid. Either user id, device udid or program id not supplied.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+            }
+
+            return res;
         }
     }
 }

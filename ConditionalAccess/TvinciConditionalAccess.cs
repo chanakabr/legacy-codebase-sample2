@@ -443,7 +443,13 @@ namespace ConditionalAccess
             return bDummy;
         }
 
-        public override string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
+        /*
+         * Vodafone patch. 2.12.14
+         * If this method is called from the module.asmx, sProgramId will be an int.
+         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not neccessarily an int.
+         * 
+         */ 
+        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
@@ -463,13 +469,14 @@ namespace ConditionalAccess
                      * CalcNPVRLicensedLink returns string.Empty unless it is Vodafone. Meaning, that if the account is not Vodafone,
                      * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
                      */ 
-                    string npvrLicensedLink = CalcNPVRLicensedLink(nProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
+                    string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
                         sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                     if (npvrLicensedLink.Length > 0)
                     {
                         return npvrLicensedLink;
                     }
                 }
+                int nProgramId = Int32.Parse(sProgramId);
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
@@ -561,7 +568,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at GetEPGLink. Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" P ID: ", nProgramId));
+                sb.Append(String.Concat(" P ID: ", sProgramId));
                 sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
                 sb.Append(String.Concat(" SG :", sSiteGUID));
                 sb.Append(String.Concat(" MF ID: ", nMediaFileID));

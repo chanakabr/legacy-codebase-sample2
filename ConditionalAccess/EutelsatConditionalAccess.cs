@@ -956,13 +956,14 @@ namespace ConditionalAccess
             return ret;
         }
 
-        public override string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
             TvinciAPI.API api = null;
             try
             {
                 // Validate inputs
+                int nProgramId = Int32.Parse(sProgramId);
                 if ((nProgramId <= 0) || (string.IsNullOrEmpty(sBasicLink)) || (string.IsNullOrEmpty(sSiteGUID)))
                 {
                     return string.Empty;
@@ -1063,7 +1064,7 @@ namespace ConditionalAccess
             {
                 StringBuilder sb = new StringBuilder("Exception at GetEPGLink. ");
                 sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Program ID: ", nProgramId));
+                sb.Append(String.Concat(" Program ID: ", sProgramId));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" Media File ID: ", nMediaFileID));
                 sb.Append(String.Concat(" Start time: ", dStartTime.ToString()));
