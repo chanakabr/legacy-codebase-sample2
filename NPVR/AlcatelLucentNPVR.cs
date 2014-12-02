@@ -1248,16 +1248,19 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-
+                            GetGetNPVRLicensedLinkResponse(responseJson, args, res);
                         }
                         else
                         {
-
+                            throw new Exception(string.Format("GetNPVRLicensedLink. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
                         }
                     }
                     else
                     {
-
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("GetNPVRLicensedLink. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        res.isOK = false;
+                        res.licensedLink = string.Empty;
+                        res.msg = "An error occurred. Refer to server log files.";
                     }
 
                 }
@@ -1269,10 +1272,49 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at GetNPVRLicensedLink.", args, ex), GetLogFilename());
+                throw;
             }
 
             return res;
+        }
+
+        private void GetGetNPVRLicensedLinkResponse(string responseJson, NPVRParamsObj args, NPVRLicensedLinkResponse response)
+        {
+            try
+            {
+                GetLocatorResponseJSON success = JsonConvert.DeserializeObject<GetLocatorResponseJSON>(responseJson);
+                response.isOK = true;
+                response.licensedLink = success.Locator;
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.isOK = false;
+                    response.licensedLink = string.Empty;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.msg = "Asset does not exist.";
+                            break;
+                        default:
+                            response.msg = error.Description;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
         }
     }
 }

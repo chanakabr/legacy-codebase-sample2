@@ -7,6 +7,8 @@ namespace NPVR
 {
     public class NPVRLicensedLinkResponse
     {
-
+        public string licensedLink;
+        public bool isOK;
+        public string msg;
     }
 }
