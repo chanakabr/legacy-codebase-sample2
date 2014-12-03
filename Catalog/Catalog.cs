@@ -2786,22 +2786,125 @@ namespace Catalog
             return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
         }
 
-        internal static bool GetMediaMarkHitInitialData(string userIP, int mediaID, int mediaFileID, ref int countryID,
+        internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
         {
             bool res = false;
-            long ipVal = ParseIPOutOfString(userIP);
-            if (ipVal > 0)
+            bool bIP = false;
+            bool bMedia = false;
+            long ipVal = 0;
+            
+            double cacheTime = 0d;            
+            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_HIT_MARK_CACHE_TIME_IN_MINUTES");
+            if (timeStr.Length > 0)
             {
-                if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID,
-                    ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
-                {
-                    res = true;
-                }
+                Double.TryParse(timeStr, out cacheTime);
             }
 
+
+            #region  try get values from catalog cache
+            CatalogCache catalogCache = CatalogCache.Instance();
+            string ipKey = string.Format("userIP_{0}", userIP);
+            object oCountryID = catalogCache.Get(ipKey);
+            if (oCountryID != null)
+            {
+                countryID = (int)oCountryID;
+                bIP = true;
+            }
+
+            string m_mf_Key = string.Format("media_{0}_mediaFile_{1}", mediaID, mediaFileID);
+            List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
+            if (lMedia != null && lMedia.Count > 0)
+            {
+                InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, lMedia);
+                bMedia = true;
+            }
+            #endregion
+
+            if (bIP && bMedia) // both values in cache 
+            {
+                res = true;
+            }
+            else // not found in cache 
+            {
+                if (!bIP && !bMedia)
+                {
+                    ipVal = ParseIPOutOfString(userIP);
+                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                    {
+                        catalogCache.Set(ipKey, countryID, cacheTime);
+                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                        res = true;
+                    }
+                }
+                else
+                {
+                    if (!bIP)
+                    {
+                        ipVal = ParseIPOutOfString(userIP);
+                        if (ipVal > 0)
+                        {
+                            CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                            catalogCache.Set(ipKey, countryID, cacheTime);
+                        }
+                    }
+                    if (!bMedia)
+                    {
+                        if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                        {
+                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                            catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            
             return res;
         }
+
+        private static void InitMediaMarkHitDataFromCache(ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, List<KeyValuePair<string, int>> lMedia)
+        {
+            foreach (KeyValuePair<string, int> item in lMedia)
+            {
+                switch (item.Key)
+                {
+                    case "ownerGroupID":
+                        ownerGroupID = item.Value;
+                        break;
+                    case "cdnID":
+                        cdnID = item.Value;
+                        break;
+                    case "qualityID":
+                        qualityID = item.Value;
+                        break;
+                    case "formatID":
+                        formatID = item.Value;
+                        break;
+                    case "mediaTypeID":
+                        mediaTypeID = item.Value;
+                        break;
+                    case "billingTypeID":
+                        billingTypeID = item.Value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private static void InitMediaMarkHitDataToCache(int ownerGroupID, int cdnID, int qualityID, int formatID, int mediaTypeID, int billingTypeID, ref List<KeyValuePair<string, int>> lMedia)
+        {
+            lMedia = new List<KeyValuePair<string, int>>();
+            lMedia.Add(new KeyValuePair<string, int>("ownerGroupID", ownerGroupID));
+            lMedia.Add(new KeyValuePair<string, int>("cdnID", cdnID));
+            lMedia.Add(new KeyValuePair<string, int>("qualityID", qualityID));
+            lMedia.Add(new KeyValuePair<string, int>("formatID", formatID));
+            lMedia.Add(new KeyValuePair<string, int>("mediaTypeID", mediaTypeID));
+            lMedia.Add(new KeyValuePair<string, int>("billingTypeID", billingTypeID));          
+        }
+        
 
 
         private static long ParseIPOutOfString(string userIP)

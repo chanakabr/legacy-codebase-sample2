@@ -10,6 +10,68 @@ namespace Catalog.Cache
 {
     public class CatalogCache
     {
+
+        #region Constants
+        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
+        private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
+        protected const string CATALOG_LOG_FILENAME = "CroupCache";
+        protected const string CACHE_KEY = "CatalogC_";
+        #endregion              
+
+        #region InnerCache properties
+        private static object locker = new object();              
+        private ICachingService CacheService = null;
+        private readonly double dCacheTT;
+        private string sKeyCache = string.Empty;
+        #endregion
+        
+        private static CatalogCache instance = null;
+        
+
+        private string GetCacheName()
+        {
+            string res = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_CACHE_NAME");
+            if (res.Length > 0)
+                return res;
+            return DEFAULT_CACHE_NAME;
+        }
+
+        private double GetDefaultCacheTimeInMinutes()
+        {
+            double res = 0d;
+            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_CACHE_TIME_IN_MINUTES");
+            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+                return res;
+            return DEFAULT_TIME_IN_CACHE_MINUTES;
+        }
+
+        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        {
+            this.CacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+        }
+       
+        private CatalogCache()
+        {
+            dCacheTT = GetDefaultCacheTimeInMinutes();
+            InitializeCachingService(GetCacheName(), dCacheTT);
+            sKeyCache = CACHE_KEY; // the key for cache in the inner memory start with CACHE_KEY preffix
+        }
+
+        public static CatalogCache Instance()
+        {
+            if (instance == null)
+            {
+                lock (locker)
+                {
+                    if (instance == null)
+                    {
+                        instance = new CatalogCache();
+                    }
+                }
+            }
+            return instance;
+        }
+        
         public static int GetParentGroup(int nGroupID)
         {
             int nParentGroup = 0;            
@@ -31,5 +93,34 @@ namespace Catalog.Cache
                 return nGroupID;
             }
         }
+
+        public object Get(string sKey)
+        {
+            sKey = string.Format("{0}{1}", sKeyCache, sKey);
+            BaseModuleCache bModule = CacheService.Get(sKey);
+            if (bModule != null)
+                return bModule.result;
+
+            return null;
+        }
+
+        public T Get<T>(string sKey) where T : class
+        {
+            sKey = string.Format("{0}{1}", sKeyCache, sKey);
+            return CacheService.Get<T>(sKey);
+        }
+
+        public bool Set(string sKey, object oValue)
+        {
+            return Set(sKey, oValue, dCacheTT);            
+        }
+             
+        public bool Set(string sKey, object oValue, double dCacheTime)
+        {
+            sKey = string.Format("{0}{1}", sKeyCache, sKey);
+            BaseModuleCache bModule = new BaseModuleCache(oValue);
+            return CacheService.Set(sKey, bModule, dCacheTime);
+        }
+
     }
 }
