@@ -512,10 +512,10 @@ namespace TVPApiModule.Objects
                 // check if media is allowed for anonymous users
                 if (mediaInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains("Product type"))
                 {
-                    string productTypeTagValue = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product key"].ToString();
+                    string productTypeTagValue = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product type"].ToString();
                     if (productTypeTagValue == "FVOD")
                     {
-                        ent = new yes.tvinci.ITProxy.Entitlement[1];
+                        ent = new yes.tvinci.ITProxy.Entitlement[1] { new Entitlement() { status = EntitlementStatus.NEW } };
                     }
                     else
                     {
@@ -622,7 +622,7 @@ namespace TVPApiModule.Objects
         private yes.tvinci.ITProxy.Entitlement[] GetValidEntitlements(yes.tvinci.ITProxy.Entitlement[] ent)
         {
             if (ent != null)
-                return ent.Where(e => e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
+                return ent.Where(e => e != null && e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
             else return null;
         }
 
