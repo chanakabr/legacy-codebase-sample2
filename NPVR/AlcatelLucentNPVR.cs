@@ -841,7 +841,7 @@ namespace NPVR
                             case SearchByField.byAssetId:
                                 if (args.AssetIDs.Count > 0)
                                 {
-                                    urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.AssetIDs)));
+                                    urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.AssetIDs, false)));
                                 }
                                 else
                                 {
@@ -852,13 +852,13 @@ namespace NPVR
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
                                 break;
                             case SearchByField.byProgramId:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs)));
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
                                 break;
                             case SearchByField.byStartTime:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
                                 break;
                             case SearchByField.byStatus:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.RecordingStatus.ToString().ToLower()));
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
                                 break;
                             default:
                                 break;
@@ -996,13 +996,13 @@ namespace NPVR
             }
         }
 
-        private string ConvertToMultipleURLParams<T>(List<T> args)
+        private string ConvertToMultipleURLParams<T>(List<T> args, bool isLowerElementsInList)
         {
             StringBuilder sb = new StringBuilder();
             if (args != null && args.Count > 0)
             {
                 for (int i = 0; i < args.Count; i++)
-                    sb.Append(String.Concat(i == 0 ? string.Empty : ",", args[i].ToString()));
+                    sb.Append(String.Concat(i == 0 ? string.Empty : ",", isLowerElementsInList ? args[i].ToString().ToLower() : args[i].ToString()));
             }
 
             return sb.ToString();

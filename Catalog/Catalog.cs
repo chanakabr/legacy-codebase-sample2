@@ -24,6 +24,7 @@ using DalCB;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
+using NPVR;
 
 namespace Catalog
 {
@@ -3139,6 +3140,106 @@ namespace Catalog
             }
             res.m_sStatus = "OK";
             res.m_lPositions = lUserMedia;
+            return res;
+        }
+
+        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
+                if (npvr != null)
+                {
+                    int domainID = 0;
+                    if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+                    {
+                        NPVRRetrieveParamsObj args = new NPVRRetrieveParamsObj();
+                        args.PageIndex = request.m_nPageIndex;
+                        args.PageSize = request.m_nPageSize;
+                        args.EntityID = domainID.ToString();
+                        args.OrderBy = (NPVROrderBy) ((int)request.m_oOrderObj.m_eOrderBy);
+                        args.Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir);
+                        switch (request.m_eNPVRSearchBy)
+                        {
+                            case NPVRSearchBy.ByStartDate:
+                                args.StartDate = request.m_dtStartDate;
+                                break;
+                            case NPVRSearchBy.ByRecordingStatus:
+                                args.RecordingStatus.AddRange(request.m_lRecordingStatuses.Distinct().Select((item) => (NPVRRecordingStatus)((int)item)));
+                                break;
+                            case NPVRSearchBy.ByRecordingID:
+                                args.AssetIDs.AddRange(request.m_lRecordingIDs.Distinct());
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (request.m_nEPGChannelID > 0)
+                        {
+                            args.EpgChannelID = request.m_nEPGChannelID.ToString();
+                        }
+                        if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
+                        {
+                            args.EpgProgramIDs.AddRange(request.m_lProgramIDs.Select((item) => item.ToString()));
+                        }
+
+                        NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
+                        if (npvrResp != null)
+                        {
+                            res = npvrResp.results;
+                        }
+                        else
+                        {
+                            throw new Exception("NPVR layer returned response null.");
+                        }
+
+                    }
+                    else
+                    {
+                        throw new Exception("Either user is not valid or user has no domain.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("INPVRProvider instance is null.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+            }
+
+            return res;
+        }
+
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID)
+        {
+            long temp = 0;
+            if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
+                return false;
+            string wsUsername = string.Empty;
+            string wsPassword = string.Empty;
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
+            string url = Utils.GetWSURL("users_ws");
+            bool res = false;
+            using (ws_users.UsersService u = new ws_users.UsersService())
+            {
+                if (url.Length > 0)
+                    u.Url = url;
+                ws_users.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
+                if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                {
+                    domainID = resp.m_user.m_domianID;
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
+
+            }
+
             return res;
         }
 

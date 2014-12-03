@@ -12,7 +12,7 @@ namespace NPVR
         protected int pageSize;
         protected NPVROrderDir direction;
         protected NPVROrderBy orderBy;
-        protected NPVRRecordingStatus recordingStatus;
+        protected List<NPVRRecordingStatus> recordingStatus;
         protected List<string> epgProgramIDs;
         protected List<string> assetIDs;
 
@@ -93,10 +93,12 @@ namespace NPVR
             }
         }
 
-        public virtual NPVRRecordingStatus RecordingStatus
+        public virtual List<NPVRRecordingStatus> RecordingStatus
         {
             get
             {
+                if (recordingStatus == null)
+                    recordingStatus = new List<NPVRRecordingStatus>();
                 return recordingStatus;
             }
             set
@@ -148,7 +150,14 @@ namespace NPVR
             sb.Append(String.Concat(" Page Size: ", PageSize));
             sb.Append(String.Concat(" Order By: ", OrderBy.ToString()));
             sb.Append(String.Concat(" Order Dir: ", Direction.ToString()));
-            sb.Append(String.Concat(" Recording Status: ", RecordingStatus.ToString()));
+            sb.Append(String.Concat(" Recording Status Count: ", RecordingStatus.Count));
+            if (RecordingStatus.Count > 0)
+            {
+                for (int i = 0; i < RecordingStatus.Count; i++)
+                {
+                    sb.Append(String.Concat(RecordingStatus[0], ";"));
+                }
+            }
 
             return sb.ToString();
         }
@@ -156,6 +165,11 @@ namespace NPVR
         public List<SearchByField> GetUniqueSearchBy()
         {
             return SearchBy.Distinct().ToList();
+        }
+
+        public List<NPVRRecordingStatus> GetUniqueRecordingStatuses()
+        {
+            return RecordingStatus.Distinct().ToList();
         }
     }
 }

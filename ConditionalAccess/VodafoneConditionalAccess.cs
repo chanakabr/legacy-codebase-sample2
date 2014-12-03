@@ -177,14 +177,15 @@ namespace ConditionalAccess
                         INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                         if (npvr != null)
                         {
+                            NPVRCancelDeleteResponse response = null;
                             if (isSeries)
                             {
-
+                                response = npvr.CancelSeries(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
                             }
                             else
                             {
                                 // single asset
-                                NPVRCancelDeleteResponse response = npvr.CancelAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                                response = npvr.CancelAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
                                 if (response != null)
                                 {
                                     switch (response.status)
@@ -255,14 +256,15 @@ namespace ConditionalAccess
                         INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                         if (npvr != null)
                         {
+                            NPVRCancelDeleteResponse response = null;
                             if (isSeries)
                             {
-
+                                response = npvr.DeleteSeries(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
                             }
                             else
                             {
                                 // single asset
-                                NPVRCancelDeleteResponse response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                                response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
 
                                 if (response != null)
                                 {

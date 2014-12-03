@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects
@@ -94,5 +95,32 @@ namespace ApiObjects
         public string RecordingID;
         public bool IsAssetProtected;
         public string ChannelName;
+    }
+
+    [DataContract]
+    public class RecordedEPGOrderObj
+    {
+        public RecordedEPGOrderBy m_eOrderBy;
+        public RecordedEPGOrderDir m_eOrderDir;
+
+    }
+
+    [DataContract]
+    public enum RecordedEPGOrderBy
+    {
+        [EnumMember]
+        StartTime = 0,
+        [EnumMember]
+        Name = 1,
+        [EnumMember]
+        ChannelID = 2
+    }
+
+    public enum RecordedEPGOrderDir
+    {
+        [EnumMember]
+        ASC = 0,
+        [EnumMember]
+        DESC = 1
     }
 }
