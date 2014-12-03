@@ -431,6 +431,9 @@ namespace Users
                         device.m_state = DeviceState.Activated;
                         int deviceID = device.Save(1, 1, tempDeviceID);
                         GetDeviceList();
+                        
+                        //DomainsCache -  call cache and update device from status pending to status Activated
+                        
                         return eRetVal;
                     }
                 }
@@ -1877,6 +1880,11 @@ namespace Users
                     ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), "Domain");
                 throw;
             }
+        }
+
+        internal void SetDeviceFamiliesMapping(List<DeviceContainer> dc)
+        {
+            this.m_deviceFamilies = dc;
         }
     }
 }

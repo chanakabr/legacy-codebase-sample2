@@ -57,7 +57,7 @@ namespace Users.Cache
         private string sKeyCache = "d";
         #endregion
 
-        #region Constants        
+        #region Constants
         protected const string DOMAIN_LOG_FILENAME = "DomainCache";
         #endregion
 
@@ -225,7 +225,7 @@ namespace Users.Cache
                         {
                             mutex.WaitOne(-1);
                             //try insert to Cache                                     
-                            bModule =  new BaseModuleCache(domain);
+                            bModule = new BaseModuleCache(domain);
                             bInsert = this.cache.Set(sKey, bModule, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
                         }
 
@@ -239,16 +239,67 @@ namespace Users.Cache
                         }
                     }
                 }
-                
+
                 return bInsert;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertDomain", string.Format("failed insert domain {0}, ex = {1}", domain!=null?domain.m_nDomainID:0, ex.Message), DOMAIN_LOG_FILENAME);
+                Logger.Logger.Log("InsertDomain", string.Format("failed insert domain {0}, ex = {1}", domain != null ? domain.m_nDomainID : 0, ex.Message), DOMAIN_LOG_FILENAME);
                 return false;
             }
         }
-        
+
+        internal bool UpdateDomain(Domain domain)
+        {
+            VersionModuleCache vModule;
+            bool bUpdate = false;
+            try
+            {
+                if (domain == null)
+                    return false;
+
+                string sKey = string.Format("{0}{1}", sKeyCache, domain.m_nDomainID);
+
+
+                for (int i = 0; i < 3 && !bUpdate; i++)
+                {
+                    vModule = (VersionModuleCache)this.cache.GetWithVersion<Domain>(sKey);
+
+                    if (vModule != null && vModule.result != null)
+                    {
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+                        using (Mutex mutex = new Mutex(false, string.Concat("domainID_", domain.m_nDomainID), out createdNew, mutexSecurity))
+                        {
+                            try
+                            {
+                                mutex.WaitOne(-1);
+                                //try insert to Cache                                     
+                                vModule.result = domain;
+                                bUpdate = this.cache.SetWithVersion<Domain>(sKey, vModule, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
+                            }
+
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("UpdateDomain", string.Format("failed Update domianobject with domainID = {0}, ex = {1}", domain != null ? domain.m_nDomainID : 0, ex.Message), DOMAIN_LOG_FILENAME);
+                            }
+                            finally
+                            {
+                                mutex.ReleaseMutex();
+                            }
+                        }
+                    }
+                }
+
+                return bUpdate;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UpdateDomain", string.Format("failed Update Domain  {0}, ex = {1}", domain != null ? domain.m_nDomainID : 0, ex.Message), DOMAIN_LOG_FILENAME);
+                return false;
+            }
+        }
+
         internal bool RemoveDomain(int nDomainID)
         {
             bool bIsRemove = false;
@@ -294,6 +345,7 @@ namespace Users.Cache
 
         #region Users
 
+        // return users in status 1 and pending users (status 3)
         internal List<int> GetFullUserList(int nDomainID, int nGroupID, ref Domain oDomain)
         {
             try
@@ -318,19 +370,19 @@ namespace Users.Cache
             }
         }
 
-        internal bool GetUserList(int nDomainID, int nGroupID, ref Domain oDomain, ref List<int> usersIDs, ref List<int> masterGUIDs, ref List<int> defaultUsersIDs)
+        internal bool GetUserList(int nDomainID, int nGroupID, ref Domain oDomain, ref List<int> usersIDs, ref List<int> pendingUsersIDs, ref List<int> masterGUIDs, ref List<int> defaultUsersIDs)
         {
             try
-            {               
+            {
                 bool bUsers = false;
                 string sKey = string.Format("{0}{1}", sKeyCache, nDomainID);
-                bUsers = UsersListFromDomain(nDomainID, oDomain, usersIDs, masterGUIDs, defaultUsersIDs);
+                bUsers = UsersListFromDomain(nDomainID, oDomain, usersIDs, pendingUsersIDs, masterGUIDs, defaultUsersIDs);
 
                 if (!bUsers) // continue to get the domain 
                 {
                     // need to get Domain from CB                 
                     oDomain = GetDomain(nDomainID, nGroupID);
-                    bUsers = UsersListFromDomain(nDomainID, oDomain, usersIDs, masterGUIDs, defaultUsersIDs);                   
+                    bUsers = UsersListFromDomain(nDomainID, oDomain, usersIDs, pendingUsersIDs, masterGUIDs, defaultUsersIDs);
                 }
                 return bUsers;
             }
@@ -346,7 +398,7 @@ namespace Users.Cache
             bool bRemoveUser = false;
             try
             {
-                Domain oDomain = null;                
+                Domain oDomain = null;
                 VersionModuleCache vModule = null;
 
                 string sKey = string.Format("{0}{1}", sKeyCache, nDomainID);
@@ -383,21 +435,21 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveUserFromList", string.Format("Couldn't remove userID={0} from domainID {1}, ex = {2}", nUserGuid,nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                Logger.Logger.Log("RemoveUserFromList", string.Format("Couldn't remove userID={0} from domainID {1}, ex = {2}", nUserGuid, nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
                 return false;
             }
         }
 
-        internal bool ADDUser(int nUserGuid, int nDomainID, int nMasterUserGuid, UserDomainType userType)
+        internal bool AddUser(int nUserGuid, int nDomainID, int nMasterUserGuid, UserDomainType userType)
         {
-            bool bRemoveUser = false;
+            bool bAddUser = false;
             try
             {
                 Domain oDomain = null;
                 VersionModuleCache vModule = null;
 
                 string sKey = string.Format("{0}{1}", sKeyCache, nDomainID);
-                for (int i = 0; i < 3 && !bRemoveUser; i++)
+                for (int i = 0; i < 3 && !bAddUser; i++)
                 {
                     vModule = (VersionModuleCache)cache.GetWithVersion<Domain>(sKey);
 
@@ -430,53 +482,93 @@ namespace Users.Cache
 
                                     oDomain.m_masterGUIDs.Add(nUserGuid);
                                 }
+                                //try update to cache
+                                vModule.result = oDomain;
+                                bAddUser = cache.SetWithVersion<Domain>(sKey, vModule, dCacheTT);
 
-                                //protected oDomain.m_totalNumOfUsers = oDomain.m_UsersIDs.Count - oDomain.m_masterGUIDs.Count;
-
-                                bRemoveUser = oDomain.m_UsersIDs.Remove(nUserGuid);
-                                if (bRemoveUser)
-                                {
-                                    //try update to cache
-                                    vModule.result = oDomain;
-                                    bRemoveUser = cache.SetWithVersion<Domain>(sKey, vModule, dCacheTT);
-                                }
                                 mutex.ReleaseMutex();
                             }
                         }
                     }
                 }
 
-                return bRemoveUser;
+                return bAddUser;
 
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveUserFromList", string.Format("Couldn't remove userID={0} from domainID {1}, ex = {2}", nUserGuid, nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                Logger.Logger.Log("AddUser", string.Format("Couldn't add userID={0} to domainID {1}, ex = {2}", nUserGuid, nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                return false;
+            }
+        }
+
+        internal bool ChangePendingUserToUser(int nUserGuid, int nDomainID, int nGroupID, int nUserDomainID)
+        {
+            bool bUpdateUser = false;
+            try
+            {
+                Domain oDomain = null;
+                VersionModuleCache vModule = null;
+
+                string sKey = string.Format("{0}{1}", sKeyCache, nDomainID);
+                for (int i = 0; i < 3 && !bUpdateUser; i++)
+                {
+                    vModule = (VersionModuleCache)cache.GetWithVersion<Domain>(sKey);
+
+                    if (vModule != null && vModule.result != null)
+                    {
+                        oDomain = vModule.result as Domain;
+                        if (oDomain != null)
+                        {
+                            bool createdNew = false;
+                            var mutexSecurity = Utils.CreateMutex();
+
+                            using (Mutex mutex = new Mutex(false, string.Format("Cache user{0}fromDomain{1}", nUserGuid, nDomainID), out createdNew, mutexSecurity))
+                            {
+                                mutex.WaitOne(-1);
+
+                                if (oDomain.m_PendingUsersIDs.Contains(nUserGuid))
+                                {
+                                    if (oDomain.m_UsersIDs == null)
+                                    {
+                                        oDomain.m_UsersIDs = new List<int>();
+                                    }
+                                    oDomain.m_UsersIDs.Add(nUserGuid);
+                                }
+                                //try update to cache
+                                vModule.result = oDomain;
+                                bUpdateUser = cache.SetWithVersion<Domain>(sKey, vModule, dCacheTT);
+
+                                mutex.ReleaseMutex();
+                            }
+                        }
+                    }
+                }
+
+                return bUpdateUser;
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ChangePendingUserToUser", string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
                 return false;
             }
         }
         
-      
-
-        private bool UsersListFromDomain(int nDomainID, Domain oDomain, List<int> usersIDs, List<int> masterGUIDs, List<int> defaultUsersIDs)
+        private bool UsersListFromDomain(int nDomainID, Domain oDomain, List<int> usersIDs, List<int> pendingUsersIDs, List<int> masterGUIDs, List<int> defaultUsersIDs)
         {
             try
             {
                 if (oDomain != null && oDomain.m_nDomainID == nDomainID)
                 {
-                    foreach (int pendingUser in oDomain.m_PendingUsersIDs)
-                    {
-                        usersIDs.Add(pendingUser * (-1));
-                    }
+                    pendingUsersIDs.AddRange(oDomain.m_PendingUsersIDs);
                     usersIDs.AddRange(oDomain.m_UsersIDs);
-
                     masterGUIDs.AddRange(oDomain.m_DefaultUsersIDs);
                     defaultUsersIDs.AddRange(oDomain.m_DefaultUsersIDs);
 
                     return true;
                 }
                 return false;
-
             }
             catch (Exception ex)
             {
@@ -511,6 +603,9 @@ namespace Users.Cache
 
         #endregion
 
+
+      
         #endregion
+        
     }
 }
