@@ -440,7 +440,7 @@ namespace TVPPro.SiteManager.Helper
                     //deserialize the response
                     var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
                     var userData = deserializedResponse as Dictionary<string, object>;
-                    if (userData.ContainsKey("status") && userData["status"] == "MERGEOK")
+                    if (userData.ContainsKey("status") && userData["status"].ToString() == "MERGEOK")
                     {
                         fbconfig.userData = userData;
                     }
