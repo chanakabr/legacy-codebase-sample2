@@ -49,7 +49,8 @@ namespace Catalog
                     throw new Exception("Signatures dosen't match");
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                 List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataTable dt = CatalogDAL.Get_PicProtocol(request.m_nGroupID, request.m_nPicIds, lSubGroup);

@@ -5,6 +5,7 @@ using System.Text;
 using CachingProvider;
 using DAL;
 using TvinciCache;
+using ApiObjects;
 
 namespace Catalog.Cache
 {
@@ -15,7 +16,7 @@ namespace Catalog.Cache
         private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
         private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
         protected const string CATALOG_LOG_FILENAME = "CroupCache";
-        protected const string CACHE_KEY = "CatalogC_";
+        protected const string CACHE_KEY = "CATALOG";
         #endregion              
 
         #region InnerCache properties
@@ -71,20 +72,23 @@ namespace Catalog.Cache
             }
             return instance;
         }
-        
-        public static int GetParentGroup(int nGroupID)
+
+        public int GetParentGroup(int nGroupID)
         {
-            int nParentGroup = 0;            
+            int nParentGroup = 0;
             try
             {
                 string sKey = "ParentGroupCache_" + nGroupID.ToString();
-
-                nParentGroup = WSCache.Instance.Get<int>(sKey);
+                object oParent = Get(sKey);
+                if (oParent != null)
+                {
+                    nParentGroup = (int)oParent;
+                }
                 if (nParentGroup == 0)
                 {
                     //GetParentGroup
                     nParentGroup = UtilsDal.GetParentGroupID(nGroupID);
-                    bool bSet = WSCache.Instance.Add(sKey, nParentGroup);
+                    bool bSet = Set(sKey, nParentGroup);
                 }
                 return nParentGroup;
             }
@@ -93,6 +97,7 @@ namespace Catalog.Cache
                 return nGroupID;
             }
         }
+            
 
         public object Get(string sKey)
         {
