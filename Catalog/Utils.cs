@@ -555,7 +555,7 @@ namespace Catalog
             return sResult;
         }
 
-        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
+        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID, List<Int32> nMediaTypes)
         {
             List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
 
@@ -580,6 +580,21 @@ namespace Catalog
             esActionTerm.Value.Add("mediahit");
             filter.AddChild(esActionTerm);
             #endregion
+
+            #region define mediaType
+            if (nMediaTypes != null && nMediaTypes.Count > 0)
+            {
+                ESTerms esMediaTypeTerm = new ESTerms(false) { Key = "media_type_id" };
+                foreach (Int32 MediaTypes in nMediaTypes)
+                {
+                    esMediaTypeTerm.Value.Add(MediaTypes.ToString());
+                }
+
+                filter.AddChild(esMediaTypeTerm);
+            }
+            #endregion
+
+
 
             filteredQuery.Filter.FilterSettings = filter;
 
