@@ -30,7 +30,7 @@ namespace Catalog.Cache
 
         private string GetCacheName()
         {
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_CACHE_NAME");
+            string res = TVinciShared.WS_Utils.GetTcmConfigValue("CACHE_NAME");
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -39,7 +39,7 @@ namespace Catalog.Cache
         private double GetDefaultCacheTimeInMinutes()
         {
             double res = 0d;
-            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_CACHE_TIME_IN_MINUTES");
+            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CACHE_TIME_IN_MINUTES");
             if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
                 return res;
             return DEFAULT_TIME_IN_CACHE_MINUTES;

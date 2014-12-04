@@ -2804,7 +2804,7 @@ namespace Catalog
 
             #region  try get values from catalog cache
             CatalogCache catalogCache = CatalogCache.Instance();
-            string ipKey = string.Format("userIP_{0}", userIP);
+            string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
             object oCountryID = catalogCache.Get(ipKey);
             if (oCountryID != null)
             {
@@ -2812,7 +2812,7 @@ namespace Catalog
                 bIP = true;
             }
 
-            string m_mf_Key = string.Format("media_{0}_mediaFile_{1}", mediaID, mediaFileID);
+            string m_mf_Key = string.Format("{0}_media_{1}_mediaFile_{2}", eWSModules.CATALOG, mediaID, mediaFileID);
             List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
             if (lMedia != null && lMedia.Count > 0)
             {
