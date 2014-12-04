@@ -1,4 +1,5 @@
-﻿using NPVR;
+﻿using ApiObjects;
+using NPVR;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -515,21 +516,31 @@ namespace ConditionalAccess
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
                     {
-                        NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = string.Empty, StreamType = string.Empty });
-                        if (resp != null)
+                        string streamType = string.Empty;
+                        string profile = string.Empty;
+                        if (GetDeviceStreamTypeAndProfile(sDEVICE_NAME, domainID, ref streamType, ref profile))
                         {
-                            if (resp.isOK)
+                            NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = streamType, StreamType = profile }); // it is not a bug we call ALU's HASFormat is Kaltura's StreamType.
+                            if (resp != null)
                             {
-                                res = resp.licensedLink;
+                                if (resp.isOK)
+                                {
+                                    res = resp.licensedLink;
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                                }
                             }
                             else
                             {
-                                Logger.Logger.Log("Error", GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                                Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Response from NPVR layer is null.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
                             }
                         }
                         else
                         {
-                            Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Response from NPVR layer is null.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                            // failed to retrieve data from WS_Domains
+                            throw new Exception("Failed to retrieve stream type and profile from WS_Domains. Refer to GetDeviceStreamTypeAndProfile log file.");
                         }
                     }
                     else
@@ -547,6 +558,38 @@ namespace ConditionalAccess
             else
             {
                 Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. Input not valid. Either user id, device udid or program id not supplied.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+            }
+
+            return res;
+        }
+
+        private bool GetDeviceStreamTypeAndProfile(string udid, int domainID, ref string streamType, ref string profile)
+        {
+            TvinciDomains.DeviceResponseObject resp = null;
+            bool res = false;
+            string wsUsername = string.Empty, wsPassword = string.Empty;
+            Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
+            if(string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword)) 
+            {
+                Logger.Logger.Log("Error", string.Format("Failed to retrieve WS_Domains credentials. UDID: {0} , D ID: {1}", udid, domainID), "GetDeviceStreamTypeAndProfile");
+                return false;
+            }
+            using (TvinciDomains.module domains = new TvinciDomains.module())
+            {
+                resp = domains.GetDeviceInfo(wsUsername, wsPassword, udid, true);
+                if (resp != null && resp.m_oDeviceResponseStatus == TvinciDomains.DeviceResponseStatus.OK && resp.m_oDevice != null && domainID == resp.m_oDevice.m_domainID)
+                {
+                    streamType = resp.m_oDevice.m_sStreamType;
+                    profile = resp.m_oDevice.m_sProfile;
+                    res = true;
+                }
+                else
+                {
+                    Logger.Logger.Log("Error", string.Format("Either WS_Domains response or device object is null or device status is not OK or device does not belong to domain. UDID: {0) , D ID: {1}", udid, domainID), "GetDeviceStreamTypeAndProfile");
+                    streamType = string.Empty;
+                    profile = string.Empty;
+                    res = false;
+                }
             }
 
             return res;

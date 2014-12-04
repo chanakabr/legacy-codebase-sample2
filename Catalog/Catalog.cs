@@ -2871,7 +2871,7 @@ namespace Catalog
             return facet.ToString();
         }
 
-        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+        internal static List<int>  SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
             List<int> result = new List<int>();
