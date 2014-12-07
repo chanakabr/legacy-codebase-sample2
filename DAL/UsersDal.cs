@@ -414,10 +414,10 @@ namespace DAL
         public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster)
         {
             int nDomainID = 0;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
@@ -441,12 +441,14 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
+
             }
-            catch (Exception ex)
+            finally
             {
-                HandleException(ex);
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return nDomainID;

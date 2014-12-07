@@ -347,8 +347,15 @@ namespace Users
                 m_eUserState = GetCurrentUserState(nUserID);
 
             }
-            catch
+            catch(Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID)");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" User ID: ", nUserID));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
                 res = false;
             }
 
@@ -365,8 +372,17 @@ namespace Users
                 m_domianID = domainID;
                 m_isDomainMaster = isDomainMaster;
             }
-            catch
+            catch(Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID, DomainID, IsDomainMaster)");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" User ID: ", nUserID));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" D ID: ", domainID));
+                sb.Append(String.Concat(" Is Domain Master: ", isDomainMaster.ToString().ToLower()));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
                 res = false;
             }
 

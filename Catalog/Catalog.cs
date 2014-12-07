@@ -1761,8 +1761,7 @@ namespace Catalog
         internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs)
         {
             EpgResponse res = new EpgResponse();
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(parentGroupID);
-            List<EPGChannelProgrammeObject> epgs = epgBL.GetEpgs(epgIDs);
+            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
                 Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
@@ -2032,6 +2031,12 @@ namespace Catalog
             return res;
         }
 
+        private static List<EPGChannelProgrammeObject> GetEpgsByGroupAndIDs(int groupID, List<int> epgIDs)
+        {
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
+            return epgBL.GetEpgs(epgIDs);
+        }
+
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
@@ -2048,7 +2053,7 @@ namespace Catalog
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
-                         {
+                        {
                             /*
                              * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
                              */
@@ -2171,8 +2176,7 @@ namespace Catalog
                              * When we don't have dates we bring the likes count from epg_channels_schedule bucket in CB
                              * 
                              */
-                            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
-                            List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
+                            List<EPGChannelProgrammeObject> lEpg = GetEpgsByGroupAndIDs(nGroupID, lAssetIDs);
                             if (lEpg != null && lEpg.Count > 0)
                             {
                                 for (int i = 0; i < lEpg.Count; i++)
@@ -2871,7 +2875,7 @@ namespace Catalog
             return facet.ToString();
         }
 
-        internal static List<int>  SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
             List<int> result = new List<int>();
@@ -3158,7 +3162,7 @@ namespace Catalog
                         args.PageIndex = request.m_nPageIndex;
                         args.PageSize = request.m_nPageSize;
                         args.EntityID = domainID.ToString();
-                        args.OrderBy = (NPVROrderBy) ((int)request.m_oOrderObj.m_eOrderBy);
+                        args.OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy);
                         args.Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir);
                         switch (request.m_eNPVRSearchBy)
                         {
@@ -3181,7 +3185,15 @@ namespace Catalog
                         }
                         if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
                         {
-                            args.EpgProgramIDs.AddRange(request.m_lProgramIDs.Select((item) => item.ToString()));
+                            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(groupID, request.m_lProgramIDs);
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()), "GetRecordings");
+                            }
                         }
 
                         NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);

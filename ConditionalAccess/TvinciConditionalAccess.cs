@@ -447,7 +447,8 @@ namespace ConditionalAccess
          * Vodafone patch. 2.12.14
          * If this method is called from the module.asmx, sProgramId will be an int.
          * If this method is called from LicensedLinkNPVRCommand, sProgramId is not neccessarily an int.
-         * 
+         * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
+         * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */ 
         public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
