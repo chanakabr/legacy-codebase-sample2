@@ -36,7 +36,8 @@ namespace TVPPro.SiteManager.Helper
             UpdateItemInList,
             RecordAll,
             GetMediaLicenseLink,
-            GetMediaLicenseLinkWithIP
+            GetMediaLicenseLinkWithIP,
+            SetUserDynamicDataEx
         }
 
         static byte[] GetBytes(string str)
@@ -104,6 +105,11 @@ namespace TVPPro.SiteManager.Helper
 
         public static object GetInitObj()
         {
+            return GetInitObj(Services.UsersService.Instance.GetDomainID(), Services.UsersService.Instance.GetUserID());
+        }
+
+        public static object GetInitObj(int domainID,string siteGuid)
+        {
             return new
             {
                 Locale = new
@@ -114,8 +120,8 @@ namespace TVPPro.SiteManager.Helper
                     LocaleUserState = "Unknown"
                 },
                 Platform = "iPad",
-                SiteGuid =Services.UsersService.Instance.GetUserID(),
-                DomainID =Services.UsersService.Instance.GetDomainID() ,
+                SiteGuid = siteGuid,
+                DomainID = domainID,
                 UDID = DeviceDNAHelper.GetDeviceDNA(),
                 ApiUser = "tvpapi_153",
                 ApiPass = "11111"
@@ -166,5 +172,23 @@ namespace TVPPro.SiteManager.Helper
                 throw new Exception("UserData is null, probably logged out");
             }
         }
+
+        public static string SetUserDynamicDataEx(string key, string value,  int domainID =0, string siteGuid = null)
+        {
+            string response = string.Empty;
+            var postData = new
+            {
+                initObj = GetInitObj(domainID,siteGuid),
+                key = key,
+                value = value
+            };
+           
+
+            response = MakeRequest(TVPAPI_METHODS.SetUserDynamicDataEx, new JavaScriptSerializer().Serialize(postData));
+
+            var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
+
+            return response;
+        } 
     }
 }

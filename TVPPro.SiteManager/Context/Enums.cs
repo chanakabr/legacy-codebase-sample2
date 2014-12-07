@@ -161,7 +161,8 @@ namespace TVPPro.SiteManager.Context
             ChannelPage = 31,
             DeviceDetectionPage = 32,
             Settings = 33,
-            PersonalZone = 34
+            PersonalZone = 34,
+            Actor = 35
         }
 
         public enum eOrderBy
