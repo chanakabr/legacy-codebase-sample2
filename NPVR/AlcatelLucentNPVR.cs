@@ -57,6 +57,8 @@ namespace NPVR
         private static readonly string ALU_ID_URL_PARAM = "id";
         private static readonly string ALU_STREAM_TYPE_URL_PARAM = "streamType";
         private static readonly string ALU_HAS_FORMAT_URL_PARAM = "HASFormat";
+        private static readonly string ALU_SORT_FIELD_URL_PARAM = "sortField";
+        private static readonly string ALU_SORT_DIRECTION_URL_PARAM = "sortDirection";
 
         private int groupID;
 
@@ -865,6 +867,9 @@ namespace NPVR
                         }
                     } //foreach
 
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_FIELD_URL_PARAM, args.OrderBy.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_DIRECTION_URL_PARAM, args.Direction.ToString()));
+
                     string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
                     int httpStatusCode = 0;
@@ -886,6 +891,8 @@ namespace NPVR
                     {
                         Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
                         // add status fail to response obj.
+                        res.isOK = false;
+                        res.msg = "Failed to establise connection to ALU. Refer to Server logs.";
                     }
                 }
                 else
@@ -1316,5 +1323,215 @@ namespace NPVR
                 throw;
             }
         }
+
+        private bool IsRetrieveSeriesInputValid(NPVRRetrieveParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0);
+        }
+
+        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON responseJson)
+        {
+            List<RecordedSeriesObject> res = new List<RecordedSeriesObject>(responseJson.Entries.Count);
+            foreach (SeriesEntryJSON entry in responseJson.Entries)
+            {
+                RecordedSeriesObject obj = new RecordedSeriesObject();
+                obj.epgChannelID = entry.ChannelID;
+                obj.recordingID = entry.RecordingID;
+                obj.seriesID = entry.SeriesID;
+                obj.seriesName = entry.SeriesName;
+                res.Add(obj);
+            }
+
+            return res;
+        }
+
+        private void GetRetrieveSeriesResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveSeriesResponse response)
+        {
+            try
+            {
+                ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
+                response.isOK = true;
+                response.msg = string.Empty;
+                response.results = ExtractRecordedSeries(success);
+                response.totalItems = response.results.Count;
+
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.isOK = false;
+                    response.results = new List<RecordedSeriesObject>(0);
+                    response.totalItems = 0;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.msg = "Entity ID probably does not exist";
+                            break;
+                        default:
+                            response.msg = error.Description;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
+        }
+
+        public NPVRRetrieveSeriesResponse RetrieveSeries(NPVRRetrieveParamsObj args)
+        {
+            NPVRRetrieveSeriesResponse res = new NPVRRetrieveSeriesResponse();
+            try
+            {
+                if (IsRetrieveSeriesInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+                    if (args.PageSize > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
+                        urlParams.Add(new KeyValuePair<string,string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
+                    }
+
+                    string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetRetrieveSeriesResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("RetrieveAssets. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                    }
+                }
+                else
+                {
+                    // input not valid
+                    throw new ArgumentException("RetrieveSeries input is invalid.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveSeries.", args, ex), GetLogFilename());
+                throw;
+            }
+
+            return res;
+        }
+
+        //public NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args)
+        //{
+        //    NPVRRetrieveAssetsResponse res = new NPVRRetrieveAssetsResponse();
+        //    try
+        //    {
+        //        ulong uniqueSearchBy = 0;
+        //        if (IsRetrieveAssetsInputValid(args, ref uniqueSearchBy))
+        //        {
+
+        //            List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
+        //            urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+        //            urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+        //            urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+        //            if (args.PageSize > 0)
+        //            {
+        //                urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
+        //                urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
+        //            }
+        //            else
+        //            {
+        //                // bring all. just for readability. no code is supposed to be here.
+
+        //            }
+
+        //            IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
+        //            foreach (SearchByField sbf in searchByFields)
+        //            {
+        //                switch (sbf)
+        //                {
+        //                    case SearchByField.byAssetId:
+        //                        if (args.AssetIDs.Count > 0)
+        //                        {
+        //                            urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.AssetIDs, false)));
+        //                        }
+        //                        else
+        //                        {
+        //                            urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
+        //                        }
+        //                        break;
+        //                    case SearchByField.byChannelId:
+        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
+        //                        break;
+        //                    case SearchByField.byProgramId:
+        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
+        //                        break;
+        //                    case SearchByField.byStartTime:
+        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+        //                        break;
+        //                    case SearchByField.byStatus:
+        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
+        //                        break;
+        //                    default:
+        //                        break;
+        //                }
+        //            } //foreach
+
+        //            string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+
+        //            int httpStatusCode = 0;
+        //            string responseJson = string.Empty;
+        //            string errorMsg = string.Empty;
+
+        //            if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+        //            {
+        //                if (httpStatusCode == HTTP_STATUS_OK)
+        //                {
+        //                    GetRetrieveAssetsResponse(responseJson, args, res);
+        //                }
+        //                else
+        //                {
+        //                    throw new Exception(string.Format("RetrieveAssets. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+        //                }
+        //            }
+        //            else
+        //            {
+        //                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+        //                // add status fail to response obj.
+        //            }
+        //        }
+        //        else
+        //        {
+        //            throw new ArgumentException("RetrieveAssets. Input is invalid.");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveAssets.", args, ex), GetLogFilename());
+        //        throw;
+        //    }
+
+        //    return res;
+        //}
     }
 }

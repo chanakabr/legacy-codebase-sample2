@@ -3147,6 +3147,37 @@ namespace Catalog
             return res;
         }
 
+        internal static List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(int groupID, NPVRRetrieveSeriesRequest request)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
+                if (npvr != null)
+                {
+                    int domainID = 0;
+                    if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+                    {
+
+                    }
+                    else
+                    {
+                        throw new Exception("Either user is not valid or user has no domain.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("INPVRProvider instance is null.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+            }
+
+            return res;
+        }
+
         internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;

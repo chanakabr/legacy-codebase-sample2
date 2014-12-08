@@ -123,4 +123,13 @@ namespace ApiObjects
         [EnumMember]
         DESC = 1
     }
+
+    public class RecordedSeriesObject
+    {
+        public string recordingID;
+        public string epgChannelID;
+        public string seriesID;
+        public string seriesName;
+
+    }
 }

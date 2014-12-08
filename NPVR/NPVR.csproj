@@ -51,8 +51,10 @@
     <Compile Include="AlcatelLucentResponses\GetLocatorResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\QuotaResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\ReadResponseJSON.cs" />
+    <Compile Include="AlcatelLucentResponses\ReadSeriesResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordAssetResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordSeriesResponseJSON.cs" />
+    <Compile Include="AlcatelLucentResponses\SeriesEntryJSON.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="INPVRProvider.cs" />
     <Compile Include="NPVRCancelDeleteResponse.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="NPVRRecordResponse.cs" />
     <Compile Include="NPVRRetrieveAssetsResponse.cs" />
     <Compile Include="NPVRRetrieveParamsObj.cs" />
+    <Compile Include="NPVRRetrieveSeriesResponse.cs" />
     <Compile Include="NPVRUserActionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

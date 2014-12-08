@@ -32,5 +32,6 @@ namespace NPVR
 
         NPVRLicensedLinkResponse GetNPVRLicensedLink(NPVRParamsObj args);
 
+        NPVRRetrieveSeriesResponse RetrieveSeries(NPVRRetrieveParamsObj args);
     }
 }
