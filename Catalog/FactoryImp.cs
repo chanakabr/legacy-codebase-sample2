@@ -196,6 +196,10 @@ namespace Catalog
             {
                 return (NPVRRetrieveRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is NPVRSeriesRequest)
+            {
+                return (NPVRSeriesRequest)m_oBaseRequest;
+            }
 
             return null;
         }

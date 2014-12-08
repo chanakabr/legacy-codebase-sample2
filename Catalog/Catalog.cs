@@ -3147,9 +3147,9 @@ namespace Catalog
             return res;
         }
 
-        internal static List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(int groupID, NPVRRetrieveSeriesRequest request)
+        internal static List<RecordedSeriesObject> GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
         {
-            List<RecordedEPGChannelProgrammeObject> res = null;
+            List<RecordedSeriesObject> res = null;
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
             {
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
@@ -3158,6 +3158,23 @@ namespace Catalog
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
+                        NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
+                        if (response != null)
+                        {
+                            if (response.isOK)
+                            {
+                                res = response.results;
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg), "GetSeriesRecordings");
+                                res = new List<RecordedSeriesObject>(0);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("NPVR layer returned response null.");
+                        }
 
                     }
                     else

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Catalog
 {
-    public class NPVRRetrieveSeriesResponse : BaseResponse
+    public class NPVRSeriesResponse : BaseResponse
     {
         public List<RecordedSeriesObject> recordedSeries;
         public int totalItems;

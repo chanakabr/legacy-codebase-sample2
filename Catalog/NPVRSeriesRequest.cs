@@ -9,7 +9,7 @@ using System.Text;
 namespace Catalog
 {
     [DataContract]
-    public class NPVRRetrieveSeriesRequest : BaseRequest, IRequestImp
+    public class NPVRSeriesRequest : BaseRequest, IRequestImp
     {
         [DataMember]
         public RecordedEPGOrderObj m_oOrderObj;
@@ -24,10 +24,14 @@ namespace Catalog
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
+            NPVRSeriesResponse res = new NPVRSeriesResponse();
             try
             {
                 CheckRequestValidness();
                 CheckSignature(this);
+                res.recordedSeries = Catalog.GetSeriesRecordings(m_nGroupID, this);
+                res.totalItems = res.recordedSeries.Count;
+
 
             }
             catch (Exception ex)
@@ -35,6 +39,8 @@ namespace Catalog
                 Logger.Logger.Log("Exception", string.Format("Exception at NPVRRetrieveSeriesRequest. Msg: {0} , Ex Type: {1} , Req: {2} , ST: {3}", ex.Message, ex.GetType().Name, ToString(), ex.StackTrace), "NPVRRetrieveSeriesRequest");
                 throw ex;
             }
+
+            return res;
         }
     }
 }
