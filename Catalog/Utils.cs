@@ -569,7 +569,12 @@ namespace Catalog
             #region define date filter
             ESRange dateRange = new ESRange(false) { Key = "action_date" };
             string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            string sMin = DateTime.UtcNow.AddSeconds(-30.0).ToString("yyyyMMddHHmmss");
+
+            double csts = GetDoubleValFromConfig("CrowdSourceTimeSpan");
+            if (csts == 0)
+                csts = 30.0;
+
+            string sMin = DateTime.UtcNow.AddSeconds(-1*csts).ToString("yyyyMMddHHmmss");
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
             filter.AddChild(dateRange);
@@ -581,20 +586,14 @@ namespace Catalog
             filter.AddChild(esActionTerm);
             #endregion
 
-            #region define mediaType
+            #region define media Type filter
             if (nMediaTypes != null && nMediaTypes.Count > 0)
             {
-                ESTerms esMediaTypeTerm = new ESTerms(false) { Key = "media_type_id" };
-                foreach (Int32 MediaTypes in nMediaTypes)
-                {
-                    esMediaTypeTerm.Value.Add(MediaTypes.ToString());
-                }
-
-                filter.AddChild(esMediaTypeTerm);
+                ESTerms esMediaTypeTerms = new ESTerms(true) { Key = "media_type" };
+                esMediaTypeTerms.Value.AddRange(nMediaTypes.Select(item => item.ToString()));
+                filter.AddChild(esMediaTypeTerms);
             }
             #endregion
-
-
 
             filteredQuery.Filter.FilterSettings = filter;
 
@@ -631,7 +630,6 @@ namespace Catalog
                             {
                                 channelViews.Add(new ChannelViewsResult(nChannelID, count));
                             }
-
                         }
                     }
                 }
