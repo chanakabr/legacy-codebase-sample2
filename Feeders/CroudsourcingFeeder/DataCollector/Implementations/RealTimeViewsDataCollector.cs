@@ -11,7 +11,6 @@ using ApiObjects.CrowdsourceItems.Implementations;
 using ApiObjects.SearchObjects;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
-using Tvinci.Core.DAL;
 
 namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
@@ -40,7 +39,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_oFilter = new Filter()
                     {
 
-                    }
+                    },
                 });
                 if (response != null)
                 {
