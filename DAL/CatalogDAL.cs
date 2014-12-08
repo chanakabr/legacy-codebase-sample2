@@ -245,13 +245,13 @@ namespace Tvinci.Core.DAL
             DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            int nNumOfUsers = 30;
+            //int nNumOfUsers = 30;
             int nNumOfMedias = 8;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
-            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
+            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).ToList(); //.Take(nNumOfUsers).ToList();
 
             bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)? true: false;
             if (bContunueWithCB)
@@ -1525,32 +1525,59 @@ namespace Tvinci.Core.DAL
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList);
+            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList).Limit(30);
+            int nUserID = 0;
 
-            foreach (var row in res)
+            if (res != null)
             {
-                int nMediaID = 0;
-                int nUserID = 0;
+                List<int> userList = new List<int>();
 
-                DateTime lastDate;
-
-                if (row.Info != null && row.Info.Values != null)
+                foreach (var row in res)
                 {
-                    if (row.Info["key"] != null && row.Info["value"] != null)
+                    if (row.Info != null && row.Info.Values != null)
                     {
-                        object objMediaID = row.Info["key"];
-                        object[] arUserDates = (object[])row.Info["value"];
+                        if (row.Info["key"] != null && row.Info["value"] != null)
+                        {
+                            object[] arUserDates = (object[])row.Info["value"];
+                            int.TryParse(arUserDates[0].ToString(), out nUserID);
+                            userList.Add(nUserID);
+                        }
+                    }
+                }
+                if (userList != null && userList.Count > 0)
+                {
 
-                        int.TryParse(objMediaID.ToString(), out nMediaID);
+                    var resMedia = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(userList);
 
-                        int.TryParse(arUserDates[0].ToString(), out nUserID);
-                        DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                        UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
-                        mediasMarksList.Add(objUserMediaMark);
+                    foreach (var row in resMedia)
+                    {
+                        int nMediaID = 0;
+                        nUserID = 0;
+
+                        DateTime lastDate;
+                        if (row.Info != null && row.Info.Values != null)
+                        {
+                            if (row.Info["key"] != null && row.Info["value"] != null)
+                            {
+                                // key = user
+                                object objUserID = row.Info["key"];
+                                object[] arUserDates = (object[])row.Info["value"];
+                                int.TryParse(arUserDates[0].ToString(), out nMediaID);
+
+                                if (!mediasList.Contains(nMediaID))
+                                {
+                                    int.TryParse(objUserID.ToString(), out nUserID);
+                                    DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
+                                    UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                                    mediasMarksList.Add(objUserMediaMark);
+                                }
+                            }
+                        }
                     }
                 }
             }
             return mediasMarksList;
+
         }
 
         public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
