@@ -11,7 +11,6 @@ using ApiObjects.CrowdsourceItems.Implementations;
 using ApiObjects.SearchObjects;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
-using Tvinci.Core.DAL;
 
 namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
@@ -40,7 +39,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_oFilter = new Filter()
                     {
 
-                    }
+                    },
                 });
                 if (response != null)
                 {
@@ -72,8 +71,10 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     string catalogSignString = Guid.NewGuid().ToString();
                     foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                     {
-                        int epgId;
-                        int.TryParse(((MediaObj)mediaInfo.Value.m_lObj[0]).m_ExternalIDs, out epgId);
+                        if (mediaInfo.Value != null && mediaInfo.Value.m_lObj.Length > 0)
+                        {
+                            int epgId;
+                            int.TryParse(((MediaObj)mediaInfo.Value.m_lObj[0]).m_ExternalIDs, out epgId);
 
                             RealTimeViewsItem crowdsourceItem = new RealTimeViewsItem()
                             {
@@ -94,8 +95,6 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                 }).ToArray();
                             };
 
-
-
                             //Get EPG item language specific info 
                             EpgResponse programInfoForLanguage = (EpgResponse)CatalogClient.GetResponse(new EpgRequest()
                             {
@@ -115,7 +114,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                 m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                             });
 
-                            if (programInfoForLanguage != null && mediaInfo.Value.m_lObj[0] != null)
+                            if (programInfoForLanguage != null && programInfoForLanguage.programsPerChannel != null && programInfoForLanguage.programsPerChannel.Length > 0 && mediaInfo.Value != null && mediaInfo.Value.m_lObj[0] != null)
                             {
                                 crowdsourceItem.ProgramId = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].EPG_ID;
                                 crowdsourceItem.ProgramImage = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].PIC_URL;
@@ -124,9 +123,10 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                             }
                             retDictionary.Add(mediaInfo.Key.ID, crowdsourceItem);
                         }
-                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item {1} - no media info: ", CollectorType, item.Id), "Crowdsourcing");
                     }
-                
+                    Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item {1} - no media info: ", CollectorType, item.Id), "Crowdsourcing");
+                }
+
                 Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item is null - no EpgId: ", CollectorType), "Crowdsourcing");
 
                 return retDictionary;
