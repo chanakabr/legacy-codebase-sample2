@@ -2169,5 +2169,29 @@ namespace Tvinci.Core.DAL
             dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
             return dmm;
         }
+
+        public static List<int> Get_LinearMediaType(int parentGroupID)
+        {
+            List<int> res = new List<int>();
+
+            StoredProcedure sp = new StoredProcedure("Get_LinearMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i=0; i < dt.Rows.Count ; i++)
+                    {
+                        res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+            }
+
+            return res;
+        }
     }
 }

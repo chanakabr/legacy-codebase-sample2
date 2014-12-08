@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Tvinci.Core.DAL;
 
 namespace Catalog
 {
@@ -10,13 +11,22 @@ namespace Catalog
     [DataContract]
     public class ChannelViewsRequest : BaseRequest, IRequestImp
     {
+
+        public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes)
+            : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
+        {
+            
+        }
+
         public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
-        { }
+        {
+            
+        }
 
         public ChannelViewsRequest()
         {
-
+           
         }
 
         protected override void CheckRequestValidness()
@@ -28,12 +38,16 @@ namespace Catalog
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             ChannelViewsResponse response = new ChannelViewsResponse();
+
+            CheckRequestValidness();
+            CheckSignature(this);
+            
             try
             {
-                CheckRequestValidness();
-                CheckSignature(this);
+                //Get Linear Media Type
+                List<int> nMediaTypes = CatalogDAL.Get_LinearMediaType(m_nGroupID);
 
-                List<ChannelViewsResult> channelViewsResult = Catalog.GetChannelViewsResult(m_nGroupID);
+                List<ChannelViewsResult> channelViewsResult = Utils.GetChannelViewsResult(m_nGroupID, nMediaTypes);
 
                 if (channelViewsResult != null && channelViewsResult.Count > 0)
                 {
