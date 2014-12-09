@@ -106,7 +106,6 @@
     <Compile Include="RecordResponse.cs" />
     <Compile Include="RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="RecordSeriesByProgramIdNPVRCommand.cs" />
-    <Compile Include="RetrieveNPVRCommand.cs" />
     <Compile Include="RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
