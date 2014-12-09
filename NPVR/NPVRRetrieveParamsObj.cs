@@ -15,6 +15,7 @@ namespace NPVR
         protected List<NPVRRecordingStatus> recordingStatus;
         protected List<string> epgProgramIDs;
         protected List<string> assetIDs;
+        protected List<string> seriesIDs;
 
 
         public virtual List<SearchByField> SearchBy
@@ -132,6 +133,20 @@ namespace NPVR
             set
             {
                 assetIDs = value;
+            }
+        }
+
+        public virtual List<string> SeriesIDs
+        {
+            get
+            {
+                if (seriesIDs == null)
+                    seriesIDs = new List<string>();
+                return seriesIDs;
+            }
+            set
+            {
+                seriesIDs = value;
             }
         }
 

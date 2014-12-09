@@ -31,6 +31,9 @@ namespace Catalog
 
         [DataMember]
         public RecordedEPGOrderObj m_oOrderObj;
+
+        [DataMember]
+        public List<string> m_lSeriesIDs;
         
         protected override void CheckRequestValidness()
         {

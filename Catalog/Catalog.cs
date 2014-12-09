@@ -3216,12 +3216,15 @@ namespace Catalog
                         {
                             case NPVRSearchBy.ByStartDate:
                                 args.StartDate = request.m_dtStartDate;
+                                args.SearchBy.Add(SearchByField.byStartTime);
                                 break;
                             case NPVRSearchBy.ByRecordingStatus:
                                 args.RecordingStatus.AddRange(request.m_lRecordingStatuses.Distinct().Select((item) => (NPVRRecordingStatus)((int)item)));
+                                args.SearchBy.Add(SearchByField.byStatus);
                                 break;
                             case NPVRSearchBy.ByRecordingID:
                                 args.AssetIDs.AddRange(request.m_lRecordingIDs.Distinct());
+                                args.SearchBy.Add(SearchByField.byAssetId);
                                 break;
                             default:
                                 break;
@@ -3230,6 +3233,7 @@ namespace Catalog
                         if (request.m_nEPGChannelID > 0)
                         {
                             args.EpgChannelID = request.m_nEPGChannelID.ToString();
+                            args.SearchBy.Add(SearchByField.byChannelId);
                         }
                         if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
                         {
@@ -3237,11 +3241,17 @@ namespace Catalog
                             if (epgs != null && epgs.Count > 0)
                             {
                                 args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
+                                args.SearchBy.Add(SearchByField.byProgramId);
                             }
                             else
                             {
                                 Logger.Logger.Log("Error", string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()), "GetRecordings");
                             }
+                        }
+                        if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
+                        {
+                            args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
+                            args.SearchBy.Add(SearchByField.bySeasonId);
                         }
 
                         NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);

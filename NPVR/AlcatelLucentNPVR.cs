@@ -862,6 +862,9 @@ namespace NPVR
                             case SearchByField.byStatus:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
                                 break;
+                            case SearchByField.bySeasonId:
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.SeriesIDs, false)));
+                                break;
                             default:
                                 break;
                         }
