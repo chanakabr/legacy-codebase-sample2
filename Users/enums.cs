@@ -145,7 +145,8 @@ namespace Users
     {
         All = 0,
         Watch = 1,
-        Purchase = 2
+        Purchase = 2,
+        Library = 3
     }
 
     public enum ItemType
