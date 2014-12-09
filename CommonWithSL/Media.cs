@@ -46,8 +46,12 @@ namespace CommonWithSL
         {
             get
             {
-                Random gen = new Random();
-                return gen.Next(100) < 20;
+                bool isRecordOnly = false;
+                if (Tags != null && Tags.ContainsKey("RecordOnly") && bool.TryParse(Tags["RecordOnly"], out isRecordOnly))
+                {
+                    return isRecordOnly;
+                }
+                return isRecordOnly;
             }
         }
 
