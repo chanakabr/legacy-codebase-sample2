@@ -387,6 +387,7 @@ namespace ConditionalAccess
                         {
                             // cannot protect series recording.
                             res.status = NPVRStatus.BadRequest.ToString();
+                            res.msg = "Cannot protect Series recording.";
                         }
                         else
                         {

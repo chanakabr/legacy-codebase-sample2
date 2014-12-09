@@ -8,6 +8,6 @@ namespace ConditionalAccess
     public class NPVRResponse
     {
         public string status;
-
+        public string msg;
     }
 }
