@@ -370,11 +370,15 @@ namespace TVPPro.SiteManager.Helper
 
         public static string FBTokenValidation(string sToken)
         {
-            string response;
-            TvinciPlatform.Social.FacebookTokenResponse fbResponse = SocialService.Instance.FBTokenValidation(sToken);
+            string response = string.Empty;
+            var postData = new
+            {
+                initObj = getInitObj(),
+                token = sToken
+            };
+            // make the request
+            response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.FBTokenValidation, new JavaScriptSerializer().Serialize(postData));
 
-            // return the response
-            response = (fbResponse != null) ? new JavaScriptSerializer().Serialize(fbResponse) : null;
             return response;
         }
 
