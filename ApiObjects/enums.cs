@@ -221,7 +221,7 @@ namespace ApiObjects
     public enum NPVRSearchBy
     {
         [EnumMember]
-        None = 0,
+        Other = 0,
         [EnumMember]
         ByRecordingID = 1,
         [EnumMember]
