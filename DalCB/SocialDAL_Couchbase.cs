@@ -127,6 +127,27 @@ namespace DalCB
             return lRes;
         }
 
+        public List<SocialActivityDoc> GetUserSocialAction(List<int> lSocialActionsTypes, string sSiteGuid, int eSocialPlatform)
+        {
+            List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
+            List<List<object>> keys = new List<List<object>>();
+            foreach (int socialActionsTypes in lSocialActionsTypes)
+            {
+                keys.Add(new List<object>() { sSiteGuid, eSocialPlatform, socialActionsTypes });
+            }            
+
+            try
+            {
+                lRes = m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList(); 
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error", string.Format("Caught exception in GetUserSocialAction for UserSocialActions view. ex={0}; stack={1}", ex.Message, ex.StackTrace), LOGGER_FILENAME);
+            }
+
+            return lRes;
+        }
+
         //returns user social actions by descending date
         public bool GetUserSocialAction(string sSiteGuid, int nNumOfRecords, int nSkip, out List<SocialActivityDoc> lUserActivities)
         {
