@@ -570,7 +570,7 @@ namespace ConditionalAccess
             TvinciDomains.DeviceResponseObject resp = null;
             bool res = false;
             string wsUsername = string.Empty, wsPassword = string.Empty;
-            Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
+            Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
             if(string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword)) 
             {
                 Logger.Logger.Log("Error", string.Format("Failed to retrieve WS_Domains credentials. UDID: {0} , D ID: {1}", udid, domainID), "GetDeviceStreamTypeAndProfile");
@@ -579,7 +579,7 @@ namespace ConditionalAccess
             using (TvinciDomains.module domains = new TvinciDomains.module())
             {
                 resp = domains.GetDeviceInfo(wsUsername, wsPassword, udid, true);
-                if (resp != null && resp.m_oDeviceResponseStatus == TvinciDomains.DeviceResponseStatus.OK && resp.m_oDevice != null && domainID == resp.m_oDevice.m_domainID)
+                if (resp != null && resp.m_oDeviceResponseStatus == TvinciDomains.DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == TvinciDomains.DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
                 {
                     streamType = resp.m_oDevice.m_sStreamType;
                     profile = resp.m_oDevice.m_sProfile;

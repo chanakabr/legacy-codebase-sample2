@@ -219,13 +219,13 @@ namespace Users
                         }
                         else
                         {
-                            m_DomainStatus = DomainStatus.Error;
+                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                             Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg), "Domain");
                         }
                     }
                     else
                     {
-                        m_DomainStatus = DomainStatus.Error;
+                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                         Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
                     }
 
