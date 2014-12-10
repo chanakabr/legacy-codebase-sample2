@@ -73,7 +73,10 @@ namespace EPG_XDTVTransform
                 try
                 {
                     transformer.Transform(XMLDoc, writer);
-                    xmlResult.LoadXml(writer.ToString());
+
+                    string utf8String = Utils.convertUTF16toUTF8(writer.ToString());
+                    
+                    xmlResult.LoadXml(utf8String);                   
                 }
                 catch (Exception exp)
                 {
@@ -83,6 +86,7 @@ namespace EPG_XDTVTransform
                 return xmlResult;
             }
         }
+    
 
         private Dictionary<int, int> getALUIDs()
         {

@@ -29,6 +29,10 @@ namespace EPG_XDTVTransform
             m_oXslArguments.AddExtensionObject("pda:Utils", m_oAdapter);
             m_oXslArguments.AddParam("ID", "", nChannelID);
             m_oXslArguments.AddParam("channelName", "", sChannelName);
+            string from = DateTime.Now.AddYears(-1).ToString("yyyy-MM-ddThh:mm:ssZ");
+            string to = DateTime.Now.AddYears(1).ToString("yyyy-MM-ddThh:mm:ssZ");
+            m_oXslArguments.AddParam("from", "", from);
+            m_oXslArguments.AddParam("to", "", to);
             m_oXslt.Load(XSLT_DEFAULT_FILE);
         }
 

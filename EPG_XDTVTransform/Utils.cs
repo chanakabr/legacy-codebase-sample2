@@ -75,5 +75,34 @@ namespace EPG_XDTVTransform
             }
 
         }
+
+        public static string convertUTF16toUTF8(string input)
+        {
+            string result = string.Empty;
+            try
+            {
+                // Convert the string into a byte array. 
+                var bytes = Encoding.Unicode.GetBytes(input);
+
+                // Perform the conversion from one encoding to the other. 
+                byte[] ut8fBytes = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, bytes);
+
+                // Convert the new byte[] into a char[] and then into a string. 
+                char[] utf8Chars = new char[Encoding.UTF8.GetCharCount(ut8fBytes, 0, ut8fBytes.Length)];
+                Encoding.UTF8.GetChars(ut8fBytes, 0, ut8fBytes.Length, utf8Chars, 0);
+                result = new string(utf8Chars);
+
+                //the string is already converted to UTF-*, now just removing the xml-declaration
+                if (result.Contains("encoding=\"utf-16\""))
+                {
+                    result = result.Replace("encoding=\"utf-16\"", "");
+                }
+            }
+            catch (Exception exc)
+            {
+
+            }
+            return result;
+        }
     }
 }
