@@ -119,9 +119,9 @@ namespace ApiObjects
     public enum RecordedEPGOrderDir
     {
         [EnumMember]
-        ASC = 0,
+        DESC = 0,
         [EnumMember]
-        DESC = 1
+        ASC = 1
     }
 
     public class RecordedSeriesObject

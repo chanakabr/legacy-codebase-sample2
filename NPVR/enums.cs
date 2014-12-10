@@ -54,8 +54,8 @@ namespace NPVR
 
     public enum NPVROrderDir
     {
-        ASC = 0,
-        DESC = 1
+        DESC = 0,
+        ASC = 1
     }
 
     public enum NPVROrderBy
