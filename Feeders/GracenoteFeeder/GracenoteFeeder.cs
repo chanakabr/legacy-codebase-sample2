@@ -338,9 +338,13 @@ namespace GracenoteFeeder
             string sUrlALUCheck = TVinciShared.WS_Utils.GetTcmConfigValue("alcatelLucentHostCheck");
             string sUrlALUSend = TVinciShared.WS_Utils.GetTcmConfigValue("alcatelLucentHostSend");
 
+            XmlNodeList xmlChannel = XMLDoc.GetElementsByTagName("TVGRIDBATCH");
+            string sChannelExternalID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
+            
             args.Add(GroupID);
             args.Add(sUrlALUCheck);
             args.Add(sUrlALUSend);
+            args.Add(sChannelExternalID);//this is the "Channel_ID column in epg_channels table
             args.Add(compressedXML);
 
             BaseCeleryData data = new BaseCeleryData(id, task, args);
