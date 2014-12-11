@@ -1062,6 +1062,276 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public RecordResponse RecordAsset(string siteGuid, long domainId, string udid, string epgId)
+        {
+            RecordResponse res = null;
+
+            try
+            {
+                RecordNPVRCommand commend = new RecordNPVRCommand()
+                {
+                    assetID = epgId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend) as RecordResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("RecordAsset: Error calling webservice protocol : GetNPVRResponse with RecordNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, epgId: {4}", 
+                    ex.Message, siteGuid, domainId, udid, epgId);
+            }
+            return res;
+        }
+
+        public NPVRResponse CancelAssetRecording(string siteGuid, long domainId, string udid, string recordingId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                CancelNPVRCommand commend = new CancelNPVRCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("CancelAssetRecording: Error calling webservice protocol : GetNPVRResponse with CancelNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, recordingId);
+            }
+            return res;
+        }
+
+        public NPVRResponse DeleteAssetRecording(string siteGuid, long domainId, string udid, string recordingId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                DeleteNPVRCommand commend = new DeleteNPVRCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("DeleteAssetRecording: Error calling webservice protocol : GetNPVRResponse with DeleteNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, recordingId);
+            }
+            return res;
+        }
+
+        public QuotaResponse GetNPVRQuota(string siteGuid, long domainId, string udid)
+        {
+            QuotaResponse res = null;
+
+            try
+            {
+                RetrieveQuotaNPVRCommand commend = new RetrieveQuotaNPVRCommand()
+                {
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend) as QuotaResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("GetNPVRQuota: Error calling webservice protocol : GetNPVRResponse with RetrieveQuotaNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}",
+                    ex.Message, siteGuid, domainId, udid);
+            }
+            return res;
+        }
+
+        public NPVRResponse RecordSeriesByName(string siteGuid, long domainId, string udid, string assetId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                RecordSeriesByNameNPVRCommand commend = new RecordSeriesByNameNPVRCommand()
+                {
+                    assetID = assetId,                    
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("RecordSeriesByName: Error calling webservice protocol : GetNPVRResponse with RecordSeriesByNameNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, assetId: {4}",
+                    ex.Message, siteGuid, domainId, udid, assetId);
+            }
+            return res;
+        }
+
+        public NPVRResponse RecordSeriesByProgramId(string siteGuid, long domainId, string udid, string assetId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                RecordSeriesByProgramIdNPVRCommand commend = new RecordSeriesByProgramIdNPVRCommand()
+                {
+                    assetID = assetId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("RecordSeriesByProgramId: Error calling webservice protocol : GetNPVRResponse with RecordSeriesByProgramIdNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, assetId: {4}",
+                    ex.Message, siteGuid, domainId, udid, assetId);
+            }
+            return res;
+        }
+
+        public NPVRResponse DeleteSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                DeleteSeriesNPVRCommand commend = new DeleteSeriesNPVRCommand()
+                {
+                    assetID = seriesRecordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("CancelSeriesRecording: Error calling webservice protocol : GetNPVRResponse with CancelSeriesNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesRecordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, seriesRecordingId);
+            }
+            return res;
+        }
+
+        public NPVRResponse CancelSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                CancelSeriesNPVRCommand commend = new CancelSeriesNPVRCommand()
+                {
+                    assetID = seriesRecordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("CancelSeriesRecording: Error calling webservice protocol : GetNPVRResponse with CancelSeriesNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesRecordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, seriesRecordingId);
+            }
+            return res;
+        }
+
+        public NPVRResponse SetAssetProtectionStatus(string siteGuid, long domainId, string udid, string recordingId, bool isProtect)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                ProtectNPVRCommand commend = new ProtectNPVRCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    isProtect = isProtect,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("SetAssetProtectionStatus: Error calling webservice protocol : GetNPVRResponse with ProtectNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, isProtect: {5}",
+                    ex.Message, siteGuid, domainId, udid, recordingId, isProtect);
+            }
+            return res;
+        }
+
+        public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid, 
+            string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode, string couponCode, int format)
+        {
+            LicensedLinkNPVRResponse res = null;
+
+            try
+            {
+                LicensedLinkNPVRCommand commend = new LicensedLinkNPVRCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    startTime = startTime,
+                    mediaFileID = mediaFileID,
+                    basicLink = basicLink,
+                    userIP = userIP,
+                    referrer = referrer,
+                    countryCd = countryCode,
+                    langCd = languageCode,
+                    couponCode = couponCode,
+                    format = format,                    
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName
+                };
+
+                res = m_Module.GetNPVRResponse(commend) as LicensedLinkNPVRResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("GetNPVRLicensedLink: Error calling webservice protocol : GetNPVRResponse with LicensedLinkNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, startTime: {5}, mediaFileID: {6}, basicLink: {7}, userIP: {8}, referrer: {9}, countryCode: {10}, languageCode: {11}, couponCode: {12}, format: {13}",
+                    ex.Message, siteGuid, domainId, udid, recordingId, startTime, mediaFileID, basicLink, userIP, referrer, countryCode, languageCode, couponCode, format);
+            }
+            return res;
+        }
+
         #endregion
     }
 }

@@ -267,5 +267,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP);
+
+        [OperationContract]
+        List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex, NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj);
+
+        [OperationContract]
+        List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj);
     }
 }
