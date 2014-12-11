@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -600,9 +601,32 @@ namespace DAL
         }
         #endregion
 
+
+        public static int Get_NPVRProviderID(long groupID)
+        {
+            int res = 0;
+            StoredProcedure sp = new StoredProcedure("Get_NPVRProviderID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["npvr_provider_id"]);
+                }
+            }
+
+            return res;
+        }
+
+
         internal static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
         {
             return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
+
         }
     }
 }

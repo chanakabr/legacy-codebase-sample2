@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
+using System.Web.Script.Serialization;
 
 namespace ApiObjects
 {
@@ -280,6 +282,9 @@ namespace ApiObjects
         public int nFBMinFriends;
         public string sFBPermissions;
         public string sFBRedirect;
+        
+        [XmlIgnore] [ScriptIgnore]
+        public string sFBToken;
 
         public FacebookConfig()
         {
@@ -288,6 +293,7 @@ namespace ApiObjects
             sFBCallback = string.Empty;
             sFBPermissions = string.Empty;
             sFBRedirect = string.Empty;
+            sFBToken = string.Empty;
             nFBMinFriends = 0;
         }
 

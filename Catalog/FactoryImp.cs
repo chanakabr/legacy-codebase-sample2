@@ -188,6 +188,18 @@ namespace Catalog
             {
                 return (DomainLastPositionRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is EpgProgramDetailsRequest)
+            {
+                return (EpgProgramDetailsRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is NPVRRetrieveRequest)
+            {
+                return (NPVRRetrieveRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is NPVRSeriesRequest)
+            {
+                return (NPVRSeriesRequest)m_oBaseRequest;
+            }
 
             return null;
         }

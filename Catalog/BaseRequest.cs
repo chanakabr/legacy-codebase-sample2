@@ -54,6 +54,7 @@ namespace Catalog
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
     [ServiceKnownType(typeof(DomainLastPositionRequest))]
+    [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
 
     [DataContract]
     public class BaseRequest

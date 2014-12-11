@@ -9,7 +9,7 @@ using Logger;
 namespace Catalog
 {
     [DataContract]
-    public class EpgProgramDetailsRequest : BaseRequest, IProgramsRequest
+    public class EpgProgramDetailsRequest : BaseRequest, IProgramsRequest , IRequestImp
     {
          private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -26,10 +26,10 @@ namespace Catalog
         {  
         }
 
-        private void CheckRequestValidness(EpgProgramDetailsRequest programRequest)
+        protected override void CheckRequestValidness()
         {
-            if (programRequest == null || programRequest.m_lProgramsIds == null || programRequest.m_lProgramsIds.Count == 0)
-                throw new ArgumentException("request object is null or required variables are missing");
+            if (m_lProgramsIds == null || m_lProgramsIds.Count == 0)
+                throw new ArgumentException("No programs ids in request.");
         }
 
         /*Get Program Details By ProgramsIds*/
@@ -39,19 +39,68 @@ namespace Catalog
           
             try
             {
-                CheckRequestValidness(programRequest);
+                CheckRequestValidness();
 
-                CheckSignature(programRequest);
+                CheckSignature(this);
 
-                Catalog.CompleteDetailsForProgramResponse(programRequest, ref pResponse);
+                Catalog.CompleteDetailsForProgramResponse(this, ref pResponse);
 
                 return pResponse;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                StringBuilder sb = new StringBuilder("Exception at GetProgramsByIDs. ");
+                sb.Append(String.Concat(" Req: ", ToString()));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "EpgProgramDetailsRequest");
                 throw ex;
             }
+        }
+
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(base.ToString(), " || "));
+
+            if (m_lProgramsIds != null && m_lProgramsIds.Count > 0)
+            {
+                sb.Append("P IDs: ");
+                for (int i = 0; i < m_lProgramsIds.Count; i++)
+                {
+                    sb.Append(String.Concat(m_lProgramsIds[i], ";"));
+                }
+            }
+            else
+            {
+                sb.Append("No program ids.");
+            }
+
+            return sb.ToString();
+        }
+
+
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        {   
+            try
+            {
+                EpgProgramDetailsRequest request = oBaseRequest as EpgProgramDetailsRequest;
+
+                if (request == null)
+                    throw new ArgumentException("request object is null or Required variables is null");
+
+                EpgProgramResponse oEpgProgramResponse = GetProgramsByIDs(request);
+
+                return oEpgProgramResponse;                
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("EpgProgramDetailsRequest", String.Format("Failed ex={0}, siteGuid={1}, group_id={3} , ST: {4}", ex.Message,
+                  oBaseRequest.m_sSiteGuid, oBaseRequest.m_nGroupID, ex.StackTrace), "EpgProgramDetailsRequest");
+                return new EpgProgramResponse();
+            }
+
         }
     }
 }

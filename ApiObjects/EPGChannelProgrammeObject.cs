@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects
@@ -87,5 +88,48 @@ namespace ApiObjects
             EPG_CHANNEL_ID = nEPG_CHANNEL_ID;
             EPGChannelProgrammeObject = oEPGChannelProgrammeObject;
         }
+    }
+
+    public class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject
+    {
+        public string RecordingID;
+        public bool IsAssetProtected;
+        public string ChannelName;
+    }
+
+    [DataContract]
+    public class RecordedEPGOrderObj
+    {
+        public RecordedEPGOrderBy m_eOrderBy;
+        public RecordedEPGOrderDir m_eOrderDir;
+
+    }
+
+    [DataContract]
+    public enum RecordedEPGOrderBy
+    {
+        [EnumMember]
+        StartTime = 0,
+        [EnumMember]
+        Name = 1,
+        [EnumMember]
+        ChannelID = 2
+    }
+
+    public enum RecordedEPGOrderDir
+    {
+        [EnumMember]
+        DESC = 0,
+        [EnumMember]
+        ASC = 1
+    }
+
+    public class RecordedSeriesObject
+    {
+        public string recordingID;
+        public string epgChannelID;
+        public string seriesID;
+        public string seriesName;
+
     }
 }

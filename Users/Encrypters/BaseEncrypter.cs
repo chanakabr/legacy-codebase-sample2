@@ -12,11 +12,13 @@ namespace Users
 
         protected string GetRand64String()
         {
-            RandomNumberGenerator rng = new RNGCryptoServiceProvider();
-            byte[] tokenData = new byte[32];
-            rng.GetBytes(tokenData);
+            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenData = new byte[32];
+                rng.GetBytes(tokenData);
 
-            return Convert.ToBase64String(tokenData);
+                return Convert.ToBase64String(tokenData);
+            }
         }
 
         public abstract void GenerateEncryptPassword(string clearPassword, ref string EncryptPassword, ref string salt);
