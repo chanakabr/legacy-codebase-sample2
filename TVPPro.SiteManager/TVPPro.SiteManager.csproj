@@ -134,6 +134,8 @@
     <Compile Include="CatalogLoaders\EPGCommentLoader.cs" />
     <Compile Include="CatalogLoaders\MediaHitLoader.cs" />
     <Compile Include="CatalogLoaders\MediaMarkLoader.cs" />
+    <Compile Include="CatalogLoaders\NPVRRetrieveLoader.cs" />
+    <Compile Include="CatalogLoaders\NPVRSeriesLoader.cs" />
     <Compile Include="Helper\CatalogExtensions.cs" />
     <Compile Include="CatalogLoaders\FlashMediaLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCache.cs" />

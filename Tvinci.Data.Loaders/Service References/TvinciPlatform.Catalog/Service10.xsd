@@ -72,6 +72,67 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
+  <xs:simpleType name="NPVRSearchBy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Other" />
+      <xs:enumeration value="ByRecordingID" />
+      <xs:enumeration value="ByStartDate" />
+      <xs:enumeration value="ByRecordingStatus" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="NPVRSearchBy" nillable="true" type="tns:NPVRSearchBy" />
+  <xs:complexType name="ArrayOfRecordingStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RecordingStatus" type="tns:RecordingStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRecordingStatus" nillable="true" type="tns:ArrayOfRecordingStatus" />
+  <xs:simpleType name="RecordingStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Completed" />
+      <xs:enumeration value="Ongoing" />
+      <xs:enumeration value="Scheduled" />
+      <xs:enumeration value="Cancelled" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="RecordingStatus" nillable="true" type="tns:RecordingStatus" />
+  <xs:complexType name="RecordedEPGOrderObj">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="RecordedEPGOrderObj" nillable="true" type="tns:RecordedEPGOrderObj" />
+  <xs:complexType name="ArrayOfRecordedEPGChannelProgrammeObject">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RecordedEPGChannelProgrammeObject" nillable="true" type="tns:RecordedEPGChannelProgrammeObject" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRecordedEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfRecordedEPGChannelProgrammeObject" />
+  <xs:complexType name="RecordedEPGChannelProgrammeObject">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:EPGChannelProgrammeObject">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="ChannelName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="IsAssetProtected" type="xs:boolean" />
+          <xs:element minOccurs="0" name="RecordingID" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="RecordedEPGChannelProgrammeObject" nillable="true" type="tns:RecordedEPGChannelProgrammeObject" />
+  <xs:complexType name="ArrayOfRecordedSeriesObject">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RecordedSeriesObject" nillable="true" type="tns:RecordedSeriesObject" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRecordedSeriesObject" nillable="true" type="tns:ArrayOfRecordedSeriesObject" />
+  <xs:complexType name="RecordedSeriesObject">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="epgChannelID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="recordingID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="seriesID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="seriesName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RecordedSeriesObject" nillable="true" type="tns:RecordedSeriesObject" />
   <xs:simpleType name="eAction">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Off" />
