@@ -337,8 +337,8 @@ namespace TVPPro.SiteManager.Helper
             {
                 userAction = action.ToString(),
                 initObj = getInitObj(),
-                socialPlatform = SOCIAL_PLATFORMS.FACEBOOK,
-                assetType = assetType,
+                socialPlatform = SOCIAL_PLATFORMS.FACEBOOK.ToString(),
+                assetType = assetType.ToString(),
                 assetID = assetID,
                 numOfRecords = 0,
                 startIndex = 0
