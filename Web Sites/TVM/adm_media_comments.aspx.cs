@@ -101,6 +101,8 @@ public partial class adm_media_comments : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable += "select q.*,CASE ll.name when '---' then 'All' ELSE ll.name END as 'Valid for languages' from (select mc.language_id,mc.media_id,mc.comment_type_id,mc.is_active,mc.id,mc.status,m.NAME as 'Media',mc.HEADER as 'Header',mc.SUB_HEADER as 'Sub Header',mc.CONTENT_TEXT as 'Comment',mc.COMMENT_IP as 'IP',lcs.description as 'State' from media m,lu_content_status lcs,media_comments mc where lcs.id=mc.status and m.id=mc.media_id and m.status=1 and m.status=1 and " + PageUtils.GetStatusQueryPart("mc") + "and";
+             
+        
         if (Session["media_id"].ToString() != "0")
         {
             theTable += ODBCWrapper.Parameter.NEW_PARAM("mc.media_id", "=", int.Parse(Session["media_id"].ToString()));
@@ -108,7 +110,9 @@ public partial class adm_media_comments : System.Web.UI.Page
         }
         theTable += ODBCWrapper.Parameter.NEW_PARAM("mc.COMMENT_TYPE_ID", "=", int.Parse(Session["comment_type_id"].ToString()));
         theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("mc.GROUP_ID", "=", nGroupID);
+        
+        //theTable += ODBCWrapper.Parameter.NEW_PARAM("mc.GROUP_ID", "=", nGroupID);
+        theTable += " mc.GROUP_ID in (select * from dbo.F_Get_GroupsTree(" + nGroupID + ") ) ";  
         if (Session["search_on_off"] != null && Session["search_on_off"].ToString() != "" && Session["search_on_off"].ToString() != "-1")
         {
             theTable += " and ";
@@ -120,6 +124,7 @@ public partial class adm_media_comments : System.Web.UI.Page
             string sL = "LTRIM(RTRIM(LOWER(mc.header)))" + sLike + " OR LTRIM(RTRIM(LOWER(mc.sub_header)))" + sLike + " OR mc.CONTENT_TEXT" + sLike;
             theTable += " and (" + sL + ")";
         }
+          
         theTable += ")q left join lu_languages ll on ll.id=q.language_id";
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
