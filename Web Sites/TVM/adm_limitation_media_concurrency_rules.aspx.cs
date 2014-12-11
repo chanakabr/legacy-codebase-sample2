@@ -84,15 +84,6 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
     {
     }
 
-    public string GetIPAddress()
-    {
-        string strHostName = System.Net.Dns.GetHostName();
-        System.Net.IPHostEntry ipHostInfo = System.Net.Dns.Resolve(System.Net.Dns.GetHostName());
-        System.Net.IPAddress ipAddress = ipHostInfo.AddressList[0];
-
-        return ipAddress.ToString();
-    }
-
     protected void InsertDeviceMediaConcurrencyRules(Int32 nMCRuleID, Int32 ndeviceLimitIDID, Int32 nGroupID)
     {
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("groups_device_media_concurrency_rules");
@@ -187,7 +178,7 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
     {
         bool bRet = false;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select RULE_ID from groups_device_media_concurrency_rules where status=1 and ";
+        selectQuery += "select MEDIA_CONCURRENCY_RULE_ID from groups_device_media_concurrency_rules where status=1 and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_CONCURRENCY_RULE_ID", "=", mcID);
         selectQuery += " and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_LIMITATION_ID", "=", dlID);
