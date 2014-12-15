@@ -3092,12 +3092,18 @@ namespace TVPApiServices
                 try
                 {
 
-                    sRet = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
+                    var res = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
                     {
                         DomainID = initObj.DomainID,
                         Platform = initObj.Platform.ToString()
-                    }.Execute() as DomainLastPositionResponse;                    
-                    
+                    }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.DomainLastPositionResponse;
+
+                    sRet = new DomainLastPositionResponse()
+                    {
+                        m_lPositions = res.m_lPositions,
+                        m_sDescription = res.m_sDescription,
+                        m_sStatus = res.m_sStatus
+                    };
                 }
                 catch (Exception ex)
                 {
