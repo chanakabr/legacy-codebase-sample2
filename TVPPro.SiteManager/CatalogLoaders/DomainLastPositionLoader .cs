@@ -63,7 +63,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 Log("Got:", m_oResponse);
                 retVal = m_oResponse as DomainLastPositionResponse;
             }
-            return retVal != null ? retVal.m_sStatus : null;
+            return retVal;
         }
 
         protected override void Log(string message, object obj)
