@@ -56,7 +56,7 @@
       <xsl:value-of select="$ID"/>
     </xsl:attribute>
     <xsl:element name="callSign" xmlns="urn:TMSWebServices">
-      <xsl:value-of select="$response /*[local-name()='TVGRIDBATCH']/*[local-name()='GN_ID']"/>
+      <xsl:value-of select="$ID"/>
     </xsl:element>
   </xsl:template>
 
