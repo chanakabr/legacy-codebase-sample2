@@ -48,9 +48,9 @@ namespace TVPApiModule.Objects
 
         }
 
-        public virtual string MediaHit(int nMediaID, int nFileID, int nLocationID)
+        public virtual string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID)
         {
-            return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID);
+            return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID, sNPVRID);
         }
 
 
@@ -59,9 +59,9 @@ namespace TVPApiModule.Objects
             return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, _initObj.SiteGuid, sExtraParams, _initObj.UDID, sPaymentMethodID, sEncryptedCVV);
         }
 
-        public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID)
+        public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID)
         {
-            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaType, nMediaID, nFileID, nLocationID);
+            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaType, nMediaID, nFileID, nLocationID, sNPVRID);
         }
 
         public virtual bool IsItemPurchased(int iFileID, string sUserGuid)

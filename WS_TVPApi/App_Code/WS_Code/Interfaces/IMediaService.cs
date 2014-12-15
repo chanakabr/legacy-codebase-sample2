@@ -98,10 +98,10 @@ namespace TVPApiServices
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation);
+        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation);
+        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);

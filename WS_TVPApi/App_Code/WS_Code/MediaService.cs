@@ -1223,7 +1223,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
-        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
 
@@ -1235,7 +1235,7 @@ namespace TVPApiServices
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation, NPVRID);
                 }
                 catch (Exception ex)
                 {
@@ -1251,7 +1251,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
-        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
 
@@ -1263,7 +1263,7 @@ namespace TVPApiServices
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation, NPVRID);
                 }
                 catch (Exception ex)
                 {
