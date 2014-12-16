@@ -136,4 +136,27 @@ namespace ApiObjects.SearchObjects
             m_nScore = nScore;
         }
     }
+
+
+    public class StatisticsActionSearchObj
+    {       
+        public CutWith m_eCutWith;
+
+        public int MediaID;
+        public int GroupID;
+        public string MediaType;
+        public DateTime Date;
+        public string Action;
+        public int RateValue;
+
+        public StatisticsActionSearchObj()
+        { 
+            m_eCutWith = CutWith.AND;
+            GroupID = 0;
+            MediaType = string.Empty;
+            Date = DateTime.UtcNow;
+            Action = string.Empty;
+            RateValue = 0;
+        }
+    }
 }

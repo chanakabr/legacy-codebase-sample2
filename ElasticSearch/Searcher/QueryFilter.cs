@@ -346,7 +346,8 @@ namespace ElasticSearch.Searcher
         BOOL_QUERY,
         MULTI_MATCH,
         EXISTS,
-        MATCH
+        MATCH,
+        MATCH_ALL
     }
 
     public enum eRangeComp

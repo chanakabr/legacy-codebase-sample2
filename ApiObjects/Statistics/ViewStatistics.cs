@@ -49,4 +49,18 @@ namespace ApiObjects.Statistics
 
         }
     }
+
+    [Serializable]
+    [JsonObject(Id = "StatisticsView")]
+    public class StatisticsView : MediaView
+    {
+        [JsonProperty("id")]
+        public string ID { get; set; }
+
+        public StatisticsView()
+            : base()
+        {
+            ID = string.Empty;
+        }
+    }
 }
