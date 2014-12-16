@@ -14,6 +14,7 @@ namespace ElasticSearch.Common
     public class ElasticSearchApi
     {
         public static readonly string ES_URL = Common.Utils.GetWSURL("ES_URL");
+        public static readonly string ALT_ES_URL = Common.Utils.GetWSURL("ALT_ES_URL");
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
         public string GetDoc(string sIndex, string sType, string sDocId)
@@ -26,7 +27,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sDocId);
             int nStatus = 0;
 
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
             if (nStatus != 200)
             {
@@ -90,7 +91,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}", ES_URL, sIndex);
             int nStatus = 0;
 
-            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sBuildIndex.ToString());
+            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sBuildIndex.ToString(), true);
 
             bRes = (nStatus == 200) ? true : false;
 
@@ -107,7 +108,7 @@ namespace ElasticSearch.Common
 
                 int nStatus = 0;
 
-                string sRetval = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sMappingObject);
+                string sRetval = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sMappingObject, true);
 
                 bResult = (nStatus == 200) ? true : false;
 
@@ -149,7 +150,7 @@ namespace ElasticSearch.Common
                 string sUrl = string.Format("{0}/_aliases", ES_URL);
                 int nStatus = 0;
 
-                string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString());
+                string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString(), true);
 
                 bResult = (nStatus == 200) ? true : false;
 
@@ -171,7 +172,7 @@ namespace ElasticSearch.Common
                 {
                     sUrl = string.Format("{0}/{1}", ES_URL, sIndex);
                     nStatus = 0;
-                    string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty);
+                    string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
                     if (nStatus != 200)
                         Logger.Logger.Log("Error", string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval), ES_LOG_FILENAME);
@@ -194,7 +195,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sId);
             int nStatus = 0;
 
-            string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty);
+            string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
             deleteResult = ESDeleteResult.GetDeleteResult(sRetVal);
 
@@ -209,7 +210,7 @@ namespace ElasticSearch.Common
                 string sUrl = string.Format("{0}/{1}/{2}/_query", ES_URL, sIndex, sType);
                 int nStatus = 0;
 
-                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
                 Logger.Logger.Log("Status", string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery), ES_LOG_FILENAME);
                 bResult = nStatus == 200;
 
@@ -239,7 +240,7 @@ namespace ElasticSearch.Common
                 string sUrl = string.Format("{0}/{1}/_aliases", ES_URL, sIndex);
                 int nStatus = 0;
 
-                string sObj = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
+                string sObj = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
                 if (nStatus == 200 && !string.IsNullOrEmpty(sObj))
                 {
@@ -279,7 +280,7 @@ namespace ElasticSearch.Common
 
                 string sUrl = string.Format("{0}/{1}/_settings", ES_URL, sIndex);
                 int nStatus  = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
                 bRes = (nStatus == 200) ? true : false;
             }
@@ -296,7 +297,7 @@ namespace ElasticSearch.Common
 
                 string sUrl = string.Format("{0}/{1}/{2}/_mapping", ES_URL, sIndex, sType);
                 int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
                 bRes = (nStatus == 200) ? true : false;
             }
@@ -312,7 +313,7 @@ namespace ElasticSearch.Common
             {
                 string sUrl = string.Format("{0}/{1}/_mapping", ES_URL, sIndex);
                 int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
                 sRes = (nStatus == 200) ? sResponse : sRes;
             }
@@ -329,7 +330,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sID);
             int nStatus = 0;
 
-            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc);
+            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
 
             bRes = (nStatus == 200) ? true : false;
             if (!bRes)
@@ -375,7 +376,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/_bulk", ES_URL);
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams);
+            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
             Logger.Logger.Log("Finish ES Update", sRetVal, "ESFeeder");
             //Will need to add treatment on objects that returned with an "ok": false
 
@@ -413,7 +414,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/_bulk", ES_URL);
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams);
+            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
             Logger.Logger.Log("Finish ES Update", sRetVal, ES_LOG_FILENAME);
             //Will need to add treatment on objects that returned with an "ok": false
 
@@ -439,7 +440,7 @@ namespace ElasticSearch.Common
             }
             int nStatus = 0;
 
-            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery);
+            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
 
             if (nStatus != 200)
             {
@@ -480,7 +481,7 @@ namespace ElasticSearch.Common
 
             string sUrl = string.Format("{0}/_msearch", ES_URL);
             int nStatus = 0;
-            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString());
+            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
 
             if (nStatus != 200)
             {
@@ -501,7 +502,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/_percolate ", ES_URL, sIndex, sType);
             int nStatus = 0;
 
-            string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc);
+            string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
 
             if (nStatus != 200)
             {
@@ -545,7 +546,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/_percolator/{1}/{2} ", ES_URL, sIndex, sQueryName);
             int nStatus = 0;
 
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
+            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
 
             if (nStatus == 200)
             {
@@ -615,7 +616,7 @@ namespace ElasticSearch.Common
                 {
                     string sUrl = string.Format("{0}/{1}/{2}/_mget", ES_URL, sIndex, sType);
                     int nHttpStatusCode = 0;
-                    res = SendPostHttpReq(sUrl, ref nHttpStatusCode, string.Empty, string.Empty, sQuery);
+                    res = SendPostHttpReq(sUrl, ref nHttpStatusCode, string.Empty, string.Empty, sQuery, true);
                     if (nHttpStatusCode != 200)
                     {
                         res = string.Empty;
@@ -681,7 +682,7 @@ namespace ElasticSearch.Common
         }
 
         #region HTTP requests
-        public string SendPostHttpReq(string sUrl, ref int nStatus, string sUserName, string sPassword, string sParams)
+        public string SendPostHttpReq(string sUrl, ref int nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
         {
             Int32 nStatusCode = -1;
 
@@ -728,11 +729,18 @@ namespace ElasticSearch.Common
                 }
             }
 
+            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
+            if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+            {
+                string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
+                res = SendPostHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
+            }
+
             nStatus = nStatusCode;
             return res;
         }
 
-        public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
+        public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, bool isFirstTry)
         {
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
             HttpWebResponse oWebResponse = null;
@@ -756,6 +764,14 @@ namespace ElasticSearch.Common
                 oWebResponse.Close();
                 oWebRequest = null;
                 oWebResponse = null;
+
+                //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
+                if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+                {
+                    string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
+                    resultString = SendGetHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, false);
+                }
+
                 nStatus = nStatusCode;
                 return resultString;
             }
@@ -771,7 +787,7 @@ namespace ElasticSearch.Common
             }
         }
 
-        public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
+        public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
         {
             Int32 nStatusCode = -1;
 
@@ -815,6 +831,13 @@ namespace ElasticSearch.Common
                 {
                     if (errorStream != null) errorStream.Close();
                 }
+            }
+
+            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
+            if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+            {
+                string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
+                res = SendDeleteHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
             }
 
             nStatus = nStatusCode;
