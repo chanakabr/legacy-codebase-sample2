@@ -25,9 +25,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string MediaDuration { get; set; }
         public string SiteGuid { get; set; }
         public string UDID { get; set; }
+        public string NPVRID { get; set; }
 
         #region Constructors
-        public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration)
+        public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -35,6 +36,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             Location = location;
             MediaFileID = mediaFileID;
             MediaID = mediaID;
+            NPVRID = npvrID;
             TotalBitRate = totalBitRate;
             Action = action;
             MediaDuration = MediaDuration;
@@ -42,13 +44,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
             UDID = udid;
         }
 
-        public MediaHitLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, udid, mediaID, mediaFileID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration)
+        public MediaHitLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration)
         {
         }
 
-        public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, Provider provider)
-            : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration)
+        public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, Provider provider)
+            : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration)
         {
             m_oProvider = provider;
         }
@@ -69,7 +71,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sAction = Action,
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
-                    m_sUDID = UDID
+                    m_sUDID = UDID,
+                    m_sNpvrID = NPVRID,
                 },
                 m_sSiteGuid = SiteGuid
             };

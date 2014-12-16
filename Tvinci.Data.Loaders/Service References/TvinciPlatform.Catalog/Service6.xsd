@@ -103,19 +103,6 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
-  <xs:complexType name="ArrayOfSearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
-  <xs:complexType name="SearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="assetID" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
   <xs:complexType name="ArrayOfEpgResultsObj">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="EpgResultsObj" nillable="true" type="tns:EpgResultsObj" />
@@ -148,4 +135,17 @@
     <xs:sequence />
   </xs:complexType>
   <xs:element name="SearchValue" nillable="true" type="tns:SearchValue" />
+  <xs:complexType name="ArrayOfSearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
+  <xs:complexType name="SearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="assetID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
 </xs:schema>

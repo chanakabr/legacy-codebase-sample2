@@ -28,9 +28,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
         public string MediaCDN { get; set; }
+        public string NPVRID { get; set; }
+
 
         #region Constructors
-        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
+        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -46,15 +48,16 @@ namespace TVPPro.SiteManager.CatalogLoaders
             ErrorCode = errorCode;
             ErrorMessage = errorMessage;
             MediaCDN = mediaCDN;
+            NPVRID = npvrID;
         }
 
-        public MediaMarkLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, udid, mediaID, mediaFileID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
+        public MediaMarkLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
         {
         }
 
-        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, Provider provider)
-            : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
+        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, Provider provider)
+            : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
         {
             m_oProvider = provider;
         }
@@ -75,7 +78,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sAction = Action,
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
-                    m_sUDID = UDID
+                    m_sUDID = UDID,
+                    m_sNpvrID = NPVRID
                 }, 
                 m_sErrorCode = ErrorCode,
                 m_sErrorMessage = ErrorMessage,
