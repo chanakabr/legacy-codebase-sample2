@@ -47,7 +47,8 @@ public partial class Gateways_JsonPostGW : BaseGateway
                               !pair.Key.Equals("metaPairs") &&
                               !pair.Key.Equals("userBasicData") &&
                               !pair.Key.Equals("userDynamicData")) &&
-                              !pair.Key.Equals("orderObj") ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                              !pair.Key.Equals("orderObj") &&
+                              !pair.Key.Equals("recordedEPGOrderObj") ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }

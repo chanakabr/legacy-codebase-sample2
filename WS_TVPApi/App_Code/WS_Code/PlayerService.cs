@@ -122,7 +122,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation, string.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -148,7 +148,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, string.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +212,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage);
+                    ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage, string.Empty);
                 }
                 catch (Exception ex)
                 {

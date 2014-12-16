@@ -28,6 +28,7 @@ using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Objects;
 using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
+using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj;
 using System.Data;
 
 namespace TVPApiServices
@@ -1223,7 +1224,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
-        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
 
@@ -1235,7 +1236,7 @@ namespace TVPApiServices
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation, NPVRID);
                 }
                 catch (Exception ex)
                 {
@@ -1251,7 +1252,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
-        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
 
@@ -1263,7 +1264,7 @@ namespace TVPApiServices
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation, NPVRID);
                 }
                 catch (Exception ex)
                 {
@@ -3091,6 +3092,7 @@ namespace TVPApiServices
             {
                 try
                 {
+<<<<<<< HEAD
 
                     var res = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
                     {
@@ -3104,6 +3106,13 @@ namespace TVPApiServices
                         m_sDescription = res.m_sDescription,
                         m_sStatus = res.m_sStatus
                     };
+=======
+                    sRet = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
+                    {
+                        DomainID = initObj.DomainID,
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as DomainLastPositionResponse;                    
+>>>>>>> NPVR
                 }
                 catch (Exception ex)
                 {
@@ -3113,8 +3122,73 @@ namespace TVPApiServices
             else
                 HttpContext.Current.Items.Add("Error", "Unknown group");
 
-
             return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Retrieves Recordings for User")]
+        public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
+            NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
+                    {
+                        m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
+                        m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
+                    };
+                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatuses, recordingIDs, programIDs, startDate, catalogOrderObj)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as List<RecordedEPGChannelProgrammeObject>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
+            return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
+        public List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSeriesRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
+                    {
+                        
+                        m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
+                        m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
+                    };
+                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as List<RecordedEPGChannelProgrammeObject>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
+            return res;
         }
 
     }

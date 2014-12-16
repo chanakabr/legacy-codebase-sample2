@@ -98,10 +98,10 @@ namespace TVPApiServices
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation);
+        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation);
+        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
@@ -267,5 +267,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP);
+
+        [OperationContract]
+        List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex, NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj);
+
+        [OperationContract]
+        List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj);
     }
 }

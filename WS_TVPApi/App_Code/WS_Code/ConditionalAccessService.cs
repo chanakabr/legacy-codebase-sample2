@@ -889,5 +889,276 @@ namespace TVPApiServices
             return links;
         }
 
+
+
+        public RecordResponse RecordAsset(InitializationObject initObj, string epgId)
+        {
+            RecordResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordAsset", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordAsset(initObj.SiteGuid, initObj.DomainID, initObj.UDID, epgId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public NPVRResponse CancelAssetRecording(InitializationObject initObj, string recordingId)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelAssetRecording", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CancelAssetRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DeleteAssetRecording", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteAssetRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public QuotaResponse GetNPVRQuota(InitializationObject initObj)
+        {
+            QuotaResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetNPVRQuota", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRQuota(initObj.SiteGuid, initObj.DomainID, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        //public NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId)
+        //{
+        //    NPVRResponse res = null;
+
+        //    string clientIp = SiteHelper.GetClientIP();
+
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordSeriesByName", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesByName(initObj.SiteGuid, initObj.DomainID, initObj.UDID, assetId);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
+
+        //    return res;
+        //}
+
+        public NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordSeriesByProgramId", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesByProgramId(initObj.SiteGuid, initObj.DomainID, initObj.UDID, assetId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DeleteSeriesRecording", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, seriesRecordingId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public NPVRResponse CancelSeriesRecording(InitializationObject initObj, string seriesRecordingId)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSeriesRecording", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, seriesRecordingId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetAssetProtectionStatus", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).SetAssetProtectionStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, isProtect);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
+        public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode)
+        {
+            LicensedLinkNPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetNPVRLicensedLink", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
     }
 }
