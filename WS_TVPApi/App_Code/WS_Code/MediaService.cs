@@ -3092,8 +3092,6 @@ namespace TVPApiServices
             {
                 try
                 {
-<<<<<<< HEAD
-
                     var res = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
                     {
                         DomainID = initObj.DomainID,
@@ -3106,13 +3104,6 @@ namespace TVPApiServices
                         m_sDescription = res.m_sDescription,
                         m_sStatus = res.m_sStatus
                     };
-=======
-                    sRet = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
-                    {
-                        DomainID = initObj.DomainID,
-                        Platform = initObj.Platform.ToString()
-                    }.Execute() as DomainLastPositionResponse;                    
->>>>>>> NPVR
                 }
                 catch (Exception ex)
                 {
