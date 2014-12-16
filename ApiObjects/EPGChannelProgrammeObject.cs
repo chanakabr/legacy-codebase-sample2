@@ -97,14 +97,18 @@ namespace ApiObjects
         public string ChannelName;
     }
 
+    [Serializable]
     [DataContract]
     public class RecordedEPGOrderObj
     {
+        [DataMember]
         public RecordedEPGOrderBy m_eOrderBy;
+        [DataMember]
         public RecordedEPGOrderDir m_eOrderDir;
 
     }
 
+    [Serializable]
     [DataContract]
     public enum RecordedEPGOrderBy
     {
@@ -116,6 +120,8 @@ namespace ApiObjects
         ChannelID = 2
     }
 
+    [Serializable]
+    [DataContract]
     public enum RecordedEPGOrderDir
     {
         [EnumMember]
