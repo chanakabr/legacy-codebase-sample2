@@ -28,6 +28,7 @@ using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Objects;
 using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
+using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj;
 using System.Data;
 
 namespace TVPApiServices
@@ -3120,7 +3121,12 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatuses, recordingIDs, programIDs, startDate, recordedEPGOrderObj)
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
+                    {
+                        m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
+                        m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
+                    };
+                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatuses, recordingIDs, programIDs, startDate, catalogOrderObj)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;
@@ -3147,7 +3153,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, recordedEPGOrderObj)
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
+                    {
+                        
+                        m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
+                        m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
+                    };
+                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;

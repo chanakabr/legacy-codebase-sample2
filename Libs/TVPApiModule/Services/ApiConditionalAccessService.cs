@@ -1297,7 +1297,7 @@ namespace TVPApiModule.Services
         }
 
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid, 
-            string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode, string couponCode, int format)
+            string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1317,7 +1317,7 @@ namespace TVPApiModule.Services
                     countryCd = countryCode,
                     langCd = languageCode,
                     couponCode = couponCode,
-                    format = format,                    
+                    format = 3,                    
                     wsPassword = m_wsPassword,
                     wsUsername = m_wsUserName
                 };
@@ -1327,7 +1327,7 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("GetNPVRLicensedLink: Error calling webservice protocol : GetNPVRResponse with LicensedLinkNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, startTime: {5}, mediaFileID: {6}, basicLink: {7}, userIP: {8}, referrer: {9}, countryCode: {10}, languageCode: {11}, couponCode: {12}, format: {13}",
-                    ex.Message, siteGuid, domainId, udid, recordingId, startTime, mediaFileID, basicLink, userIP, referrer, countryCode, languageCode, couponCode, format);
+                    ex.Message, siteGuid, domainId, udid, recordingId, startTime, mediaFileID, basicLink, userIP, referrer, countryCode, languageCode, couponCode);
             }
             return res;
         }

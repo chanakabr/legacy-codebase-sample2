@@ -999,32 +999,32 @@ namespace TVPApiServices
             return res;
         }
 
-        public NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId)
-        {
-            NPVRResponse res = null;
+        //public NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId)
+        //{
+        //    NPVRResponse res = null;
 
-            string clientIp = SiteHelper.GetClientIP();
+        //    string clientIp = SiteHelper.GetClientIP();
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordSeriesByName", initObj.ApiUser, initObj.ApiPass, clientIp);
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordSeriesByName", initObj.ApiUser, initObj.ApiPass, clientIp);
 
-            if (groupId > 0)
-            {
-                try
-                {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesByName(initObj.SiteGuid, initObj.DomainID, initObj.UDID, assetId);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesByName(initObj.SiteGuid, initObj.DomainID, initObj.UDID, assetId);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return res;
-        }
+        //    return res;
+        //}
 
         public NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId)
         {
@@ -1134,7 +1134,7 @@ namespace TVPApiServices
             return res;
         }
 
-        public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode, int format)
+        public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1146,7 +1146,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode, format);
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode);
                 }
                 catch (Exception ex)
                 {

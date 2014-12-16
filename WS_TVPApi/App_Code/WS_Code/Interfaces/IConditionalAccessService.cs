@@ -116,8 +116,8 @@ namespace TVPApiServices
         [OperationContract]
         QuotaResponse GetNPVRQuota(InitializationObject initObj);
 
-        [OperationContract]
-        NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId);
+        //[OperationContract]
+        //NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId);
 
         [OperationContract]
         NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId);
@@ -132,7 +132,7 @@ namespace TVPApiServices
         NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect);
 
         [OperationContract]
-        LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode, int format);
+        LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode);
 
     }
 }
