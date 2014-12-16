@@ -138,7 +138,7 @@ namespace ApiObjects.SearchObjects
     }
 
 
-    public class SocialActionSearchObj
+    public class StatisticsActionSearchObj
     {       
         public CutWith m_eCutWith;
 
@@ -149,7 +149,7 @@ namespace ApiObjects.SearchObjects
         public string Action;
         public int RateValue;
 
-        public SocialActionSearchObj()
+        public StatisticsActionSearchObj()
         { 
             m_eCutWith = CutWith.AND;
             GroupID = 0;
