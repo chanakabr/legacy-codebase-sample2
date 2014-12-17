@@ -569,6 +569,11 @@ namespace DAL
             return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
         }
 
+        public static string getUserMediaMarkDocKey(string sSiteUserGuid, int nMediaID)
+        {
+            return string.Format("u{0}_m{1}", sSiteUserGuid, nMediaID);
+        }
+
         public static string getDomainMediaMarksDocKey(int nDomainID)
         {
             return string.Format("d{0}", nDomainID);
