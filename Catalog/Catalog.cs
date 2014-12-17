@@ -174,17 +174,25 @@ namespace Catalog
                         }
 
                         /*last watched - By SiteGuid <> 0*/
-                        if (ds.Tables.Count == 7)
+
+                        if (!string.IsNullOrEmpty(mediaRequest.m_sSiteGuid) && mediaRequest.m_sSiteGuid != "0")
                         {
-                            if (ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                            DateTime? dtLastWatch = null;
+
+                            // ask CB for it
+                            try
                             {
-                                oMediaObj.m_sLastWatchedDevice = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastDeviceName");
-                                string sLastWatchedDate = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastWatchedDate");
-                                if (!string.IsNullOrEmpty(sLastWatchedDate))
-                                {
-                                    oMediaObj.m_dLastWatchedDate = System.Convert.ToDateTime(sLastWatchedDate);
-                                }
+                                 dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, mediaRequest.m_sSiteGuid);
                             }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Error", 
+                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", mediaRequest.m_sSiteGuid, nMedia, ex.Message), 
+                                    "Catalog");
+                            }
+
+                            oMediaObj.m_dLastWatchedDate = dtLastWatch;
+
                         }
                     }
                     else
