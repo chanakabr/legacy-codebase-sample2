@@ -51,13 +51,13 @@ namespace ApiObjects.Statistics
     }
 
     [Serializable]
-    [JsonObject(Id = "SocialActionView")]
-    public class SocialActionView : MediaView
+    [JsonObject(Id = "StatisticsView")]
+    public class StatisticsView : MediaView
     {
         [JsonProperty("id")]
         public string ID { get; set; }
 
-        public SocialActionView()
+        public StatisticsView()
             : base()
         {
             ID = string.Empty;
