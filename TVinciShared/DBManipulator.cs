@@ -247,6 +247,8 @@ namespace TVinciShared
                         }
                         Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
                         string selectedRatioVal = string.Empty;
+
+
                         if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
                         {
                             selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
@@ -335,6 +337,10 @@ namespace TVinciShared
                                     {
                                         List<string> lSizes = new List<string>();
                                         lSizes.Add("full");
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            lSizes.Add("tn");
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -380,7 +386,7 @@ namespace TVinciShared
                                         }
 
                                         string[] sPicSizes = lSizes.ToArray();
-                                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName,sBasePath, sPicSizes, nGroupID);//send to Rabbit
+                                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
                                     }
                                     #endregion
                                 }
@@ -402,7 +408,6 @@ namespace TVinciShared
                                     if (mediaID > 0)
                                     {
                                         sPicBaseName = ImageUtils.GetDateImageName(mediaID);
-                                        //isOverridePic = true;
                                     }
                                     else
                                     {
@@ -414,7 +419,7 @@ namespace TVinciShared
                                         Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
                                     }
 
-                                    //sPicBaseName = ImageUtils.GetDateImageName();
+
                                     sUploadedFile = theFile.FileName;
                                     int nExtractPos = sUploadedFile.LastIndexOf(".");
                                     if (nExtractPos > 0)
@@ -441,21 +446,18 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                                        bool bExists = System.IO.File.Exists(sTmpImage);
-                                        Int32 nAdd = 0;
-                                        //while (bExists)
-                                        //{
-                                        //    if (sPicBaseName.IndexOf("_") != -1)
-                                        //        sPicBaseName = sPicBaseName.Substring(0, sPicBaseName.IndexOf("_"));
-                                        //    sPicBaseName += "_" + nAdd.ToString();
-                                        //    sTmpImage = sBasePath + "/" + sDirectory + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                                        //    bExists = System.IO.File.Exists(sTmpImage);
-                                        //    nAdd++;
-                                        //}
-                                        theFile.SaveAs(sTmpImage);
+                                        string sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                        bool bExists = System.IO.File.Exists(sFullImage);
+                                        theFile.SaveAs(sFullImage);
+                                        UploadPicToGroup(nGroupID, sFullImage);
 
-                                        UploadPicToGroup(nGroupID, sTmpImage);
+                                        //add a "tn" size upload to pictre size at FTP 
+                                        if (coll["6_val"] == "on" && !string.IsNullOrEmpty(sPicBaseName))
+                                        {
+                                            string sTNImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt;
+                                            ImageUtils.ResizeImageAndSave(sFullImage, sTNImage, 90, 65, true, true);
+                                            UploadPicToGroup(nGroupID, sTNImage);
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -470,7 +472,7 @@ namespace TVinciShared
                                                 string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                                                 string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                                                 string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
-                                                string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                                                string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
                                                 if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
                                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                                 {
@@ -478,21 +480,21 @@ namespace TVinciShared
                                                     Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
                                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                                     {
-                                                        Logger.Logger.Log("Ratio un-matched", sTmpImage1, "Ratio");
+                                                        Logger.Logger.Log("Ratio un-matched", sTmpImage, "Ratio");
                                                         isResize = false;
                                                     }
                                                     else
                                                     {
-                                                        Logger.Logger.Log("Ratio matched", sTmpImage1, "Ratio");
+                                                        Logger.Logger.Log("Ratio matched", sTmpImage, "Ratio");
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    Logger.Logger.Log("Ratio not found", sTmpImage1, "Ratio");
+                                                    Logger.Logger.Log("Ratio not found", sTmpImage, "Ratio");
                                                 }
                                                 if (isResize)
                                                 {
-                                                    ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
+                                                    ImageUtils.ResizeImageAndSave(sFullImage, sTmpImage, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
 
                                                     UploadPicToGroup(nGroupID, sTmpImage);
                                                 }
@@ -501,11 +503,14 @@ namespace TVinciShared
                                             else
                                                 bCont1 = false;
                                         }
+
+
+
                                     }
                                     #endregion
                                 }
                             }
-                            
+
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", sPicBaseName + sUploadedFileExt);
                         }
                     }
@@ -557,7 +562,7 @@ namespace TVinciShared
                 if (bCollection == true)
                 {
                     if (selectQuery.Execute("query", true) != null)
-                        HandleMany2Many(ref selectQuery , sConnectionKey);
+                        HandleMany2Many(ref selectQuery, sConnectionKey);
                 }
             }
             else
@@ -570,7 +575,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static protected void DropOldMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, object mainPointerValue, string sListIDs , Int32 nGroupID , string sConnectionKey)
+        static protected void DropOldMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, object mainPointerValue, string sListIDs, Int32 nGroupID, string sConnectionKey)
         {
             //Int32 nGroupID = LoginManager.GetLoginGroupID();
             string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
@@ -615,19 +620,19 @@ namespace TVinciShared
             updateQuery1 = null;
         }
 
-        static protected void DropOldMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, object mainPointerValue, string sListIDs , string sConnectionKey)
+        static protected void DropOldMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, object mainPointerValue, string sListIDs, string sConnectionKey)
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
             DropOldMany2Many(sMiddleTable, sMiddleFieldRefToMain, mainPointerValue, sListIDs, nGroupID, sConnectionKey);
         }
 
-        static protected void InsertNewMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, string sMiddleFieldRefToCollection, object mainPointerValue, object collectionPointreValue , string sConnectionKey)
+        static protected void InsertNewMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, string sMiddleFieldRefToCollection, object mainPointerValue, object collectionPointreValue, string sConnectionKey)
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
             InsertNewMany2Many(sMiddleTable, sMiddleFieldRefToMain, sMiddleFieldRefToCollection, mainPointerValue, collectionPointreValue, nGroupID, sConnectionKey);
         }
 
-        static protected void InsertNewMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, string sMiddleFieldRefToCollection, object mainPointerValue, object collectionPointreValue , Int32 nGroupID , string sConnectionKey)
+        static protected void InsertNewMany2Many(string sMiddleTable, string sMiddleFieldRefToMain, string sMiddleFieldRefToCollection, object mainPointerValue, object collectionPointreValue, Int32 nGroupID, string sConnectionKey)
         {
             //Int32 nGroupID = LoginManager.GetLoginGroupID();
             string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
@@ -694,8 +699,8 @@ namespace TVinciShared
         //sAddExtra
 
         static public void GetManyToManyContainer(ref System.Collections.Specialized.NameValueCollection coll,
-            string sMainPointerField, 
-            string sExtraFieldName, 
+            string sMainPointerField,
+            string sExtraFieldName,
             string sExtraFieldVal,
             string sExtraFieldType,
             string sCollectionPointerField,
@@ -703,8 +708,8 @@ namespace TVinciShared
             string sMiddleTable,
             string sMiddleFieldRefToMain,
             string sMiddleFieldRefToCollection,
-            string sAddExtra , 
-            string sMainPointerID , 
+            string sAddExtra,
+            string sMainPointerID,
             string sVal,
             Int32 nGroupID)
         {
@@ -725,7 +730,7 @@ namespace TVinciShared
             coll[nCounter.ToString() + "_value_to_enter"] = sMainPointerID;
             coll[nCounter.ToString() + "_val"] = sVal;
             coll[nCounter.ToString() + "_group"] = nGroupID.ToString();
-            
+
         }
 
         static protected void HandleMany2Many(ref ODBCWrapper.DataSetSelectQuery selectQuery)
@@ -733,13 +738,13 @@ namespace TVinciShared
             HandleMany2Many(ref selectQuery, "");
         }
 
-        static protected void HandleMany2Many(ref ODBCWrapper.DataSetSelectQuery selectQuery , string sConnectionKey)
+        static protected void HandleMany2Many(ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey)
         {
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             HandleMany2Many(ref coll, ref selectQuery, sConnectionKey);
         }
 
-        static public void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery , string sConnectionKey)
+        static public void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey)
         {
             //string sTableName = coll["table_name"].ToString();
             Int32 nCount = coll.Count;
@@ -797,7 +802,7 @@ namespace TVinciShared
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception", "On function: mainPointerValue = int.Parse(coll[nCounter.ToString() + '_value_to_enter'].ToString());" , "XTI_Export");
+                        Logger.Logger.Log("Exception", "On function: mainPointerValue = int.Parse(coll[nCounter.ToString() + '_value_to_enter'].ToString());", "XTI_Export");
                     }
                 }
                 //char[] t = { ';', ',', ':' };
@@ -865,7 +870,7 @@ namespace TVinciShared
                             }
                         }
                         if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" &&
-                            sCollectionTable != "lu_languages" && sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable.ToLower() !="lu_devicebrands")
+                            sCollectionTable != "lu_languages" && sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable.ToLower() != "lu_devicebrands")
                         {
                             selectQuery1 += " and ";
                             if (sCollectionTable != "channels" && sCollectionTable != "categories")
@@ -880,7 +885,7 @@ namespace TVinciShared
                             if (nCount1 > 0)
                             {
                                 object collectionPointerValue = selectQuery1.Table("query").DefaultView[0].Row[sCollectionPointerField];
-                                InsertNewMany2Many(sMiddleTable, sMiddleFieldRefToMain, sMiddleFieldRefToCollection, mainPointerValue, collectionPointerValue , nGroupID , sConnectionKey);
+                                InsertNewMany2Many(sMiddleTable, sMiddleFieldRefToMain, sMiddleFieldRefToCollection, mainPointerValue, collectionPointerValue, nGroupID, sConnectionKey);
                                 bEntered = true;
                             }
                         }
@@ -953,7 +958,7 @@ namespace TVinciShared
                                         Thread thread = new Thread(job);
                                         thread.Start();
                                     }
-                                    BuildFictivicMedia(sTagType, sText , 0 , nGroupID);
+                                    BuildFictivicMedia(sTagType, sText, 0, nGroupID);
                                 }
                             }
                             nRound = 1;
@@ -980,7 +985,7 @@ namespace TVinciShared
                     sListIDs += "group_id " + sGroups;
                     sListIDs += ")";
                 }
-                DropOldMany2Many(sMiddleTable, sMiddleFieldRefToMain, mainPointerValue, sListIDs , nGroupID , sConnectionKey);
+                DropOldMany2Many(sMiddleTable, sMiddleFieldRefToMain, mainPointerValue, sListIDs, nGroupID, sConnectionKey);
                 nCounter++;
             }
         }
@@ -1047,7 +1052,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        public static int BuildFictivicMedia(string sTagType, string sText, Int32 nBaseID, Int32 nGroupID) 
+        public static int BuildFictivicMedia(string sTagType, string sText, Int32 nBaseID, Int32 nGroupID)
         {
             return BuildOrUpdateFictivicMedia(sTagType, sText, nBaseID, nGroupID, string.Empty);
         }
@@ -1057,8 +1062,8 @@ namespace TVinciShared
          * If you wish to create a media, send string.Empty as sOldText
          * 
          * 
-         */ 
-        static public int BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nBaseID , Int32 nGroupID, string sOldText)
+         */
+        static public int BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nBaseID, Int32 nGroupID, string sOldText)
         {
             int retVal = 0;
             string sCoGuid = string.Empty;
@@ -1076,7 +1081,7 @@ namespace TVinciShared
                 }
                 else
                 {
-                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(); 
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery += " select gfm.RELATED_TYPE,g.FICTIVIC_GROUP_ID from groups g,groups_fictivic_metas gfm where gfm.status=1 and gfm.is_active=1 and gfm.group_id=g.id and ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gfm.group_id", "=", nGroupID);
                     selectQuery += " and ";
@@ -1096,7 +1101,7 @@ namespace TVinciShared
                     selectQuery = null;
                     if (nFictivicGroupID == 0 || nTagTypeID == 0)
                         return retVal;
-                    
+
                     string[] theCached = new string[3];
                     theCached[0] = sTypeInParentGroup;
                     theCached[1] = nTagTypeID.ToString();
@@ -1105,12 +1110,12 @@ namespace TVinciShared
                 }
 
                 Dictionary<string, string> sFictivicMetaRetVal = new Dictionary<string, string>();
-                sFictivicMetaRetVal["Base Type"]     = GetFictivicStrMeta(nFictivicGroupID, "Base Type");
+                sFictivicMetaRetVal["Base Type"] = GetFictivicStrMeta(nFictivicGroupID, "Base Type");
                 sFictivicMetaRetVal["Base Group ID"] = GetFictivicDoubleMeta(nFictivicGroupID, "Base Group ID");
-                sFictivicMetaRetVal["Base ID"]       = GetFictivicDoubleMeta(nFictivicGroupID, "Base ID");
-                sFictivicMetaRetVal["Base Type"]     = string.IsNullOrEmpty(sFictivicMetaRetVal["Base Type"]) ? "META1_STR" : sFictivicMetaRetVal["Base Type"];
+                sFictivicMetaRetVal["Base ID"] = GetFictivicDoubleMeta(nFictivicGroupID, "Base ID");
+                sFictivicMetaRetVal["Base Type"] = string.IsNullOrEmpty(sFictivicMetaRetVal["Base Type"]) ? "META1_STR" : sFictivicMetaRetVal["Base Type"];
                 sFictivicMetaRetVal["Base Group ID"] = string.IsNullOrEmpty(sFictivicMetaRetVal["Base Group ID"]) ? "META1_DOUBLE" : sFictivicMetaRetVal["Base Group ID"];
-                sFictivicMetaRetVal["Base ID"]       = string.IsNullOrEmpty(sFictivicMetaRetVal["Base ID"]) ? "META2_DOUBLE" : sFictivicMetaRetVal["Base ID"];
+                sFictivicMetaRetVal["Base ID"] = string.IsNullOrEmpty(sFictivicMetaRetVal["Base ID"]) ? "META2_DOUBLE" : sFictivicMetaRetVal["Base ID"];
 
                 if (string.IsNullOrEmpty(sOldText))
                 { // new fictivic media.
@@ -1162,12 +1167,12 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || On function: BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nGroupID, string sOldText):" + sTagType + " | " + sNewText + " | " + nGroupID.ToString() + "|" + sOldText,  "Exceptions");
+                Logger.Logger.Log("Exception", ex.Message + " || On function: BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nGroupID, string sOldText):" + sTagType + " | " + sNewText + " | " + nGroupID.ToString() + "|" + sOldText, "Exceptions");
             }
             return retVal;
         }
 
-        private static void GetCoGuid(string sTagType, int nFictivicGroupID, string sNewText, int nBaseGroupID, int nBaseID, int nTagTypeID, int nIsActiveZeroOrOne, bool bIsUseIsActiveInSelect, ref int retVal, ref string sCoGuid) 
+        private static void GetCoGuid(string sTagType, int nFictivicGroupID, string sNewText, int nBaseGroupID, int nBaseID, int nTagTypeID, int nIsActiveZeroOrOne, bool bIsUseIsActiveInSelect, ref int retVal, ref string sCoGuid)
         {
             string res = string.Empty;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1183,37 +1188,39 @@ namespace TVinciShared
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(GetFictivicDoubleMeta(nFictivicGroupID, "Base ID"), "=", nBaseID);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nTagTypeID);
-            if(bIsUseIsActiveInSelect) {
+            if (bIsUseIsActiveInSelect)
+            {
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActiveZeroOrOne);
             }
             if (selectQuery.Execute("query", true) != null)
             {
-               int count = selectQuery.Table("query").DefaultView.Count;
-               if (count > 0)
-               {
-                   retVal = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                   object oCoGuid = selectQuery.Table("query").DefaultView[0].Row["co_guid"];
-                   if (oCoGuid != null && oCoGuid != DBNull.Value)
-                                    sCoGuid = oCoGuid.ToString();
-               }
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    retVal = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                    object oCoGuid = selectQuery.Table("query").DefaultView[0].Row["co_guid"];
+                    if (oCoGuid != null && oCoGuid != DBNull.Value)
+                        sCoGuid = oCoGuid.ToString();
+                }
             }
             selectQuery.Finish();
             selectQuery = null;
 
         }
 
-        private static void UpdateCoGuid(int retVal) {
-             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", "=", retVal);
-             updateQuery += "where";
-             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
-             updateQuery.Execute();
-             updateQuery.Finish();
-             updateQuery = null;
+        private static void UpdateCoGuid(int retVal)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", "=", retVal);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
         }
 
-        static protected Int32 GetMediaIDByName(Int32 nGroupID, string sName , Int32 nTagTypeID)
+        static protected Int32 GetMediaIDByName(Int32 nGroupID, string sName, Int32 nTagTypeID)
         {
             Int32 nMediaID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1314,7 +1321,7 @@ namespace TVinciShared
         {
 
             Int32 nGroupID = LoginManager.GetLoginGroupID();
-            
+
             Int32 nID = 0;
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             string sUniquField = "";
@@ -1486,8 +1493,8 @@ namespace TVinciShared
                     //}
                     if (sType == "file")
                     {
-                       
-                        
+
+
                         if (string.IsNullOrEmpty(selectedRatio))
                         {
 
@@ -1579,6 +1586,11 @@ namespace TVinciShared
                                     {
                                         List<string> lSizes = new List<string>();
                                         lSizes.Add("full");
+                                        // add checkbox value if needed 
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            lSizes.Add("tn");
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -1657,22 +1669,29 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                                        bool bExists = System.IO.File.Exists(sTmpImage);
-
-
-                                        Int32 nAdd = 0;
+                                        //FULL 
+                                        string sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt; ;
+                                        bool bExists = System.IO.File.Exists(sFullImage);
+                                        int nAdd = 0;
                                         while (bExists)
                                         {
                                             if (sPicBaseName.IndexOf("_") != -1)
                                                 sPicBaseName = sPicBaseName.Substring(0, sPicBaseName.IndexOf("_"));
                                             sPicBaseName += "_" + nAdd.ToString();
-                                            sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                                            bExists = System.IO.File.Exists(sTmpImage);
+                                            sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                            bExists = System.IO.File.Exists(sFullImage);
                                             nAdd++;
                                         }
-                                        theFile.SaveAs(sTmpImage);
-                                        UploadPicToGroup(nGroupID, sTmpImage);
+                                        theFile.SaveAs(sFullImage);
+                                        UploadPicToGroup(nGroupID, sFullImage);
+
+                                        nAdd = 0;
+                                        if (coll["6_val"] == "on" && !string.IsNullOrEmpty(sPicBaseName)) //tn size
+                                        {
+                                            string sTNImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt;
+                                            ImageUtils.ResizeImageAndSave(sFullImage, sTNImage, 90, 65, true);
+                                            UploadPicToGroup(nGroupID, sTNImage);
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -1687,7 +1706,7 @@ namespace TVinciShared
                                                 string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                                                 string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                                                 string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
-                                                string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                                                string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
                                                 if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
                                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                                 {
@@ -1699,7 +1718,7 @@ namespace TVinciShared
                                                 }
                                                 if (isResize)
                                                 {
-                                                    ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName));
+                                                    ImageUtils.ResizeImageAndSave(sFullImage, sTmpImage, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName));
                                                     UploadPicToGroup(nGroupID, sTmpImage);
                                                 }
                                                 nI++;
@@ -1797,7 +1816,7 @@ namespace TVinciShared
 
                 if (bCollection == true && bNew == true)
                 {
-                    HandleMany2Many(ref selectQuery , sConnectionKey);
+                    HandleMany2Many(ref selectQuery, sConnectionKey);
                 }
             }
             else
@@ -1869,7 +1888,7 @@ namespace TVinciShared
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
             {
-               // string sFailure = coll["failure_back_page"].ToString();
+                // string sFailure = coll["failure_back_page"].ToString();
                 if (coll["failure_back_page"] != null)
                     HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
                 else

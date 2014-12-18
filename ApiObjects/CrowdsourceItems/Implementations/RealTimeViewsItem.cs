@@ -1,5 +1,6 @@
 ﻿using ApiObjects.CrowdsourceItems.Base;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ApiObjects.CrowdsourceItems.Implementations
 {
@@ -13,7 +14,10 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         public string ProgramImage { get; set; }
         [JsonProperty("Views")]
         public int Views { get; set; }
+        [JsonProperty("epgStartTime")]
+        public long EpgStartTime { get; set; }
 
+        [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
         public override eItemType Type
         {
             get { return eItemType.LinearViews; }

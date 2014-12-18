@@ -5,51 +5,58 @@ using System.Text;
 using System.Configuration;
 using System.Data;
 using DAL;
+using ApiObjects;
 
 namespace Users
 {
     public class Utils
     {
         public const int USER_COGUID_LENGTH = 15;
-        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the
-        // default result of GetDateSafeVal in ODBCWrapper.Utils
-        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000;
+        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
+        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
         {
-            string sIP = TVinciShared.PageUtils.GetCallerIP();
-            Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("users", sFunctionName, sWSUserName, sPass, sIP);
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
             if (nGroupID != 0)
+            {
                 Utils.GetBaseUsersImpl(ref t, nGroupID);
+            }
             else
-                Logger.Logger.Log("WS ignored", "IP: " + sIP + ",Function: " + sFunctionName + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+            {
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+            }
             return nGroupID;
         }
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDomain t)
         {
-            string sIP = TVinciShared.PageUtils.GetCallerIP();
-            Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("domains", sFunctionName, sWSUserName, sPass, sIP);
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
+
             if (nGroupID != 0)
                 Utils.GetBaseDomainsImpl(ref t, nGroupID);
-            else                Logger.Logger.Log("WS ignored", "IP: " + sIP + ",Function: " + sFunctionName + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
+            else
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains"); 
+            
             return nGroupID;
         }
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDevice t)
         {
-            string sIP = TVinciShared.PageUtils.GetCallerIP();
-            Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("domains", sFunctionName, sWSUserName, sPass, sIP);
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
             if (nGroupID != 0)
                 Utils.GetBaseDeviceImpl(ref t, nGroupID);
-            else Logger.Logger.Log("WS ignored", "IP: " + sIP + ",Function: " + sFunctionName + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
+            else 
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains"); 
             return nGroupID;
         }
 
         static public void GetBaseUsersImpl(ref Users.BaseUsers t, Int32 nGroupID)
         {
-            DataRow dr  = DAL.UtilsDal.GetModuleImpementationID(nGroupID, (int)ImplementationsModules.Users);
-            int nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["IMPLEMENTATION_ID"]);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
 
             switch (nImplID)
             {
@@ -77,11 +84,22 @@ namespace Users
         static public void GetBaseEncrypterImpl(ref Users.BaseEncrypter t, Int32 nGroupID)
         {
             int nImplID = 0;
-            DataRow dr  = DAL.UtilsDal.GetEncrypterData(nGroupID);
 
-            if (dr != null)
+            string key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
+            bool bRes = UsersCache.GetItem<int>(key, out nImplID);
+
+            if (!bRes)
             {
-                nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
+                DataRow dr = DAL.UtilsDal.GetEncrypterData(nGroupID);
+
+                if (dr != null)
+                {
+                    nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
+                    if (nImplID > 0)
+                    {
+                        UsersCache.AddItem(key, nImplID);
+                    }
+                }
             }
 
             switch (nImplID)
@@ -103,18 +121,15 @@ namespace Users
             }
 
         }
-
-
+        
         static public string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
-
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
-        {
-            DataRow dr  = DAL.UtilsDal.GetModuleImpementationID(nGroupID, (int)ImplementationsModules.Domains);
-            int nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["IMPLEMENTATION_ID"]);
+        {   
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
 
             switch (nImplID)
             {
@@ -130,10 +145,8 @@ namespace Users
         }
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
-        {
-            DataRow dr  = DAL.UtilsDal.GetModuleImpementationID(nGroupID, (int)ImplementationsModules.Domains);
-            int nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["IMPLEMENTATION_ID"]);
-
+        {     
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
             switch (nImplID)
             {
                 case 1:
@@ -159,37 +172,55 @@ namespace Users
         {
             Country[] ret = null;
 
-            List<int> lCountryIDs = DAL.UtilsDal.GetAllCountries();
-
-            if (lCountryIDs != null && lCountryIDs.Count > 0)
+           string key = "users_GetCountryList";
+            List<int> lCountryIDs;
+            List<Country> lCountry;
+            bool bRes = UsersCache.GetItem<List<Country>>(key, out  lCountry);
+            if (!bRes)
             {
-                ret = new Country[lCountryIDs.Count];
-
-                for (int i = 0; i < lCountryIDs.Count; i++)
+                Country oCountry;
+                lCountry = new List<Country>();
+                lCountryIDs = DAL.UtilsDal.GetAllCountries();
+                foreach (int nCountryID in lCountryIDs)
                 {
-                    ret[i] = new Country();
-                    ret[i].Initialize(lCountryIDs[i]);
+                    oCountry = new Country();
+                    oCountry.Initialize(nCountryID);
+                    lCountry.Add(oCountry);
                 }
-            }
 
+                UsersCache.AddItem(key, lCountry);
+            }
+            if (lCountry != null && lCountry.Count > 0)
+            {
+                ret = lCountry.ToArray();
+            }
             return ret;
         }
 
         static public State[] GetStateList(Int32 nCountryID)
         {
             State[] ret = null;
-
-            List<int> lStateIDs = DAL.UtilsDal.GetStatesByCountry(nCountryID);
-
-            if (lStateIDs != null && lStateIDs.Count > 0)
+            List<State> lState;
+            string key = string.Format("users_GetStateList_{0}", nCountryID);
+            bool bRes = UsersCache.GetItem<List<State>>(key , out lState);
+            if (!bRes)
             {
-                ret = new State[lStateIDs.Count];
-
-                for (int i = 0; i < lStateIDs.Count; i++)
+                List<int> lStateIDs = DAL.UtilsDal.GetStatesByCountry(nCountryID);
+                if (lStateIDs != null && lStateIDs.Count > 0)
                 {
-                    ret[i] = new State();
-                    ret[i].Initialize(lStateIDs[i]);
+                    lState = new List<State>();
+                    foreach (int nStateID in lStateIDs)
+                    {
+                        State oState = new State();
+                        oState.Initialize(nStateID);
+                        lState.Add(oState);
+                    }
+                    UsersCache.AddItem(key, lState);
                 }
+            }
+            if (lState != null && lState.Count > 0)
+            {
+                ret = lState.ToArray();
             }
 
             return ret;
@@ -269,15 +300,21 @@ namespace Users
         {
             using (TvinciAPI.API client = new TvinciAPI.API())
             {
-
-                string sWSURL = Utils.GetWSURL("api_ws");
-                if (sWSURL.Length > 0)
-                    client.Url = sWSURL;
-
-                string sIP = "1.1.1.1";
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "Mailer", "API", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("api_ws");
+
+                if (sWSURL.Length > 0)
+                {
+                    client.Url = sWSURL;
+                }
+                
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModules.API);
+                if (oCredentials != null)
+                {
+                    sWSUserName = oCredentials.m_sUsername;
+                    sWSPass = oCredentials.m_sPassword;
+                }
                 bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
                 return result;
             }
@@ -285,7 +322,6 @@ namespace Users
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
         {
-
             if (string.IsNullOrEmpty(sCoGuid))
             {
                 return false;
@@ -351,7 +387,6 @@ namespace Users
             {
                 return false;
             }
-
         }
 
         internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID)
@@ -385,6 +420,5 @@ namespace Users
 
             return res;
         }
-
     }
 }

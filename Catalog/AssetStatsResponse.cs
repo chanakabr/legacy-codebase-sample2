@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using ApiObjects.Statistics;
+using System.Xml.Serialization;
 
 namespace Catalog
 {
@@ -64,6 +65,71 @@ namespace Catalog
             m_dRate = dRate;
             m_nViews = nViews;
             m_buzzAverScore = oBuzzAverScore;
+        }
+
+        internal class IndexedAssetStatsResult : IComparable<IndexedAssetStatsResult>
+        {
+            private AssetStatsResult assetStatsResult;
+            private int index;
+
+            public AssetStatsResult Result
+            {
+                get
+                {
+                    return assetStatsResult;
+                }
+                private set
+                {
+                    assetStatsResult = value;
+                }
+            }
+
+            public int Index
+            {
+                get
+                {
+                    return index;
+                }
+                private set
+                {
+                    index = value;
+                }
+            }
+
+            public IndexedAssetStatsResult(int index, AssetStatsResult result)
+            {
+                Index = index;
+                Result = result;
+            }
+
+            public int CompareTo(IndexedAssetStatsResult other)
+            {
+                return Index.CompareTo(other.Index);
+            }
+        }
+
+        internal class SocialPartialAssetStatsResult
+        {
+            public int assetId;
+            public int likesCounter;
+            public double rate;
+            public int votes;
+
+            public SocialPartialAssetStatsResult()
+            {
+                this.assetId = 0;
+                this.likesCounter = 0;
+                this.rate = 0d;
+                this.votes = 0;
+            }
+
+            public SocialPartialAssetStatsResult(int assetId, int likesCounter, double rate, int votes)
+            {
+                this.assetId = assetId;
+                this.likesCounter = likesCounter;
+                this.rate = rate;
+                this.votes = votes;
+            }
         }
 
 

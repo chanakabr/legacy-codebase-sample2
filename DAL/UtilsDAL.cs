@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -48,6 +49,37 @@ namespace DAL
             }
 
             return ret;
+        }
+
+        public static int GetModuleImplID(int nGroupID, int moduleID)
+        {
+            int nImplID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select implementation_id from groups_modules_implementations with (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", moduleID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nImplID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "implementation_id", 0);
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+
+            return nImplID;
         }
 
         public static DataRow GetEncrypterData(int nGroupID)
@@ -220,6 +252,39 @@ namespace DAL
             return nGroupID;
         }
 
+        public static int GetGroupID(string sUN, string sPass, string sWSName)
+        {
+            int nGroupID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select group_id from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
+                selectQuery += "order by MODULE_NAME desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nGroupID;
+        }
+
         public static string GetSecretCode(string sWSName, string sModuleName, string sUN, ref int nGroupID)
         {
             string sSecret = string.Empty;
@@ -289,6 +354,73 @@ namespace DAL
                     {
                         sWSUN = selectQuery.Table("querY").DefaultView[0].Row["USERNAME"].ToString();
                         sWSPassword = selectQuery.Table("querY").DefaultView[0].Row["PASSWORD"].ToString();
+                        res = true;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        public static bool GetWSCredentials(int nGroupID, string sWSName, ref string sWSUN, ref string sWSPassword)
+        {
+            bool res = false;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select USERNAME,PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
+                selectQuery += "order by MODULE_NAME desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sWSUN = selectQuery.Table("querY").DefaultView[0].Row["USERNAME"].ToString();
+                        sWSPassword = selectQuery.Table("querY").DefaultView[0].Row["PASSWORD"].ToString();
+                        res = true;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        public static bool GetAllWSCredentials(string sIP, ref DataTable modules)
+        {
+            bool res = false;
+            modules = new DataTable();
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select DISTINCT GROUP_ID, WS_NAME, USERNAME, PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", sIP);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        modules = selectQuery.Table("query");
                         res = true;
                     }
                 }
@@ -437,9 +569,69 @@ namespace DAL
             return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
         }
 
+        public static string getUserMediaMarkDocKey(string sSiteUserGuid, int nMediaID)
+        {
+            return string.Format("u{0}_m{1}", sSiteUserGuid, nMediaID);
+        }
+
         public static string getDomainMediaMarksDocKey(int nDomainID)
         {
             return string.Format("d{0}", nDomainID);
-        } 
+        }
+
+        #region YES
+        public static DataTable YesDeleteMediasByOfferID(string nOfferID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("sp_yesDeleteMediasByOfferID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@OfferID", nOfferID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable YesDeleteChannelsByOfferID()
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("sp_FixYesChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+        #endregion
+
+
+        public static int Get_NPVRProviderID(long groupID)
+        {
+            int res = 0;
+            StoredProcedure sp = new StoredProcedure("Get_NPVRProviderID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["npvr_provider_id"]);
+                }
+            }
+
+            return res;
+        }
+
+
+        internal static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
+        {
+            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
+
+        }
     }
 }

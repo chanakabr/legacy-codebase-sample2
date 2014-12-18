@@ -8,15 +8,14 @@ namespace ElasticSearch.Searcher
 {
     public class BoolQuery : IESTerm
     {
-        //protected bool m_bIsRoot;
+        
         protected List<IESTerm> m_lMust;
         protected List<IESTerm> m_lShould;
 
         public eTermType eType { get; protected set; }
 
-        public BoolQuery()//bool bIsRoot)
+        public BoolQuery()
         {
-           // m_bIsRoot = bIsRoot;
             m_lMust = new List<IESTerm>();
             m_lShould = new List<IESTerm>();
             eType = eTermType.BOOL_QUERY;
@@ -25,7 +24,7 @@ namespace ElasticSearch.Searcher
 
         public bool IsEmpty()
         {
-            return (m_lMust.Count == 0 && m_lShould.Count == 0) ? true : false;
+            return m_lMust.Count == 0 && m_lShould.Count == 0;
         }
 
         public void AddChild(IESTerm oChild, CutWith eCutWith)

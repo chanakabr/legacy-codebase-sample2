@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
-using System.Configuration;
 using ODBCWrapper;
 using ApiObjects;
 using ApiObjects.MediaMarks;
@@ -21,7 +19,7 @@ namespace Tvinci.Core.DAL
         private const int RETRY_LIMIT = 5;
 
 
-        public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate,List<int> lSubGroupTree)
+        public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spGet_MediaDetails = new ODBCWrapper.StoredProcedure("Get_MediaDetails");
             spGet_MediaDetails.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -39,7 +37,33 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage,List<int> lSubGroupTree)
+        /// <summary>
+        /// For a given user and media, returns the last time the user watched the media
+        /// </summary>
+        /// <param name="p_nMedia"></param>
+        /// <param name="p_sSiteGuid"></param>
+        /// <returns></returns>
+        public static DateTime? Get_MediaUserLastWatch(int p_nMedia, string p_sSiteGuid)
+        {
+            DateTime? dt = null;
+            
+            Couchbase.CouchbaseClient m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+            // get document of media mark
+            object objDocument = m_oClient.Get(UtilsDal.getUserMediaMarkDocKey(p_sSiteGuid, p_nMedia));
+
+            if (objDocument != null)
+            {
+                // Desrialize to known class - for comfortable access
+                MediaMarkLog mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(objDocument.ToString());
+
+                dt = mediaMarkLog.LastMark.CreatedAt;
+            }
+
+            return dt;
+        }
+
+        public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spBuild_MediaRelated = new ODBCWrapper.StoredProcedure("Build_MediaRelated");
             spBuild_MediaRelated.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -95,51 +119,36 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
+        public static DataTable Get_PersonalLastWatched(int nGroupID, string sSiteGuid)
         {
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataTable dt = null;
+
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
+            bool bContunueWithCB = (nMediaIDs != null && nMediaIDs.Count > 0) ? true : false;
 
-            
-            //Complete details from db
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter("@MediaID", nMediaIDs, "Id");
-            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            if (bContunueWithCB)
+            {
+                //Complete details from db
+                dt = Get_MediaUpdateDate(nMediaIDs);
+            }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
+                spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPersonalLastWatched.AddParameter("@GroupID", nGroupID);
+                spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
+                DataSet ds = spPersonalLastWatched.ExecuteDataSet();
+                if (ds != null)
+                    dt = ds.Tables[0];                
+            }
+
+            return dt;
+
         }
-
-       /* public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
-        {
-            List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
-            List<UserMediaMark> lRes = new List<UserMediaMark>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            List<string> docKeysList = new List<string>();
-            
-            int nUserID = 0;
-            int.TryParse(sSiteGuid, out nUserID);
-
-            foreach (int nMediaID in nMediaIDs)
-            {
-                docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
-            }
-
-            IDictionary<string, object> res = m_oClient.Get(docKeysList);
-
-            foreach (string sKey in res.Keys)
-            {
-                mediaMarkLogList.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
-            }
-
-            List<MediaMarkLog> sortedMediaMarksList = mediaMarkLogList.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
-            lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
-            return lRes;
-        }*/
 
         public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
         {
@@ -167,8 +176,7 @@ namespace Tvinci.Core.DAL
             lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
             return lRes;
         }
-
-
+        
         public static DataTable Get_MediaUpdateDate(List<int> nMediaIDs)
         {
             ODBCWrapper.StoredProcedure spGet_MediaUpdateDate = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
@@ -197,12 +205,14 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.OrderByDescending(x => x.CreatedAt).Select(x => x.MediaID).ToList();
-            
+
             if (nMediaIDs != null && nMediaIDs.Count > 0)
             {
                 int nMediaID = 0;
@@ -210,16 +220,24 @@ namespace Tvinci.Core.DAL
 
                 ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended_C");
                 spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
-
                 spPersonalRecommended.AddParameter("@GroupID", nGroupID);
                 spPersonalRecommended.AddParameter("@MediaId", nMediaID);
                 spPersonalRecommended.AddParameter("@Top", Top);
                 spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
-                DataSet ds = spPersonalRecommended.ExecuteDataSet();
-                if (ds != null)
-                    return ds.Tables[0];
+                ds = spPersonalRecommended.ExecuteDataSet();                
             }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended");
+                spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPersonalRecommended.AddParameter("@GroupID", nGroupID);
+                spPersonalRecommended.AddParameter("@SiteGuid", sSiteGuid);
+                spPersonalRecommended.AddParameter("@Top", Top);
+                ds = spPersonalRecommended.ExecuteDataSet();
+            }
+            if (ds != null)
+                return ds.Tables[0];
             return null;
         }
 
@@ -239,7 +257,7 @@ namespace Tvinci.Core.DAL
             spPWLAL.AddParameter("@LanguageID", nLanguage);
             spPWLAL.AddParameter("@EndDateField", sEndDate);
             spPWLAL.AddParameter("@DeviceID", nDeviceId);
-        
+
             DataSet ds = spPWLAL.ExecuteDataSet();
             if (ds != null)
                 return ds.Tables[0];
@@ -248,19 +266,22 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
+
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            int nNumOfUsers = 30;
+            //int nNumOfUsers = 30;
             int nNumOfMedias = 8;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
-            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
+            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).ToList(); //.Take(nNumOfUsers).ToList();
 
-            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)? true: false;
+            if (bContunueWithCB)
             {
-
                 Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid).GroupBy(g => g.MediaID).ToDictionary(k => k.Key, k => k.Count());
                 List<int> otherMediasList = dictMediaWatchersCount.OrderByDescending(x => x.Value).Take(nNumOfMedias).ToDictionary(x => x.Key, x => x.Value).Keys.ToList();
 
@@ -273,18 +294,27 @@ namespace Tvinci.Core.DAL
                 spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
                 spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
                 spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-
-
-                DataSet ds = spPWWAWProtocol.ExecuteDataSet();
-
-                if (ds != null)
-                    return ds.Tables[0];
+                ds = spPWWAWProtocol.ExecuteDataSet();
+            }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure spPWWAWProtocol = new ODBCWrapper.StoredProcedure("Get_PWWAWProtocol");
+                spPWWAWProtocol.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spPWWAWProtocol.AddParameter("@MediaID", nMediaID);
+                spPWWAWProtocol.AddParameter("@GroupID", nGroupID);
+                spPWWAWProtocol.AddParameter("@Language", nLanguage);
+                spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
+                spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
+                spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
+                spPWWAWProtocol.AddParameter("@SiteGuid", sSiteGuid);
+                ds = spPWWAWProtocol.ExecuteDataSet();
             }
 
-
+            if (ds != null)
+                return ds.Tables[0];
             return null;
         }
-
+              
         public static DataTable Get_ChannelsBySubscription(int nGroupID, int nSubscriptionID)
         {
             ODBCWrapper.StoredProcedure spCatalog = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");
@@ -336,7 +366,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure spLuceneUrl = new ODBCWrapper.StoredProcedure("Get_LuceneUrl");
             spLuceneUrl.SetConnectionKey("MAIN_CONNECTION_STRING");
             spLuceneUrl.AddParameter("@GroupID", nGroupID);
-            
+
             DataSet ds = spLuceneUrl.ExecuteDataSet();
 
             if (ds != null)
@@ -356,7 +386,7 @@ namespace Tvinci.Core.DAL
 
             if (ds != null)
                 return ds.Tables[0];
-            return null;           
+            return null;
         }
 
         public static DataTable Get_ActionValues(string sAction)
@@ -386,20 +416,20 @@ namespace Tvinci.Core.DAL
             string result = string.Empty;
             ODBCWrapper.StoredProcedure spGetLastPlayCycleKey = new ODBCWrapper.StoredProcedure("GetLastPlayCycleKey");
             spGetLastPlayCycleKey.SetConnectionKey("MAIN_CONNECTION_STRING");
-            
+
             spGetLastPlayCycleKey.AddParameter("@SiteGuid", sSiteGUID);
             spGetLastPlayCycleKey.AddParameter("@MediaID", nMediaID);
             spGetLastPlayCycleKey.AddParameter("@MediaFileID", nMediaFileID);
             spGetLastPlayCycleKey.AddParameter("@DeviceUDID", sUDID);
             spGetLastPlayCycleKey.AddParameter("@Platform", nPlatform);
-            
+
             DataSet ds = spGetLastPlayCycleKey.ExecuteDataSet();
 
             if (ds != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
-                result = ODBCWrapper.Utils.GetSafeStr( dt.Rows[0], "play_cycle_key"); 
-            }             
+                result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
+            }
             return result;
         }
 
@@ -432,13 +462,12 @@ namespace Tvinci.Core.DAL
             spNewWatcherMediaAction.ExecuteNonQuery();
         }
 
-        public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,    
-                                              int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter,int nExitFullScreenCounter, int nSendToFriendCounter,
-                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID,int nSwooshCounter                                              
-                                             )  
-        
-        {                                                                                                         
-  
+        public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,
+                                              int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter, int nExitFullScreenCounter, int nSendToFriendCounter,
+                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID, int nSwooshCounter
+                                             )
+        {
+
             ODBCWrapper.StoredProcedure spNewMediaEoh = new ODBCWrapper.StoredProcedure("Insert_NewMediaEoh");
             spNewMediaEoh.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -464,7 +493,7 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.AddParameter("@PlayTimeCounter", nPlayTimeCounter);
             spNewMediaEoh.AddParameter("@FileQualityID", nFileQualityID);
             spNewMediaEoh.AddParameter("@FileFormatID", nFileFormatID);
-            spNewMediaEoh.AddParameter("@StartHourDate", dStartHourDate);    
+            spNewMediaEoh.AddParameter("@StartHourDate", dStartHourDate);
             spNewMediaEoh.AddParameter("@UpdaterID", nUpdaterID);
             spNewMediaEoh.AddParameter("@Browser", nBrowser);
             spNewMediaEoh.AddParameter("@Platform", nPlatform);
@@ -476,40 +505,23 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.ExecuteNonQuery();
         }
 
-        public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey)
-        {
-            ODBCWrapper.StoredProcedure spNewCycleKey = new ODBCWrapper.StoredProcedure("Insert_NewPlayCycleKey");
-            spNewCycleKey.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-            spNewCycleKey.AddParameter("@GroupID", nGroupID);
-            spNewCycleKey.AddParameter("@MediaID", nMediaID);
-            spNewCycleKey.AddParameter("@MediaFileID", nMediaFileID);
-            spNewCycleKey.AddParameter("@SiteGuid", sSiteGuid);
-            spNewCycleKey.AddParameter("@Platform", nPlatform);
-            spNewCycleKey.AddParameter("@DeviceUDID", sUDID);
-            spNewCycleKey.AddParameter("@CountryID", nCountryID);
-            spNewCycleKey.AddParameter("@PlayCycleKey", sPlayCycleKey); 
-
-            spNewCycleKey.ExecuteNonQuery();
-        }
-
         public static void Insert_NewMediaFileVideoQuality(int nWatcherID, int nUserSiteGuid, string sSessionID, int nMediaID, int nMediaFileID, int nAvgMaxBitRate, int nBitRateIndex,
-                                                           int nTotalBitRatesNum, int nLoactionSec, int nBrowser, int nPlatform, int nCountryID, int nStatus, int nGroupID)   
+                                                           int nTotalBitRatesNum, int nLoactionSec, int nBrowser, int nPlatform, int nCountryID, int nStatus, int nGroupID)
         {
             ODBCWrapper.StoredProcedure spInsertNewMediaFileVideoQuality = new ODBCWrapper.StoredProcedure("Insert_NewMediaFileVideoQuality");
             spInsertNewMediaFileVideoQuality.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            spInsertNewMediaFileVideoQuality.AddParameter("@WatcherID", nWatcherID); 
+            spInsertNewMediaFileVideoQuality.AddParameter("@WatcherID", nWatcherID);
             spInsertNewMediaFileVideoQuality.AddParameter("@UserSiteGuid", nUserSiteGuid);
             spInsertNewMediaFileVideoQuality.AddParameter("@SessionID", sSessionID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@MediaID" , nMediaID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@MediaFileID" , nMediaFileID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@AvgMaxBitRate", nAvgMaxBitRate); 
+            spInsertNewMediaFileVideoQuality.AddParameter("@MediaID", nMediaID);
+            spInsertNewMediaFileVideoQuality.AddParameter("@MediaFileID", nMediaFileID);
+            spInsertNewMediaFileVideoQuality.AddParameter("@AvgMaxBitRate", nAvgMaxBitRate);
             spInsertNewMediaFileVideoQuality.AddParameter("@BitRateIndex", nBitRateIndex);
             spInsertNewMediaFileVideoQuality.AddParameter("@TotalBitRatesNum", nTotalBitRatesNum);
             spInsertNewMediaFileVideoQuality.AddParameter("@LocationSec", nLoactionSec);
             spInsertNewMediaFileVideoQuality.AddParameter("@Browser", nBrowser);
-            spInsertNewMediaFileVideoQuality.AddParameter("@Platform" , nPlatform);
+            spInsertNewMediaFileVideoQuality.AddParameter("@Platform", nPlatform);
             spInsertNewMediaFileVideoQuality.AddParameter("@CountryID", nCountryID);
             spInsertNewMediaFileVideoQuality.AddParameter("@Status", nStatus);
             spInsertNewMediaFileVideoQuality.AddParameter("@GroupID", nGroupID);
@@ -517,20 +529,20 @@ namespace Tvinci.Core.DAL
             spInsertNewMediaFileVideoQuality.ExecuteNonQuery();
         }
 
-        public static void Insert_NewPlayerErrorMessage(int nGroupID, int nMediaID, int nMediaFileID,int nLoactionSec, int nPlatform, int nSiteUserGuid, string sUDID, string sErrorCode, string sErrorMessage)                                                  
+        public static void Insert_NewPlayerErrorMessage(int nGroupID, int nMediaID, int nMediaFileID, int nLoactionSec, int nPlatform, int nSiteUserGuid, string sUDID, string sErrorCode, string sErrorMessage)
         {
             ODBCWrapper.StoredProcedure spInsertNewPlayerError = new ODBCWrapper.StoredProcedure("Insert_NewPlayerError");
             spInsertNewPlayerError.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             spInsertNewPlayerError.AddParameter("@GroupID", nGroupID);
-            spInsertNewPlayerError.AddParameter("@MediaID ", nMediaID );
+            spInsertNewPlayerError.AddParameter("@MediaID ", nMediaID);
             spInsertNewPlayerError.AddParameter("@MediaFileID", nMediaFileID);
             spInsertNewPlayerError.AddParameter("@PlayTimeCounter", nLoactionSec);
             spInsertNewPlayerError.AddParameter("@Platform", nPlatform);
-            spInsertNewPlayerError.AddParameter("@SiteGuid", nSiteUserGuid );
-            spInsertNewPlayerError.AddParameter("@DeviceUdID", sUDID );
+            spInsertNewPlayerError.AddParameter("@SiteGuid", nSiteUserGuid);
+            spInsertNewPlayerError.AddParameter("@DeviceUdID", sUDID);
             spInsertNewPlayerError.AddParameter("@ErrorCode", sErrorCode);
-            spInsertNewPlayerError.AddParameter("@ErrorMessage", sErrorMessage); 
+            spInsertNewPlayerError.AddParameter("@ErrorMessage", sErrorMessage);
 
             spInsertNewPlayerError.ExecuteNonQuery();
         }
@@ -546,13 +558,14 @@ namespace Tvinci.Core.DAL
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
                 var data = m_oClient.GetWithCas<string>(docKey);
-                var dev = new UserMediaMark()
+                UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
                     UDID = sUDID,
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    playType = ePlayType.MEDIA.ToString()
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
@@ -566,7 +579,7 @@ namespace Tvinci.Core.DAL
                 else
                 {
                     mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
-                    var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+                    UserMediaMark existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
                         mm.devices.Remove(existdev);
@@ -590,13 +603,14 @@ namespace Tvinci.Core.DAL
             while (limitRetries >= 0)
             {
                 var data = m_oClient.GetWithCas<string>(mmKey);
-                var dev = new UserMediaMark()
+                UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
                     UDID = sUDID,
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    playType = ePlayType.MEDIA.ToString()
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -609,7 +623,7 @@ namespace Tvinci.Core.DAL
                 else
                 {
                     umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
-                    var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+                    UserMediaMark existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
                         umm.devices.Remove(existdev);
@@ -630,8 +644,8 @@ namespace Tvinci.Core.DAL
                 else
                     break;
             }
-        }                 
-        
+        }
+
         public static DataTable Get_GroupByChannel(int channelID)
         {
             ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_GroupByChannel");
@@ -647,10 +661,10 @@ namespace Tvinci.Core.DAL
 
         public static DataSet Get_MetasByGroup(int groupID, List<int> lSubGroupTree)
         {
-            ODBCWrapper.StoredProcedure spMetas= new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
+            ODBCWrapper.StoredProcedure spMetas = new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
             spMetas.AddParameter("@GroupId", groupID);
-            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id"); 
+            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spMetas.ExecuteDataSet();
 
@@ -684,20 +698,20 @@ namespace Tvinci.Core.DAL
 
             return returnedDataTable;
         }
-        
+
         public static DataTable GetChannelByChannelId(int nChannelId)
         {
             DataTable returnedDataTable = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
             try
-            {               
+            {
                 selectQuery += "select * from channels (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nChannelId);
                 selectQuery.SetCachedSec(0);
 
                 returnedDataTable = selectQuery.Execute("query", true);
-                
+
             }
             catch
             {
@@ -879,11 +893,11 @@ namespace Tvinci.Core.DAL
             spGet_OrderedMediaIdList.AddIDListParameter("@MediaIds", ids, "Id");
             spGet_OrderedMediaIdList.AddParameter("@OrderingType", nOrderType);
             spGet_OrderedMediaIdList.AddParameter("@OrderingDirection", nOrderDirection);
-            
+
             DataSet ds = spGet_OrderedMediaIdList.ExecuteDataSet();
-            
+
             if (ds != null)
-                dt =  ds.Tables[0];
+                dt = ds.Tables[0];
 
             return dt;
         }
@@ -900,7 +914,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static bool InsertEpgComment(int nEpgProgramID, int nLanguage, string sWriter,  int nGroupID, string sCommentIp,
+        public static bool InsertEpgComment(int nEpgProgramID, int nLanguage, string sWriter, int nGroupID, string sCommentIp,
             string sHeader, string sSubHeader, string sContentText, string sSiteGuid, string sUDID, string sCountry, int nIsActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EpgComment");
@@ -978,11 +992,11 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserMediaMark");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            sp.AddParameter("@groupID",  groupID);
-            sp.AddParameter("@mediaID",  mediaID);
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@mediaID", mediaID);
             sp.AddParameter("@SiteGUID", siteGUID);
-            sp.AddParameter("@PCFlag",   PCFlag);
-            sp.AddParameter("@sUDID",    sUDID);
+            sp.AddParameter("@PCFlag", PCFlag);
+            sp.AddParameter("@sUDID", sUDID);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -1007,8 +1021,7 @@ namespace Tvinci.Core.DAL
 
             return null;
         }
-    
-
+        
         public static DataTable Get_Media_By_SlidingWindow(string spName, List<int> mediaIds, bool isDesc, int pageSize, int pageIndex, DateTime windowTime)
         {
             ODBCWrapper.StoredProcedure sp = new StoredProcedure(spName);
@@ -1044,7 +1057,7 @@ namespace Tvinci.Core.DAL
                 dt = ds.Tables[0];
             return dt;
         }
-        
+
         public static DataSet Get_GroupMedias(int m_nGroupID, int nMediaID, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias");
@@ -1073,7 +1086,7 @@ namespace Tvinci.Core.DAL
             DataSet ds = MediaStats.ExecuteDataSet();
             return ds;
         }
-        
+
         public static DataSet GetEpgStats(int nGroupID, List<int> epgIDs, DateTime? dStartDate, DateTime? dEndDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure MediaStats = new ODBCWrapper.StoredProcedure("Get_EpgStats");
@@ -1114,7 +1127,8 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
             int nNumOfMedias = 8;
@@ -1124,8 +1138,8 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
 
-
-            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0) ? true : false;
+            if (bContunueWithCB)
             {
                 List<int> mediaUsersList = sortedMediaMarksList.Select(x => x.UserID).ToList();
                 List<int> operatorUsersList = DomainDal.GetOperatorUsers(nOperatorID, mediaUsersList);
@@ -1145,13 +1159,27 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@EndDateField", sEndDate);
                     sp.AddParameter("@DeviceID", nDeviceId);
 
-                    DataSet ds = sp.ExecuteDataSet();
-
-                    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                        return ds.Tables[0];
+                    ds = sp.ExecuteDataSet();                   
                 }
             }
+            else if (bGetDBData)
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IPWWAWProtocol");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@MediaID", nMediaID);
+                sp.AddParameter("@GroupID", nGroupID);
+                sp.AddParameter("@Language", nLanguage);
+                sp.AddParameter("@CountryID", nCountryID);
+                sp.AddParameter("@EndDateField", sEndDate);
+                sp.AddParameter("@DeviceID", nDeviceId);
+                sp.AddParameter("@SiteGuid", sSiteGuid);
+                sp.AddParameter("@OperatorID", nOperatorID);
 
+                ds = sp.ExecuteDataSet();
+
+            }
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
             return null;
         }
 
@@ -1243,7 +1271,6 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
         
-
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
@@ -1296,7 +1323,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID, List<int> lSubGroupTree)
         {
-            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");            
+            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGuid", sSiteGuid);
@@ -1305,7 +1332,7 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             sp.AddParameter("@groupID", nGroupID);
-			
+
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null)
                 return ds.Tables[0];
@@ -1340,23 +1367,22 @@ namespace Tvinci.Core.DAL
 
             return language;
         }
-        
+
         public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
         {
-              var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.ToList().OrderByDescending(x => x.CreatedAt).Take(nTop).ToList();
-
+           
 
             if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
             {
                 List<int> mediasList = sortedMediaMarksList.Select(x => x.MediaID).ToList();
                 List<int> mediaIds = null;
-
 
                 if (mediasList.Count > 1)
                 {
@@ -1396,7 +1422,7 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
-		}
+        }
 
         public static int GetLastPosition(int mediaID, int userID)
         {
@@ -1409,7 +1435,7 @@ namespace Tvinci.Core.DAL
             return umm.LastMark.Location;
         }
 
-        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl)
+        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
@@ -1420,7 +1446,7 @@ namespace Tvinci.Core.DAL
                 return null;
 
             Random r = new Random();
-            var domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
 
             //Cleaning old ones...
             int limitRetries = RETRY_LIMIT;
@@ -1429,7 +1455,19 @@ namespace Tvinci.Core.DAL
                 var marks = m_oClient.GetWithCas<string>(docKey);
 
                 DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks.Result);
-                dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                switch (ePlay)
+                {
+                    case ePlayType.MEDIA:
+                    case ePlayType.NPVR:
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+                        break;
+                    case ePlayType.ALL:
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                        break;
+                    default:
+                        break;
+                }
+               
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
 
                 if (!res.Result)
@@ -1513,32 +1551,130 @@ namespace Tvinci.Core.DAL
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList);
+            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList).Limit(30);
+            int nUserID = 0;
 
-            foreach (var row in res)
+            if (res != null)
             {
-                int nMediaID = 0;
-                int nUserID = 0;
+                List<int> userList = new List<int>();
 
-                DateTime lastDate;
-
-                if (row.Info != null && row.Info.Values != null)
+                foreach (var row in res)
                 {
-                    if (row.Info["key"] != null && row.Info["value"] != null)
+                    if (row.Info != null && row.Info.Values != null)
                     {
-                        object objMediaID = row.Info["key"];
-                        object[] arUserDates = (object[])row.Info["value"];
+                        if (row.Info["key"] != null && row.Info["value"] != null)
+                        {
+                            object[] arUserDates = (object[])row.Info["value"];
+                            int.TryParse(arUserDates[0].ToString(), out nUserID);
+                            userList.Add(nUserID);
+                        }
+                    }
+                }
+                if (userList != null && userList.Count > 0)
+                {
 
-                        int.TryParse(objMediaID.ToString(), out nMediaID);
+                    var resMedia = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(userList);
 
-                        int.TryParse(arUserDates[0].ToString(), out nUserID);
-                        DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                        UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
-                        mediasMarksList.Add(objUserMediaMark);
+                    foreach (var row in resMedia)
+                    {
+                        int nMediaID = 0;
+                        nUserID = 0;
+
+                        DateTime lastDate;
+                        if (row.Info != null && row.Info.Values != null)
+                        {
+                            if (row.Info["key"] != null && row.Info["value"] != null)
+                            {
+                                // key = user
+                                object objUserID = row.Info["key"];
+                                object[] arUserDates = (object[])row.Info["value"];
+                                int.TryParse(arUserDates[0].ToString(), out nMediaID);
+
+                                if (!mediasList.Contains(nMediaID))
+                                {
+                                    int.TryParse(objUserID.ToString(), out nUserID);
+                                    DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
+                                    UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                                    mediasMarksList.Add(objUserMediaMark);
+                                }
+                            }
+                        }
                     }
                 }
             }
             return mediasMarksList;
+
+        }
+
+        public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("GetPicEpgURL");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "baseURL");
+                    if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                        baseUrl = String.Concat(baseUrl, '/');
+                    width = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "WIDTH");
+                    height = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "HEIGHT");
+                }
+            }
+
+            return res;
+        }
+
+        public static Dictionary<int, List<string>> Get_GroupTreePicEpgUrl(int parentGroupID)
+        {
+            Dictionary<int, List<string>> res = null;
+            StoredProcedure sp = new StoredProcedure("Get_GroupTreePicEpgUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, List<string>>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int groupID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["GROUP_ID"]);
+                        if (groupID > 0 && !res.ContainsKey(groupID))
+                        {
+                            string baseUrl = string.Empty;
+                            string width = string.Empty;
+                            string height = string.Empty;
+                            baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["baseURL"]);
+                            if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                            {
+                                baseUrl = String.Concat(baseUrl, '/');
+                            }
+                            width = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["WIDTH"]);
+                            height = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["HEIGHT"]);
+                            res.Add(groupID, new List<string>(3) { baseUrl, width, height });
+                        }
+                    }
+                }
+                else
+                {
+                    res = new Dictionary<int, List<string>>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, List<string>>(0);
+            }
+
+            return res;
         }
 
         public static DataTable GetPicEpgURL(int groupID)
@@ -1635,6 +1771,524 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
+        
+        public static int Get_MediaIDByMediaFileID(int nMediaFileID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaIDByMediaFileID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            int mediaID = sp.ExecuteReturnValue<int>();
+            return mediaID;
 
+        }
+
+        public static int GetRuleIDPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nPlatform)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRuleIDPlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@MediaID", nMediaID);
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddParameter("@DeviceUDID", sUDID);
+            sp.AddParameter("@Platform", nPlatform);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static DataSet GetGroupCategoriesAndChannels(int nGroupID, int nLangID = 0)
+        {
+            // SELECT ID, CATEGORY_NAME, PARENT_CATEGORY_ID, PIC_ID, ORDER_NUM, CO_GUID FROM CATEGORIES 
+            // SELECT CH.ID,CH.PIC_ID,CH.NAME,CH.DESCRIPTION,CH.EDITOR_REMARKS  
+
+            StoredProcedure sp = new StoredProcedure("Get_GroupCategoriesAndChannels");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", nGroupID);
+
+            if (nLangID > 0)
+            {
+                sp.AddParameter("@LanguageID", nLangID);
+            }
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return ds;
+        }
+
+        public static Dictionary<int, int[]> Get_MediaStatistics(DateTime? startDate, DateTime? endDate, int parentGroupID, List<int> mediaIDs)
+        {
+            Dictionary<int, int[]> mediaToViewsCountMapping = null;
+            StoredProcedure sp = new StoredProcedure("Get_MediaStatistics");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@StartDate", startDate);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@GroupID", parentGroupID);
+            sp.AddIDListParameter("@MediaIDs", mediaIDs, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    bool isWithSocialActions = !startDate.HasValue || !endDate.HasValue;
+                    mediaToViewsCountMapping = new Dictionary<int, int[]>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["media_id"]);
+                        int viewsCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["views"]);
+                        int votes = 0;
+                        int likes = 0;
+                        int votesSum = 0;
+                        if (isWithSocialActions)
+                        {
+                            votes = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["votes_count"]);
+                            votesSum = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["votes_sum"]);
+                            likes = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["like_counter"]);
+                        }
+                        if (mediaId > 0 && !mediaToViewsCountMapping.ContainsKey(mediaId))
+                        {
+                            mediaToViewsCountMapping.Add(mediaId, new int[4] { viewsCount, votes, votesSum, likes });
+                        }
+                    }
+                }
+                else
+                {
+                    mediaToViewsCountMapping = new Dictionary<int, int[]>(0);
+                }
+            }
+            else
+            {
+                mediaToViewsCountMapping = new Dictionary<int, int[]>(0);
+            }
+
+            return mediaToViewsCountMapping;
+        }
+
+        public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
+            ref int billingTypeID)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_MediaMarkHitInitialData");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@IPVal", ipVal);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable ipTable = ds.Tables[0];
+                if (ipTable != null && ipTable.Rows != null && ipTable.Rows.Count > 0)
+                {
+                    countryID = ODBCWrapper.Utils.GetIntSafeVal(ipTable.Rows[0]["COUNTRY_ID"]);
+                }
+
+                DataTable mpData = ds.Tables[1];
+                if (mpData != null && mpData.Rows != null && mpData.Rows.Count > 0)
+                {
+                    ownerGroupID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["group_id"]);
+                    cdnID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["streaming_suplier_id"]);
+                    qualityID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_quality_id"]);
+                    formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
+                    mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
+                    billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static bool Get_UMMsToCB(int parentGroupID, int fromUserIndexInclusive, int toUserIndexInclusive,
+            DateTime fromDate, DateTime toDate,
+            ref Dictionary<int, List<UserMediaMark>> domainIdToUserMediaMarksMapping,
+            ref Dictionary<UserMediaKey, List<UserMediaMark>> userMediaToMediaMarksMapping,
+            ref List<int> userIDsWithNoDomain)
+        {
+            bool res = false;
+            domainIdToUserMediaMarksMapping = new Dictionary<int, List<UserMediaMark>>();
+            userMediaToMediaMarksMapping = new Dictionary<UserMediaKey, List<UserMediaMark>>();
+            userIDsWithNoDomain = new List<int>();
+            StoredProcedure sp = new StoredProcedure("Get_UMMsToCB");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@FromIndex", fromUserIndexInclusive);
+            sp.AddParameter("@ToIndex", toUserIndexInclusive);
+            sp.AddParameter("@FromDate", fromDate);
+            sp.AddParameter("@ToDate", toDate);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                Dictionary<int, int> userIDToDomainIDMapping = new Dictionary<int, int>();
+                DataTable usersDomains = ds.Tables[0];
+                if (usersDomains != null && usersDomains.Rows != null && usersDomains.Rows.Count > 0)
+                {
+                    for (int i = 0; i < usersDomains.Rows.Count; i++)
+                    {
+                        int userID = ODBCWrapper.Utils.GetIntSafeVal(usersDomains.Rows[i]["user_id"]);
+                        int domainID = ODBCWrapper.Utils.GetIntSafeVal(usersDomains.Rows[i]["domain_id"]);
+                        if (userID > 0 && domainID > 0 && !userIDToDomainIDMapping.ContainsKey(userID))
+                        {
+                            userIDToDomainIDMapping.Add(userID, domainID);
+                        }
+                    }
+                }
+                DataTable mediaMarks = ds.Tables[1];
+                if (mediaMarks != null && mediaMarks.Rows != null && mediaMarks.Rows.Count > 0)
+                {
+                    for (int i = 0; i < mediaMarks.Rows.Count; i++)
+                    {
+                        int siteGuid = ODBCWrapper.Utils.GetIntSafeVal(mediaMarks.Rows[i]["site_user_guid"]);
+                        string udid = ODBCWrapper.Utils.GetSafeStr(mediaMarks.Rows[i]["device_udid"]);
+                        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(mediaMarks.Rows[i]["media_id"]);
+                        DateTime createdAt = ODBCWrapper.Utils.GetDateSafeVal(mediaMarks.Rows[i]["update_Date"]);
+                        int locationSec = ODBCWrapper.Utils.GetIntSafeVal(mediaMarks.Rows[i]["location_sec"]);
+                        if (siteGuid > 0 && mediaID > 0 && !createdAt.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                        {
+                            UserMediaMark umm = new UserMediaMark()
+                                {
+                                    UserID = siteGuid,
+                                    UDID = udid,
+                                    MediaID = mediaID,
+                                    CreatedAt = createdAt,
+                                    Location = locationSec
+                                };
+                            int currDomainID = 0;
+                            if (userIDToDomainIDMapping.ContainsKey(siteGuid))
+                            {
+                                currDomainID = userIDToDomainIDMapping[siteGuid];
+                            }
+                            if (currDomainID > 0) // domain id exists
+                            {
+                                if (!domainIdToUserMediaMarksMapping.ContainsKey(currDomainID))
+                                {
+                                    domainIdToUserMediaMarksMapping.Add(currDomainID, new List<UserMediaMark>());
+                                }
+                                domainIdToUserMediaMarksMapping[currDomainID].Add(umm);
+                            }
+                            else
+                            {
+                                userIDsWithNoDomain.Add(siteGuid);
+                            }
+
+                            UserMediaKey umk = new UserMediaKey(siteGuid, mediaID);
+                            if (!userMediaToMediaMarksMapping.ContainsKey(umk))
+                            {
+                                userMediaToMediaMarksMapping.Add(umk, new List<UserMediaMark>());
+                            }
+                            userMediaToMediaMarksMapping[umk].Add(umm);
+                        }
+                    } // for
+                }
+            }
+            IComparer<UserMediaMark> ummComparer = new UserMediaMark.UMMDateComparerDesc();
+            foreach (KeyValuePair<UserMediaKey, List<UserMediaMark>> kvp in userMediaToMediaMarksMapping)
+            {
+                kvp.Value.Sort(ummComparer);
+            }
+
+            return res;
+        }
+
+        public static string GetOrInsert_PlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform,
+            long countryID, int mcRuleID, int groupID, bool justInsert)
+        {
+            string res = string.Empty;
+            StoredProcedure sp = new StoredProcedure("GetOrInsert_PlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", siteGuid ?? string.Empty);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@RuleID", mcRuleID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@JustInsert", justInsert);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["PLAY_CYCLE_KEY"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey, int nRuleID = 0)
+        {
+            GetOrInsert_PlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform, nCountryID, nRuleID, nGroupID, true);
+        }
+
+        public static void Insert_MediaMarkHitActionData(long watcherID, string sessionID, long groupID, long ownerGroupID,
+            long mediaID, long mediaFileID, long billingTypeID, long cdnID, long duration, long countryID, long playerID,
+            long firstPlayCounter, long playCounter, long loadCounter, long pauseCounter, long stopCounter, long fullScreenCounter,
+            long exitFullScreenCounter, long sendToFriendCounter, long playTimeCounter, long fileQualityID, long fileFormatID,
+            DateTime startHourDate, long updaterID, long browser, long platform, string siteGuid, string udid,
+            long swooshCounter, int mcRuleID)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_MediaMarkHitActionData");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@WatcherID", watcherID);
+            sp.AddParameter("@SessionID", sessionID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@OwnerGroupID", ownerGroupID);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@BillingTypeID", billingTypeID);
+            sp.AddParameter("@CdnID", cdnID);
+            sp.AddParameter("@Duration", duration);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@PlayerID", playerID);
+            sp.AddParameter("@FirstPlayCounter", firstPlayCounter);
+            sp.AddParameter("@PlayCounter", playCounter);
+            sp.AddParameter("@LoadCounter", loadCounter);
+            sp.AddParameter("@PauseCounter", pauseCounter);
+            sp.AddParameter("@StopCounter", stopCounter);
+            sp.AddParameter("@FullScreenCounter", fullScreenCounter);
+            sp.AddParameter("@ExitFullScreenCounter", exitFullScreenCounter);
+            sp.AddParameter("@SendToFriendCounter", sendToFriendCounter);
+            sp.AddParameter("@PlayTimeCounter", playTimeCounter);
+            sp.AddParameter("@FileQualityID", fileQualityID);
+            sp.AddParameter("@FileFormatID", fileFormatID);
+            sp.AddParameter("@StartHourDate", startHourDate);
+            sp.AddParameter("@UpdaterID", updaterID);
+            sp.AddParameter("@Browser", browser);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@SwooshCounter", swooshCounter);
+            sp.AddParameter("@RuleID", mcRuleID);
+
+            sp.ExecuteNonQuery();
+        }
+
+        public static int Create_SiteGuidsTableForUMMMigration(DateTime from, DateTime to, long groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Create_SiteGuidsTableForUMMMigration");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@From", from);
+            sp.AddParameter("@To", to);
+            sp.AddParameter("@GroupID", groupID);
+
+            return sp.ExecuteReturnValue<int>();    
+        }
+
+        public static bool Drop_SiteGuidsTableForUMMMigration()
+        {
+            StoredProcedure sp = new StoredProcedure("Drop_SiteGuidsTableForUMMMigration");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+
+
+        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec)
+        {
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            
+            #region add data to domain
+            while (limitRetries >= 0)
+            {
+                
+                string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
+
+                var data = m_oClient.GetWithCas<string>(docKey);
+                var dev = new UserMediaMark()
+                {
+                    Location = nLoactionSec,
+                    UDID = sUDID,
+                    MediaID = 0,
+                    UserID = nSiteUserGuid,
+                    CreatedAt = DateTime.UtcNow,
+                    playType = ApiObjects.ePlayType.NPVR.ToString(),
+                    NpvrID = sNpvrID
+                };
+
+                DomainMediaMark mm = new DomainMediaMark();
+
+                //Create new if doesnt exist
+                if (data.Result == null)
+                {
+                    mm.devices = new List<UserMediaMark>();
+                    mm.devices.Add(dev);
+                }
+                else
+                {
+                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
+                    var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+
+                    if (existdev != null)
+                        mm.devices.Remove(existdev);
+
+                    mm.devices.Add(dev);
+                }
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
+
+                if (!res.Result)
+                {
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                    break;
+            }
+            #endregion
+
+            #region storing this by the npvrID
+            limitRetries = RETRY_LIMIT;
+            string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sNpvrID);
+            while (limitRetries >= 0)
+            {
+                var data = m_oClient.GetWithCas<string>(mmKey);
+                var dev = new UserMediaMark()
+                {
+                    Location = nLoactionSec,
+                    UDID = sUDID,
+                    MediaID = 0,
+                    UserID = nSiteUserGuid,
+                    CreatedAt = DateTime.UtcNow,
+                    playType = ePlayType.NPVR.ToString(),
+                    NpvrID = sNpvrID
+
+                };
+
+                MediaMarkLog umm = new MediaMarkLog();
+
+                if (data.Result == null)
+                {
+                    umm.devices = new List<UserMediaMark>();
+                    umm.devices.Add(dev);
+                }
+                else
+                {
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
+                    var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+
+                    if (existdev != null)
+                        umm.devices.Remove(existdev);
+
+                    umm.devices.Add(dev);
+                }
+
+                //For quick last position access
+                umm.LastMark = dev;
+
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+
+                if (!res.Result)
+                {
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                    break;
+            }
+            #endregion
+        }
+
+        public static int GetLastPosition(string NpvrID, int userID)
+        {            
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            string key = UtilsDal.getUserNpvrMarkDocKey(userID, NpvrID);
+            var data = m_oClient.Get<string>(key);
+            if (data == null)
+                return 0;
+            var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
+            return umm.LastMark.Location;
+        }
+
+        // get all devices last position in domain by media_id 
+        public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
+        {
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // get domain document 
+            string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
+            var data = m_oClient.Get<string>(key);
+            if (data == null)
+                return null;
+
+            // get all last position order by desc              
+            var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
+            return dmm;
+        }
+
+
+        public static List<int> Get_LinearMediaType(int parentGroupID)
+        {
+            List<int> res = new List<int>();
+
+            StoredProcedure sp = new StoredProcedure("Get_LinearMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i=0; i < dt.Rows.Count ; i++)
+                    {
+                        res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
+        {
+            DomainMediaMark dmm = new DomainMediaMark();
+            dmm.domainID = domain_id;
+           
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // create Keys 
+            List<string> keys = new List<string>();
+            string docKey = string.Empty;
+            foreach (int user in usersKey)
+            {
+                docKey = UtilsDal.getUserMediaMarkDocKey(user, media_id);
+                keys.Add(docKey);
+            }
+            // get all documents ffrom CB
+            IDictionary<string, object> data = m_oClient.Get(keys);
+
+            List<UserMediaMark> oRes = new List<UserMediaMark>();
+                     
+            if (data == null)
+                return null;
+
+            if (data != null && data.Count > 0)
+            {
+                MediaMarkLog mml;
+                foreach (KeyValuePair<string, object> item in data)
+                {
+                    if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                    {
+                        mml = JsonConvert.DeserializeObject<MediaMarkLog>(item.Value.ToString());
+                        if (mml != null && mml.LastMark != null)
+                        {
+                            oRes.Add(mml.LastMark);
+                        }
+                    }
+                }
+            }
+            
+            dmm.devices = oRes;
+            return dmm;
+         
+        }
     }
 }

@@ -26,26 +26,26 @@ namespace Catalog
 
         }
 
-        private void CheckRequestValidness(BundlesContainingMediaRequest request)
+        protected override void CheckRequestValidness()
         {
-            if (request == null || request.m_oBundles == null || request.m_oBundles.Length == 0 || request.m_nMediaID == 0)
-                throw new Exception("Request is null or invalid");
+            if (m_oBundles == null || m_oBundles.Length == 0 || m_nMediaID == 0)
+                throw new Exception("Request is invalid");
         }
 
-        private void GetBundlesList(BundlesContainingMediaRequest request, ref List<int> subs, ref List<int> cols)
+        private void GetBundlesList(ref List<int> subs, ref List<int> cols)
         {
             subs = new List<int>();
             cols = new List<int>();
-            for (int i = 0; i < request.m_oBundles.Length; i++)
+            for (int i = 0; i < m_oBundles.Length; i++)
             {
-                if (request.m_oBundles[i].m_eBundleType == eBundleType.SUBSCRIPTION)
+                if (m_oBundles[i].m_eBundleType == eBundleType.SUBSCRIPTION)
                 {
-                    subs.Add(request.m_oBundles[i].m_nBundleCode);
+                    subs.Add(m_oBundles[i].m_nBundleCode);
                 }
                 else
                 {
                     // collection
-                    cols.Add(request.m_oBundles[i].m_nBundleCode);
+                    cols.Add(m_oBundles[i].m_nBundleCode);
                 }
 
             }
@@ -104,25 +104,24 @@ namespace Catalog
             BundlesContainingMediaResponse response = null;
             try
             {
-                BundlesContainingMediaRequest request = oBaseRequest as BundlesContainingMediaRequest;
-                CheckRequestValidness(request);
-                CheckSignature(request);
+                CheckRequestValidness();
+                CheckSignature(this);
 
                 List<int> subs = null;
                 List<int> cols = null;
-                GetBundlesList(request, ref subs, ref cols);
+                GetBundlesList(ref subs, ref cols);
 
                 Dictionary<int, List<int>> channelsToSubsMapping = null;
                 Dictionary<int, List<int>> channelsToColsMapping = null;
 
-                CatalogDAL.Get_ChannelsByBundles(request.m_nGroupID, subs, cols, ref channelsToSubsMapping,
+                CatalogDAL.Get_ChannelsByBundles(m_nGroupID, subs, cols, ref channelsToSubsMapping,
                     ref channelsToColsMapping);
 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
-                response = new BundlesContainingMediaResponse(request.m_oBundles);
+                response = new BundlesContainingMediaResponse(m_oBundles);
 
-                List<int> channelsOfMedia = searcher.GetMediaChannels(request.m_nGroupID, request.m_nMediaID);
+                List<int> channelsOfMedia = searcher.GetMediaChannels(m_nGroupID, m_nMediaID);
 
                 FillResponse(channelsOfMedia, channelsToSubsMapping, channelsToColsMapping, ref response);
 

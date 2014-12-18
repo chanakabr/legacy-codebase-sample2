@@ -164,10 +164,16 @@
     <Compile Include="UserGroupRuleResponse.cs" />
     <Compile Include="UserItemList.cs" />
     <Compile Include="UserOfflineObject.cs" />
+    <Compile Include="UsersCache.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValidationResponseObject.cs" />
+    <Compile Include="Web References\OrcaProxy\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="Web References\TvinciAPI\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -204,6 +210,10 @@
       <Project>{31a03896-6fd2-4591-ab2e-a4278c24f8db}</Project>
       <Name>Notifiers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
@@ -211,6 +221,10 @@
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
@@ -242,6 +256,11 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Web References\OrcaProxy\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\OrcaProxy\service.wsdl" />
     <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -315,6 +334,17 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://192.168.162.24/YesProxy/service.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\OrcaProxy\</RelPath>
+      <UpdateFromURL>http://192.168.162.24/YesProxy/service.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>Users_OrcaProxy_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
@@ -329,6 +359,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciAPI\api.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\OrcaProxy\service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

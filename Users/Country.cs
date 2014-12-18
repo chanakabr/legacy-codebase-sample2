@@ -19,31 +19,62 @@ namespace Users
         {
             bool res = false;
 
-            try
+            string key = string.Format("users_CountryInitialize_{0}", nCountryID);
+            Country oCountry;
+            res = UsersCache.GetItem<Country>(key, out oCountry);
+
+            if (!res || oCountry == null)
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "SELECT COUNTRY_NAME, COUNTRY_CD2 FROM COUNTRIES WITH (NOLOCK) WHERE ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nCountryID);
-                if (selectQuery.Execute("query", true) != null)
+                try
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "SELECT COUNTRY_NAME, COUNTRY_CD2 FROM COUNTRIES WITH (NOLOCK) WHERE ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nCountryID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        string sCountryName = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_NAME"].ToString();
-                        string sCountryCode = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_CD2"].ToString();
-                        Initialize(nCountryID, sCountryName, sCountryCode);
-                        res = true;
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount > 0)
+                        {
+                            string sCountryName = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_NAME"].ToString();
+                            string sCountryCode = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_CD2"].ToString();
+                            Initialize(nCountryID, sCountryName, sCountryCode);
+                            res = true;
+                        }
                     }
+                    selectQuery.Finish();
+                    selectQuery = null;
                 }
-                selectQuery.Finish();
-                selectQuery = null;
+                catch
+                {
+                    res = false;
+                }
+                if (res)
+                {
+                    UsersCache.AddItem(key, this);
+                }
             }
-            catch
+            else
             {
-                res = false;
+                res = Initialize(oCountry);
             }
 
             return res;
+        }
+
+        private bool Initialize(Country oCountry)
+        {
+            try
+            {
+                m_sCountryCode = oCountry.m_sCountryCode;
+                m_sCountryName = oCountry.m_sCountryName;
+                m_nObjecrtID = oCountry.m_nObjecrtID;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
         }
 
         public void Initialize(Int32 nCountryID, string sCountryName, string sCountryCode)
@@ -56,31 +87,44 @@ namespace Users
         public bool InitializeByCode(string sCode)
         {
             bool bOK = false;
+            string key = string.Format("users_CountryInitializeByCode_{0}", sCode);
+            Country oCountry;
+            bOK = UsersCache.GetItem<Country>(key, out oCountry);
 
-            try
+            if (!bOK || oCountry == null)
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "SELECT ID, COUNTRY_NAME FROM COUNTRIES WITH (NOLOCK) WHERE ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CD2", "=", sCode);
-                if (selectQuery.Execute("query", true) != null)
+                try
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "SELECT ID, COUNTRY_NAME FROM COUNTRIES WITH (NOLOCK) WHERE ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CD2", "=", sCode);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        Int32 nCountryID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        string sCountryName = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_NAME"].ToString();
-                        Initialize(nCountryID, sCountryName, sCode);
-                        bOK = true;
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount > 0)
+                        {
+                            Int32 nCountryID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                            string sCountryName = selectQuery.Table("query").DefaultView[0].Row["COUNTRY_NAME"].ToString();
+                            Initialize(nCountryID, sCountryName, sCode);
+                            bOK = true;
+                        }
                     }
+                    selectQuery.Finish();
+                    selectQuery = null;
                 }
-                selectQuery.Finish();
-                selectQuery = null;
+                catch
+                {
+                    bOK = false;
+                }
+                if (bOK)
+                {
+                    UsersCache.AddItem(key, this);
+                }
             }
-            catch
+            else
             {
-                bOK = false;
+                bOK = Initialize(oCountry);
             }
-
             return bOK;
         }
 

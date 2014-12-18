@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects;
+using ApiObjects.Epg;
 using com.llnw.mediavault;
+using ConditionalAccess.TvinciAPI;
 using DAL;
 
 
@@ -53,16 +56,16 @@ namespace ConditionalAccess
         public override bool ActivateCampaign(int campaignID, CampaignActionInfo cai)
         {
             bool retVal = false;
-            string sIP = "1.1.1.1";
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
                 if (camp != null)
                 {
@@ -79,16 +82,16 @@ namespace ConditionalAccess
         public override CampaignActionInfo ActivateCampaignWithInfo(int campaignID, CampaignActionInfo cai)
         {
             CampaignActionInfo retVal = null;
-            string sIP = "1.1.1.1";
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
                 string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
                     m.Url = sWSURL;
-
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 TvinciPricing.Campaign camp = null;
                 if (campaignID > 0)
                 {
@@ -225,7 +228,7 @@ namespace ConditionalAccess
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
-            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID)
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = true;
             HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
@@ -370,7 +373,7 @@ namespace ConditionalAccess
         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
-            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID)
+            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = true;
 
@@ -438,6 +441,158 @@ namespace ConditionalAccess
         protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
         {
             return bDummy;
+        }
+
+        /*
+         * Vodafone patch. 2.12.14
+         * If this method is called from the module.asmx, sProgramId will be an int.
+         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not neccessarily an int.
+         * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
+         * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
+         */ 
+        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        {
+            string url = string.Empty;
+            TvinciAPI.API api = null;
+            try
+            {
+                if (!Enum.IsDefined(typeof(eEPGFormatType), format))
+                {
+                    throw new ArgumentException(String.Concat("Unknown format. Format: ", format));
+                }
+                eEPGFormatType eformat = (eEPGFormatType)format;
+                if (eformat == eEPGFormatType.NPVR)
+                {
+                    /*
+                     * 2.12.14
+                     * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)
+                     * CalcNPVRLicensedLink returns string.Empty unless it is Vodafone. Meaning, that if the account is not Vodafone,
+                     * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
+                     */ 
+                    string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
+                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                    if (npvrLicensedLink.Length > 0)
+                    {
+                        return npvrLicensedLink;
+                    }
+                }
+                int nProgramId = Int32.Parse(sProgramId);
+                int fileMainStreamingCoID = 0; // CDN Straming id
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
+                //GetLicensedLink return empty link no need to continue
+                if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
+                {
+                    throw new Exception("GetLicensedLinks returned empty response.");
+                }
+
+                Dictionary<string, object> dURLParams = new Dictionary<string, object>();
+
+                //call api service to get schedualing details
+                api = new TvinciAPI.API();
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+
+                string sApiWSUrl = Utils.GetWSURL("api_ws");
+                if (!string.IsNullOrEmpty(sApiWSUrl))
+                {
+                    api.Url = sApiWSUrl;
+                }
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
+
+                TvinciAPI.Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
+                if (scheduling != null)
+                {
+                    dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
+                    
+                    dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
+                    switch (eformat)
+                    {
+                        case eEPGFormatType.Catchup:
+                        case eEPGFormatType.StartOver:
+                            {
+                                dURLParams.Add(EpgLinkConstants.PROGRAM_START, scheduling.StartDate);
+                            }
+                            break;
+                        case eEPGFormatType.LivePause:
+                            dURLParams.Add(EpgLinkConstants.PROGRAM_START, dStartTime);
+                            break;
+                        case eEPGFormatType.NPVR:
+                        default:
+                            {
+                                #region Logging
+                                StringBuilder sb = new StringBuilder(String.Concat("Error. Flow not implemented for format: ", eformat.ToString()));
+                                sb.Append(String.Concat(" P ID: ", nProgramId));
+                                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
+                                sb.Append(String.Concat(" SG :", sSiteGUID));
+                                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                                sb.Append(String.Concat(" BL: ", sBasicLink));
+                                sb.Append(String.Concat(" U IP: ", sUserIP));
+                                sb.Append(String.Concat(" Ref: ", sRefferer));
+                                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
+                                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
+                                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                #endregion
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    // to do write to log
+                    Logger.Logger.Log("get epg url link", string.Format("api.GetProgramSchedule return null response can't create link with no dates "), "GetEPGLink");
+                    return string.Empty;
+                }
+
+                //call the right provider to get the epg link 
+
+                string CdnStrID = string.Empty;
+                bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+                dURLParams.Add(EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
+                dURLParams.Add(EpgLinkConstants.BASIC_LINK, sBasicLink);
+
+                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                if (provider != null)
+                {
+                    string liveUrl = provider.GenerateEPGLink(dURLParams);
+                    if (!string.IsNullOrEmpty(liveUrl))
+                    {
+                        url = liveUrl;
+                    }
+                }
+
+                return url;
+
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetEPGLink. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" P ID: ", sProgramId));
+                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
+                sb.Append(String.Concat(" SG :", sSiteGUID));
+                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                sb.Append(String.Concat(" BL: ", sBasicLink));
+                sb.Append(String.Concat(" U IP: ", sUserIP));
+                sb.Append(String.Concat(" Ref: ", sRefferer));
+                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
+                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                return string.Empty;
+            }
+            finally
+            {
+                if (api != null)
+                {
+                    api.Dispose();
+                }
+            }
         }
 
     }

@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
+using System.Web.Script.Serialization;
 
 namespace ApiObjects
 {
@@ -24,24 +26,6 @@ namespace ApiObjects
                     yield return (T)item;
                 }
             }
-        }
-
-        public static readonly List<int> ActiveSocialActions = new List<int>() { (int)eUserAction.LIKE, (int)eUserAction.WATCHES, (int)eUserAction.FOLLOWS, (int)eUserAction.RATES, (int)eUserAction.SHARE };
-
-        public static List<int> GetSocialActionList(eUserAction eAction)
-        {
-            List<int> lActions = new List<int>();
-
-            if (eAction == eUserAction.UNKNOWN)
-            {
-                lActions = ActiveSocialActions;
-            }
-            else
-            {
-                lActions = new List<int>(){(int)eAction};
-            }
-
-            return lActions;
         }
     }
 
@@ -298,6 +282,9 @@ namespace ApiObjects
         public int nFBMinFriends;
         public string sFBPermissions;
         public string sFBRedirect;
+        
+        [XmlIgnore] [ScriptIgnore]
+        public string sFBToken;
 
         public FacebookConfig()
         {
@@ -306,6 +293,7 @@ namespace ApiObjects
             sFBCallback = string.Empty;
             sFBPermissions = string.Empty;
             sFBRedirect = string.Empty;
+            sFBToken = string.Empty;
             nFBMinFriends = 0;
         }
 

@@ -10,10 +10,12 @@ namespace TVinciShared
     {
         static public string GetUTF8MD5Hash(string hash)
         {
-            MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-            byte[] originalBytes = UTF8Encoding.Default.GetBytes(hash);
-            byte[] encodedBytes = md5Provider.ComputeHash(originalBytes);
-            return BitConverter.ToString(encodedBytes).Replace("-", "").ToLower();
+            using (MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider())
+            {
+                byte[] originalBytes = UTF8Encoding.Default.GetBytes(hash);
+                byte[] encodedBytes = md5Provider.ComputeHash(originalBytes);
+                return BitConverter.ToString(encodedBytes).Replace("-", "").ToLower();
+            }
         }
 
         public static string GetMD5HashUTF8EncodingInHexaString(string sInput)
@@ -27,17 +29,12 @@ namespace TVinciShared
                 for (int i = 0; i < data.Length; i++)
                     sb.Append(data[i].ToString("x2"));
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 #region Disposing
                 if (md5 != null)
                 {
                     md5.Clear();
-                    md5 = null;
                 }
                 #endregion
             }

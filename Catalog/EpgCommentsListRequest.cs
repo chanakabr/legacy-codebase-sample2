@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Catalog.Cache;
+using GroupsCacheManager;
 using Logger;
 using Tvinci.Core.DAL;
 
@@ -47,7 +48,8 @@ namespace Catalog
                     nLanguage = request.m_oFilter.m_nLanguage;
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataSet ds = CatalogDAL.Get_EPGCommentsList(request.m_nEpgProgramID, request.m_nGroupID, nLanguage, lSubGroup);
 

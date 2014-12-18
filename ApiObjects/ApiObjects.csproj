@@ -105,8 +105,10 @@
     <Compile Include="enums.cs" />
     <Compile Include="EPGChannelObject.cs" />
     <Compile Include="EpgRes.cs" />
+    <Compile Include="Epg\EpgLinkConstants.cs" />
     <Compile Include="Epg\EpgObject.cs" />
     <Compile Include="Epg\EpgTagTranslate.cs" />
+    <Compile Include="Epg\FieldTypeEntity.cs" />
     <Compile Include="Epg\Meta.cs" />
     <Compile Include="Epg\ProgramObject.cs" />
     <Compile Include="Epg\Tag.cs" />
@@ -115,7 +117,6 @@
     <Compile Include="FileTypeContainer.cs" />
     <Compile Include="ForgotPasswordMailRequest.cs" />
     <Compile Include="GenericWriteResponse.cs" />
-    <Compile Include="Cache\ICache.cs" />
     <Compile Include="GroupInfo.cs" />
     <Compile Include="GroupOperator.cs" />
     <Compile Include="GroupRule.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="MCResponseObject.cs" />
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
+    <Compile Include="MediaConcurrencyRule.cs" />
     <Compile Include="MediaIndexingObjects\BaseCeleryData.cs" />
     <Compile Include="MediaIndexingObjects\IndexingData.cs" />
     <Compile Include="MediaIndexingObjects\QueueObject.cs" />
@@ -141,6 +143,7 @@
     <Compile Include="MediaInfoStructObject.cs" />
     <Compile Include="MediaMarks\DomainMediaMark.cs" />
     <Compile Include="MediaMarks\MediaMarkLog.cs" />
+    <Compile Include="MediaMarks\UserMediaKey.cs" />
     <Compile Include="MediaMarks\UserMediaMark.cs" />
     <Compile Include="MediaObject.cs" />
     <Compile Include="MediaPersonalStatistics.cs" />
@@ -190,6 +193,7 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
+    <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="WelcomeMailRequest.cs" />
   </ItemGroup>
@@ -210,6 +214,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects
@@ -67,7 +68,17 @@ namespace ApiObjects
             LIKE_COUNTER = nLikeCounter;
 
         }
+
+        public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>
+        {
+
+            public int Compare(EPGChannelProgrammeObject x, EPGChannelProgrammeObject y)
+            {
+                return x.START_DATE.CompareTo(y.START_DATE);
+            }
+        }
     }
+
     public class EPGMultiChannelProgrammeObject
     {
         public string EPG_CHANNEL_ID;
@@ -77,5 +88,54 @@ namespace ApiObjects
             EPG_CHANNEL_ID = nEPG_CHANNEL_ID;
             EPGChannelProgrammeObject = oEPGChannelProgrammeObject;
         }
+    }
+
+    public class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject
+    {
+        public string RecordingID;
+        public bool IsAssetProtected;
+        public string ChannelName;
+    }
+
+    [Serializable]
+    [DataContract]
+    public class RecordedEPGOrderObj
+    {
+        [DataMember]
+        public RecordedEPGOrderBy m_eOrderBy;
+        [DataMember]
+        public RecordedEPGOrderDir m_eOrderDir;
+
+    }
+
+    [Serializable]
+    [DataContract]
+    public enum RecordedEPGOrderBy
+    {
+        [EnumMember]
+        StartTime = 0,
+        [EnumMember]
+        Name = 1,
+        [EnumMember]
+        ChannelID = 2
+    }
+
+    [Serializable]
+    [DataContract]
+    public enum RecordedEPGOrderDir
+    {
+        [EnumMember]
+        DESC = 0,
+        [EnumMember]
+        ASC = 1
+    }
+
+    public class RecordedSeriesObject
+    {
+        public string recordingID;
+        public string epgChannelID;
+        public string seriesID;
+        public string seriesName;
+
     }
 }

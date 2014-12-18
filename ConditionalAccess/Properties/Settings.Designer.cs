@@ -36,16 +36,6 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WSApi/api.asmx")]
-        public string ConditionalAccess_TvinciAPI_API {
-            get {
-                return ((string)(this["ConditionalAccess_TvinciAPI_API"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Pricing/module.asmx")]
         public string ConditionalAccess_TvinciPricing_mdoule {
             get {
@@ -76,7 +66,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains_2/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains/module.asmx")]
         public string ConditionalAccess_TvinciDomains_module {
             get {
                 return ((string)(this["ConditionalAccess_TvinciDomains_module"]));
@@ -90,6 +80,16 @@ namespace ConditionalAccess.Properties {
         public string ConditionalAccess_NotificationService_NotificationService {
             get {
                 return ((string)(this["ConditionalAccess_NotificationService_NotificationService"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
+        public string ConditionalAccess_TvinciAPI_API {
+            get {
+                return ((string)(this["ConditionalAccess_TvinciAPI_API"]));
             }
         }
     }

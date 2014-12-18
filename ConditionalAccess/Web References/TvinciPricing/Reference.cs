@@ -79,6 +79,8 @@ namespace ConditionalAccess.TvinciPricing {
         
         private System.Threading.SendOrPostCallback GetPPVModuleListForMediaFilesSTOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetPPVModuleListForMediaFilesWithExpiryOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetPPVModuleShrinkListOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetPPVModuleDataOperationCompleted;
@@ -113,11 +115,11 @@ namespace ConditionalAccess.TvinciPricing {
         
         private System.Threading.SendOrPostCallback GetPreviewModulesArrayByGroupIDForAdminOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetSubscriptionsDataOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetCollectionsDataOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -233,6 +235,9 @@ namespace ConditionalAccess.TvinciPricing {
         public event GetPPVModuleListForMediaFilesSTCompletedEventHandler GetPPVModuleListForMediaFilesSTCompleted;
         
         /// <remarks/>
+        public event GetPPVModuleListForMediaFilesWithExpiryCompletedEventHandler GetPPVModuleListForMediaFilesWithExpiryCompleted;
+        
+        /// <remarks/>
         public event GetPPVModuleShrinkListCompletedEventHandler GetPPVModuleShrinkListCompleted;
         
         /// <remarks/>
@@ -284,13 +289,13 @@ namespace ConditionalAccess.TvinciPricing {
         public event GetPreviewModulesArrayByGroupIDForAdminCompletedEventHandler GetPreviewModulesArrayByGroupIDForAdminCompleted;
         
         /// <remarks/>
+        public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
+        
+        /// <remarks/>
         public event GetSubscriptionsDataCompletedEventHandler GetSubscriptionsDataCompleted;
         
         /// <remarks/>
         public event GetCollectionsDataCompletedEventHandler GetCollectionsDataCompleted;
-        
-        /// <remarks/>
-        public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1218,6 +1223,45 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetPPVModuleListForMediaFilesWithExpiry", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(string sWSUserName, string sWSPassword, int[] nMediaFileIDs, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            object[] results = this.Invoke("GetPPVModuleListForMediaFilesWithExpiry", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaFileIDs,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName});
+            return ((MediaFilePPVContainer[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPPVModuleListForMediaFilesWithExpiryAsync(string sWSUserName, string sWSPassword, int[] nMediaFileIDs, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            this.GetPPVModuleListForMediaFilesWithExpiryAsync(sWSUserName, sWSPassword, nMediaFileIDs, sCountryCd2, sLanguageCode3, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void GetPPVModuleListForMediaFilesWithExpiryAsync(string sWSUserName, string sWSPassword, int[] nMediaFileIDs, string sCountryCd2, string sLanguageCode3, string sDeviceName, object userState) {
+            if ((this.GetPPVModuleListForMediaFilesWithExpiryOperationCompleted == null)) {
+                this.GetPPVModuleListForMediaFilesWithExpiryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPPVModuleListForMediaFilesWithExpiryOperationCompleted);
+            }
+            this.InvokeAsync("GetPPVModuleListForMediaFilesWithExpiry", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaFileIDs,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName}, this.GetPPVModuleListForMediaFilesWithExpiryOperationCompleted, userState);
+        }
+        
+        private void OnGetPPVModuleListForMediaFilesWithExpiryOperationCompleted(object arg) {
+            if ((this.GetPPVModuleListForMediaFilesWithExpiryCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPPVModuleListForMediaFilesWithExpiryCompleted(this, new GetPPVModuleListForMediaFilesWithExpiryCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetPPVModuleShrinkList", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PPVModule[] GetPPVModuleShrinkList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
             object[] results = this.Invoke("GetPPVModuleShrinkList", new object[] {
@@ -1825,6 +1869,41 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            object[] results = this.Invoke("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType});
+            return ((UsageModule)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            this.GetUsageModuleAsync(sWSUserName, sWSPassword, sAssetCode, transactionType, null);
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType, object userState) {
+            if ((this.GetUsageModuleOperationCompleted == null)) {
+                this.GetUsageModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsageModuleOperationCompleted);
+            }
+            this.InvokeAsync("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType}, this.GetUsageModuleOperationCompleted, userState);
+        }
+        
+        private void OnGetUsageModuleOperationCompleted(object arg) {
+            if ((this.GetUsageModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetSubscriptionsData", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Subscription[] GetSubscriptionsData(string sWSUsername, string sWSPassword, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
             object[] results = this.Invoke("GetSubscriptionsData", new object[] {
@@ -1903,41 +1982,6 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
-            object[] results = this.Invoke("GetUsageModule", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sAssetCode,
-                        transactionType});
-            return ((UsageModule)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
-            this.GetUsageModuleAsync(sWSUserName, sWSPassword, sAssetCode, transactionType, null);
-        }
-        
-        /// <remarks/>
-        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType, object userState) {
-            if ((this.GetUsageModuleOperationCompleted == null)) {
-                this.GetUsageModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsageModuleOperationCompleted);
-            }
-            this.InvokeAsync("GetUsageModule", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sAssetCode,
-                        transactionType}, this.GetUsageModuleOperationCompleted, userState);
-        }
-        
-        private void OnGetUsageModuleOperationCompleted(object arg) {
-            if ((this.GetUsageModuleCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1957,7 +2001,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2014,7 +2058,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2095,7 +2139,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CouponsStatus {
@@ -2120,7 +2164,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2249,7 +2293,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2318,7 +2362,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum RelationTypes {
@@ -2331,7 +2375,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2364,7 +2408,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum WhenAlgoType {
@@ -2378,7 +2422,7 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2435,7 +2479,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2468,7 +2512,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2501,7 +2545,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CouponType {
@@ -2517,7 +2561,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2634,7 +2678,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2835,46 +2879,34 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class MediaFilePPVModule {
+    public partial class PPVModuleWithExpiry {
         
-        private PPVModule[] m_oPPVModulesField;
+        private PPVModule pPVModuleField;
         
-        private int m_nMediaFileIDField;
-        
-        private string m_sProductCodeField;
+        private bool isValidForPurchaseField;
         
         /// <remarks/>
-        public PPVModule[] m_oPPVModules {
+        public PPVModule PPVModule {
             get {
-                return this.m_oPPVModulesField;
+                return this.pPVModuleField;
             }
             set {
-                this.m_oPPVModulesField = value;
+                this.pPVModuleField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nMediaFileID {
+        public bool IsValidForPurchase {
             get {
-                return this.m_nMediaFileIDField;
+                return this.isValidForPurchaseField;
             }
             set {
-                this.m_nMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sProductCode {
-            get {
-                return this.m_sProductCodeField;
-            }
-            set {
-                this.m_sProductCodeField = value;
+                this.isValidForPurchaseField = value;
             }
         }
     }
@@ -2882,7 +2914,7 @@ namespace ConditionalAccess.TvinciPricing {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Collection))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Subscription))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3023,7 +3055,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3164,7 +3196,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3197,7 +3229,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3435,7 +3467,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3481,7 +3513,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3538,7 +3570,97 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class MediaFilePPVContainer {
+        
+        private PPVModuleWithExpiry[] m_oPPVModulesField;
+        
+        private int m_nMediaFileIDField;
+        
+        private string m_sProductCodeField;
+        
+        /// <remarks/>
+        public PPVModuleWithExpiry[] m_oPPVModules {
+            get {
+                return this.m_oPPVModulesField;
+            }
+            set {
+                this.m_oPPVModulesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMediaFileID {
+            get {
+                return this.m_nMediaFileIDField;
+            }
+            set {
+                this.m_nMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sProductCode {
+            get {
+                return this.m_sProductCodeField;
+            }
+            set {
+                this.m_sProductCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class MediaFilePPVModule {
+        
+        private PPVModule[] m_oPPVModulesField;
+        
+        private int m_nMediaFileIDField;
+        
+        private string m_sProductCodeField;
+        
+        /// <remarks/>
+        public PPVModule[] m_oPPVModules {
+            get {
+                return this.m_oPPVModulesField;
+            }
+            set {
+                this.m_oPPVModulesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMediaFileID {
+            get {
+                return this.m_nMediaFileIDField;
+            }
+            set {
+                this.m_nMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sProductCode {
+            get {
+                return this.m_sProductCodeField;
+            }
+            set {
+                this.m_sProductCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3597,7 +3719,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3750,7 +3872,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignTrigger {
@@ -3766,7 +3888,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignResult {
@@ -3782,7 +3904,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignType {
@@ -3798,7 +3920,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum eTransactionType {
@@ -4465,6 +4587,32 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetPPVModuleListForMediaFilesWithExpiryCompletedEventHandler(object sender, GetPPVModuleListForMediaFilesWithExpiryCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPPVModuleListForMediaFilesWithExpiryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPPVModuleListForMediaFilesWithExpiryCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public MediaFilePPVContainer[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((MediaFilePPVContainer[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     public delegate void GetPPVModuleShrinkListCompletedEventHandler(object sender, GetPPVModuleShrinkListCompletedEventArgs e);
     
     /// <remarks/>
@@ -4907,6 +5055,32 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsageModule Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsageModule)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     public delegate void GetSubscriptionsDataCompletedEventHandler(object sender, GetSubscriptionsDataCompletedEventArgs e);
     
     /// <remarks/>
@@ -4953,32 +5127,6 @@ namespace ConditionalAccess.TvinciPricing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Collection[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
-    public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public UsageModule Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((UsageModule)(this.results[0]));
             }
         }
     }

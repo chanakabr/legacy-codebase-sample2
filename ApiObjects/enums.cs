@@ -167,4 +167,81 @@ namespace ApiObjects
         Collection
     }
 
+    public enum eBusinessModule
+    {
+        PPV = 1,
+        Subscription = 2
+    }
+
+    public enum FieldTypes
+    {
+        Unknown,
+        Basic,
+        Meta,
+        Tag
+
+    }
+
+    public enum eWSModules
+    {
+        API,
+        PRICING,
+        USERS,
+        DOMAINS,
+        BILLING,
+        SOCIAL,
+        CONDITIONALACCESS,
+        CATALOG,
+        NOTIFICATION
+    }
+
+
+    public enum eEPGFormatType
+    {
+        Catchup,
+        StartOver,
+        LivePause
+    }
+
+    public enum eStreamType
+    {
+        HLS,
+        SS,
+        DASH
+    }
+
+    public enum ePlayType
+    {
+        MEDIA = 0,
+        NPVR = 1,
+        ALL = 2
+    }
+
+    [Serializable]
+    public enum NPVRSearchBy
+    {
+        [EnumMember]
+        Other = 0,
+        [EnumMember]
+        ByRecordingID = 1,
+        [EnumMember]
+        ByStartDate = 2,
+        [EnumMember]
+        ByRecordingStatus = 3
+    }
+
+    [Serializable]
+    public enum RecordingStatus
+    {
+        [EnumMember]
+        Completed = 0,
+        [EnumMember]
+        Ongoing = 1,
+        [EnumMember]
+        Scheduled = 2,
+        [EnumMember]
+        Cancelled = 3
+    }
+
+
 }

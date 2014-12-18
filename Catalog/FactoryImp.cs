@@ -98,11 +98,11 @@ namespace Catalog
             }
             if (m_oBaseRequest is EpgSearchRequest)
             {
-                return new EpgSearchRequest();
+                return (EpgSearchRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgAutoCompleteRequest)
             {
-                return new EpgAutoCompleteRequest();
+                return (EpgAutoCompleteRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is MediaSearchFullRequest)
             {
@@ -134,11 +134,11 @@ namespace Catalog
             }
             if (m_oBaseRequest is AssetStatsRequest)
             {
-                return new AssetStatsRequest();
+                return (AssetStatsRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgRequest)
             {
-                return new EpgRequest();
+                return (EpgRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EPGProgramsByScidsRequest)
             {
@@ -174,11 +174,32 @@ namespace Catalog
             }
             if (m_oBaseRequest is BundlesContainingMediaRequest)
             {
-                return new BundlesContainingMediaRequest();
+                return (BundlesContainingMediaRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is MediaFilesRequest)
-                return (MediaFilesRequest)m_oBaseRequest;
-
+            {
+                return (MediaFilesRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is CategoryRequest)
+            {
+                return (CategoryRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is DomainLastPositionRequest)
+            {
+                return (DomainLastPositionRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is EpgProgramDetailsRequest)
+            {
+                return (EpgProgramDetailsRequest) m_oBaseRequest;
+            }
+            if (m_oBaseRequest is NPVRRetrieveRequest)
+            {
+                return (NPVRRetrieveRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is NPVRSeriesRequest)
+            {
+                return (NPVRSeriesRequest)m_oBaseRequest;
+            }
 
             return null;
         }

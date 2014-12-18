@@ -117,22 +117,27 @@ namespace DAL
         public static bool UpdateUserTypeByUserID(int nUserID, int nUserTypeID)
         {
             bool updateRes = false;
-
+            ODBCWrapper.DirectQuery directQuery = null;
             try
             {
-                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 directQuery += "update users set ";
                 directQuery += "User_Type = " + nUserTypeID;
                 directQuery += " where ";
                 directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
                 updateRes = directQuery.Execute();
-                directQuery.Finish();
-                directQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (directQuery != null)
+                {
+                    directQuery.Finish();
+                }
             }
 
             return updateRes;
@@ -314,12 +319,12 @@ namespace DAL
         public static bool UpdateHitDate(int nSiteGuid, bool bLogOut = false)
         {
             bool res = false;
-
+            ODBCWrapper.DirectQuery directQuery = null;
             try
             {
                 string sLastHitDate = bLogOut ? "DATEADD(minute , -1 , getdate())" : "getdate()";
 
-                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 directQuery += "update users set ";
@@ -327,12 +332,17 @@ namespace DAL
                 directQuery += " where ";
                 directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nSiteGuid);
                 res = directQuery.Execute();
-                directQuery.Finish();
-                directQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (directQuery != null)
+                {
+                    directQuery.Finish();
+                }
             }
 
             return res;
@@ -341,10 +351,10 @@ namespace DAL
         public static int GetUserIDByUsername(string sUsername, int nGroupID)
         {
             int nUserID = 0;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "select id from users WITH (nolock) where is_active=1 and status=1 and ";
@@ -360,12 +370,17 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return nUserID;
@@ -375,10 +390,10 @@ namespace DAL
         public static int GetUserIDByFacebookID(string sFacebookID, int nGroupID)
         {
             int nUserID = 0;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select id from users WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
                 selectQuery += " and ";
@@ -391,12 +406,17 @@ namespace DAL
                         nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return nUserID;
@@ -414,10 +434,10 @@ namespace DAL
         public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster)
         {
             int nDomainID = 0;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
@@ -441,12 +461,14 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
+
             }
-            catch (Exception ex)
+            finally
             {
-                HandleException(ex);
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return nDomainID;
@@ -488,10 +510,10 @@ namespace DAL
         public static int GetAllowedLogins(int nGroupID)
         {
             int nAllowedLogins = 0;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += " select allowed_logins from groups_parameters WITH (nolock) where ";
@@ -508,12 +530,17 @@ namespace DAL
                         }
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return nAllowedLogins;
@@ -522,10 +549,10 @@ namespace DAL
         public static bool UpdateFailCount(int nUserID, int nAdd)
         {
             bool updateRes = false;
-
+            ODBCWrapper.DirectQuery directQuery = null;
             try
             {
-                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 directQuery += "update users set ";
@@ -541,12 +568,17 @@ namespace DAL
                 directQuery += " where ";
                 directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
                 updateRes = directQuery.Execute();
-                directQuery.Finish();
-                directQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (directQuery != null)
+                {
+                    directQuery.Finish();
+                }
             }
 
             return updateRes;
@@ -569,8 +601,6 @@ namespace DAL
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", id);
                 updateRes = updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
 
             }
             catch (Exception ex)
@@ -636,10 +666,10 @@ namespace DAL
         public static DateTime GetLastUserSessionDate(int nSiteGuid, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
         {
             DateTime retVal = DateTime.MaxValue;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "select id,user_ip, last_action_date, session_id, getdate() as 'Now' from users_sessions WITH (nolock) where is_active = 1 and ";
@@ -665,12 +695,17 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return retVal;
@@ -734,10 +769,10 @@ namespace DAL
         public static string GetActivationToken(int nGroupID, string sUserName)
         {
             string sActivationToken = string.Empty;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "select ACTIVATION_TOKEN from users WITH (nolock) where is_active=1 and status=1 and ";
@@ -752,13 +787,18 @@ namespace DAL
                         sActivationToken = selectQuery.Table("query").DefaultView[0].Row["ACTIVATION_TOKEN"].ToString();
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return sActivationToken;
@@ -767,10 +807,10 @@ namespace DAL
         public static string GetActivationToken(int nGroupID, int nSiteGuid)
         {
             string sActivationToken = string.Empty;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "select ACTIVATION_TOKEN from users WITH (nolock) where ";     //is_active=1 and status=1 and ";
@@ -785,13 +825,18 @@ namespace DAL
                         sActivationToken = selectQuery.Table("query").DefaultView[0].Row["ACTIVATION_TOKEN"].ToString();
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return sActivationToken;
@@ -800,10 +845,10 @@ namespace DAL
         public static DataRowView GetGroupMailParameters(int m_nGroupID)
         {
             DataRowView dvMailParameters = null;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
@@ -818,13 +863,18 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
 
             return dvMailParameters;
@@ -1657,5 +1707,29 @@ namespace DAL
 
             return retOperatorId;
         }
+
+
+        public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
+        {   
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsersListByBulk");
+                sp.SetConnectionKey("users_connection_heart");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@FreeTxt", sFreeTxt);
+                sp.AddParameter("@Top", top);
+                sp.AddParameter("@Page", page);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null)
+                {
+                    return ds;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }       
     } 
 }

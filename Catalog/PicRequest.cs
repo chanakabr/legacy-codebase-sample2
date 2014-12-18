@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -48,7 +49,8 @@ namespace Catalog
                     throw new Exception("Signatures dosen't match");
 
                 GroupManager groupManager = new GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 DataTable dt = CatalogDAL.Get_PicProtocol(request.m_nGroupID, request.m_nPicIds, lSubGroup);
 
@@ -83,7 +85,7 @@ namespace Catalog
                     }
                 }
 
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

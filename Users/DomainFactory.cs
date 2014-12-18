@@ -90,8 +90,7 @@ namespace Users
 
             return oNewDomain;
         }
-
-
+        
         public static Domain CheckAddMonkey(Domain dom)
         {
             if (dom == null)
@@ -124,11 +123,14 @@ namespace Users
                 try
                 {
                     User monkeyUser = masterUser.Clone();
-                    //UserBasicData basicOfMonkey = user.m_oBasicData.Clone();
-                    //UserDynamicData dynamicOfMonkey = user.m_oDynamicData.Clone();
 
                     monkeyUser.m_sSiteGUID = string.Empty;
                     monkeyUser.m_oBasicData.m_sUserName = "{" + resDomain.m_nDomainID + "}_{Household}"; // (resDomain.m_nDomainID + "||" + Guid.NewGuid().ToString());
+                    monkeyUser.m_oBasicData.m_sFacebookID = string.Empty;
+                    monkeyUser.m_oBasicData.m_sFacebookImage = string.Empty;
+                    monkeyUser.m_oBasicData.m_sFacebookToken = string.Empty;
+                    monkeyUser.m_oBasicData.m_CoGuid = string.Empty;
+
                     int monkeyID = monkeyUser.Save(resDomain.m_nGroupID, true);
 
                     if ((monkeyID <= 0) || (string.IsNullOrEmpty(monkeyUser.m_sSiteGUID)))
@@ -137,9 +139,7 @@ namespace Users
                     }
                     else
                     {
-                        //bool monkeyCreated = monkeyUser.Initialize(monkeyUser.m_oBasicData, monkeyUser.m_oDynamicData, nGroupID, monkeyUser.m_oBasicData.m_sPassword);
                         DomainResponseStatus addedMonkey = resDomain.AddUserToDomain(resDomain.m_nGroupID, resDomain.m_nDomainID, monkeyID, masterUserID, UserDomainType.Household);
-
 
                         if (addedMonkey != DomainResponseStatus.OK)
                         {
@@ -152,6 +152,5 @@ namespace Users
 
             return resDomain;
         }
-
     }
 }

@@ -10,7 +10,10 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         public ApiObjects.SearchObjects.OrderBy Action { get; set; }
         [JsonProperty("actionVal")]
         public double ActionVal { get; set; }
+        [JsonProperty("period")]
+        public int Period { get; set; }
 
+        [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
         public override eItemType Type
         {
             get { return eItemType.VOD; }

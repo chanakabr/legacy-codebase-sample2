@@ -9,17 +9,20 @@ namespace ConditionalAccess
     {
         public string mainUrl;
         public string altUrl;
+        public string status;
 
         public LicensedLinkResponse()
         {
             this.mainUrl = string.Empty;
             this.altUrl = string.Empty;
+            this.status = eLicensedLinkStatus.Unknown.ToString();
         }
 
-        public LicensedLinkResponse(string mainUrl, string altUrl)
+        public LicensedLinkResponse(string mainUrl, string altUrl, string status)
         {
             this.mainUrl = mainUrl;
             this.altUrl = altUrl;
+            this.status = status;
         }
     }
 }

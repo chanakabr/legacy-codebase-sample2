@@ -13,7 +13,7 @@ namespace ApiObjects.SearchObjects
         public OrderDir m_eOrderDir;
 
         [DataMember]
-        public  string m_sOrderValue;
+        public string m_sOrderValue;
 
         public ESOrderObj()
         {

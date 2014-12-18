@@ -104,7 +104,8 @@ namespace ConditionalAccess
     {
         Catchup,
         StartOver,
-        LivePause
+        LivePause,
+        NPVR
     }
 
     public enum eStreamType
@@ -158,10 +159,43 @@ namespace ConditionalAccess
         [EnumMember]
         Collection
     }
+    
     internal enum BundleToUse : byte
     {
         All = 0,
         Subscription = 1,
         Collection = 2
+    }
+
+    public enum eLicensedLinkStatus
+    {
+        Unknown = 0,
+        OK = 1,
+        Error = 2,
+        InvalidInput = 3,
+        InvalidDevice = 4,
+        InvalidPrice = 5,
+        Concurrency = 6,
+        MediaConcurrency = 7,
+        InvalidBaseLink = 8,
+        InvalidFileData = 9
+    }
+
+    public enum eUrlType
+    {
+        Static = 0,        
+        Dynamic = 1
+    }
+
+    public enum NPVRStatus : byte
+    {
+        Unknown = 0,
+        OK = 1,
+        Error = 2,
+        BadRequest = 3,
+        InvalidUser = 4,
+        InvalidAssetID = 5,
+        AssetAlreadyScheduled = 6,
+        AssetAlreadyCanceled = 7
     }
 }

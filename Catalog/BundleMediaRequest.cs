@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using System.Collections.Concurrent;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -65,13 +66,14 @@ namespace Catalog
                     }
                 }
 
-                GroupManager groupManager = new GroupManager();
-                Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                Group groupInCache = groupManager.GetGroup(nParentGroupID); 
 
                 if (groupInCache != null)
                 {
                     List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
-                    List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
 
                     if (channelIds != null && channelIds.Count > 0)
@@ -109,7 +111,7 @@ namespace Catalog
                                          {
                                              if (groupInCache != null)
                                              {
-                                                 Channel currentChannel = allChannels[(int)obj];
+                                                 GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
                                                  if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
                                                  {
                                                      MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());

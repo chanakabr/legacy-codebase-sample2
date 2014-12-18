@@ -11,6 +11,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using DAL;
 
 namespace Catalog
 {
@@ -49,8 +50,11 @@ namespace Catalog
     [KnownType(typeof(BuzzMeterRequest))]
     [KnownType(typeof(MediaLastPositionRequest))]
     [KnownType(typeof(MediaLastPositionResponse))]
+    [KnownType(typeof(CategoryRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
+    [ServiceKnownType(typeof(DomainLastPositionRequest))]
+    [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
 
     [DataContract]
     public class BaseRequest
@@ -126,6 +130,15 @@ namespace Catalog
             string sCheckSignature = Utils.GetSignature(oBaseRequest.m_sSignString, oBaseRequest.m_nGroupID);
             if (sCheckSignature != oBaseRequest.m_sSignature)
                 throw new Exception("Signatures don't match");
+        }     
+      
+
+        protected virtual void CheckRequestValidness()
+        {
+            /*
+             * To be overriden in the inheriting class
+             * 
+             */ 
         }
 
         public override string ToString()

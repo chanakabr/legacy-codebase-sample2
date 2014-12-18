@@ -21,8 +21,8 @@ namespace Notifiers
         static public void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID , string sConn)
         {
             int moduleID = 1;
+
             int nImplID = DAL.TvmDAL.GetSubscriptionsNotifierImpl(nGroupID, moduleID);
-            //int nImplID = DAL.TvmDAL.GetUsersNotifierImpl(nGroupID, moduleID);
 
             switch (nImplID)
             {

@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using ApiObjects;
-using ApiObjects.Cache;
 using DAL;
-using Enyim.Caching.Memcached;
 using Tvinci.Core.DAL;
 
-namespace Catalog.Cache
+namespace GroupsCacheManager
 {
     public class GroupManager
     {
-        private Type cacheGroupType = Type.GetType(Utils.GetWSURL("cache_group_type"));
-       
+        private GroupsCache cache;
         public GroupManager()
-        {         
-
+        {
+            cache = GroupsCache.Instance();
         }
 
         #region Public
-        public void GetGroupAndChannel(int nChannelId, int nParentGroupId, ref Group group, ref Channel channel)
+
+        public void GetGroupAndChannel(int nChannelId, int nGroupId, ref Group group, ref Channel channel)
         {
-            group = this.GetGroup(nParentGroupId);
+            group = this.GetGroup(nGroupId);
 
             if (group != null)
             {
@@ -37,103 +33,24 @@ namespace Catalog.Cache
             Group group = null;
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    group = groupCache.GetGroup(nGroupID);                    
-                }
-                return group;
-            }
-
-            #region OLD CODE
-            /*
-            try
-            {  
-              
-                //get group by id from CB
-                ICache<Group> cache = Bootstrapper.GetInstance<ICache<Group>>();
-                cache.Init();
-                group = cache.Get(nGroupID.ToString());
-                if (group != null)
-                {
-                    return group;
-                }
-
-                else //Group dosn't exsits ==> Build it 
-                {
-                    bool bInsert = false;                    
-
-                    if (cache.GetType() == typeof(CouchBaseCacheWrapper<Group>))
-                    {
-                        for (int i = 0; i < 3 && !bInsert; i++)
-                        {
-                            CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
-                            CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
-
-                            if (casResult.StatusCode == 0 && casResult.Result != null)
-                            {
-                                group = casResult.Result;
-                            }
-                            else
-                            {
-                                bool createdNew = false;
-                                var mutexSecurity = Utils.CreateMutex();
-                                using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
-                                {
-                                    try
-                                    {
-                                        mutex.WaitOne(-1);
-
-                                        Group tempGroup = BuildGroup(nGroupID, true);
-                                        if (tempGroup != null)
-                                        {
-                                            List<int> lSubGroups = Get_SubGroupsTree(nGroupID);
-                                            tempGroup.m_nSubGroup = lSubGroups;
-                                        }
-                                        //try insert to CB
-                                        bInsert = cache.Insert(nGroupID.ToString(), tempGroup, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
-                                        if (bInsert)
-                                        {
-                                            group = tempGroup;
-                                        }
-                                    }
-
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "Catalog");
-                                    }
-                                    finally
-                                    {
-                                        mutex.ReleaseMutex();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                group = cache.GetGroup(nGroupID);
 
                 return group;
             }
-             * */
-            #endregion
 
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
                 return null;
             }
         }
-               
+
         public bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group)
         {
             bool bAdd = false;
             try
-            {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    bAdd = groupCache.AddChannelsToOperator(nOperatorID, subscriptionChannels, group);
-                }
+            {               
+                bAdd = cache.AddChannelsToOperator(nOperatorID, subscriptionChannels, group);
                 return bAdd;
             }
             catch (Exception ex)
@@ -184,7 +101,6 @@ namespace Catalog.Cache
                 Group group = null;
 
                 //get group by id 
-
                 group = this.GetGroup(nGroupID);
 
                 if (group != null)
@@ -207,11 +123,8 @@ namespace Catalog.Cache
 
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    isRemovingChannelSucceded = groupCache.RemoveChannel(nGroupID, nChannelId);
-                }
+                isRemovingChannelSucceded = cache.RemoveChannel(nGroupID, nChannelId);
+
                 return isRemovingChannelSucceded;
             }
             catch (Exception ex)
@@ -226,11 +139,7 @@ namespace Catalog.Cache
             bool bDelete = false;
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    bDelete = groupCache.RemoveGroup(nGroupID);
-                }
+                bDelete = cache.RemoveGroup(nGroupID);
                 return bDelete;
             }
             catch (Exception ex)
@@ -244,7 +153,7 @@ namespace Catalog.Cache
         {
             bool res = false;
             if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
-            {
+            {               
                 switch (oe)
                 {
                     case eOperatorEvent.ChannelAddedToSubscription:
@@ -277,12 +186,12 @@ namespace Catalog.Cache
         {
             bool res = true;
             List<int> operators = CatalogDAL.Get_OperatorsOwningSubscription(nGroupID, nSubscriptionID);
-            if (operators!= null && operators.Count > 0)
+            if (operators != null && operators.Count > 0)
             {
                 for (int i = 0; i < operators.Count; i++)
-                {                  
+                {
                     res &= AddChannelsToOperator(nGroupID, operators[i], new List<long>(1) { lChannelID });
-                }             
+                }
             }
 
             return res;
@@ -297,8 +206,8 @@ namespace Catalog.Cache
                 Group group = GetGroup(nGroupID);
 
                 if (group != null)
-                {                   
-                    res = AddChannelsToOperator(nGroupID, nOperatorID, subscriptionChannels); ;
+                {
+                    res = AddChannelsToOperator(nGroupID, nOperatorID, subscriptionChannels);
                 }
             }
 
@@ -307,9 +216,9 @@ namespace Catalog.Cache
 
         private bool HandleRemoval(int nGroupID, int nOperatorID)
         {
-            return DeleteOperator(nGroupID, nOperatorID);         
+            return DeleteOperator(nGroupID, nOperatorID);
         }
-        
+
         private Channel GetChannel(int nChannelId, ref Group group)
         {
             try
@@ -322,21 +231,18 @@ namespace Catalog.Cache
                 }
                 else  //Build the Channel and update the group
                 {
-                    BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                    if (groupCache != null)
-                    {
-                        channel = groupCache.GetChannel(nChannelId, ref group);
-                    }
-                    return channel;                  
+                    channel = cache.GetChannel(nChannelId, ref group);
+                    return channel;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", nChannelId, ex.Message), "Catalog");
+                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", nChannelId, ex.Message), "GroupManager");
                 throw;
             }
         }
 
+       
         #endregion
 
         #region Internal
@@ -344,11 +250,9 @@ namespace Catalog.Cache
         {
             bool bUpdate = false;
             try
-            {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
+            {   
                 {
-                    bUpdate = groupCache.UpdateoOperatorChannels(nGroupID, nOperatorID, channelIDs, true);
+                    bUpdate = cache.UpdateoOperatorChannels(nGroupID, nOperatorID, channelIDs, true);
                 }
                 return bUpdate;
             }
@@ -356,7 +260,7 @@ namespace Catalog.Cache
             {
                 Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "Catalog");
                 return false;
-            }  
+            }
         }
 
         internal bool DeleteOperator(int nGroupID, int nOperatorID)
@@ -364,15 +268,13 @@ namespace Catalog.Cache
             bool bDelete = false;
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    bDelete = groupCache.DeleteOperator(nGroupID, nOperatorID);
-                }
-                return bDelete;               
+                bDelete = cache.DeleteOperator(nGroupID, nOperatorID);
+
+                return bDelete;
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("DeleteOperator", string.Format("failed to DeleteOperator nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupManager");
                 return false;
             }
         }
@@ -382,16 +284,12 @@ namespace Catalog.Cache
             bool bAdd = false;
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    bAdd = groupCache.AddOperatorChannels(nGroupID, nOperatorID, channelIDs, bAddNewOperator);
-                }
+                bAdd = cache.AddOperatorChannels(nGroupID, nOperatorID, channelIDs, bAddNewOperator);
                 return bAdd;
-            }          
+            }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "Catalog");
+                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupManager");
                 return false;
             }
         }
@@ -401,11 +299,8 @@ namespace Catalog.Cache
             bool bInsert = false;
             try
             {
-                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
-                if (groupCache != null)
-                {
-                    bInsert = groupCache.InsertChannels(lNewCreatedChannels, nGroupID);
-                }
+                bInsert = cache.InsertChannels(lNewCreatedChannels, nGroupID);
+
                 return bInsert;
             }
             catch (Exception ex)

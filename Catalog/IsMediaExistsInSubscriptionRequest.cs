@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using GroupsCacheManager;
 using Logger;
 using TVinciShared;
 
@@ -46,13 +47,14 @@ namespace Catalog
                 response.m_nTotalItems = 0;
                                 
                 GroupManager groupManager = new GroupManager();
-                Group groupInCache = groupManager.GetGroup(request.m_nGroupID);
+                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                 List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, eBundleType.SUBSCRIPTION);
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
                     // Buils search Object per channelId call Searcher to return true/false result
-                    List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (allChannels != null && allChannels.Count > 0)
                     {
@@ -79,7 +81,7 @@ namespace Catalog
                                          {
                                              if (groupInCache != null)
                                              {
-                                                 Channel currentChannel = allChannels[(int)obj];
+                                                 GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
                                                  ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                  channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
                                                  channelsSearchObjects.Add(channelSearchObject);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Tvinci.Core.DAL;
 
 namespace Catalog
 {
@@ -10,37 +11,53 @@ namespace Catalog
     [DataContract]
     public class ChannelViewsRequest : BaseRequest, IRequestImp
     {
+
+        public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes)
+            : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
+        {
+            
+        }
+
         public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
-        { }
+        {
+            
+        }
 
         public ChannelViewsRequest()
-        { }
+        {
+           
+        }
+
+        protected override void CheckRequestValidness()
+        {
+            if (m_nGroupID == 0)
+                throw new ArgumentException("request object is null or Required variables is null");
+        }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            ChannelViewsRequest request = oBaseRequest as ChannelViewsRequest;
-
-            if (request == null || request.m_nGroupID == 0)
-                throw new ArgumentException("request object is null or Required variables is null");
-
-            CheckSignature(request);
-
             ChannelViewsResponse response = new ChannelViewsResponse();
 
+            CheckRequestValidness();
+            CheckSignature(this);
+            
             try
             {
-                List<ChannelViewsResult> channelViewsResult = Utils.GetChannelViewsResult(request.m_nGroupID);
+                //Get Linear Media Type
+                List<int> nMediaTypes = CatalogDAL.Get_LinearMediaType(m_nGroupID);
 
-                if (channelViewsResult != null)
+                List<ChannelViewsResult> channelViewsResult = Utils.GetChannelViewsResult(m_nGroupID, nMediaTypes);
+
+                if (channelViewsResult != null && channelViewsResult.Count > 0)
                 {
-                    int nValidNumberOfMediasRange = request.m_nPageSize;
+                    int nValidNumberOfMediasRange = m_nPageSize;
 
-                    if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(channelViewsResult.Count, request.m_nPageIndex, ref nValidNumberOfMediasRange))
+                    if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(channelViewsResult.Count, m_nPageIndex, ref nValidNumberOfMediasRange))
                     {
                         if (nValidNumberOfMediasRange > 0)
                         {
-                            channelViewsResult = channelViewsResult.GetRange(request.m_nPageSize * request.m_nPageIndex, nValidNumberOfMediasRange);
+                            channelViewsResult = channelViewsResult.GetRange(m_nPageSize * m_nPageIndex, nValidNumberOfMediasRange);
                         }
                     }
                     else
@@ -51,10 +68,15 @@ namespace Catalog
                     response.ChannelViews = channelViewsResult;
                     response.m_nTotalItems = channelViewsResult.Count;
                 }
+                else
+                {
+                    Logger.Logger.Log("Error", String.Concat("GetChannelViewsResult returned no items. Req: ", ToString()), "ChannelViewsRequest");
+                }
             }
-            catch
+            catch(Exception ex)
             {
-
+                Logger.Logger.Log("Exception", String.Concat("Exception at ChannelViewsRequest. Req: ", ToString(), " Ex Msg: ", ex.Message, " ST: ", ex.StackTrace), "ChannelViewsRequest");
+                throw ex;
             }
 
             return response;

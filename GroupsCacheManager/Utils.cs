@@ -2,29 +2,24 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 
-namespace Catalog.Cache
+namespace GroupsCacheManager
 {
-    public class GroupCacheUtils
+    public class Utils
     {
-        public static BaseGroupCache GetGroupCacheInstance(Type baseType)
+
+        internal static MutexSecurity CreateMutex()
         {
-            switch (baseType.Name)
-            {
-                case "GroupCacheExternal":
-                    {
-                        return GroupCacheExternal.Instance;
-                    }
-                case "GroupCacheInternal":
-                    {
-                        return new GroupCacheInternal(); ;
-                    }
-                default:
-                    {
-                        return GroupCacheExternal.Instance;
-                    }
-            }
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+            return mutexSecurity;
         }
 
         public static Group BuildGroup(int nGroupID, bool bUseRAM)
@@ -35,7 +30,7 @@ namespace Catalog.Cache
                 DateTime dNow = DateTime.Now;
 
                 group = ChannelRepository.BuildGroup(nGroupID);
-            
+
             }
             catch (Exception ex)
             {
@@ -65,7 +60,7 @@ namespace Catalog.Cache
 
             return lGroups;
         }
-        
+
         public static Channel RemoveChannelByChannelId(int nChannelId, ref Group group)
         {
             Channel removedChannel = null;
@@ -85,5 +80,31 @@ namespace Catalog.Cache
 
             return removedChannel;
         }
+
+
+        public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        {
+            bool res = false;
+            string rawStrFromConfig = TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+            if (rawStrFromConfig.Length > 0)
+            {
+                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
+                {
+                    List<long> listOfIDs = strArrOfIDs.Select(s =>
+                    {
+                        long l = 0;
+                        if (Int64.TryParse(s, out l))
+                            return l;
+                        return 0;
+                    }).ToList();
+
+                    res = listOfIDs.Contains(lGroupID);
+                }
+            }
+
+            return res;
+        }
     }
 }
+

@@ -117,8 +117,6 @@ namespace Users
             }
         }
 
-
-
         public virtual bool AddChannelMediaToFavorites(string sUserGUID, int domainID, string sDeviceUDID,
           string sItemType, string sChannelID, string sExtraData, Int32 nGroupID)
         {
@@ -241,9 +239,9 @@ namespace Users
         public abstract void Logout(string sSiteGUID);
 
         protected Int32 m_nGroupID;
-        static protected Int32 m_nActivationMustHours;
-        static protected Int32 m_nTokenValidityHours;
-        static protected Int32 m_nChangePinTokenValidityHours;
+        protected Int32 m_nActivationMustHours;
+        protected Int32 m_nTokenValidityHours;
+        protected Int32 m_nChangePinTokenValidityHours;
 
         protected string m_sWelcomeMailTemplate;
         protected string m_sWelcomeFacebookMailTemplate;
@@ -426,8 +424,16 @@ namespace Users
 
         public virtual UserType[] GetGroupUserTypes(Int32 nGroupID)
         {
-            DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, null);
-            List<UserType> userTypesList = GetUserTypesList(dtUserData);
+            List<UserType> userTypesList;
+            string key = string.Format("users_GetGroupUserTypes_{0}", m_nGroupID);
+
+            bool bRes = UsersCache.GetItem<List<UserType>>(key, out  userTypesList);
+            if (!bRes)
+            {
+                DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, null);
+                userTypesList = GetUserTypesList(dtUserData);
+                UsersCache.AddItem(key, userTypesList);
+            }
             return userTypesList.ToArray();
         }
 
@@ -437,15 +443,10 @@ namespace Users
         {
             if (!m_bIsActivationNeeded.HasValue)
             {
-                m_bIsActivationNeeded = UsersDal.GetIsActivationNeeded(m_nGroupID);
-
-                //DataTable dt = UsersDal.GetIsActivationNeeded(m_nGroupID);
-                //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                //    m_bIsActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["IS_ACTIVATION_NEEDED"]) != 0;
+                m_bIsActivationNeeded = UsersDal.GetIsActivationNeeded(m_nGroupID);               
             }
 
             return (m_bIsActivationNeeded.HasValue ? m_bIsActivationNeeded.Value : true);
-
         }
 
         public virtual bool AddItemToList(UserItemList userItemList, int nGroupID)

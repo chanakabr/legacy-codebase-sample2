@@ -25,7 +25,8 @@ namespace ElasticSearch.Searcher
         public List<string> ReturnFields { get; protected set; }
         public eQueryType QueryType { get; set; }
 
-        public ESMediaQueryBuilder() : this(0, null)
+        public ESMediaQueryBuilder()
+            : this(0, null)
         {
         }
 
@@ -158,13 +159,29 @@ namespace ElasticSearch.Searcher
 
             if (QueryType == eQueryType.EXACT)
             {
-                FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
-                FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
-                FilterCompositeType generatedComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
-                filterParent.AddChild(andComposite);
-                filterParent.AddChild(orComposite);
-                filterParent.AddChild(generatedComposite);
+                if (oSearchObject.m_oOrder.m_eOrderBy != OrderBy.RELATED)
+                {
+                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    FilterCompositeType generatedComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
+                    filterParent.AddChild(andComposite);
+                    filterParent.AddChild(orComposite);
+                    filterParent.AddChild(generatedComposite);
+                }
+                else
+                {
+                    BoolQuery oAndBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    BoolQuery oOrBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    BoolQuery oMultiFilterBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
+
+                    BoolQuery oBoolQuery = new BoolQuery();
+                    oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
+                    oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
+                    oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
+
+                    query.Query = oBoolQuery;
+                }
             }
             else if (QueryType == eQueryType.BOOLEAN)
             {
@@ -311,15 +328,31 @@ namespace ElasticSearch.Searcher
 
             if (QueryType == eQueryType.EXACT)
             {
-                FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
-                FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
-                FilterCompositeType generatedComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
-                filterParent.AddChild(andComposite);
-                filterParent.AddChild(orComposite);
-                filterParent.AddChild(generatedComposite);
+                if (oSearchObject.m_oOrder.m_eOrderBy != OrderBy.RELATED)
+                {
+                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    FilterCompositeType generatedComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
+                    filterParent.AddChild(andComposite);
+                    filterParent.AddChild(orComposite);
+                    filterParent.AddChild(generatedComposite);
+                }
+                else
+                {
+                    BoolQuery oAndBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    BoolQuery oOrBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    BoolQuery oMultiFilterBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
+
+                    BoolQuery oBoolQuery = new BoolQuery();
+                    oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
+                    oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
+                    oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
+
+                    sQuery = oBoolQuery.ToString();
+                }
             }
-            else if(QueryType == eQueryType.BOOLEAN)
+            else if (QueryType == eQueryType.BOOLEAN)
             {
                 BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
                 BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
@@ -427,7 +460,7 @@ namespace ElasticSearch.Searcher
 
             filter.AddChild(mediaIdTerms);
             FillFilterSettings(ref oQueryFilter, filter);
-            
+
             sQuery.Append("{");
 
             string sSort = GetSort(oOrder, false);
@@ -467,13 +500,13 @@ namespace ElasticSearch.Searcher
 
             return multiMatchQuery;
 
-            
+
         }
 
         public string BuildMediaAutoCompleteQuery()
         {
             FilteredQuery filteredQuery = new FilteredQuery();
-            
+
             ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
             QueryFilter filter = new QueryFilter();
             BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
@@ -496,10 +529,25 @@ namespace ElasticSearch.Searcher
             endDateRange.Key = (oSearchObject.m_bUseFinalEndDate) ? "final_date" : "end_date";
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            
+            ESTerms mediaTypesTerms = new ESTerms(true);
+            if (!string.IsNullOrEmpty(oSearchObject.m_sMediaTypes) && !oSearchObject.m_sMediaTypes.Equals("0"))
+            {
+                mediaTypesTerms.Key = "media_type_id";
+                string[] mediaTypeArr = oSearchObject.m_sMediaTypes.Split(';');
+                foreach (string mediaType in mediaTypeArr)
+                {
+                    if (!string.IsNullOrWhiteSpace(mediaType))
+                    {
+                        mediaTypesTerms.Value.Add(mediaType.Trim());
+                    }
+                }
+            }
 
             filterParent.AddChild(isActiveTerm);
             filterParent.AddChild(startDateRange);
             filterParent.AddChild(endDateRange);
+            filterParent.AddChild(mediaTypesTerms);
             FillFilterSettings(ref filter, filterParent);
 
             MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
@@ -516,7 +564,7 @@ namespace ElasticSearch.Searcher
             filteredQuery.PageSize = oSearchObject.m_nPageSize;
 
             return filteredQuery.ToString();
-            
+
         }
 
         private string GetSort(OrderObj oOrderObj, bool bOrderByScore)
@@ -529,11 +577,11 @@ namespace ElasticSearch.Searcher
                 string sAnalyzedMeta = string.Format("metas.{0}", oOrderObj.m_sOrderValue.ToLower());
                 sSort.AppendFormat("\"{0}\": ", sAnalyzedMeta);
                 ReturnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
-                
+
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_uid\": "); 
+                sSort.Append(" \"_uid\": ");
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
@@ -624,6 +672,54 @@ namespace ElasticSearch.Searcher
 
                             ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
                             oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
+                        }
+                    }
+
+                    oBoolQuery.AddChild(oValueBoolQuery, oAndOrCondition);
+                }
+            }
+
+            return oBoolQuery;
+        }
+
+        protected BoolQuery QueryRelatedMetasAndTagsConditions(List<SearchValue> oSearchList, CutWith oAndOrCondition)
+        {
+            BoolQuery oBoolQuery = new BoolQuery();
+
+            List<string> lMetasAndTagConditions = null;
+
+            if (oSearchList != null && oSearchList.Count > 0)
+            {
+                lMetasAndTagConditions = new List<string>();
+
+                foreach (SearchValue searchValue in oSearchList)
+                {
+                    BoolQuery oValueBoolQuery = new BoolQuery();
+                    if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                    {
+                        string sSearchKey = (string.IsNullOrEmpty(searchValue.m_sKeyPrefix)) ?
+                            searchValue.m_sKey.ToLower() : string.Format("{0}.{1}", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower());
+
+                        if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.AND)
+                        {
+
+                            FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
+                            foreach (string value in searchValue.m_lValue)
+                            {
+                                oValueBoolQuery.AddChild(new ESTerm(false) { Key = sSearchKey, Value = value.ToLower() }, CutWith.AND);
+                            }
+                        }
+                        else if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.OR)
+                        {
+                            FilterCompositeType composite = new FilterCompositeType(CutWith.OR);
+                            if (searchValue.m_lValue.Count > 0)
+                            {
+
+                                ESTerms terms = new ESTerms(false);
+                                terms.Key = sSearchKey;
+                                terms.Value.AddRange(searchValue.m_lValue.ConvertAll(val => val.ToLower()));
+                                oValueBoolQuery.AddChild(terms, CutWith.OR);
+                            }
                         }
                     }
 

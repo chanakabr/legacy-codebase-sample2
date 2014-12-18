@@ -22,11 +22,13 @@ namespace EpgBL
             {
                 case YES_REGULAR:
                     {
-                        return new YesEpgBL(YES);
+                        return new TvinciEpgBL(nGroupID);
+                        //return new YesEpgBL(YES);                        
                     }
                 case YES:
                     {
-                        return new YesEpgBL(YES_REGULAR);
+                        return new TvinciEpgBL(nGroupID);
+                        //return new YesEpgBL(YES_REGULAR);
                     }
                 default:
                     {
@@ -54,10 +56,9 @@ namespace EpgBL
         public static ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> createDic(List<int> lChannelIDs)
         {
             ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = new ConcurrentDictionary<int, List<EPGChannelProgrammeObject>>();
-            if (lChannelIDs != null)
+            if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
-                int channelCount = lChannelIDs.Count();
-                for (int i = 0; i < channelCount; i++)
+                for (int i = 0; i < lChannelIDs.Count; i++)
                 {
                     int nChannel = lChannelIDs[i];
                     dChannelEpgList.TryAdd(nChannel, new List<EPGChannelProgrammeObject>());

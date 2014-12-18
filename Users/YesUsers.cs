@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
-using System.Xml;
 using System.Web.Script.Serialization;
-using System.Configuration;
 using ApiObjects;
 
 namespace Users
@@ -19,20 +16,20 @@ namespace Users
 
         }
 
-        private Dictionary<string, string> GetYesUserDetails(string sURL, string sPostData) 
-        {  
-            string ret = string.Empty;                         
+        private Dictionary<string, string> GetYesUserDetails(string sURL, string sPostData)
+        {
+            string ret = string.Empty;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(sURL);
-            request.Method          = "POST";
-            request.ContentType     = "application/x-www-form-urlencoded";         
-            ASCIIEncoding encoding  = new ASCIIEncoding();
-            byte[] data             = encoding.GetBytes(sPostData);
-            request.ContentLength                = data.Length;
-            request.CookieContainer              = new CookieContainer();
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            ASCIIEncoding encoding = new ASCIIEncoding();
+            byte[] data = encoding.GetBytes(sPostData);
+            request.ContentLength = data.Length;
+            request.CookieContainer = new CookieContainer();
             request.MaximumAutomaticRedirections = 10;
-            request.AllowAutoRedirect            = true;
+            request.AllowAutoRedirect = true;
 
-            Dictionary<string, string> sData = new Dictionary<string,string>();
+            Dictionary<string, string> sData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             try
             {
@@ -53,7 +50,7 @@ namespace Users
                 //Logger.Logger.Log("WEB, http://192.116.126.212/fullauth response", sResponse.ToString(), "WebResp");
 
                 var jss = new JavaScriptSerializer();
-                sData   = jss.Deserialize<Dictionary<string, string>>(sResponse);
+                sData = jss.Deserialize<Dictionary<string, string>>(sResponse);
 
             }
             catch
@@ -68,8 +65,8 @@ namespace Users
         {
             // Get Yes User Details
             string yesURL = TVinciShared.WS_Utils.GetTcmConfigValue("YesTokenAuth");
-            string sPostData = string.Format("HOD={0}", sToken);//yesURL
-            Dictionary<string, string> yesUserData = GetYesUserDetails(yesURL, sPostData);           
+            string sPostData = string.Format("HOD={0}", sToken);//yesURL    /
+            Dictionary<string, string> yesUserData = GetYesUserDetails(yesURL, sPostData);
             return SignInYes(yesUserData, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
 
@@ -78,29 +75,95 @@ namespace Users
             // Get Yes User Details
             string yesURL = TVinciShared.WS_Utils.GetTcmConfigValue("YESFullAuth");
             string sPostData = string.Format("username={0}&password={1}", sUN, sPass);
-            Dictionary<string, string> yesUserData = GetYesUserDetails(yesURL, sPostData);   
+            Dictionary<string, string> yesUserData = GetYesUserDetails(yesURL, sPostData);
             return SignInYes(yesUserData, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
 
-        public UserResponseObject SignInYes( Dictionary<string, string> yesUserData , int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public UserResponseObject SignInYes(Dictionary<string, string> yesUserData, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
-            UserResponseObject o = null;         
-            string sUserCoGuid = string.Empty;
-            GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);  
+            UserResponseObject o = null;
 
-            // If not valid return user not exist
-            if (string.IsNullOrEmpty(sUserCoGuid))
+            string sUN = string.Empty;
+            
+            // we are assuming the user name is in the yesUserData      
+            GetUserContentInfo(ref sUN, "userName", yesUserData);
+
+            if (string.IsNullOrEmpty(sUN))
             {
                 o = new UserResponseObject();
                 o.m_RespStatus = ResponseStatus.UserDoesNotExist;
                 return o;
             }
 
-            string sUN = string.Empty;
-            // we are assuming the user name is in the yesUserData     
-            GetUserContentInfo(ref sUN, "userName", yesUserData);
+            
+            // Get user permissions
+            yesUserData["USER_PERMISSIONS"] = GetUserPermission(yesUserData);
 
-            // Check if user on Tvinci
+            if ((yesUserData.ContainsKey("USER_PERMISSIONS")) && (!string.IsNullOrEmpty(yesUserData["USER_PERMISSIONS"])) &&
+                (string.Compare(yesUserData["USER_PERMISSIONS"], "OK", StringComparison.OrdinalIgnoreCase) != 0))
+            {
+                UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
+                UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
+
+                o = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
+
+                //o = new UserResponseObject();
+                //o.m_user = new User();
+
+                o.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
+                return o;
+            }
+
+
+            // Check the user CoGuid stuff
+            string sUserCoGuid = string.Empty;
+            GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);
+
+            // If not valid return user not exist
+            //if (string.IsNullOrEmpty(sUserCoGuid))
+            //{
+            //    o = new UserResponseObject();
+            //    o.m_RespStatus = ResponseStatus.UserDoesNotExist;
+            //    return o;
+            //}
+
+
+            // Check recommendation flag, if 'Y' - do ORCA SignIn
+            char recommendflag;
+            if ((yesUserData.ContainsKey("recommendflag_rac")) && 
+                (!string.IsNullOrEmpty(yesUserData["recommendflag_rac"])) &&
+                (char.TryParse(yesUserData["recommendflag_rac"], out recommendflag)) &&
+                (recommendflag == 'Y'))
+            {
+                try
+                {
+                    string orcaProxyURL = TVinciShared.WS_Utils.GetTcmConfigValue("ORCA_PROXY_URL");
+
+                    if (!string.IsNullOrEmpty(orcaProxyURL))
+                    {
+                        OrcaProxy.Service op = new OrcaProxy.Service();
+                        op.Url = orcaProxyURL;
+
+                        if ((yesUserData.ContainsKey("accNum")) && (!string.IsNullOrEmpty(yesUserData["accNum"])) &&
+                            (yesUserData.ContainsKey("CrmUserId")) && (!string.IsNullOrEmpty(yesUserData["CrmUserId"])))
+                        {
+                            string orcaToken = op.OrcaLogin(yesUserData["accNum"], yesUserData["CrmUserId"]);
+
+                            if (!string.IsNullOrEmpty(orcaToken))
+                            {
+                                yesUserData["orcaToken"] = orcaToken;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    yesUserData["orcaToken"] = "OrcaLoginError";
+                }
+            }
+           
+
+            // Check if user exists in the DB
             UserResponseObject userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
             if (userInfo.m_RespStatus == ResponseStatus.UserDoesNotExist)
             {
@@ -122,15 +185,16 @@ namespace Users
                 UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
                 List<KeyValuePair> lKeyValue = new List<KeyValuePair>();
                 foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
-                {                   
+                {
                     KeyValuePair kvp = new KeyValuePair(container.m_sDataType, container.m_sValue);
                     lKeyValue.Add(kvp);
                 }
 
                 SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
-            }           
-            
-            // Check if Domain exist
+            }
+
+
+            // Check if the Domain exist
             string domainCoGuid = string.Empty;
             int userID = int.Parse(userInfo.m_user.m_sSiteGUID);
             Users.BaseDomain t = null;
@@ -178,7 +242,7 @@ namespace Users
                 Domain oDomain = t.GetDomainInfo(domainID, nGroupID);
 
                 // add user to domain
-                dr = t.AddUserToDomain(nGroupID, domainID, userID, oDomain.m_masterGUIDs[0], false); 
+                dr = t.AddUserToDomain(nGroupID, domainID, userID, oDomain.m_masterGUIDs[0], false);
 
                 if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
@@ -201,130 +265,24 @@ namespace Users
             // Tvinci signIn. password = username 
             return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-
-
-        #region OldSignIn
-        //public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
-        //{
-        //    UserResponseObject o = null;
-        //    // Get Yes User Details
-        //    Dictionary<string, string> yesUserData = GetYesUserDetails(sUN, sPass, false); //
-        //    string sUserCoGuid = string.Empty;
-        //    GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);
-
-        //    // If not valid return user not exist
-        //    if (string.IsNullOrEmpty(sUserCoGuid))
-        //    {
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //        return o;
-        //    }
-
-        //    // Check if user on Tvinci
-        //    UserResponseObject userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
-        //    if (userInfo.m_RespStatus == ResponseStatus.UserDoesNotExist)
-        //    {
-        //        // Create Tvinci user - set password = username
-        //        UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
-        //        UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
-
-        //        userInfo = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
-        //        if (userInfo.m_RespStatus != ResponseStatus.OK)
-        //        {
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-        //            return o;
-        //        }
-        //    }
-
-        //    // Check if Domain exist
-        //    string domainCoGuid = string.Empty;
-        //    int userID = int.Parse(userInfo.m_user.m_sSiteGUID);
-        //    Users.BaseDomain t = null;
-
-        //    string ip = "1.1.1.1";
-        //    string sWSUserName = string.Empty;
-        //    string sWSPass = string.Empty;
-        //    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "AddDomain", "domains", ip, ref sWSUserName, ref sWSPass);
-        //    Utils.GetGroupID(sWSUserName, sWSPass, "AddDomain", ref t);
-
-        //    if (t == null)
-        //    {
-        //        //Logger.Logger.Log("Creating Domain_WS Error", "Domain = " + t.ToString(), "Domains");
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-        //        return o;
-        //    }
-
-        //    GetUserContentInfo(ref domainCoGuid, "AccountUuid", yesUserData);
-
-        //    // get TVinci domain ID, if 0 domain is not exist yet
-        //    int domainID = t.GetDomainIDByCoGuid(domainCoGuid);
-        //    // get TVinci associated domain id from user info
-        //    int userTVinciDomainID = userInfo.m_user.m_domianID;
-
-        //    Users.DomainResponseObject dr = null;
-
-        //    // Create new TVDomain if domain CoGuid is not empty, TVinci user associated domain has no id and there is no domain related to that coGuid
-        //    if (!string.IsNullOrEmpty(domainCoGuid) && userTVinciDomainID == 0 && domainID == 0)
-        //    {
-        //        dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", userID, nGroupID, domainCoGuid);
-
-        //        if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
-        //        {
-        //            // Error adding to domain
-        //            //Logger.Logger.Log("Add Domain Error", "Domain = " + t.ToString(), "Domains");
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //            return o;
-        //        }
-        //    }
-        //    // join user to an active domain if Vinci user associated domain has no id, domain CoGuid is not empty and there is a domain related to that coGuid
-        //    else if (!string.IsNullOrEmpty(domainCoGuid) && userTVinciDomainID == 0 && domainID != 0)
-        //    {
-        //        Domain oDomain = t.GetDomainInfo(domainID, nGroupID);
-
-        //        // add user to domain
-        //        dr = t.AddUserToDomain(nGroupID, domainID, userID, oDomain.m_masterGUIDs[0], false);
-
-        //        if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
-        //        {
-        //            // Error join to domain
-        //            //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
-        //            o = new UserResponseObject();
-        //            o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //            return o;
-        //        }
-
-        //    }
-        //    // if there is existing TVinci domain that associated with the current user return an error
-        //    else if (domainID != 0 && domainID != userTVinciDomainID)
-        //    {
-        //        o = new UserResponseObject();
-        //        o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-        //        return o;
-        //    }
-
-        //    // Tvinci signIn. password = username 
-        //    return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
-        //} 
-        #endregion
-
+        
         //in case of Yes - the new domain is added seperatly, this is a dummy function
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
             DomainResponseObject dr = new DomainResponseObject();
-            dr.m_oDomainResponseStatus = DomainResponseStatus.OK;            
+            dr.m_oDomainResponseStatus = DomainResponseStatus.OK;
             return dr;
         }
-       
-
 
         private void GetUserContentInfo(ref string subject, string value, Dictionary<string, string> userInfo)
         {
-            if (userInfo.ContainsKey(value) == true)
+            if (userInfo.ContainsKey(value))
             {
                 subject = userInfo[value];
+            }
+            else if (userInfo.ContainsKey(value.ToLower()))
+            {
+                subject = userInfo[value.ToLower()];
             }
         }
 
@@ -343,7 +301,7 @@ namespace Users
             return ubd;
         }
 
-        private List<string> userParams = new List<string>()
+        private List<string> _userParams = new List<string>()
         {
             "AccountUuid",
             "accNum",
@@ -355,24 +313,315 @@ namespace Users
             "siteTransfer",
             "TVcookie",
             "CrmUserId",
+
+            // Version 4
+            "userUuid",
+            "userlimit_rac",
+            "devicelimit_rac",
+            "accountstatus_rac",
+            "tvestatus_rac",
+            "tvestatusdesc_rac",
+            "satstatus_rac",
+            "indicationflag_rac",
+            "permissionid_rac",
+            "recommendflag_rac",
+            "eulaFlag_rac",
+            "offerid_rac",
+            "USER_PERMISSIONS"
         };
 
         private UserDynamicData GetUserDynamicData(Dictionary<string, string> yesUserData)
         {
             UserDynamicData udd = new UserDynamicData();
-            udd.m_sUserData     = new UserDynamicDataContainer[userParams.Count];
+            udd.m_sUserData = new UserDynamicDataContainer[_userParams.Count];
 
-            for(int i = 0 ; i < userParams.Count ; ++i)
+            for (int i = 0; i < _userParams.Count; ++i)
             {
                 UserDynamicDataContainer dynamicData = new UserDynamicDataContainer();
-                if (yesUserData.ContainsKey(userParams[i]) == true)
+
+                if (yesUserData.ContainsKey(_userParams[i]))
                 {
-                    dynamicData.m_sDataType = userParams[i];
-                    dynamicData.m_sValue    = yesUserData[userParams[i]];
-                    udd.m_sUserData[i]      = dynamicData;
+                    dynamicData.m_sDataType = _userParams[i];
+                    dynamicData.m_sValue = yesUserData[_userParams[i]];
+                    udd.m_sUserData[i] = dynamicData;
                 }
             }
+
             return udd;
+        }
+
+        // WARNING: Crazy code below
+        public string GetUserPermission(Dictionary<string, string> yesUserData)
+        {
+            // OK || LOGIN_MSG_{Excel line number}
+            string sRet = "OK";
+
+            try
+            {
+                ushort tveStatus = 0;
+                ushort.TryParse(yesUserData["tvestatus_rac"], out tveStatus);
+
+                // Check accNum, AccountUuid, CrmUserId, userUuid are not NULL 
+                if (((yesUserData.ContainsKey("accNum") && !string.IsNullOrEmpty(yesUserData["accNum"])) &&
+                    (yesUserData.ContainsKey("AccountUuid") && !string.IsNullOrEmpty(yesUserData["AccountUuid"])) &&
+                    (yesUserData.ContainsKey("CrmUserId") && !string.IsNullOrEmpty(yesUserData["CrmUserId"])) &&
+                    (yesUserData.ContainsKey("userUuid") && !string.IsNullOrEmpty(yesUserData["userUuid"]))) == false)
+                {
+                    if (tveStatus == 3)
+                    {
+                        sRet = "LOGIN_MSG_1151";
+                        return sRet;
+                    }
+
+                    if (tveStatus == 1)
+                    {
+                        sRet = "LOGIN_MSG_108";
+                        return sRet;
+                    }
+
+                    sRet = "LOGIN_MSG_109";
+                    return sRet;
+                }
+
+                switch (tveStatus)
+                {
+                    case 1:
+                        sRet = "LOGIN_MSG_108";
+                        return sRet;
+
+                    case 4:
+                        sRet = "LOGIN_MSG_105";
+                        return sRet;
+
+                    case 5:
+                        sRet = "LOGIN_MSG_106";
+                        return sRet;
+
+                    case 2:
+                    case 9:
+                        ushort satstatus = 0;
+                        ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
+
+                        if (satstatus == 3)
+                        {
+                            sRet = "LOGIN_MSG_115";
+                            return sRet;
+                        }
+                        else if (satstatus == 1 || satstatus == 2)
+                        {
+                            ushort indicationflag = 0;
+                            ushort.TryParse(yesUserData["indicationflag_rac"], out indicationflag);
+
+                            string sType = yesUserData["Type"];
+                            bool isTypeMas = (string.Compare(sType, "mas", StringComparison.OrdinalIgnoreCase) == 0);
+                            bool isTypeReg = (string.Compare(sType, "reg", StringComparison.OrdinalIgnoreCase) == 0);
+
+                            switch (indicationflag)
+                            {
+                                case 1:
+                                    if (isTypeMas)
+                                    {
+                                        sRet = "LOGIN_MSG_103";
+                                    }
+                                    else if (isTypeReg)
+                                    {
+                                        sRet = "LOGIN_MSG_1031";
+                                    }
+                                    return sRet;
+
+                                case 2:
+                                    if (isTypeMas)
+                                    {
+                                        sRet = "LOGIN_MSG_104";
+                                    }
+                                    else if (isTypeReg)
+                                    {
+                                        sRet = "LOGIN_MSG_1041";
+                                    }
+                                    return sRet;
+
+                                case 3:
+                                    if (isTypeMas)
+                                    {
+                                        sRet = "LOGIN_MSG_1042";
+                                        return sRet;
+                                    }
+
+                                    if (isTypeReg)
+                                    {
+                                        sRet = "LOGIN_MSG_1043";
+                                        return sRet;
+                                    }
+                                    break;
+
+                                case 0:
+                                    ushort eulaFlag = 0;
+                                    ushort.TryParse(yesUserData["eulaFlag_rac"], out eulaFlag);
+
+                                    if (eulaFlag == 0)
+                                    {
+                                        sRet = "LOGIN_MSG_1111";    // New EULA message
+                                        return sRet;
+                                    }
+
+                                    if (eulaFlag == 1)
+                                    {
+                                        string sStatus = yesUserData["Status"];
+                                        if (isTypeReg &&
+                                            string.Compare(sStatus, "TDS", StringComparison.OrdinalIgnoreCase) == 0)
+                                        {
+                                            sRet = "LOGIN_MSG_107";
+                                            return sRet;
+                                        }
+
+                                        // else
+                                        if (isTypeReg &&
+                                            string.Compare(sStatus, "PN", StringComparison.OrdinalIgnoreCase) == 0)
+                                        {
+                                            sRet = "LOGIN_MSG_108";
+                                            return sRet;
+                                        }
+
+                                        sRet = "OK";
+                                        return sRet;
+                                    }
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            sRet = "TVESTATUS_ERROR";
+                            return sRet;
+                        }
+
+                        break;
+                }
+
+
+            }
+            catch (Exception)
+            {
+                sRet = "ERROR";
+                return sRet;
+            }
+
+            #region Commented
+            //"AccountUuid",
+            //"accNum",
+            //"Type",
+            //"company",
+            //"Permission",
+            //"parentalControl",
+            //"Status",
+            //"siteTransfer",
+            //"TVcookie",
+            //"CrmUserId",
+
+            //// Version 4
+            //"userUuid",
+            //"userlimit_rac",
+            //"devicelimit_rac",
+            //"accountstatus_rac",
+            //"tvestatus_rac",
+            //"tvestatusdesc_rac",
+            //"satstatus_rac",
+            //"indicationflag_rac",
+            //"permissionid_rac",
+            //"recommendflag _rac",
+            //"eulaflag_rac",
+            //"offerId_rac"
+
+
+            //try
+            //{
+            //    using (YesServices.UserPermission.WServiceTVE service = new YesServices.UserPermission.WServiceTVE())
+            //    {
+            //        string xml = service.GetAccontPermissions(sUserName);
+
+            //        string indicationflag = string.Empty;
+            //        if (GetTagValue(ref xml, "indicationflag", out indicationflag))
+            //        {
+            //            switch (indicationflag)
+            //            {
+            //                case "1":
+            //                    sRet = "LOGIN_MSG_103";
+            //                    goto Exit;
+            //                case "2":
+            //                    sRet = "LOGIN_MSG_104";
+            //                    goto Exit;
+            //                default:
+            //                    break;
+            //            }
+            //        }
+
+
+            //        string accountuuid = string.Empty, tvestatus = string.Empty;
+            //        if (GetTagValue(ref xml, "accountuuid", out accountuuid))
+            //        {
+            //            if (string.IsNullOrEmpty(accountuuid))
+            //            {
+            //                sRet = "LOGIN_MSG_116";
+            //                goto Exit;
+            //            }
+            //        }
+
+            //        if (GetTagValue(ref xml, "tvestatus", out tvestatus))
+            //        {
+            //            switch (tvestatus)
+            //            {
+            //                case "1":
+            //                    sRet = "LOGIN_MSG_108";
+            //                    goto Exit;
+            //                case "3":
+            //                    sRet = "LOGIN_MSG_109";
+            //                    goto Exit;
+            //                case "4":
+            //                    sRet = "LOGIN_MSG_105";
+            //                    goto Exit;
+            //                case "5":
+            //                    sRet = "LOGIN_MSG_106";
+            //                    goto Exit;
+            //                //case "9":
+            //                //    sRet = "LOGIN_MSG_112";
+            //                //    goto Exit;
+            //                default:
+            //                    break;
+            //            }
+            //        }
+            //        string accountstatus = string.Empty;
+            //        if (GetTagValue(ref xml, "accountstatus", out accountstatus))
+            //        {
+            //            if (sUserType.ToLower() != "mas")
+            //            {
+            //                switch (accountstatus)
+            //                {
+            //                    case "PN":
+            //                        sRet = "LOGIN_MSG_115";
+            //                        goto Exit;
+            //                    case "FA":
+            //                        sRet = "LOGIN_MSG_114";
+            //                        goto Exit;
+            //                    case "IN":
+            //                        sRet = "LOGIN_MSG_107";
+            //                        goto Exit;
+            //                    default:
+            //                        break;
+            //                }
+            //            }
+            //        }
+
+            //    }
+
+            ////Exit:
+            ////    logger.DebugFormat("GetUserPermission:: Finish request with : {0}", sRet);
+            //}
+            //catch (Exception ex)
+            //{
+            //    //logger.DebugFormat("GetUserPermission::GetAccontPermissions(YesServices)-> Error occured, Exception:{0}", ex.ToString());
+            //}
+            #endregion
+
+            return sRet;
         }
     }
 }

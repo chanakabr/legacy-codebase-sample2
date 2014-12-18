@@ -107,16 +107,13 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Cache\BaseGroupCache.cs" />
-    <Compile Include="Cache\CouchBaseCacheWrapper.cs" />
-    <Compile Include="Cache\GroupCacheExternal.cs" />
-    <Compile Include="Cache\GroupCacheInternal.cs" />
-    <Compile Include="Cache\GroupCacheUtils.cs" />
-    <Compile Include="Cache\GroupManager.cs" />
+    <Compile Include="Cache\CatalogCache.cs" />
     <Compile Include="BundlesContainingMediaRequest.cs" />
     <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
     <Compile Include="BuzzMeterResponse.cs" />
+    <Compile Include="CategoryRequest.cs" />
+    <Compile Include="CategoryResponse.cs" />
     <Compile Include="ChannelObjRequest.cs" />
     <Compile Include="ChannelObjResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
@@ -142,6 +139,8 @@
     <Compile Include="CrowdsourceResponse.cs" />
     <Compile Include="Crowdsourcing.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
+    <Compile Include="DomainLastPositionRequest.cs" />
+    <Compile Include="DomainLastPositionResponse.cs" />
     <Compile Include="EpgAutoCompleteRequest.cs" />
     <Compile Include="EpgAutoCompleteResponse.cs" />
     <Compile Include="CommentRequest.cs" />
@@ -156,7 +155,6 @@
     <Compile Include="EpgSearchRequest.cs" />
     <Compile Include="EpgSearchResponse.cs" />
     <Compile Include="Group.cs" />
-    <Compile Include="Cache\GroupsCache.cs" />
     <Compile Include="ChannelsListRequest.cs" />
     <Compile Include="CommentsListRequest.cs" />
     <Compile Include="CommentsListResponse.cs" />
@@ -164,6 +162,7 @@
     <Compile Include="FactoryImp.cs" />
     <Compile Include="FileMedia.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="IEpgSearchable.cs" />
     <Compile Include="IFactoryImp.cs" />
     <Compile Include="IMediasProtocolRequest.cs" />
     <Compile Include="IProgramsRequest.cs" />
@@ -193,6 +192,10 @@
     <Compile Include="MediaResponse.cs" />
     <Compile Include="MediasProtocolRequest.cs" />
     <Compile Include="MediaUpdateDateRequest.cs" />
+    <Compile Include="NPVRRetrieveRequest.cs" />
+    <Compile Include="NPVRRetrieveResponse.cs" />
+    <Compile Include="NPVRSeriesRequest.cs" />
+    <Compile Include="NPVRSeriesResponse.cs" />
     <Compile Include="OrderObj.cs" />
     <Compile Include="PersonalLasDeviceRequest.cs" />
     <Compile Include="PersonalLastWatchedRequest.cs" />
@@ -356,10 +359,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.16.40/WS_Domains/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_Domains\</RelPath>
-      <UpdateFromURL>http://192.168.16.40/WS_Domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -399,6 +402,10 @@
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
@@ -419,9 +426,17 @@
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
@@ -434,6 +449,10 @@
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj">
       <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
       <Name>StaticticsBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>

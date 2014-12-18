@@ -40,8 +40,7 @@ namespace Users
             User user = new User(nUserID, nGroupID);
             return user;
         }
-
-
+        
         public static UserState DoUserAction(int siteGuid, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
         {
             UserState retVal = UserState.Unknown;
@@ -138,10 +137,13 @@ namespace Users
             return retVal;
         }
 
-        public static UserState GetCurrentUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
+        public static UserState GetCurrentUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID, int nGroupID)
         {
             UserState retVal = UserState.Unknown;
-            int userID = 0;
+            int userSessionID = 0;
+
+            long lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.Get_IDInDevicesByDeviceUDID(deviceID, nGroupID);
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select is_active, id from users_sessions with (nolock)  where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", siteGuid);
@@ -150,36 +152,33 @@ namespace Users
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_ip", "=", sIP);
             selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceID);
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", lIDInDevices > 0 ? lIDInDevices + "" : string.Empty);
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;
                 if (count > 0)
                 {
-                    if (selectQuery.Table("query").DefaultView[0].Row["is_active"] != null && selectQuery.Table("query").DefaultView[0].Row["is_active"] != System.DBNull.Value)
+                    int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "is_active", 0);
+                    if (isActive == 1)
                     {
-                        int isActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["is_active"].ToString());
-                        if (isActive == 1)
-                        {
-                            userID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                            retVal = UserState.SingleSignIn;
-                        }
-                        else
-                        {
-                            retVal = UserState.LoggedOut;
-                        }
+                        userSessionID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
+                        retVal = UserState.SingleSignIn;
+                    }
+                    else
+                    {
+                        retVal = UserState.LoggedOut;
                     }
                 }
             }
-
             selectQuery.Finish();
             selectQuery = null;
-            if (userID > 0)
+
+            if (userSessionID > 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_sessions");
                 updateQuery += "last_action_date = getdate()";
                 updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", userID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", userSessionID);
                 updateQuery.Execute();
                 updateQuery.Finish();
             }
@@ -215,8 +214,7 @@ namespace Users
             int userID = Save(nGroupID);
             return userID;
         }
-
-
+        
         public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)
         {
             if (m_sSiteGUID != "")
@@ -349,8 +347,15 @@ namespace Users
                 m_eUserState = GetCurrentUserState(nUserID);
 
             }
-            catch
+            catch(Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID)");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" User ID: ", nUserID));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
                 res = false;
             }
 
@@ -367,8 +372,17 @@ namespace Users
                 m_domianID = domainID;
                 m_isDomainMaster = isDomainMaster;
             }
-            catch
+            catch(Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID, DomainID, IsDomainMaster)");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" User ID: ", nUserID));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" D ID: ", domainID));
+                sb.Append(String.Concat(" Is Domain Master: ", isDomainMaster.ToString().ToLower()));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
                 res = false;
             }
 
@@ -381,15 +395,23 @@ namespace Users
             string sUserTypeDesc = string.Empty;
             int nIsDefault = 0;
 
-            DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
-            if (dtUserData != null && dtUserData.Rows.Count > 0)
+            string key = string.Format("users_GetGroupUserTypes_{0}_Default_1", nGroupID);
+            UserType userType;
+            bool bRes = UsersCache.GetItem<UserType>(key , out userType);
+            
+            if (!bRes)
             {
-                nUserTypeID     = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["ID"]);
-                sUserTypeDesc   = ODBCWrapper.Utils.GetSafeStr(dtUserData.DefaultView[0]["description"]);
-                nIsDefault      = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
-            }
+                DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
+                if (dtUserData != null && dtUserData.Rows.Count > 0)
+                {
+                    nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["ID"]);
+                    sUserTypeDesc = ODBCWrapper.Utils.GetSafeStr(dtUserData.DefaultView[0]["description"]);
+                    nIsDefault = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
+                }
 
-            UserType userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+             userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+             UsersCache.AddItem(key, userType);
+            }
 
             return userType;
         }
@@ -508,8 +530,7 @@ namespace Users
 
             return nID;
         }
-
-
+        
         public bool SaveDynamicData(int nGroupID)
         {
             bool saved = false;
@@ -631,19 +652,13 @@ namespace Users
             UserState currentState = GetCurrentUserState(siteGuid);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
-            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices + "", currentState, UserAction.SignOut, false, ref instanceID);
+            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices+"" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();
             return retVal;
         }
-
-        //static private bool IsDeviceRegistered(string udid, int siteGuid, int domainID)
-        //{
-        //    bool retVal = true;
-        //    return retVal;
-        //}
-
+        
         static private DateTime GetLastUserSessionDate(int nSiteGuid, string sIP, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
         {
             DateTime retVal = DateTime.MaxValue;

@@ -29,14 +29,11 @@ namespace EpgBL
             bool bRes = false;
             try
             {
+                if (newEpgItem == null)
+                    return false;
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
-                    //ulong nNewID = m_oEpgCouchbase.IDGenerator("epgid");
-                    //newEpgItem.EpgID = nNewID;
-                    //epgID = nNewID;
-                    //bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
-
                     ulong nNewID = newEpgItem.EpgID;
 
                     bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
@@ -46,14 +43,16 @@ namespace EpgBL
                     {
                         epgID = nNewID;
                     }
-
-                    Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB id={0} result ={1}",nNewID, bRes), "InsertCBEpg");
+                    else
+                    {
+                        Logger.Logger.Log("InsertEpg", string.Format("Failed insert to CB id={0}", nNewID), "InsertCBEpg");
+                    }
                 }
-
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertEpg", string.Format("Failed Insert Epg ex = {0} ", ex.Message), "BaseEpgBL");
+                Logger.Logger.Log("InsertEpg", string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
             }
             return bRes;
         }
@@ -79,8 +78,6 @@ namespace EpgBL
             if (doc != null)
             {
                 bRes = m_oEpgCouchbase.DeleteProgram(id.ToString());                
-                //doc.Status = 2;
-                //bRes = this.UpdateEpg(doc);
             }
 
             return bRes;
@@ -247,9 +244,13 @@ namespace EpgBL
 
                 foreach (Task<List<EpgCB>> task in tChannelTasks)
                 {
-                    if (task.Result != null && task.Result.Count > 0)
+                    if (task != null)
                     {
-                        lRes.AddRange(task.Result);
+                        if (task.Result != null && task.Result.Count > 0)
+                        {
+                            lRes.AddRange(task.Result);
+                        }
+                        task.Dispose();
                     }
                 }
             }
@@ -304,28 +305,23 @@ namespace EpgBL
         //get all EPgs in the given range, including Epgs that are partially overlapping
         public override ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
-            {
-                log.Method = "BaseEpgBL.GetMultiChannelProgramsDic";
                 ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
            
                 if (lChannelIDs != null && lChannelIDs.Count > 0)
                 {
-                    int nChannelCount = lChannelIDs.Count;
+                    Task[] tasks = new Task[lChannelIDs.Count];
 
-                    //Start MultiThread Call
-                    Task[] tasks = new Task[nChannelCount];
-
-                    for (int i = 0; i < nChannelCount; i++)
+                    for (int i = 0; i < lChannelIDs.Count; i++)
                     {
                         int nChannel = lChannelIDs[i];
 
                         tasks[i] = Task.Factory.StartNew(
                              (obj) =>
                              {
+                                 int taskChannelID = 0;
                                  try
                                  {
-                                     int taskChannelID = (int)obj;
+                                     taskChannelID = (int)obj;
                                      if (dChannelEpgList.ContainsKey(taskChannelID))
                                      {
                                          List<EpgCB>  lRes = new List<EpgCB>();
@@ -342,43 +338,48 @@ namespace EpgBL
                                  }
                                  catch (Exception ex)
                                  {
-                                     log.Message = string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace);
-                                     log.Error(log.Message, false);
+                                     Logger.Logger.Log("Exception", string.Format("Exception at GetMultiChannelProgramsDic task. C ID: {0} , Msg: {1} , ST: {2}", nChannel, ex.Message, ex.StackTrace), "BaseEpgBL");
                                  }
                              }, nChannel);
                     }
 
                     //Wait for all parallels tasks to finish:
                     Task.WaitAll(tasks);
+                    if (tasks != null && tasks.Length > 0)
+                    {
+                        for (int i = 0; i < tasks.Length; i++)
+                        {
+                            if (tasks[i] != null)
+                            {
+                                tasks[i].Dispose();
+                            }
+                        }
+                    }
                 }
                 return dChannelEpgList;
-            }
         }
         
         //get 'current' Epgs - next, previous and current Epgs, per channel
         public override ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
-            {
-                log.Method = "BaseEpgBL.GetMultiChannelProgramsDic";
                 ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
                 DateTime now = DateTime.UtcNow;
                 int nGoBack = -1;
                 if (lChannelIDs != null && lChannelIDs.Count > 0)
                 {
-                    int nChannelCount = lChannelIDs.Count;
                     //Start MultiThread Call
-                    Task[] tasks = new Task[nChannelCount];
-                    for (int i = 0; i < nChannelCount; i++)
+                    Task[] tasks = new Task[lChannelIDs.Count];
+                    for (int i = 0; i < lChannelIDs.Count; i++)
                     {
                         int nChannel = lChannelIDs[i];
 
                         tasks[i] = Task.Factory.StartNew(
                              (obj) =>
                              {
+                                 int taskChannelID = 0;
                                  try
                                  {
-                                     int taskChannelID = (int)obj;
+                                     taskChannelID = (int)obj;
                                      if (dChannelEpgList.ContainsKey(taskChannelID))
                                      {
                                          List<EpgCB> lTotal = new List<EpgCB>();
@@ -424,38 +425,70 @@ namespace EpgBL
                                  }
                                  catch (Exception ex)
                                  {
-                                     log.Message = string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace);
-                                     log.Error(log.Message, false);
+                                     Logger.Logger.Log("Exception", string.Format("Exception at GetMultiChannelProgramsDicCurrent. C ID: {0} , Msg: {1} ST: {2}", taskChannelID, ex.Message, ex.StackTrace), "BaseEpgBL");
                                  }
                              }, nChannel);
                     }
 
                     //Wait for all parallels tasks to finish:
                     Task.WaitAll(tasks);
+                    if (tasks != null && tasks.Length > 0)
+                    {
+                        for (int i = 0; i < tasks.Length; i++)
+                        {
+                            if (tasks[i] != null)
+                            {
+                                tasks[i].Dispose();
+                            }
+                        }
+                    }
                 }
                 return dChannelEpgList;
-            }
         }
 
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {
-            List<string> lIdsStrings = new List<string>();
-            lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
-            List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
-            
-            //remove items that do not match the group ID
-            int count = lResCB.Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (lResCB[i] != null && lResCB[i].ParentGroupID != m_nGroupID)
-                    lResCB.RemoveAt(i);
-            }
+            List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());           
 
-            List<EPGChannelProgrammeObject> lRes = ConvertEpgCBtoEpgProgramm(lResCB);
+            List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
+
+            List<EPGChannelProgrammeObject> lRes = null;
+            if (lResCB != null)
+            {
+                lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+            }
             return lRes;
         }
 
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)
+        {            
+            List<EPGChannelProgrammeObject> lRes = null;
+            try
+            {               
+                if (externalids != null && externalids.Count() > 0)
+                {
+                    List<EpgCB> lResCB = m_oEpgCouchbase.GetGroupPrograms(0, 0, groupID, externalids.ToList());
+                    if (lResCB != null)
+                    {
+                        lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+                    }
+                }
+
+                if (lRes == null)
+                {
+                    lRes = new List<EPGChannelProgrammeObject>();
+                }         
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetEPGPrograms", string.Format("Failed ex={0}", ex.Message), "TvinciEpgBL");
+            }
+            return lRes;
+        }
+
+
         #region Private
+        
         private static EPGChannelProgrammeObject ConvertEpgCBtoEpgProgramm(EpgCB epg)
         {
             EPGChannelProgrammeObject oProg = new EPGChannelProgrammeObject();
@@ -493,7 +526,7 @@ namespace EpgBL
             return oProg;
         }
 
-        private static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(List<EpgCB> epgList)
+        private static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(IEnumerable<EpgCB> epgList)
         {
             List<EPGChannelProgrammeObject> lProg = new List<EPGChannelProgrammeObject>();
             foreach (EpgCB epg in epgList)
@@ -503,6 +536,10 @@ namespace EpgBL
             }
             return lProg;
         }
+
+
+        
+
         #endregion
 
         #region Not Implement
@@ -517,8 +554,10 @@ namespace EpgBL
         }
         public override List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration)
         {
+
             return new List<EPGChannelProgrammeObject>();
         }
+        
         #endregion
     }
 }

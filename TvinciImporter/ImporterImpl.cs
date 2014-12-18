@@ -664,6 +664,10 @@ namespace TvinciImporter
                 ProccessCategoryChildNodes(nGroupID, categorylID, ref theInnerCategories);
             }
 
+            //get value from tcm
+            int rootCategoryID = TVinciShared.WS_Utils.GetTcmIntValue("ROOT_CATEGORY_ID");            
+            DAL.ImporterImpDAL.StartCategoriesTransaction(rootCategoryID);
+
             return bOK;
         }
 
@@ -1010,9 +1014,10 @@ namespace TvinciImporter
                         }
 
                         UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
-                    }                
-
+                    }
                 }
+                
+                UtilsDal.YesDeleteChannelsByOfferID();
 
                 return bOK;
             }
@@ -1759,30 +1764,16 @@ namespace TvinciImporter
         }
 
         static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
-        {
+        {   
             if (sThumb.Trim() == "")
                 return 0;
 
             string sBasePath = GetBasePath(nGroupID);
-
-            char[] delim = { '/' };
-            string[] splited1 = sThumb.Split(delim);
-            string sPicBaseName1 = splited1[splited1.Length - 1];
-            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
-            {
-                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
-                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
-                if (nEnd != 4)
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
-                else
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
-                sPicBaseName1 += ".jpg";
-            }
+            string sPicBaseName1 = getPictureFileName(sThumb);
 
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicBaseName1, nGroupID);
 
-            //string sPicName = sName;
             if (nPicID == 0)
             {
                 string sUploadedFile = "";
@@ -1829,22 +1820,9 @@ namespace TvinciImporter
 
 
                 nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
-            }
-            // Liat comment this update 02.02.2014
-            //if (nPicID != 0)
-            //{
-            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
-            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
-            //    updateQuery += " where ";
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
-            //    updateQuery.Execute();
-            //    updateQuery.Finish();
-            //    updateQuery = null;
-            //}
+            }         
             return nPicID;
         }
-
 
         static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
@@ -1852,8 +1830,8 @@ namespace TvinciImporter
                 return 0;
 
             //string sBasePath = GetBasePath(nGroupID);
-            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);     
-            string sPicName = getPictureFileName(sThumb);   
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);            
+            string sPicName = getPictureFileName(sThumb);
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);                        
           
@@ -2357,10 +2335,7 @@ namespace TvinciImporter
                 EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
             }
             return nPicID;
-        }
-		
-		
-
+        }		
 
         static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
@@ -2406,13 +2381,11 @@ namespace TvinciImporter
             }
             return nPicID;
         }
-
-
+        
         private static string getPictureFileName(string sThumb)
         {
-            char[] delim = { '/' };
-            string[] splited = sThumb.Split(delim);
-            string sPicName = splited[splited.Length - 1];
+            string sPicName = sThumb;
+
             if (sPicName.IndexOf("?") != -1 && sPicName.IndexOf("uuid") != -1)
             {
                 Int32 nStart = sPicName.IndexOf("uuid=", 0) + 5;
@@ -2423,10 +2396,15 @@ namespace TvinciImporter
                     sPicName = sPicName.Substring(nStart);
                 sPicName += ".jpg";
             }
+
+            if (sPicName.Length >= 200) // the column in DB limit with 255 char
+            {
+                sPicName = sThumb.Substring(sThumb.Length - 200); // get all 200 chars from the end !!
+            }
+
             return sPicName;
         }
-
-        
+                
         //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
         private static string[] getEPGPicSizes(int nGroupID)
         {
@@ -2454,10 +2432,7 @@ namespace TvinciImporter
             str = lString.ToArray();
             return str;
         }
-
-
-
-
+        
         //according to 'bSetMediaThumb' there is "full" and "tn"
         //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
         private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
@@ -2487,7 +2462,7 @@ namespace TvinciImporter
                     int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
                     int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
 
-                    string size = nWidth + "x" + nHeight;
+                    string size = nWidth + "X" + nHeight;
                     lString.Add(size);                   
                 }
             }
@@ -2733,18 +2708,18 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
                 {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
                 {
@@ -2764,18 +2739,18 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
 
-                if (startDate == default(DateTime))
+                if (!startDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
                 }
                 else
                 {
                     updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (endDate == default(DateTime))
+                if (!endDate.HasValue)
                 {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
                 }
                 else
                 {
@@ -4523,10 +4498,11 @@ namespace TvinciImporter
 
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
+                        if (lMediaIds != null && lMediaIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4536,7 +4512,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
+                                        isUpdateIndexSucceeded = client.UpdateIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
@@ -4593,10 +4569,11 @@ namespace TvinciImporter
                 {
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
+                        if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4606,7 +4583,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateChannelIndexSucceeded = client.UpdateChannelIndex(ids, nGroupId, eAction);
+                                        isUpdateChannelIndexSucceeded = client.UpdateChannelIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, endPointAddress));
 
@@ -4649,7 +4626,8 @@ namespace TvinciImporter
             WSCatalog.IserviceClient client = null;
             try
             {
-                string sWSURL = GetCatalogUrl(nGroupID);
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
+                string sWSURL = GetCatalogUrl(nParentGroupID);
                 if (!string.IsNullOrEmpty(sWSURL))
                 {
                     string[] addresses = sWSURL.Split(';');
@@ -4660,7 +4638,7 @@ namespace TvinciImporter
                         for (int i = 0; i < length; i++)
                         {
                             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(addresses[i]);
-                            res &= client.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                            res &= client.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
                         }
                     }
                 }
@@ -4703,10 +4681,11 @@ namespace TvinciImporter
 
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
+                        if (lepgIds != null && lepgIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4724,7 +4703,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateIndexSucceeded = client.UpdateEpgIndex(ids, nGroupId, eAction);
+                                        isUpdateIndexSucceeded = client.UpdateEpgIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }

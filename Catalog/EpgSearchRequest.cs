@@ -14,7 +14,7 @@ using Tvinci.Core.DAL;
 namespace Catalog
 {
     [DataContract]
-    public class EpgSearchRequest : BaseRequest, IRequestImp
+    public class EpgSearchRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -28,7 +28,7 @@ namespace Catalog
 
         [DataMember]
         public string m_sSearch;
-        
+
         [DataMember]
         public DateTime m_dStartDate;
         [DataMember]
@@ -36,6 +36,8 @@ namespace Catalog
 
         [DataMember]
         public List<long> m_oEPGChannelIDs;
+
+        private bool m_bIsLucene;
 
         public EpgSearchRequest()
             : base()
@@ -50,10 +52,11 @@ namespace Catalog
 
             m_sSearch = string.Empty;
             m_oEPGChannelIDs = new List<long>();
+            m_bIsLucene = false;
         }
 
         public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,
-            List<KeyValue> andList, List<KeyValue> orList) 
+            List<KeyValue> andList, List<KeyValue> orList)
             : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, epgChannelIDs, andList, orList);
@@ -76,12 +79,13 @@ namespace Catalog
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, null, andList, orList);
         }
 
-        protected void CheckEPGRequestIsValid(EpgSearchRequest request)
+        protected void CheckEPGRequestIsValid()
         {
-            if (request == null || request.m_nGroupID == 0 || (string.IsNullOrEmpty(request.m_sSearch) && request.m_AndList == null && request.m_OrList == null
-                && request.m_AndList.Count == 0 && request.m_OrList.Count == 0))
+            if (m_nGroupID == 0 ||
+                (string.IsNullOrEmpty(m_sSearch) && (m_AndList == null || m_AndList.Count == 0) &&
+                (m_OrList == null || m_OrList.Count == 0)))
             {
-                throw new Exception("Request object is null or missing search text or group id");
+                throw new ArgumentException("Request object is null or missing search text or group id");
             }
         }
 
@@ -90,16 +94,12 @@ namespace Catalog
         {
             try
             {
-                EpgSearchRequest request = oBaseRequest as EpgSearchRequest;
                 EpgSearchResponse oResponse = new EpgSearchResponse();
 
-                CheckEPGRequestIsValid(request);
-                CheckSignature(request);
-                
+                CheckEPGRequestIsValid();
+                CheckSignature(this);
 
-                //GetMediaIds With Searcher service
-                bool isLucene = false;
-                SearchResultsObj epgSearchResponse = Catalog.GetProgramIdsFromSearcher(request, ref isLucene);
+                SearchResultsObj epgSearchResponse = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
                 if (epgSearchResponse == null)
                 {
                     oResponse = new EpgSearchResponse();
@@ -111,16 +111,7 @@ namespace Catalog
                     //Complete max updatedate per mediaId
                     if (epgSearchResponse.m_resultIDs != null)
                     {
-                        switch (isLucene)
-                        {
-                            case true: // if Lucene need to complete UpdateDate from DB
-                                List<SearchResult> lProgramRes = GetProgramUpdateDate(epgSearchResponse.m_resultIDs.Select(item => item.assetID).ToList());
-                                oResponse.m_nEpgIds = lProgramRes;
-                                break;
-                            default:
-                                oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
-                                break;
-                        }
+                        oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
                     }
                 }
 
@@ -139,20 +130,17 @@ namespace Catalog
             SearchResult oProgramRes = new SearchResult();
 
             DataTable dt = CatalogDAL.Get_EpgProgramUpdateDate(lPrograms);
-            if (dt != null)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                if (dt.Columns != null)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    for (int i = 0; i < dt.Rows.Count; i++)
+                    oProgramRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "ID");
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["UPDATE_DATE"].ToString()))
                     {
-                        oProgramRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "ID");
-                        if (!string.IsNullOrEmpty(dt.Rows[i]["UPDATE_DATE"].ToString()))
-                        {
-                            oProgramRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                        }
-                        lProgramRes.Add(oProgramRes);
-                        oProgramRes = new SearchResult();
+                        oProgramRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
                     }
+                    lProgramRes.Add(oProgramRes);
+                    oProgramRes = new SearchResult();
                 }
             }
             return lProgramRes;
@@ -178,6 +166,110 @@ namespace Catalog
             sb.Append(String.Concat(" ", base.ToString()));
 
             return sb.ToString();
+        }
+
+        public EpgSearchObj BuildEPGSearchObject()
+        {
+            EpgSearchObj res = null;
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null)
+            {
+                throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", ToString()));
+            }
+            List<List<string>> jsonizedChannelsDefinitions = null;
+            if (Catalog.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
+            {
+                m_oEPGChannelIDs = Catalog.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher, ref jsonizedChannelsDefinitions);
+                res = BuildEPGSearchObjectInner();
+
+            }
+            else
+            {
+                res = BuildEPGSearchObjectInner();
+            }
+
+            return res;
+        }
+
+        private EpgSearchObj BuildEPGSearchObjectInner()
+        {
+            List<string> lSearchList = new List<string>();
+            EpgSearchObj searcherEpgSearch = new EpgSearchObj();
+
+            searcherEpgSearch.m_bExact = m_bExact;
+            searcherEpgSearch.m_dEndDate = m_dEndDate;
+            searcherEpgSearch.m_dStartDate = m_dStartDate;
+
+            //deafult values for OrderBy object 
+            searcherEpgSearch.m_bDesc = true;
+            searcherEpgSearch.m_sOrderBy = "start_date";
+
+            // set parent group by request.m_nGroupID                              
+            searcherEpgSearch.m_nGroupID = m_nGroupID;
+
+            List<SearchValue> dAnd = new List<SearchValue>();
+            List<SearchValue> dOr = new List<SearchValue>();
+            if (m_bExact) // free text search - based on  Exact tags and metas 
+            {
+                EpgSearchAddParams(ref dAnd, ref dOr);
+            }
+            else  // free text search - based on  metas/tags "isSearchable" setting 
+            {
+                searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
+                //Get all tags and meta for group
+                Catalog.GetGroupsTagsAndMetas(m_nGroupID, ref lSearchList);
+
+                if (lSearchList == null)
+                {
+                    throw new Exception(String.Concat("Failed to retrieve groups tags and metas from DB. Req: ", ToString()));
+                }
+                foreach (string item in lSearchList)
+                {
+                    dOr.Add(new SearchValue(item, m_sSearch));
+                }
+            }
+            //initialize the search list with And / Or values
+            searcherEpgSearch.m_lSearchOr = dOr;
+            searcherEpgSearch.m_lSearchAnd = dAnd;
+
+            searcherEpgSearch.m_nPageIndex = m_nPageIndex;
+            searcherEpgSearch.m_nPageSize = m_nPageSize;
+
+            searcherEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
+            searcherEpgSearch.m_nNextTop = 0;
+            searcherEpgSearch.m_nPrevTop = 0;
+            searcherEpgSearch.m_bIsCurrent = false;
+            searcherEpgSearch.m_bSearchOnlyDatesAndChannels = false;
+
+            return searcherEpgSearch;
+        }
+
+        private void EpgSearchAddParams(ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
+        {
+            if (m_AndList != null)
+            {
+                foreach (KeyValue andKeyValue in m_AndList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
+                    search.m_sValue = andKeyValue.m_sValue;
+                    m_dAnd.Add(search);
+                }
+            }
+
+            if (m_OrList != null)
+            {
+                foreach (KeyValue orKeyValue in m_OrList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = orKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                    search.m_sValue = orKeyValue.m_sValue;
+                    m_dOr.Add(search);
+                }
+            }
         }
     }
 

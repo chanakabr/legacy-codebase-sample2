@@ -528,21 +528,27 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
-            MediaMarkObject ret = new MediaMarkObject();
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");            
+
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
+            
+            MediaMarkObject ret = new MediaMarkObject();
+            ret.nGroupID = nGroupID;
+            ret.nMediaID = nMediaID;
+            ret.sSiteGUID = sSiteGUID;
+
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);         
 
-            var data = m_oClient.Get<string>(docKey); 
-            if (!string.IsNullOrEmpty(data))
+            var data = m_oClient.Get<string>(docKey);
+            bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
+
+            if (bContunueWithCB)
             {
                 MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                 ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
                 ret.sDeviceID = mediaMarkLogObject.LastMark.UDID;
-                ret.nGroupID = nGroupID;
-                ret.nMediaID = nMediaID;
-                ret.sSiteGUID = sSiteGUID;
 
                 if (string.IsNullOrEmpty(mediaMarkLogObject.LastMark.UDID))
                 {
@@ -562,13 +568,51 @@ namespace DAL
                     }
                 }
             }
-            else
+            else if (bGetDBData)
             {
-                return null;
+                Get_MediaMark_DB(nMediaID, sSiteGUID, nGroupID, ret);
             }
 
             return ret;
 
+        }
+
+        private static void Get_MediaMark_DB(int nMediaID, string sSiteGUID, int nGroupID, MediaMarkObject ret)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spMediaMark = new ODBCWrapper.StoredProcedure("Get_MediaMark");
+                spMediaMark.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spMediaMark.AddParameter("@MediaID", nMediaID);
+                spMediaMark.AddParameter("@SiteGUID", sSiteGUID);
+                spMediaMark.AddParameter("@GroupID", nGroupID);
+                DataSet ds = spMediaMark.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0];
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        DataRow dr = ds.Tables[0].Rows[0];
+                        ret.nLocationSec = ODBCWrapper.Utils.GetIntSafeVal(dr, "location_sec");
+                        ret.sDeviceID = ODBCWrapper.Utils.GetSafeStr(dr, "device_udid");
+
+                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                        {
+                            ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                        }
+                        else
+                        {
+                            ret.sDeviceName = "N/A";
+                            ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
+                        }
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                ret = new MediaMarkObject();
+            }
         }
 
         public static DataTable Get_GeoCommerceValue(int nGroupID, int SubscriptionGeoCommerceID)
@@ -948,16 +992,18 @@ namespace DAL
                     int i = 0;
                     foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
                     {
-                        double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
-                        if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
-                        { 
-                            if (i >= nNumOfItems || nNumOfItems == 0)
+                        if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.MediaID))
+                        {
+                            double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
+                            if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
                             {
-                                break;
+                                if (i >= nNumOfItems || nNumOfItems == 0)
+                                {
+                                    break;
+                                }
+                                retList.Add(mediaMarkLogObject.LastMark.MediaID);
+                                i++;
                             }
-                            retList.Add(mediaMarkLogObject.LastMark.MediaID);
-                            i++;
-                           
                         }
                     }
 
@@ -1331,6 +1377,46 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-       
+
+
+        public static DataSet GetMCRules(int bmID, int groupID, int type)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMCRulesByBM");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BMID", bmID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Type", type);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+        public static DataTable GetMCRulesByID(int ruleID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMCRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@RuleID", ruleID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
+        {
+            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileTypeDescription");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return  ds.Tables[0];
+            return null;
+        }        
     }
 }

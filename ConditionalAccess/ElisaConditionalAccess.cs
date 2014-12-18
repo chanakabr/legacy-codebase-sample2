@@ -28,36 +28,6 @@ namespace ConditionalAccess
             {
                 oUserCAStatus = UserCAStatus.CurrentSub;
                 return true;
-                #region Old Code
-                //// Check if user has a least one recurring subscription which means the user is subscribed
-                //foreach (var subscription in subscriptionsItems)
-                //{
-
-
-                //    // User is subscribed only if (NOT iff!) he has a renewable subscription
-                //    if (subscription.m_bRecurringStatus == true)
-                //    {
-                //        BillingTransactionsResponse oBTR = base.GetUserBillingHistory(sSiteGUID, 0, 2);
-
-                //        // Check if subscription is not a gift (gift doesn't make a user subscribed) - if so, user is subscribed
-                //        foreach (var transaction in oBTR.m_Transactions)
-                //        {
-                //            if (transaction.m_ePaymentMethod != PaymentMethod.Gift)
-                //            {
-                //                oUserCAStatus = UserCAStatus.CurrentSub;
-                //                return true;
-                //            }
-                //        }
-
-                //        break;
-                //    }
-
-                //}
-
-                //// If we didn't return in the foreach loop, means all subscriptions are non-recurring and therefore the user is only registered
-                //oUserCAStatus = UserCAStatus.NeverPurchased;
-                //return true;
-                #endregion
             }
             else
             {

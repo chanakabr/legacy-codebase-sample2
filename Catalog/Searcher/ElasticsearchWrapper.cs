@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using Logger;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -25,18 +26,18 @@ namespace Catalog
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
-        
+
         public ElasticsearchWrapper()
         {
             m_oESApi = new ElasticSearchApi();
         }
-       
+
         public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)
         {
             SearchResultsObj oRes = new SearchResultsObj();
-          
+
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
-            
+
             int nPageIndex = 0;
             int nPageSize = 0;
             if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
@@ -64,7 +65,7 @@ namespace Catalog
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
                 string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nIndex, sType);
 
-                string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
+                string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
 
                 if (nStatus == STATUS_OK)
                 {
@@ -178,12 +179,11 @@ namespace Catalog
 
         public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
-            Logger.Logger.Log("Info", "Started SearchSubscriptionMedias", "Elasticsearch");
-            DateTime dtStart = DateTime.Now;
             SearchResultsObj lSortedMedias = new SearchResultsObj();
-            
+
             GroupManager groupManager = new GroupManager();
-            Group oGroup = groupManager.GetGroup(nSubscriptionGroupId);       
+            int nSubscriptionParentGroupID = CatalogCache.GetParentGroup(nSubscriptionGroupId);
+            Group oGroup = groupManager.GetGroup(nSubscriptionParentGroupID);
 
             int nTotalItems = 0;
 
@@ -267,10 +267,7 @@ namespace Catalog
                     }
                 }
             }
-            DateTime dtEnd = DateTime.Now;
 
-            double totalMilli = (dtEnd - dtStart).TotalMilliseconds;
-            Logger.Logger.Log("Info", "SearchSubscriptionMedias took " + totalMilli + " milliseconds", "Elasticsearch");
             return lSortedMedias;
         }
 
@@ -364,7 +361,7 @@ namespace Catalog
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("GetMediaChannels - Could not parse response. Ex={0}", ex.Message), "ElasticSearch");
+                    Logger.Logger.Log("Error", string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
                 }
             }
 
@@ -392,55 +389,62 @@ namespace Catalog
         public virtual SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
             SearchResultsObj epgResponse = null;
+
+            if (epgSearch == null || epgSearch.m_nGroupID == 0)
+            {
+                Logger.Logger.Log("Info", "SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ", "ElasticSearch");
+                return null;
+            }
             try
             {
-                if (epgSearch == null || epgSearch.m_nGroupID == 0)
-                {
-                    Logger.Logger.Log("Info", "SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ", "ElasticSearch");
-                    return null;
-                }
-                Logger.Logger.Log("Info", string.Format("SearchEpgs GroupID={0}, between Dates {1}- {2}", epgSearch.m_nGroupID, epgSearch.m_dStartDate.ToShortDateString(), epgSearch.m_dEndDate.ToShortDateString()), "ElasticSearch");
-
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-                                
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(epgSearch.m_nGroupID); 
 
-                if (group != null)
+                int nParentGroupID = CatalogCache.GetParentGroup(epgSearch.m_nGroupID);
+
+                ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = epgSearch, bAnalyzeWildcards = true };
+
+                //string sQuery = epgQueryBuilder.BuildSearchQueryString();
+                List<string> queries = epgQueryBuilder.BuildSearchQueryStrings();
+                DateTime dTempDate = epgSearch.m_dStartDate.AddDays(-1);
+                dTempDate = new DateTime(dTempDate.Year, dTempDate.Month, dTempDate.Day);
+
+                List<string> lRouting = new List<string>();
+
+                while (dTempDate <= epgSearch.m_dEndDate)
                 {
-                    ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = epgSearch, bAnalyzeWildcards = true };
-                    string sQuery = epgQueryBuilder.BuildSearchQueryString();
+                    lRouting.Add(dTempDate.ToString("yyyyMMdd"));
+                    dTempDate = dTempDate.AddDays(1);
+                }
 
-                    DateTime dTempDate = epgSearch.m_dStartDate.AddDays(-1);
-                    dTempDate = new DateTime(dTempDate.Year, dTempDate.Month, dTempDate.Day);
+                string sGroupAlias = string.Format("{0}_epg", nParentGroupID);
+                string searchRes = string.Empty;
+                int nTotalRecords = 0;
+                List<ElasticSearchApi.ESAssetDocument> lDocs = null;
+                if (queries.Count == 1)
+                {
+                    string sQuery = queries[0];
+                    searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
+                    lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+                }
+                else
+                {
+                    searchRes = m_oESApi.MultiSearch(sGroupAlias, ES_EPG_TYPE, queries, lRouting);
+                    lDocs = DecodeEpgMultiSearchJsonObject(searchRes, ref nTotalRecords);
+                }
 
-                    List<string> lRouting = new List<string>();
-
-                    while (dTempDate <= epgSearch.m_dEndDate)
-                    {
-                        lRouting.Add(dTempDate.ToString("yyyyMMdd"));
-                        dTempDate = dTempDate.AddDays(1);
-                    }
-
-                    string sGroupAlias = string.Format("{0}_epg", group.m_nParentGroupID);
-                    string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
-
-                    int nTotalRecords = 0;
-                    List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
-
-                    if (lDocs != null)
-                    {
-                        epgResponse = new SearchResultsObj();
-                        epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult { assetID = doc.asset_id, UpdateDate = doc.cache_date }).ToList();
-                        epgResponse.n_TotalItems = nTotalRecords;
-                    }
+                
+                if (lDocs != null)
+                {
+                    epgResponse = new SearchResultsObj();
+                    epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult { assetID = doc.asset_id, UpdateDate = doc.cache_date }).ToList();
+                    epgResponse.n_TotalItems = nTotalRecords;
                 }
 
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("SearchEpgs ex={0}", ex.Message), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("SearchEpgs ex={0} st: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
             }
 
             return epgResponse;
@@ -476,9 +480,13 @@ namespace Catalog
 
                 foreach (Task<string> task in tAliasRequests)
                 {
-                    if (!string.IsNullOrEmpty(task.Result))
+                    if (task != null)
                     {
-                        lAliasResult.Add(task.Result);
+                        if (!string.IsNullOrEmpty(task.Result))
+                        {
+                            lAliasResult.Add(task.Result);
+                        }
+                        task.Dispose();
                     }
                 }
             }
@@ -488,7 +496,6 @@ namespace Catalog
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
         {
-            Logger.Logger.Log("Info", string.Format("{0}:{1}", "Auto Complete", oSearch.m_nGroupID.ToString()), "ElasticSearch");
 
             List<string> resultFinalList = null;
 
@@ -586,6 +593,38 @@ namespace Catalog
             return documents;
         }
 
+        private List<ElasticSearchApi.ESAssetDocument> DecodeEpgMultiSearchJsonObject(string sObj, ref int totalItems)
+        {
+            List<ElasticSearchApi.ESAssetDocument> documents = new List<ElasticSearchApi.ESAssetDocument>();
+            try
+            {
+                var jsonObj = JObject.Parse(sObj);
+
+                if (jsonObj != null)
+                {
+                    int nTotalItems = 0;
+                    int tempTotal = 0;
+                    List<ElasticSearchApi.ESAssetDocument> tempDocs;
+                    List<List<ElasticSearchApi.ESAssetDocument>> l = jsonObj.SelectToken("responses").Select(item =>
+                    {
+                        tempDocs = DecodeEpgSearchJsonObject(item.ToString(), ref tempTotal);
+                        nTotalItems += tempTotal;
+                        if (tempDocs != null && tempDocs.Count > 0)
+                            documents.AddRange(tempDocs);
+
+                        return tempDocs;
+                    }).ToList();
+                    totalItems = nTotalItems;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Ex Msg: {0} , ", ex.Message), "Catalog");
+            }
+
+            return documents;
+        }
+
         private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems)
         {
             List<ElasticSearchApi.ESAssetDocument> documents = null;
@@ -656,7 +695,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Epg request. Execption={0}", ex.Message), "Catalog");
+                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Epg request. Ex Msg: {0}, JSON Obj: {1} ST: {2}", ex.Message, sObj, ex.StackTrace), "Catalog");
             }
 
             return documents;
@@ -666,12 +705,11 @@ namespace Catalog
         {
             if (listsOfChannelIDs != null && listsOfChannelIDs.Count > 0)
             {
-                int length = listsOfChannelIDs.Count;
                 List<string> indicesBehindAlias = m_oESApi.GetAliases(groupID + "");
                 if (indicesBehindAlias != null && indicesBehindAlias.Count > 0)
                 {
-                    List<List<string>> res = new List<List<string>>(length);
-                    for (int i = 0; i < length; i++)
+                    List<List<string>> res = new List<List<string>>(listsOfChannelIDs.Count);
+                    for (int i = 0; i < listsOfChannelIDs.Count; i++)
                     {
                         string sESAnswer = m_oESApi.MultiGetIDs("_percolator", indicesBehindAlias[0], listsOfChannelIDs[i], listsOfChannelIDs[i].Count);
                         if (!string.IsNullOrEmpty(sESAnswer))

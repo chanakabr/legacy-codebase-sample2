@@ -8,6 +8,7 @@ using DAL;
 using System.Diagnostics;
 using System.Configuration;
 using System.Threading;
+using ApiObjects;
 
 namespace Users
 {
@@ -103,7 +104,6 @@ namespace Users
             return activStatus;
         }
 
-
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
             List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
@@ -114,8 +114,7 @@ namespace Users
 
             return activStatus;
         }
-
-
+        
         public override UserResponseObject CheckUserPassword(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
@@ -191,8 +190,7 @@ namespace Users
 
             return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-
-
+        
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
             Users.BaseDomain t = null;               
@@ -206,8 +204,7 @@ namespace Users
             }
             return dr;
         }
-
-
+        
         public override UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             string sUN = string.Empty;
@@ -281,7 +278,7 @@ namespace Users
 
         public override UserState GetUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
         {
-            return User.GetCurrentUserInstanceState(siteGuid, sessionID, sIP, deviceID);
+            return User.GetCurrentUserInstanceState(siteGuid, sessionID, sIP, deviceID, m_nGroupID);
         }
 
         protected Int32 GetUserIDByUserName(string sUserName)
@@ -581,8 +578,7 @@ namespace Users
             }            
             return succeded;
         }
-
-
+        
         protected bool SendMailImpl(User user)
         {
             string sMCTemplate = user.m_oDynamicData.GetValByKey("mailtemplate");
@@ -606,14 +602,22 @@ namespace Users
         {
             using (TvinciAPI.API client = new TvinciAPI.API())
             {
-                string sWSURL = Utils.GetWSURL("api_ws");
-                if (sWSURL != "")
-                    client.Url = sWSURL;
-                string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CreateDefaultRules", "API", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("api_ws");
+
+                if (sWSURL != "")
+                    client.Url = sWSURL;
+                
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);                
+
+                if (oCredentials != null)
+                {
+                    sWSUserName = oCredentials.m_sUsername;
+                    sWSPass = oCredentials.m_sPassword;
+                }
                 Logger.Logger.Log("Default Rules", sWSUserName + " " + sWSPass + " " + client.Url, "Default Rules");
+
                 return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
             }
         }
@@ -734,9 +738,15 @@ namespace Users
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetUserData. Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" G ID: ", m_nGroupID));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                throw;
             }
         }
 
@@ -863,7 +873,18 @@ namespace Users
 
             try
             {
-                DataTable dtFields = UsersDal.GetGroupUsersSearchFields(m_nGroupID);
+                string mainKey = string.Format("{0}_GetGroupUsersSearchFields_{1}", eWSModules.USERS, m_nGroupID);
+                DataTable dtFields;
+                bool bExists = UsersCache.GetItem<DataTable>(mainKey, out dtFields);
+                if (!bExists)
+                {
+                    dtFields = UsersDal.GetGroupUsersSearchFields(m_nGroupID);
+                    if (dtFields != null && dtFields.Rows != null && dtFields.Rows.Count > 0)
+                    {
+                        UsersCache.AddItem(mainKey, dtFields);
+                    }
+                }
+
 
                 if (dtFields != null && dtFields.Rows.Count > 0)
                 {
@@ -886,17 +907,19 @@ namespace Users
                     if (sGroupUsersSearchFields != null && sGroupUsersSearchFields.Length > 0)
                     {
                         DataTable dtGroupUsers = null;
+                        string key = string.Format("{0}_GroupUsers_{1}", eWSModules.USERS, m_nGroupID);
+                        string dateTimeKey = string.Format("{0}_GroupUsersTimeStamp_{1}", eWSModules.USERS, m_nGroupID);
 
-                        if (CachingManager.CachingManager.Exist("GroupUsers" + m_nGroupID.ToString()) == true)
+                        bool bRes = UsersCache.GetItem<DataTable>(key, out dtGroupUsers);
+                        if (bRes)
                         {
-                            dtGroupUsers = (DataTable)CachingManager.CachingManager.GetCachedData("GroupUsers" + m_nGroupID.ToString());
-
                             int cache_period = 10;
 
                             if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD") != string.Empty)
                                 int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD"), out cache_period);
 
-                            DateTime timeStamp = (DateTime)CachingManager.CachingManager.GetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString());
+                            DateTime timeStamp;
+                            bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
 
                             if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                             {
@@ -904,7 +927,7 @@ namespace Users
                                 {
                                     lock (lockObj)
                                     {
-                                        timeStamp = (DateTime)CachingManager.CachingManager.GetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString());
+                                        bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
 
                                         if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                                         {
@@ -912,8 +935,8 @@ namespace Users
 
                                             if (dtGroupUsers != null)
                                             {
-                                                CachingManager.CachingManager.SetCachedData("GroupUsers" + m_nGroupID.ToString(), dtGroupUsers, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
-                                                CachingManager.CachingManager.SetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString(), DateTime.UtcNow, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                                                UsersCache.AddItem(key, dtGroupUsers);
+                                                UsersCache.AddItem(dateTimeKey, DateTime.UtcNow);
                                             }
                                         }
                                     }
@@ -928,8 +951,8 @@ namespace Users
 
                             if (dtGroupUsers != null)
                             {
-                                CachingManager.CachingManager.SetCachedData("GroupUsers" + m_nGroupID.ToString(), dtGroupUsers, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
-                                CachingManager.CachingManager.SetCachedData("GroupUsersTimeStamp" + m_nGroupID.ToString(), DateTime.UtcNow, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                                UsersCache.AddItem(key, dtGroupUsers);
+                                UsersCache.AddItem(dateTimeKey, DateTime.UtcNow);
                             }
                         }
 
@@ -1356,8 +1379,7 @@ namespace Users
             }
             return response;
         }
-
-
+        
         protected TvinciAPI.ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
         {
             TvinciAPI.ForgotPasswordMailRequest retVal = new TvinciAPI.ForgotPasswordMailRequest();
@@ -1401,8 +1423,7 @@ namespace Users
             retVal.m_eMailType = TvinciAPI.eMailTemplateType.ChangedPin;
             return retVal;
         }
-
-
+        
         protected virtual TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
             string sMailData = string.Empty;
@@ -1420,7 +1441,7 @@ namespace Users
             retVal.m_sUsername = sUserName;
 
             retVal.m_sPassword = (string.IsNullOrEmpty(sFacekookID)) ? sPassword : "Facebook Password";
-
+            //TO DO merge it to one call. IRA?????
             sActivation = DAL.UsersDal.GetActivationToken(m_nGroupID, sUserName);
             retVal.m_sToken = DAL.UsersDal.GetActivationToken(m_nGroupID, sUserName);
 
@@ -1463,13 +1484,21 @@ namespace Users
         protected List<TvinciAPI.GroupRule> GetUserGroupsRules(string sSiteGuid)
         {
             TvinciAPI.API client = new TvinciAPI.API();
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+
             string sWSURL = Utils.GetWSURL("api_ws");
             if (sWSURL != "")
+            {
                 client.Url = sWSURL;
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserGroupsRules", "API", sIP, ref sWSUserName, ref sWSPass);
+            }
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, m_nGroupID, eWSModules.API);
+            if (oCredentials != null)
+            {
+                sWSUserName = oCredentials.m_sUsername;
+                sWSPass = oCredentials.m_sPassword;
+            }
+
             TvinciAPI.GroupRule[] groupRules = client.GetUserGroupRules(sWSUserName, sWSPass, sSiteGuid);
             return groupRules.ToList();
         }
@@ -1502,114 +1531,101 @@ namespace Users
             lock (m_sActivationMail)
             {
 
-                DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(m_nGroupID);
-
-                if (dvMailParameters != null)
+                // try get mail parameters from cache 
+                TvinciUsers tUser = null;
+                string key = string.Format("users_TvinciUsersInitialize_{0}", m_nGroupID);
+                bool bRes = UsersCache.GetItem<TvinciUsers>(key, out tUser);
+                if (bRes)
                 {
-
-                    object oWelcomeMail = dvMailParameters["WELCOME_MAIL"];
-                    object oWelcomeFacebookMail = dvMailParameters["WELCOME_FACEBOOK_MAIL"];
-                    object oForgotPassword = dvMailParameters["FORGOT_PASSWORD_MAIL"];
-                    object oChangedPinMail = dvMailParameters["CHANGED_PIN_MAIL"];
-                    object oActivation = dvMailParameters["ACTIVATION_MAIL"];
-                    object oMailFromName = dvMailParameters["MAIL_FROM_NAME"];
-                    object oMailServer = dvMailParameters["MAIL_SERVER"];
-                    object oMailServerUN = dvMailParameters["MAIL_USER_NAME"];
-                    object oMailServerPass = dvMailParameters["MAIL_PASSWORD"];
-                    object oMailFromAdd = dvMailParameters["MAIL_FROM_ADD"];
-                    object oWelcomMailSubject = dvMailParameters["WELCOME_MAIL_SUBJECT"];
-                    object oWelcomeFacebookMailSubject = dvMailParameters["WELCOME_FACEBOOK_MAIL_SUBJECT"];
-                    object oForgotPassMailSubject = dvMailParameters["FORGOT_PASS_MAIL_SUBJECT"];
-                    object oChangedPinMailSubject = dvMailParameters["CHANGED_PIN_MAIL_SUBJECT"];
-                    object oNewLetterImplID = dvMailParameters["NewsLetter_Impl_ID"];
-
-                    object oSendPasswordMail = dvMailParameters["SEND_PASSWORD_MAIL"];
-                    object oSendPasswordMailSubject = dvMailParameters["SEND_PASSWORD_MAIL_SUBJECT"];
-
-                    Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);
-                    m_nActivationMustHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["ACTIVATION_MUST_HOURS"]);
-                    m_nTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["TOKEN_VALIDITY_HOURS"]);
-                    m_nChangePinTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["CHANGED_PIN_TOKEN_VALIDITY_HOURS"]);
-
-                    object oMailSSL = dvMailParameters["MAIL_SSL"];
-                    object oMailPort = dvMailParameters["MAIL_PORT"];
-
-                    if (oNewLetterImplID != DBNull.Value && oNewLetterImplID != null && !string.IsNullOrEmpty(oNewLetterImplID.ToString()))
+                    #region Initialize from cache
+                    this.m_bIsActivationNeeded = tUser.m_bIsActivationNeeded;
+                    this.m_mailImpl = tUser.m_mailImpl;
+                    this.m_newsLetterImpl = tUser.m_newsLetterImpl;
+                    this.m_nGroupID = tUser.m_nGroupID;
+                    this.m_sActivationMail = tUser.m_sActivationMail;
+                    this.m_sChangedPinMail = tUser.m_sChangedPinMail;
+                    this.m_sChangedPinMailSubject = tUser.m_sChangedPinMailSubject;
+                    this.m_sChangePassMailSubject = tUser.m_sChangePassMailSubject;
+                    this.m_sChangePasswordMail = tUser.m_sChangePasswordMail;
+                    this.m_sForgotPassMailSubject = tUser.m_sForgotPassMailSubject;
+                    this.m_sForgotPasswordMail = tUser.m_sForgotPasswordMail;
+                    this.m_sMailFromAdd = tUser.m_sMailFromAdd;
+                    this.m_sMailFromName = tUser.m_sMailFromName;
+                    this.m_sMailPort = tUser.m_sMailPort;
+                    this.m_sMailServer = tUser.m_sMailServer;
+                    this.m_sMailServerPass = tUser.m_sMailServerPass;
+                    this.m_sMailServerUN = tUser.m_sMailServerUN;
+                    this.m_sMailSSL = tUser.m_sMailSSL;
+                    this.m_sSendPasswordMailSubject = tUser.m_sSendPasswordMailSubject;
+                    this.m_sSendPasswordMailTemplate = tUser.m_sSendPasswordMailTemplate;
+                    this.m_sWelcomeFacebookMailSubject = tUser.m_sWelcomeFacebookMailSubject;
+                    this.m_sWelcomeFacebookMailTemplate = tUser.m_sWelcomeFacebookMailTemplate;
+                    this.m_sWelcomeMailSubject = tUser.m_sWelcomeMailSubject;
+                    this.m_sWelcomeMailTemplate = tUser.m_sWelcomeMailTemplate;
+                    this.m_nActivationMustHours = tUser.m_nActivationMustHours;
+                    this.m_nTokenValidityHours = tUser.m_nTokenValidityHours;
+                    this.m_nChangePinTokenValidityHours = tUser.m_nChangePinTokenValidityHours;
+                    #endregion
+                }
+                else
+                {
+                    #region GetValues from DB
+                    DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(m_nGroupID);
+                    if (dvMailParameters != null)
                     {
-                        string apiKey = string.Empty;
-                        string listID = string.Empty;
-                        object oNewLetterApiKey = dvMailParameters["NewsLetter_API_Key"];
-                        object oNewLetterListID = dvMailParameters["NewsLetter_List_ID"];
+                        // string members
+                        m_sWelcomeMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL");
+                        m_sWelcomeFacebookMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL");
+                        m_sMailFromAdd = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
+                        m_sWelcomeMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL_SUBJECT");
+                        m_sWelcomeFacebookMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL_SUBJECT");
+                        m_sForgotPasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASSWORD_MAIL");
+                        m_sChangedPinMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL");
+                        m_sChangedPinMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL_SUBJECT");
+                        m_sActivationMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "ACTIVATION_MAIL");
+                        m_sMailFromName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
+                        m_sMailServer = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_SERVER");
+                        m_sMailServerUN = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_USER_NAME");
+                        m_sMailServerPass = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_PASSWORD");
+                        m_sForgotPassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASS_MAIL_SUBJECT");
+                        m_sSendPasswordMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL");
+                        m_sSendPasswordMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL_SUBJECT");
+                        m_sChangePasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL");
+                        m_sChangePassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL_SUBJECT");
+                        //int members
+                        Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);                        
+                        m_nActivationMustHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["ACTIVATION_MUST_HOURS"]);
+                        m_nTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["TOKEN_VALIDITY_HOURS"]);
+                        m_nChangePinTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["CHANGED_PIN_TOKEN_VALIDITY_HOURS"]);
+                        m_sMailSSL = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_SSL");
+                        m_sMailPort = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_PORT");
+                        //bool member
+                        m_bIsActivationNeeded = (nActivationNeeded == 1);
+                        //m_newsLetterImpl composition
+                        object oNewLetterImplID = dvMailParameters["NewsLetter_Impl_ID"];
+                        if (oNewLetterImplID != DBNull.Value && oNewLetterImplID != null && !string.IsNullOrEmpty(oNewLetterImplID.ToString()))
+                        {                            
+                            object oNewLetterApiKey = dvMailParameters["NewsLetter_API_Key"];
+                            object oNewLetterListID = dvMailParameters["NewsLetter_List_ID"];
 
-                        if (oNewLetterApiKey != DBNull.Value && oNewLetterApiKey != null && oNewLetterListID != DBNull.Value && oNewLetterListID != null)
-                        {
-                            m_newsLetterImpl = Utils.GetBaseNewsLetterImpl(oNewLetterApiKey.ToString(), oNewLetterListID.ToString(), int.Parse(oNewLetterImplID.ToString()));
+                            if (oNewLetterApiKey != DBNull.Value && oNewLetterApiKey != null && oNewLetterListID != DBNull.Value && oNewLetterListID != null)
+                            {
+                                m_newsLetterImpl = Utils.GetBaseNewsLetterImpl(oNewLetterApiKey.ToString(), oNewLetterListID.ToString(), int.Parse(oNewLetterImplID.ToString()));
+                            }
                         }
-                    }
 
-                    m_bIsActivationNeeded = (nActivationNeeded == 1);
-
-                    /***********************************/
-                    object oChangePasswordMail = dvMailParameters["CHANGE_PASSWORD_MAIL"];
-                    object oChangePasswordMailSubject = dvMailParameters["CHANGE_PASSWORD_MAIL_SUBJECT"];
-
-                    if (oChangePasswordMail != null && oChangePasswordMail != DBNull.Value)
-                        m_sChangePasswordMail = oChangePasswordMail.ToString();
-                    if (oChangePasswordMailSubject != null && oChangePasswordMailSubject != DBNull.Value)
-                        m_sChangePassMailSubject = oChangePasswordMailSubject.ToString();
-                    /***********************************/
-
-
-                    if (oWelcomeMail != null && oWelcomeMail != DBNull.Value)
-                        m_sWelcomeMailTemplate = oWelcomeMail.ToString();
-                    if (oWelcomeFacebookMail != null && oWelcomeFacebookMail != DBNull.Value)
-                        m_sWelcomeFacebookMailTemplate = oWelcomeFacebookMail.ToString();
-                    if (oWelcomMailSubject != null && oWelcomMailSubject != DBNull.Value)
-                        m_sWelcomeMailSubject = oWelcomMailSubject.ToString();
-                    if (oWelcomeFacebookMailSubject != null && oWelcomeFacebookMailSubject != DBNull.Value)
-                        m_sWelcomeFacebookMailSubject = oWelcomeFacebookMailSubject.ToString();
-                    if (oForgotPassword != null && oForgotPassword != DBNull.Value)
-                        m_sForgotPasswordMail = oForgotPassword.ToString();
-                    if (oForgotPassMailSubject != null && oForgotPassMailSubject != DBNull.Value)
-                        m_sForgotPassMailSubject = oForgotPassMailSubject.ToString();
-                    if (oChangedPinMail != null && oChangedPinMail != DBNull.Value)
-                        m_sChangedPinMail = oChangedPinMail.ToString();
-                    if (oChangedPinMailSubject != null && oChangedPinMailSubject != DBNull.Value)
-                        m_sChangedPinMailSubject = oChangedPinMailSubject.ToString();
-                    if (oActivation != null && oActivation != DBNull.Value)
-                        m_sActivationMail = oActivation.ToString();
-                    if (oMailFromName != null && oMailFromName != DBNull.Value)
-                        m_sMailFromName = oMailFromName.ToString();
-                    if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
-                        m_sMailFromAdd = oMailFromAdd.ToString();
-                    if (oMailServer != null && oMailServer != DBNull.Value)
-                        m_sMailServer = oMailServer.ToString();
-                    if (oMailServerUN != null && oMailServerUN != DBNull.Value)
-                        m_sMailServerUN = oMailServerUN.ToString();
-                    if (oMailServerPass != null && oMailServerPass != DBNull.Value)
-                        m_sMailServerPass = oMailServerPass.ToString();
-                    if (oMailSSL != null && oMailSSL != DBNull.Value)
-                        m_sMailSSL = int.Parse(oMailSSL.ToString());
-                    if (oMailPort != null && oMailPort != DBNull.Value)
-                        m_sMailPort = int.Parse(oMailPort.ToString());
-
-                    if (oSendPasswordMail != null && oSendPasswordMail != DBNull.Value)
-                        m_sSendPasswordMailTemplate = oSendPasswordMail.ToString().Trim();
-                    if (oSendPasswordMailSubject != null && oSendPasswordMailSubject != DBNull.Value)
-                        m_sSendPasswordMailSubject = oSendPasswordMailSubject.ToString().Trim();
-
-                    object oMailImplID = dvMailParameters["Mail_Impl_ID"];
-                    if (oMailImplID != null && oMailImplID != DBNull.Value)
-                    {
-                        int nMailImplID = int.Parse(oMailImplID.ToString());
+                        int nMailImplID = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "Mail_Impl_ID");
 
                         if (nMailImplID > 0)
                         {
                             m_mailImpl = Utils.GetBaseMailImpl(m_nGroupID, 0, nMailImplID);
                         }
-                    }
-                }
 
+                        // add to cache 
+                        bRes = UsersCache.AddItem(key, this);
+                    }
+                    #endregion
+                }
             }
         }
 
@@ -1638,6 +1654,7 @@ namespace Users
                 return false;
             }
         }
+
         public override bool RemoveUserOfflineItems(int nGroupID, string sSiteGuid, string sMediaID)
         {
             if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid) && !string.IsNullOrEmpty(sMediaID))
@@ -1649,6 +1666,7 @@ namespace Users
                 return false;
             }
         }
+
         public override bool ClearUserOfflineItems(int nGroupID, string sSiteGuid)
         {
             if (nGroupID != 0 && !string.IsNullOrEmpty(sSiteGuid))
@@ -1661,8 +1679,7 @@ namespace Users
             }
         }
         #endregion
-
-
+        
         public override Domain AddUserToDomain(int nGroupID, int nDomainID, int nUserID, bool bIsMaster)
         {
             //Create new domain

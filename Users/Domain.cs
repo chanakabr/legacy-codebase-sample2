@@ -7,6 +7,7 @@ using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using DAL;
 using System.Xml.Serialization;
+using NPVR;
 
 namespace Users
 {
@@ -153,7 +154,8 @@ namespace Users
             int nConcurrentLimit = 0;
             int nGroupConcurrentLimit = 0;
             int nDeviceFreqLimit = 0;
-            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
+            long npvrQuotaInSecs = 0;
+            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInSecs);
 
             bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
 
@@ -203,6 +205,38 @@ namespace Users
                 m_UsersIDs.Add(nMasterGuID);
             }
 
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                if (npvr != null)
+                {
+                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
+                    if (resp != null)
+                    {
+                        if (resp.isOK)
+                        {
+                            m_DomainStatus = DomainStatus.OK;
+                        }
+                        else
+                        {
+                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
+                            Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg), "Domain");
+                        }
+                    }
+                    else
+                    {
+                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
+                        Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                    }
+
+                }
+                else
+                {
+                    Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                }
+
+            }
+
             return this;
         }
 
@@ -221,23 +255,58 @@ namespace Users
 
         public DomainResponseStatus Remove()
         {
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
             int isActive = 2;   // Inactive
             int status = 2;     // Removed
 
             int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
-            return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            if (IsDomainRemovedSuccessfully(statusRes))
+            {
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
+
+                        if (response != null)
+                        {
+                            if (response.isOK)
+                            {
+                                res = DomainResponseStatus.OK;
+                            }
+                            else
+                            {
+                                res = DomainResponseStatus.Error;
+                                Logger.Logger.Log("Error", string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg), "Domain");
+                            }
+                        }
+                        else
+                        {
+                            res = DomainResponseStatus.Error;
+                            Logger.Logger.Log("Error", string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                        }
+                    }
+                    else
+                    {
+                        res = DomainResponseStatus.Error;
+                        Logger.Logger.Log("Error", string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                    }
+                }
+            }
+            else
+            {
+                res = DomainResponseStatus.Error;
+            }
+
+            return res;
         }
 
-        public DomainResponseStatus TryRemove()
+        private bool IsDomainRemovedSuccessfully(int statusRes)
         {
-            int isActive = 2;   // Inactive
-            int status = 2;     // Removed
-            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
-
-            return DomainResponseStatus.DomainNotExists;
-
-
+            return statusRes == 2;
         }
 
         /// <summary>
@@ -257,10 +326,16 @@ namespace Users
                 m_DomainStatus = DomainStatus.Error;
                 return false;
             }
-
-            m_sName = sName;
-            m_sDescription = sDescription;
-
+            
+            if (!string.IsNullOrEmpty(sName))
+            {
+                m_sName = sName;
+            }
+            if (!string.IsNullOrEmpty(sDescription))
+            {
+                m_sDescription = sDescription;
+            }
+            
             DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID);   // OK or NoUsersInDomain
 
             int numOfDevices = GetDeviceList();
@@ -1002,36 +1077,11 @@ namespace Users
         /// <param name="nGroupID"></param>
         public static List<string> GetFullUserList(int nDomainID, int nGroupID)
         {
-            //List<string> retVal = new List<string>();
-
-            //int status = 1;
-            //int isActive = 1;
-            //Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
-
-            //if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
-            //{
-            //    retVal = dbTypedUserIDs.Select(ut => ut.Key.ToString()).ToList();
-            //}
-
-            //// Add Pending Users (with minus)
-            //status = 3;
-            //isActive = 0;
-            //Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
-
-            //if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
-            //{
-            //    List<string> pendingIDs = dbPendingTypedUserIDs.Select(ut => (ut.Key * (-1)).ToString()).ToList();
-            //    retVal.AddRange(pendingIDs);
-            //}
-
-            //return retVal;
-
             return DomainDal.Get_FullUserListOfDomain(nGroupID, nDomainID);
         }
 
         public Device RegisterDeviceToDomainWithPIN(int nGroupID, string sPIN, int nDomainID, string sDeviceName, ref DeviceResponseStatus eRetVal)
         {
-
             string sUDID = string.Empty;
             int nBrandID = 0;
 
@@ -1148,7 +1198,6 @@ namespace Users
                 int rowsAffected = DomainDal.SetDeviceStatusInDomain(deviceID, this.m_nDomainID, nGroupID, nDeviceDomainRecordID, 2, 2);
             }
 
-
             //Check if exceeded limit for users
             DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
 
@@ -1158,7 +1207,6 @@ namespace Users
             {
                 return responseStatus;
             }
-
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
@@ -1423,7 +1471,6 @@ namespace Users
                 eDomainResponseStatus = DomainResponseStatus.NoUsersInDomain;
                 return eDomainResponseStatus;
             }
-
 
             // Now get only pending users
             isActive = 0;
@@ -1831,6 +1878,74 @@ namespace Users
 
         #endregion
 
+        /***************************************************************************************************************
+         * This method get MediaConcurrencyLimit (int) , domain and mediaID 
+         * Get from CB all media play at the last 
+         ************************************************************************************************************* */
+        internal DomainResponseStatus ValidateMediaConcurrency(int nRuleID, int nMediaConcurrencyLimit, long lDomainID, int nMediaID)
+        {
+            DomainResponseStatus res = DomainResponseStatus.OK;
+            if (nMediaConcurrencyLimit == 0)
+            {
+                // get limitation from DB
+               DataTable dt = ApiDAL.GetMCRulesByID(nRuleID);
+               if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+               {
+                   nMediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+               }
+            }
 
+            if (nMediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+            {  
+                List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                if (lUserMediaMark != null)
+                {
+                    List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                    if (lMediaConcurrency != null && lMediaConcurrency.Count >= nMediaConcurrencyLimit)
+                    {
+                        res = DomainResponseStatus.MediaConcurrencyLimitation;
+                    }
+                }
+            }
+            return res;
+        }
+
+        /***************************************************************************************************************
+        * This method get NPVRConcurrencyLimit (int) , domain and npvrID
+        * Get from CB all media play at the last 
+        ************************************************************************************************************* */
+        internal DomainResponseStatus ValidateNpvrConcurrency(int nNpvrConcurrencyLimit, long lDomainID, string sNPVR)
+        {
+            DomainResponseStatus res = DomainResponseStatus.OK;
+            try
+            {
+
+                if (nNpvrConcurrencyLimit == 0)
+                {
+                    // get limitation from DB ( get it from domain / group table - wait for future implementation)
+
+                }
+
+                if (nNpvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+                {
+                    List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD, ApiObjects.ePlayType.NPVR);
+                    if (lUserMediaMark != null)
+                    {
+                        List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.NpvrID == sNPVR && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                        if (lMediaConcurrency != null && lMediaConcurrency.Count >= nNpvrConcurrencyLimit)
+                        {
+                            res = DomainResponseStatus.MediaConcurrencyLimitation;
+                        }
+                    }
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ValidateNpvrConcurrency", String.Concat("Failed ex={0}, nNpvrConcurrencyLimit={1}, lDomainID={2}, sNPVR={3}",
+                    ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), "Domain");
+                throw;
+            }
+        }
     }
 }

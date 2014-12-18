@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using GroupsCacheManager;
 using Logger;
 using TVinciShared;
 
@@ -66,13 +67,14 @@ namespace Catalog
                     else //LuceneWrapper
                     {   
                         GroupManager groupManager = new GroupManager();
-                        Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
+                        int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                        Group groupInCache = groupManager.GetGroup(nParentGroupID); 
                         List<int> channelIds = request.m_lChannles;
 
                         if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                         {
                             // Buils search Object per channelId call Searcher to return true/false result
-                            List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                            List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                             //    Build search object per channel
                             if (allChannels != null && allChannels.Count > 0)
@@ -104,7 +106,7 @@ namespace Catalog
                                              {
                                                  if (groupInCache != null)
                                                  {
-                                                     Channel currentChannel = allChannels[(int)obj];
+                                                     GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
                                                      MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                      if (channelSearchObject != null)
                                                      {

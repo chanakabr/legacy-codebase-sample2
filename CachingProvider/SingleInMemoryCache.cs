@@ -1,0 +1,243 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Caching;
+using Logger;
+using System.Threading;
+using System.Security.Principal;
+using System.Security.AccessControl;
+
+namespace CachingProvider
+{
+    public class SingleInMemoryCache : ICachingService, IDisposable
+    {
+        /*
+         * Pay attention !
+         * 1. MemoryCache is threadsafe, however the references it holds are not necessarily thread safe.
+         * 2. MemoryCache should be properly disposed.
+         */
+        private static readonly string SINGLE_IN_MEM_CACHE_LOG_FILE = "SingleInMemoryCache";
+        private MemoryCache cache = null;
+        public string CacheName
+        {
+            get;
+            private set;
+        }
+        public double DefaultMinOffset
+        {
+            get;
+            private set;
+        }
+
+        public SingleInMemoryCache(string name, double defaultMinOffset)
+        {
+            CacheName = name;
+            DefaultMinOffset = defaultMinOffset;
+            cache = new MemoryCache(name);
+        }
+
+        public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+            return cache.Add(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
+        }
+
+        public bool Add(string sKey, BaseModuleCache oValue)
+        {
+            return Add(sKey, oValue, DefaultMinOffset);
+        }
+
+        public bool Set(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            bool res = false;
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+            try
+            {
+                cache.Set(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at Set. ");
+                sb.Append(String.Concat(" Key: ", sKey));
+                sb.Append(String.Concat(" Val: ", oValue != null ? oValue.ToString() : "null"));
+                sb.Append(String.Concat(" Min Offset: ", nMinuteOffset));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), SINGLE_IN_MEM_CACHE_LOG_FILE);
+                #endregion
+            }
+
+            return res;
+        }
+
+        public bool Set(string sKey, BaseModuleCache oValue)
+        {
+            return Set(sKey, oValue, DefaultMinOffset);
+        }
+
+        public BaseModuleCache Get(string sKey)
+        {
+            BaseModuleCache baseModule = new BaseModuleCache();
+            if (string.IsNullOrEmpty(sKey))
+                return null;
+            baseModule.result = cache.Get(sKey);
+            return baseModule;
+        }
+
+        public BaseModuleCache Remove(string sKey)
+        {
+            BaseModuleCache baseModule = new BaseModuleCache();
+            baseModule.result = cache.Remove(sKey);
+            return baseModule;
+        }
+
+        public T Get<T>(string sKey) where T : class
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return default(T);
+            return cache.Get(sKey) as T;
+        }
+
+        public BaseModuleCache GetWithVersion<T>(string sKey)
+        {
+            VersionModuleCache baseModule = new VersionModuleCache();
+
+            try
+            {
+                if (string.IsNullOrEmpty(sKey))
+                    return null;
+                baseModule = (VersionModuleCache)cache.Get(sKey);
+
+                return baseModule;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public bool AddWithVersion<T>(string sKey, BaseModuleCache oValue)
+        {
+            return AddWithVersion<T>(sKey, oValue, DefaultMinOffset);
+        }
+
+        public bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+
+            return cache.Add(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
+        }
+
+        public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            bool bRes = false;
+            try
+            {
+                VersionModuleCache baseModule = (VersionModuleCache)oValue;
+
+                DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
+
+                //lock 
+                bool createdNew = false;
+                var mutexSecurity = CreateMutex();
+                using (Mutex mutex = new Mutex(false, string.Concat("Lock", sKey), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+                        VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
+                        // memory is empty for this key OR the object must have the same version 
+                        if (vModule == null || (vModule != null && vModule.result != null && vModule.version == baseModule.version))
+                        {
+                            Guid versionGuid = Guid.NewGuid();
+                            baseModule.version = versionGuid.ToString();
+                            cache.Set(sKey, baseModule, DateTime.Now.AddMinutes(nMinuteOffset));
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        //unlock
+                        mutex.ReleaseMutex();
+                    }
+                }
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
+                log.Error(log.Message, false);
+                return false;
+            }
+        }
+
+        public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue)
+        {
+            return SetWithVersion<T>(sKey, oValue, DefaultMinOffset);
+        }
+
+        private MutexSecurity CreateMutex()
+        {
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+            return mutexSecurity;
+        }
+
+        public void Dispose()
+        {
+            if (cache != null)
+            {
+                cache.Dispose();
+            }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("SingleInMemoryCache. ");
+            sb.Append(String.Concat(" Cache Name: ", CacheName));
+            sb.Append(String.Concat(" DefaultMinOffset: ", DefaultMinOffset));
+            sb.Append(String.Concat(" Items in cache: ", cache.GetCount()));
+            sb.Append(String.Concat(" Total amt of bytes on machine the cache can use: ", cache.CacheMemoryLimit));
+            sb.Append(String.Concat(" Total percentage of physical memory the cache can use: ", cache.PhysicalMemoryLimit));
+            sb.Append(String.Concat(" Polling Interval: ", cache.PollingInterval.ToString()));
+
+            return sb.ToString();
+        }
+
+
+        public IDictionary<string, object> GetValues(List<string> keys)
+        {
+            IDictionary<string, object> iDict = null;
+            try
+            {
+                if (keys == null || keys.Count == 0)
+                    return null;
+
+                iDict = cache.GetValues(keys);
+                
+                return iDict;
+            }
+            catch 
+            {
+                return null;
+            }
+
+        }
+
+    }
+}

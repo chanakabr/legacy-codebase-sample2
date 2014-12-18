@@ -11,7 +11,8 @@ namespace ApiObjects.Epg
         {
         }
 
-        public EpgTagTranslate(int language, string value, int id)
+
+        public EpgTagTranslate(int language, string value , int id)
         {
             nLanguage = language;
             sValue = value;
@@ -27,7 +28,8 @@ namespace ApiObjects.Epg
 
         public int nLanguage { get; set; }
         public string sValue { get; set; }
-        public int nID { get; set; }
+        public int nID {get;set;}
         public string sValueMain { get; set; }
     }
 }
+

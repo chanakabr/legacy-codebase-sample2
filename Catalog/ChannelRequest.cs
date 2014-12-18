@@ -16,8 +16,9 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
-using ApiObjects.Cache;
+
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -60,38 +61,38 @@ namespace Catalog
         {
             try
             {
-                ChannelRequest request = (ChannelRequest)oBaseRequest;
+                ChannelRequest request = oBaseRequest as ChannelRequest;
 
                 if (request == null || request.m_nChannelID == 0)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
 
                 ChannelResponse response = new ChannelResponse();
                 Group group = null;
-                Channel channel = null;
+                GroupsCacheManager.Channel channel = null;
 
                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = null;
 
                 try
                 {
-                    GroupManager groupManager = new GroupManager();
-                    groupManager.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);                  
-                   
+                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                    groupManager.GetGroupAndChannel(request.m_nChannelID, nParentGroupID, ref group, ref channel);
+
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1}",request.m_nChannelID,ex.Message), "Catalog");
+                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), "Catalog");
                     group = null;
                     channel = null;
-                }             
+                }
 
 
                 if (group != null && channel != null)
                 {
-                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage());
+                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage(), group.m_sPermittedWatchRules);
 
-                    DateTime start = DateTime.Now;
                     List<int> medias = new List<int>();
                     int nPageIndex = 0;
                     int nPageSize = 0;
@@ -110,7 +111,7 @@ namespace Catalog
                         return response;
                     }
                     int nTotalItems = 0;
-                                      
+
                     SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
                     List<SearchResult> lMediaRes = null;
                     if (oSearchResults != null && oSearchResults.m_resultIDs != null && oSearchResults.m_resultIDs.Count > 0)
@@ -124,13 +125,13 @@ namespace Catalog
                             lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
                         }
                     }
-
-                    if (!IsSlidingWindow(channel))
-                    {
-                        OrderMediasByOrderNum(ref medias, channel.m_lManualMedias, channel.m_OrderObject);
-                    }
                     else
-                    {                       
+                    {
+                        return response;
+                    }
+
+                    if (IsSlidingWindow(channel))
+                    {
                         medias = OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
                         nTotalItems = 0;
@@ -154,21 +155,21 @@ namespace Catalog
 
                     if (channel.m_nChannelTypeID == 2)
                     {
-                        List<int> manualMediasReturned = medias.ToList();
+                        OrderMediasByOrderNum(ref medias, channel, channelSearchObject.m_oOrder);
+
                         int nValidNumberOfMediasRange = nPageSize;
-                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(manualMediasReturned.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(medias.Count, nPageIndex, ref nValidNumberOfMediasRange))
                         {
                             if (nValidNumberOfMediasRange > 0)
                             {
-                                manualMediasReturned = manualMediasReturned.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                medias = medias.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
                             }
                         }
                         else
                         {
-                            manualMediasReturned.Clear();
+                            medias.Clear();
                         }
 
-                        medias = manualMediasReturned;
                         if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
                         {
                             Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
@@ -185,12 +186,11 @@ namespace Catalog
 
                     if (medias == null || medias.Count() == 0)
                     {
-                        _logger.Info("No Media Found");
                         response.m_nMedias = null;
                         response.m_nTotalItems = 0;
                         return response;
                     }
-                    _logger.Info(string.Format("{0} : {1} ", medias.Count(), "MediasId returned"));
+                    
 
                     response.m_nTotalItems = nTotalItems;
 
@@ -213,13 +213,13 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ES Error", "Received " + ex.Message + " From ES", "Elasticsearch");
-                _logger.Error(ex.Message, ex);
+                Logger.Logger.Log("ES Error", String.Concat("Exception. Req: ", ToString(), " Msg: ", ex.Message, " Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "Elasticsearch");
+                
                 throw ex;
             }
         }
 
-        private bool IsSlidingWindow(Channel channel)
+        private bool IsSlidingWindow(GroupsCacheManager.Channel channel)
         {
             bool bResult = false;
 
@@ -234,20 +234,20 @@ namespace Catalog
         private List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
         {
             List<int> result;
-
+            DateTime now = DateTime.UtcNow;
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "mediahit");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_MEDIA_HIT);
                     break;
                 case OrderBy.RATING:
-                    result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rates", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
+                    result = Catalog.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
                     break;
                 case OrderBy.VOTES_COUNT:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "rates");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES);
                     break;
                 case OrderBy.LIKE_COUNTER:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "like");
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_LIKE);
                     break;
                 default:
                     result = media;
@@ -270,39 +270,39 @@ namespace Catalog
             return result;
         }
 
-        protected void OrderMediasByOrderNum(ref List<int> medias, List<ManualMedia> lManualMedias, ApiObjects.SearchObjects.OrderObj oOrderObj)
+        protected void OrderMediasByOrderNum(ref List<int> medias, GroupsCacheManager.Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
-            // Indicates that the channel is manual
-            if (medias != null && medias.Count > 0 && lManualMedias != null && lManualMedias.Count > 0)
+            if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
-                if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
+                IEnumerable<int> ids;
+                if (oOrderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
                 {
-                    var orderedByIDList = from m in medias
-                                          join manual in lManualMedias
-                                          on m.ToString() equals manual.m_sMediaId
-                                          orderby manual.m_nOrderNum, oOrderObj.m_eOrderDir
-                                          select manual.m_sMediaId;
-
-                    if (orderedByIDList != null)
-                    {
-                        List<int> ids = new List<int>();
-                        foreach (var mediaId in orderedByIDList)
-                        {
-                            ids.Add(int.Parse(mediaId.ToString()));
-                        }
-
-                        medias = ids;
-                    }
+                    ids = from m in medias
+                          join manual in channel.m_lManualMedias
+                          on m.ToString() equals manual.m_sMediaId
+                          orderby manual.m_nOrderNum descending
+                          select int.Parse(manual.m_sMediaId);
                 }
+                else
+                {
+                    ids = from m in medias
+                          join manual in channel.m_lManualMedias
+                          on m.ToString() equals manual.m_sMediaId
+                          orderby manual.m_nOrderNum
+                          select int.Parse(manual.m_sMediaId);
+                }
+
+                medias = ids.ToList();
             }
         }
 
-        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage)
+        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
                 nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
-            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId, oLanguage);
+
+            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, oLanguage);
         }
     }
 }

@@ -45,12 +45,6 @@ namespace Catalog
                 PersonalLastDeviceResponse response = new PersonalLastDeviceResponse();
                 PersonalLastDevice oPersonalLastWatched;
 
-                string xmlresult = "";
-                xmlresult = SerializeToXML<PersonalLasDeviceRequest>(request);
-
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "PersonalLasDevice Start At", DateTime.Now));
-
                 if (request == null)
                     throw new Exception("request object is null or Required variables is null");
 
@@ -118,14 +112,7 @@ namespace Catalog
 
                 response.m_nTotalItems = lastMediaMarksList.Count;
 
-
-                xmlresult = "no resultes";
-                if (response != null)
-                {
-                    xmlresult = SerializeToXML<PersonalLastDeviceResponse>(response);
-                }
-                _logger.Info(xmlresult);
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

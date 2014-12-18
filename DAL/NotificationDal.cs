@@ -318,14 +318,14 @@ namespace DAL
 
         public static DataTable GetUserNotification(int? userID, List<long> notificationIds, int? byUserID, List<long> lUsers)
         {
-            ODBCWrapper.StoredProcedure spGetUsers = new ODBCWrapper.StoredProcedure("GetUserNotification");
-            spGetUsers.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            spGetUsers.AddIDListParameter<long>("@notificationIDs", notificationIds, "id");
+            ODBCWrapper.StoredProcedure spGetUsers = new ODBCWrapper.StoredProcedure("GetUserNotificationXML");
+            spGetUsers.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");           
+            spGetUsers.AddXMLParameter<long>("@notificationIDs", notificationIds, "Id");
             spGetUsers.AddParameter("@user_id", userID);
             if (byUserID == null)
                 byUserID = 0;
-            spGetUsers.AddParameter("@ByUserID", byUserID);
-            spGetUsers.AddIDListParameter<long>("@listUsers", lUsers, "id");
+            spGetUsers.AddParameter("@ByUserID", byUserID);            
+            spGetUsers.AddXMLParameter<long>("@listUsers", lUsers, "Id");
 
             DataSet ds = spGetUsers.ExecuteDataSet();
             if (ds != null)

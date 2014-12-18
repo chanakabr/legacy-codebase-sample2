@@ -4,6 +4,8 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Text;
+using ApiObjects;
+using ApiObjects.Epg;
 using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
@@ -79,7 +81,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDeviceUDID)
         {
             //bool bDummy = true;
-            string sIP = "1.1.1.1";
+            
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             string sWSURL = string.Empty;
@@ -91,9 +93,6 @@ namespace ConditionalAccess
             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnown;
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
-
-            #region User and Household validations
-
 
             try
             {
@@ -107,7 +106,7 @@ namespace ConditionalAccess
                 }
 
                 // Get Household ID (UID) 
-                string sHouseholdUID = DAL.DomainDal.GetDomainCoGuid(0, sSiteGUID);
+                string sHouseholdUID = DomainDal.GetDomainCoGuid(0, sSiteGUID);
                 if (string.IsNullOrEmpty(sHouseholdUID))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -119,12 +118,10 @@ namespace ConditionalAccess
 
 
                 // Check user validity
-
                 u = new ConditionalAccess.TvinciUsers.UsersService();
-
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     u.Url = sWSURL;
                 }
@@ -145,8 +142,6 @@ namespace ConditionalAccess
                 // Domain Description is used as Arvato Contract ID
                 string sArvatoContractID = DAL.DomainDal.GetDomainDesc(m_nGroupID, nDomainID);
 
-            #endregion
-
 
                 // Check coupon validity
                 if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
@@ -158,35 +153,22 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-
-                #region Validate Media File PPV Module
-
-                sIP = "1.1.1.1";
+                
                 sWSUserName = string.Empty;
                 sWSPass = string.Empty;
 
                 m = new global::ConditionalAccess.TvinciPricing.mdoule();
                 sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     m.Url = sWSURL;
                 }
 
                 int[] nMediaFiles = { nMediaFileID };
-                string sMediaFileForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
                 TvinciPricing.MediaFilePPVModule[] oModules = null;
-                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                if (CachingManager.CachingManager.Exist("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
-                {
-                    oModules = (TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache));
-                }
-                else
-                {
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                    oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                    CachingManager.CachingManager.SetCachedData("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oModules, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                }
 
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
+                oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                 int nCount = 0;
                 if (oModules[0].m_oPPVModules != null)
@@ -218,8 +200,6 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                #endregion
-
 
 
                 // User and PPV Module OK, let's try to charge the user 
@@ -246,7 +226,7 @@ namespace ConditionalAccess
                     TvinciPricing.Collection relevantCol = null;
                     TvinciPricing.PrePaidModule relevantPP = null;
 
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    
                     TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                     if (thePPVModule != null)
@@ -304,9 +284,9 @@ namespace ConditionalAccess
                                 bm = new ConditionalAccess.TvinciBilling.module();
                                 sWSUserName = string.Empty;
                                 sWSPass = string.Empty;
-                                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "CC_ChargeUser", "billing", sIP, ref sWSUserName, ref sWSPass);
+                                Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                                 sWSURL = Utils.GetWSURL("billing_ws");
-                                if (sWSURL.Length > 0)
+                                if (!string.IsNullOrEmpty(sWSURL))
                                 {
                                     bm.Url = sWSURL;
                                 }
@@ -379,8 +359,8 @@ namespace ConditionalAccess
 
                                         if (!transNotificationRes.Success)
                                         {
-                                            bool canceledTransaction = DAL.ConditionalAccessDAL.CancelTransaction(transactionID);
-                                            bool canceled = canceledTransaction && DAL.ConditionalAccessDAL.CancelPpvPurchase(m_nGroupID, nPurchaseID, sSiteGUID, nMediaFileID, 0, 2);
+                                            bool canceledTransaction = ConditionalAccessDAL.CancelTransaction(transactionID);
+                                            bool canceled = canceledTransaction && ConditionalAccessDAL.CancelPpvPurchase(m_nGroupID, nPurchaseID, sSiteGUID, nMediaFileID, 0, 2);
 
                                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                             ret.m_sRecieptCode = sReceipt;
@@ -715,12 +695,11 @@ namespace ConditionalAccess
                 }
 
                 u = new ConditionalAccess.TvinciUsers.UsersService();
-                string sIP = "1.1.1.1";
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                 {
                     u.Url = sWSURL;
                 }
@@ -779,7 +758,7 @@ namespace ConditionalAccess
 
                     case PriceReason.ForPurchase:
 
-                        ret = HandleSubPurchase(sSiteGUID, sHouseholdUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, ref sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sIP, theSub, p);
+                        ret = HandleSubPurchase(sSiteGUID, sHouseholdUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, ref sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "1.1.1.1", theSub, p);
 
                         break;
 
@@ -867,10 +846,10 @@ namespace ConditionalAccess
                 {
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "CC_ChargeUser", "billing", sIP, ref sWSUserName, ref sWSPass);
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                     string sWSURL = Utils.GetWSURL("billing_ws");
 
-                    if (sWSURL.Length > 0)
+                    if (!string.IsNullOrEmpty(sWSURL))
                     {
                         bm.Url = sWSURL;
                     }
@@ -977,148 +956,118 @@ namespace ConditionalAccess
             return ret;
         }
 
-        public override string GetEPGLink(int nProgramId, DateTime startTime, eEPGFormatType format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             string url = string.Empty;
-
-            // Validate inputs
-            if ((nProgramId <= 0) ||
-                (string.IsNullOrEmpty(sBasicLink)) ||
-                (string.IsNullOrEmpty(sSiteGUID)))
-            {
-                return string.Empty;
-            }
-
             TvinciAPI.API api = null;
-
             try
             {
-                string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
-
-                string host = (new Uri(sBasicLink)).Host;
-                if (string.IsNullOrEmpty(host))
+                // Validate inputs
+                int nProgramId = Int32.Parse(sProgramId);
+                if ((nProgramId <= 0) || (string.IsNullOrEmpty(sBasicLink)) || (string.IsNullOrEmpty(sSiteGUID)))
                 {
                     return string.Empty;
                 }
 
-
-                string sBaseLink = GetLicensedLink(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
-                Logger.Logger.Log("LicensedLink", "Finished base link", "LicensedLink");
-
-                if (string.IsNullOrEmpty(sBaseLink))
+                int fileMainStreamingCoID = 0; // CDN Straming id
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
+                //GetLicensedLink return empty link no need to continue
+                if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
+                    Logger.Logger.Log("LicensedLink",
+                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
                     return string.Empty;
                 }
+
+                Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
                 string sRightMargin = Utils.GetValueFromConfig("right_margin");
                 string sLeftMargin = Utils.GetValueFromConfig("left_margin");
-
                 int nRightMargin = !string.IsNullOrEmpty(sRightMargin) ? int.Parse(sRightMargin) : RIGHT_MARGIN;
                 int nLeftMargin = !string.IsNullOrEmpty(sLeftMargin) ? int.Parse(sLeftMargin) : LEFT_MARGIN;
 
-
-                Dictionary<string, object> parametersToInjectInUrl = new Dictionary<string, object>();
-
-                if (!string.IsNullOrEmpty(host))
+                // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
+                string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
+                int timeMultFactor = 10000;
+                if (!string.IsNullOrEmpty(sTimeMultFactor))
                 {
-                    parametersToInjectInUrl.Add("host", host);
+                    int.TryParse(sTimeMultFactor, out timeMultFactor);
                 }
 
-                string sChannelName = string.Empty;
-
+                //call api service to get the epg_url_link 
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
                 api = new TvinciAPI.API();
                 string sApiWSUrl = Utils.GetWSURL("api_ws");
-
                 if (!string.IsNullOrEmpty(sApiWSUrl))
-                    api.Url = sApiWSUrl;
-
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetEPGLink", "api", sIP, ref sWSUserName, ref sWSPass);
-
-                Logger.Logger.Log("LicensedLink", "Started getting coguid for media file id", "LicensedLink");
-
-                sChannelName = api.GetCoGuidByMediaFileId(sWSUserName, sWSPass, nMediaFileID);
-
-                Logger.Logger.Log("LicensedLink", "Finished getting coguid for media file id", "LicensedLink");
-
-                if (!string.IsNullOrEmpty(sChannelName))
                 {
-                    parametersToInjectInUrl.Add("name", sChannelName);
+                    api.Url = sApiWSUrl;
+                }
 
-                    Logger.Logger.Log("LicensedLink", "Getting stream type", "LicensedLink");
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
+                //get channel name 
+                string channelName = api.GetCoGuidByMediaFileId(sWSUserName, sWSPass, nMediaFileID);
 
-                    eStreamType streamType = Utils.GetStreamType(sBaseLink);
+                eEPGFormatType eformat = (eEPGFormatType)format;
+                TvinciAPI.Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
+                if (scheduling != null)
+                {
+                    dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
 
-                    Logger.Logger.Log("LicensedLink", "Finished getting stream type", "LicensedLink");
-
-                    url = Utils.GetStreamTypeAndFormatLink(streamType, format); // Getting the url which matches both the epg format and the stream type
-
-                    long nStartTime;
-                    long nEndTime;
-
-                    // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
-                    string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
-                    int timeMultFactor = 10000;
-
-                    if (!string.IsNullOrEmpty(sTimeMultFactor))
-                    {
-                        int.TryParse(sTimeMultFactor, out timeMultFactor);
-                    }
-
-                    Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
-
-                    switch (format)
+                    switch (eformat)
                     {
                         case eEPGFormatType.Catchup:
                         case eEPGFormatType.StartOver:
                             {
-                                if (scheduling != null)
-                                {
-                                    nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.ToUniversalTime().AddMinutes(nLeftMargin)));
-                                    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.ToUniversalTime().AddMinutes(nRightMargin)));
-
-                                    parametersToInjectInUrl.Add("start", nStartTime);
-                                    parametersToInjectInUrl.Add("end", nEndTime);
-                                }
+                                dURLParams.Add(EpgLinkConstants.PROGRAM_START, scheduling.StartDate);
                             }
-
                             break;
-
                         case eEPGFormatType.LivePause:
-
-                            DateTime startTimeUTC = startTime.ToUniversalTime();
-                            if (DateTime.Compare(startTimeUTC, DateTime.UtcNow) <= 0)
                             {
-                                nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTimeUTC.AddMinutes(nLeftMargin)));
-                                nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
-                                parametersToInjectInUrl.Add("start", nStartTime);
-                                parametersToInjectInUrl.Add("end", nEndTime);
+                                dURLParams.Add(EpgLinkConstants.PROGRAM_START, dStartTime);
                             }
-
                             break;
-
                         default:
-                            url = string.Empty;
-                            break;
+                            return string.Empty;
                     }
 
-                    // Injecting the parameters values to the url
-                    if (!string.IsNullOrEmpty(url))
+                }
+
+                //call the right provider to get the epg link 
+
+                string CdnStrID = string.Empty;
+                bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+
+                dURLParams.Add(EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
+                dURLParams.Add(EpgLinkConstants.BASIC_LINK, sBasicLink);
+                dURLParams.Add(EpgLinkConstants.RIGHT_MARGIN, nRightMargin);
+                dURLParams.Add(EpgLinkConstants.LEFT_MARGIN, nLeftMargin);
+                dURLParams.Add(EpgLinkConstants.TIME_MULT_FACTOR, timeMultFactor);
+                dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
+                dURLParams.Add(EpgLinkConstants.CHANNEL_NAME, channelName);
+
+
+                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                if (provider != null)
+                {
+                    string liveUrl = provider.GenerateEPGLink(dURLParams);
+                    if (!string.IsNullOrEmpty(liveUrl))
                     {
-                        Utils.ReplaceSubStr(ref url, parametersToInjectInUrl);
+                        url = liveUrl;
                     }
                 }
 
+                return url;
             }
+
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at GetEPGLink. ");
                 sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Program ID: ", nProgramId));
+                sb.Append(String.Concat(" Program ID: ", sProgramId));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" Media File ID: ", nMediaFileID));
-                sb.Append(String.Concat(" Start time: ", startTime.ToString()));
+                sb.Append(String.Concat(" Start time: ", dStartTime.ToString()));
                 sb.Append(String.Concat(" User IP: ", sUserIP));
                 sb.Append(String.Concat(" Coupon: ", sCouponCode));
                 sb.Append(String.Concat(" Format: ", format.ToString()));
@@ -1135,6 +1084,5 @@ namespace ConditionalAccess
 
             return url;
         }
-
     }
 }

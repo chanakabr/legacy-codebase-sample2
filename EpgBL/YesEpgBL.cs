@@ -129,6 +129,9 @@ namespace EpgBL
 
         public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
         {
+            //TvinciEpgBL Bl = new TvinciEpgBL(this.m_nGroupID);
+            //return Bl.InsertEpg(newEpgItem, out  epgID, cas);
+            
             epgID = 0;
             return false;
         }
@@ -206,6 +209,13 @@ namespace EpgBL
             }
         }
 
+
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)
+        {
+
+            return new List<EPGChannelProgrammeObject>();
+
+        }
         #endregion
 
         #region Privat

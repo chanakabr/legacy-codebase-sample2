@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConditionalAccess</RootNamespace>
     <AssemblyName>ConditionalAccess</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -31,6 +31,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -79,15 +80,33 @@
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
     <Compile Include="BaseConditionalAccess.cs" />
+    <Compile Include="BaseNPVRCommand.cs" />
     <Compile Include="BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
+    <Compile Include="CancelDeleteResponse.cs" />
+    <Compile Include="CancelNPVRCommand.cs" />
+    <Compile Include="CancelSeriesNPVRCommand.cs" />
     <Compile Include="CinepolisConditionalAccess.cs" />
+    <Compile Include="ConditionalAccessCache.cs" />
+    <Compile Include="DeleteNPVRCommand.cs" />
+    <Compile Include="DeleteSeriesNPVRCommand.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LicensedLinkNPVRCommand.cs" />
+    <Compile Include="LicensedLinkNPVRResponse.cs" />
     <Compile Include="LicensedLinkResponse.cs" />
+    <Compile Include="ProtectionResponse.cs" />
+    <Compile Include="ProtectNPVRCommand.cs" />
+    <Compile Include="QuotaResponse.cs" />
+    <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
+    <Compile Include="RecordNPVRCommand.cs" />
+    <Compile Include="RecordResponse.cs" />
+    <Compile Include="RecordSeriesByNameNPVRCommand.cs" />
+    <Compile Include="RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -120,6 +139,7 @@
     <Compile Include="TvinciConditionalAccess.cs" />
     <Compile Include="UserPrePaidContainer.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="VodafoneConditionalAccess.cs" />
     <Compile Include="VoucherCampaignImpl.cs" />
     <Compile Include="Web References\NotificationService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -269,6 +289,9 @@
     <None Include="Web References\TvinciAPI\GroupRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\MediaConcurrencyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -280,6 +303,10 @@
     </None>
     <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Web References\TvinciAPI\Scheduling.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -308,12 +335,24 @@
     <None Include="Web References\TvinciDomains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\HomeNetwork.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\module.wsdl" />
+    <None Include="Web References\TvinciDomains\NetworkResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciPricing\Collection.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciPricing\MediaFilePPVContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
@@ -324,6 +363,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\TvinciAPI\</RelPath>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\NotificationService\</RelPath>
@@ -335,27 +385,16 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains_2/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciDomains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WSApi/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/WSApi/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/TVMBilling/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
@@ -447,10 +486,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <None Include="Web References\TvinciPricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -534,9 +569,17 @@
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\CDNetworksVault\CDNetworksVault.csproj">
       <Project>{65f14e50-b281-4524-84c4-0aca05c71fbc}</Project>
@@ -566,6 +609,10 @@
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
       <Name>MCGroupRules</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
@@ -573,6 +620,14 @@
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj">
+      <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
+      <Name>StreamingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
@@ -612,9 +667,6 @@
     <None Include="Web References\NotificationService\NotificationService.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
@@ -631,6 +683,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
