@@ -384,7 +384,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
@@ -857,7 +857,7 @@ namespace NPVR
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
                                 break;
                             case SearchByField.byStartTime:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
                                 break;
                             case SearchByField.byStatus:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
@@ -1031,7 +1031,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
 

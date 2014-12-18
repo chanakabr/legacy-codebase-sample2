@@ -320,6 +320,11 @@ namespace TVinciShared
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
         }
 
+        public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+        }
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
