@@ -15,6 +15,7 @@ using ApiObjects;
 using ElasticSearchFeeder.IndexBuilders;
 using ElasticSearch.Common.DeleteResults;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ElasticSearchFeeder
 {
@@ -49,6 +50,7 @@ namespace ElasticSearchFeeder
         {
             try
             {
+                Catalog.Bootstrapper.Bootstrap();
                 //If requested, reload index
                 if (m_bRebuildIndex || !checkIndexExists(eESFeeder))
                 {
@@ -331,7 +333,7 @@ namespace ElasticSearchFeeder
         private async Task<bool> UpdateMedias(List<int> lMediaIDs)
         {
             bool bRes = true;
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            Group oGroup = GroupsCache.Instance().GetGroup(m_nGroupID);
 
             if (oGroup == null)
                 return false;

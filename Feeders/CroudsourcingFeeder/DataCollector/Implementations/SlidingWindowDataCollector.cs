@@ -40,7 +40,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_sSignString = catalogSignString,
                     m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                     m_nPageIndex = 0,
-                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
+                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                 });
 
                 if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
@@ -52,9 +52,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource",
-                    string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow,
-                        CollectorType, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
@@ -66,6 +64,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 Dictionary<int, BaseCrowdsourceItem> normalizedDictionary = null;
 
                 string catalogSignString = Guid.NewGuid().ToString();
+                long epochDateTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 // Get channel info
                 ChannelObjResponse channelObjResponse = (ChannelObjResponse)CatalogClient.GetResponse(new ChannelObjRequest()
@@ -123,10 +122,11 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                                 Size = pic.m_sSize,
                                                 URL = pic.m_sURL
                                             }).ToArray(),
-                                    TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    TimeStamp = epochDateTime,
                                     Order = item.Order,
-
+                                    Period = channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id
                                 };
+
                                 switch (croudsourceItem.Action)
                                 {
                                     case OrderBy.VIEWS:
@@ -153,8 +153,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
 
                 Logger.Logger.Log("Crowdsource",
-                    string.Format("{0}:{1} - Error normalizing singular item. mediaId {2} - Exception: \n {3}",
-                        DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing.log");
+                    string.Format("Collector:{0} - Error normalizing singular item. mediaId {1} - Exception: \n {2}", CollectorType, item.Id, ex.Message), "Crowdsourcing");
                 return null;
             }
         }

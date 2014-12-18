@@ -242,13 +242,9 @@ public partial class adm_my_group : System.Web.UI.Page
 
         DataRecordMultiField dr_more_languages = new DataRecordMultiField("lu_languages", "id", "id", "group_extra_languages", "GROUP_ID", "LANGUAGE_ID", false, "ltr", 60, "tags");
         dr_more_languages.Initialize("More Languages", "adm_table_header_nbg", "FormInput", "NAME", false);
-        dr_more_languages.SetOrderCollectionBy("name");
-        //dr_more_languages.SetExtraWhere("GROUP_ID is null");
+        dr_more_languages.SetOrderCollectionBy("name");        
         theRecord.AddRecord(dr_more_languages);
-
-        //DataRecordShortIntField dr_device_limit = new DataRecordShortIntField(true, 9, 9);
-        //dr_device_limit.Initialize("Device Limit", "adm_table_header_nbg", "FormInput", "Max_Device_Limit", false);
-        //theRecord.AddRecord(dr_device_limit);
+              
 
         DataRecordDropDownField dr_device_limits = new DataRecordDropDownField("groups_device_limitation_modules", "Name", "id", "group_id", LoginManager.GetLoginGroupID(), 60, false);
         dr_device_limits.Initialize("Default Device Limit", "adm_table_header_nbg", "FormInput", "max_device_limit", false);
@@ -259,9 +255,7 @@ public partial class adm_my_group : System.Web.UI.Page
         theRecord.AddRecord(dr_ratios);
 
         DataRecordMultiField dr_more_ratios = new DataRecordMultiField("lu_pics_ratios", "id", "id", "group_ratios", "GROUP_ID", "RATIO_ID", false, "ltr", 60, "tags");
-        dr_more_ratios.Initialize("More Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);
-        //dr_more_languages.SetOrderCollectionBy("ratio");
-        //dr_more_languages.SetExtraWhere("GROUP_ID is null");
+        dr_more_ratios.Initialize("More Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);        
         theRecord.AddRecord(dr_more_ratios);
 
         DataRecordCheckBoxField dr_use_default_info_struct = new DataRecordCheckBoxField(true);
@@ -272,13 +266,10 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_default_info_struct.Initialize("Default info struct XML", "adm_table_header_nbg", "FormInput", "DEFAULT_INFO_STRUCT", false);
         theRecord.AddRecord(dr_default_info_struct);
 
-
         //cancellation regulation
         DataRecordDropDownField dr_view_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, true);
-        dr_view_lc.Initialize("Default Waiver Period", "adm_table_header_nbg", "FormInput", "WAIVER_PERIOD", false);
-        //dr_view_lc.SetDefaultVal("20160");
+        dr_view_lc.Initialize("Default Waiver Period", "adm_table_header_nbg", "FormInput", "WAIVER_PERIOD", false);        
         theRecord.AddRecord(dr_view_lc);
-
 
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 

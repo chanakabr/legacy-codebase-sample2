@@ -12,8 +12,10 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;
 using EpgBL;
+using GroupsCacheManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
+using System.IO.Compression;
 
 namespace GracenoteFeeder
 {    
@@ -765,13 +767,12 @@ namespace GracenoteFeeder
             try
             {
                 var request = (HttpWebRequest)WebRequest.Create(uri);//"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update");
+                GetProxyConfig(request);
 
                 if (method == "POST")
                 {
                     var data = Encoding.ASCII.GetBytes(postData);
                     request.Method = "POST";
-
-                    GetProxyConfig(request);
 
                     request.ContentLength = data.Length;
                     using (var stream = request.GetRequestStream())
@@ -818,6 +819,20 @@ namespace GracenoteFeeder
             catch (Exception ex)
             {
                 Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
+            }
+        }
+
+        public static string Compress(string s)
+        {
+            var bytes = Encoding.UTF8.GetBytes(s);
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream())
+            {
+                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                {
+                    msi.CopyTo(gs);
+                }
+                return Convert.ToBase64String(mso.ToArray());
             }
         }
 

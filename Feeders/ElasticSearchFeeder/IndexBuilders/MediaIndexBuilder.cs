@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
@@ -240,7 +241,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             try
             {
-                Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
+                Group oGroup = GroupsCache.Instance().GetGroup(nGroupID);
 
                 if (oGroup == null)
                 {
