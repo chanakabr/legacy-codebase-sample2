@@ -196,17 +196,25 @@ namespace Catalog
                         }
 
                         /*last watched - By SiteGuid <> 0*/
-                        if (ds.Tables.Count == 7)
+
+                        if (!string.IsNullOrEmpty(mediaRequest.m_sSiteGuid) && mediaRequest.m_sSiteGuid != "0")
                         {
-                            if (ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                            DateTime? dtLastWatch = null;
+
+                            // ask CB for it
+                            try
                             {
-                                oMediaObj.m_sLastWatchedDevice = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastDeviceName");
-                                string sLastWatchedDate = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastWatchedDate");
-                                if (!string.IsNullOrEmpty(sLastWatchedDate))
-                                {
-                                    oMediaObj.m_dLastWatchedDate = System.Convert.ToDateTime(sLastWatchedDate);
-                                }
+                                 dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, mediaRequest.m_sSiteGuid);
                             }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Error", 
+                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", mediaRequest.m_sSiteGuid, nMedia, ex.Message), 
+                                    "Catalog");
+                            }
+
+                            oMediaObj.m_dLastWatchedDate = dtLastWatch;
+
                         }
                     }
                     else
@@ -3027,6 +3035,7 @@ namespace Catalog
             List<int> lUsers = null;
             bool bDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
             List<LastPosition> lUserMedia = new List<LastPosition>();
+            List<int> usersKey = new List<int>(); // list that contains all users that need to be return grom CB for the media 
 
             //get username + password from wsCache
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, group_id, ApiObjects.eWSModules.DOMAINS);
@@ -3059,9 +3068,21 @@ namespace Catalog
                     bDefaultUser = lDeafultUsers.Contains(user_id);
                 }
             }
+            // Build list of users that we'll send to CB
+            if (bDefaultUser)
+            {
+                usersKey.AddRange(lUsers);
+                usersKey.AddRange(lDeafultUsers);
+            }
+            else
+            {
+                usersKey.AddRange(lDeafultUsers);
+                usersKey.Add(user_id);
+            }
 
             // get last position from domain by media_id - from DAL 
-            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, user_id, domain_id);
+            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, usersKey, domain_id);
+          
             if (MediaMark == null || MediaMark.devices == null)
             {
                 res.m_sStatus = "NO DATA";
@@ -3069,77 +3090,43 @@ namespace Catalog
                 return res;
             }
             UserMediaMark umm = new UserMediaMark();
+            List<UserMediaMark> lumm = new List<UserMediaMark>();
             LastPosition ulp = null;
-            if (bDefaultUser) // get all users position in domain
-            {
-                foreach (int user in lUsers)
-                {
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    if (umm == null)
-                    {
-                        continue;
-                    }
-                    if (user == user_id)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
-                    }
-                    else
-                    {
-                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
-                    }
-                }
-                foreach (int user in lDeafultUsers)
-                {
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    if (umm == null)
-                    {
-                        continue;
-                    }
-                    if (user == user_id)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
-                    }
-                    else
-                    {
-                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
-                    }
-                }
-            }
-            else // get only user_id and the default_users_id position
-            {
-                if (MediaMark.devices != null)
-                {
-                    foreach (int user in lDeafultUsers) // get position of default user
-                    {
-                        umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                        if (umm == null)
-                        {
-                            continue;
-                        }
+       
+            // get the user_id first 
 
-                        if (user == user_id)
-                        {
-                            ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
-                        }
-                        else
-                        {
-                            lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
-                        }
-
-                    }
-                    //get position of specific user
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
-                    if (umm != null && ulp == null)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
-                    }
+            lumm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != user_id ).ToList();
+            foreach (UserMediaMark item in lumm)
+            {
+                if (lDeafultUsers.Contains(item.UserID))
+                {
+                    ulp = new LastPosition(item.UserID, eUserType.HOUSEHOLD, item.Location);
                 }
+                else
+                {
+                    ulp = new LastPosition(item.UserID, eUserType.PERSONAL, item.Location);
+                }
+
+                if (!lUserMedia.Where(x => x.m_nUserID == item.UserID).Any())
+                {
+                    lUserMedia.Add(ulp);
+                }
+                ulp = null;
             }
 
-            //order list by location           
-            lUserMedia = lUserMedia.OrderByDescending(x => x.m_nLocation).ToList();
-            if (ulp != null)
+            //get position of specific user
+            umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
+            if (umm != null)
             {
+                if (lDeafultUsers.Contains(user_id))
+                {
+                    ulp = new LastPosition(user_id, eUserType.HOUSEHOLD, umm.Location);
+                }
+                else
+                {
+                    ulp = new LastPosition(user_id, eUserType.PERSONAL, umm.Location);
+                }
+
                 lUserMedia.Insert(0, ulp); // add the userid in the first position in the list
             }
             res.m_sStatus = "OK";

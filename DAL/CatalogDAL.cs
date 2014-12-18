@@ -37,6 +37,32 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        /// <summary>
+        /// For a given user and media, returns the last time the user watched the media
+        /// </summary>
+        /// <param name="p_nMedia"></param>
+        /// <param name="p_sSiteGuid"></param>
+        /// <returns></returns>
+        public static DateTime? Get_MediaUserLastWatch(int p_nMedia, string p_sSiteGuid)
+        {
+            DateTime? dt = null;
+            
+            Couchbase.CouchbaseClient m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+            // get document of media mark
+            object objDocument = m_oClient.Get(UtilsDal.getUserMediaMarkDocKey(p_sSiteGuid, p_nMedia));
+
+            if (objDocument != null)
+            {
+                // Desrialize to known class - for comfortable access
+                MediaMarkLog mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(objDocument.ToString());
+
+                dt = mediaMarkLog.LastMark.CreatedAt;
+            }
+
+            return dt;
+        }
+
         public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spBuild_MediaRelated = new ODBCWrapper.StoredProcedure("Build_MediaRelated");
@@ -2220,6 +2246,49 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
+        }
+
+        public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
+        {
+            DomainMediaMark dmm = new DomainMediaMark();
+            dmm.domainID = domain_id;
+           
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // create Keys 
+            List<string> keys = new List<string>();
+            string docKey = string.Empty;
+            foreach (int user in usersKey)
+            {
+                docKey = UtilsDal.getUserMediaMarkDocKey(user, media_id);
+                keys.Add(docKey);
+            }
+            // get all documents ffrom CB
+            IDictionary<string, object> data = m_oClient.Get(keys);
+
+            List<UserMediaMark> oRes = new List<UserMediaMark>();
+                     
+            if (data == null)
+                return null;
+
+            if (data != null && data.Count > 0)
+            {
+                MediaMarkLog mml;
+                foreach (KeyValuePair<string, object> item in data)
+                {
+                    if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                    {
+                        mml = JsonConvert.DeserializeObject<MediaMarkLog>(item.Value.ToString());
+                        if (mml != null && mml.LastMark != null)
+                        {
+                            oRes.Add(mml.LastMark);
+                        }
+                    }
+                }
+            }
+            
+            dmm.devices = oRes;
+            return dmm;
+         
         }
     }
 }
