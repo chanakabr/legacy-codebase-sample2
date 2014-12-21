@@ -23,6 +23,7 @@ namespace CommonWithSL
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public string ImageLink { get; set; }
+        public string PictureSize { get; set; }
         public bool IsBlackout { get; set; }
         public CommonWithSL.Media Media { get; set; }
         public bool HasVod { get; set; }

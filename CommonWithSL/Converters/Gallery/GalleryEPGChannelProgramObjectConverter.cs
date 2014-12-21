@@ -8,7 +8,6 @@ namespace CommonWithSL.Converters.Gallery
 {
     public class GalleryEPGChannelProgramObjectConverter : IGalleryItemConverter
     {
-
         public object ConvertItem(object inputObject, string picSize = null)
         {
             Dictionary<string, object> inputObjectDic = (Dictionary<string, object>)(inputObject);
