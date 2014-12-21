@@ -46,6 +46,9 @@
       <HintPath>..\packages\CS_threescale\CS_threescale.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\TVinciCommon\External\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack">
       <HintPath>..\packages\ServiceStack.3.9.71\lib\net35\ServiceStack.dll</HintPath>
     </Reference>
@@ -392,7 +395,9 @@
     <Content Include="Configuration\Filmotech\Test\STB\PlatformServicesConfiguration.config" />
     <Content Include="Configuration\Filmotech\Test\STB\SiteConfiguration.config" />
     <Content Include="Configuration\Filmotech\Test\STB\TechnicalConfiguration.config" />
-    <Content Include="Configuration\GlobalAppSettings.config" />
+    <Content Include="Configuration\GlobalAppSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Configuration\IBC\prod\AdditionalAppSettings.config" />
     <Content Include="Configuration\IBC\prod\PlatformServicesConfiguration.config" />
     <Content Include="Configuration\IBC\prod\TechnicalConfiguration.config" />
@@ -572,6 +577,11 @@
     <Content Include="Configuration\Yes\staging\iPad\TechnicalConfiguration.config" />
     <Content Include="Configuration\Yes\staging\MediaConfiguration.config" />
     <Content Include="packages.config" />
+    <Content Include="Configuration\EutelSat\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\Web\TechnicalConfiguration.config" />
+    <None Include="Properties\PublishProfiles\TvpApiRest.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -33,7 +33,10 @@ namespace TVPApiModule.Extentions
                     retVal.user.basic_data.is_facebook_image_permitted = response.m_user.m_oBasicData.m_bIsFacebookImagePermitted;
                     retVal.user.basic_data.co_guid = response.m_user.m_oBasicData.m_CoGuid;
 
-                    retVal.user.basic_data.country = response.m_user.m_oBasicData.m_Country.ToApiObject();
+                    if (retVal.user.basic_data.country != null)
+                    {
+                        retVal.user.basic_data.country = response.m_user.m_oBasicData.m_Country.ToApiObject();
+                    }
 
                     retVal.user.basic_data.external_token = response.m_user.m_oBasicData.m_ExternalToken;
                     retVal.user.basic_data.address = response.m_user.m_oBasicData.m_sAddress;

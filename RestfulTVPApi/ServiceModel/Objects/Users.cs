@@ -615,11 +615,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "item_objects", Description = "Item objects, each object contains item id and item order in the list", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
         public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
     }
-
-    [Route("/users/{user_name}/session", "POST", Notes = "This method signs-in a user.")]
+    
+    [Route("/users/sign_in", "POST", Notes = "This method signs-in a user.")]
     public class SignInRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
     {
-        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }

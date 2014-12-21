@@ -145,20 +145,24 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public TVPApiModule.Objects.Responses.Domain GetDomainInfo(int iDomainID)
+        public DomainResponseObject GetDomainInfo(int iDomainID)
         {
-            TVPApiModule.Objects.Responses.Domain domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domainResponse = new DomainResponseObject();
 
-            domain = Execute(() =>
+            domainResponse = Execute(() =>
                 {
+                    Domain domain = null;
                     var res = Domains.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
                     if (res != null)
                         domain = res.ToApiObject();
 
-                    return domain;
-                }) as TVPApiModule.Objects.Responses.Domain;
+                    domainResponse.domain = domain;
+                    domainResponse.domain_response_status = (TVPApiModule.Objects.Responses.DomainResponseStatus)domain.domain_status;
 
-            return domain;
+                    return domainResponse;
+                }) as TVPApiModule.Objects.Responses.DomainResponseObject;
+
+            return domainResponse;
         }
 
         public TVPApiModule.Objects.Responses.DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
@@ -215,13 +219,13 @@ namespace TVPApiModule.Services
             return pin;
         }
 
-        public TVPApiModule.Objects.Responses.DeviceResponseObject RegisterDeviceByPIN(string udid, int domainID, string pin)
+        public TVPApiModule.Objects.Responses.DeviceResponseObject RegisterDeviceByPIN(string deviceName, int domainID, string pin)
         {
             TVPApiModule.Objects.Responses.DeviceResponseObject device = null;
 
             device = Execute(() =>
                 {
-                    var res = Domains.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
+                    var res = Domains.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, deviceName);
                     if (res != null)
                         device = res.ToApiObject();
 

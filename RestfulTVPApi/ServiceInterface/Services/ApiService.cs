@@ -13,8 +13,6 @@ using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
-
-    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class GeneralService : Service
     {

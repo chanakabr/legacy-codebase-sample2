@@ -283,8 +283,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public ApiUsersService.LogInResponseData SignIn(SignInRequest request)
         {
-            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);
-
+            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);            
             return impl.SignIn(request.user_name, request.password);
         }
 

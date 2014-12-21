@@ -5,6 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
+    [Serializable]
     public class Domain
     {
         public string name { get; set; }

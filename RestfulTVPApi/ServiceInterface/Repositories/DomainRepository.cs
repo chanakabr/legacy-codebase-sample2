@@ -51,10 +51,10 @@ namespace RestfulTVPApi.ServiceInterface
 
         public DomainResponseObject RemoveDeviceFromDomain(RemoveDeviceFromDomainRequest request)
         {
-            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RemoveDeviceToDomain(request.domain_id, request.InitObj.UDID);
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RemoveDeviceToDomain(request.domain_id, request.udid);
         }
 
-        public Domain GetDomainInfo(GetDomainInfoRequest request)
+        public DomainResponseObject GetDomainInfo(GetDomainInfoRequest request)
         {
             return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainInfo(request.domain_id);            
         }

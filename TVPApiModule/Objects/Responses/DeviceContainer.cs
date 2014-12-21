@@ -5,6 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
+    [Serializable]
     public class DeviceContainer
     {
         public string device_family_name { get; set; }

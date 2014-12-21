@@ -5,6 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
+    [Serializable]
     public class Country
     {
         public int object_id { get; set; }

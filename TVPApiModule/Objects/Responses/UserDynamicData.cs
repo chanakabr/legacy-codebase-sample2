@@ -5,6 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
+    [Serializable]
     public class UserDynamicData
     {
         public UserDynamicDataContainer[] user_data { get; set; }

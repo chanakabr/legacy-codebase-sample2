@@ -10,7 +10,8 @@ namespace RestfulTVPApi.ServiceModel
 {
     #region GET
 
-    [Route("/channels/{ChannelID}/medias", "GET", Notes = "This method returns an array of the media inside the channel")]
+    [Route("/channels/{channel_id}/medias", "GET", Notes = "This method returns an array of the media inside the channel")]
+    [DefaultRequest(typeof(ResourceRequest))]
     public class GetChannelMultiFilterRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "channel_id", Description = "Channel ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]

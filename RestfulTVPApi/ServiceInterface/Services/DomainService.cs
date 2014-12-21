@@ -3,8 +3,6 @@ using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
-
-    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class DomainService : Service
     {

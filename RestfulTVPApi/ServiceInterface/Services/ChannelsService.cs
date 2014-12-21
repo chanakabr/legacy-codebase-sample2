@@ -13,8 +13,6 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace RestfulTVPApi.ServiceInterface
 {
-
-    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class ChannelsService : Service
     {

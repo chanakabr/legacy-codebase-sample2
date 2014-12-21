@@ -22,7 +22,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         TVPApiModule.Objects.Responses.DomainResponseObject RemoveDeviceFromDomain(RemoveDeviceFromDomainRequest request);
 
-        TVPApiModule.Objects.Responses.Domain GetDomainInfo(GetDomainInfoRequest reuqest);
+        TVPApiModule.Objects.Responses.DomainResponseObject GetDomainInfo(GetDomainInfoRequest reuqest);
 
         TVPApiModule.Objects.Responses.DomainResponseObject ChangeDeviceDomainStatus(ChangeDeviceDomainStatusRequest request);
 

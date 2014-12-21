@@ -12,14 +12,14 @@ namespace RestfulTVPApi.ServiceModel
 
     #region GET
 
-    [Route("/site/footers/{footer_id}", "GET", Notes = "This method returns the site footer.")]
+    //[Route("/site/footers/{footer_id}", "GET", Notes = "This method returns the site footer.")]
     public class GetFooterRequest : RequestBase, IReturn<Menu>
     {
         [ApiMember(Name = "footer_id", Description = "Footer ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
         public long footer_id { get; set; }
     }
 
-    [Route("/site/pages/{page_id}", "GET", Notes = "This method returns a specific page from the site map.")]
+    //[Route("/site/pages/{page_id}", "GET", Notes = "This method returns a specific page from the site map.")]
     public class GetPageRequest : RequestBase, IReturn<PageContext>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
@@ -30,7 +30,7 @@ namespace RestfulTVPApi.ServiceModel
         public bool with_footer { get; set; }
     }
 
-    [Route("/site/pages/{page_id}/galleries/{gallery_id}", "GET", Notes = "This method returns a specific gallery from the site map.")]
+    //[Route("/site/pages/{page_id}/galleries/{gallery_id}", "GET", Notes = "This method returns a specific gallery from the site map.")]
     public class GetGalleryRequest : RequestBase, IReturn<PageGallery>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
@@ -39,7 +39,7 @@ namespace RestfulTVPApi.ServiceModel
         public long gallery_id { get; set; }
     }
 
-    [Route("/site/pages/{page_id}/galleries/{gallery_id}/items", "GET", Notes = "This method returns all gallery items for a specific gallery.")]
+    //[Route("/site/pages/{page_id}/galleries/{gallery_id}/items", "GET", Notes = "This method returns all gallery items for a specific gallery.")]
     public class GetGalleryContentRequest : PagingRequest, IReturn<List<GalleryItem>>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
@@ -50,7 +50,7 @@ namespace RestfulTVPApi.ServiceModel
         public string pic_size { get; set; }
     }
 
-    [Route("/site/pages/{page_id}/galleries/{gallery_id}/items/{item_id}", "GET", Notes = "This method returns content from specific gallery items.")]
+    //[Route("/site/pages/{page_id}/galleries/{gallery_id}/items/{item_id}", "GET", Notes = "This method returns content from specific gallery items.")]
     public class GetGalleryItemContentRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
@@ -66,7 +66,7 @@ namespace RestfulTVPApi.ServiceModel
         public TVPApiModule.Context.OrderBy order_by { get; set; }
     }
     
-    [Route("/site/menus/{menu_id}", "GET", Notes = "This method returns the site menu.")]
+    //[Route("/site/menus/{menu_id}", "GET", Notes = "This method returns the site menu.")]
     public class GetMenuRequest : RequestBase, IReturn<Menu>
     {
         [ApiMember(Name = "menu_id", Description = "Menu ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]

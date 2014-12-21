@@ -27,17 +27,11 @@ namespace RestfulTVPApi.ServiceInterface
     }
 
     #endregion
-
-    [RequiresAuthentication]
+    
     public class InitService : Service
     {
         public string Post(SecuredInitObjRequest request)
         {
-            //if (request.init_obj == null)
-            //{
-            //    return new HttpResult(HttpStatusCode.BadRequest);
-            //}
-
             string _token = string.Empty;
 
             using (MemoryStream ms = new MemoryStream())

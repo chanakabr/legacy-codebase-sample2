@@ -18,6 +18,7 @@ using RestfulTVPApi.ServiceModel;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using TVPPro.SiteManager.Helper;
+using Newtonsoft.Json;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -40,20 +41,10 @@ namespace RestfulTVPApi.ServiceInterface
                 RequestBase BaseRequest = (RequestBase)reqDto;
 
                 string sInitObj = httpReq.Headers.GetValues("X-Init-Object").FirstOrDefault();
-
-                byte[] bytes = Convert.FromBase64String(sInitObj);
-
-                using (MemoryStream ms = new MemoryStream(bytes, 0, bytes.Length))
-                {
-                    ms.Write(bytes, 0, bytes.Length);
-
-                    ms.Position = 0;
-
-                    BaseRequest.InitObj = (InitializationObject)new BinaryFormatter().Deserialize(ms);
-
-                    BaseRequest.GroupID = ConnectionHelper.GetGroupID("tvpapi", reqDto.GetType().Name, BaseRequest.InitObj.ApiUser, BaseRequest.InitObj.ApiPass, SiteHelper.GetClientIP());
-                }
-
+                
+                BaseRequest.InitObj = JsonConvert.DeserializeObject<InitializationObject>(sInitObj);
+                BaseRequest.GroupID = ConnectionHelper.GetGroupID("tvpapi", reqDto.GetType().Name, BaseRequest.InitObj.ApiUser, BaseRequest.InitObj.ApiPass, SiteHelper.GetClientIP());
+                
                 if (BaseRequest.GroupID <= 0)
                 {
                     throw new UnknownGroupException();

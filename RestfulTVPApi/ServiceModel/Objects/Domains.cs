@@ -325,17 +325,13 @@ namespace RestfulTVPApi.ServiceModel
 
     #region DELETE
 
-    [Route("/domains/{domain_id}/devices/{udid}", "DELETE", Summary = "Remove User Favorite", Notes = "Remove User Favorite")]
+    [Route("/domains/{domain_id}/devices", "DELETE", Summary = "Remove User Favorite", Notes = "Remove User Favorite")]
     public class RemoveDeviceFromDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
-        [ApiMember(Name = "udid", Description = "Device Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string udid { get; set; }
-        [ApiMember(Name = "device_name", Description = "Device Name", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        public string device_name { get; set; }
-        [ApiMember(Name = "device_brand_id", Description = "Device brand Id", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public int device_brand_id { get; set; }
+        [ApiMember(Name = "udid", Description = "Device ud_id", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }        
     }
 
     [Route("/domains/{domain_id}", "DELETE", Summary = "Remove Domain", Notes = "Remove domain")]

@@ -111,21 +111,14 @@ namespace RestfulTVPApi.ServiceInterface
 
         public DeviceRegistration RegisterDeviceByPIN(RegisterDeviceByPINRequest request)
         {
-            DeviceRegistration deviceRegistration = null;
-
-            DeviceResponseObject device = ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RegisterDeviceByPIN(request.InitObj.UDID, request.InitObj.DomainID, request.pin);
+            DeviceRegistration deviceRegistration = new DeviceRegistration();
+            request.InitObj.DomainID = request.domain_id;
+            DeviceResponseObject device = ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RegisterDeviceByPIN(request.device_name, request.InitObj.DomainID, request.pin);
 
             if (device != null)
             {
-                if (device.device_response_status == DeviceResponseStatus.Error)
-                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Error;
-                else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
-                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Invalid;
-                else
-                {
-                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Success;
-                    deviceRegistration.udid = device.device.device_udid;
-                }
+                deviceRegistration.reg_status = (eDeviceRegistrationStatus)device.device_response_status;
+                deviceRegistration.udid = device.device.device_udid;                
             }
 
             return deviceRegistration;

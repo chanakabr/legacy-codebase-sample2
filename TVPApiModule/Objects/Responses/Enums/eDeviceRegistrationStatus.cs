@@ -7,9 +7,11 @@ namespace TVPApiModule.Objects.Responses
 {
     [Serializable]
     public enum eDeviceRegistrationStatus 
-    { 
-        Success = 0, 
-        Invalid = 1, 
-        Error = 2 
+    {        
+        UnKnown,        
+        Error,        
+        DuplicatePin,        
+        DeviceNotExists,
+        OK,
     }
 }

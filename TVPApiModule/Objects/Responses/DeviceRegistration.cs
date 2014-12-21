@@ -8,7 +8,7 @@ namespace TVPApiModule.Objects.Responses
     [Serializable]
     public class DeviceRegistration
     {
-        public string udid;
-        public eDeviceRegistrationStatus reg_status;
+        public string udid { get; set; }
+        public eDeviceRegistrationStatus reg_status { get; set; }
     }
 }

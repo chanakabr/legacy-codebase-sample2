@@ -25,7 +25,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public override object OnAfterExecute(IRequestContext requestContext, object response)
         {
-            if (response != null)
+            if (response != null)                
                 response = requestContext.ToOptimizedResult(requestContext.ToPartialResponse(response));
 
             return base.OnAfterExecute(requestContext, response);

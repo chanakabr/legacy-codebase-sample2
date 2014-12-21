@@ -27,10 +27,10 @@ namespace TVPApiModule.Services
         [Serializable]
         public class LogInResponseData
         {
-            public string SiteGuid;
-            public int DomainID;
-            public TVPApiModule.Objects.Responses.eResponseStatus LoginStatus;
-            public TVPApiModule.Objects.Responses.User UserData;
+            public string SiteGuid { get; set; }
+            public int DomainID { get; set; }
+            public TVPApiModule.Objects.Responses.eResponseStatus LoginStatus { get; set; }
+            public TVPApiModule.Objects.Responses.User UserData { get; set; }
         }
         #endregion
 
@@ -43,7 +43,7 @@ namespace TVPApiModule.Services
             //m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
 
             //m_groupID = groupID;
-            //m_platform = platform;
+            //m_platform = platform;            
         }
 
         public ApiUsersService()
@@ -87,7 +87,7 @@ namespace TVPApiModule.Services
             LogInResponseData loginData = new LogInResponseData();
 
             loginData = Execute(() =>
-                {
+                {                    
                     sDeviceID = string.Empty;
                     sUserName = HttpUtility.UrlDecode(sUserName);
                     TVPApiModule.Objects.Responses.UserResponseObject response = Users.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
@@ -102,6 +102,7 @@ namespace TVPApiModule.Services
                     else if (response != null)
                     {
                         loginData.LoginStatus = response.resp_status;
+                        loginData.SiteGuid = string.Empty;
                     }
 
                     return loginData;
