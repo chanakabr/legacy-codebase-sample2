@@ -512,6 +512,7 @@ namespace DAL
                     defaultConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "CONCURRENT_MAX_LIMIT");
                     defaultGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
                     defaultDeviceFreqLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "freq_period_id");
+                    npvrQuotaInMins = ODBCWrapper.Utils.GetIntSafeVal(dr, "npvr_quota_in_seconds");
                 }
             }
 

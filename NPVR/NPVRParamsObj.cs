@@ -10,6 +10,7 @@ namespace NPVR
     {
         protected string assetID;
         protected string entityID;
+        protected string accountID;
         protected long quota;
         protected DateTime startDate;
         protected string epgChannelID;
@@ -38,6 +39,18 @@ namespace NPVR
             set
             {
                 this.entityID = value;
+            }
+        }
+
+        public virtual string AccountID
+        {
+            get
+            {
+                return accountID;
+            }
+            set
+            {
+                this.accountID = value;
             }
         }
 

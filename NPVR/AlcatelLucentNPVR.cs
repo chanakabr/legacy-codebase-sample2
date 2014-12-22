@@ -45,6 +45,7 @@ namespace NPVR
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
         private static readonly string ALU_SCHEMA_URL_PARAM = "schema";
         private static readonly string ALU_USER_ID_URL_PARAM = "userId";
+        private static readonly string ALU_ACCOUNT_ID_URL_PARAM = "accountId";
         private static readonly string ALU_PROGRAM_ID_URL_PARAM = "programId";
         private static readonly string ALU_CHANNEL_ID_URL_PARAM = "channelId";
         private static readonly string ALU_START_TIME_URL_PARAM = "startTime";
@@ -131,7 +132,8 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));                   
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ACCOUNT_ID_URL_PARAM, args.AccountID));
 
                     string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;
