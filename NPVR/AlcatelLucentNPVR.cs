@@ -132,8 +132,9 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));                   
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_ACCOUNT_ID_URL_PARAM, args.AccountID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    string sAccountID = TVinciShared.WS_Utils.GetTcmGenericValue<string>(string.Format("ALU_ACCOUNT_ID_{0}", groupID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ACCOUNT_ID_URL_PARAM, sAccountID));
 
                     string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
                     int httpStatusCode = 0;

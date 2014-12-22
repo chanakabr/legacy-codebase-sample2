@@ -210,8 +210,8 @@ namespace Users
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                 if (npvr != null)
                 {
-                    string sAccountID = TVinciShared.WS_Utils.GetTcmGenericValue<string>(string.Format("ACCOUNT_ID_{0}", m_nGroupID));
-                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs, AccountID = sAccountID });
+                   
+                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs});
                     if (resp != null)
                     {
                         if (resp.isOK)
