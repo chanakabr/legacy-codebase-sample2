@@ -3275,8 +3275,6 @@ namespace Catalog
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
-            string wsUsername = string.Empty;
-            string wsPassword = string.Empty;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
             string url = Utils.GetWSURL("users_ws");
             bool res = false;
@@ -3284,7 +3282,7 @@ namespace Catalog
             {
                 if (url.Length > 0)
                     u.Url = url;
-                ws_users.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
+                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid);
                 if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;

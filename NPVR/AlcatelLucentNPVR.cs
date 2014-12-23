@@ -860,7 +860,7 @@ namespace NPVR
                     } //foreach
 
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_FIELD_URL_PARAM, args.OrderBy.ToString()));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_DIRECTION_URL_PARAM, args.Direction.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_DIRECTION_URL_PARAM, args.Direction.ToString().ToLower()));
 
                     string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
@@ -940,9 +940,9 @@ namespace NPVR
         {
             long unixTime = 0;
             if (!string.IsNullOrEmpty(entry.EndTime) && Int64.TryParse(entry.EndTime, out unixTime))
-                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
             if (entry.Duration > 0 && !string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
-                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).AddSeconds(entry.Duration).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).AddSeconds(entry.Duration).ToString(DATE_FORMAT);
             return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
@@ -950,7 +950,7 @@ namespace NPVR
         {
             long unixTime = 0;
             if (!string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
-                return TVinciShared.DateUtils.UnixTimeStampToDateTime(unixTime).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
             return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
