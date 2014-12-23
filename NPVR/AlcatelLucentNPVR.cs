@@ -96,7 +96,7 @@ namespace NPVR
                 response.entityID = aluResp.UserID;
                 response.quota = args.Quota;
             }
-            catch (JsonException jsonEx)
+            catch (Exception jsonEx)
             {
                 // failed to parse it as a json returned upon success. try to parse it as a json returned upon failure.
                 try
@@ -114,11 +114,7 @@ namespace NPVR
                     throw;
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Outer catch block. Resp JSON: {0} ", responseJson), args, ex), GetLogFilename());
-                throw;
-            }
+
         }
 
         public NPVRUserActionResponse CreateAccount(NPVRParamsObj args)
@@ -346,7 +342,7 @@ namespace NPVR
                 response.totalQuota = success.TotalQuota;
                 response.usedQuota = success.OccupiedQuota;
             }
-            catch (JsonException jsonEx)
+            catch (Exception jsonEx)
             {
                 try
                 {
@@ -361,11 +357,6 @@ namespace NPVR
                     Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Outer catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
@@ -383,7 +374,7 @@ namespace NPVR
                 if (IsRecordAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
@@ -442,7 +433,7 @@ namespace NPVR
                 response.recordingID = success.RecordingID;
                 response.msg = string.Empty;
             }
-            catch (JsonException jsonEx)
+            catch (Exception jsonEx)
             {
                 try
                 {
@@ -471,11 +462,6 @@ namespace NPVR
                     Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRecordAssetResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRecordAssetResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
@@ -978,11 +964,8 @@ namespace NPVR
                 response.msg = string.Empty;
                 response.totalItems = success.EntriesLength;
                 response.results = ParseALUReadResponse(success);
-
-
-
             }
-            catch (JsonException jsonEx)
+            catch (Exception jsonEx)
             {
                 try
                 {
@@ -1001,11 +984,6 @@ namespace NPVR
                     Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse. Outer catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
@@ -1079,6 +1057,7 @@ namespace NPVR
 
         private void GetRecordSeriesResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
         {
+
             try
             {
                 RecordSeriesResponseJSON success = JsonConvert.DeserializeObject<RecordSeriesResponseJSON>(responseJson);
@@ -1087,7 +1066,7 @@ namespace NPVR
                 response.status = RecordStatus.OK;
                 response.recordingID = success.RecordingID;
             }
-            catch (JsonException jsonEx)
+            catch (Exception fex)
             {
                 try
                 {
@@ -1112,11 +1091,6 @@ namespace NPVR
                     Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Outer catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
@@ -1294,13 +1268,14 @@ namespace NPVR
 
         private void GetGetNPVRLicensedLinkResponse(string responseJson, NPVRParamsObj args, NPVRLicensedLinkResponse response)
         {
+
             try
             {
                 GetLocatorResponseJSON success = JsonConvert.DeserializeObject<GetLocatorResponseJSON>(responseJson);
                 response.isOK = true;
                 response.licensedLink = success.Locator;
             }
-            catch (JsonException jsonEx)
+            catch (Exception fex)
             {
                 try
                 {
@@ -1322,11 +1297,6 @@ namespace NPVR
                     Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
@@ -1353,6 +1323,7 @@ namespace NPVR
 
         private void GetRetrieveSeriesResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveSeriesResponse response)
         {
+
             try
             {
                 ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
@@ -1362,7 +1333,7 @@ namespace NPVR
                 response.totalItems = response.results.Count;
 
             }
-            catch (JsonException jsonEx)
+            catch (Exception jsonEx)
             {
                 try
                 {
@@ -1385,11 +1356,6 @@ namespace NPVR
                     Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
                     throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Outer catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                throw;
             }
         }
 
