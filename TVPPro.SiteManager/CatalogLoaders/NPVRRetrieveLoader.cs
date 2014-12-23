@@ -28,7 +28,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
                 : base(groupID, userIP, pageSize, pageIndex)
             {
-                NPVRSearchBy = NPVRSearchBy;
+                NPVRSearchBy = searchBy;
                 EPGChannelID = epgChannelID;
                 RecordingStatuses = recordingStatuses;
                 RecordingIDs = recordingIDs;
