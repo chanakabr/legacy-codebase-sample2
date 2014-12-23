@@ -1378,7 +1378,7 @@ namespace TVPApiServices
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");                
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bRet;
@@ -1693,7 +1693,7 @@ namespace TVPApiServices
             return response;
         }
 
-        
+
         [WebMethod(EnableSession = true, Description = "Perform a user dummy purchase for subscription")]
         public string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
         {
@@ -2342,7 +2342,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get EPG Programs by id")]
         public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> GetEPGProgramsByIds(InitializationObject initObj,
-            TVPApiModule.Objects.Enums.ProgramIdType programIdType, 
+            TVPApiModule.Objects.Enums.ProgramIdType programIdType,
             List<string> programIds,
             int pageSize,
             int pageIndex)
@@ -2354,10 +2354,10 @@ namespace TVPApiServices
             if (groupId > 0)
             {
                 try
-                {                    
+                {
                     switch (programIdType)
                     {
-                        case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:                            
+                        case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
                             foreach (var obj in (new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<BaseObject>))
                             {
                                 ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
@@ -2370,9 +2370,9 @@ namespace TVPApiServices
                                 ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
                             }
                             break;
-                        default:                            
+                        default:
                             break;
-                    }                                                         
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -2397,11 +2397,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    
+
                     List<int> channelIDs = new List<int>() { int.Parse(channelID) };
 
                     APIEPGLoader loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, fromDate, toDate, 0, 0, initObj.Locale.LocaleLanguage);
-                    
+
                     loader.DeviceId = initObj.UDID;
                     loader.SiteGuid = initObj.SiteGuid;
 
@@ -2943,7 +2943,7 @@ namespace TVPApiServices
         public List<BaseCrowdsourceItem> GetCrowdsourceFeed(InitializationObject initObj, int pageSize, long epochLastTime)
         {
             List<BaseCrowdsourceItem> retVal = null;
-            string ip =SiteHelper.GetClientIP();
+            string ip = SiteHelper.GetClientIP();
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCrowdsourceFeed", initObj.ApiUser, initObj.ApiPass, ip);
 
             if (groupId > 0)
@@ -3032,7 +3032,7 @@ namespace TVPApiServices
                         BundleType = bundleType,
                         MediaID = mediaId,
                         GroupID = groupID,
-                        MediaType = mediaType,                      
+                        MediaType = mediaType,
                     };
 
                     isMediaInBundle = (bool)loader.Execute();
@@ -3054,7 +3054,7 @@ namespace TVPApiServices
         public BuzzWeightedAverScore GetBuzzMeterData(InitializationObject initObj, string sKey)
         {
             BuzzWeightedAverScore buzzMeterData = null;
-            
+
             string clientIp = SiteHelper.GetClientIP();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBuzzMeterData", initObj.ApiUser, initObj.ApiPass, clientIp);
@@ -3118,9 +3118,21 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings for User")]
         public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+            NPVRSearchBy searchBy, int epgChannelID, List<string> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
         {
-            List<RecordedEPGChannelProgrammeObject> res = null;
+            List<RecordedEPGChannelProgrammeObject> res = null;//
+            List<RecordingStatus> recordingStatusesList = new List<RecordingStatus>();
+
+            // convert recordingStatuses strings to a list of enums 
+            try
+            {
+                recordingStatusesList = recordingStatuses.Select(x => (RecordingStatus)Enum.Parse(typeof(RecordingStatus), x)).ToList();
+            }
+            catch (Exception)
+            {
+                HttpContext.Current.Items.Add("Error", "Illegal recordingStatuses parameter");
+                return res;
+            }
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3133,7 +3145,7 @@ namespace TVPApiServices
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
-                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatuses, recordingIDs, programIDs, startDate, catalogOrderObj)
+                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatusesList, recordingIDs, programIDs, startDate, catalogOrderObj)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;
@@ -3162,7 +3174,7 @@ namespace TVPApiServices
                 {
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
                     {
-                        
+
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
