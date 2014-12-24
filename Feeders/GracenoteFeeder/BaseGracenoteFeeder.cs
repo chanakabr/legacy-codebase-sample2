@@ -297,6 +297,15 @@ namespace GracenoteFeeder
         {
             try
             {
+                string sDefaultValue = TVinciShared.WS_Utils.GetTcmGenericValue<string>("GN_Default_Value");
+                string sDefaultFileds = TVinciShared.WS_Utils.GetTcmConfigValue("GN_Default_Fileds");
+                List<string> lDefaultFileds = new List<string>();
+                if (!string.IsNullOrEmpty(sDefaultValue))
+                {
+                    lDefaultFileds = sDefaultFileds.Split(';').ToList();
+                }
+
+                
                 for (int i = 0; i < FieldEntityMapping.Count; i++)
                 {
                     if (FieldEntityMapping[i].FieldType == enums.FieldTypes.Meta)
@@ -310,6 +319,10 @@ namespace GracenoteFeeder
                                 {
                                     FieldEntityMapping[i].Value.Add(multinode.InnerXml);
                                 }
+                            }
+                            if (lDefaultFileds.Contains(XmlRefName))
+                            {
+                                FieldEntityMapping[i].Value.Add(sDefaultValue);
                             }
                         }
                     }
