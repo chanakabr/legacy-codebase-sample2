@@ -553,6 +553,22 @@ namespace NPVR
                             initializedResp.status = CancelDeleteStatus.AssetAlreadyRecorded;
                             initializedResp.msg = "Asset already recorded.";
                             break;
+                        case 401:
+                            initializedResp.status = CancelDeleteStatus.UnauthorizedOperation;
+                            initializedResp.msg = "This operation is forbidden due to lack of privileges.";
+                            break;
+                        case 408:
+                            initializedResp.status = CancelDeleteStatus.CommunicationsError;
+                            initializedResp.msg = "communication problems.";
+                            break;
+                        case 500:
+                            initializedResp.status = CancelDeleteStatus.InternalServerError;
+                            initializedResp.msg = "Internal server error.";
+                            break;
+                        case 501:
+                            initializedResp.status = CancelDeleteStatus.NotImplemented;
+                            initializedResp.msg = "Parameter value not supported by the method.";
+                            break;
                         default:
                             initializedResp.status = CancelDeleteStatus.Error;
                             initializedResp.msg = error.Description;
