@@ -1288,6 +1288,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     if (!string.IsNullOrEmpty(args.StreamType) && !string.IsNullOrEmpty(args.HASFormat))
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_STREAM_TYPE_URL_PARAM, args.StreamType));
