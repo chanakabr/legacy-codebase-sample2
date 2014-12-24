@@ -480,7 +480,8 @@ namespace ConditionalAccess
                     {
                         res = prog.m_oProgram.EPG_IDENTIFIER;
                         epgChannelID = prog.m_oProgram.EPG_CHANNEL_ID;
-                        if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "yyyyMMddHHmmss", new CultureInfo("de-DE"), DateTimeStyles.None, out startDate))
+                    
+                        if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", new CultureInfo("he-IL"), DateTimeStyles.None, out startDate))    
                         {
                             // failed to parse date.
                             startDate = UNIX_ZERO_TIME;
