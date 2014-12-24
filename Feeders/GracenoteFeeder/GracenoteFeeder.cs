@@ -344,8 +344,8 @@ namespace GracenoteFeeder
             args.Add(GroupID);
             args.Add(sUrlALUCheck);
             args.Add(sUrlALUSend);
-            args.Add(sChannelExternalID);//this is the "Channel_ID column in epg_channels table
             args.Add(compressedXML);
+            //args.Add(sChannelExternalID);//this is the "Channel_ID column in epg_channels table
 
             BaseCeleryData data = new BaseCeleryData(id, task, args);
             data.GroupId = this.GroupID;
