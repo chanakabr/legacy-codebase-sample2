@@ -196,6 +196,8 @@ namespace ConditionalAccess
         InvalidUser = 4,
         InvalidAssetID = 5,
         AssetAlreadyScheduled = 6,
-        AssetAlreadyCanceled = 7
-    }
+        AssetAlreadyCanceled = 7,
+AssetDoesNotExist = 8,
+        AssetAlreadyRecorded = 9
+   }
 }

@@ -43,7 +43,11 @@ namespace NPVR
         AlreadyCanceled = 1,
         Error = 2,
         AssetDoesNotExist = 3,
-        AssetAlreadyRecorded = 4
+        AssetAlreadyRecorded = 4,
+        UnauthorizedOperation = 5,
+        CommunicationsError = 6,
+        InternalServerError = 7,
+        NotImplemented = 8
     }
 
     public enum SearchByField : ulong

@@ -197,9 +197,15 @@ namespace ConditionalAccess
                                         case CancelDeleteStatus.AlreadyCanceled:
                                             res.status = NPVRStatus.AssetAlreadyCanceled.ToString();
                                             break;
+                                        case CancelDeleteStatus.AssetDoesNotExist:
+                                            res.status = NPVRStatus.AssetDoesNotExist.ToString();
+                                            break;
                                         case CancelDeleteStatus.Error:
                                             res.status = NPVRStatus.Error.ToString();
-                                            break;
+                                            break;                                        
+                                        case CancelDeleteStatus.AssetAlreadyRecorded:
+                                            res.status = NPVRStatus.AssetAlreadyRecorded.ToString();
+                                            break;                                    
                                         default:
                                             Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
                                             res.status = NPVRStatus.Unknown.ToString();

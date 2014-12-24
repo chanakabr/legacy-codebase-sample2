@@ -492,6 +492,7 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+                    
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
                     string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
@@ -562,6 +563,22 @@ namespace NPVR
                         case 409:
                             initializedResp.status = CancelDeleteStatus.AssetAlreadyRecorded;
                             initializedResp.msg = "Asset already recorded.";
+                            break;
+                        case 401:
+                            initializedResp.status = CancelDeleteStatus.UnauthorizedOperation;
+                            initializedResp.msg = "This operation is forbidden due to lack of privileges.";
+                            break;
+                        case 408:
+                            initializedResp.status = CancelDeleteStatus.CommunicationsError;
+                            initializedResp.msg = "communication problems.";
+                            break;
+                        case 500:
+                            initializedResp.status = CancelDeleteStatus.InternalServerError;
+                            initializedResp.msg = "Internal server error.";
+                            break;
+                        case 501:
+                            initializedResp.status = CancelDeleteStatus.NotImplemented;
+                            initializedResp.msg = "Parameter value not supported by the method.";
                             break;
                         default:
                             initializedResp.status = CancelDeleteStatus.Error;
