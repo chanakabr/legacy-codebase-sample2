@@ -424,8 +424,6 @@ namespace NPVR
 
         private void GetRecordAssetResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
         {
-            
-                // try to parse it as a json returned upon success
             RecordAssetResponseJSON success = JsonConvert.DeserializeObject<RecordAssetResponseJSON>(responseJson);
             if (success != null && !string.IsNullOrEmpty(success.RecordingID))
             {
@@ -448,8 +446,8 @@ namespace NPVR
                             response.msg = "Asset does not exist.";
                             break;
                         case 409:
-                            response.status = RecordStatus.AlreadyRecorded;
-                            response.msg = "Asset is already scheduled or recorded.";
+                            response.status = RecordStatus.InvalidStatus;
+                            response.msg = "The status of a resource does not allow to perform the operation.";
                             break;
                         case 400:
                             response.status = RecordStatus.BadRequest;
@@ -464,8 +462,20 @@ namespace NPVR
                             response.msg = "Request has not been completed in time due to communication problems.";
                             break;
                         case 500:
-                            response.status = RecordStatus.CommunicationsError;
+                            response.status = RecordStatus.InternalServerError;
                             response.msg = "Request has not been completed in time due to communication problems.";
+                            break;
+                        case 501:
+                            response.status = RecordStatus.NotImplemented;
+                            response.msg = "Parameter value not supported by the method.";
+                            break;
+                        case 210:
+                            response.status = RecordStatus.ResourceAlreadyExists;
+                            response.msg = "Trying to create a resource that does already exist.";
+                            break;
+                        case 420:
+                            response.status = RecordStatus.QuotaExceeded;
+                            response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
                             break;
                         default:
                             response.status = RecordStatus.Error;
@@ -1105,12 +1115,43 @@ namespace NPVR
                     {
                         case 404:
                             response.status = RecordStatus.AssetDoesNotExist;
+                            response.msg = "Asset does not exist.";
                             break;
                         case 409:
-                            response.status = RecordStatus.AlreadyRecorded;
+                            response.status = RecordStatus.InvalidStatus;
+                            response.msg = "The status of a resource does not allow to perform the operation.";
+                            break;
+                        case 400:
+                            response.status = RecordStatus.BadRequest;
+                            response.msg = "Generic problem with arguments syntax.";
+                            break;
+                        case 401:
+                            response.status = RecordStatus.UnauthorizedOperation;
+                            response.msg = "Operation is forbidden due to lack of privileges.";
+                            break;
+                        case 408:
+                            response.status = RecordStatus.CommunicationsError;
+                            response.msg = "Request has not been completed in time due to communication problems.";
+                            break;
+                        case 500:
+                            response.status = RecordStatus.InternalServerError;
+                            response.msg = "Request has not been completed in time due to communication problems.";
+                            break;
+                        case 501:
+                            response.status = RecordStatus.NotImplemented;
+                            response.msg = "Parameter value not supported by the method.";
+                            break;
+                        case 210:
+                            response.status = RecordStatus.ResourceAlreadyExists;
+                            response.msg = "Trying to create a resource that does already exist.";
+                            break;
+                        case 420:
+                            response.status = RecordStatus.QuotaExceeded;
+                            response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
                             break;
                         default:
                             response.status = RecordStatus.Error;
+                            response.msg = "Unknown error";
                             break;
                     }
                 }

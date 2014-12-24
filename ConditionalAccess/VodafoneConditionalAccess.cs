@@ -113,12 +113,16 @@ namespace ConditionalAccess
                                         res.status = NPVRStatus.OK.ToString();
                                         res.recordingID = response.recordingID;
                                         break;
-                                    case RecordStatus.AlreadyRecorded:
+                                    case RecordStatus.ResourceAlreadyExists:
                                         res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
                                         res.recordingID = string.Empty;
                                         break;
                                     case RecordStatus.Error:
                                         res.status = NPVRStatus.Error.ToString();
+                                        res.recordingID = string.Empty;
+                                        break;
+                                    case RecordStatus.QuotaExceeded:
+                                        res.status = NPVRStatus.QuotaExceeded.ToString();
                                         res.recordingID = string.Empty;
                                         break;
                                     default:

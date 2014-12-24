@@ -28,13 +28,16 @@ namespace NPVR
     public enum RecordStatus
     {
         OK = 0,
-        AlreadyRecorded = 1,
-        Error = 2,
-        AssetDoesNotExist = 3,
-        BadRequest = 4,
-        UnauthorizedOperation = 5,
-        CommunicationsError = 6,
-
+        ResourceAlreadyExists = 1,
+        QuotaExceeded = 2,
+        Error = 3,
+        AssetDoesNotExist = 4,
+        BadRequest = 5,
+        UnauthorizedOperation = 6,
+        CommunicationsError = 7,
+        InvalidStatus = 8,
+        InternalServerError = 9,
+        NotImplemented = 10
     }
 
     public enum CancelDeleteStatus
