@@ -424,20 +424,21 @@ namespace NPVR
 
         private void GetRecordAssetResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
         {
-            try
-            {
+            
                 // try to parse it as a json returned upon success
-                RecordAssetResponseJSON success = JsonConvert.DeserializeObject<RecordAssetResponseJSON>(responseJson);
+            RecordAssetResponseJSON success = JsonConvert.DeserializeObject<RecordAssetResponseJSON>(responseJson);
+            if (success != null && !string.IsNullOrEmpty(success.RecordingID))
+            {
                 response.entityID = args.EntityID;
                 response.status = RecordStatus.OK;
                 response.recordingID = success.RecordingID;
                 response.msg = string.Empty;
             }
-            catch (Exception jsonEx)
+            else
             {
-                try
+                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                if (error != null)
                 {
-                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.entityID = args.EntityID;
                     response.recordingID = string.Empty;
                     switch (error.ResultCode)
@@ -450,17 +451,27 @@ namespace NPVR
                             response.status = RecordStatus.AlreadyRecorded;
                             response.msg = "Asset is already scheduled or recorded.";
                             break;
+                        case 400:
+                            response.status = RecordStatus.BadRequest;
+                            response.msg = "Generic problem with arguments syntax.";
+                            break;
+                        case 401:
+                            response.status = RecordStatus.UnauthorizedOperation;
+                            response.msg = "Operation is forbidden due to lack of privileges.";
+                            break;
+                        case 408:
+                            response.status = RecordStatus.CommunicationsError;
+                            response.msg = "Request has not been completed in time due to communication problems.";
+                            break;
+                        case 500:
+                            response.status = RecordStatus.CommunicationsError;
+                            response.msg = "Request has not been completed in time due to communication problems.";
+                            break;
                         default:
                             response.status = RecordStatus.Error;
                             response.msg = "Unknown error";
                             break;
                     }
-
-                }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRecordAssetResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                    throw;
                 }
             }
         }

@@ -30,7 +30,11 @@ namespace NPVR
         OK = 0,
         AlreadyRecorded = 1,
         Error = 2,
-        AssetDoesNotExist = 3
+        AssetDoesNotExist = 3,
+        BadRequest = 4,
+        UnauthorizedOperation = 5,
+        CommunicationsError = 6,
+
     }
 
     public enum CancelDeleteStatus
