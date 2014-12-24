@@ -578,6 +578,11 @@ namespace ConditionalAccess
             }
             using (TvinciDomains.module domains = new TvinciDomains.module())
             {
+                string domainURL = Utils.GetWSURL("domains_ws");
+                if (!string.IsNullOrEmpty(domainURL))
+                {
+                    domains.Url = domainURL;
+                }
                 resp = domains.GetDeviceInfo(wsUsername, wsPassword, udid, true);
                 if (resp != null && resp.m_oDeviceResponseStatus == TvinciDomains.DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == TvinciDomains.DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
                 {
