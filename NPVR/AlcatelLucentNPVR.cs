@@ -92,29 +92,25 @@ namespace NPVR
             {
                 // first, try to parse it as a json returned upon success
                 CreateAccountResponseJSON aluResp = JsonConvert.DeserializeObject<CreateAccountResponseJSON>(responseJson);
-                response.isOK = true;
-                response.entityID = aluResp.UserID;
-                response.quota = args.Quota;
-            }
-            catch (Exception jsonEx)
-            {
-                // failed to parse it as a json returned upon success. try to parse it as a json returned upon failure.
-                try
+                if (aluResp != null && !string.IsNullOrEmpty(aluResp.UserID))
+                {
+                    response.isOK = true;
+                    response.entityID = aluResp.UserID;
+                    response.quota = args.Quota;
+                }
+                else
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.isOK = false;
                     response.msg = error.Description;
-
                     Logger.Logger.Log("Error", GetLogMsg(string.Format("Failed to create account. {0}", error != null ? error.ToString() : "generic failure response is null"), args, null), GetLogFilename());
-
-                }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                    throw;
                 }
             }
-
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
+            }
         }
 
         public NPVRUserActionResponse CreateAccount(NPVRParamsObj args)
@@ -146,7 +142,6 @@ namespace NPVR
                         {
                             throw new Exception(string.Format("CreateAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
                         }
-
                     }
                     else
                     {
@@ -157,7 +152,6 @@ namespace NPVR
                         res.quota = 0;
                         res.entityID = string.Empty;
                     }
-
                 }
                 else
                 {
@@ -337,14 +331,14 @@ namespace NPVR
             {
                 // first try to parse it as a json returned upon success
                 QuotaResponseJSON success = JsonConvert.DeserializeObject<QuotaResponseJSON>(responseJson);
-                response.isOK = true;
-                response.entityID = args.EntityID;
-                response.totalQuota = success.TotalQuota;
-                response.usedQuota = success.OccupiedQuota;
-            }
-            catch (Exception jsonEx)
-            {
-                try
+                if (success != null && success.TotalQuota == 0 && success.OccupiedQuota == 0)
+                {
+                    response.isOK = true;
+                    response.entityID = args.EntityID;
+                    response.totalQuota = success.TotalQuota;
+                    response.usedQuota = success.OccupiedQuota;
+                }
+                else
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.isOK = false;
@@ -352,11 +346,16 @@ namespace NPVR
                     response.totalQuota = 0;
                     response.usedQuota = 0;
                 }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
-                    throw;
-                }
+            }
+            catch (Exception ex)
+            {
+                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                response.isOK = false;
+                response.entityID = args.EntityID;
+                response.totalQuota = 0;
+                response.usedQuota = 0;
+                Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
             }
         }
 
@@ -434,41 +433,13 @@ namespace NPVR
             }
             else
             {
-                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);               
                 if (error != null)
                 {
                     response.entityID = args.EntityID;
                     response.recordingID = string.Empty;
                     switch (error.ResultCode)
-                    {
-                        case 404:
-                            response.status = RecordStatus.AssetDoesNotExist;
-                            response.msg = "Asset does not exist.";
-                            break;
-                        case 409:
-                            response.status = RecordStatus.InvalidStatus;
-                            response.msg = "The status of a resource does not allow to perform the operation.";
-                            break;
-                        case 400:
-                            response.status = RecordStatus.BadRequest;
-                            response.msg = "Generic problem with arguments syntax.";
-                            break;
-                        case 401:
-                            response.status = RecordStatus.UnauthorizedOperation;
-                            response.msg = "Operation is forbidden due to lack of privileges.";
-                            break;
-                        case 408:
-                            response.status = RecordStatus.CommunicationsError;
-                            response.msg = "Request has not been completed in time due to communication problems.";
-                            break;
-                        case 500:
-                            response.status = RecordStatus.InternalServerError;
-                            response.msg = "Request has not been completed in time due to communication problems.";
-                            break;
-                        case 501:
-                            response.status = RecordStatus.NotImplemented;
-                            response.msg = "Parameter value not supported by the method.";
-                            break;
+                    {  
                         case 210:
                             response.status = RecordStatus.ResourceAlreadyExists;
                             response.msg = "Trying to create a resource that does already exist.";
@@ -478,8 +449,7 @@ namespace NPVR
                             response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
                             break;
                         default:
-                            response.status = RecordStatus.Error;
-                            response.msg = "Unknown error";
+                            GetGenericFailureResponse(response, error);
                             break;
                     }
                 }
@@ -563,7 +533,7 @@ namespace NPVR
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     initializedResp.recordingID = args.AssetID;
-                    initializedResp.entityID = args.EntityID;
+                    initializedResp.entityID = args.EntityID;               
                     switch (error.ResultCode)
                     {
                         case 404:
@@ -837,7 +807,6 @@ namespace NPVR
             return false;
         }
 
-
         public NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args)
         {
             NPVRRetrieveAssetsResponse res = new NPVRRetrieveAssetsResponse();
@@ -859,7 +828,6 @@ namespace NPVR
                     else
                     {
                         // bring all. just for readability. no code is supposed to be here.
-
                     }
 
                     IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
@@ -997,31 +965,39 @@ namespace NPVR
             try
             {
                 ReadResponseJSON success = JsonConvert.DeserializeObject<ReadResponseJSON>(responseJson);
-                response.entityID = args.EntityID;
-                response.isOK = true;
-                response.msg = string.Empty;
-                response.totalItems = success.EntriesLength;
-                response.results = ParseALUReadResponse(success);
-            }
-            catch (Exception jsonEx)
-            {
-                try
+                if (success != null && success.entries!= null && success.entries.Count > 0 )
                 {
-                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
-                    response.isOK = false;
                     response.entityID = args.EntityID;
-                    response.msg = error.Description;
-                    response.totalItems = 0;
-                    response.results = new List<RecordedEPGChannelProgrammeObject>(0);
-
-                    Logger.Logger.Log("Error", GetLogMsg(string.Format("An error occurred while trying to retrieve assets from ALU. Resp JSON: {0}", responseJson), args, null), GetLogFilename());
-
+                    response.isOK = true;
+                    response.msg = string.Empty;
+                    response.totalItems = success.EntriesLength;
+                    response.results = ParseALUReadResponse(success);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
-                    throw;
+                    try
+                    {
+                        GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                        response.isOK = false;
+                        response.entityID = args.EntityID;
+                        response.msg = error.Description;
+                        response.totalItems = 0;
+                        response.results = new List<RecordedEPGChannelProgrammeObject>(0);
+
+                        Logger.Logger.Log("Error", GetLogMsg(string.Format("An error occurred while trying to retrieve assets from ALU. Resp JSON: {0}", responseJson), args, null), GetLogFilename());
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                        throw;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                throw;
             }
         }
 
@@ -1036,7 +1012,6 @@ namespace NPVR
 
             return sb.ToString();
         }
-
 
         public NPVRRecordResponse RecordSeries(NPVRParamsObj args)
         {
@@ -1095,52 +1070,23 @@ namespace NPVR
 
         private void GetRecordSeriesResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
         {
-
             try
             {
                 RecordSeriesResponseJSON success = JsonConvert.DeserializeObject<RecordSeriesResponseJSON>(responseJson);
-                response.entityID = args.EntityID;
-                response.msg = string.Empty;
-                response.status = RecordStatus.OK;
-                response.recordingID = success.RecordingID;
-            }
-            catch (Exception fex)
-            {
-                try
+                if (success != null && !string.IsNullOrEmpty(success.RecordingID))
+                {
+                    response.entityID = args.EntityID;
+                    response.msg = string.Empty;
+                    response.status = RecordStatus.OK;
+                    response.recordingID = success.RecordingID;
+                }
+                else
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.recordingID = string.Empty;
                     response.msg = error.Description;
                     switch (error.ResultCode)
                     {
-                        case 404:
-                            response.status = RecordStatus.AssetDoesNotExist;
-                            response.msg = "Asset does not exist.";
-                            break;
-                        case 409:
-                            response.status = RecordStatus.InvalidStatus;
-                            response.msg = "The status of a resource does not allow to perform the operation.";
-                            break;
-                        case 400:
-                            response.status = RecordStatus.BadRequest;
-                            response.msg = "Generic problem with arguments syntax.";
-                            break;
-                        case 401:
-                            response.status = RecordStatus.UnauthorizedOperation;
-                            response.msg = "Operation is forbidden due to lack of privileges.";
-                            break;
-                        case 408:
-                            response.status = RecordStatus.CommunicationsError;
-                            response.msg = "Request has not been completed in time due to communication problems.";
-                            break;
-                        case 500:
-                            response.status = RecordStatus.InternalServerError;
-                            response.msg = "Request has not been completed in time due to communication problems.";
-                            break;
-                        case 501:
-                            response.status = RecordStatus.NotImplemented;
-                            response.msg = "Parameter value not supported by the method.";
-                            break;
                         case 210:
                             response.status = RecordStatus.ResourceAlreadyExists;
                             response.msg = "Trying to create a resource that does already exist.";
@@ -1150,21 +1096,57 @@ namespace NPVR
                             response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
                             break;
                         default:
-                            response.status = RecordStatus.Error;
-                            response.msg = "Unknown error";
+                            GetGenericFailureResponse(response, error);
                             break;
                     }
                 }
-                catch (Exception ex)
-                {
+            }
+            catch (Exception ex)
+            {               
                     Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
-                    throw;
-                }
+                    throw;                
             }
         }
 
-
-
+        private void GetGenericFailureResponse(NPVRRecordResponse response, GenericFailureResponseJSON error)
+        {
+            switch (error.ResultCode)
+            {
+                case 404:
+                    response.status = RecordStatus.AssetDoesNotExist;
+                    response.msg = "Asset does not exist.";
+                    break;
+                case 409:
+                    response.status = RecordStatus.InvalidStatus;
+                    response.msg = "The status of a resource does not allow to perform the operation.";
+                    break;
+                case 400:
+                    response.status = RecordStatus.BadRequest;
+                    response.msg = "Generic problem with arguments syntax.";
+                    break;
+                case 401:
+                    response.status = RecordStatus.UnauthorizedOperation;
+                    response.msg = "Operation is forbidden due to lack of privileges.";
+                    break;
+                case 408:
+                    response.status = RecordStatus.CommunicationsError;
+                    response.msg = "Request has not been completed in time due to communication problems.";
+                    break;
+                case 500:
+                    response.status = RecordStatus.InternalServerError;
+                    response.msg = "Request has not been completed in time due to communication problems.";
+                    break;
+                case 501:
+                    response.status = RecordStatus.NotImplemented;
+                    response.msg = "Parameter value not supported by the method.";
+                    break;
+                default:
+                    response.status = RecordStatus.Error;
+                    response.msg = "Unknown error";
+                    break;
+            }
+        }
+        
         public NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
@@ -1338,16 +1320,15 @@ namespace NPVR
 
         private void GetGetNPVRLicensedLinkResponse(string responseJson, NPVRParamsObj args, NPVRLicensedLinkResponse response)
         {
-
             try
             {
                 GetLocatorResponseJSON success = JsonConvert.DeserializeObject<GetLocatorResponseJSON>(responseJson);
-                response.isOK = true;
-                response.licensedLink = success.Locator;
-            }
-            catch (Exception fex)
-            {
-                try
+                if (success != null && !string.IsNullOrEmpty(success.Locator))
+                {
+                    response.isOK = true;
+                    response.licensedLink = success.Locator;
+                }
+                else
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.isOK = false;
@@ -1362,14 +1343,14 @@ namespace NPVR
                             break;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
-                    throw;
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                throw;
             }
         }
-
+        
         private bool IsRetrieveSeriesInputValid(NPVRRetrieveParamsObj args)
         {
             return args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0);
@@ -1393,7 +1374,6 @@ namespace NPVR
 
         private void GetRetrieveSeriesResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveSeriesResponse response)
         {
-
             try
             {
                 ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
@@ -1401,7 +1381,6 @@ namespace NPVR
                 response.msg = string.Empty;
                 response.results = ExtractRecordedSeries(success);
                 response.totalItems = response.results.Count;
-
             }
             catch (Exception jsonEx)
             {
@@ -1483,97 +1462,5 @@ namespace NPVR
             return res;
         }
 
-        //public NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args)
-        //{
-        //    NPVRRetrieveAssetsResponse res = new NPVRRetrieveAssetsResponse();
-        //    try
-        //    {
-        //        ulong uniqueSearchBy = 0;
-        //        if (IsRetrieveAssetsInputValid(args, ref uniqueSearchBy))
-        //        {
-
-        //            List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
-        //            urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
-        //            urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
-        //            urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
-        //            if (args.PageSize > 0)
-        //            {
-        //                urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
-        //                urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
-        //            }
-        //            else
-        //            {
-        //                // bring all. just for readability. no code is supposed to be here.
-
-        //            }
-
-        //            IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
-        //            foreach (SearchByField sbf in searchByFields)
-        //            {
-        //                switch (sbf)
-        //                {
-        //                    case SearchByField.byAssetId:
-        //                        if (args.AssetIDs.Count > 0)
-        //                        {
-        //                            urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.AssetIDs, false)));
-        //                        }
-        //                        else
-        //                        {
-        //                            urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
-        //                        }
-        //                        break;
-        //                    case SearchByField.byChannelId:
-        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
-        //                        break;
-        //                    case SearchByField.byProgramId:
-        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
-        //                        break;
-        //                    case SearchByField.byStartTime:
-        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestamp(args.StartDate).ToString()));
-        //                        break;
-        //                    case SearchByField.byStatus:
-        //                        urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
-        //                        break;
-        //                    default:
-        //                        break;
-        //                }
-        //            } //foreach
-
-        //            string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
-
-        //            int httpStatusCode = 0;
-        //            string responseJson = string.Empty;
-        //            string errorMsg = string.Empty;
-
-        //            if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
-        //            {
-        //                if (httpStatusCode == HTTP_STATUS_OK)
-        //                {
-        //                    GetRetrieveAssetsResponse(responseJson, args, res);
-        //                }
-        //                else
-        //                {
-        //                    throw new Exception(string.Format("RetrieveAssets. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
-        //                // add status fail to response obj.
-        //            }
-        //        }
-        //        else
-        //        {
-        //            throw new ArgumentException("RetrieveAssets. Input is invalid.");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveAssets.", args, ex), GetLogFilename());
-        //        throw;
-        //    }
-
-        //    return res;
-        //}
     }
 }
