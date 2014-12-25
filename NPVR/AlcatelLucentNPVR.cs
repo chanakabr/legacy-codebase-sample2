@@ -331,7 +331,7 @@ namespace NPVR
             {
                 // first try to parse it as a json returned upon success
                 QuotaResponseJSON success = JsonConvert.DeserializeObject<QuotaResponseJSON>(responseJson);
-                if (success != null && success.TotalQuota == 0 && success.OccupiedQuota == 0)
+                if (success != null)
                 {
                     response.isOK = true;
                     response.entityID = args.EntityID;
