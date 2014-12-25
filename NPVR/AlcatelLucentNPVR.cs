@@ -965,7 +965,7 @@ namespace NPVR
             try
             {
                 ReadResponseJSON success = JsonConvert.DeserializeObject<ReadResponseJSON>(responseJson);
-                if (success != null && success.entries!= null && success.entries.Count > 0 )
+                if (success != null)
                 {
                     response.entityID = args.EntityID;
                     response.isOK = true;
@@ -989,6 +989,12 @@ namespace NPVR
                     }
                     catch (Exception ex)
                     {
+                        GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                        response.isOK = false;
+                        response.entityID = args.EntityID;
+                        response.msg = error.Description;
+                        response.totalItems = 0;
+                        response.results = new List<RecordedEPGChannelProgrammeObject>(0);
                         Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
                         throw;
                     }
