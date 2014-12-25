@@ -21,7 +21,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
                 : base(groupID, userIP, pageSize, pageIndex)
             {
-                RecordedEPGOrderObj = recordedEPGOrderObj; 
+                RecordedEPGOrderObj = recordedEPGOrderObj;
+                SiteGuid = siteGuid;
             }
 
         public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
@@ -35,6 +36,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             m_oRequest = new NPVRSeriesRequest()
             {
+                m_sSiteGuid = SiteGuid,
                 m_oOrderObj = RecordedEPGOrderObj
             };
         }
