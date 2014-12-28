@@ -3115,22 +3115,10 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings for User")]
         public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, List<string> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
         {
-            List<RecordedEPGChannelProgrammeObject> res = null;//
-            List<RecordingStatus> recordingStatusesList = new List<RecordingStatus>();
-
-            // convert recordingStatuses strings to a list of enums 
-            try
-            {
-                recordingStatusesList = recordingStatuses.Select(x => (RecordingStatus)Enum.Parse(typeof(RecordingStatus), x)).ToList();
-            }
-            catch (Exception)
-            {
-                HttpContext.Current.Items.Add("Error", "Illegal recordingStatuses parameter");
-                return res;
-            }
-
+            List<RecordedEPGChannelProgrammeObject> res = null;
+            
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -3142,7 +3130,7 @@ namespace TVPApiServices
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
-                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatusesList, recordingIDs, programIDs, startDate, catalogOrderObj)
+                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatus, recordingIDs, programIDs, seriesIDs, startDate, catalogOrderObj)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;
