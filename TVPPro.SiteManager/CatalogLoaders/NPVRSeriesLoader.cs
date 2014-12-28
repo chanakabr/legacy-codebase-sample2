@@ -51,7 +51,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 Log("Got:", m_oResponse);
                 retVal = m_oResponse as NPVRSeriesResponse;
             }
-            return retVal.m_lObj;
+            return retVal.recordedSeries;
         }
 
         protected override void Log(string message, object obj)
