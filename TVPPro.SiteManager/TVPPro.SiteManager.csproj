@@ -133,6 +133,7 @@
     <Compile Include="CatalogLoaders\EPGCommentsListLoader.cs" />
     <Compile Include="CatalogLoaders\EPGCommentLoader.cs" />
     <Compile Include="CatalogLoaders\MediaHitLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaLastPositionLoader.cs" />
     <Compile Include="CatalogLoaders\MediaMarkLoader.cs" />
     <Compile Include="CatalogLoaders\NPVRRetrieveLoader.cs" />
     <Compile Include="CatalogLoaders\NPVRSeriesLoader.cs" />
@@ -385,6 +386,7 @@
     <Compile Include="Objects\MediaCorpPostcodeEntity.cs" />
     <Compile Include="Objects\MediaCorpStreetEntity.cs" />
     <Compile Include="Objects\MediaCorpWalkupEntity.cs" />
+    <Compile Include="Objects\MediaMarkObject.cs" />
     <Compile Include="Objects\ORCAGalleryResponse.cs" />
     <Compile Include="Objects\RatedMediaEntity.cs" />
     <Compile Include="Objects\RSSEntity.cs" />
