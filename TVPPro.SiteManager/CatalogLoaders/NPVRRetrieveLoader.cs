@@ -16,33 +16,30 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public NPVRSearchBy NPVRSearchBy { get; set; }
         public int EPGChannelID { get; set; }
-        public List<RecordingStatus> RecordingStatuses { get; set; }
+        public RecordingStatus RecordingStatus { get; set; }
         public List<string> RecordingIDs { get; set; }
         public List<int> ProgramIDs { get; set; }
         public DateTime StartDate { get; set; }
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
+        public List<string> SeriesIDs { get; set; }
 
         #region ctr
 
         public NPVRRetrieveLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
                 : base(groupID, userIP, pageSize, pageIndex)
             {
                 NPVRSearchBy = searchBy;
                 EPGChannelID = epgChannelID;
-                RecordingStatuses = recordingStatuses;
+                RecordingStatus = recordingStatus;
                 RecordingIDs = recordingIDs;
                 ProgramIDs = programIDs;
                 StartDate = startDate;
                 RecordedEPGOrderObj = recordedEPGOrderObj;
                 SiteGuid = siteGuid;
+                SeriesIDs = seriesIDs;
             }
 
-        public NPVRRetrieveLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, List<RecordingStatus> recordingStatuses, List<string> recordingIDs, List<int> programIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatuses, recordingIDs, programIDs, startDate, recordedEPGOrderObj)
-            {
-            }
 
         #endregion
 
@@ -52,12 +49,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
             {
                 m_eNPVRSearchBy = NPVRSearchBy,
                 m_nEPGChannelID = EPGChannelID,
-                m_lRecordingStatuses = RecordingStatuses,
+                m_lRecordingStatuses = new List<RecordingStatus>() { RecordingStatus },
                 m_lRecordingIDs = RecordingIDs,
                 m_lProgramIDs = ProgramIDs,
                 m_dtStartDate = StartDate,
                 m_oOrderObj = RecordedEPGOrderObj, 
                 m_sSiteGuid = SiteGuid,
+                m_lSeriesIDs = SeriesIDs
             };
         }
 
