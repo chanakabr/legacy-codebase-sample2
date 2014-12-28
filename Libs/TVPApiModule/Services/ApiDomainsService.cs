@@ -27,6 +27,7 @@ namespace TVPApiModule.Services
             public string SiteGuid;
             public int DomainID;
             public string DomainName;
+            public string DefaultUser;
         }
 
         [Serializable]
