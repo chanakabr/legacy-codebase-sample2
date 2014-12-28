@@ -3159,9 +3159,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
-        public List<RecordedEPGChannelProgrammeObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
+        public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
         {
-            List<RecordedEPGChannelProgrammeObject> res = null;
+            List<RecordedSeriesObject> res = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSeriesRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3178,7 +3178,7 @@ namespace TVPApiServices
                     res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj)
                     {
                         Platform = initObj.Platform.ToString()
-                    }.Execute() as List<RecordedEPGChannelProgrammeObject>;
+                    }.Execute() as List<RecordedSeriesObject>;
                 }
                 catch (Exception ex)
                 {
