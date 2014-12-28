@@ -762,7 +762,7 @@ namespace NPVR
 
         private bool IsRetrieveAssetsInputValid(NPVRRetrieveParamsObj args, ref ulong uniqueSearchBy)
         {
-            if (args != null && args.SearchBy.Count > 0 && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0))
+            if (args != null &&  !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0))
             {
                 bool seenUnique = false;
                 IEnumerable<SearchByField> distinct = args.GetUniqueSearchBy();
@@ -934,8 +934,8 @@ namespace NPVR
                     obj.PIC_URL = entry.Thumbnail;
                     obj.PUBLISH_DATE = string.Empty;
                     obj.STATUS = entry.Status;
+                    obj.RecordSource = entry.Source;
                     res.Add(obj);
-
                 }
             }
 
