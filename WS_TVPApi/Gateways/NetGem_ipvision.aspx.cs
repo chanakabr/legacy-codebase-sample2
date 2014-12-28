@@ -134,7 +134,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     //XXX: hack - fix
                     InitializationObject tmpInit = GetInitObj();
                     tmpInit.SiteGuid = GetStbUserId(groupID);
-                    TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(tmpInit, iMediaID);
+                    TVPPro.SiteManager.Objects.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(tmpInit, iMediaID, null);
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "last_position");
                     XTM.WriteCData(mediaMarkObject.nLocationSec.ToString());

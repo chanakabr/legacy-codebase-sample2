@@ -1279,9 +1279,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get last player position")]
-        public TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
+        public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMark = null;
+            MediaMarkObject mediaMark = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1289,9 +1289,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-
-                    mediaMark = new ApiApiService(groupID, initObj.Platform).GetMediaMark(initObj.SiteGuid, iMediaID);
+                    mediaMark = new MediaLastPositionLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, npvrID).Execute() as MediaMarkObject;
                 }
                 catch (Exception ex)
                 {

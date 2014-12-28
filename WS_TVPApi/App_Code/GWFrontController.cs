@@ -491,7 +491,7 @@ public class GWFrontController
         XmlModels.MediaMark.MediaMark mark = new XmlModels.MediaMark.MediaMark();
 
         TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(accessInfo.initObj, (int)prms[0]);
+        TVPPro.SiteManager.Objects.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(accessInfo.initObj, (int)prms[0], null);
 
         XmlModels.MediaMark.response res = new XmlModels.MediaMark.response();
         res.type = "last_position";

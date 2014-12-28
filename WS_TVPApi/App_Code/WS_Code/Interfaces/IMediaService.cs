@@ -104,7 +104,7 @@ namespace TVPApiServices
         string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
+        MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID);
 
         [OperationContract]
         bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform);
