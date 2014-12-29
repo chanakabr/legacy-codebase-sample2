@@ -191,36 +191,37 @@ namespace ConditionalAccess
                             {
                                 // single asset
                                 response = npvr.CancelAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
-                                if (response != null)
+                            }
+
+                            if (response != null)
+                            {
+                                switch (response.status)
                                 {
-                                    switch (response.status)
-                                    {
-                                        case CancelDeleteStatus.OK:
-                                            res.status = NPVRStatus.OK.ToString();
-                                            break;
-                                        case CancelDeleteStatus.AlreadyCanceled:
-                                            res.status = NPVRStatus.AssetAlreadyCanceled.ToString();
-                                            break;
-                                        case CancelDeleteStatus.AssetDoesNotExist:
-                                            res.status = NPVRStatus.AssetDoesNotExist.ToString();
-                                            break;
-                                        case CancelDeleteStatus.Error:
-                                            res.status = NPVRStatus.Error.ToString();
-                                            break;                                        
-                                        case CancelDeleteStatus.AssetAlreadyRecorded:
-                                            res.status = NPVRStatus.AssetAlreadyRecorded.ToString();
-                                            break;                                    
-                                        default:
-                                            Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                                            res.status = NPVRStatus.Unknown.ToString();
-                                            break;
-                                    }
+                                    case CancelDeleteStatus.OK:
+                                        res.status = NPVRStatus.OK.ToString();
+                                        break;
+                                    case CancelDeleteStatus.AlreadyCanceled:
+                                        res.status = NPVRStatus.AssetAlreadyCanceled.ToString();
+                                        break;
+                                    case CancelDeleteStatus.AssetDoesNotExist:
+                                        res.status = NPVRStatus.AssetDoesNotExist.ToString();
+                                        break;
+                                    case CancelDeleteStatus.Error:
+                                        res.status = NPVRStatus.Error.ToString();
+                                        break;
+                                    case CancelDeleteStatus.AssetAlreadyRecorded:
+                                        res.status = NPVRStatus.AssetAlreadyRecorded.ToString();
+                                        break;
+                                    default:
+                                        Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                        res.status = NPVRStatus.Unknown.ToString();
+                                        break;
                                 }
-                                else
-                                {
-                                    Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg("NPVR layer returned response null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                                    res.status = NPVRStatus.Error.ToString();
-                                }
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("CancelNPVR", GetNPVRLogMsg("NPVR layer returned response null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                res.status = NPVRStatus.Error.ToString();
                             }
                         }
                         else
@@ -276,32 +277,32 @@ namespace ConditionalAccess
                             {
                                 // single asset
                                 response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                            }
 
-                                if (response != null)
+                            if (response != null)
+                            {
+                                switch (response.status)
                                 {
-                                    switch (response.status)
-                                    {
-                                        case CancelDeleteStatus.OK:
-                                            res.status = NPVRStatus.OK.ToString();
-                                            break;
-                                        case CancelDeleteStatus.AssetDoesNotExist:
-                                            res.status = NPVRStatus.InvalidAssetID.ToString();
-                                            break;
-                                        case CancelDeleteStatus.Error:
-                                            res.status = NPVRStatus.Error.ToString();
-                                            break;
-                                        default:
-                                            Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                                            res.status = NPVRStatus.Unknown.ToString();
-                                            break;
-                                    }
+                                    case CancelDeleteStatus.OK:
+                                        res.status = NPVRStatus.OK.ToString();
+                                        break;
+                                    case CancelDeleteStatus.AssetDoesNotExist:
+                                        res.status = NPVRStatus.InvalidAssetID.ToString();
+                                        break;
+                                    case CancelDeleteStatus.Error:
+                                        res.status = NPVRStatus.Error.ToString();
+                                        break;
+                                    default:
+                                        Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg(String.Concat("Unrecognized CancelDeleteStatus enum: ", response.status.ToString()), siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                        res.status = NPVRStatus.Unknown.ToString();
+                                        break;
                                 }
-                                else
-                                {
-                                    // log here response is null
-                                    Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg("NPVR layer response is null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                                    res.status = NPVRStatus.Error.ToString();
-                                }
+                            }
+                            else
+                            {
+                                // log here response is null
+                                Logger.Logger.Log("DeleteNPVR", GetNPVRLogMsg("NPVR layer response is null. ", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                res.status = NPVRStatus.Error.ToString();
                             }
                         }
                         else
