@@ -61,6 +61,10 @@ namespace NPVR
         private static readonly string ALU_SORT_FIELD_URL_PARAM = "sortField";
         private static readonly string ALU_SORT_DIRECTION_URL_PARAM = "sortDirection";
 
+        private static readonly string ALU_SEASON_ID = "seasonId";
+        private static readonly string ALU_SEASON_NAME = "seasonName";
+
+
         private int groupID;
 
         public AlcatelLucentNPVR(int groupID)
@@ -926,6 +930,21 @@ namespace NPVR
                     obj.EPG_IDENTIFIER = entry.ProgramID;
                     obj.EPG_Meta = new List<EPGDictionary>();
                     obj.EPG_TAGS = new List<EPGDictionary>();
+                    // return seasonId + seasonName
+                    if (!string.IsNullOrEmpty(entry.SeasonID))
+                    {
+                        EPGDictionary oEPGDictionary = new EPGDictionary();
+                        oEPGDictionary.Key = ALU_SEASON_ID;
+                        oEPGDictionary.Value = entry.SeasonID;
+                        obj.EPG_TAGS.Add(oEPGDictionary);
+                    }
+                    if (!string.IsNullOrEmpty(entry.SeasonName))
+                    {
+                        EPGDictionary oEPGDictionary = new EPGDictionary();
+                        oEPGDictionary.Key = ALU_SEASON_NAME;
+                        oEPGDictionary.Value = entry.SeasonName;
+                        obj.EPG_TAGS.Add(oEPGDictionary);
+                    }
                     obj.GROUP_ID = groupID.ToString();
                     obj.IS_ACTIVE = "true";
                     obj.LIKE_COUNTER = 0;
