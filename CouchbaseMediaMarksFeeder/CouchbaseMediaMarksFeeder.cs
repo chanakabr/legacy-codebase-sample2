@@ -238,6 +238,7 @@ namespace CouchbaseMediaMarksFeeder
                 Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
                     from, to, null), LOG_FILE);
 
+                res = true;
             }
             catch (Exception ex)
             {
@@ -592,7 +593,7 @@ namespace CouchbaseMediaMarksFeeder
                 Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Update. Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
                     from, to, null), LOG_FILE);
 
-
+                res = true;
             }
             catch (Exception ex)
             {
