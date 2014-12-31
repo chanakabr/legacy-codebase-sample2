@@ -229,6 +229,18 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     protected void AddMetasFields(ref DBRecordWebEditor theRecord, EpgCB epg)
     {
         Dictionary<int,string> lMetas = getMetaTag(true);
+        
+        // change the key in the dictionary from CB to lower letters!!!
+        Dictionary<string, List<string>> tempMetas = new Dictionary<string, List<string>>();
+        foreach (KeyValuePair<string, List<string>> kv in epg.Metas)
+        {
+            tempMetas.Add(kv.Key.ToLower(), kv.Value);
+        }
+        if (tempMetas != null && tempMetas.Count > 0)
+        {
+            epg.Metas = tempMetas;
+        }
+
         foreach(int id in lMetas.Keys)
         {
             string sName = lMetas[id];
