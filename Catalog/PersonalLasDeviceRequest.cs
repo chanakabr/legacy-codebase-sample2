@@ -20,9 +20,8 @@ namespace Catalog
     [DataContract]
     public class PersonalLasDeviceRequest : BaseRequest, IRequestImp
     {
-         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        [DataMember]
-        public string m_sSiteGuid;
+        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         [DataMember]
         public List<int> m_nMediaIDs;          
 
