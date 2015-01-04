@@ -2290,5 +2290,30 @@ namespace Tvinci.Core.DAL
             return dmm;
          
         }
+
+        public static bool UpdateOrInsert_EPGDeafultsValues(Dictionary<int, List<string>> dMetasDefaults, Dictionary<int, List<string>> dTagsDefaults, int nEpgChannelID)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgChannelID",nEpgChannelID);
+            sp.AddKeyValueListParameter<int, string>("@MetasDefaults", dMetasDefaults, "key", "value");
+            sp.AddKeyValueListParameter<int, string>("@TagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, int orderNum, string TagName)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGTagTypeWithDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgTagTypelID", nEpgTagTypelID);
+            sp.AddParameter("@TagName", TagName);
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@orderNum", orderNum);
+            sp.AddKeyValueListParameter<int, string>("@dTagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
