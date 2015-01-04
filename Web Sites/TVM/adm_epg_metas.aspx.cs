@@ -58,7 +58,7 @@ public partial class adm_epg_metas : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select emt.id as id, emt.NAME as Name, emt.status, emt.IS_ACTIVE from epg_metas_types emt where emt.status<>2 and ";
+        theTable += "select emt.id as id, emt.NAME as Name, emt.status, emt.IS_ACTIVE, emt.default_value as default_value from epg_metas_types emt where emt.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
         if (sOrderBy != "")
         {

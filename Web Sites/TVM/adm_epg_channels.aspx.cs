@@ -94,6 +94,14 @@ public partial class adm_epg_channels : System.Web.UI.Page
         theTable.AddActivationField("epg_channels");
         theTable.AddHiddenField("is_active");
 
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_epg_channel_defaults.aspx", "Defaults", "");
+            linkColumn1.AddQueryStringValue("epg_channel_id", "field=id");
+            theTable.AddLinkColumn(linkColumn1);
+        }
+
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_epg_channels_schedule.aspx", "Schedule", "");

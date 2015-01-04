@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -21,7 +22,21 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+               // DBManipulator.DoTheWork();
+                int nEpgTagTypelID = 0;
+                if (Session["epg_tag_id"] != null && Session["epg_tag_id"].ToString() != "" && int.Parse(Session["epg_tag_id"].ToString()) != 0)
+                    nEpgTagTypelID = int.Parse(Session["epg_tag_id"].ToString());
+                Dictionary<int, List<string>> lTagsDefaults = new Dictionary<int, List<string>>();
+                lTagsDefaults.Add(nEpgTagTypelID, new List<string>());
+                int groupID = 0;
+                int isActive = 0;
+                int orderNum = 0;
+                string TagName = string.Empty;
+                bool bSuccess = GetAllDeafultValues(nEpgTagTypelID,ref lTagsDefaults, ref groupID, ref isActive, ref orderNum, ref TagName);
+
+                bool bInsertUpdate = Tvinci.Core.DAL.CatalogDAL.UpdateOrInsert_EPGTagTypeWithDeafultsValues(lTagsDefaults, nEpgTagTypelID, groupID, isActive, orderNum, TagName);
+                m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
+                m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
@@ -40,6 +55,93 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
             }
             else
                 Session["epg_tag_id"] = 0;
+        }
+    }
+
+    private bool GetAllDeafultValues(int tagID , ref Dictionary<int, List<string>> lTagsDefaults, ref int groupID, ref int isActive, ref int orderNum, ref string TagName)
+    {
+        NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["table_name"] == null)
+        {
+            HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
+        }
+        int nCounter = 0;
+        try
+        {
+            while (nCounter < coll.Count)
+            {
+                string sType = "";
+                if (coll[nCounter.ToString() + "_type"] == null)
+                    break;
+                else
+                    sType = coll[nCounter.ToString() + "_type"];
+                string sVal = "";
+                if (sType == "string" && coll[nCounter.ToString() + "_field"] != null)
+                {
+                    string sExtID = coll[nCounter.ToString() + "_field"].ToString();
+                    if (sExtID != "")
+                    {
+                        if (coll[nCounter.ToString() + "_val"] != null)
+                        {
+                            sVal = coll[nCounter.ToString() + "_val"].ToString();
+                            if (sExtID.ToLower() == "name")
+                            {
+                                TagName = sVal;
+                            }
+                        }
+                      
+                    }
+                }
+                else if (sType == "int" && coll[nCounter.ToString() + "_field"] != null)
+                    {
+                        string sExtID = coll[nCounter.ToString() + "_field"].ToString();
+                        if (sExtID != "")
+                        {
+                            if (coll[nCounter.ToString() + "_val"] != null)
+                            {
+                                sVal = coll[nCounter.ToString() + "_val"].ToString();
+                                if (sExtID.ToLower() == "is_active")
+                                {
+                                    isActive = int.Parse(sVal);
+                                }
+
+                                if (sExtID.ToLower() == "group_id")
+                                {
+                                    groupID = int.Parse(sVal);
+                                }
+                                if (sExtID.ToLower() == "order_num")
+                                {
+                                    orderNum = int.Parse(sVal);
+                                }
+
+
+                            }
+
+                        }
+                    }
+                else if (sType == "multi" && coll[nCounter.ToString() + "_extra_field_val"] != null)
+                {
+                    string sExtID = coll[nCounter.ToString() + "_extra_field_val"].ToString();
+                    if (!string.IsNullOrEmpty(sExtID))
+                    {
+                        if (coll[nCounter.ToString() + "_val"] != null)
+                        {
+                            sVal = coll[nCounter.ToString() + "_val"].ToString().TrimEnd(';');
+                        }
+
+                        int id = int.Parse(sExtID);
+                        
+                        lTagsDefaults[tagID].Add(sVal);
+                        
+                    }
+                }
+                nCounter++;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
         }
     }
 
@@ -90,6 +192,34 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         dr_IsActive.Initialize("IsActive", "adm_table_header_nbg", "FormInput", "is_active", false);
         dr_IsActive.SetValue("1");
         theRecord.AddRecord(dr_IsActive);
+
+        // tags values 
+        DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_tags_types", "id", "default_value", true, "ltr", 60, "tags");
+        dr_tags.Initialize("Values", "adm_table_header_nbg", "FormInput", "Value", false);
+
+        dr_tags.SetCollectionLength(8);
+        dr_tags.SetExtraWhere("epg_tag_type_id=" + t.ToString());
+
+        string sDefaultVal = string.Empty;
+        ODBCWrapper.DataSetSelectQuery sQuery = new ODBCWrapper.DataSetSelectQuery(); 
+        sQuery +=  " select * from epg_tags_types where id = " + t.ToString();
+        if (sQuery.Execute("query", true) != null)
+        {
+            int nCount = sQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                sDefaultVal = sQuery.Table("query").DefaultView[0].Row["default_value"].ToString();
+            }
+        }
+        sQuery.Finish();
+        sQuery = null;
+
+        dr_tags.SetValue(sDefaultVal);
+        theRecord.AddRecord(dr_tags);
+
+
+    
+
 
         DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
         dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", false);
