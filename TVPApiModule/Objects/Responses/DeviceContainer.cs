@@ -8,7 +8,7 @@ namespace TVPApiModule.Objects.Responses
     [Serializable]
     public class DeviceContainer
     {
-        public string device_family_name { get; set; }
+        public string name { get; set; }
 
         public int device_family_id { get; set; }
 
@@ -16,6 +16,6 @@ namespace TVPApiModule.Objects.Responses
 
         public int device_concurrent_limit { get; set; }
 
-        public Device[] device_instances { get; set; }
+        public Device[] instances { get; set; }
     }
 }

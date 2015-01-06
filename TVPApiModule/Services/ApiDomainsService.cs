@@ -151,13 +151,13 @@ namespace TVPApiModule.Services
 
             domainResponse = Execute(() =>
                 {
-                    Domain domain = null;
+                    Domain domain = new Domain();
                     var res = Domains.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
                     if (res != null)
                         domain = res.ToApiObject();
 
                     domainResponse.domain = domain;
-                    domainResponse.domain_response_status = (TVPApiModule.Objects.Responses.DomainResponseStatus)domain.domain_status;
+                    domainResponse.domain_response_status = domain.domain_status.toApiObject();
 
                     return domainResponse;
                 }) as TVPApiModule.Objects.Responses.DomainResponseObject;

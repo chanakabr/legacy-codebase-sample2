@@ -10,11 +10,11 @@ namespace TVPApiModule.Objects.Responses
     {
         public string id { get; set; }
 
-        public string device_udid { get; set; }
+        public string udid { get; set; }
 
-        public string device_brand { get; set; }
+        public string brand { get; set; }
 
-        public string device_family { get; set; }
+        public string family { get; set; }
 
         public int device_family_id { get; set; }
 

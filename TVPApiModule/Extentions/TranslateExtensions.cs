@@ -1022,6 +1022,97 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
+        public static TVPApiModule.Objects.Responses.DomainResponseStatus toApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus domainStatus)
+        {
+            DomainResponseStatus status = DomainResponseStatus.Error;
+
+            switch (domainStatus)
+            {
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.OK:
+                    status = DomainResponseStatus.OK;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.DomainAlreadyExists:
+                    status = DomainResponseStatus.DomainAlreadyExists;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.ExceededLimit:
+                    status = DomainResponseStatus.ExceededLimit;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.DeviceTypeNotAllowed:
+                    status = DomainResponseStatus.DeviceTypeNotAllowed;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.UnKnown:
+                    status = DomainResponseStatus.UnKnown;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.Error:
+                    status = DomainResponseStatus.Error;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.DeviceNotInDomin:
+                    status = DomainResponseStatus.DeviceNotInDomain;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.MasterEmailAlreadyExists:
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.UserNotInDomain:
+                    status = DomainResponseStatus.UserNotExistsInDomain;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.DomainNotExists:
+                    status = DomainResponseStatus.DomainNotExists;
+                    break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.HouseholdUserFailed:
+                    status = DomainResponseStatus.HouseholdUserFailed;
+                    break;
+                default:
+                    break;
+            }           
+
+            return status;
+
+        }
+
+        public static TVPApiModule.Objects.Responses.DomainResponseStatus toApiObject(this TVPApiModule.Objects.Responses.DomainStatus domainStatus)
+        {
+            DomainResponseStatus status = DomainResponseStatus.Error;
+            switch (domainStatus)
+            {
+                case DomainStatus.OK:
+                    status = DomainResponseStatus.OK;
+                    break;
+                case DomainStatus.DomainAlreadyExists:
+                    status = DomainResponseStatus.DomainAlreadyExists;
+                    break;
+                case DomainStatus.ExceededLimit:
+                    status = DomainResponseStatus.ExceededLimit;
+                    break;
+                case DomainStatus.DeviceTypeNotAllowed:
+                    status = DomainResponseStatus.DeviceTypeNotAllowed;
+                    break;
+                case DomainStatus.UnKnown:
+                    status = DomainResponseStatus.UnKnown;
+                    break;
+                case DomainStatus.Error:
+                    status = DomainResponseStatus.Error;
+                    break;
+                case DomainStatus.DeviceNotInDomin:
+                    status = DomainResponseStatus.DeviceNotInDomain;
+                    break;                                    
+                case DomainStatus.UserNotInDomain:
+                    status = DomainResponseStatus.UserNotExistsInDomain;
+                    break;
+                case DomainStatus.DomainNotExists:
+                    status = DomainResponseStatus.DomainNotExists;
+                    break;
+                case DomainStatus.HouseholdUserFailed:
+                    status = DomainResponseStatus.HouseholdUserFailed;
+                    break;
+                default:
+                    status = DomainResponseStatus.UnKnown;
+                    break;
+            }
+
+            return status;
+
+        }
+    
+
         public static TVPApiModule.Objects.Responses.Domain ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.Domain response)
         {
             TVPApiModule.Objects.Responses.Domain retVal = new TVPApiModule.Objects.Responses.Domain();
@@ -1079,13 +1170,13 @@ namespace TVPApiModule.Extentions
         {
             TVPApiModule.Objects.Responses.DeviceContainer retVal = new TVPApiModule.Objects.Responses.DeviceContainer();
 
-            retVal.device_family_name = response.m_deviceFamilyName;
+            retVal.name = response.m_deviceFamilyName;
             retVal.device_family_id = response.m_deviceFamilyID;
             retVal.device_limit = response.m_deviceLimit;
             retVal.device_concurrent_limit = response.m_deviceConcurrentLimit;
 
             if (response.DeviceInstances != null)
-                retVal.device_instances = response.DeviceInstances.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
+                retVal.instances = response.DeviceInstances.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
 
             return retVal;
         }
@@ -1095,9 +1186,9 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.Device retVal = new TVPApiModule.Objects.Responses.Device();
 
             retVal.id = response.m_id;
-            retVal.device_udid = response.m_deviceUDID;
-            retVal.device_brand = response.m_deviceBrand;
-            retVal.device_family = response.m_deviceFamily;
+            retVal.udid = response.m_deviceUDID;
+            retVal.brand = response.m_deviceBrand;
+            retVal.family = response.m_deviceFamily;
             retVal.device_family_id = response.m_deviceFamilyID;
             retVal.domain_id = response.m_domainID;
             retVal.device_name = response.m_deviceName;
