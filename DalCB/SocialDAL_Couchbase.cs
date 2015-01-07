@@ -387,6 +387,38 @@ namespace DalCB
 
             return res;
         }
+
+        /// <summary>
+        /// Gets all users who performed a certain action a media on a certain platform
+        /// </summary>
+        /// <param name="p_nLimit">How many rows from the skipping/start point</param>
+        /// <param name="p_nUserGUID">A user to ignore</param>
+        /// <param name="p_nMediaID">The media that is the center of the function</param>
+        /// <param name="p_nActionType">Get users who did -what- action?</param>
+        /// <param name="p_nPlatform">Social platform</param>
+        /// <param name="p_nSkip">Starting point</param>
+        /// <returns></returns>
+        public List<SocialActivityDoc> GetUsersActionedMedia(int p_nMediaID, int p_nUserGUID, int p_nActionType, int p_nPlatform, int p_nLimit, int p_nSkip)
+        {
+            List<SocialActivityDoc> lstResponse = new List<SocialActivityDoc>();
+
+            // Get the rows from the view that have the correct key,
+            // order the list from top to bottom,
+            // get only rows that are from "skip" until "Limit"
+            var lstRows = this.m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "MediaSocialActions", true).
+                StartKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
+                EndKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
+                Descending(true).
+                Skip(p_nSkip).
+                Limit(p_nLimit);
+
+            if (lstRows != null)
+            {
+                lstResponse = lstRows.ToList();
+            }
+
+            return (lstResponse);
+        }
     }
 
 }
