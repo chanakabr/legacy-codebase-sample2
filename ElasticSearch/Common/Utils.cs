@@ -25,27 +25,79 @@ namespace ElasticSearch.Common
             return result;
         }
 
-        private static readonly string[] EscapeChars = new[]
-		                                               	{
-		                                               		"\\", "\"",  "\r\n", "\n", "\r", "\t", "\f", "\b"
-		                                               	};
-
-        private static readonly string[] EscapeCharOutputs = new[]
-		                                                     	{
-		                                                     		"\\\\", "\\\"", " ", " ", " ", " ", " ", " "
-		                                                     	};
-
-        public static string EscapeValues(ref string values)
+        private static readonly Dictionary<string, string> m_dicDocumentReservedCharacters = new Dictionary<string, string>()
         {
-            if (string.IsNullOrEmpty(values))
+           {"\\", "\\\\"},
+           {"&quot;", "\""},
+           {"\"", "\\\""},
+           {"\r\n", " "},
+           {"\n", " "},
+           {"\r", " "},
+           {"\t", " "},
+           {"\f", " "},
+           {"\b", " "},
+        };
+
+        private static readonly Dictionary<string, string> m_dicQueryReservedCharacters = new Dictionary<string, string>()
+        {
+           {"\\", "\\\\"},
+           {"\"", "\\\""},
+           {"\r\n", " "},
+           {"\n", " "},
+           {"\r", " "},
+           {"\t", " "},
+           {"\f", " "}, 
+           {"\b", " "},
+           {"+", "\\+"},
+           {"-", "\\-"},
+           {"&&", "\\&&"},
+           {"!", "\\!"},
+           {"(", "\\("},
+           {")", "\\)"},
+           {"{", "\\{"},
+           {"}", "\\}"},
+           {"[", "\\["},
+           {"]", "\\]"},
+           {"^", "\\^"},
+           {"~", "\\~"},
+           {"*", "\\*"},
+           {"?", "\\?"},
+           {":", "\\:"},
+           {"/", "\\/"}
+        };
+
+        /// <summary>
+        /// Replaces special characters when inserting a new document
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string ReplaceDocumentReservedCharacters(ref string values)
+        {
+            return Replace(ref values, m_dicDocumentReservedCharacters);
+        }
+
+        /// <summary>
+        /// Replaces special characters when querying
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string ReplaceQueryReservedCharacters(ref string values)
+        {
+            return Replace(ref values, m_dicQueryReservedCharacters);
+        }
+
+        private static string Replace(ref string p_sValue, Dictionary<string, string> p_dicReplacements)
+        {
+            if (string.IsNullOrEmpty(p_sValue))
             {
-                return values;
+                return p_sValue;
             }
 
-            StringBuilder sb = new StringBuilder(values);
-            for (int i = 0; i < EscapeChars.Length; i++)
+            StringBuilder sb = new StringBuilder(p_sValue, p_sValue.Length * 2);
+
+            foreach (var kvpEscapeChar in p_dicReplacements)
             {
-                sb = sb.Replace(EscapeChars[i], EscapeCharOutputs[i]);
+                sb.Replace(kvpEscapeChar.Key, kvpEscapeChar.Value);
             }
 
             return sb.ToString().ToLower();
