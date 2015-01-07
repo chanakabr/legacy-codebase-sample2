@@ -50,7 +50,7 @@ namespace Catalog.Cache
         public override Group GetGroup(int nGroupID)
         {
             Group group = null;
-           
+
             try
             {
                 //get group by id from CB
@@ -65,31 +65,27 @@ namespace Catalog.Cache
                 else //Group dosn't exsits ==> Build it 
                 {
                     bool bInsert = false;
-
                     if (cache.GetType() == typeof(CouchBaseCacheWrapper<Group>))
                     {
-                        for (int i = 0; i < 3 && !bInsert; i++)
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+                        using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
                         {
-                            CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
-                            CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
+                            try
+                            {
+                                mutex.WaitOne(-1);
+                                //try to get group from CB cache
+                                CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
+                                CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
 
-                            if (casResult.StatusCode == 0 && casResult.Result != null)
-                            {
-                                group = casResult.Result;
-                            }
-                            else
-                            {
-                                bool createdNew = false;
-                                var mutexSecurity = Utils.CreateMutex();
-                                int threadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
-                                string mutexName = string.Concat("Group GID_", nGroupID);
-                                using (Mutex mutex = new Mutex(false, mutexName , out createdNew, mutexSecurity))
+                                if (casResult.StatusCode == 0 && casResult.Result != null)
                                 {
-                                    try
+                                    group = casResult.Result;
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < 3 && !bInsert; i++)
                                     {
-                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " is about to wait on mutex: ", mutexName), LOG_FILE);
-                                        mutex.WaitOne(-1);
-                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " locked mutex: ", mutexName), LOG_FILE);
                                         Group tempGroup = GroupCacheUtils.BuildGroup(nGroupID, true);
                                         if (tempGroup != null)
                                         {
@@ -112,23 +108,20 @@ namespace Catalog.Cache
                                             group = tempGroup;
                                         }
                                     }
-
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("GetGroup. Couldn't get group {0}, ex = {1} ST: {2}", nGroupID, ex.Message, ex.StackTrace), LOG_FILE);
-                                    }
-                                    finally
-                                    {
-
-                                        mutex.ReleaseMutex();
-                                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("GetGroup. Thread ID: ", threadID, " released mutex: ", mutexName), LOG_FILE);
-                                    }
                                 }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log(LOG_HEADER_EXCEPTION, string.Format("GetGroup. Couldn't get group {0}, ex = {1} ST: {2}", nGroupID, ex.Message, ex.StackTrace), LOG_FILE);
+                            }
+                            finally
+                            {
+
+                                mutex.ReleaseMutex();
                             }
                         }
                     }
                 }
-
                 return group;
             }
             catch (Exception ex)

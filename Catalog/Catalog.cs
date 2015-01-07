@@ -521,7 +521,9 @@ namespace Catalog
                 {
                     isLucene = searcher is LuceneWrapper;
 
-                    Group groupInCache = GroupsCache.Instance.GetGroup(oMediaRequest.m_nGroupID);
+                    GroupManager groupManager = new GroupManager();
+                    Group groupInCache = groupManager.GetGroup(oMediaRequest.m_nGroupID);
+                    //Group groupInCache = GroupsCache.Instance.GetGroup(oMediaRequest.m_nGroupID);
                     if (groupInCache != null)
                     {
                         LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
@@ -691,7 +693,9 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
-            Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+           // Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(request.m_nGroupID);
 
             if (group != null)
             {

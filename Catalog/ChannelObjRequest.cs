@@ -31,7 +31,10 @@ namespace Catalog
             ChannelObjResponse response = new ChannelObjResponse();
             Group group = null;
             Channel channel = null;
-            GroupsCache.Instance.GetGroupAndChannel(request.ChannelId, request.m_nGroupID, ref group, ref channel);
+            //GroupsCache.Instance.GetGroupAndChannel(request.ChannelId, request.m_nGroupID, ref group, ref channel);
+            GroupManager groupManager = new GroupManager();
+            groupManager.GetGroupAndChannel(request.ChannelId, request.m_nGroupID, ref group, ref channel);
+
             if (channel != null)
             {
                 response = new ChannelObjResponse
