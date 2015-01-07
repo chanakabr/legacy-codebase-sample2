@@ -41,6 +41,8 @@ namespace TVPPro.SiteManager.Helper
             SetUserDynamicDataEx,
             FBTokenValidation,
             GetAutoCompleteSearchList,
+            GetUserActivityFeed,
+            GetCrowdsourceFeed,
             GetAccountSTBs
         }
 
