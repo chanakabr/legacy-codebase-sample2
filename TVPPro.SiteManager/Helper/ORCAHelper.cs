@@ -12,7 +12,8 @@ namespace TVPPro.SiteManager.Helper
     {
         private static string TVPAPI_BASE_URL = System.Configuration.ConfigurationManager.AppSettings["BASE_TVPAPI_URL"];
         private static JavaScriptSerializer json = new JavaScriptSerializer();
-
+        private static int ORCA_REQUEST_TIMEOUT = int.Parse(System.Configuration.ConfigurationManager.AppSettings["OrcaCallsTimeOut"]);
+        
         public enum ORCA_CALLS
         {
             HomeVODPromotions,
@@ -38,20 +39,34 @@ namespace TVPPro.SiteManager.Helper
 
         public static ORCAGalleryResponse getORCAResponse(ORCA_CALLS ORCACallType)
         {
+            ORCAGalleryResponse result = null;
             var requestData = getInitObject(ORCACallType.ToString(), DeviceDNAHelper.GetDeviceDNA());
+            string response = null;
 
-            string response = WebRequestHelper.SendRequest<string>(string.Format("{0}GetRecommendationsByGallery", TVPAPI_BASE_URL), json.Serialize(requestData));
+            try
+            {
+                response = WebRequestHelper.SendRequest<string>(string.Format("{0}GetRecommendationsByGallery", TVPAPI_BASE_URL), json.Serialize(requestData), ORCA_REQUEST_TIMEOUT);
+                result = castResponse(response);
+            }
+            catch { }
 
-            return castResponse(response);
+            return result;
         }
 
         public static ORCAGalleryResponse getORCAResponse(ORCA_CALLS ORCACallType, string mediaId)
         {
+            ORCAGalleryResponse result = null;
             var requestData = getInitObject(ORCACallType.ToString(), DeviceDNAHelper.GetDeviceDNA(), mediaId);
+            string response = null;
 
-            string response = WebRequestHelper.SendRequest<string>(string.Format("{0}GetRecommendationsByGallery", TVPAPI_BASE_URL), json.Serialize(requestData));
+            try
+            {
+                response = WebRequestHelper.SendRequest<string>(string.Format("{0}GetRecommendationsByGallery", TVPAPI_BASE_URL), json.Serialize(requestData), ORCA_REQUEST_TIMEOUT);
+                result = castResponse(response);
+            }
+            catch { }
 
-            return castResponse(response);
+            return result;
         }
 
         private static ORCAGalleryResponse castResponse(string response)
