@@ -2302,7 +2302,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, int orderNum, string TagName)
+        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, 
+            int? orderNum, string TagName, int tagTypeFlag)
         {
             StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGTagTypeWithDeafultsValues");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2311,6 +2312,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupID", groupID);
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@orderNum", orderNum);
+            sp.AddParameter("@tagTypeFlag", tagTypeFlag);
             sp.AddKeyValueListParameter<int, string>("@dTagsDefaults", dTagsDefaults, "key", "value");
 
             return sp.ExecuteReturnValue<bool>();
