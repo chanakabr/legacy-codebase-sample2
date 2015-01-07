@@ -47,7 +47,7 @@ namespace Catalog.Cache
         public override Group GetGroup(int nGroupID)
         {
             Group group = null;
-           
+
             try
             {
                 //get group by id from CB
@@ -62,28 +62,27 @@ namespace Catalog.Cache
                 else //Group dosn't exsits ==> Build it 
                 {
                     bool bInsert = false;
-
                     if (cache.GetType() == typeof(CouchBaseCacheWrapper<Group>))
                     {
-                        for (int i = 0; i < 3 && !bInsert; i++)
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+                        using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
                         {
-                            CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
-                            CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
+                            try
+                            {
+                                mutex.WaitOne(-1);
+                                //try to get group from CB cache
+                                CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
+                                CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
 
-                            if (casResult.StatusCode == 0 && casResult.Result != null)
-                            {
-                                group = casResult.Result;
-                            }
-                            else
-                            {
-                                bool createdNew = false;
-                                var mutexSecurity = Utils.CreateMutex();
-                                using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
+                                if (casResult.StatusCode == 0 && casResult.Result != null)
                                 {
-                                    try
+                                    group = casResult.Result;
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < 3 && !bInsert; i++)
                                     {
-                                        mutex.WaitOne(-1);
-
                                         Group tempGroup = GroupCacheUtils.BuildGroup(nGroupID, true);
                                         if (tempGroup != null)
                                         {
@@ -97,21 +96,20 @@ namespace Catalog.Cache
                                             group = tempGroup;
                                         }
                                     }
-
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "Catalog");
-                                    }
-                                    finally
-                                    {
-                                        mutex.ReleaseMutex();
-                                    }
                                 }
+                            }
+
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "Catalog");
+                            }
+                            finally
+                            {
+                                mutex.ReleaseMutex();
                             }
                         }
                     }
                 }
-
                 return group;
             }
             catch (Exception ex)
