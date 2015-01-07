@@ -40,7 +40,8 @@ namespace TVPPro.SiteManager.Helper
             MediaHit,
             SetUserDynamicDataEx,
             FBTokenValidation,
-            GetAutoCompleteSearchList
+            GetAutoCompleteSearchList,
+            GetAccountSTBs
         }
 
         static byte[] GetBytes(string str)
