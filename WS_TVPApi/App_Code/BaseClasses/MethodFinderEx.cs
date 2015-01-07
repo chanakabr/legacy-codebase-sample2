@@ -13,6 +13,10 @@ using System.Web.Script.Serialization;
 using TVPPro.SiteManager;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using TVPApiModule.Manager;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
+
 /// <summary>
 /// Finds the Method By Reflection
 /// </summary>
@@ -537,6 +541,9 @@ public partial class MethodFinder
 
     private class ParameterJsonInit : ParameterInitBase
     {
+        private static List<int> _authorizationUnsupportedGroups = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroups"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroups"].Split(',').Select(g => int.Parse(g)).ToList();
+        private static List<string> _authorizedMethods = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"]) ? null : ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"].Split(',').ToList();
+
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum
         /// (recrusivly)
@@ -590,6 +597,8 @@ public partial class MethodFinder
 
                 object ret = TypeDeSerialize(paramValues, MethodParam);
 
+
+
                 return ret;
             }
             else
@@ -604,6 +613,19 @@ public partial class MethodFinder
 
         public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters)
         {
+            // validate authorization token:
+            InitializationObject initObj = (InitializationObject)methodParameters.Where(p => p is InitializationObject).First();
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", executer.m_MetodInfo.Name, initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (_authorizationUnsupportedGroups == null || !_authorizationUnsupportedGroups.Contains(groupID)) // authorization supported
+            {
+                if (_authorizedMethods == null || !_authorizedMethods.Contains(executer.m_MetodInfo.Name)) // method is not automatically authorized
+                {
+                    if (!AuthorizationManager.ValidateAccessToken(initObj.UDID, initObj.Token))
+                        return null;
+                }
+            }
+
             object result = executer.ExecuteMethod(methodParameters);
             string convertedToJsonResult = base.JSONSerialize(result);
 
