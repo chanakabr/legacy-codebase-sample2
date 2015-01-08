@@ -149,10 +149,9 @@ namespace GroupsCacheManager
 
                             else
                             {
+                                Group tempGroup = Utils.BuildGroup(nGroupID, true);
                                 for (int i = 0; i < 3 && !bInsert; i++)
                                 {
-                                    Group tempGroup = Utils.BuildGroup(nGroupID, true);
-
                                     //try insert to Cache                                     
                                     versionModule.result = tempGroup;
                                     bInsert = this.CacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
