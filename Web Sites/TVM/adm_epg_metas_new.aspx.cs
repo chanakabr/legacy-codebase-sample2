@@ -101,13 +101,17 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         dr_order_num.SetValue("1");
         theRecord.AddRecord(dr_order_num);
 
-
-
-
         //is_searchable true/ false
         DataRecordCheckBoxField dr_Searchable = new DataRecordCheckBoxField(true);
         dr_Searchable.Initialize("is searchable", "adm_table_header_nbg", "FormInput", "is_searchable", false);
         theRecord.AddRecord(dr_Searchable);
+
+        DataRecordDropDownField dr_meta_flag = new DataRecordDropDownField("lu_meta_type_flag", "DESCRIPTION", "id", "", null, 60, true);
+        dr_meta_flag.SetNoSelectStr("---");
+        dr_meta_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "meta_type_flag", false);
+        dr_meta_flag.SetWhereString("MEDIA_EPG = 2"); // only the metas for epg 
+        theRecord.AddRecord(dr_meta_flag);
+
 
         string sTable = theRecord.GetTableHTML("adm_epg_metas_new.aspx?submited=1");
 

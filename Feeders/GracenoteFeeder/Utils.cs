@@ -26,7 +26,7 @@ namespace GracenoteFeeder
         
 
         /*Build the FieldTypeEntity Mapping for each Tag / Meta with it's xml mapping */
-        public static List<FieldTypeEntity> GetMappingFields(int nGroupID)
+        public static List<FieldTypeEntity> GetMappingFields(int nGroupID, int channelID, EpgChannelType eEpgChannelType)
         {
             try
             {
@@ -36,21 +36,26 @@ namespace GracenoteFeeder
                 List<int> lSubTree = new List<int>();
                 lSubTree = groupManager.GetSubGroup(nGroupID);
 
-                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);
+                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID, channelID);                
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
+                    if (ds.Tables.Count == 5 && ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)// the channel type 
+                    {
+                        int nEpgChannelType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[4].Rows[0], "epg_channel_type");
+                        eEpgChannelType = (EpgChannelType)nEpgChannelType;
+                    }
                     if (ds.Tables[0] != null)//basic
                     {
-                        InitializeMappingFields(ds.Tables[0], ds.Tables[3], enums.FieldTypes.Basic, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[0], ds.Tables[3], enums.FieldTypes.Basic, ref AllFieldTypeMapping, eEpgChannelType);
                     }
                     if (ds.Tables[1] != null)//metas
                     {
-                        InitializeMappingFields(ds.Tables[1], ds.Tables[3], enums.FieldTypes.Meta, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[1], ds.Tables[3], enums.FieldTypes.Meta, ref AllFieldTypeMapping, eEpgChannelType);
                     }
                     if (ds.Tables[2] != null)//Tags
                     {
-                        InitializeMappingFields(ds.Tables[2], ds.Tables[3], enums.FieldTypes.Tag, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[2], ds.Tables[3], enums.FieldTypes.Tag, ref AllFieldTypeMapping, eEpgChannelType);
                     }
 
                 }
@@ -176,34 +181,116 @@ namespace GracenoteFeeder
         }
 
         // initialize each item with all external_ref  
-        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
-        {
+        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping, EpgChannelType eEpgChannelType)
+        { 
+            FieldTypeEntity item;
+
             foreach (DataRow dr in dataTable.Rows)
             {
-                FieldTypeEntity item = new FieldTypeEntity();
-                item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
-                item.FieldType = fieldTypes;
-
-                if (fieldTypes != enums.FieldTypes.Basic)
-                {
-                    foreach (var x in dataTableRef.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID))
-                    {
-
-                        if (item.XmlReffName == null)
-                        {
-                            item.XmlReffName = new List<string>();
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                        else
-                        {
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                    }
-                }
-
-                AllFieldTypeMapping.Add(item);
+                switch (fieldTypes) 
+                {  
+                    case enums.FieldTypes.Basic:
+                        item = new FieldTypeEntity();
+                        item.FieldType = fieldTypes;
+                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                        AllFieldTypeMapping.Add(item);
+                        break;
+                    case enums.FieldTypes.Meta:
+                        item = InitializationMeta(dr, eEpgChannelType, dataTableRef);                        
+                        AllFieldTypeMapping.Add(item);
+                        break;
+                    case enums.FieldTypes.Tag:
+                        InitializationTags(dr, eEpgChannelType, dataTableRef, ref AllFieldTypeMapping);
+                        break;
+                    default:
+                        break;
+                }               
             }
+        }
+
+        private static void InitializationTags(DataRow dr, EpgChannelType eEpgChannelType, DataTable dataTableRef, ref List<FieldTypeEntity> AllFieldTypeMapping)
+        {
+            bool bNewTag = false;
+            int ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+            string Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+            FieldTypeEntity item = AllFieldTypeMapping.FirstOrDefault(i => i.ID == ID && i.Name == Name);
+
+            if (item == null) // new tag 
+            {
+                item = new FieldTypeEntity();
+                item.ID = ID;
+                item.Name = Name;
+                item.FieldType = enums.FieldTypes.Tag;
+                bNewTag = true;
+            }
+
+            string sDefaultVal = ODBCWrapper.Utils.GetSafeStr(dr, "DefaultValue"); // for tag or metas 
+            // if this is a DTT Tag + DTT epg channel 
+            if (eEpgChannelType == EpgChannelType.DTT)
+            {
+                int nTagTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_type_flag");
+                TagTypeFlag eTagTypeFlag = (TagTypeFlag)nTagTypeFlag;
+                if (eTagTypeFlag == TagTypeFlag.DTT)
+                {
+                    sDefaultVal = "NO";
+                }
+            }
+            item.Value.Add(sDefaultVal);
+
+            foreach (var x in dataTableRef.Select("type = " + (int)enums.FieldTypes.Tag + " and field_id = " + item.ID))
+            {
+
+                if (item.XmlReffName == null)
+                {
+                    item.XmlReffName = new List<string>();
+                    item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                }
+                else
+                {
+                    item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                }
+            }
+            if (bNewTag)
+            {
+                AllFieldTypeMapping.Add(item);
+            }           
+        }
+
+        private static FieldTypeEntity InitializationMeta(DataRow dr, EpgChannelType eEpgChannelType, DataTable dataTableRef)
+        {
+            FieldTypeEntity item = new FieldTypeEntity();
+            item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+            item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+            item.FieldType = enums.FieldTypes.Meta;
+
+            string sDefaultVal = ODBCWrapper.Utils.GetSafeStr(dr, "DefaultValue"); // for tag or metas 
+            // if this is a DTT Tag + DTT epg channel 
+            if (eEpgChannelType == EpgChannelType.DTT)
+            {
+                int nTagTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_type_flag");
+                TagTypeFlag eTagTypeFlag = (TagTypeFlag)nTagTypeFlag;
+                if (eTagTypeFlag == TagTypeFlag.DTT)
+                {
+                    sDefaultVal = "NO";
+                }
+            }
+            item.Value.Add(sDefaultVal);
+
+            foreach (var x in dataTableRef.Select("type = " + (int)enums.FieldTypes.Meta + " and field_id = " + item.ID))
+            {
+
+                if (item.XmlReffName == null)
+                {
+                    item.XmlReffName = new List<string>();
+                    item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                }
+                else
+                {
+                    item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                }
+            }
+            return item;
         }
         
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)

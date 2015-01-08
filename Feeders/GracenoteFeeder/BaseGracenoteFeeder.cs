@@ -121,7 +121,7 @@ namespace GracenoteFeeder
          add new tags and metas if needed to DB
          * insert picture to queue (via Rabbit)
          */
-        public virtual void SaveChannel(XmlDocument xmlDoc, int channelID, string channel_id)
+        public virtual void SaveChannel(XmlDocument xmlDoc, int channelID, string channel_id, EpgChannelType eEpgChannelType)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace GracenoteFeeder
                 {
                     Logger.Logger.Log("KDG SaveChannels", string.Format("START EPG Channel = {0}", channelID), "GracenoteFeeder");
 
-                    List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(groupID);
+                    List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(groupID, channelID, eEpgChannelType);
 
                     #region get Group ID (parent Group if possible)
 
@@ -174,7 +174,7 @@ namespace GracenoteFeeder
                         }
 
                         #region Set field mapping valus
-                        SetMappingValues(FieldEntityMapping, node);
+                        SetMappingValues(FieldEntityMapping, node, eEpgChannelType);
                         #endregion
 
                         XmlNode tvAirNode = xmlDoc.DocumentElement.SelectSingleNode("//TVAIRING[@GN_ID='" + EPGGuid + "']"); // get node by attribute value
@@ -284,32 +284,35 @@ namespace GracenoteFeeder
         }
 
         // fille the FieldEntityMapping with all values
-        private void SetMappingValues(List<FieldTypeEntity> FieldEntityMapping, XmlNode node)
+        private void SetMappingValues(List<FieldTypeEntity> FieldEntityMapping, XmlNode node, EpgChannelType eEpgChannelType)
         {
             // fill all tags 
-            GetTagsValues(node, ref FieldEntityMapping);
+            GetTagsValues(node, eEpgChannelType, ref FieldEntityMapping);
             //fill Metas Values
-            GetMetasValues(node, ref FieldEntityMapping);
+            GetMetasValues(node, eEpgChannelType, ref FieldEntityMapping);
         }
 
         // insert values to all mates
-        private static void GetMetasValues(XmlNode node, ref List<FieldTypeEntity> FieldEntityMapping)
+        private static void GetMetasValues(XmlNode node, EpgChannelType eEpgChannelType, ref List<FieldTypeEntity> FieldEntityMapping)
         {
             try
             {
-                string sDefaultValue = TVinciShared.WS_Utils.GetTcmGenericValue<string>("GN_Default_Value");
-                string sDefaultFileds = TVinciShared.WS_Utils.GetTcmConfigValue("GN_Default_Fileds");
-                List<string> lDefaultFileds = new List<string>();
-                if (!string.IsNullOrEmpty(sDefaultValue))
-                {
-                    lDefaultFileds = sDefaultFileds.Split(';').ToList();
-                }
+                bool bValueFromIngest = false;
+                List<string> lFieldEntityMapping; // save the default value in temp list
 
+                //string sDefaultValue = TVinciShared.WS_Utils.GetTcmGenericValue<string>("GN_Default_Value");
+                //string sDefaultFileds = TVinciShared.WS_Utils.GetTcmConfigValue("GN_Default_Fileds");
+                //List<string> lDefaultFileds = new List<string>();
+                //if (!string.IsNullOrEmpty(sDefaultValue))
+                //{
+                //    lDefaultFileds = sDefaultFileds.Split(';').ToList();
+                //}
                 
                 for (int i = 0; i < FieldEntityMapping.Count; i++)
                 {
                     if (FieldEntityMapping[i].FieldType == enums.FieldTypes.Meta)
                     {
+                        lFieldEntityMapping = FieldEntityMapping[i].Value;
                         FieldEntityMapping[i].Value = new List<string>();
                         foreach (string XmlRefName in FieldEntityMapping[i].XmlReffName)
                         {
@@ -317,14 +320,20 @@ namespace GracenoteFeeder
                             {
                                 if (!string.IsNullOrEmpty(multinode.InnerText))
                                 {
+                                    bValueFromIngest = true;
                                     FieldEntityMapping[i].Value.Add(multinode.InnerXml);
                                 }
                             }
-                            if (lDefaultFileds.Contains(XmlRefName))
-                            {
-                                FieldEntityMapping[i].Value.Add(sDefaultValue);
-                            }
+                            //if (lDefaultFileds.Contains(XmlRefName))
+                            //{
+                            //    FieldEntityMapping[i].Value.Add(sDefaultValue);
+                            //}
                         }
+                        if (!bValueFromIngest)
+                        {
+                            FieldEntityMapping[i].Value = lFieldEntityMapping;  // set the default value again to this tag 
+                        }
+                        bValueFromIngest = false;
                     }
                 }
             }
@@ -335,34 +344,46 @@ namespace GracenoteFeeder
         }
 
         // insert values to all tags (contributed nodes or regular tags)
-        private void GetTagsValues(XmlNode node, ref List<FieldTypeEntity> FieldEntityMapping)
+        private void GetTagsValues(XmlNode node, EpgChannelType eEpgChannelType, ref List<FieldTypeEntity> FieldEntityMapping)
         {
             try
             {
+                bool bValueFromIngest = false;
+                List<string> lFieldEntityMapping; // save the default value in temp list
                 Dictionary<string, List<string>> contibutorDict = GetTagsValue(node);
 
                 for (int i = 0; i < FieldEntityMapping.Count; i++)
                 {
                     if (FieldEntityMapping[i].FieldType == enums.FieldTypes.Tag)
                     {
+                        lFieldEntityMapping = FieldEntityMapping[i].Value;
+
                         FieldEntityMapping[i].Value = new List<string>();
                         foreach (string XmlRefName in FieldEntityMapping[i].XmlReffName)
                         {
                             if (contibutorDict != null && contibutorDict.Count > 0 && contibutorDict.ContainsKey(XmlRefName.ToUpper())) // if tag exsits in contibutorDict - than add all its values
                             {
+                                bValueFromIngest = true;
                                 FieldEntityMapping[i].Value.AddRange(contibutorDict[XmlRefName.ToUpper()]);
                             }
                             else // regular tag
                             {
                                 foreach (XmlNode multinode in node.SelectNodes(XmlRefName))
                                 {
+                                    
                                     if (!string.IsNullOrEmpty(multinode.InnerText))
-                                    {
+                                    {     
+                                        bValueFromIngest = true;                                  
                                         FieldEntityMapping[i].Value.Add(multinode.InnerXml);
                                     }
                                 }
                             }
                         }
+                        if (!bValueFromIngest)
+                        {
+                            FieldEntityMapping[i].Value = lFieldEntityMapping;  // set the default value again to this tag 
+                        }
+                        bValueFromIngest = false;
                     }
                 }
             }

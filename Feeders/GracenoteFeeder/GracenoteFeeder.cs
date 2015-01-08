@@ -12,6 +12,7 @@ using Tvinci.Core.DAL;
 using QueueWrapper;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper.Queues.QueueObjects;
+using ApiObjects;
 
 
 namespace GracenoteFeeder
@@ -55,7 +56,7 @@ namespace GracenoteFeeder
             try
             {
                 //get all epg channel ids by group
-                Dictionary<string, KeyValuePair<int, string>> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
+                Dictionary<string, EpgChannelObj> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
                     //GetAllChannels();
                 List<string> channels = channelDic.Keys.ToList();
                 if (channels != null && channels.Count == 0)
@@ -83,7 +84,7 @@ namespace GracenoteFeeder
 
 
         //saves the EPGs and sends them to ALU
-        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse, Dictionary<string, KeyValuePair<int, string>> channelDic)
+        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse, Dictionary<string, EpgChannelObj> channelDic)
         {
             try
             {
@@ -112,16 +113,16 @@ namespace GracenoteFeeder
                 //saving the channels in DB
                 foreach (XmlDocument xml in xmlList)
                 {
-                    int nChannelIDDB = 0;
+                    int nChannelIDDB = 0;                    
                     XmlNodeList xmlChannel = xml.GetElementsByTagName("TVGRIDBATCH");
                     string sChannelID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
 
                     if (channelDic.ContainsKey(sChannelID))             
                     {
-                        nChannelIDDB = channelDic[sChannelID].Key;
-
+                        nChannelIDDB = channelDic[sChannelID].ChannelId;
+                       
                         // Save epg programs for each xml documnet
-                        SaveChannel(xml, nChannelIDDB, sChannelID);
+                        SaveChannel(xml, nChannelIDDB, sChannelID, channelDic[sChannelID].ChannelType);
                     }
                 }
 
@@ -135,7 +136,7 @@ namespace GracenoteFeeder
             return true;
         }
 
-        private void SaveChannel(XmlDocument xmlDoc, int nChannelID,string sChannelID)
+        private void SaveChannel(XmlDocument xmlDoc, int nChannelID, string sChannelID, EpgChannelType eEpgChannelType)
         {   
             try
             {
@@ -143,7 +144,7 @@ namespace GracenoteFeeder
                  BaseGracenoteFeeder gnf = new BaseGracenoteFeeder(Client, User, GroupID, URL, ChannelXml, CategoryXml,nParentGroupID, 700);
                  if (gnf != null)
                  {
-                     gnf.SaveChannel(xmlDoc, nChannelID, sChannelID);
+                     gnf.SaveChannel(xmlDoc, nChannelID, sChannelID, eEpgChannelType);
                  }
                  else
                  {
