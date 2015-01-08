@@ -231,7 +231,7 @@ namespace GracenoteFeeder
             {
                 int nTagTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_type_flag");
                 TagTypeFlag eTagTypeFlag = (TagTypeFlag)nTagTypeFlag;
-                if (eTagTypeFlag == TagTypeFlag.DTT)
+                if (eTagTypeFlag == TagTypeFlag.TimeShifted)
                 {
                     sDefaultVal = "NO";
                 }
@@ -268,9 +268,9 @@ namespace GracenoteFeeder
             // if this is a DTT Tag + DTT epg channel 
             if (eEpgChannelType == EpgChannelType.DTT)
             {
-                int nTagTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_type_flag");
-                TagTypeFlag eTagTypeFlag = (TagTypeFlag)nTagTypeFlag;
-                if (eTagTypeFlag == TagTypeFlag.DTT)
+                int nMetaTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "meta_type_flag");
+                MetaTypeFlag eTagTypeFlag = (MetaTypeFlag)nMetaTypeFlag;
+                if (eTagTypeFlag == MetaTypeFlag.TimeShifted)
                 {
                     sDefaultVal = "NO";
                 }
