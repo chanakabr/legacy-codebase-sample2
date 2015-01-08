@@ -258,7 +258,14 @@ namespace ApiObjects
     public enum TagTypeFlag
     {       
         [EnumMember]
-        DTT = 1
+        TimeShifted = 1
+    }
+
+    [Serializable]
+    public enum MetaTypeFlag
+    {
+        [EnumMember]
+        TimeShifted = 1
     }
 
 
