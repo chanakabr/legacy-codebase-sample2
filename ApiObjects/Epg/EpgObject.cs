@@ -10,7 +10,7 @@ namespace ApiObjects.Epg
     public class EpgObject
     {
         [JsonProperty("ChannelId")]
-        public int ChannelId { get; set; }
+        public string ChannelId { get; set; }
 
         [JsonProperty("GroupID")]
         public int GroupID { get; set; }
