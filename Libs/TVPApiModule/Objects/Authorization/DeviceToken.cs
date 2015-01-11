@@ -10,6 +10,7 @@ namespace TVPApiModule.Objects.Authorization
     public class DeviceToken : CbDocumentBase
     {
         private string _udid;
+        private int _groupId;
 
         [JsonProperty("device_token")]
         public string Token { get; set; }
@@ -17,12 +18,13 @@ namespace TVPApiModule.Objects.Authorization
         [JsonIgnore]
         public override string Id
         {
-            get { return string.Format("device_token_{0}", _udid); }    
+            get { return string.Format("device_{0}_{1}", _groupId, _udid); }    
         }
 
-        public DeviceToken(string udid)
+        public DeviceToken(int groupId, string udid)
         {
             _udid = udid;
+            _groupId = groupId;
             Token = Guid.NewGuid().ToString().Replace("-", string.Empty);
         }
     }

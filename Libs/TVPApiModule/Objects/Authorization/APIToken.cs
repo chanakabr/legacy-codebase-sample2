@@ -11,6 +11,7 @@ namespace TVPApiModule.Objects.Authorization
     public class APIToken : CbDocumentBase
     {
         private string _udid;
+        private int _groupId;
 
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }
@@ -24,12 +25,13 @@ namespace TVPApiModule.Objects.Authorization
         [JsonIgnore]
         public override string Id
         {
-            get { return string.Format("api_token_{0}", _udid); }
+            get { return string.Format("access_{0}_{1}", _groupId, _udid); }
         }
 
-        public APIToken(string udid)
+        public APIToken(int groupId, string udid)
         {
             _udid = udid;
+            _groupId = groupId;
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             CreateDate = DateTime.UtcNow;

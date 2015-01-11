@@ -52,9 +52,8 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ApiObjects, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvmcore\ApiObjects\bin\Debug\ApiObjects.dll</HintPath>
+    <Reference Include="ApiObjects">
+      <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
     <Reference Include="CouchbaseWrapper, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

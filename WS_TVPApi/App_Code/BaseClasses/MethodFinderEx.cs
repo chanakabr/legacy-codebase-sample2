@@ -541,7 +541,7 @@ public partial class MethodFinder
 
     private class ParameterJsonInit : ParameterInitBase
     {
-        private static List<int> _authorizationUnsupportedGroups = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroups"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroups"].Split(',').Select(g => int.Parse(g)).ToList();
+        private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
         private static List<string> _authorizedMethods = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"]) ? null : ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"].Split(',').ToList();
 
         /// <summary>
@@ -616,8 +616,9 @@ public partial class MethodFinder
             // validate authorization token:
             InitializationObject initObj = (InitializationObject)methodParameters.Where(p => p is InitializationObject).First();
             int groupID = ConnectionHelper.GetGroupID("tvpapi", executer.m_MetodInfo.Name, initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (_authorizationUnsupportedGroups == null || !_authorizationUnsupportedGroups.Contains(groupID)) // authorization supported
+            string platform = initObj.Platform.ToString();
+            string groupPlatformPair = string.Format("{0}_{1}", groupID, platform); // build the configuration value
+            if (_authorizationUnsupportedGroupsPlatforms == null || !_authorizationUnsupportedGroupsPlatforms.Contains(groupPlatformPair)) // authorization supported
             {
                 if (_authorizedMethods == null || !_authorizedMethods.Contains(executer.m_MetodInfo.Name)) // method is not automatically authorized
                 {
