@@ -172,11 +172,12 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
                 minPeriods = CatalogDAL.GetMinPeriods();
                 if (minPeriods != null)
-                {
                     CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                    minPeriods.TryGetValue(id, out res);
-                }
             }
+
+            if (minPeriods != null)
+                minPeriods.TryGetValue(id, out res);
+
             return res;
         }
     }
