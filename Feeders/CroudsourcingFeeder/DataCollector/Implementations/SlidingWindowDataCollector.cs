@@ -107,12 +107,12 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         normalizedDictionary = new Dictionary<int, BaseCrowdsourceItem>();
                         foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                         {
-
                             if (mediaInfo.Value.m_lObj[0] != null)
                             {
                                 SlidingWindowItem croudsourceItem = new SlidingWindowItem
                                 {
                                     Action = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy,
+                                    ActionDescription = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy.ToString(),
                                     MediaId = item.Id,
                                     MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
                                     MediaImage =
@@ -124,7 +124,8 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                             }).ToArray(),
                                     TimeStamp = epochDateTime,
                                     Order = item.Order,
-                                    Period = channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id
+                                    Period = channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id,
+                                    PeriodDescription = GetMinPeriodDescription(channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id)
                                 };
 
                                 switch (croudsourceItem.Action)
@@ -156,6 +157,28 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     string.Format("Collector:{0} - Error normalizing singular item. mediaId {1} - Exception: \n {2}", CollectorType, item.Id, ex.Message), "Crowdsourcing");
                 return null;
             }
+        }
+
+
+        private static string GetMinPeriodDescription(int id)
+        {
+            string res = null;
+            Dictionary<int, string> minPeriods;
+            if (CachingManager.CachingManager.Exist("MinPeriods"))
+            {
+                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<int,string>;
+            }
+            else
+            {
+                minPeriods = CatalogDAL.GetMinPeriods();
+                if (minPeriods != null)
+                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            }
+
+            if (minPeriods != null)
+                minPeriods.TryGetValue(id, out res);
+
+            return res;
         }
     }
 }
