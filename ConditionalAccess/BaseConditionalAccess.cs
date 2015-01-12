@@ -110,22 +110,15 @@ namespace ConditionalAccess
         {
             m_nGroupID = nGroupID;
             m_bIsInitialized = false;
-            Initialize(connKey);
         }
+
         /// <summary>
         /// Initialize
         /// </summary>
-        public void Initialize()
-        {
-            Initialize(string.Empty);
-        }
-        /// <summary>
-        /// Initialize
-        /// </summary>
-        public void Initialize(string connectionKey)
+        private void InitializePurchaseMailTemplate(string connectionKey)
         {
             if (m_sPurchaseMailTemplate == null)
-                m_sPurchaseMailTemplate = "";
+                m_sPurchaseMailTemplate = string.Empty;
 
             string key = string.Format("{0}_InitializeBaseConditionalAccess_{1}", eWSModules.CONDITIONALACCESS.ToString(), m_nGroupID);
             BaseConditionalAccess bCas;
@@ -161,7 +154,7 @@ namespace ConditionalAccess
                     }
                     selectQuery.Finish();
                     selectQuery = null;
-                    m_bIsInitialized = true;                    
+                    m_bIsInitialized = true;
                 }
             }
             else
@@ -194,6 +187,7 @@ namespace ConditionalAccess
         protected TvinciAPI.PurchaseMailRequest GetPurchaseMailRequest(ref string sEmail, string sUserGUID, string sItemName,
             string sPaymentMethod, string sDateOfPurchase, string sRecNumner, double dPrice, string sCurrency, Int32 nGroupID)
         {
+            InitializePurchaseMailTemplate(string.Empty);
             TvinciAPI.PurchaseMailRequest retVal = new TvinciAPI.PurchaseMailRequest();
             string sFirstName = string.Empty;
             string sLastName = string.Empty;
@@ -237,25 +231,34 @@ namespace ConditionalAccess
                     }
                 }
                 double tax = 0;
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("billing_connection");
-                selectQuery += " select tax_value from groups_parameters with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                if (selectQuery.Execute("query", true) != null)
+                double taxDisc = 0;
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                try
                 {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery.SetConnectionKey("billing_connection");
+                    selectQuery += " select tax_value from groups_parameters with (nolock) where ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        object taxObj = selectQuery.Table("query").DefaultView[0].Row["tax_value"];
-                        if (taxObj != System.DBNull.Value && taxObj != null)
+                        int count = selectQuery.Table("query").DefaultView.Count;
+                        if (count > 0)
                         {
-                            tax = double.Parse(taxObj.ToString());
+                            object taxObj = selectQuery.Table("query").DefaultView[0].Row["tax_value"];
+                            if (taxObj != System.DBNull.Value && taxObj != null)
+                            {
+                                tax = double.Parse(taxObj.ToString());
+                            }
                         }
                     }
                 }
-                double taxDisc = 0;
-                selectQuery.Finish();
-                selectQuery = null;
+                finally
+                {
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
+                    }
+                }
                 double taxTotalDIsc = CalcPriceAfterTax(dPrice, tax, ref taxDisc);
                 retVal.m_eMailType = TvinciAPI.eMailTemplateType.Purchase;
                 retVal.m_sFirstName = sFirstName;
@@ -3136,7 +3139,7 @@ namespace ConditionalAccess
 
 
 
-        public virtual string GetEPGLink(int nProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public virtual string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
           
             return string.Empty;
@@ -10444,6 +10447,65 @@ namespace ConditionalAccess
         private bool IsFreeItem(MediaFileItemPricesContainer container)
         {
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
+        }
+
+        public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual RecordResponse RecordSeriesByName(string siteGuid, string seriesName)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual QuotaResponse GetNPVRQuota(string siteGuid)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        protected string GetNPVRLogMsg(string msg, string siteGuid, string assetID, bool isSeries, Exception ex)
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(msg, "."));
+            sb.Append(String.Concat(" Site Guid: ", siteGuid));
+            sb.Append(String.Concat(" Asset ID: ", assetID));
+            sb.Append(String.Concat(" Is Series: ", isSeries.ToString().ToLower()));
+            sb.Append(String.Concat(" this is: ", this.GetType().Name));
+            sb.Append(String.Concat(" Group ID: ", m_nGroupID));
+            if (ex != null)
+            {
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+            }
+
+            return sb.ToString();
+        }
+
+        protected virtual string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        {
+            return string.Empty;
         }
 
     }

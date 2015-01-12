@@ -127,6 +127,27 @@ namespace DalCB
             return lRes;
         }
 
+        public List<SocialActivityDoc> GetUserSocialAction(List<int> lSocialActionsTypes, string sSiteGuid, int eSocialPlatform)
+        {
+            List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
+            List<List<object>> keys = new List<List<object>>();
+            foreach (int socialActionsTypes in lSocialActionsTypes)
+            {
+                keys.Add(new List<object>() { sSiteGuid, eSocialPlatform, socialActionsTypes });
+            }            
+
+            try
+            {
+                lRes = m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList(); 
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error", string.Format("Caught exception in GetUserSocialAction for UserSocialActions view. ex={0}; stack={1}", ex.Message, ex.StackTrace), LOGGER_FILENAME);
+            }
+
+            return lRes;
+        }
+
         //returns user social actions by descending date
         public bool GetUserSocialAction(string sSiteGuid, int nNumOfRecords, int nSkip, out List<SocialActivityDoc> lUserActivities)
         {
@@ -365,6 +386,38 @@ namespace DalCB
             }
 
             return res;
+        }
+
+        /// <summary>
+        /// Gets all users who performed a certain action a media on a certain platform
+        /// </summary>
+        /// <param name="p_nLimit">How many rows from the skipping/start point</param>
+        /// <param name="p_nUserGUID">A user to ignore</param>
+        /// <param name="p_nMediaID">The media that is the center of the function</param>
+        /// <param name="p_nActionType">Get users who did -what- action?</param>
+        /// <param name="p_nPlatform">Social platform</param>
+        /// <param name="p_nSkip">Starting point</param>
+        /// <returns></returns>
+        public List<SocialActivityDoc> GetUsersActionedMedia(int p_nMediaID, int p_nUserGUID, int p_nActionType, int p_nPlatform, int p_nLimit, int p_nSkip)
+        {
+            List<SocialActivityDoc> lstResponse = new List<SocialActivityDoc>();
+
+            // Get the rows from the view that have the correct key,
+            // order the list from top to bottom,
+            // get only rows that are from "skip" until "Limit"
+            var lstRows = this.m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "MediaSocialActions", true).
+                StartKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
+                EndKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
+                Descending(true).
+                Skip(p_nSkip).
+                Limit(p_nLimit);
+
+            if (lstRows != null)
+            {
+                lstResponse = lstRows.ToList();
+            }
+
+            return (lstResponse);
         }
     }
 

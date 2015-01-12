@@ -85,7 +85,7 @@ namespace Catalog
                     }
                 }
 
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

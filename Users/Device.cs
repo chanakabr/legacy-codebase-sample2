@@ -21,6 +21,8 @@ namespace Users
         public string m_pin;
         public DateTime m_activationDate;
         public DeviceState m_state;
+        public string m_sStreamType;
+        public string m_sProfile;
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
@@ -63,12 +65,40 @@ namespace Users
             this.m_activationDate = dtActivationDate;
             this.m_state = eState;
 
+            if (nDeviceBrandID > 0)
+            {
+                PopulateDeviceStreamTypeAndProfile();
+            }
+
+        }
+
+        private void PopulateDeviceStreamTypeAndProfile()
+        {
+            /*
+            * 4.12.14. Used only by Vodafone. It is used when VodafoneConditionalAccess calculates NPVR Licensed Link against ALU.
+            * When NPVR is extended for Harmonic, and other provider, find a way to abstract those fields, and save it in DB, rather in config.
+            * 
+            * 
+            */
+            m_sStreamType = Utils.GetWSURL(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
+            m_sProfile = Utils.GetWSURL(GetProfileConfigKey(m_groupID, m_deviceBrandID));
+
+        }
+
+        private string GetStreamTypeConfigKey(int groupID, int deviceBrandID)
+        {
+            return String.Concat("DEVICE_STREAM_TYPE_", groupID, "_", deviceBrandID);
+        }
+
+        private string GetProfileConfigKey(int groupID, int deviceBrandID)
+        {
+            return String.Concat("DEVICE_PROFILE_", groupID, "_", deviceBrandID);
         }
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName)
             : this(sUDID, nDeviceBrandID, nGroupID, sDeviceName, 0)
         {
-            
+
         }
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID)
@@ -91,13 +121,13 @@ namespace Users
         public bool Initialize(string sDeviceUDID)
         {
             bool result = InitDeviceInfo(sDeviceUDID, true);
-            return result;   
+            return result;
         }
 
         public bool Initialize(int nDeviceID)
         {
             bool result = InitDeviceInfo(nDeviceID.ToString(), false);
-            return result;          
+            return result;
         }
 
         public bool Initialize(int nDeviceID, int nDomainID)
@@ -128,31 +158,40 @@ namespace Users
         public bool Initialize(string sDeviceUDID, int nDomainID)
         {
 
-            int nID = 0; 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id from devices with (nolock) where status=1";
-            selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
-            if (selectQuery.Execute("query", true) != null)
+            int nID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
             {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                if (count > 0)
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select id from devices with (nolock) where status=1";
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    nID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        nID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
+                    }
+                    else
+                    {
+                        m_state = DeviceState.NotExists;
+                    }
                 }
                 else
                 {
-                    m_state = DeviceState.NotExists;
+                    m_state = DeviceState.Error;
                 }
             }
-            else
+            finally
             {
-                m_state = DeviceState.Error;
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
             }
-            selectQuery.Finish();
-            selectQuery = null;
 
             if (nID > 0)
             {
@@ -191,7 +230,7 @@ namespace Users
             }
             else
             {
-                retVal = nDeviceID.Value; 
+                retVal = nDeviceID.Value;
             }
 
             if (!deviceFound) // New Device
@@ -200,35 +239,44 @@ namespace Users
             }
             else // Update Device
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("devices");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", m_deviceName);
-                
-                if (nIsActive != -1)
+                ODBCWrapper.UpdateQuery updateQuery = null;
+                try
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
-                }
-                if (nStatus != -1)
-                {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
-                }
+                    updateQuery = new ODBCWrapper.UpdateQuery("devices");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", m_deviceName);
 
-                updateQuery += "where";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
-                updateQuery += "and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_brand_id", "=", m_deviceBrandID);
-                updateQuery += "and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", m_deviceFamilyID);
-                updateQuery += "and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
-                updateQuery += "and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
-                bool bUpdateRetVal = updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
+                    if (nIsActive != -1)
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
+                    }
+                    if (nStatus != -1)
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+                    }
 
-                if (!bUpdateRetVal)
+                    updateQuery += "where";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
+                    updateQuery += "and ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_brand_id", "=", m_deviceBrandID);
+                    updateQuery += "and ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", m_deviceFamilyID);
+                    updateQuery += "and ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
+                    updateQuery += "and ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
+                    bool bUpdateRetVal = updateQuery.Execute();
+
+                    if (!bUpdateRetVal)
+                    {
+                        retVal = 0;
+                    }
+                }
+                finally
                 {
-                    retVal = 0;
+                    if (updateQuery != null)
+                    {
+                        updateQuery.Finish();
+                    }
                 }
             }
 
@@ -269,7 +317,7 @@ namespace Users
                 }
             }
         }
-               
+
 
         private string GenerateNewPIN()
         {
@@ -280,26 +328,35 @@ namespace Users
             while (flag)
             {
                 // Create new PIN
-                sNewPIN = Guid.NewGuid().ToString().Substring(0, 5); ;
-
-                //Search for new PIN in devices table - if found, regenerate, else, return new PIN
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select * from devices with (nolock) where status=1 and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_groupID);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sNewPIN);
-
-                if (selectQuery.Execute("query", true) != null)
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                try
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount == 0)
+                    sNewPIN = Guid.NewGuid().ToString().Substring(0, 5); ;
+
+                    //Search for new PIN in devices table - if found, regenerate, else, return new PIN
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "select * from devices with (nolock) where status=1 and";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_groupID);
+                    selectQuery += "and";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sNewPIN);
+
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        flag = false; // Found unique PIN
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount == 0)
+                        {
+                            flag = false; // Found unique PIN
+                        }
+                    }
+
+                }
+                finally
+                {
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
                     }
                 }
-
-                selectQuery.Finish();
-                selectQuery = null;
             }
 
             return sNewPIN;
@@ -328,11 +385,12 @@ namespace Users
 
         public static int GetDeviceIDByUDID(string sUDID, int nGroupID)
         {
-            return (int) DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID, "CONNECTION_STRING");
+            return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID, "CONNECTION_STRING");
         }
 
-        private bool InitDeviceInfo(string sID , bool isUDID)
+        private bool InitDeviceInfo(string sID, bool isUDID)
         {
+            ODBCWrapper.DataSetSelectQuery selectQuery1 = null;
             try
             {
                 if (string.IsNullOrEmpty(sID))
@@ -360,16 +418,18 @@ namespace Users
 
                 DataRow dr = dtDeviceInfo.Rows[0];
 
-                int nDeviceID       = ODBCWrapper.Utils.GetIntSafeVal(dr["id"]);
-                m_id                = nDeviceID.ToString();
-                m_deviceUDID        = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
-                m_deviceBrandID     = ODBCWrapper.Utils.GetIntSafeVal(dr["device_brand_id"]);
-                m_deviceName        = ODBCWrapper.Utils.GetSafeStr(dr["Name"]);
-                m_groupID           = ODBCWrapper.Utils.GetIntSafeVal(dr["group_id"]);
-                m_deviceFamilyID    = ODBCWrapper.Utils.GetIntSafeVal(dr["device_family_id"]);
-                m_pin               = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
+                int nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dr["id"]);
+                m_id = nDeviceID.ToString();
+                m_deviceUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
+                m_deviceBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr["device_brand_id"]);
+                m_deviceName = ODBCWrapper.Utils.GetSafeStr(dr["Name"]);
+                m_groupID = ODBCWrapper.Utils.GetIntSafeVal(dr["group_id"]);
+                m_deviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dr["device_family_id"]);
+                m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
 
-                int nDeviceActive   = ODBCWrapper.Utils.GetIntSafeVal(dr["is_active"]);
+                PopulateDeviceStreamTypeAndProfile();
+
+                int nDeviceActive = ODBCWrapper.Utils.GetIntSafeVal(dr["is_active"]);
                 if (nDeviceActive == 0)
                 {
                     m_state = DeviceState.Pending;
@@ -377,7 +437,7 @@ namespace Users
                 }
 
 
-                ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery1 += "select domain_id, last_activation_date, is_active from domains_devices with (nolock) where status=1 and";
                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                 if (selectQuery1.Execute("query", true) != null)
@@ -385,10 +445,10 @@ namespace Users
                     count = selectQuery1.Table("query").DefaultView.Count;
                     if (count > 0) // Device found
                     {
-                        m_domainID          = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "domain_id", 0);
-                        m_activationDate    = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "last_activation_date", 0);
-                        int nActive         = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "is_active", 0);
-                        int nStatus         = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "status", 0);
+                        m_domainID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "domain_id", 0);
+                        m_activationDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "last_activation_date", 0);
+                        int nActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "is_active", 0);
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "status", 0);
 
                         m_state = (nActive == 1) ? DeviceState.Activated :
                                                                 ((nStatus == 3) ? DeviceState.Pending : DeviceState.UnActivated);
@@ -403,14 +463,24 @@ namespace Users
                     m_state = DeviceState.Error;
                 }
 
-                selectQuery1.Finish();
-                selectQuery1 = null;
-
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at InitDeviceInfo. Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" ID: ", sID));
+                sb.Append(String.Concat(" IsUDID: ", isUDID.ToString().ToLower()));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "Device");
+            }
+            finally
+            {
+                if (selectQuery1 != null)
+                {
+                    selectQuery1.Finish();
+                }
             }
 
             return false;

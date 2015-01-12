@@ -37,6 +37,32 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        /// <summary>
+        /// For a given user and media, returns the last time the user watched the media
+        /// </summary>
+        /// <param name="p_nMedia"></param>
+        /// <param name="p_sSiteGuid"></param>
+        /// <returns></returns>
+        public static DateTime? Get_MediaUserLastWatch(int p_nMedia, string p_sSiteGuid)
+        {
+            DateTime? dt = null;
+            
+            Couchbase.CouchbaseClient m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+            // get document of media mark
+            object objDocument = m_oClient.Get(UtilsDal.getUserMediaMarkDocKey(p_sSiteGuid, p_nMedia));
+
+            if (objDocument != null)
+            {
+                // Desrialize to known class - for comfortable access
+                MediaMarkLog mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(objDocument.ToString());
+
+                dt = mediaMarkLog.LastMark.CreatedAt;
+            }
+
+            return dt;
+        }
+
         public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spBuild_MediaRelated = new ODBCWrapper.StoredProcedure("Build_MediaRelated");
@@ -245,13 +271,13 @@ namespace Tvinci.Core.DAL
             DataSet ds = null;
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            int nNumOfUsers = 30;
+            //int nNumOfUsers = 30;
             int nNumOfMedias = 8;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
-            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).Take(nNumOfUsers).ToList();
+            List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).ToList(); //.Take(nNumOfUsers).ToList();
 
             bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)? true: false;
             if (bContunueWithCB)
@@ -1525,32 +1551,59 @@ namespace Tvinci.Core.DAL
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList);
+            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList).Limit(30);
+            int nUserID = 0;
 
-            foreach (var row in res)
+            if (res != null)
             {
-                int nMediaID = 0;
-                int nUserID = 0;
+                List<int> userList = new List<int>();
 
-                DateTime lastDate;
-
-                if (row.Info != null && row.Info.Values != null)
+                foreach (var row in res)
                 {
-                    if (row.Info["key"] != null && row.Info["value"] != null)
+                    if (row.Info != null && row.Info.Values != null)
                     {
-                        object objMediaID = row.Info["key"];
-                        object[] arUserDates = (object[])row.Info["value"];
+                        if (row.Info["key"] != null && row.Info["value"] != null)
+                        {
+                            object[] arUserDates = (object[])row.Info["value"];
+                            int.TryParse(arUserDates[0].ToString(), out nUserID);
+                            userList.Add(nUserID);
+                        }
+                    }
+                }
+                if (userList != null && userList.Count > 0)
+                {
 
-                        int.TryParse(objMediaID.ToString(), out nMediaID);
+                    var resMedia = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(userList);
 
-                        int.TryParse(arUserDates[0].ToString(), out nUserID);
-                        DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                        UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
-                        mediasMarksList.Add(objUserMediaMark);
+                    foreach (var row in resMedia)
+                    {
+                        int nMediaID = 0;
+                        nUserID = 0;
+
+                        DateTime lastDate;
+                        if (row.Info != null && row.Info.Values != null)
+                        {
+                            if (row.Info["key"] != null && row.Info["value"] != null)
+                            {
+                                // key = user
+                                object objUserID = row.Info["key"];
+                                object[] arUserDates = (object[])row.Info["value"];
+                                int.TryParse(arUserDates[0].ToString(), out nMediaID);
+
+                                if (!mediasList.Contains(nMediaID))
+                                {
+                                    int.TryParse(objUserID.ToString(), out nUserID);
+                                    DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
+                                    UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                                    mediasMarksList.Add(objUserMediaMark);
+                                }
+                            }
+                        }
                     }
                 }
             }
             return mediasMarksList;
+
         }
 
         public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
@@ -2168,6 +2221,74 @@ namespace Tvinci.Core.DAL
             var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
             dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
             return dmm;
+        }
+
+
+        public static List<int> Get_LinearMediaType(int parentGroupID)
+        {
+            List<int> res = new List<int>();
+
+            StoredProcedure sp = new StoredProcedure("Get_LinearMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i=0; i < dt.Rows.Count ; i++)
+                    {
+                        res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
+        {
+            DomainMediaMark dmm = new DomainMediaMark();
+            dmm.domainID = domain_id;
+           
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            // create Keys 
+            List<string> keys = new List<string>();
+            string docKey = string.Empty;
+            foreach (int user in usersKey)
+            {
+                docKey = UtilsDal.getUserMediaMarkDocKey(user, media_id);
+                keys.Add(docKey);
+            }
+            // get all documents ffrom CB
+            IDictionary<string, object> data = m_oClient.Get(keys);
+
+            List<UserMediaMark> oRes = new List<UserMediaMark>();
+                     
+            if (data == null)
+                return null;
+
+            if (data != null && data.Count > 0)
+            {
+                MediaMarkLog mml;
+                foreach (KeyValuePair<string, object> item in data)
+                {
+                    if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                    {
+                        mml = JsonConvert.DeserializeObject<MediaMarkLog>(item.Value.ToString());
+                        if (mml != null && mml.LastMark != null)
+                        {
+                            oRes.Add(mml.LastMark);
+                        }
+                    }
+                }
+            }
+            
+            dmm.devices = oRes;
+            return dmm;
+         
         }
     }
 }

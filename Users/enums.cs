@@ -82,7 +82,8 @@ namespace Users
         MasterEmailAlreadyExists = 8,
         UserNotInDomain = 9,
         DomainNotExists = 10,
-        HouseholdUserFailed = 11
+        HouseholdUserFailed = 11,
+        DomainCreatedWithoutNPVRAccount = 12
     }
 
     public enum DomainRestriction
@@ -145,7 +146,8 @@ namespace Users
     {
         All = 0,
         Watch = 1,
-        Purchase = 2
+        Purchase = 2,
+        Library = 3
     }
 
     public enum ItemType

@@ -24,6 +24,7 @@ using DalCB;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
+using NPVR;
 
 namespace Catalog
 {
@@ -195,17 +196,25 @@ namespace Catalog
                         }
 
                         /*last watched - By SiteGuid <> 0*/
-                        if (ds.Tables.Count == 7)
+
+                        if (!string.IsNullOrEmpty(mediaRequest.m_sSiteGuid) && mediaRequest.m_sSiteGuid != "0")
                         {
-                            if (ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                            DateTime? dtLastWatch = null;
+
+                            // ask CB for it
+                            try
                             {
-                                oMediaObj.m_sLastWatchedDevice = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastDeviceName");
-                                string sLastWatchedDate = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastWatchedDate");
-                                if (!string.IsNullOrEmpty(sLastWatchedDate))
-                                {
-                                    oMediaObj.m_dLastWatchedDate = System.Convert.ToDateTime(sLastWatchedDate);
-                                }
+                                 dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, mediaRequest.m_sSiteGuid);
                             }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Error", 
+                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", mediaRequest.m_sSiteGuid, nMedia, ex.Message), 
+                                    "Catalog");
+                            }
+
+                            oMediaObj.m_dLastWatchedDate = dtLastWatch;
+
                         }
                     }
                     else
@@ -706,7 +715,6 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
-
             GroupManager groupManager = new GroupManager();
             int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);
@@ -1136,7 +1144,7 @@ namespace Catalog
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
             if (nDomainID > 0)
             {
-                switch (eNPVR)  
+                switch (eNPVR)
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
@@ -1147,7 +1155,7 @@ namespace Catalog
                     default:
                         break;
                 }
-               
+
             }
         }
 
@@ -1532,66 +1540,54 @@ namespace Catalog
         {
             ProgramObj oProgramObj = null;
             List<BaseObject> lProgramObj = new List<BaseObject>();
+            int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
+            int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
 
-            try
+            if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
+                nEndIndex = pRequest.m_lProgramsIds.Count();
+
+
+
+            //generate a list with the relevant EPG IDs (according to page size and page index)
+            List<int> lEpgIDs = new List<int>();
+            for (int i = nStartIndex; i < nEndIndex; i++)
             {
-                int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
-                int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
+                lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
+            }
 
-                if ( (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0) || (nEndIndex > pRequest.m_lProgramsIds.Count()))
-                    nEndIndex = pRequest.m_lProgramsIds.Count();
-                
-                //generate a list with the relevant EPG IDs (according to page size and page index)
-                List<int> lEpgIDs = new List<int>();
-                for (int i = nStartIndex; i < nEndIndex; i++)
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
+            EPGChannelProgrammeObject epgProg = null;
+
+            //keeping the original order and amount of items (some of the items might return as null)
+            if (pRequest.m_lProgramsIds != null && lEpgProg != null)
+            {
+                pResponse.m_nTotalItems = lEpgProg.Count;
+
+                string epgPicBaseUrl = string.Empty;
+                string epgPicWidth = string.Empty;
+                string epgPicHeight = string.Empty;
+                Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+                GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+            }
+            foreach (int nProgram in pRequest.m_lProgramsIds)
+            {
+                if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
                 {
-                    lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
-                }
+                    epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
+                    oProgramObj = new ProgramObj();
+                    oProgramObj.m_oProgram = epgProg;
+                    oProgramObj.m_nID = (int)epgProg.EPG_ID;
 
-                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
-                List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
-                EPGChannelProgrammeObject epgProg = null;
-
-                //keeping the original order and amount of items (some of the items might return as null)
-                if (pRequest.m_lProgramsIds != null && lEpgProg != null)
-                {
-                    pResponse.m_nTotalItems = lEpgProg.Count;
-
-                    string epgPicBaseUrl = string.Empty;
-                    string epgPicWidth = string.Empty;
-                    string epgPicHeight = string.Empty;
-                    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-                    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
-                }
-                foreach (int nProgram in pRequest.m_lProgramsIds)
-                {
-                    if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
-                    {
-                        epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
-                        oProgramObj = new ProgramObj();
-                        oProgramObj.m_oProgram = epgProg;
-                        oProgramObj.m_nID = (int)epgProg.EPG_ID;
-
-                        bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
-                    }
-                    else
-                    {
-                        oProgramObj = null;
-                    }
-
+                    bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
                     lProgramObj.Add(oProgramObj);
                 }
-                pResponse.m_lObj = lProgramObj;
 
-                return true;
             }
+            pResponse.m_lObj = lProgramObj;
 
-            catch (Exception ex)
-            {
-                _logger.Error("failed to complete details", ex);
-                throw ex;
-            }
+            return true;
         }
 
         private static ProgramObj GetProgramDetails(int nProgramID, EpgProgramDetailsRequest pRequest)
@@ -1772,8 +1768,7 @@ namespace Catalog
         internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs)
         {
             EpgResponse res = new EpgResponse();
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(parentGroupID);
-            List<EPGChannelProgrammeObject> epgs = epgBL.GetEpgs(epgIDs);
+            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
                 Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
@@ -2043,6 +2038,12 @@ namespace Catalog
             return res;
         }
 
+        private static List<EPGChannelProgrammeObject> GetEpgsByGroupAndIDs(int groupID, List<int> epgIDs)
+        {
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
+            return epgBL.GetEpgs(epgIDs);
+        }
+
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
@@ -2182,8 +2183,7 @@ namespace Catalog
                              * When we don't have dates we bring the likes count from epg_channels_schedule bucket in CB
                              * 
                              */
-                            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
-                            List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
+                            List<EPGChannelProgrammeObject> lEpg = GetEpgsByGroupAndIDs(nGroupID, lAssetIDs);
                             if (lEpg != null && lEpg.Count > 0)
                             {
                                 for (int i = 0; i < lEpg.Count; i++)
@@ -3014,7 +3014,7 @@ namespace Catalog
                 return 0;
 
             return CatalogDAL.GetLastPosition(NpvrID, userID);
-        }    
+        }
 
         /*This method return all last position (desc order by create date) by domain and user_id 
          if userid is default - return all last positions of all users in domain by mediaid
@@ -3034,6 +3034,7 @@ namespace Catalog
             List<int> lUsers = null;
             bool bDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
             List<LastPosition> lUserMedia = new List<LastPosition>();
+            List<int> usersKey = new List<int>(); // list that contains all users that need to be return grom CB for the media 
 
             //get username + password from wsCache
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, group_id, ApiObjects.eWSModules.DOMAINS);
@@ -3066,9 +3067,21 @@ namespace Catalog
                     bDefaultUser = lDeafultUsers.Contains(user_id);
                 }
             }
+            // Build list of users that we'll send to CB
+            if (bDefaultUser)
+            {
+                usersKey.AddRange(lUsers);
+                usersKey.AddRange(lDeafultUsers);
+            }
+            else
+            {
+                usersKey.AddRange(lDeafultUsers);
+                usersKey.Add(user_id);
+            }
 
             // get last position from domain by media_id - from DAL 
-            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, user_id, domain_id);
+            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, usersKey, domain_id);
+          
             if (MediaMark == null || MediaMark.devices == null)
             {
                 res.m_sStatus = "NO DATA";
@@ -3076,81 +3089,211 @@ namespace Catalog
                 return res;
             }
             UserMediaMark umm = new UserMediaMark();
+            List<UserMediaMark> lumm = new List<UserMediaMark>();
             LastPosition ulp = null;
-            if (bDefaultUser) // get all users position in domain
-            {
-                foreach (int user in lUsers)
-                {
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    if (umm == null)
-                    {
-                        continue;
-                    }
-                    if (user == user_id)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
-                    }
-                    else
-                    {
-                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location));
-                    }
-                }
-                foreach (int user in lDeafultUsers)
-                {
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                    if (umm == null)
-                    {
-                        continue;
-                    }
-                    if (user == user_id)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
-                    }
-                    else
-                    {
-                        lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
-                    }
-                }
-            }
-            else // get only user_id and the default_users_id position
-            {
-                if (MediaMark.devices != null)
-                {
-                    foreach (int user in lDeafultUsers) // get position of default user
-                    {
-                        umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user && x.MediaID == media_id).FirstOrDefault();
-                        if (umm == null)
-                        {
-                            continue;
-                        }
+       
+            // get the user_id first 
 
-                        if (user == user_id)
-                        {
-                            ulp = new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location);
-                        }
-                        else
-                        {
-                            lUserMedia.Add(new LastPosition(umm.UserID, eUserType.HOUSEHOLD, umm.Location));
-                        }
-
-                    }
-                    //get position of specific user
-                    umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
-                    if (umm != null && ulp == null)
-                    {
-                        ulp = new LastPosition(umm.UserID, eUserType.PERSONAL, umm.Location);
-                    }
+            lumm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != user_id ).ToList();
+            foreach (UserMediaMark item in lumm)
+            {
+                if (lDeafultUsers.Contains(item.UserID))
+                {
+                    ulp = new LastPosition(item.UserID, eUserType.HOUSEHOLD, item.Location);
                 }
+                else
+                {
+                    ulp = new LastPosition(item.UserID, eUserType.PERSONAL, item.Location);
+                }
+
+                if (!lUserMedia.Where(x => x.m_nUserID == item.UserID).Any())
+                {
+                    lUserMedia.Add(ulp);
+                }
+                ulp = null;
             }
 
-            //order list by location           
-            lUserMedia = lUserMedia.OrderByDescending(x => x.m_nLocation).ToList();
-            if (ulp != null)
+            //get position of specific user
+            umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
+            if (umm != null)
             {
+                if (lDeafultUsers.Contains(user_id))
+                {
+                    ulp = new LastPosition(user_id, eUserType.HOUSEHOLD, umm.Location);
+                }
+                else
+                {
+                    ulp = new LastPosition(user_id, eUserType.PERSONAL, umm.Location);
+                }
+
                 lUserMedia.Insert(0, ulp); // add the userid in the first position in the list
             }
             res.m_sStatus = "OK";
             res.m_lPositions = lUserMedia;
+            return res;
+        }
+
+        internal static List<RecordedSeriesObject> GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
+        {
+            List<RecordedSeriesObject> res = null;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
+                if (npvr != null)
+                {
+                    int domainID = 0;
+                    if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+                    {
+                        NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
+                        if (response != null)
+                        {
+                            if (response.isOK)
+                            {
+                                res = response.results;
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg), "GetSeriesRecordings");
+                                res = new List<RecordedSeriesObject>(0);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("NPVR layer returned response null.");
+                        }
+
+                    }
+                    else
+                    {
+                        throw new Exception("Either user is not valid or user has no domain.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("INPVRProvider instance is null.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+            }
+
+            return res;
+        }
+
+        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
+                if (npvr != null)
+                {
+                    int domainID = 0;
+                    if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+                    {
+                        NPVRRetrieveParamsObj args = new NPVRRetrieveParamsObj();
+                        args.PageIndex = request.m_nPageIndex;
+                        args.PageSize = request.m_nPageSize;
+                        args.EntityID = domainID.ToString();
+                        args.OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy);
+                        args.Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir);
+                        switch (request.m_eNPVRSearchBy)
+                        {
+                            case NPVRSearchBy.ByStartDate:
+                                args.StartDate = request.m_dtStartDate;
+                                args.SearchBy.Add(SearchByField.byStartTime);
+                                break;
+                            case NPVRSearchBy.ByRecordingStatus:
+                                args.RecordingStatus.AddRange(request.m_lRecordingStatuses.Distinct().Select((item) => (NPVRRecordingStatus)((int)item)));
+                                args.SearchBy.Add(SearchByField.byStatus);
+                                break;
+                            case NPVRSearchBy.ByRecordingID:
+                                args.AssetIDs.AddRange(request.m_lRecordingIDs.Distinct());
+                                args.SearchBy.Add(SearchByField.byAssetId);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (request.m_nEPGChannelID > 0)
+                        {
+                            args.EpgChannelID = request.m_nEPGChannelID.ToString();
+                            args.SearchBy.Add(SearchByField.byChannelId);
+                        }
+                        if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
+                        {
+                            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(groupID, request.m_lProgramIDs);
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
+                                args.SearchBy.Add(SearchByField.byProgramId);
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("Error", string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()), "GetRecordings");
+                            }
+                        }
+                        if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
+                        {
+                            args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
+                            args.SearchBy.Add(SearchByField.bySeasonId);
+                        }
+
+                        NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
+                        if (npvrResp != null)
+                        {
+                            res = npvrResp.results;
+                        }
+                        else
+                        {
+                            throw new Exception("NPVR layer returned response null.");
+                        }
+
+                    }
+                    else
+                    {
+                        throw new Exception("Either user is not valid or user has no domain.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("INPVRProvider instance is null.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+            }
+
+            return res;
+        }
+
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID)
+        {
+            long temp = 0;
+            if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
+                return false;
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
+            string url = Utils.GetWSURL("users_ws");
+            bool res = false;
+            using (ws_users.UsersService u = new ws_users.UsersService())
+            {
+                if (url.Length > 0)
+                    u.Url = url;
+                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid);
+                if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                {
+                    domainID = resp.m_user.m_domianID;
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
+
+            }
+
             return res;
         }
 

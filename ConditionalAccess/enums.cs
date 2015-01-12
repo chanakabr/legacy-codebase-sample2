@@ -104,7 +104,8 @@ namespace ConditionalAccess
     {
         Catchup,
         StartOver,
-        LivePause
+        LivePause,
+        NPVR
     }
 
     public enum eStreamType
@@ -185,4 +186,20 @@ namespace ConditionalAccess
         Static = 0,        
         Dynamic = 1
     }
+
+    public enum NPVRStatus : byte
+    {
+        Unknown = 0,
+        OK = 1,
+        Error = 2,
+        BadRequest = 3,
+        InvalidUser = 4,
+        InvalidAssetID = 5,
+        AssetAlreadyScheduled = 6,
+        AssetAlreadyCanceled = 7,
+        AssetDoesNotExist = 8,
+        AssetAlreadyRecorded = 9,
+        QuotaExceeded = 10,
+
+   }
 }

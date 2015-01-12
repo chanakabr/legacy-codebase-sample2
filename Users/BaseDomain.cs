@@ -119,21 +119,45 @@ namespace Users
 
         public virtual DomainResponseStatus RemoveDomain(int nDomainID)
         {
-            if (nDomainID < 1)
-                return DomainResponseStatus.DomainNotExists;
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
+            try
+            {
+                if (nDomainID < 1)
+                    return DomainResponseStatus.DomainNotExists;
 
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+                Domain domain = DomainInitializer(m_nGroupID, nDomainID);
 
-            if (domain == null)
-                return DomainResponseStatus.DomainNotExists;
+                if (domain == null)
+                    return DomainResponseStatus.DomainNotExists;
 
-            return domain.Remove();
+                res = domain.Remove();
+            }
+            catch (Exception ex)
+            {
+                res = DomainResponseStatus.Error;
+                StringBuilder sb = new StringBuilder("Exception at RemoveDomain. ");
+                sb.Append(String.Concat(" D ID: ", nDomainID));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                throw;
+            }
+
+            return res;
         }
 
         public virtual DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
         {
             DomainResponseObject oDomainResponseObject = new DomainResponseObject();
             oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+
+            if (string.IsNullOrEmpty(sUDID))
+            {
+                return oDomainResponseObject;
+            }
 
             Domain domain = DomainInitializer(nGroupID, nDomainID);
             if (domain == null)
@@ -144,7 +168,8 @@ namespace Users
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                device.Initialize(sUDID, sDeviceName);
+                bool res  = device.Initialize(sUDID, sDeviceName);
+                
                 oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
@@ -237,7 +262,7 @@ namespace Users
         {
             DomainResponseObject oDomainResponseObject;
 
-            if (nDomainID <= 0)
+            if (nDomainID <= 0 || string.IsNullOrEmpty(sDeviceUdid))
             {
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
             }
@@ -731,6 +756,11 @@ namespace Users
         #endregion
 
         #region Protected implemented
+
+        protected string GetLogFilename()
+        {
+            return String.Concat("BaseDomain_", m_nGroupID);
+        }
 
         protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
         {

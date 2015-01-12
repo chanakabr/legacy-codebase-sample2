@@ -248,11 +248,13 @@ namespace TVinciShared
                 InitWebRequest(prov, sToken, ref req, type);
                 try
                 {
-                    HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                    using (StreamReader reader = new StreamReader(resp.GetResponseStream()))
+                    using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse())
                     {
-                        string s = reader.ReadToEnd();
-                        return s;
+                        using (StreamReader reader = new StreamReader(resp.GetResponseStream()))
+                        {
+                            string s = reader.ReadToEnd();
+                            return s;
+                        }
                     }
                 }
                 catch (Exception ex)

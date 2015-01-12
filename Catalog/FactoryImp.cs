@@ -192,6 +192,14 @@ namespace Catalog
             {
                 return (EpgProgramDetailsRequest) m_oBaseRequest;
             }
+            if (m_oBaseRequest is NPVRRetrieveRequest)
+            {
+                return (NPVRRetrieveRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is NPVRSeriesRequest)
+            {
+                return (NPVRSeriesRequest)m_oBaseRequest;
+            }
 
             return null;
         }

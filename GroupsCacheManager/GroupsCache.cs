@@ -131,48 +131,48 @@ namespace GroupsCacheManager
                 else
                 {
                     bool bInsert = false;
-                    VersionModuleCache versionModule;
-                    for (int i = 0; i < 3 && !bInsert; i++)
+                    bool createdNew = false;
+                    var mutexSecurity = Utils.CreateMutex();
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
                     {
-                        versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                        try
+                        {
+                            mutex.WaitOne(-1);
+                            // try to get GRoup from CB 
+                            VersionModuleCache versionModule;
+                            versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
 
-                        if (versionModule != null && versionModule.result != null)
-                        {
-                            group = baseModule.result as Group;
-                        }
-                        else
-                        {
-                            bool createdNew = false;
-                            var mutexSecurity = Utils.CreateMutex();
-                            using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
+                            if (versionModule != null && versionModule.result != null)
                             {
-                                try
+                                group = baseModule.result as Group;
+                            }
+
+                            else
+                            {
+                                Group tempGroup = Utils.BuildGroup(nGroupID, true);
+                                for (int i = 0; i < 3 && !bInsert; i++)
                                 {
-                                    mutex.WaitOne(-1);
-
-                                    Group tempGroup = Utils.BuildGroup(nGroupID, true);
-
                                     //try insert to Cache                                     
-                                    versionModule.result = tempGroup;                                    
+                                    versionModule.result = tempGroup;
                                     bInsert = this.CacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
                                     if (bInsert)
                                     {
                                         group = tempGroup;
                                     }
                                 }
-
-                                catch (Exception ex)
-                                {
-                                    Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
-                                }
-                                finally
-                                {
-                                    mutex.ReleaseMutex();
-                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                        }
+                        finally
+                        {
+                            mutex.ReleaseMutex();
                         }
                     }
                 }
+                
                 return group;
             }
             catch (Exception ex)

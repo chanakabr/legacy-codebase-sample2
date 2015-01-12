@@ -78,7 +78,6 @@ namespace Users
 
         public static SamlResponseObject AddNewUser(SamlProviderObject prov, SamlCredentialObject credsObj)
         {
-            Logger.Logger.Log("SAML ", " AddNewUser", "SamlLogFile");
 
             bool bRes = false;
             int domain_id = 0;
@@ -92,7 +91,6 @@ namespace Users
             UserResponseObject wsRespObject = new UserResponseObject();
             if (prov.GroupID != 0 && t != null)
             {
-                Logger.Logger.Log("SAML ", " call BaseUsers to create new user ", "SamlLogFile");
                 wsRespObject = t.AddNewUser(new UserBasicData() { m_sUserName = credsObj.Customer_ID, m_CoGuid = credsObj.Customer_ID }, new UserDynamicData(), Guid.NewGuid().ToString());
             }
 
@@ -104,7 +102,6 @@ namespace Users
                 Logger.Logger.Log("SAML ", message, "SamlLogFile");
                 if (wsRespObject.m_RespStatus != ResponseStatus.UserExists)
                 {
-                    Logger.Logger.Log("SAML ", " create new domine  ", "SamlLogFile");
 
                     Domain d = new Domain();
                     string Customer_ID = credsObj.Customer_ID + "'s Domain";
@@ -648,43 +645,40 @@ namespace Users
 
         public static byte[] SignatureRequest(SAML samlConfig, StringBuilder targetURL, ref String signatureBase64encodedString)
         {
-            Logger.Logger.Log("SAML ", "SignatureRequest ", "SamlLogFile");
             byte[] signedData;
             string privateKey = samlConfig.privateKey;
 
-            RSACryptoServiceProvider rsaPrivateKey = new RSACryptoServiceProvider();
-            rsaPrivateKey.FromXmlString(privateKey);
+            using (RSACryptoServiceProvider rsaPrivateKey = new RSACryptoServiceProvider())
+            {
+                rsaPrivateKey.FromXmlString(privateKey);
 
-            // Create some bytes to be signed. 
-            ASCIIEncoding ByteConverter = new ASCIIEncoding();
+                // Create some bytes to be signed. 
+                ASCIIEncoding ByteConverter = new ASCIIEncoding();
 
-            byte[] dataBytes = ByteConverter.GetBytes("SAMLRequest=" + OSamlUtils.EncodeSAMLRequestParam(targetURL.ToString()));
-            // Create a buffer for the memory stream. 
-            byte[] buffer = new byte[dataBytes.Length];
-            // Create a MemoryStream.
-            MemoryStream mStream = new MemoryStream(buffer);
+                byte[] dataBytes = ByteConverter.GetBytes("SAMLRequest=" + OSamlUtils.EncodeSAMLRequestParam(targetURL.ToString()));
+                // Create a buffer for the memory stream. 
+                byte[] buffer = new byte[dataBytes.Length];
+                // Create a MemoryStream.
+                using (MemoryStream mStream = new MemoryStream(buffer))
+                {
 
-            // Write the bytes to the stream and flush it.
-            mStream.Write(dataBytes, 0, dataBytes.Length);
+                    // Write the bytes to the stream and flush it.
+                    mStream.Write(dataBytes, 0, dataBytes.Length);
 
-            mStream.Flush();
-            // Create a new instance of the RSACryptoServiceProvider class  
-            // and automatically create a new key-pair.
-            RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider();
+                    mStream.Flush();
 
-            // Export the key information to an RSAParameters object. 
-            // You must pass true to export the private key for signing. 
-            // However, you do not need to export the private key 
-            // for verification.
-            RSAParameters Key = rsaPrivateKey.ExportParameters(true);
+                    // Export the key information to an RSAParameters object. 
+                    // You must pass true to export the private key for signing. 
+                    // However, you do not need to export the private key 
+                    // for verification.
+                    RSAParameters Key = rsaPrivateKey.ExportParameters(true);
 
-            // Hash and sign the data. 
-            signedData = HashAndSignBytes(mStream, Key);
+                    // Hash and sign the data. 
+                    signedData = HashAndSignBytes(mStream, Key);
 
-            // Close the MemoryStream.
-            mStream.Close();
-            signatureBase64encodedString = Convert.ToBase64String(signedData);
-            Logger.Logger.Log("SAML ", "SignatureRequest - END", "SamlLogFile");
+                }
+                signatureBase64encodedString = Convert.ToBase64String(signedData);
+            }
             return signedData;
         }
         private static byte[] HashAndSignBytes(Stream DataStream, RSAParameters Key)
@@ -699,13 +693,15 @@ namespace Users
 
                 // Create a new instance of RSACryptoServiceProvider using the  
                 // key from RSAParameters.  
-                RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider();
+                using (RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider())
+                {
 
-                RSAalg.ImportParameters(Key);
+                    RSAalg.ImportParameters(Key);
 
-                // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider 
-                // to specify the use of SHA1 for hashing. 
-                return RSAalg.SignData(DataStream, new SHA1CryptoServiceProvider());
+                    // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider 
+                    // to specify the use of SHA1 for hashing. 
+                    return RSAalg.SignData(DataStream, new SHA1CryptoServiceProvider());
+                }
             }
             catch (CryptographicException e)
             {
