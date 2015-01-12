@@ -1963,5 +1963,27 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
+
+        public static Dictionary<int, string> GetMinPeriods()
+        {
+            Dictionary<int, string> res = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MinPeriods");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        res.Add((int)dt.Rows[i]["ID"], dt.Rows[i]["Description"].ToString());
+                    }
+                }
+            }
+
+            return res;
+        }
     }
 }
