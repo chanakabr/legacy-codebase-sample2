@@ -715,7 +715,6 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
-
             GroupManager groupManager = new GroupManager();
             int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);

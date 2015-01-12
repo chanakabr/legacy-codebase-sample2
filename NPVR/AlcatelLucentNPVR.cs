@@ -63,6 +63,10 @@ namespace NPVR
 
         private static readonly string ALU_SEASON_ID = "seasonId";
         private static readonly string ALU_SEASON_NAME = "seasonName";
+        private static readonly string ALU_DURATION = "duration";
+        private static readonly string ALU_GENRE = "genre";
+        private static readonly string ALU_YEAR = "year";
+        private static readonly string ALU_EPISODE = "episode";
 
 
         private int groupID;
@@ -826,7 +830,10 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
                     if (args.PageSize > 0)
                     {
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
+                        // Because ALU handles "page index" as "first entry", we will not send the regular page index we are used to,
+                        // we will send index * size to get ALU bring us the correct assets
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, 
+                                                                       (args.PageIndex * args.PageSize).ToString()));
                         urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
                     }
                     else
@@ -945,6 +952,43 @@ namespace NPVR
                         oEPGDictionary.Value = entry.SeasonName;
                         obj.EPG_TAGS.Add(oEPGDictionary);
                     }
+
+                    if (entry.Duration != 0)
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                            {
+                                Key = ALU_DURATION,
+                                Value = entry.Duration.ToString()
+                            });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.Genre))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_GENRE,
+                            Value = entry.Genre
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.Episode))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_EPISODE,
+                            Value = entry.Episode
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.Year))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_YEAR,
+                            Value = entry.Year
+                        });
+                    }
+
                     obj.GROUP_ID = groupID.ToString();
                     obj.IS_ACTIVE = "true";
                     obj.LIKE_COUNTER = 0;
