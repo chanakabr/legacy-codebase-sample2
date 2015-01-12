@@ -1863,7 +1863,7 @@ namespace ConditionalAccess
 
         private static List<int> GetFileIDs(List<int> mediaFilesList, int nMediaFileID, bool isMultiMediaTypes, int nMediaID)
         {
-            if (mediaFilesList != null && mediaFilesList.Count > 0)
+            if ( (mediaFilesList != null && mediaFilesList.Count > 0) || !isMultiMediaTypes )
                 return ConditionalAccessDAL.Get_MediaFileByID(mediaFilesList, nMediaFileID, isMultiMediaTypes, nMediaID);
             return new List<int>(0);
         }
