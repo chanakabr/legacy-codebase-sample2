@@ -76,6 +76,10 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                             int epgId;
                             int.TryParse(((MediaObj)mediaInfo.Value.m_lObj[0]).m_ExternalIDs, out epgId);
 
+                            //TODO: NOT TESTED YET
+                            //Set EPG ID instead of media ID
+                            SelectedItem.Id = epgId != 0 ? epgId : SelectedItem.Id;
+
                             RealTimeViewsItem crowdsourceItem = new RealTimeViewsItem()
                             {
                                 MediaId = item.Id,
