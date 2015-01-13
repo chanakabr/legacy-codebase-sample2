@@ -1555,8 +1555,17 @@ namespace ConditionalAccess
 
         private static List<int> GetFileIDs(List<int> mediaFilesList, int nMediaFileID, bool isMultiMediaTypes, int nMediaID)
         {
-            if (mediaFilesList != null && mediaFilesList.Count > 0)
-                return ConditionalAccessDAL.Get_MediaFileByID(mediaFilesList, nMediaFileID, isMultiMediaTypes, nMediaID);
+            List<int> lFiles = new List<int>();
+            if ((mediaFilesList != null && mediaFilesList.Count > 0) || !isMultiMediaTypes)
+            {
+                lFiles = ConditionalAccessDAL.Get_MediaFileByID(mediaFilesList, nMediaFileID, isMultiMediaTypes, nMediaID);
+                if (!lFiles.Contains(nMediaFileID))
+                {
+                    lFiles.Add(nMediaFileID);
+                }
+                return lFiles;
+            }
+            
             return new List<int>(0);
         }
 
@@ -1602,10 +1611,12 @@ namespace ConditionalAccess
                 {
                     int[] ppvRelatedFileTypes = ppvModule.m_relatedFileTypes;
                     bool isMultiMediaTypes = false;
+
                     List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
 
                     List<int> lstFileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
                     relatedMediaFileIDs.AddRange(lstFileIDs);
+
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
 
