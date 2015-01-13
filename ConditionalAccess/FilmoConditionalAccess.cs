@@ -36,7 +36,7 @@ namespace ConditionalAccess
             try
             {
 
-                CDNetworksVault.MediaVault m = new CDNetworksVault.MediaVault("filmofvs", "guest", 7200);
+                //CDNetworksVault.MediaVault m = new CDNetworksVault.MediaVault("filmofvs", "guest", 7200);
                 string decodedUrl = HttpUtility.UrlDecode(sBasicLink);
                 Uri u = new Uri(decodedUrl);
                 string decoded = HttpUtility.UrlDecode(u.Query);
@@ -49,7 +49,8 @@ namespace ConditionalAccess
                     sPathWithoutFile += sFileSegments[i];
                 }
                 string sFile = sFileSegments[sFileSegments.Length - 1];
-                string keyUrlStr = m.GetURL(fileUrl.Scheme + "://" + fileUrl.Host + sPathWithoutFile + sFile + "_" + "04" + ".mp4");
+                string keyUrlStr = string.Empty;
+                    //m.GetURL(fileUrl.Scheme + "://" + fileUrl.Host + sPathWithoutFile + sFile + "_" + "04" + ".mp4");
                 Uri keyUrl = new Uri(keyUrlStr);
                 string keyStr = HttpUtility.ParseQueryString(keyUrl.Query).Get("key");
                 if (!string.IsNullOrEmpty(keyStr))

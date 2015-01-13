@@ -6758,7 +6758,7 @@ namespace ConditionalAccess
         {
 
             string sFirstDeviceNameFound = string.Empty;
-            TvinciPricing.mdoule m = null;
+            TvinciPricing.mdoule objPricingModule = null;
             MediaFileItemPricesContainer[] ret = null;
             string sPricingUsername = string.Empty;
             string sPricingPassword = string.Empty;
@@ -6771,8 +6771,8 @@ namespace ConditionalAccess
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
-                InitializePricingModule(ref m);
-                oModules = m.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                InitializePricingModule(ref objPricingModule);
+                oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                 if (oModules != null && oModules.Length > 0)
                 {
@@ -6804,6 +6804,8 @@ namespace ConditionalAccess
                             string lowestPurchasedBySiteGuid = string.Empty;
                             int lowestPurchasedAsMediaFileID = 0;
                             List<int> lowestRelatedMediaFileIDs = new List<int>();
+                            DateTime? dtLowestStartDate = null;
+
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
@@ -6815,11 +6817,13 @@ namespace ConditionalAccess
                                 string purchasedBySiteGuid = string.Empty;
                                 int purchasedAsMediaFileID = 0;
                                 List<int> relatedMediaFileIDs = new List<int>();
+                                DateTime? dtStartDate = null;
+
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs);
+                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate);
                                 sProductCode = oModules[i].m_sProductCode;
 
                                 //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however has been purchased and is is still valid for watching
@@ -6830,7 +6834,7 @@ namespace ConditionalAccess
                                         var tempItemPriceContainer = new ItemPriceContainer();
                                         tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
                                             theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs);
+                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtStartDate);
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
                                     else
@@ -6848,6 +6852,7 @@ namespace ConditionalAccess
                                             lowestPurchasedBySiteGuid = purchasedBySiteGuid;
                                             lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
                                             lowestRelatedMediaFileIDs = relatedMediaFileIDs;
+                                            dtLowestStartDate = dtStartDate;
                                         }
                                     }
                                 }
@@ -6860,7 +6865,7 @@ namespace ConditionalAccess
                                     ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
                                     relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
                                     relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs);
+                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate);
 
                                 itemPriceCont.Insert(0, tempItemPriceContainer);
 
@@ -6930,9 +6935,9 @@ namespace ConditionalAccess
             finally
             {
                 #region Disposing
-                if (m != null)
+                if (objPricingModule != null)
                 {
-                    m.Dispose();
+                    objPricingModule.Dispose();
                 }
 
                 #endregion
@@ -8844,176 +8849,336 @@ namespace ConditionalAccess
         public virtual string GetItemLeftViewLifeCycle(string sMediaFileID, string sSiteGUID, bool bIsCoGuid,
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            Int32 nMediaFileID = 0;
-            string res = TimeSpan.Zero.ToString();
+            string strResponse = TimeSpan.Zero.ToString();
+
+            ItemLeftLifeCycleResponse objItemLeftLifeCycle = this.GetItemLeftLifeCycle(sMediaFileID, sSiteGUID, bIsCoGuid, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+
+            if (objItemLeftLifeCycle != null)
+            {
+                strResponse = objItemLeftLifeCycle.ViewLifceCycle;
+            }
+
+            return (strResponse);
+        }
+
+        /// <summary>
+        /// Gets the time-spans of what's left for this specific item's life cycle (both full and view)
+        /// </summary>
+        /// <param name="p_sMediaFileID"></param>
+        /// <param name="p_sSiteGUID"></param>
+        /// <param name="p_bIsCoGuid"></param>
+        /// <param name="p_sCOUNTRY_CODE"></param>
+        /// <param name="p_sLANGUAGE_CODE"></param>
+        /// <param name="p_sDEVICE_NAME"></param>
+        /// <returns></returns>
+        public ItemLeftLifeCycleResponse GetItemLeftLifeCycle(
+            string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME)
+        {
+            ItemLeftLifeCycleResponse objResponse = new ItemLeftLifeCycleResponse();
+
+            int nMediaFileID = 0;
+            string strViewLifeCycle = TimeSpan.Zero.ToString();
+            string strFullLifeCycle = TimeSpan.Zero.ToString();
+            bool bIsOfflinePlayback = false;
 
             try
             {
-                if (bIsCoGuid)
+                if (p_bIsCoGuid)
                 {
-                    if (!Utils.GetMediaFileIDByCoGuid(sMediaFileID, m_nGroupID, sSiteGUID, ref nMediaFileID))
+                    if (!Utils.GetMediaFileIDByCoGuid(p_sMediaFileID, m_nGroupID, p_sSiteGUID, ref nMediaFileID))
                     {
                         throw new Exception("Failed to retrieve Media File ID from WS Catalog.");
                     }
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(sMediaFileID) || !Int32.TryParse(sMediaFileID, out nMediaFileID))
+                    if (string.IsNullOrEmpty(p_sMediaFileID) || !Int32.TryParse(p_sMediaFileID, out nMediaFileID))
                     {
-                        throw new ArgumentException(String.Concat("MediaFileID is in incorrect format: ", sMediaFileID));
+                        throw new ArgumentException(String.Concat("MediaFileID is in incorrect format: ", p_sMediaFileID));
                     }
                 }
 
                 if (nMediaFileID > 0)
                 {
-                    Int32[] nMediaFileIDs = { nMediaFileID };
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, string.Empty, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+                    int[] arrMediaFileIDs = { nMediaFileID };
+                    MediaFileItemPricesContainer[] arrPrices =
+                        GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
 
-                    if (prices != null && prices.Length > 0 && IsFreeItem(prices[0]))
+                    if (arrPrices != null && arrPrices.Length > 0)
                     {
-                        // it is free item
-                        TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+                        MediaFileItemPricesContainer objPrice = arrPrices[0];
 
-                        string val = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
-
-                        if (!string.IsNullOrEmpty(val))
+                        // If the item is free
+                        if (IsFreeItem(objPrice))
                         {
-                            DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(val), true);
-                            ts = dEndDate.Subtract(DateTime.UtcNow);
+                            GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
                         }
-
-                        res = ts.ToString();
-                    }
-                    else
-                    {
-
-                        bool isOfflineStatus = false;
-                        string sPPVMCode = string.Empty;
-                        Int32 nViewLifeCycle = 0;
-                        DateTime dPurchaseDate = new DateTime();
-                        DateTime dNow = DateTime.UtcNow;
-                        List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
-                        List<int> relatedMediaFiles = GetRelatedMediaFiles(prices[0], nMediaFileID);
-
-                        if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lUsersIds, relatedMediaFiles, ref sPPVMCode, ref isOfflineStatus, ref dNow,
-                            ref dPurchaseDate))
+                        else
+                        // Item is not free
                         {
-                            string pricingUsername = string.Empty, pricingPassword = string.Empty;
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+                            bool bIsOfflineStatus = false;
+                            string sPPVMCode = string.Empty;
+                            int nViewLifeCycle = 0;
+                            int nFullLifeCycle = 0;
+                            DateTime dtViewDate = new DateTime();
+                            DateTime dtNow = DateTime.UtcNow;
+                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID);
+                            List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
+                            DateTime? dtStartDate = GetStartDate(objPrice);
 
-                            if (isOfflineStatus)
+                            string sPricingUsername = string.Empty;
+                            string sPricingPassword = string.Empty;
+
+                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+
+                            // Get latest use (watch/download) of the media file. If there was one, continue.
+                            if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lstUsersIds, lstRelatedMediaFiles, ref sPPVMCode, ref bIsOfflineStatus, ref dtNow,
+                                ref dtViewDate))
                             {
-
-                                string groupUsageModuleCode = string.Empty;
-                                if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref groupUsageModuleCode))
+                                if (bIsOfflineStatus)
                                 {
-                                    UsageModule um = Utils.GetUsageModuleDataWithCaching(groupUsageModuleCode, pricingUsername, pricingPassword,
-                                        sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
-                                    if (um != null)
+                                    string sGroupUsageModuleCode = string.Empty;
+
+                                    if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref sGroupUsageModuleCode))
                                     {
-                                        nViewLifeCycle = um.m_tsViewLifeCycle;
+                                        UsageModule objUsageModule = Utils.GetUsageModuleDataWithCaching(sGroupUsageModuleCode, sPricingUsername, sPricingPassword,
+                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
+
+                                        if (objUsageModule != null)
+                                        {
+                                            nViewLifeCycle = objUsageModule.m_tsViewLifeCycle;
+                                            nFullLifeCycle = objUsageModule.m_tsMaxUsageModuleLifeCycle;
+                                            bIsOfflinePlayback = objUsageModule.IsOfflinePlayback;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode, 
+                                        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
+
+                                    // If getting didn't succeed for any reason, write to log
+                                    if (!bIsSuccess)
+                                    {
+                                        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
                                     }
                                 }
                             }
-                            else
+
+                            // If we found the view cycle (and there was a view), calculate what's left of it
+                            // Base date is the view date
+                            if (nViewLifeCycle > 0)
                             {
-                                eTransactionType businessModuleType = GetBusinessModuleType(sPPVMCode);
-                                switch (businessModuleType)
-                                {
-                                    case eTransactionType.Subscription:
-                                        {
-                                            string subCode = sPPVMCode.Split(' ')[1];
-                                            Subscription[] subscriptions = Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { subCode }, pricingUsername, pricingPassword, m_nGroupID);
-                                            if (subscriptions != null && subscriptions.Length > 0 && subscriptions[0] != null
-                                                && subscriptions[0].m_oSubscriptionUsageModule != null)
-                                            {
-                                                nViewLifeCycle = subscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(subCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.Subscription), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
-                                    case eTransactionType.Collection:
-                                        {
-                                            string collCode = sPPVMCode.Split(' ')[1];
-                                            Collection[] collections = Utils.GetCollectionsDataWithCaching(new List<string>(1) { collCode }, pricingUsername, pricingPassword, m_nGroupID);
-                                            if (collections != null && collections.Length > 0 && collections[0] != null
-                                                && collections[0].m_oCollectionUsageModule != null)
-                                            {
-                                                nViewLifeCycle = collections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(collCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.Collection), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            // ppv module
-                                            PPVModule ppv = Utils.GetPPVModuleDataWithCaching(sPPVMCode, pricingUsername, pricingPassword, m_nGroupID,
-                                                sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-                                            if (ppv != null && ppv.m_oUsageModule != null)
-                                            {
-                                                nViewLifeCycle = ppv.m_oUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
-                                }
+                                DateTime dtEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
+                                TimeSpan tsViewLeftSpan = dtEndDate.Subtract(dtNow);
+                                strViewLifeCycle = tsViewLeftSpan.ToString();
+                            }
+
+                            //// In case user purchased the item but didn't view it - we need to find what is the usage module's full life cycle
+                            //if (nFullLifeCycle == 0 && dtStartDate.HasValue)
+                            //{
+                            //    string sPPVMCodeFromPrice = GetPPVModuleCode(objPrice);
+
+                            //    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCodeFromPrice,
+                            //        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
+
+                            //    // If getting didn't succeed for any reason, write to log
+                            //    if (!bIsSuccess)
+                            //    {
+                            //        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCodeFromPrice, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                            //            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
+                            //    }
+                            //}
+
+                            // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
+                            // Base date is purchase date
+                            if (nFullLifeCycle > 0 && dtStartDate.HasValue)
+                            {
+                                DateTime dtEndDate = Utils.GetEndDateTime(dtStartDate.Value, nFullLifeCycle);
+                                TimeSpan tsFullLeftSpan = dtEndDate.Subtract(dtNow);
+                                strFullLifeCycle = tsFullLeftSpan.ToString();
                             }
                         }
-
-                        if (nViewLifeCycle > 0)
-                        {
-                            DateTime dEndDate = Utils.GetEndDateTime(dPurchaseDate, nViewLifeCycle);
-
-                            TimeSpan ts = dEndDate.Subtract(dNow);
-                            res = ts.ToString();
-                        }
                     }
-
-
                 } // end if nMediaFileID > 0
             }
             catch (Exception ex)
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("Exception at GetItemLeftViewLifeCycle. ");
+                StringBuilder sb = new StringBuilder("Exception at GetItemLeftLifeCycle. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" MF ID or CG: ", sMediaFileID));
-                sb.Append(String.Concat(" Is CG: ", bIsCoGuid.ToString().ToLower()));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
-                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" MF ID or CG: ", p_sMediaFileID));
+                sb.Append(String.Concat(" Is CG: ", p_bIsCoGuid.ToString().ToLower()));
+                sb.Append(String.Concat(" Site Guid: ", p_sSiteGUID));
+                sb.Append(String.Concat(" Country Cd: ", p_sCOUNTRY_CODE));
+                sb.Append(String.Concat(" Lng Cd: ", p_sLANGUAGE_CODE));
+                sb.Append(String.Concat(" Device Name: ", p_sDEVICE_NAME));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 #endregion
-
             }
 
-            return res;
+            objResponse.ViewLifceCycle = strViewLifeCycle;
+            objResponse.FullLifceCycle = strFullLifeCycle;
+            objResponse.IsOfflinePlayBack = bIsOfflinePlayback;
+
+            return (objResponse);
+        }
+
+        /// <summary>
+        /// Returns the default timespans of free items
+        /// </summary>
+        /// <param name="p_strViewLifeCycle"></param>
+        /// <param name="p_strFullLifeCycle"></param>
+        private void GetFreeItemLeftLifeCycle(ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        {
+            // Default is 2 days
+            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+
+            // Get the group's configuration for free view life cycle
+            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+
+            if (!string.IsNullOrEmpty(sFreeLeftView))
+            {
+                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
+                ts = dEndDate.Subtract(DateTime.UtcNow);
+            }
+
+            p_strViewLifeCycle = ts.ToString();
+            // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
+            p_strFullLifeCycle = ts.ToString();
+        }
+
+        /// <summary>
+        /// For a given PPVMCode, returns the full life cycle, view life cycle and is offline playback
+        /// </summary>
+        /// <param name="p_sCOUNTRY_CODE"></param>
+        /// <param name="p_sLANGUAGE_CODE"></param>
+        /// <param name="p_sDEVICE_NAME"></param>
+        /// <param name="p_bIsOfflinePlayback"></param>
+        /// <param name="p_sPPVMCode"></param>
+        /// <param name="p_nViewLifeCycle"></param>
+        /// <param name="p_nFullLifeCycle"></param>
+        /// <param name="p_sPricingUsername"></param>
+        /// <param name="p_sPricingPassword"></param>
+        /// <returns>If the get succeeded or not</returns>
+        private bool GetLifeCycleByPPVMCode(string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, ref bool p_bIsOfflinePlayback, 
+            string p_sPPVMCode, ref int p_nViewLifeCycle, ref int p_nFullLifeCycle, string p_sPricingUsername, string p_sPricingPassword)
+        {
+            bool bIsSuccess = true;
+
+            eTransactionType eBusinessModuleType = GetBusinessModuleType(p_sPPVMCode);
+
+            switch (eBusinessModuleType)
+            {
+                case eTransactionType.Subscription:
+                {
+                    // Get the code itself, without the prefix
+                    string sSubCode = p_sPPVMCode.Substring(3);
+
+                    // Get the subscription item of this code
+                    Subscription[] arrSubscriptions =
+                        Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                    // If there is a valid subscription with a valid usage module
+                    if (arrSubscriptions != null && arrSubscriptions.Length > 0 && arrSubscriptions[0] != null &&
+                        arrSubscriptions[0].m_oSubscriptionUsageModule != null)
+                    {
+                        p_nViewLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.IsOfflinePlayback;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                case eTransactionType.Collection:
+                {
+                    // Get the code itself, without the prefix
+                    string sCollCode = p_sPPVMCode.Substring(3);
+
+                    // Get the collection item of this code
+                    Collection[] arrCollections =
+                        Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                    // If there is a valid collection with a valid usage module
+                    if (arrCollections != null && arrCollections.Length > 0 && arrCollections[0] != null &&
+                        arrCollections[0].m_oCollectionUsageModule != null)
+                    {
+                        p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.IsOfflinePlayback;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                case eTransactionType.PPV:
+                {
+                    PPVModule objPPV = Utils.GetPPVModuleDataWithCaching(p_sPPVMCode, p_sPricingUsername, p_sPricingPassword, m_nGroupID,
+                        p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
+
+                    if (objPPV != null && objPPV.m_oUsageModule != null)
+                    {
+                        p_nViewLifeCycle = objPPV.m_oUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = objPPV.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = objPPV.m_oUsageModule.IsOfflinePlayback;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            return (bIsSuccess);            
+        }
+
+        /// <summary>
+        /// Returns the ppv module code of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private string GetPPVModuleCode(MediaFileItemPricesContainer p_objPrice)
+        {
+            string strCode = string.Empty;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                strCode = p_objPrice.m_oItemPrices[0].m_sPPVModuleCode;
+            }
+
+            return (strCode);
+        }
+
+        /// <summary>
+        /// Returns the start date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private DateTime? GetStartDate(MediaFileItemPricesContainer p_objPrice)
+        {
+            DateTime? dtStartDate = null;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                dtStartDate = p_objPrice.m_oItemPrices[0].m_dtStartDate;
+            }
+
+            return (dtStartDate);
         }
 
         private string GetPricingErrLogMsg(string businessModuleCode, string siteGuid, string mediaFileIDStr,
@@ -10507,6 +10672,7 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
+
 
     }
 

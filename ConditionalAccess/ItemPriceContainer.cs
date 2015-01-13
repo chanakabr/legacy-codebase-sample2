@@ -104,7 +104,8 @@ namespace ConditionalAccess
         public string m_sPurchasedBySiteGuid;
         public int m_lPurchasedMediaFileID;
         public int[] m_lRelatedMediaFileIDs;
-
+        public DateTime? m_dtStartDate;
+        
         public ItemPriceContainer()
         {
             m_relevantSub = null;
@@ -121,12 +122,13 @@ namespace ConditionalAccess
             m_sPurchasedBySiteGuid = string.Empty;
             m_lPurchasedMediaFileID = 0;
             m_lRelatedMediaFileIDs = new int[0];
+            m_dtStartDate = null;
         }
 
         public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, 
             TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, 
             TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound, 
-            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs)
+            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, DateTime? dtStartDate = null)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -149,6 +151,8 @@ namespace ConditionalAccess
             {
                 m_lRelatedMediaFileIDs = new int[0];
             }
+
+            m_dtStartDate = dtStartDate;
         }
     }
 }

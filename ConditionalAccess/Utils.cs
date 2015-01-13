@@ -1474,16 +1474,17 @@ namespace ConditionalAccess
             }
             bool bCancellationWindow = false;
 
-            // purchasedBySiteGuid and purchasedAsMediaFileID are only needed in GetItemsPrices.
+            // purchasedBySiteGuid, purchasedAsMediaFileID and StartDate are only needed in GetItemsPrices.
             string purchasedBySiteGuid = string.Empty;
             int purchasedAsMediaFileID = 0;
+            DateTime? dtStartDate = null;
+
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
-
             return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs);
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -1575,7 +1576,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs)
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate)
         {
             if (ppvModule == null)
             {
@@ -1584,7 +1585,7 @@ namespace ConditionalAccess
             }
 
             theReason = PriceReason.UnKnown;
-            TvinciPricing.Price p = null;
+            TvinciPricing.Price price = null;
             Int32[] nMediaFilesIDs = { nMediaFileID };
             TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFilesIDs, sAPIUsername, sAPIPassword);
 
@@ -1603,10 +1604,10 @@ namespace ConditionalAccess
                     bool isMultiMediaTypes = false;
                     List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
 
-                    List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
-                    relatedMediaFileIDs.AddRange(FileIDs);
+                    List<int> lstFileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
+                    relatedMediaFileIDs.AddRange(lstFileIDs);
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
-                    p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
+                    price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
 
                     bool bEnd = false;
 
@@ -1616,10 +1617,10 @@ namespace ConditionalAccess
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
 
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID,
-                        ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
+                    if (lstFileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID,
+                        ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate))
                     {
-                        p.m_dPrice = 0;
+                        price.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
                         bCancellationWindow = IsCancellationWindowPerPurchase(ppvModule.m_oUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
 
@@ -1681,7 +1682,7 @@ namespace ConditionalAccess
 
                     if (bEnd || !bIsValidForPurchase)
                     {
-                        return p;
+                        return price;
                     }
 
                     //check here if it is part of a purchased subscription or part of purchased collections
@@ -1711,15 +1712,15 @@ namespace ConditionalAccess
                                 {
                                     if (IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP, sAPIUsername, sAPIPassword))
                                     {
-                                        p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
+                                        price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
                                         relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
                                         theReason = PriceReason.GeoCommerceBlocked;
                                     }
                                     else
                                     {
-                                        if (IsItemPurchased(p, subp, ppvModule))
+                                        if (IsItemPurchased(price, subp, ppvModule))
                                         {
-                                            p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
+                                            price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
                                             relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
                                             theReason = PriceReason.SubscriptionPurchased;
                                         }
@@ -1745,7 +1746,7 @@ namespace ConditionalAccess
 
                     if (bEnd)
                     {
-                        return p;
+                        return price;
                     }
 
                     // check here if its part of a purchased collection                    
@@ -1759,9 +1760,9 @@ namespace ConditionalAccess
                             TvinciPricing.Price collectionsPrice = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, sPricingUsername, sPricingPassword)));
                             if (collectionsPrice != null)
                             {
-                                if (IsItemPurchased(p, collectionsPrice, ppvModule))
+                                if (IsItemPurchased(price, collectionsPrice, ppvModule))
                                 {
-                                    p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(collectionsPrice));
+                                    price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(collectionsPrice));
                                     relevantCol = TVinciShared.ObjectCopier.Clone<TvinciPricing.Collection>((TvinciPricing.Collection)(collection));
                                     theReason = PriceReason.CollectionPurchased;
                                     break;
@@ -1783,9 +1784,9 @@ namespace ConditionalAccess
                     else
                     {
                         // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                        p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
+                        price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                             sPricingUsername, sPricingPassword);
-                        if (IsFreeMediaFile(theReason, p))
+                        if (IsFreeMediaFile(theReason, price))
                         {
                             theReason = PriceReason.Free;
                         }
@@ -1807,7 +1808,7 @@ namespace ConditionalAccess
             } // end if site guid is not null or empty
             else
             {
-                p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
+                price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
 
                 if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
@@ -1820,7 +1821,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return p;
+            return price;
         }
 
         private static bool IsPPVModuleToBePurchasedAsSubOnly(PPVModule ppvModule)
