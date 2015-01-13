@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Web;
+using TVPApiModule.Helper;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Authorization;
 
@@ -148,9 +149,9 @@ namespace TVPApiModule.Manager
             return token;
         }
 
-        public static APIToken ExchangeDeviceToken(string udid, int groupId, string appId, string appSecret, string deviceToken)
+        public static object ExchangeDeviceToken(string udid, int groupId, string appId, string appSecret, string deviceToken)
         {
-            APIToken token = null;
+            object token = null;
             if (!string.IsNullOrEmpty(deviceToken) || !string.IsNullOrEmpty(udid))
             {
                 // validate app credentials
@@ -165,10 +166,11 @@ namespace TVPApiModule.Manager
                         if (deviceTokenCasRes.Value.Token == deviceToken)
                         {
                             // generate access token and refresh token pair
-                            token = new APIToken(groupId, udid);
-                            _client.Store<APIToken>(token, DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_EXPIRATION_MINUTES));
+                            APIToken apiToken = new APIToken(groupId, udid);
+                            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_EXPIRATION_MINUTES));
                             _client.Unlock(deviceTokenId, deviceTokenCasRes.DocVersion);
                             _client.Remove(deviceTokenId);
+                            token = GetTokenResponseObject(apiToken);
                         }
                         else // device token doesn't match
                         {
@@ -197,9 +199,9 @@ namespace TVPApiModule.Manager
             return token;
         }
 
-        public static APIToken RefreshAccessToken(string udid, int groupId, string appId, string appSecret, string refreshToken)
+        public static object RefreshAccessToken(string udid, int groupId, string appId, string appSecret, string refreshToken)
         {
-            APIToken token = null;
+            object token = null;
             if (!string.IsNullOrEmpty(refreshToken) || !string.IsNullOrEmpty(udid))
             {
                 // validate device token
@@ -207,8 +209,8 @@ namespace TVPApiModule.Manager
                 if (appCredentials != null && appCredentials.AppID == appId && appCredentials.AppSecret == appSecret)
                 {
                     // get access token and refresh token pair
-                    string apiTokenId = GetAPITokenId(udid);
-                    CasGetResult<APIToken> casRes = _client.GetWithLock<APIToken>(apiTokenId, TimeSpan.FromSeconds(5));
+                    string apiTokenId = GetAPITokenId(groupId, udid);
+                    CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
                     if (casRes != null && casRes.OperationResult == eOperationResult.NoError && casRes.Value != null)
                     {
                         APIToken apiToken = casRes.Value;
@@ -220,12 +222,13 @@ namespace TVPApiModule.Manager
 
                             if (_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_EXPIRATION_MINUTES), casRes.DocVersion))
                             {
-                                token = apiToken;
+                                token = GetTokenResponseObject(apiToken); 
                             }
                             else
                             {
-                                logger.ErrorFormat("RefreshAccessToken: token cannot be refreshed for UDID = {0}", udid);
-                                returnError(403);
+                                apiToken = _client.Get<APIToken>(apiTokenId);
+                                if (apiToken != null)
+                                    token = GetTokenResponseObject(apiToken);
                             }
                         }
                         else // refresh token doesn't match
@@ -252,21 +255,24 @@ namespace TVPApiModule.Manager
                 HttpContext.Current.Items.Add("Error", "No UDID or refresh token was supplied");
                 returnError(403);
             }
+
             return token;
         }
 
-        public static bool ValidateAccessToken(string udid, string accessToken)
+
+
+        public static bool ValidateAccessToken(int groupId, string udid, string accessToken)
         {
             bool valid = false;
 
-            string apiTokenId = GetAPITokenId(udid);
+            string apiTokenId = GetAPITokenId(groupId, udid);
             if (_client.Exists(apiTokenId))
             {
                 APIToken apiToken = _client.Get<APIToken>(apiTokenId);
                 if (apiToken != null)
                 {
                     // valid access token - tokens match and not expired
-                    if (apiToken.AccessToken == accessToken && apiToken.CreateDate.AddMinutes(ACCESS_TOKEN_EXPIRATION_MINUTES) >= DateTime.UtcNow)
+                    if (apiToken.AccessToken == accessToken && TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddMinutes(ACCESS_TOKEN_EXPIRATION_MINUTES) >= DateTime.UtcNow)
                     {
                         valid = true;
                     }
@@ -290,9 +296,9 @@ namespace TVPApiModule.Manager
             return valid;
         }
 
-        private static string GetAPITokenId(string udid)
+        private static string GetAPITokenId(int groupId, string udid)
         {
-            return string.Format("access_{0}", udid);
+            return string.Format("access_{0}_{1}", groupId, udid);
         }
 
         private static string GetAppCredentialsId(int groupId)
@@ -312,6 +318,18 @@ namespace TVPApiModule.Manager
             {
                 HttpContext.Current.Items["StatusDescription"] = description;
             }
+        }
+
+        private static object GetTokenResponseObject(APIToken apiToken)
+        {
+            var expirationInSeconds = ACCESS_TOKEN_EXPIRATION_MINUTES * 60;
+
+            return new 
+            { 
+                access_token = apiToken.AccessToken, 
+                refresh_token = apiToken.RefreshToken,
+                expiration_time = apiToken.CreateDate + expirationInSeconds
+            };
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using ApiObjects.CouchbaseWrapperObjects;
+using TVPApiModule.Helper;
 
 
 namespace TVPApiModule.Objects.Authorization
@@ -20,7 +21,7 @@ namespace TVPApiModule.Objects.Authorization
         public string RefreshToken { get; set; }
 
         [JsonProperty("create_date")]
-        public DateTime CreateDate { get; set; }
+        public double CreateDate { get; set; }
 
         [JsonIgnore]
         public override string Id
@@ -34,7 +35,7 @@ namespace TVPApiModule.Objects.Authorization
             _groupId = groupId;
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            CreateDate = DateTime.UtcNow;
+            CreateDate = TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
         }
 
 

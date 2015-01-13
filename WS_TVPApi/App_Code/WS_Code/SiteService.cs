@@ -1361,9 +1361,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Exchanges the temporary device token with an access token")]
-        public APIToken ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken)
+        public object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken)
         {
-            APIToken response = null;
+            object response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ExchangeDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1387,9 +1387,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
-        public APIToken RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken)
+        public object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken)
         {
-            APIToken response = null;
+            object response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RefreshAccessToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

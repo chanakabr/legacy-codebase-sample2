@@ -106,9 +106,9 @@ namespace TVPApiServices
         string GenerateDeviceToken(InitializationObject initObj, string appId);
 
         [OperationContract]
-        APIToken ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken);
+        object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken);
 
         [OperationContract]
-        APIToken RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken);
+        object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken);
     }
 }

@@ -147,6 +147,7 @@
     <Compile Include="Helper\ResponseTimeHelper.cs" />
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\TimeHelper.cs" />
     <Compile Include="Helper\TranslationHelper.cs" />
     <Compile Include="Helper\CRMHelper.cs" />
     <Compile Include="Helper\VoteHelper.cs" />
