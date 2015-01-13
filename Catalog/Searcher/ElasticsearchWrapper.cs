@@ -77,7 +77,11 @@ namespace Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in lMediaDocs)
                         {
-                            oRes.m_resultIDs.Add(new SearchResult() { assetID = doc.asset_id, UpdateDate = doc.cache_date });
+                            oRes.m_resultIDs.Add(new SearchResult()
+                            {
+                                assetID = doc.asset_id,
+                                UpdateDate = doc.update_date
+                            });
                         }
 
                         if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
@@ -257,13 +261,21 @@ namespace Catalog
                         {
                             if (dItems.TryGetValue(mediaID, out oTemp))
                             {
-                                lSortedMedias.m_resultIDs.Add(new SearchResult() { assetID = oTemp.asset_id, UpdateDate = oTemp.cache_date });
+                                lSortedMedias.m_resultIDs.Add(new SearchResult()
+                                {
+                                    assetID = oTemp.asset_id,
+                                    UpdateDate = oTemp.update_date
+                                });
                             }
                         }
                     }
                     else
                     {
-                        lSortedMedias.m_resultIDs = lSearchResults.Select(item => new SearchResult() { assetID = item.asset_id, UpdateDate = item.cache_date }).ToList();
+                        lSortedMedias.m_resultIDs = lSearchResults.Select(item => new SearchResult()
+                        {
+                            assetID = item.asset_id,
+                            UpdateDate = item.update_date
+                        }).ToList();
                     }
                 }
             }
@@ -383,7 +395,7 @@ namespace Catalog
                 if (mediaDoc != null)
                 {
                     oResult.assetID = mediaDoc.asset_id;
-                    oResult.UpdateDate = mediaDoc.cache_date;
+                    oResult.UpdateDate = mediaDoc.update_date;
                 }
             }
             return oResult;
@@ -432,7 +444,11 @@ namespace Catalog
                     if (lDocs != null)
                     {
                         epgResponse = new SearchResultsObj();
-                        epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult { assetID = doc.asset_id, UpdateDate = doc.cache_date }).ToList();
+                        epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult
+                        {
+                            assetID = doc.asset_id,
+                            UpdateDate = doc.update_date
+                        }).ToList();
                         epgResponse.n_TotalItems = nTotalRecords;
                     }
                 }
@@ -543,6 +559,8 @@ namespace Catalog
                     doc.name = ((tempToken = jsonObj.SelectToken("_source.name")) == null ? string.Empty : (string)tempToken);
                     doc.cache_date = ((tempToken = jsonObj.SelectToken("_source.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                     DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
+                    doc.update_date = ((tempToken = jsonObj.SelectToken("_source.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                    DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
                 }
             }
             catch (Exception ex)
@@ -609,6 +627,8 @@ namespace Catalog
                             group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
                             name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
                             cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                            update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
                         }).ToList();
                     }
@@ -646,6 +666,8 @@ namespace Catalog
                             group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
                             name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
                             cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                            update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                             epg_channel_id = ((tempToken = item.SelectToken("fields.epg_channel_id")) == null ? 0 : (int)tempToken),
                             start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
