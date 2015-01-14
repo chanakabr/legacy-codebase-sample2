@@ -43,7 +43,8 @@ namespace TVPPro.SiteManager.Helper
             GetAutoCompleteSearchList,
             GetUserActivityFeed,
             GetCrowdsourceFeed,
-            GetAccountSTBs
+            GetAccountSTBs,
+            MediaMark
         }
 
         static byte[] GetBytes(string str)
