@@ -284,70 +284,75 @@ namespace Catalog
             try
             {
                 result = true;
-                Metas oMeta = new Metas();
                 List<Metas> lMetas = new List<Metas>();
-                string sFieldName;
-                string sFieldVal;
-                string sName;
-                for (int i = 1; i < 20; i++)
+
+                if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
                 {
-                    sFieldName = "META" + i.ToString() + "_STR_NAME";
-                    sFieldVal = "META" + i.ToString() + "_STR";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                    Metas oMeta = new Metas();
+                    string sFieldName;
+                    string sFieldVal;
+                    string sName;
+                    for (int i = 1; i < 20; i++)
                     {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
+                        sFieldName = "META" + i.ToString() + "_STR_NAME";
+                        sFieldVal = "META" + i.ToString() + "_STR";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                         {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
                             {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
                             }
                         }
+                        oMeta = new Metas();
                     }
-                    oMeta = new Metas();
+
+                    for (int i = 1; i < 11; i++)
+                    {
+                        sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
+                        sFieldVal = "META" + i.ToString() + "_DOUBLE";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        {
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
+                            {
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
+                            }
+                        }
+                        oMeta = new Metas();
+                    }
+
+                    for (int i = 1; i < 11; i++)
+                    {
+                        sFieldName = "META" + i.ToString() + "_BOOL_NAME";
+                        sFieldVal = "META" + i.ToString() + "_BOOL";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        {
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
+                            {
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
+                            }
+                        }
+                        oMeta = new Metas();
+                    }
                 }
 
-                for (int i = 1; i < 11; i++)
-                {
-                    sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
-                    sFieldVal = "META" + i.ToString() + "_DOUBLE";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
-                    {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
-                        {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                            {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
-                            }
-                        }
-                    }
-                    oMeta = new Metas();
-                }
-
-                for (int i = 1; i < 11; i++)
-                {
-                    sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                    sFieldVal = "META" + i.ToString() + "_BOOL";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
-                    {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
-                        {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                            {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
-                            }
-                        }
-                    }
-                    oMeta = new Metas();
-                }
                 return lMetas;
             }
             catch (Exception ex)
