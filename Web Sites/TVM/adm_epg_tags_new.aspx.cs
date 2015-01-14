@@ -221,8 +221,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_tag_flag = new DataRecordDropDownField("lu_tag_type_flag", "DESCRIPTION", "id", "", null, 60, true);
         dr_tag_flag.SetNoSelectStr("---");
-        dr_tag_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "tag_type_flag", false);
-        dr_tag_flag.SetWhereString("MEDIA_EPG = 2"); // only the metas for epg 
+        dr_tag_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "tag_type_flag", false);     
         theRecord.AddRecord(dr_tag_flag);
 
         string sTable = theRecord.GetTableHTML("adm_epg_tags_new.aspx?submited=1");

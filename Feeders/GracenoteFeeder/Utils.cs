@@ -269,8 +269,8 @@ namespace GracenoteFeeder
             if (eEpgChannelType == EpgChannelType.DTT)
             {
                 int nMetaTypeFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "meta_type_flag");
-                MetaTypeFlag eTagTypeFlag = (MetaTypeFlag)nMetaTypeFlag;
-                if (eTagTypeFlag == MetaTypeFlag.TimeShifted)
+                TagTypeFlag eTagTypeFlag = (TagTypeFlag)nMetaTypeFlag;
+                if (eTagTypeFlag == TagTypeFlag.TimeShifted)
                 {
                     sDefaultVal = "NO";
                 }
