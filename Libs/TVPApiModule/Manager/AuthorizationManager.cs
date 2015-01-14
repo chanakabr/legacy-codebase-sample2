@@ -16,16 +16,16 @@ namespace TVPApiModule.Manager
 {
     public class AuthorizationManager
     {
-        private static int DEVICE_TOKEN_EXPIRATION_MINUTES = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationMinutes"]) ? 0 :int.Parse(ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationMinutes"]);
-        private static int ACCESS_TOKEN_EXPIRATION_MINUTES = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationMinutes"]) ? 0 : int.Parse(ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationMinutes"]);
-        private static int REFRESH_TOKEN_EXPIRATION_MINUTES = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationMinutes"]) ? 0 : int.Parse(ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationMinutes"]);
-
         private static ILog logger = log4net.LogManager.GetLogger(typeof(AuthorizationManager));
+        
+        private static long DEVICE_TOKEN_EXPIRATION_SECONDS;
+        private static long ACCESS_TOKEN_EXPIRATION_SECONDS;
+        private static long REFRESH_TOKEN_EXPIRATION_SECONDS;
 
-        private static GenericCouchbaseClient _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
-     
-        private static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-        private Dictionary<int, AppCredentials> _appsCredentials = new Dictionary<int, AppCredentials>();
+        private static GenericCouchbaseClient _client;
+
+        private static ReaderWriterLockSlim _lock;
+        private Dictionary<string, AppCredentials> _appsCredentials;
         private static AuthorizationManager _instance = null;
 
         public static AuthorizationManager Instance
@@ -41,9 +41,20 @@ namespace TVPApiModule.Manager
 
         private AuthorizationManager()
         {
+            string deviceTokenExpiration = ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationSeconds"];
+            string accessTokenExpiration = ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationSeconds"];
+            string refreshTokenExpiration = ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationSeconds"];
+            long.TryParse(deviceTokenExpiration, out DEVICE_TOKEN_EXPIRATION_SECONDS);
+            long.TryParse(accessTokenExpiration, out ACCESS_TOKEN_EXPIRATION_SECONDS);
+            long.TryParse(refreshTokenExpiration, out REFRESH_TOKEN_EXPIRATION_SECONDS);
+
+            _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
+
+            _lock = new ReaderWriterLockSlim();
+            _appsCredentials = new Dictionary<string, AppCredentials>();
         }
 
-        public AppCredentials GetAppCredentials(int groupId)
+        public AppCredentials GetAppCredentials(string appId)
         {
             AppCredentials appCredentials = null;
 
@@ -52,11 +63,11 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    _appsCredentials.TryGetValue(groupId, out appCredentials);
+                    _appsCredentials.TryGetValue(appId, out appCredentials);
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("GetAppCredentials: on extracting from dictionary with groupId = {0}, Exception = {1}", groupId, ex);
+                    logger.ErrorFormat("GetAppCredentials: on extracting from dictionary with appId = {0}, Exception = {1}", appId, ex);
                 }
                 finally
                 {
@@ -67,38 +78,34 @@ namespace TVPApiModule.Manager
             // if not exists in dictionary, try get from CB 
             if (appCredentials == null)
             {
-                string appCredentialsId = GetAppCredentialsId(groupId);
-                if (_client.Exists(appCredentialsId))
+                string appCredentialsId = AppCredentials.GetAppCredentialsId(appId);
+                appCredentials = _client.Get<AppCredentials>(appCredentialsId);
+                if (appCredentials != null)
                 {
-                    appCredentials = _client.Get<AppCredentials>(appCredentialsId);
-
-                    if (appCredentials != null)
+                    // add app credentials to dictionary if not exists
+                    if (_lock.TryEnterWriteLock(1000))
                     {
-                        // add app credentials to dictionary if not exists
-                        if (_lock.TryEnterWriteLock(1000))
+                        try
                         {
-                            try
+                            if (!_appsCredentials.Keys.Contains(appId))
                             {
-                                if (!_appsCredentials.Keys.Contains(groupId))
-                                {
-                                    _appsCredentials.Add(groupId, appCredentials);
-                                }
+                                _appsCredentials.Add(appId, appCredentials);
                             }
-                            catch (Exception ex)
-                            {
-                                logger.ErrorFormat("GetAppCredentials: on adding to dictionary with groupId = {0}, Exception = {1}", groupId, ex);
-                            }
-                            finally
-                            {
-                                _lock.ExitWriteLock();
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.ErrorFormat("GetAppCredentials: on adding to dictionary with appId = {0}, Exception = {1}", appId, ex);
+                        }
+                        finally
+                        {
+                            _lock.ExitWriteLock();
                         }
                     }
                 }
                 // no app credentials in CB
                 else
                 {
-                    logger.ErrorFormat("GetAppCredentials: app credentials not exist for groupId = {0}", groupId);
+                    logger.ErrorFormat("GetAppCredentials: app credentials not exist for appId = {0}", appId);
                 }
             }
 
@@ -109,206 +116,147 @@ namespace TVPApiModule.Manager
         public static AppCredentials GenerateAppCredentials(int groupId)
         {
             AppCredentials appCredentials = null;
-            appCredentials = _client.Get<AppCredentials>(GetAppCredentialsId(groupId));
-            if (appCredentials != null)
-            {
-                appCredentials = new AppCredentials(groupId);
-                _client.Store<AppCredentials>(appCredentials);
-            }
+            appCredentials = new AppCredentials(groupId);
+            _client.Store<AppCredentials>(appCredentials);
             return appCredentials;
         }
 
         
 
-        public static string GenerateDeviceToken(string udid, int groupId, string appId)
+        public static string GenerateDeviceToken(string udid, string appId)
         {
-            string token = null;
-            if (!string.IsNullOrEmpty(udid))
+            // validate request parameters
+            if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId))
             {
-                // validate app credentials
-                AppCredentials appCredentials = Instance.GetAppCredentials(groupId);
-                if (appCredentials != null && appCredentials.AppID == appId)
-                {
-                    DeviceToken deviceToken = new DeviceToken(groupId, udid);
-                    _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddMinutes(DEVICE_TOKEN_EXPIRATION_MINUTES));
-                    token = deviceToken.Token;
-                }
-                else // app credentials not found or appId doesn't match
-                {
-                    logger.ErrorFormat("GenerateDeviceToken: appId doesn't match for groupId = {0}", groupId);
-                    HttpContext.Current.Items.Add("Error", "invalid appId");
-                    returnError(403);
-                }
-            }
-            else
-            {
-                logger.ErrorFormat("GenerateDeviceToken: No UDID was supplied for groupId = {0}", groupId);
-                HttpContext.Current.Items.Add("Error", "No UDID was supplied");
+                logger.ErrorFormat("GenerateDeviceToken: bad request. app_id = {0}, udid = {2}", appId, udid);
                 returnError(403);
+                return null;
             }
-            return token;
-        }
 
-        public static object ExchangeDeviceToken(string udid, int groupId, string appId, string appSecret, string deviceToken)
-        {
-            object token = null;
-            if (!string.IsNullOrEmpty(deviceToken) || !string.IsNullOrEmpty(udid))
+            // validate app credentials
+            AppCredentials appCredentials = Instance.GetAppCredentials(appId);
+            if (appCredentials == null)
             {
-                // validate app credentials
-                AppCredentials appCredentials = Instance.GetAppCredentials(groupId);
-                if (appCredentials != null && appCredentials.AppID == appId && appCredentials.AppSecret == appSecret)
-                {
-                    // validate device token
-                    string deviceTokenId = GetDeviceTokenId(groupId, udid);
-                    CasGetResult<DeviceToken> deviceTokenCasRes = _client.GetWithLock<DeviceToken>(deviceTokenId, TimeSpan.FromSeconds(5));
-                    if (deviceTokenCasRes != null && deviceTokenCasRes.OperationResult == eOperationResult.NoError && deviceTokenCasRes.Value != null)
-                    {
-                        if (deviceTokenCasRes.Value.Token == deviceToken)
-                        {
-                            // generate access token and refresh token pair
-                            APIToken apiToken = new APIToken(groupId, udid);
-                            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_EXPIRATION_MINUTES));
-                            _client.Unlock(deviceTokenId, deviceTokenCasRes.DocVersion);
-                            _client.Remove(deviceTokenId);
-                            token = GetTokenResponseObject(apiToken);
-                        }
-                        else // device token doesn't match
-                        {
-                            logger.ErrorFormat("ExchangeDeviceToken: device token not valid for udid = {0}", udid);
-                            returnError(403);
-                        }
-                    }
-                    else // device token not found in CB
-                    {
-                        logger.ErrorFormat("ExchangeDeviceToken: device token not valid or expired for udid = {0}, groupId = {1}", udid, groupId);
-                        returnError(403);
-                    }
-                }
-                else // app credentials not found or don't match
-                {
-                    logger.ErrorFormat("ExchangeDeviceToken: app credentials do not exist or do not match for groupId = {0}", groupId);
-                    returnError(403);
-                }
-            }
-            else
-            {
-                logger.ErrorFormat("ExchangeDeviceToken: No UDID or device token was supplied for groupId = {0}", groupId);
-                HttpContext.Current.Items.Add("Error", "No UDID or device token was supplied");
+                logger.ErrorFormat("GenerateDeviceToken: appId not found = {0}", appId);
                 returnError(403);
+                return null;
             }
-            return token;
+
+            // generate device token
+            DeviceToken deviceToken = new DeviceToken(appId, udid);
+            _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(DEVICE_TOKEN_EXPIRATION_SECONDS));
+            return deviceToken.Token;        
         }
 
-        public static object RefreshAccessToken(string udid, int groupId, string appId, string appSecret, string refreshToken)
+        public static object ExchangeDeviceToken(string udid, string appId, string appSecret, string deviceToken)
         {
-            object token = null;
-            if (!string.IsNullOrEmpty(refreshToken) || !string.IsNullOrEmpty(udid))
+            // validate request parameters
+            if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(appSecret) || string.IsNullOrEmpty(deviceToken))
             {
-                // validate device token
-                AppCredentials appCredentials = Instance.GetAppCredentials(groupId);
-                if (appCredentials != null && appCredentials.AppID == appId && appCredentials.AppSecret == appSecret)
-                {
-                    // get access token and refresh token pair
-                    string apiTokenId = GetAPITokenId(groupId, udid);
-                    CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
-                    if (casRes != null && casRes.OperationResult == eOperationResult.NoError && casRes.Value != null)
-                    {
-                        APIToken apiToken = casRes.Value;
-                        // validate refresh token
-                        if (apiToken != null && apiToken.RefreshToken == refreshToken)
-                        {
-                            // generate new access token and refresh token pair
-                            apiToken = new APIToken(groupId, udid);
-
-                            if (_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_EXPIRATION_MINUTES), casRes.DocVersion))
-                            {
-                                token = GetTokenResponseObject(apiToken); 
-                            }
-                            else
-                            {
-                                apiToken = _client.Get<APIToken>(apiTokenId);
-                                if (apiToken != null)
-                                    token = GetTokenResponseObject(apiToken);
-                            }
-                        }
-                        else // refresh token doesn't match
-                        {
-                            logger.ErrorFormat("RefreshAccessToken: refresh token is not valid for UDID = {0}", udid);
-                            returnError(403);
-                        }
-                    }
-                    else // refresh token not found in CB
-                    {
-                        logger.ErrorFormat("RefreshAccessToken: refresh token is expired for UDID = {0}", udid);
-                        returnError(403);
-                    }
-                }
-                else // app credentials not found or don't match
-                {
-                    logger.ErrorFormat("RefreshAccessToken: app credentials do not exist or do not match for groupId = {0}", groupId);
-                    returnError(403);
-                }
-            }
-            else
-            {
-                logger.ErrorFormat("RefreshAccessToken: No UDID or refresh token was supplied for groupId = {0}", groupId);
-                HttpContext.Current.Items.Add("Error", "No UDID or refresh token was supplied");
+                logger.ErrorFormat("ExchangeDeviceToken: Bad request udid = {0}, appId = {1}, appSecret = {2}, deviceToken = {3}", udid, appId, appSecret, deviceToken);
                 returnError(403);
+                return null;
             }
 
-            return token;
-        }
-
-
-
-        public static bool ValidateAccessToken(int groupId, string udid, string accessToken)
-        {
-            bool valid = false;
-
-            string apiTokenId = GetAPITokenId(groupId, udid);
-            if (_client.Exists(apiTokenId))
+             // validate app credentials
+            AppCredentials appCredentials = Instance.GetAppCredentials(appId);
+            if (appCredentials == null || appCredentials.AppSecret != appSecret)
             {
-                APIToken apiToken = _client.Get<APIToken>(apiTokenId);
-                if (apiToken != null)
-                {
-                    // valid access token - tokens match and not expired
-                    if (apiToken.AccessToken == accessToken && TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddMinutes(ACCESS_TOKEN_EXPIRATION_MINUTES) >= DateTime.UtcNow)
-                    {
-                        valid = true;
-                    }
-                    // access token expired 
-                    else if (apiToken.AccessToken == accessToken)
-                    {
-                        valid = false;
-                        returnError(401);
-                    }
-                    else
-                    {
-                        valid = false;
-                        returnError(403);
-                    }
-                }
-            }
-            else // access token was not found in CB
-            {
+                logger.ErrorFormat("ExchangeDeviceToken: app credentials not found or do not match for appId = {0}", appId);
                 returnError(403);
+                return null;
             }
-            return valid;
+
+            // validate device token
+            string deviceTokenId = DeviceToken.GetDeviceTokenId(appId, deviceToken);
+            CasGetResult<DeviceToken> deviceTokenCasRes = _client.GetWithCas<DeviceToken>(deviceTokenId);
+            if (deviceTokenCasRes == null || deviceTokenCasRes.OperationResult != eOperationResult.NoError || deviceTokenCasRes.Value == null || deviceTokenCasRes.Value.UDID != udid)
+            {
+                logger.ErrorFormat("ExchangeDeviceToken: device token not valid or expired. deviceToken = {0}, udid = {1}, appId = {2}", deviceToken, udid, appId);
+                returnError(403);
+                return null;
+            }
+
+            // generate access token and refresh token pair
+            APIToken apiToken = new APIToken(appId, appCredentials.GroupId, udid);
+            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS));
+            _client.Remove(deviceTokenId);
+
+            return GetTokenResponseObject(apiToken);
         }
 
-        private static string GetAPITokenId(int groupId, string udid)
+        public static object RefreshAccessToken(string appId, string appSecret, string refreshToken, string accessToken)
         {
-            return string.Format("access_{0}_{1}", groupId, udid);
+            // validate request parameters
+            if (string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(appSecret) || string.IsNullOrEmpty(refreshToken))
+            {
+                logger.ErrorFormat("RefreshAccessToken: Bad request appId = {0}, appSecret = {1}, refreshToken = {2}", appId, appSecret, refreshToken);
+                returnError(403);
+                return null;
+            }
+
+            // validate app credentials
+            AppCredentials appCredentials = Instance.GetAppCredentials(appId);
+            if (appCredentials == null || appCredentials.AppSecret != appSecret)
+            {
+                logger.ErrorFormat("RefreshAccessToken: app credentials not found or do not match for appId = {0}", appId);
+                returnError(403);
+                return null;
+            }
+
+            // try get api token from CB
+            string apiTokenId = APIToken.GetAPITokenId(accessToken);
+            CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
+            if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
+            {
+                logger.ErrorFormat("RefreshAccessToken: refreshToken expired appId = {0}, accessToken = {1}, refreshToken = {2}", appId, accessToken, refreshToken);
+                returnError(403);
+                return null;
+            }
+
+            APIToken apiToken = casRes.Value;
+
+            // validate refresh token
+            if (apiToken.RefreshToken != refreshToken)
+            {
+                logger.ErrorFormat("RefreshAccessToken: refreshToken not valid appId = {0}, accessToken = {1}, refreshToken = {2}", appId, accessToken, refreshToken);
+                returnError(403);
+                return null;
+            }
+
+            // generate new access token and refresh token pair
+            apiToken = new APIToken(appId, appCredentials.GroupId, apiToken.UDID);
+
+            if (!_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS), casRes.DocVersion))
+            {
+                // if already refreshed, return it
+                apiToken = _client.Get<APIToken>(apiTokenId);
+            }
+
+            return GetTokenResponseObject(apiToken);
         }
 
-        private static string GetAppCredentialsId(int groupId)
+        public static bool ValidateAccessToken(string accessToken)
         {
-            return string.Format("app_{0}", groupId);
-        }
+            string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
-        private static string GetDeviceTokenId(int groupId, string udid)
-        {
-            return string.Format("device_{0}_{1}", groupId, udid);
+            APIToken apiToken = _client.Get<APIToken>(apiTokenId);
+            if (apiToken == null)
+            {
+                logger.ErrorFormat("ValidateAccessToken: access token not found. access_token = {0}", accessToken);
+                returnError(403);
+                return false;
+            }
+            
+            // access token expired 
+            if (TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddSeconds(ACCESS_TOKEN_EXPIRATION_SECONDS) < DateTime.UtcNow)
+            {
+                logger.ErrorFormat("ValidateAccessToken: access token expired. access_token = {0}", accessToken);
+                returnError(401);
+                return false;
+            }
+
+            return true;
         }
 
         private static void returnError(int statusCode, string description = null)
@@ -322,7 +270,9 @@ namespace TVPApiModule.Manager
 
         private static object GetTokenResponseObject(APIToken apiToken)
         {
-            var expirationInSeconds = ACCESS_TOKEN_EXPIRATION_MINUTES * 60;
+            var expirationInSeconds = ACCESS_TOKEN_EXPIRATION_SECONDS;
+            if (apiToken == null)
+                return null;
 
             return new 
             { 

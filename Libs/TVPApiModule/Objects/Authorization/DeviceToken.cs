@@ -9,23 +9,31 @@ namespace TVPApiModule.Objects.Authorization
 {
     public class DeviceToken : CbDocumentBase
     {
-        private string _udid;
-        private int _groupId;
+        private string _appId;
 
+        [JsonProperty("udid")]
+        public string UDID { get; set; }
+        
         [JsonProperty("device_token")]
         public string Token { get; set; }
 
         [JsonIgnore]
         public override string Id
         {
-            get { return string.Format("device_{0}_{1}", _groupId, _udid); }    
+            get { return GetDeviceTokenId(_appId, Token); }    
         }
 
-        public DeviceToken(int groupId, string udid)
+        public DeviceToken(string appId, string udid)
         {
-            _udid = udid;
-            _groupId = groupId;
+            UDID = udid;
             Token = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            _appId = appId;
+
+        }
+
+        public static string GetDeviceTokenId(string app_id, string token)
+        {
+            return string.Format("device_{0}_{1}", app_id, token);
         }
     }
 }

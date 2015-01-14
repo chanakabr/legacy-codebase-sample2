@@ -1345,7 +1345,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.GenerateDeviceToken(initObj.UDID, groupID, appId);
+                    response = AuthorizationManager.GenerateDeviceToken(initObj.UDID, appId);
                 }
                 catch (Exception ex)
                 {
@@ -1371,7 +1371,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.ExchangeDeviceToken(initObj.UDID, groupID, appId, appSecret, deviceToken);
+                    response = AuthorizationManager.ExchangeDeviceToken(initObj.UDID, appId, appSecret, deviceToken);
                 }
                 catch (Exception ex)
                 {
@@ -1397,7 +1397,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.RefreshAccessToken(initObj.UDID, groupID, appId, appSecret, refreshToken);
+                    response = AuthorizationManager.RefreshAccessToken(appId, appSecret, refreshToken, initObj.Token);
                 }
                 catch (Exception ex)
                 {

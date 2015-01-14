@@ -5,14 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TVPApiModule.Objects
+namespace TVPApiModule.Objects.Authorization
 {
     public class AppCredentials : CbDocumentBase
     {
-        private int _groupId;
+        [JsonIgnore]
+        public string AppId { get; set; }
 
-        [JsonProperty("app_id")]
-        public string AppID { get; set; }
+        [JsonProperty("group_id")]
+        public int GroupId { get; set; }
 
         [JsonProperty("app_secret")]
         public string AppSecret { get; set; }
@@ -20,15 +21,19 @@ namespace TVPApiModule.Objects
         [JsonIgnore]
         public override string Id
         {
-            get { return string.Format("app_{0}", _groupId); }
+            get { return GetAppCredentialsId(AppId); }
         }
 
         public AppCredentials(int groupId)
         {
-            _groupId = groupId;
-
-            AppID = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            AppId = Guid.NewGuid().ToString().Replace("-", string.Empty);
             AppSecret = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            GroupId = groupId;
+        }
+
+        public static string GetAppCredentialsId(string appId)
+        {
+            return string.Format("app_{0}", appId);
         }
     }
 }

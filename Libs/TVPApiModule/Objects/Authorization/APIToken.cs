@@ -11,38 +11,44 @@ namespace TVPApiModule.Objects.Authorization
 {
     public class APIToken : CbDocumentBase
     {
-        private string _udid;
-        private int _groupId;
-
-        [JsonProperty("access_token")]
+        [JsonIgnore]
         public string AccessToken { get; set; }
 
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
+        [JsonProperty("udid")]
+        public string UDID { get; set; }
+
         [JsonProperty("create_date")]
         public double CreateDate { get; set; }
+
+        [JsonProperty("app_id")]
+        public string AppId { get; set; }
+
+        [JsonProperty("group_id")]
+        public int GroupID { get; set; }
 
         [JsonIgnore]
         public override string Id
         {
-            get { return string.Format("access_{0}_{1}", _groupId, _udid); }
+            get { return GetAPITokenId(AccessToken); }
         }
 
-        public APIToken(int groupId, string udid)
+        public APIToken(string appId, int groupId, string udid)
         {
-            _udid = udid;
-            _groupId = groupId;
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             CreateDate = TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
+            AppId = appId;
+            GroupID = groupId;
         }
 
-
-
-        internal void RefreshAccessToken()
+        public static string GetAPITokenId(string accessToken)
         {
-            throw new NotImplementedException();
+            return string.Format("access_{0}", accessToken);
         }
+
+        
     }
 }
