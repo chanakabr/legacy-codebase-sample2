@@ -260,14 +260,4 @@ namespace ApiObjects
         [EnumMember]
         TimeShifted = 1
     }
-
-    [Serializable]
-    public enum MetaTypeFlag
-    {
-        [EnumMember]
-        TimeShifted = 1
-    }
-
-
-
 }
