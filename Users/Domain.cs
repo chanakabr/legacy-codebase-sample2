@@ -1456,19 +1456,12 @@ namespace Users
             m_DefaultUsersIDs = new List<int>();
             m_PendingUsersIDs = new List<int>();
 
-            int status = 1;
-            int isActive = 1;
+            // get UsersList from CB 
 
-
-            // Get Domain users from DB; Master user is first
-            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
-
-            if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
+            DomainCache oDomainCache = DomainCache.Instance();            
+            oDomainCache.GetUserList(nDomainID, nGroupID, this, ref m_UsersIDs, ref m_PendingUsersIDs, ref m_masterGUIDs, ref m_DefaultUsersIDs);
+            if ((m_UsersIDs != null && m_UsersIDs.Count > 0) || (m_masterGUIDs != null && m_masterGUIDs.Count > 0) || (m_DefaultUsersIDs != null && m_DefaultUsersIDs.Count > 0))
             {
-                m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
-                m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
-                m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
-
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
             else
@@ -1477,17 +1470,39 @@ namespace Users
                 return eDomainResponseStatus;
             }
 
+
+            //int status = 1;
+            //int isActive = 1;
+
+
+            //// Get Domain users from DB; Master user is first
+            //Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+
+            //if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
+            //{
+            //    m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
+            //    m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
+            //    m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
+
+            //    eDomainResponseStatus = DomainResponseStatus.OK;
+            //}
+            //else
+            //{
+            //    eDomainResponseStatus = DomainResponseStatus.NoUsersInDomain;
+            //    return eDomainResponseStatus;
+            //}
+
             // Now get only pending users
-            isActive = 0;
-            status = 3;
-            Dictionary<int, int> dbPendingUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            //isActive = 0;
+            //status = 3;
+            //Dictionary<int, int> dbPendingUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
-            if (dbPendingUserIDs != null && dbPendingUserIDs.Count > 0)
-            {
-                m_PendingUsersIDs = dbPendingUserIDs.Select(ut => ut.Key).ToList();
-            }
+            //if (dbPendingUserIDs != null && dbPendingUserIDs.Count > 0)
+            //{
+            //    m_PendingUsersIDs = dbPendingUserIDs.Select(ut => ut.Key).ToList();
+            //}
 
-            return eDomainResponseStatus;
+            //return eDomainResponseStatus;
         }
 
         protected bool SetDomainFlag(int domainId, int val, bool deviceFlag = true)

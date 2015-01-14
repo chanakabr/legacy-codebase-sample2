@@ -387,12 +387,9 @@ namespace DAL
 
                     dTypedUsers[nUserId] = nUserType;
                 }
-
             }
 
             return dTypedUsers;
-
-
         }
 
         public static List<int> GetOperatorUsers(int nOperatorID, List<int> nUserIDs)

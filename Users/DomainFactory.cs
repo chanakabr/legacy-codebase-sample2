@@ -83,7 +83,6 @@ namespace Users
                 }
             }
 
-
             // Create new domain
             Domain oNewDomain = domain.CreateNewDomain(sDomainName, sDomainDescription, nGroupID, nMasterUserGuid, sCoGuid);
             oNewDomain = DomainFactory.CheckAddMonkey(oNewDomain);
