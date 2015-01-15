@@ -879,6 +879,11 @@ namespace Users
             if (inserted > 0)
             {
                 m_UsersIDs.Add(nUserID);
+                // try to add user to CB domain doc 
+                DomainCache oDomainCache = DomainCache.Instance();
+              //  UserDomainType eUserDomainType = UserDomainType
+                //oDomainCache.AddUser(nUserID, nDomainID,0, UserDomainType.
+
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
             else
