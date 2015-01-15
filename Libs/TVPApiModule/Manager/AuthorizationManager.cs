@@ -11,6 +11,7 @@ using System.Web;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Authorization;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.Manager
 {
@@ -21,6 +22,9 @@ namespace TVPApiModule.Manager
         private static long DEVICE_TOKEN_EXPIRATION_SECONDS;
         private static long ACCESS_TOKEN_EXPIRATION_SECONDS;
         private static long REFRESH_TOKEN_EXPIRATION_SECONDS;
+
+        public static string _key { get; set; }
+        public static string _iv { get; set; }
 
         private static GenericCouchbaseClient _client;
 
@@ -52,6 +56,9 @@ namespace TVPApiModule.Manager
 
             _lock = new ReaderWriterLockSlim();
             _appsCredentials = new Dictionary<string, AppCredentials>();
+
+            _key = ConfigurationManager.AppSettings["Authorization.key"];
+            _iv = ConfigurationManager.AppSettings["Authorization.iv"];
         }
 
         public AppCredentials GetAppCredentials(string appId)
@@ -78,7 +85,7 @@ namespace TVPApiModule.Manager
             // if not exists in dictionary, try get from CB 
             if (appCredentials == null)
             {
-                string appCredentialsId = AppCredentials.GetAppCredentialsId(appId);
+                string appCredentialsId = AppCredentials.GetAppCredentialsId(EncryptData(appId));
                 appCredentials = _client.Get<AppCredentials>(appCredentialsId);
                 if (appCredentials != null)
                 {
@@ -115,9 +122,12 @@ namespace TVPApiModule.Manager
         //Maybe should be deleted later
         public static AppCredentials GenerateAppCredentials(int groupId)
         {
+            new AuthorizationManager();
             AppCredentials appCredentials = null;
             appCredentials = new AppCredentials(groupId);
             _client.Store<AppCredentials>(appCredentials);
+            appCredentials.EncryptedAppId = DecryptData(appCredentials.EncryptedAppId);
+            appCredentials.EncryptedAppSecret = DecryptData(appCredentials.EncryptedAppSecret);
             return appCredentials;
         }
 
@@ -143,7 +153,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate device token
-            DeviceToken deviceToken = new DeviceToken(appId, udid);
+            DeviceToken deviceToken = new DeviceToken(appCredentials.EncryptedAppId, udid);
             _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(DEVICE_TOKEN_EXPIRATION_SECONDS));
             return deviceToken.Token;        
         }
@@ -160,7 +170,7 @@ namespace TVPApiModule.Manager
 
              // validate app credentials
             AppCredentials appCredentials = Instance.GetAppCredentials(appId);
-            if (appCredentials == null || appCredentials.AppSecret != appSecret)
+            if (appCredentials == null || DecryptData(appCredentials.EncryptedAppSecret) != appSecret)
             {
                 logger.ErrorFormat("ExchangeDeviceToken: app credentials not found or do not match for appId = {0}", appId);
                 returnError(403);
@@ -168,7 +178,7 @@ namespace TVPApiModule.Manager
             }
 
             // validate device token
-            string deviceTokenId = DeviceToken.GetDeviceTokenId(appId, deviceToken);
+            string deviceTokenId = DeviceToken.GetDeviceTokenId(appCredentials.EncryptedAppId, deviceToken);
             CasGetResult<DeviceToken> deviceTokenCasRes = _client.GetWithCas<DeviceToken>(deviceTokenId);
             if (deviceTokenCasRes == null || deviceTokenCasRes.OperationResult != eOperationResult.NoError || deviceTokenCasRes.Value == null || deviceTokenCasRes.Value.UDID != udid)
             {
@@ -178,7 +188,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(appId, appCredentials.GroupId, udid);
+            APIToken apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, udid);
             _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS));
             _client.Remove(deviceTokenId);
 
@@ -197,7 +207,7 @@ namespace TVPApiModule.Manager
 
             // validate app credentials
             AppCredentials appCredentials = Instance.GetAppCredentials(appId);
-            if (appCredentials == null || appCredentials.AppSecret != appSecret)
+            if (appCredentials == null || DecryptData(appCredentials.EncryptedAppSecret) != appSecret)
             {
                 logger.ErrorFormat("RefreshAccessToken: app credentials not found or do not match for appId = {0}", appId);
                 returnError(403);
@@ -225,7 +235,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate new access token and refresh token pair
-            apiToken = new APIToken(appId, appCredentials.GroupId, apiToken.UDID);
+            apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, apiToken.UDID);
 
             if (!_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS), casRes.DocVersion))
             {
@@ -281,5 +291,22 @@ namespace TVPApiModule.Manager
                 expiration_time = apiToken.CreateDate + expirationInSeconds
             };
         }
+
+        public static string EncryptData(string data)
+        {
+            if (data == null)
+                return null;
+            return SecurityHelper.EncryptData(_key, _iv, data);
+        }
+
+        public static string DecryptData(string data)
+        {
+            if (data == null)
+                return null;
+            return SecurityHelper.DecryptData(_key, _iv, data);
+        }
+
+
+        
     }
 }
