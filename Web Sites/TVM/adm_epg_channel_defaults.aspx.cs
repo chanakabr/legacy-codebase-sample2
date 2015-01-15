@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -233,11 +234,6 @@ public partial class adm_epg_channel_defaults : System.Web.UI.Page
         int nCount = 0;
         #region  get all metas
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-
-
-
-
         selectQuery += " select  e.id as idEPG_channel_deafults_values, e.Meta_TAG_TYPE_ID , e.default_value as EpgChannelDeafultValues , emt.id , emt.name   , emt.default_value  as GroupGroupDeafultValues ";
         selectQuery += " FROM EPG_metas_types emt left join EPG_channel_deafults_values e on emt.group_id = e.group_id and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("e.EPG_CHANNEL_ID", "=", t);
@@ -283,50 +279,51 @@ public partial class adm_epg_channel_defaults : System.Web.UI.Page
 
 
         #region  get all tags
-        selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select  e.id as idEPG_channel_deafults_values , e.Meta_TAG_TYPE_ID , e.default_value  as EpgChannelDeafultValues , ett.name, ett.id  , ett.default_value as GroupTagDeafultValues";
-        selectQuery += " from EPG_tags_types ett left join EPG_channel_deafults_values e on	e.Meta_TAG_TYPE_ID = ett.ID and e.type = 3  and  e.status =1 and e.is_active = 1 ";
-        selectQuery += " and e.group_id = ett.group_id and  ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("e.EPG_CHANNEL_ID", "=", t);
-        selectQuery += " where  ett.status = 1 and ett.is_active = 1  and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ett.group_id", "=", nOwnerGroupID);
-       
-        if (selectQuery.Execute("query", true) != null)
+        int channelID = 0;
+        if (t != null)
         {
-            nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
+            channelID = (int)t;
+        }
+        DataTable dt  = DAL.TvmDAL.GetTagsWithDefaultValues(channelID, nOwnerGroupID);
+        int prevID = 0;
+        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        {
+            foreach (DataRow dr in dt.Rows)
             {
-                for (int i = 0; i < nCount; i++)
+                int nID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                if (prevID != nID)
                 {
-                    string sTagName = selectQuery.Table("query").DefaultView[i].Row["name"].ToString();
-                    int nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
-                    string sTagValue = selectQuery.Table("query").DefaultView[i].Row["EpgChannelDeafultValues"].ToString();
-                    string sTagGroupValue = selectQuery.Table("query").DefaultView[i].Row["GroupTagDeafultValues"].ToString();
-          
-                    string sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                    Int32 nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
+                    DataRow[] drs = dt.Select("id = " + nID);                     
+                    string sTagTypeName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                    Int32 nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    string val = string.Empty;                    
+                    List<string> lVals = new List<string>();
+                    foreach (DataRow item in drs)
+                    {
+                        string sTagValue = ODBCWrapper.Utils.GetSafeStr(item, "EpgChannelDeafultValues");
+                        string sTagGroupValue = ODBCWrapper.Utils.GetSafeStr(item, "GroupTagDeafultValues");
+
+                        if (!string.IsNullOrEmpty(sTagValue))
+                        {
+                            lVals.Add(sTagValue);
+                            break; // if this is an epf channels values - stop the foreach loop after one time 
+                        }
+                        else if (!string.IsNullOrEmpty(sTagGroupValue)) // need to get the default value for the group
+                        {
+                            lVals.Add(sTagGroupValue);
+                        }
+                    }
                     DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_channel_deafults_values", "epg_channel_id", "Meta_TAG_TYPE_ID", true, "ltr", 60, "epg_tags");///
                     dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
                     dr_tags.SetCollectionLength(8);
-                    string val = string.Empty;
-                    if (!string.IsNullOrEmpty(sTagValue))
-                    {
-                        val += sTagValue; // only one value 
-                    }
-                    else if (!string.IsNullOrEmpty(sTagGroupValue))
-                    {
-                        val += sTagGroupValue; // only one value 
-                    }
-
+                    val = string.Join(";", lVals);
                     dr_tags.SetValue(val);
                     dr_tags.SetExtraWhere("epg_tag_type_id=" + nTagTypeID.ToString());
                     theRecord.AddRecord(dr_tags);
-
+                    prevID = nID;
                 }
             }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+        }     
         #endregion
 
 
