@@ -19,13 +19,13 @@ namespace TVPApiModule.Manager
     {
         private static ILog logger = log4net.LogManager.GetLogger(typeof(AuthorizationManager));
         
-        private static long DEVICE_TOKEN_EXPIRATION_SECONDS;
-        private static long ACCESS_TOKEN_EXPIRATION_SECONDS;
-        private static long REFRESH_TOKEN_EXPIRATION_SECONDS;
+        private static long deviceTokenExpirationSeconds;
+        private static long accessTokenExpirationSeconds;
+        private static long refreshTokenExpirationSeconds;
 
-        public static string _key { get; set; }
-        public static string _iv { get; set; }
-
+        private static string _key { get; set; }
+        private static string _iv { get; set; }
+         
         private static GenericCouchbaseClient _client;
 
         private static ReaderWriterLockSlim _lock;
@@ -45,20 +45,34 @@ namespace TVPApiModule.Manager
 
         private AuthorizationManager()
         {
-            string deviceTokenExpiration = ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationSeconds"];
-            string accessTokenExpiration = ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationSeconds"];
-            string refreshTokenExpiration = ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationSeconds"];
-            long.TryParse(deviceTokenExpiration, out DEVICE_TOKEN_EXPIRATION_SECONDS);
-            long.TryParse(accessTokenExpiration, out ACCESS_TOKEN_EXPIRATION_SECONDS);
-            long.TryParse(refreshTokenExpiration, out REFRESH_TOKEN_EXPIRATION_SECONDS);
+            try
+            {
+                string deviceTokenExpiration = ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationSeconds"];
+                string accessTokenExpiration = ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationSeconds"];
+                string refreshTokenExpiration = ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationSeconds"];
 
-            _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
+                _key = ConfigurationManager.AppSettings["Authorization.key"];
+                _iv = ConfigurationManager.AppSettings["Authorization.iv"];
 
-            _lock = new ReaderWriterLockSlim();
-            _appsCredentials = new Dictionary<string, AppCredentials>();
+                _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
 
-            _key = ConfigurationManager.AppSettings["Authorization.key"];
-            _iv = ConfigurationManager.AppSettings["Authorization.iv"];
+                _lock = new ReaderWriterLockSlim();
+                _appsCredentials = new Dictionary<string, AppCredentials>();
+
+                if (!long.TryParse(deviceTokenExpiration, out deviceTokenExpirationSeconds) ||
+                    !long.TryParse(accessTokenExpiration, out accessTokenExpirationSeconds) ||
+                    !long.TryParse(refreshTokenExpiration, out refreshTokenExpirationSeconds) ||
+                    string.IsNullOrEmpty(_key) || string.IsNullOrEmpty(_iv))
+                {
+                    logger.ErrorFormat("AuthorizationManager: Configuration for authorization is missing!");
+                    throw new Exception("Configuration for authorization is missing!");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("AuthorizationManager: Configuration for authorization is missing! Error: {0}", ex);
+                throw ex;
+            }
         }
 
         public AppCredentials GetAppCredentials(string appId)
@@ -154,7 +168,7 @@ namespace TVPApiModule.Manager
 
             // generate device token
             DeviceToken deviceToken = new DeviceToken(appCredentials.EncryptedAppId, udid);
-            _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(DEVICE_TOKEN_EXPIRATION_SECONDS));
+            _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(deviceTokenExpirationSeconds));
             return deviceToken.Token;        
         }
 
@@ -179,8 +193,8 @@ namespace TVPApiModule.Manager
 
             // validate device token
             string deviceTokenId = DeviceToken.GetDeviceTokenId(appCredentials.EncryptedAppId, deviceToken);
-            CasGetResult<DeviceToken> deviceTokenCasRes = _client.GetWithCas<DeviceToken>(deviceTokenId);
-            if (deviceTokenCasRes == null || deviceTokenCasRes.OperationResult != eOperationResult.NoError || deviceTokenCasRes.Value == null || deviceTokenCasRes.Value.UDID != udid)
+            DeviceToken deviceTokenObj = _client.Get<DeviceToken>(deviceTokenId);
+            if (deviceTokenObj == null || deviceTokenObj.UDID != udid)
             {
                 logger.ErrorFormat("ExchangeDeviceToken: device token not valid or expired. deviceToken = {0}, udid = {1}, appId = {2}", deviceToken, udid, appId);
                 returnError(403);
@@ -189,7 +203,7 @@ namespace TVPApiModule.Manager
 
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, udid);
-            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS));
+            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(refreshTokenExpirationSeconds));
             _client.Remove(deviceTokenId);
 
             return GetTokenResponseObject(apiToken);
@@ -237,7 +251,7 @@ namespace TVPApiModule.Manager
             // generate new access token and refresh token pair
             apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, apiToken.UDID);
 
-            if (!_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(REFRESH_TOKEN_EXPIRATION_SECONDS), casRes.DocVersion))
+            if (!_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(refreshTokenExpirationSeconds), casRes.DocVersion))
             {
                 // if already refreshed, return it
                 apiToken = _client.Get<APIToken>(apiTokenId);
@@ -246,7 +260,7 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(apiToken);
         }
 
-        public static bool ValidateAccessToken(string accessToken)
+        public static bool IsAccessTokenValid(string accessToken)
         {
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
@@ -259,7 +273,7 @@ namespace TVPApiModule.Manager
             }
             
             // access token expired 
-            if (TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddSeconds(ACCESS_TOKEN_EXPIRATION_SECONDS) < DateTime.UtcNow)
+            if (TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddSeconds(accessTokenExpirationSeconds) < DateTime.UtcNow)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token expired. access_token = {0}", accessToken);
                 returnError(401);
@@ -280,7 +294,7 @@ namespace TVPApiModule.Manager
 
         private static object GetTokenResponseObject(APIToken apiToken)
         {
-            var expirationInSeconds = ACCESS_TOKEN_EXPIRATION_SECONDS;
+            var expirationInSeconds = accessTokenExpirationSeconds;
             if (apiToken == null)
                 return null;
 

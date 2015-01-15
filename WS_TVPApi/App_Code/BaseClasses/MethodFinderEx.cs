@@ -622,7 +622,7 @@ public partial class MethodFinder
             {
                 if (_authorizedMethods == null || !_authorizedMethods.Contains(executer.m_MetodInfo.Name)) // method is not automatically authorized
                 {
-                    if (!AuthorizationManager.ValidateAccessToken(initObj.Token))
+                    if (!AuthorizationManager.IsAccessTokenValid(initObj.Token))
                         return null;
                 }
             }
