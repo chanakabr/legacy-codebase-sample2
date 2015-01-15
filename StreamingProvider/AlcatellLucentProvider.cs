@@ -45,7 +45,7 @@ namespace StreamingProvider
                 }
 
                 # region parameters
-                string formatDate = "yyyy-MM-ddThh:mm:ssZ";
+                string formatDate = "yyyy-MM-ddTHH:mm:ssZ";
                 string host = string.Empty;
                 string sStartTime = string.Empty;
                 string sEndTime = string.Empty;
