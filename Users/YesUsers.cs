@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
@@ -87,11 +88,12 @@ namespace Users
             
             // we are assuming the user name is in the yesUserData      
             GetUserContentInfo(ref sUN, "userName", yesUserData);
+            Logger.Logger.Log("SignInYes", "sUN = " + sUN, "Users");
 
             if (string.IsNullOrEmpty(sUN))
             {
                 o = new UserResponseObject();
-                o.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 return o;
             }
 
@@ -99,28 +101,49 @@ namespace Users
             // Get user permissions
             yesUserData["USER_PERMISSIONS"] = GetUserPermission(yesUserData);
 
-            if ((yesUserData.ContainsKey("USER_PERMISSIONS")) && (!string.IsNullOrEmpty(yesUserData["USER_PERMISSIONS"])) &&
-                (string.Compare(yesUserData["USER_PERMISSIONS"], "OK", StringComparison.OrdinalIgnoreCase) != 0))
+            if (((!yesUserData.ContainsKey("AccountUuid")) ||
+                 (yesUserData.ContainsKey("AccountUuid") && string.IsNullOrEmpty(yesUserData["AccountUuid"]))) &&
+                ((!yesUserData.ContainsKey("userUuid")) ||
+                 (yesUserData.ContainsKey("userUuid") && string.IsNullOrEmpty(yesUserData["userUuid"]))))
             {
                 UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
                 UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
 
-                o = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
+                o = new UserResponseObject();
+                o.m_user = new User();
+                o.m_user.Initialize(userBasic, userDynamic, m_nGroupID, sUN.ToLower());
 
-                //o = new UserResponseObject();
-                //o.m_user = new User();
-
-                o.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
+                o.m_RespStatus = ResponseStatus.ErrorOnInitUser;
                 return o;
             }
+
+
+
+            //if ((yesUserData.ContainsKey("USER_PERMISSIONS")) && (!string.IsNullOrEmpty(yesUserData["USER_PERMISSIONS"])) &&
+            //    (string.Compare(yesUserData["USER_PERMISSIONS"], "OK", StringComparison.OrdinalIgnoreCase) != 0))
+            //{
+            //    UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
+            //    UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
+
+            //    o = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
+
+            //    //o = new UserResponseObject();
+            //    //o.m_user = new User();
+
+            //    o.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
+            //    return o;
+            //}
 
 
             // Check the user CoGuid stuff
             string sUserCoGuid = string.Empty;
             GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);
 
+            string domainCoGuid = string.Empty;
+            GetUserContentInfo(ref domainCoGuid, "AccountUuid", yesUserData);
+
             // If not valid return user not exist
-            //if (string.IsNullOrEmpty(sUserCoGuid))
+            //if (string.IsNullOrEmpty(sUserCoGuid) || string.IsNullOrEmpty(domainCoGuid))
             //{
             //    o = new UserResponseObject();
             //    o.m_RespStatus = ResponseStatus.UserDoesNotExist;
@@ -153,6 +176,10 @@ namespace Users
                             {
                                 yesUserData["orcaToken"] = orcaToken;
                             }
+                            else
+                            {
+                                yesUserData["orcaToken"] = string.Empty;
+                            }
                         }
                     }
                 }
@@ -174,6 +201,7 @@ namespace Users
                 userInfo = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
                 if (userInfo.m_RespStatus != ResponseStatus.OK)
                 {
+                    Logger.Logger.Log("Creating User Error", "sUN = " + sUN + " Response = " + userInfo.m_RespStatus.ToString(), "Users");
                     o = new UserResponseObject();
                     o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                     return o;
@@ -195,7 +223,6 @@ namespace Users
 
 
             // Check if the Domain exist
-            string domainCoGuid = string.Empty;
             int userID = int.Parse(userInfo.m_user.m_sSiteGUID);
             Users.BaseDomain t = null;
 
@@ -207,13 +234,12 @@ namespace Users
 
             if (t == null)
             {
-                //Logger.Logger.Log("Creating Domain_WS Error", "Domain = " + t.ToString(), "Domains");
+                Logger.Logger.Log("Creating Domain_WS Error", "Domain = " + t.ToString(), "Domains");
                 o = new UserResponseObject();
                 o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 return o;
             }
 
-            GetUserContentInfo(ref domainCoGuid, "AccountUuid", yesUserData);
 
             // get TVinci domain ID, if 0 domain is not exist yet
             int domainID = t.GetDomainIDByCoGuid(domainCoGuid);
@@ -252,7 +278,6 @@ namespace Users
                     o.m_RespStatus = ResponseStatus.UserDoesNotExist;
                     return o;
                 }
-
             }
             // if there is existing TVinci domain that associated with the current user return an error
             else if (domainID != 0 && domainID != userTVinciDomainID)
@@ -437,7 +462,8 @@ namespace Users
             "recommendflag_rac",
             "eulaFlag_rac",
             "offerid_rac",
-            "USER_PERMISSIONS"
+            "USER_PERMISSIONS",
+            "orcaToken"
         };
 
         private UserDynamicData GetUserDynamicData(Dictionary<string, string> yesUserData)
@@ -457,6 +483,8 @@ namespace Users
                 }
             }
 
+            udd.m_sUserData = udd.m_sUserData.Where(d => d != null).ToArray();
+                
             return udd;
         }
 
@@ -471,17 +499,70 @@ namespace Users
                 ushort tveStatus = 0;
                 ushort.TryParse(yesUserData["tvestatus_rac"], out tveStatus);
 
-                // Check accNum, AccountUuid, CrmUserId, userUuid are not NULL 
-                if (((yesUserData.ContainsKey("accNum") && !string.IsNullOrEmpty(yesUserData["accNum"])) &&
-                    (yesUserData.ContainsKey("AccountUuid") && !string.IsNullOrEmpty(yesUserData["AccountUuid"])) &&
-                    (yesUserData.ContainsKey("CrmUserId") && !string.IsNullOrEmpty(yesUserData["CrmUserId"])) &&
-                    (yesUserData.ContainsKey("userUuid") && !string.IsNullOrEmpty(yesUserData["userUuid"]))) == false)
+                ushort satstatus = 0;
+                ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
+
+                if (((!yesUserData.ContainsKey("AccountUuid")) ||
+                     (yesUserData.ContainsKey("AccountUuid") && string.IsNullOrEmpty(yesUserData["AccountUuid"]))) &&
+                    ((!yesUserData.ContainsKey("userUuid")) ||
+                     (yesUserData.ContainsKey("userUuid") && string.IsNullOrEmpty(yesUserData["userUuid"]))))
                 {
                     if (tveStatus == 3)
                     {
                         sRet = "LOGIN_MSG_1151";
                         return sRet;
                     }
+
+                    if (tveStatus != 1)
+                    {
+                        sRet = "LOGIN_MSG_109";
+                        return sRet;
+                    }
+
+                    if (satstatus == 3)
+                    {
+                        sRet = "LOGIN_MSG_115";
+                        return sRet;
+                    }
+                }
+
+
+                ushort indicationflag = 0;
+                ushort.TryParse(yesUserData["indicationflag_rac"], out indicationflag);
+
+                string sType = yesUserData["Type"];
+
+                if ((yesUserData.ContainsKey("AccountUuid") && !string.IsNullOrEmpty(yesUserData["AccountUuid"])) &&
+                    ((string.Compare(sType, "slv", StringComparison.OrdinalIgnoreCase) == 0)))
+                {
+                    switch (indicationflag)
+                    {
+                        case 1:
+                            sRet = "LOGIN_MSG_1031";
+                            return sRet;
+                            
+                        case 2:
+                            sRet = "LOGIN_MSG_1041";
+                            return sRet;
+
+                        case 3:
+                            sRet = "LOGIN_MSG_1043";
+                            return sRet;
+                    }
+                }
+
+
+                // Check accNum, AccountUuid, CrmUserId, userUuid are not NULL 
+                if (((yesUserData.ContainsKey("accNum") && !string.IsNullOrEmpty(yesUserData["accNum"])) &&
+                    (yesUserData.ContainsKey("AccountUuid") && !string.IsNullOrEmpty(yesUserData["AccountUuid"])) &&
+                    (yesUserData.ContainsKey("CrmUserId") && !string.IsNullOrEmpty(yesUserData["CrmUserId"])) &&
+                    (yesUserData.ContainsKey("userUuid") && !string.IsNullOrEmpty(yesUserData["userUuid"]))) == false)
+                {
+                    //if (tveStatus == 3)
+                    //{
+                    //    sRet = "LOGIN_MSG_1151";
+                    //    return sRet;
+                    //}
 
                     if (tveStatus == 1)
                     {
@@ -509,8 +590,8 @@ namespace Users
 
                     case 2:
                     case 9:
-                        ushort satstatus = 0;
-                        ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
+                        //ushort satstatus = 0;
+                        //ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
 
                         if (satstatus == 3)
                         {
@@ -519,45 +600,43 @@ namespace Users
                         }
                         else if (satstatus == 1 || satstatus == 2)
                         {
-                            ushort indicationflag = 0;
-                            ushort.TryParse(yesUserData["indicationflag_rac"], out indicationflag);
-
-                            string sType = yesUserData["Type"];
-                            bool isTypeMas = (string.Compare(sType, "mas", StringComparison.OrdinalIgnoreCase) == 0);
-                            bool isTypeReg = (string.Compare(sType, "reg", StringComparison.OrdinalIgnoreCase) == 0);
+                            //string sType = yesUserData["Type"];
+                            bool isMaster = (string.Compare(sType, "mas", StringComparison.OrdinalIgnoreCase) == 0);
+                            bool isSlave = (string.Compare(sType, "slv", StringComparison.OrdinalIgnoreCase) == 0);
+                            //bool isTypeReg = (string.Compare(sType, "reg", StringComparison.OrdinalIgnoreCase) == 0);
 
                             switch (indicationflag)
                             {
                                 case 1:
-                                    if (isTypeMas)
+                                    if (isMaster)
                                     {
                                         sRet = "LOGIN_MSG_103";
                                     }
-                                    else if (isTypeReg)
+                                    else if (isSlave)
                                     {
                                         sRet = "LOGIN_MSG_1031";
                                     }
                                     return sRet;
 
                                 case 2:
-                                    if (isTypeMas)
+                                    if (isMaster)
                                     {
                                         sRet = "LOGIN_MSG_104";
                                     }
-                                    else if (isTypeReg)
+                                    else if (isSlave)
                                     {
                                         sRet = "LOGIN_MSG_1041";
                                     }
                                     return sRet;
 
                                 case 3:
-                                    if (isTypeMas)
+                                    if (isMaster)
                                     {
                                         sRet = "LOGIN_MSG_1042";
                                         return sRet;
                                     }
 
-                                    if (isTypeReg)
+                                    if (isSlave)
                                     {
                                         sRet = "LOGIN_MSG_1043";
                                         return sRet;
@@ -577,7 +656,7 @@ namespace Users
                                     if (eulaFlag == 1)
                                     {
                                         string sStatus = yesUserData["Status"];
-                                        if (isTypeReg &&
+                                        if (isSlave &&
                                             string.Compare(sStatus, "TDS", StringComparison.OrdinalIgnoreCase) == 0)
                                         {
                                             sRet = "LOGIN_MSG_107";
@@ -585,7 +664,7 @@ namespace Users
                                         }
 
                                         // else
-                                        if (isTypeReg &&
+                                        if (isSlave &&
                                             string.Compare(sStatus, "PN", StringComparison.OrdinalIgnoreCase) == 0)
                                         {
                                             sRet = "LOGIN_MSG_108";
