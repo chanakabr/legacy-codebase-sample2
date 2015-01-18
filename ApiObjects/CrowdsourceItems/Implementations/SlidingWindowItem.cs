@@ -25,7 +25,8 @@ namespace ApiObjects.CrowdsourceItems.Implementations
 
         [JsonProperty("typeDescription")]
         public string TypeDescription { 
-            get { return eItemType.VOD.ToString(); } 
+            get { return eItemType.VOD.ToString(); }
+            set { }
         }
     }
 }
