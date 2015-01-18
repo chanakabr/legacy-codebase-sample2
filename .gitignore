@@ -8,3 +8,5 @@ obj/
 *.user
 *.log
 *.suo
+Tvinci.Data.Loaders/Service References/TvinciPlatform.Catalog/Service12.xsd
+Tvinci.Data.Loaders/Service References/TvinciPlatform.Catalog/Service13.xsd
