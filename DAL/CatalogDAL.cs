@@ -2288,7 +2288,6 @@ namespace Tvinci.Core.DAL
             
             dmm.devices = oRes;
             return dmm;
-         
         }
 
         public static bool UpdateOrInsert_EPGDeafultsValues(Dictionary<int, List<string>> dMetasDefaults, Dictionary<int, List<string>> dTagsDefaults, int nEpgChannelID)
@@ -2318,9 +2317,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static Dictionary<int, string> GetMinPeriods()
+        public static Dictionary<string, string> GetMinPeriods()
         {
-            Dictionary<int, string> res = null;
+            Dictionary<string, string> dicMinPeriods = new Dictionary<string,string>();
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MinPeriods");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -2332,12 +2331,25 @@ namespace Tvinci.Core.DAL
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        res.Add((int)dt.Rows[i]["ID"], dt.Rows[i]["Description"].ToString());
+                        object oId = dt.Rows[i]["ID"];
+                        object oDescription = dt.Rows[i]["Description"];
+
+                        if (oId != null && oId != DBNull.Value &&
+                            oDescription != null && oDescription != DBNull.Value)
+                        {
+                            string sId = Convert.ToString(oId);
+                            string sDescription = Convert.ToString(oDescription);
+
+                            if (!dicMinPeriods.ContainsKey(sId))
+                            {
+                                dicMinPeriods.Add(sId, sDescription);
+                            }
+                        }
                     }
                 }
             }
 
-            return res;
+            return dicMinPeriods;
         }
     }
 }
