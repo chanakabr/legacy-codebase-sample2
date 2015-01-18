@@ -163,10 +163,10 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
         private static string GetMinPeriodDescription(int id)
         {
             string res = null;
-            Dictionary<int, string> minPeriods;
+            Dictionary<string, string> minPeriods;
             if (CachingManager.CachingManager.Exist("MinPeriods"))
             {
-                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<int,string>;
+                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string,string>;
             }
             else
             {
@@ -176,7 +176,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
 
             if (minPeriods != null)
-                minPeriods.TryGetValue(id, out res);
+                minPeriods.TryGetValue(id.ToString(), out res);
 
             return res;
         }
