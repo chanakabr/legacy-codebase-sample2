@@ -25,6 +25,8 @@ namespace TVPApi
         public string ApiUser { get; set; }
         public string ApiPass { get; set; }
 
+        public string Token { get; set; }
+
         public InitializationObject()
         {
 

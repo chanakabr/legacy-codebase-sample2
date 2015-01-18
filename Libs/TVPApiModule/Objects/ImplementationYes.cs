@@ -309,11 +309,14 @@ namespace TVPApiModule.Objects
 
             // get orca user token
             string userToken = null;
-            var userData = new ApiUsersService(groupID, platform).GetUserData(siteGuid);
-            if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null && userData.m_user.m_oDynamicData.m_sUserData != null)
+            if (!string.IsNullOrEmpty(siteGuid) && int.Parse(siteGuid) != 0)
             {
-                var dynamicData = userData.m_user.m_oDynamicData.m_sUserData.Where(d => d.m_sDataType == "orcaToken").FirstOrDefault();
-                userToken = dynamicData.m_sValue;
+                var userData = new ApiUsersService(groupID, platform).GetUserData(siteGuid);
+                if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null && userData.m_user.m_oDynamicData.m_sUserData != null)
+                {
+                    var dynamicData = userData.m_user.m_oDynamicData.m_sUserData.Where(d => d.m_sDataType == "orcaToken").FirstOrDefault();
+                    userToken = dynamicData != null ? dynamicData.m_sValue : null;
+                }
             }
 
             TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform, coGuid);

@@ -52,7 +52,17 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ApiObjects">
+      <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="CouchbaseWrapper, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvincicommon\External\CouchbaseWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -137,6 +147,7 @@
     <Compile Include="Helper\ResponseTimeHelper.cs" />
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\TimeHelper.cs" />
     <Compile Include="Helper\TranslationHelper.cs" />
     <Compile Include="Helper\CRMHelper.cs" />
     <Compile Include="Helper\VoteHelper.cs" />
@@ -144,6 +155,7 @@
     <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
     <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Interfaces\IImplementation.cs" />
+    <Compile Include="Manager\AuthorizationManager.cs" />
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
     <Compile Include="Manager\ConfigManager.cs" />
     <Compile Include="Manager\ConnectionManager.cs" />
@@ -151,6 +163,9 @@
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
     <Compile Include="Manager\TextLocalizationManager.cs" />
+    <Compile Include="Objects\Authorization\APIToken.cs" />
+    <Compile Include="Objects\Authorization\AppCredentials.cs" />
+    <Compile Include="Objects\Authorization\DeviceToken.cs" />
     <Compile Include="Objects\CRM\Country.cs" />
     <Compile Include="Objects\CRM\enums.cs" />
     <Compile Include="Objects\CRM\State.cs" />

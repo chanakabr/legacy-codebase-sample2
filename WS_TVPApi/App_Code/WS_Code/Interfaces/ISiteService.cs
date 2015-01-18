@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
+using TVPApiModule.Objects;
+using TVPApiModule.Objects.Authorization;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 
@@ -99,5 +101,14 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId);
+
+        [OperationContract]
+        string GenerateDeviceToken(InitializationObject initObj, string appId);
+
+        [OperationContract]
+        object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken);
+
+        [OperationContract]
+        object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken);
     }
 }

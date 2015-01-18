@@ -16,6 +16,9 @@ using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web.UI;
 using System.Web;
+using TVPApiModule.Objects;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 
 namespace TVPApiServices
@@ -1328,5 +1331,115 @@ namespace TVPApiServices
         }
         
         #endregion
+
+        
+
+        [WebMethod(EnableSession = true, Description = "Generates the temporary device token")]
+        public string GenerateDeviceToken(InitializationObject initObj, string appId)
+        {
+            string response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = AuthorizationManager.GenerateDeviceToken(initObj.UDID, appId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Exchanges the temporary device token with an access token")]
+        public object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken)
+        {
+            object response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ExchangeDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = AuthorizationManager.ExchangeDeviceToken(initObj.UDID, appId, appSecret, deviceToken);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
+        public object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken)
+        {
+            object response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RefreshAccessToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = AuthorizationManager.RefreshAccessToken(appId, appSecret, refreshToken, initObj.Token);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+
+        // Delete later
+        [WebMethod(EnableSession = true, Description = "Generate Application Credentials")]
+        public AppCredentials GenerateAppCredentials(InitializationObject initObj)
+        {
+            AppCredentials response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateAppCredentials", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = AuthorizationManager.GenerateAppCredentials(groupID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+        
+
     }
 }

@@ -145,10 +145,25 @@
             }
             else
             {
-                HttpContext.Current.Response.Clear();
                 string json = new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(new { Error = sError });
+                Response.ClearContent();
                 Response.Write(json);
+                HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
+                HttpContext.Current.Response.Charset = "utf-8";
+                
             }
+        }
+        
+        // Check for Status code
+        if (HttpContext.Current.Items.Contains("StatusCode"))
+        {
+            Response.ClearContent();
+            Response.StatusCode = (int)HttpContext.Current.Items["StatusCode"];
+            if (HttpContext.Current.Items.Contains("StatusDescription"))
+            {
+                Response.StatusDescription = HttpContext.Current.Items["StatusDescription"].ToString();
+            }
+            Response.TrySkipIisCustomErrors = true;
         }
         
         // Write log
@@ -163,8 +178,7 @@
         // Append to IIS log the full Url
         Response.AppendToLog(string.Format("|{0}", sURL));
         
-                
-
+        
     }
        
 </script>
