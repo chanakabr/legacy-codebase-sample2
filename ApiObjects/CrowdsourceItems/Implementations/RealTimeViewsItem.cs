@@ -27,6 +27,7 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         public string TypeDescription
         {
             get { return eItemType.LinearViews.ToString(); }
+            set { }
         }
     }
 }
