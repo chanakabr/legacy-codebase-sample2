@@ -386,6 +386,22 @@ namespace DAL
             return mediaID;
         }
 
+
+        public static DataTable GetTagsWithDefaultValues(int nChannelID, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagsWithDefaultValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@channelID", nChannelID);
+            sp.AddParameter("@groupID", nGroupID);
+
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+
+        }
     }
     
 }

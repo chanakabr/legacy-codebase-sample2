@@ -870,6 +870,11 @@ namespace ElasticSearch.Common
             //public double score { get; set; }
             public string name { get; set; }
             public DateTime cache_date { get; set; }
+            public DateTime update_date
+            {
+                get;
+                set;
+            }
             public int epg_channel_id { get; set; }
             public DateTime start_date { get; set; }
             

@@ -243,5 +243,21 @@ namespace ApiObjects
         Cancelled = 3
     }
 
+    [Serializable]
+    public enum EpgChannelType
+    {       
+        [EnumMember]
+        DTT = 1,
+        [EnumMember]
+        OTT = 2,
+        [EnumMember]
+        BOTH = 3
+    }
 
+    [Serializable]
+    public enum TagTypeFlag
+    {       
+        [EnumMember]
+        TimeShifted = 1
+    }
 }

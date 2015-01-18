@@ -2288,7 +2288,68 @@ namespace Tvinci.Core.DAL
             
             dmm.devices = oRes;
             return dmm;
-         
+        }
+
+        public static bool UpdateOrInsert_EPGDeafultsValues(Dictionary<int, List<string>> dMetasDefaults, Dictionary<int, List<string>> dTagsDefaults, int nEpgChannelID)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgChannelID",nEpgChannelID);
+            sp.AddKeyValueListParameter<int, string>("@MetasDefaults", dMetasDefaults, "key", "value");
+            sp.AddKeyValueListParameter<int, string>("@TagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, 
+            int? orderNum, string TagName, int tagTypeFlag)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGTagTypeWithDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgTagTypelID", nEpgTagTypelID);
+            sp.AddParameter("@TagName", TagName);
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@orderNum", orderNum);
+            sp.AddParameter("@tagTypeFlag", tagTypeFlag);
+            sp.AddKeyValueListParameter<int, string>("@dTagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static Dictionary<string, string> GetMinPeriods()
+        {
+            Dictionary<string, string> dicMinPeriods = new Dictionary<string,string>();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MinPeriods");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        object oId = dt.Rows[i]["ID"];
+                        object oDescription = dt.Rows[i]["Description"];
+
+                        if (oId != null && oId != DBNull.Value &&
+                            oDescription != null && oDescription != DBNull.Value)
+                        {
+                            string sId = Convert.ToString(oId);
+                            string sDescription = Convert.ToString(oDescription);
+
+                            if (!dicMinPeriods.ContainsKey(sId))
+                            {
+                                dicMinPeriods.Add(sId, sDescription);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dicMinPeriods;
         }
     }
 }
