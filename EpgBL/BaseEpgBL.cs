@@ -30,6 +30,7 @@ namespace EpgBL
         public abstract List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration);
 
         public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
+        public abstract bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null);
 
         public abstract bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null);
 

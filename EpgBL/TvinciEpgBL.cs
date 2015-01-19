@@ -57,6 +57,29 @@ namespace EpgBL
             return bRes;
         }
 
+        //test this
+        public override bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null)
+        {    
+            bool bRes = false;
+            try
+            {
+                if (newEpgItem == null)
+                    return false;
+
+                for (int i = 0; i < 3 && !bRes; i++)
+                {  
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(sNewID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.InsertProgram(sNewID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));                                     
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("InsertEpg", string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   sNewID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
+            }
+            return bRes;
+        }
+
         public override bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null)
         {
             bool bRes = false;

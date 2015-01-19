@@ -136,6 +136,11 @@ namespace EpgBL
             return false;
         }
 
+        public override bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null)
+        {
+            return false;
+        }
+
         public override bool UpdateEpg(EpgCB newEpgItem, ulong? cas)
         {
             return false;
