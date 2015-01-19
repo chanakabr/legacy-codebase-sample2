@@ -6805,6 +6805,7 @@ namespace ConditionalAccess
                             int lowestPurchasedAsMediaFileID = 0;
                             List<int> lowestRelatedMediaFileIDs = new List<int>();
                             DateTime? dtLowestStartDate = null;
+                            DateTime? dtLowestEndDate = null;
 
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
@@ -6817,16 +6818,18 @@ namespace ConditionalAccess
                                 string purchasedBySiteGuid = string.Empty;
                                 int purchasedAsMediaFileID = 0;
                                 List<int> relatedMediaFileIDs = new List<int>();
-                                DateTime? dtStartDate = null;
+                                DateTime? dtEntitlementStartDate = null;
+                                DateTime? dtEntitlementEndDate = null;
 
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate);
+                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
                                 sProductCode = oModules[i].m_sProductCode;
 
-                                //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however has been purchased and is is still valid for watching
+                                //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however 
+                                // has been purchased and is is still valid for watching
                                 if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
                                 {
                                     if (!bOnlyLowest)
@@ -6834,7 +6837,8 @@ namespace ConditionalAccess
                                         var tempItemPriceContainer = new ItemPriceContainer();
                                         tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
                                             theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtStartDate);
+                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtEntitlementStartDate,
+                                            dtEntitlementEndDate);
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
                                     else
@@ -6852,7 +6856,8 @@ namespace ConditionalAccess
                                             lowestPurchasedBySiteGuid = purchasedBySiteGuid;
                                             lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
                                             lowestRelatedMediaFileIDs = relatedMediaFileIDs;
-                                            dtLowestStartDate = dtStartDate;
+                                            dtLowestStartDate = dtEntitlementStartDate;
+                                            dtLowestEndDate = dtEntitlementEndDate;
                                         }
                                     }
                                 }
@@ -6865,7 +6870,7 @@ namespace ConditionalAccess
                                     ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
                                     relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
                                     relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate);
+                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
 
                                 itemPriceCont.Insert(0, tempItemPriceContainer);
 
@@ -8851,7 +8856,7 @@ namespace ConditionalAccess
         {
             string strResponse = TimeSpan.Zero.ToString();
 
-            ItemLeftLifeCycleResponse objItemLeftLifeCycle = this.GetItemLeftLifeCycle(sMediaFileID, sSiteGUID, bIsCoGuid, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+            EntitlementResponse objItemLeftLifeCycle = this.GetEntitlement(sMediaFileID, sSiteGUID, bIsCoGuid, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
 
             if (objItemLeftLifeCycle != null)
             {
@@ -8871,10 +8876,10 @@ namespace ConditionalAccess
         /// <param name="p_sLANGUAGE_CODE"></param>
         /// <param name="p_sDEVICE_NAME"></param>
         /// <returns></returns>
-        public ItemLeftLifeCycleResponse GetItemLeftLifeCycle(
+        public EntitlementResponse GetEntitlement(
             string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME)
         {
-            ItemLeftLifeCycleResponse objResponse = new ItemLeftLifeCycleResponse();
+            EntitlementResponse objResponse = new EntitlementResponse();
 
             int nMediaFileID = 0;
             string strViewLifeCycle = TimeSpan.Zero.ToString();
@@ -8924,7 +8929,8 @@ namespace ConditionalAccess
                             DateTime dtNow = DateTime.UtcNow;
                             List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID);
                             List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
-                            DateTime? dtStartDate = GetStartDate(objPrice);
+                            DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
+                            DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
 
                             string sPricingUsername = string.Empty;
                             string sPricingPassword = string.Empty;
@@ -8970,8 +8976,8 @@ namespace ConditionalAccess
                             // Base date is the view date
                             if (nViewLifeCycle > 0)
                             {
-                                DateTime dtEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
-                                TimeSpan tsViewLeftSpan = dtEndDate.Subtract(dtNow);
+                                DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
+                                TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
                                 strViewLifeCycle = tsViewLeftSpan.ToString();
                             }
 
@@ -8991,13 +8997,27 @@ namespace ConditionalAccess
                             //    }
                             //}
 
-                            // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
-                            // Base date is purchase date
-                            if (nFullLifeCycle > 0 && dtStartDate.HasValue)
+                            eTransactionType eBusinessModuleType = GetBusinessModuleType(sPPVMCode);
+
+                            // If it is a subscription, use the end date that is saved in the DB and that was gotten in GetItemPrice
+                            if (eBusinessModuleType == eTransactionType.Subscription || eBusinessModuleType == eTransactionType.Collection)
                             {
-                                DateTime dtEndDate = Utils.GetEndDateTime(dtStartDate.Value, nFullLifeCycle);
-                                TimeSpan tsFullLeftSpan = dtEndDate.Subtract(dtNow);
-                                strFullLifeCycle = tsFullLeftSpan.ToString();
+                                if (dtEntitlementEndDate.HasValue)
+                                {
+                                    TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
+                                    strFullLifeCycle = tsFullLeftSpan.ToString();
+                                }
+                            }
+                            else if (eBusinessModuleType == eTransactionType.PPV)
+                            {
+                                // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
+                                // Base date is purchase date
+                                if (nFullLifeCycle > 0 && dtEntitlementStartDate.HasValue)
+                                {
+                                    DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
+                                    TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
+                                    strFullLifeCycle = tsFullLeftSpan.ToString();
+                                }
                             }
                         }
                     }
@@ -9179,6 +9199,23 @@ namespace ConditionalAccess
             }
 
             return (dtStartDate);
+        }
+
+        /// <summary>
+        /// Returns the end date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private DateTime? GetEndDate(MediaFileItemPricesContainer p_objPrice)
+        {
+            DateTime? dtEndDate = null;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                dtEndDate = p_objPrice.m_oItemPrices[0].m_dtEndDate;
+            }
+
+            return (dtEndDate);
         }
 
         private string GetPricingErrLogMsg(string businessModuleCode, string siteGuid, string mediaFileIDStr,

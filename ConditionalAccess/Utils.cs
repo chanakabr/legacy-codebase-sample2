@@ -635,7 +635,7 @@ namespace ConditionalAccess
         private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
             ref Subscription[] subsRes, ref Collection[] collsRes,
-            ref  Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase, ref Dictionary<string, KeyValuePair<int, DateTime>> collPurchase)
+            ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
         {
             DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
             if (IsBundlesDataSetValid(ds))
@@ -652,6 +652,7 @@ namespace ConditionalAccess
                 DataTable subs = ds.Tables[0];
                 int nWaiver = 0;
                 DateTime dPurchaseDate = DateTime.MinValue;
+                DateTime dEndDate = DateTime.MinValue;
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
@@ -662,8 +663,9 @@ namespace ConditionalAccess
                         string bundleCode = string.Empty;
                         nWaiver = 0;
                         dPurchaseDate = DateTime.MinValue;
+                        dEndDate = DateTime.MinValue;
 
-                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate);
+                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
                         if (IsUserCanStillUseSub(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
@@ -673,7 +675,13 @@ namespace ConditionalAccess
                                 subsToSendToCatalog.Add(subCode);
                                 if (!subsPurchase.ContainsKey(bundleCode))
                                 {
-                                    subsPurchase.Add(bundleCode, new KeyValuePair<int, DateTime>(nWaiver, dPurchaseDate));
+                                    subsPurchase.Add(bundleCode, new UserBundlePurchase()
+                                    {
+                                        sBundleCode = bundleCode,
+                                        nWaiver = nWaiver,
+                                        dtPurchaseDate = dPurchaseDate,
+                                        dtEndDate = dEndDate
+                                    });
                                 }
                             }
                             else
@@ -701,8 +709,9 @@ namespace ConditionalAccess
                         string bundleCode = string.Empty;
                         nWaiver = 0;
                         dPurchaseDate = DateTime.MinValue;
+                        dEndDate = DateTime.MinValue;
 
-                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate);
+                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
                         if (IsUserCanStillUseCol(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
@@ -712,7 +721,13 @@ namespace ConditionalAccess
                                 collsToSendToCatalog.Add(collCode);
                                 if (!collPurchase.ContainsKey(bundleCode))
                                 {
-                                    collPurchase.Add(bundleCode, new KeyValuePair<int, DateTime>(nWaiver, dPurchaseDate));
+                                    collPurchase.Add(bundleCode, new UserBundlePurchase()
+                                    {
+                                        sBundleCode = bundleCode,
+                                        nWaiver = nWaiver,
+                                        dtPurchaseDate = dPurchaseDate,
+                                        dtEndDate = dEndDate
+                                    });
                                 }
                             }
                             else
@@ -803,6 +818,17 @@ namespace ConditionalAccess
                 throw new Exception("Error occurred in GetUserValidBundlesFromListOptimized. Refer to CAS.Utils log file");
 
             }
+        }
+
+        /// <summary>
+        /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
+        /// </summary>
+        private struct UserBundlePurchase
+        {
+            public string sBundleCode;
+            public int nWaiver;
+            public DateTime dtPurchaseDate;
+            public DateTime dtEndDate;
         }
 
         private static List<int> GetFinalCollectionCodes(Dictionary<int, bool> collsAfterPPVCreditValidation)
@@ -902,7 +928,7 @@ namespace ConditionalAccess
         }
 
         private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
-            ref string bundleCode, ref int nWaiver, ref DateTime dPurchaseDate)
+            ref string bundleCode, ref int nWaiver, ref DateTime dPurchaseDate, ref DateTime dEndDate)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
@@ -910,6 +936,8 @@ namespace ConditionalAccess
 
             nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
             dPurchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+
+            dEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE");
         }
 
         private static bool IsBundlesDataSetValid(DataSet ds)
@@ -1474,17 +1502,18 @@ namespace ConditionalAccess
             }
             bool bCancellationWindow = false;
 
-            // purchasedBySiteGuid, purchasedAsMediaFileID and StartDate are only needed in GetItemsPrices.
+            // purchasedBySiteGuid, purchasedAsMediaFileID, EndDate and StartDate are only needed in GetItemsPrices.
             string purchasedBySiteGuid = string.Empty;
             int purchasedAsMediaFileID = 0;
             DateTime? dtStartDate = null;
+            DateTime? dtEndDate = null;
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate);
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -1585,7 +1614,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate)
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate)
         {
             if (ppvModule == null)
             {
@@ -1699,8 +1728,9 @@ namespace ConditionalAccess
                     //check here if it is part of a purchased subscription or part of purchased collections
                     Subscription[] relevantValidSubscriptions = null;
                     Collection[] relevantValidCollections = null;
-                    Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();/*dictionary(subscriptionCode, KeyValuePair<nWaiver, dPurchaseDate>)*/
-                    Dictionary<string, KeyValuePair<int, DateTime>> collPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();
+                    // dictionary(subscriptionCode, [nWaiver, dPurchaseDate, dEndDate])
+                    Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
+                    Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
                     GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
                         ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
@@ -1747,8 +1777,10 @@ namespace ConditionalAccess
                             {
                                 if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
                                 {
-                                    nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].Key;
-                                    dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].Value;
+                                    nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].nWaiver;
+                                    dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].dtPurchaseDate;
+                                    p_dtStartDate = dPurchaseDate;
+                                    p_dtEndDate = subsPurchase[relevantSub.m_SubscriptionCode].dtEndDate;
                                     bCancellationWindow = IsCancellationWindowPerPurchase(relevantSub.m_MultiSubscriptionUsageModule[0], bCancellationWindow, nWaiver, dPurchaseDate);
                                 }
                             }
@@ -1786,8 +1818,11 @@ namespace ConditionalAccess
                         {
                             if (subsPurchase.ContainsKey(relevantCol.m_CollectionCode))
                             {
-                                nWaiver = subsPurchase[relevantCol.m_CollectionCode].Key;
-                                dPurchaseDate = subsPurchase[relevantCol.m_CollectionCode].Value;
+                                nWaiver = subsPurchase[relevantCol.m_CollectionCode].nWaiver;
+                                dPurchaseDate = subsPurchase[relevantCol.m_CollectionCode].dtPurchaseDate;
+                                p_dtStartDate = dPurchaseDate;
+                                p_dtEndDate = subsPurchase[relevantCol.m_CollectionCode].dtEndDate;
+
                                 bCancellationWindow = IsCancellationWindowPerPurchase(relevantCol.m_oCollectionUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
                             }
                         }

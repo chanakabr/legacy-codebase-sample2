@@ -91,7 +91,7 @@
     <Compile Include="ConditionalAccessCache.cs" />
     <Compile Include="DeleteNPVRCommand.cs" />
     <Compile Include="DeleteSeriesNPVRCommand.cs" />
-    <Compile Include="ItemLeftLifeCycleResponse.cs" />
+    <Compile Include="EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>

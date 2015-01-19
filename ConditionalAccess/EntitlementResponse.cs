@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ConditionalAccess
 {
-    public class ItemLeftLifeCycleResponse
+    public class EntitlementResponse
     {
         #region Data Members
 
@@ -57,7 +57,7 @@ namespace ConditionalAccess
 
         #region Ctor
 
-        public ItemLeftLifeCycleResponse()
+        public EntitlementResponse()
         {
             this.m_sFullLifeCycle = string.Empty;
             this.m_sViewLifeCycle = string.Empty;
