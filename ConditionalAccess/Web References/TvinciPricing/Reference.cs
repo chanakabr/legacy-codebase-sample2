@@ -2716,7 +2716,9 @@ namespace ConditionalAccess.TvinciPricing {
         private bool m_bWaiverField;
         
         private int m_nWaiverPeriodField;
-        
+
+        private bool m_bIsOfflinePlayback;
+
         /// <remarks/>
         public int m_nObjectID {
             get {
@@ -2874,6 +2876,18 @@ namespace ConditionalAccess.TvinciPricing {
             }
             set {
                 this.m_nWaiverPeriodField = value;
+            }
+        }
+
+        public bool IsOfflinePlayback
+        {
+            get
+            {
+                return this.m_bIsOfflinePlayback;
+            }
+            set
+            {
+                this.m_bIsOfflinePlayback = value;
             }
         }
     }
