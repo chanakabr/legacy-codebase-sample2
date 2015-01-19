@@ -153,6 +153,14 @@ namespace GracenoteFeeder
                     {
                         #region Basic xml Data
 
+                        //Save to original List<FieldTypeEntity>!!!!
+
+                        List<FieldTypeEntity> TempFieldEntityMapping = new List<FieldTypeEntity>();
+                        FieldEntityMapping.ForEach((item) =>
+                        {
+                            TempFieldEntityMapping.Add(TVinciShared.ObjectCopier.Clone<FieldTypeEntity>(item));
+                        });
+                        
                         string EPGGuid = GetSingleNodeValue(node, "GN_ID");
                         string name = GetSingleNodeValue(node, "TITLE"); // basic (name)
                         string description = GetSingleNodeValue(node, "SYNOPSIS"); //basic (Description)
@@ -174,7 +182,7 @@ namespace GracenoteFeeder
                         }
 
                         #region Set field mapping valus
-                        SetMappingValues(FieldEntityMapping, node, eEpgChannelType);
+                        SetMappingValues(TempFieldEntityMapping, node, eEpgChannelType);
                         #endregion
 
                         XmlNode tvAirNode = xmlDoc.DocumentElement.SelectSingleNode("//TVAIRING[@GN_ID='" + EPGGuid + "']"); // get node by attribute value
@@ -198,7 +206,7 @@ namespace GracenoteFeeder
                             }
                             #endregion
 
-                            EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, groupID, parentGroupID, FieldEntityMapping);
+                            EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, groupID, parentGroupID, TempFieldEntityMapping);
                             epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
                         }
                         else
