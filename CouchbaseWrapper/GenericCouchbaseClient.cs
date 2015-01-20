@@ -62,6 +62,11 @@ namespace CouchbaseWrapper
             return _client.StoreJson(StoreMode.Set, document.Id, document, ttl);
         }
 
+        public bool Remove(string id)
+        {
+            return _client.Remove(id);
+        }
+
         public bool Cas<T>(T document, ulong docVersion) where T : CbDocumentBase
         {
             return _client.CasJson(StoreMode.Set, document.Id, document, docVersion);
@@ -108,6 +113,26 @@ namespace CouchbaseWrapper
                 else return true;
             }
             else return false;
+        }
+
+        public CasGetResult<T> GetWithLock<T>(string id, TimeSpan lockExpiration) where T : CbDocumentBase
+        {
+            CasResult<string> casResult = _client.GetWithLock<string>(id, lockExpiration);
+            CasGetResult<T> retVal = new CasGetResult<T>()
+            {
+                DocVersion = casResult.Cas,
+                OperationResult = (eOperationResult)casResult.StatusCode,
+            };
+            if ((eOperationResult)casResult.StatusCode == eOperationResult.NoError && !string.IsNullOrEmpty(casResult.Result))
+            {
+                retVal.Value = JsonConvert.DeserializeObject<T>(casResult.Result);
+            }
+            return retVal;
+        }
+
+        public bool Unlock(string id, ulong cas) 
+        {
+            return _client.Unlock(id, cas);
         }
     }
 }
