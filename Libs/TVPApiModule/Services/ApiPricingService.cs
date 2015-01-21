@@ -102,7 +102,24 @@ namespace TVPApiModule.Services
 
             return sub;
         }
-        
+
+        public Subscription[] GetSubscriptionsData(string[] p_arrSubscriptionCodes)
+        {
+            Subscription[] arrSubs = null;
+
+            try
+            {
+                arrSubs = m_Module.GetSubscriptionsData(m_wsUserName, m_wsPassword, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
+            }
+            catch (Exception ex)
+            {
+
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsData, Error Message: {0}", ex.Message);
+            }
+
+            return (arrSubs);
+        }
+
         public CouponData GetCouponStatus(string sCouponCode)
         {
             CouponData couponData = null;

@@ -198,10 +198,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    foreach (int subID in subIDs)
-                    {
-                        res.Add(new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false));
-                    }
+                    var service = new ApiPricingService(groupId, initObj.Platform);
+
+                    Subscription[] arrSubscriptionObjects = service.GetSubscriptionsData(subIDs.Select(sub => sub.ToString()).ToArray());
+
+                    res = arrSubscriptionObjects.ToList();
                 }
                 catch (Exception ex)
                 {
