@@ -13,7 +13,7 @@ namespace TVPPro.SiteManager.Helper
         private static string TVPAPI_BASE_URL = System.Configuration.ConfigurationManager.AppSettings["BASE_TVPAPI_URL"];
         private static JavaScriptSerializer json = new JavaScriptSerializer();
         private static int ORCA_REQUEST_TIMEOUT = int.Parse(System.Configuration.ConfigurationManager.AppSettings["OrcaCallsTimeOut"]);
-        
+
         public enum ORCA_CALLS
         {
             HomeVODPromotions,
@@ -36,7 +36,21 @@ namespace TVPPro.SiteManager.Helper
             VODDoco,
             VODKids
         }
+        public static ORCAGalleryResponse getVodORCAResponseByCategory(ORCA_CALLS ORCACallType, string categoryId)
+        {
+            ORCAGalleryResponse result = null;
+            var requestData = getInitObject(ORCACallType.ToString(), DeviceDNAHelper.GetDeviceDNA(), "", categoryId);
+            string response = null;
 
+            try
+            {
+                response = WebRequestHelper.SendRequest<string>(string.Format("{0}GetRecommendationsByGallery", TVPAPI_BASE_URL), json.Serialize(requestData), ORCA_REQUEST_TIMEOUT);
+                result = castResponse(response);
+            }
+            catch { }
+
+            return result;
+        }
         public static ORCAGalleryResponse getORCAResponse(ORCA_CALLS ORCACallType)
         {
             ORCAGalleryResponse result = null;
@@ -91,7 +105,7 @@ namespace TVPPro.SiteManager.Helper
             return result;
         }
 
-        private static Object getInitObject(string galleryType, string deviceDNA, string mediaId = "0")
+        private static Object getInitObject(string galleryType, string deviceDNA, string mediaId = "0", string categoryId = "")
         {
             return new
             {
@@ -114,7 +128,8 @@ namespace TVPPro.SiteManager.Helper
                 mediaID = mediaId,
                 picSize = "",
                 parentalLevel = 0,
-                galleryType = galleryType
+                galleryType = galleryType,
+                coGuid = categoryId
             };
         }
     }
