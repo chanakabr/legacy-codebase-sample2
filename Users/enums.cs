@@ -28,7 +28,7 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,
+        UserWithNoDomain = 21,     
         InternalError = 999
     }
 
@@ -45,7 +45,7 @@ namespace Users
         Activated = 1,
         SingleSignIn = 2,
         DoubleSignIn = 3,
-        LoggedOut = 4
+        LoggedOut = 4       
     }
 
     public enum UserActivationState
@@ -56,7 +56,8 @@ namespace Users
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserWIthNoDomain  = 4
+        UserWIthNoDomain  = 4,
+        UserDomainSuspended = 5
     }
 
     public enum DeviceState
@@ -83,7 +84,8 @@ namespace Users
         UserNotInDomain = 9,
         DomainNotExists = 10,
         HouseholdUserFailed = 11,
-        DomainCreatedWithoutNPVRAccount = 12
+        DomainCreatedWithoutNPVRAccount = 12,
+        DomainSuspended = 13
     }
 
     public enum DomainRestriction
@@ -122,7 +124,8 @@ namespace Users
         RequestFailed = 22,
         InvalidUser = 23,
         ConcurrencyLimitation = 24,
-        MediaConcurrencyLimitation = 25
+        MediaConcurrencyLimitation = 25,
+        DomainSuspended = 26
     }
 
     public enum DeviceResponseStatus
@@ -185,6 +188,12 @@ namespace Users
         Concurrency = 0,
         Quantity = 1,
         Frequency = 2
+    }
+
+    public enum DomainSuspentionStatus
+    {
+        OK = 0,
+        Suspended = 1
     }
 
 }

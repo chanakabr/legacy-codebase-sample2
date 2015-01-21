@@ -16,6 +16,7 @@ namespace Users
             m_oDynamicData = new UserDynamicData();
             m_sSiteGUID = "";
             m_eUserState = UserState.Unknown;
+            m_eDomainSuspentionStatus = DomainSuspentionStatus.OK;
         }
 
         public User(int nGroupID, int nUserID) : this()
@@ -959,5 +960,6 @@ namespace Users
         public bool             m_isDomainMaster;
         public UserState        m_eUserState;
         public int              m_nSSOOperatorID;
+        public DomainSuspentionStatus m_eDomainSuspentionStatus;
     }
 }
