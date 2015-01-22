@@ -77,9 +77,7 @@ namespace Users
                 {
                     case DomainStatus.OK: // add domain to Cache
                         oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                        DomainsCache oDomainCache = DomainsCache.Instance();
-
-                        var json = Newtonsoft.Json.JsonConvert.SerializeObject(domain);
+                        DomainsCache oDomainCache = DomainsCache.Instance();                      
                         bool bInsertDomain = oDomainCache.InsertDomain(domain);
                         break;
                     case DomainStatus.DomainAlreadyExists:

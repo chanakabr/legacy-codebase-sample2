@@ -303,6 +303,10 @@ namespace Users
                 res = DomainResponseStatus.Error;
             }
 
+            if (res == DomainResponseStatus.UnKnown)
+            {
+                res = statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            }
             return res;
         }
 
