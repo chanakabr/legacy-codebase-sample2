@@ -256,11 +256,11 @@ namespace DalCB
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("IDs: ");
-                if (lIds != null && lIds.Count > 0)
+                if (p_lstIds != null && p_lstIds.Count > 0)
                 {
-                    for (int i = 0; i < lIds.Count; i++)
+                    for (int i = 0; i < p_lstIds.Count; i++)
                     {
-                        sb.Append(String.Concat(lIds[i], ";"));
+                        sb.Append(String.Concat(p_lstIds[i], ";"));
                     }
                 }
                 else
