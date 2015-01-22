@@ -26,7 +26,7 @@ namespace Users
             return domainID;
         }
 
-        //Override Methods - get domainID from DB - then 
+        //Override Methods - get domainID from DB - then - try to get it from Cache
         public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
         {
             // Create new response
@@ -41,19 +41,27 @@ namespace Users
                 return oDomainResponseObject;
             }
 
-            // get domain by domain id from CB 
-            DomainCache oDomainCache = DomainCache.Instance();
+            // get domain by domain id from Cache 
+            DomainsCache oDomainCache = DomainsCache.Instance();
             Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID);
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
             return oDomainResponseObject;
         }
 
-        protected override Domain DomainInitializer(int nGroupID, int nDomainID)
+        /*protected override Domain DomainInitializer(int nGroupID, int nDomainID)
         {
-            // get domain by domain id from CB 
+            // get domain by domain id from Cache 
             DomainCache oDomainCache = DomainCache.Instance();
-            Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID);
+            Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID, false);
+            return domain;
+        }*/
+
+        protected override Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true)
+        {
+            // get domain by domain id from Cache 
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);
             return domain;
         }
 
@@ -67,9 +75,11 @@ namespace Users
 
                 switch (domain.m_DomainStatus)
                 {
-                    case DomainStatus.OK: // add domain to CB
+                    case DomainStatus.OK: // add domain to Cache
                         oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                        DomainCache oDomainCache = DomainCache.Instance();
+                        DomainsCache oDomainCache = DomainsCache.Instance();
+
+                        var json = Newtonsoft.Json.JsonConvert.SerializeObject(domain);
                         bool bInsertDomain = oDomainCache.InsertDomain(domain);
                         break;
                     case DomainStatus.DomainAlreadyExists:

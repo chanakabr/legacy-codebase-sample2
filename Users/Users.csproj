@@ -105,7 +105,7 @@
   <ItemGroup>
     <Compile Include="BaseDevice.cs" />
     <Compile Include="BaseDomain.cs" />
-    <Compile Include="Cache\DomainCache.cs" />
+    <Compile Include="Cache\DomainsCache.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />

@@ -122,7 +122,6 @@ namespace DAL
 
         public static int GetDeviceFamilyID(int nGroupID, string sUDID, ref int nDeviceBrandID)
         {
-
             int res = 0;
             StoredProcedure sp = new StoredProcedure("Get_DeviceFamilyID");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -139,7 +138,6 @@ namespace DAL
                     nDeviceBrandID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["device_brand_id"]);
                 }
             }
-
             return res;
         }
 

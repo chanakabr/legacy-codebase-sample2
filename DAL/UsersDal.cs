@@ -369,7 +369,6 @@ namespace DAL
                         nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -384,7 +383,6 @@ namespace DAL
             }
 
             return nUserID;
-
         }
 
         public static int GetUserIDByFacebookID(string sFacebookID, int nGroupID)
@@ -478,7 +476,6 @@ namespace DAL
         {
             List<int> lDomainIDs = null;
 
-
             ODBCWrapper.StoredProcedure spGetUserDomains = new ODBCWrapper.StoredProcedure(SP_GET_USER_DOMAINS);
             spGetUserDomains.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -502,9 +499,7 @@ namespace DAL
                     lDomainIDs.Add(tempDomainID);
                 }
             }
-
             return lDomainIDs;
-
         }
 
         public static int GetAllowedLogins(int nGroupID)

@@ -63,7 +63,6 @@ namespace Users
             //Create new domain
             Domain domain = new Domain();
 
-
             if (!User.IsUserValid(nGroupID, nMasterUserGuid))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
