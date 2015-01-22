@@ -2673,6 +2673,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         
         private int m_nWaiverPeriodField;
         
+        private bool m_bIsOfflinePlayBackField;
+        
         /// <remarks/>
         public int m_nObjectID {
             get {
@@ -2813,6 +2815,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
         }
         
+        /// <remarks/>
+        public bool m_bIsOfflinePlayBack
+        {
+            get
+            {
+                return this.m_bIsOfflinePlayBackField;
+            }
+            set
+            {
+                this.m_bIsOfflinePlayBackField = value;
+            }
+        }
+
         /// <remarks/>
         public bool m_bWaiver {
             get {
