@@ -52,6 +52,15 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CDNTokenizers">
       <HintPath>..\..\cdntokenizers\CDNTokenizers\bin\Debug\CDNTokenizers.dll</HintPath>
@@ -94,6 +103,7 @@
     <Compile Include="ConditionalAccessCache.cs" />
     <Compile Include="DeleteNPVRCommand.cs" />
     <Compile Include="DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>

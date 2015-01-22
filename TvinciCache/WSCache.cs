@@ -91,6 +91,24 @@ namespace TvinciCache
             }
         }
 
+        public bool TryGet<T>(string key, out T value)
+        {
+            bool res = false;
+
+            BaseModuleCache obj = cache.Get(key);
+
+            if (obj != null && obj.result != null)
+            {
+                value = (T)obj.result;
+                res = true;
+            }
+            else
+            {
+                value = default(T);
+            }
+
+            return (res);
+        }
         public bool Add(string key, object obj)
         {
             BaseModuleCache bModule = new BaseModuleCache(obj);
