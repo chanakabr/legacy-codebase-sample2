@@ -1585,9 +1585,14 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+        
         /// <summary>
-        /// Cancel Subscription
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
+        /// <param name="sSiteGUID"></param>
+        /// <param name="sSubscriptionCode"></param>
+        /// <param name="nSubscriptionPurchaseID"></param>
+        /// <returns></returns>
         public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             bool bRet = false;
@@ -1626,7 +1631,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("Exception at CancelSubscription. ");
+                StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
@@ -1640,6 +1645,7 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+
         /// <summary>
         /// Update Subscription
         /// </summary>
@@ -10108,39 +10114,52 @@ namespace ConditionalAccess
         }
 
 
-        /* This method shall set the cancellation Date column in the user entitlement table (subscriptions/ppv/collection_purchases) to the current date 
-       * and set the is_active state to 0. 
-       * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
-        public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
+        /// <summary>
+        /// Immediately cancel a household service 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+        /// </summary>
+        /// <param name="p_sSiteGuid"></param>
+        /// <param name="p_nAssetID"></param>
+        /// <param name="p_enmTransactionType"></param>
+        /// <param name="p_nGroupID"></param>
+        /// <param name="p_bIsForce"></param>
+        /// <returns></returns>
+        public virtual bool CancelTransaction(string p_sSiteGuid, int p_nAssetID, eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
-            bool bRes = false;
-            System.Data.DataTable dt = null;
+            bool bResult = false;
 
             try
             {
-                // get the usage module for the asset id 
-                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
-                if (bCancellationWindow)
+                System.Data.DataTable dtUserPurchases = null;
+
+                // Check if within cancellation window
+                bool bCancellationWindow = GetCancellationWindow(p_sSiteGuid, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases);
+
+                // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+                if (bCancellationWindow || p_bIsForce)
                 {
-                    switch (transactionType)
+                    // Cancel NOW - according to type
+
+                    switch (p_enmTransactionType)
                     {
                         case eTransactionType.PPV:
-                            bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
                         case eTransactionType.Subscription:
-                            bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
                         case eTransactionType.Collection:
-                            bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
                         default:
                             return false;
                     }
                 }
 
-                if (bRes)
+                if (bResult)
                 {
-                    WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
+                    // Report to user log
+                    WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
                 }
 
@@ -10149,19 +10168,15 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
+                string sLoggingMessage = string.Format("Exception at CancelTransaction. Ex Msg: {0}, Site Guid: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
+                    ex.Message, p_sSiteGuid, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelTransaction. ");
-                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
-                sb.Append(String.Concat(" Asset ID: ", nAssetID));
-                sb.Append(String.Concat(" Trans Type: ", transactionType.ToString()));
-                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
                 #endregion
             }
 
-            return bRes;
+            return bResult;
         }
 
         private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt)
