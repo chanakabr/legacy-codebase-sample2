@@ -2223,6 +2223,49 @@ namespace Tvinci.Core.DAL
             return dmm;
         }
 
+        public static void Get_IPCountryCode(long ipVal, ref int countryID)
+        {  
+            StoredProcedure sp = new StoredProcedure("Get_IPCountryCode");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@IPVal", ipVal);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
+            {              
+                DataTable ipTable = ds.Tables[0];
+                if (ipTable != null && ipTable.Rows != null && ipTable.Rows.Count > 0)
+                {
+                    countryID = ODBCWrapper.Utils.GetIntSafeVal(ipTable.Rows[0]["COUNTRY_ID"]);
+                }
+            }
+        }
+
+        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("GetMediaPlayData");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);          
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
+            {
+                res = true;
+                DataTable mpData = ds.Tables[0];
+                if (mpData != null && mpData.Rows != null && mpData.Rows.Count > 0)
+                {
+                    ownerGroupID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["group_id"]);
+                    cdnID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["streaming_suplier_id"]);
+                    qualityID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_quality_id"]);
+                    formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
+                    mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
+                    billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                }
+            }
+            return res;
+        }
 
         public static List<int> Get_LinearMediaType(int parentGroupID)
         {

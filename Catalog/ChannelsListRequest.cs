@@ -61,7 +61,8 @@ namespace Catalog
                     nLanguage = request.m_oFilter.m_nLanguage;
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                 List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataSet ds = CatalogDAL.Get_ChannelsListByCategory(request.m_nCategoryID, request.m_nGroupID, nLanguage, lSubGroupTree);
 
