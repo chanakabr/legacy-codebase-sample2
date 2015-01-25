@@ -54,6 +54,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Basic|AnyCPU'">
     <OutputPath>bin\Basic\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\External\net35\Newtonsoft.Json.dll</HintPath>
@@ -105,6 +114,7 @@
     <Compile Include="enums.cs" />
     <Compile Include="EPGChannelObject.cs" />
     <Compile Include="EpgRes.cs" />
+    <Compile Include="Epg\EpgChannelObj.cs" />
     <Compile Include="Epg\EpgLinkConstants.cs" />
     <Compile Include="Epg\EpgObject.cs" />
     <Compile Include="Epg\EpgTagTranslate.cs" />

@@ -89,7 +89,16 @@ namespace TVinciShared
         {
             try
             {
-                return String.Format("{0:0.##}", double.Parse(sVal));
+                double dVal;
+
+                if (double.TryParse(sVal, out dVal))
+                {
+                    return String.Format("{0:0.##}", dVal);
+                }
+                else
+                {
+                    return sVal;
+                }
             }
             catch
             {

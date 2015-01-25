@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using ODBCWrapper;
+using ApiObjects.Epg;
 
 namespace Tvinci.Core.DAL
 {
@@ -230,12 +231,13 @@ namespace Tvinci.Core.DAL
 
 
         /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
-        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID)
+        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID, int channelID= 0)
         {
             StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@SubGroupTree", lSubTree, "Id");
             sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@channelID", channelID);
 
             DataSet ds = sp.ExecuteDataSet();
             return ds;
@@ -265,6 +267,39 @@ namespace Tvinci.Core.DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
+        }
+
+        // get all channels by group id from DB
+        //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' - the DB ID and the channel name.
+        public static Dictionary<string, EpgChannelObj> GetAllEpgChannelsDic(int nGroupID)
+        {
+            Dictionary<string, EpgChannelObj> result = new Dictionary<string, EpgChannelObj>();
+            try
+            {
+                DataTable dt = GetAllEpgChannelsList(nGroupID);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string channelId = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
+                        string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        int nChannelType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_channel_type");
+                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, name, nChannelType);
+
+                       // KeyValuePair<int, string> kvp = new KeyValuePair<int, string>(nID, name);
+                        if (!result.ContainsKey(channelId))
+                        {
+                            result.Add(channelId, oEpgChannelObj);
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new Dictionary<string, EpgChannelObj>();
+            }
         }
 
         public static int InsertNewChannel(int GroupID, string ChannelID, string Name)
@@ -315,5 +350,7 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
+
+       
     }
 }

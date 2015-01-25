@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Users
@@ -59,13 +60,20 @@ namespace Users
         UserWIthNoDomain  = 4
     }
 
+    [Serializable]
     public enum DeviceState
     {
+        [EnumMember]
         UnKnown = 0,     // Initial device status
+        [EnumMember]
         Error = 1,       // Error
+        [EnumMember]
         NotExists = 2,   // Device not in devices table or is in table but status<>1
+        [EnumMember]
         Pending = 3,
+        [EnumMember]
         Activated = 4,   // Device in devices table and status=1 & active=1 (domains_devcies status not known);
+        [EnumMember]
         UnActivated = 5, // Device in devices table and status=1 but active<>1
     }
 
@@ -82,14 +90,20 @@ namespace Users
         MasterEmailAlreadyExists = 8,
         UserNotInDomain = 9,
         DomainNotExists = 10,
-        HouseholdUserFailed = 11
+        HouseholdUserFailed = 11,
+        DomainCreatedWithoutNPVRAccount = 12
     }
 
+    [Serializable]
     public enum DomainRestriction
     {
+        [EnumMember]
         Unrestricted = 0,
+         [EnumMember]
         UserMasterRestricted = 1,
+         [EnumMember]
         DeviceMasterRestricted = 2,
+         [EnumMember]
         DeviceUserMasterRestricted = 3
     }
 
@@ -145,7 +159,8 @@ namespace Users
     {
         All = 0,
         Watch = 1,
-        Purchase = 2
+        Purchase = 2,
+        Library = 3
     }
 
     public enum ItemType

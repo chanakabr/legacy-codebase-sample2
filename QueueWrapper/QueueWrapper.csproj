@@ -29,6 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -58,6 +67,7 @@
     <Compile Include="Interfaces\IQueueable.cs" />
     <Compile Include="Interfaces\IQueueImpl.cs" />
     <Compile Include="QueueImplFactory.cs" />
+    <Compile Include="Queues\QueueObjects\EPGQueue.cs" />
     <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
     <Compile Include="Queues\QueueObjects\SocialQueue.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConfigurationData.cs" />

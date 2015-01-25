@@ -150,6 +150,15 @@ namespace QueueWrapper
                         m_sExchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
                     }
                     break;
+                case ConfigType.EPGConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKeyEPG");
+                        m_sExchange = Utils.GetConfigValue("exchangeEPG");
+                        m_sQueue = Utils.GetConfigValue("queueEPG");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHostEPG");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeTypeEPG");
+                    }
+                    break;
                 default:
                     break;
             }

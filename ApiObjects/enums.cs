@@ -217,5 +217,47 @@ namespace ApiObjects
         ALL = 2
     }
 
+    [Serializable]
+    public enum NPVRSearchBy
+    {
+        [EnumMember]
+        Other = 0,
+        [EnumMember]
+        ByRecordingID = 1,
+        [EnumMember]
+        ByStartDate = 2,
+        [EnumMember]
+        ByRecordingStatus = 3
+    }
 
+    [Serializable]
+    public enum RecordingStatus
+    {
+        [EnumMember]
+        Completed = 0,
+        [EnumMember]
+        Ongoing = 1,
+        [EnumMember]
+        Scheduled = 2,
+        [EnumMember]
+        Cancelled = 3
+    }
+
+    [Serializable]
+    public enum EpgChannelType
+    {       
+        [EnumMember]
+        DTT = 1,
+        [EnumMember]
+        OTT = 2,
+        [EnumMember]
+        BOTH = 3
+    }
+
+    [Serializable]
+    public enum TagTypeFlag
+    {       
+        [EnumMember]
+        TimeShifted = 1
+    }
 }

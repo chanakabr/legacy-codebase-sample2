@@ -738,9 +738,15 @@ namespace Users
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetUserData. Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" G ID: ", m_nGroupID));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                throw;
             }
         }
 

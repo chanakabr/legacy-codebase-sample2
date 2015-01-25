@@ -47,17 +47,12 @@ namespace Catalog
                 channelObj chObj;
                 Picture pic;
 
-                string xmlresult = "";
-                xmlresult = SerializeToXML<ChannelsListRequest>(request);
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "ChannelsListRequest Start At", DateTime.Now));
 
                 if (request == null || request.m_oFilter == null)
-                    throw new Exception("request object is null or Required variables is null");
-                
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                    throw new ArgumentException("request object is null or Required variables is null");
+
+                CheckSignature(request);
+          
                 
                 //Get Channels For CategoryID
 
@@ -106,13 +101,8 @@ namespace Catalog
                         response.m_nTotalItems = response.m_lchannelList.Count;
                     }
                 }
-                xmlresult = "no resultes";
-                if (response != null)
-                {
-                    xmlresult = SerializeToXML<ChannelDetailsResponse>(response);
-                }
-                _logger.Info(xmlresult);
-                return (BaseResponse)response;
+
+                return response;
             }
             catch (Exception ex)
             {

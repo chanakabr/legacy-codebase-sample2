@@ -30,8 +30,6 @@ namespace Catalog
 
                 MediaChannelsResponse response = new MediaChannelsResponse();
 
-                _logger.Info(string.Format("{0}: {1}", "MediaChannelsRequest Start At", DateTime.Now));
-
 
                 if (request == null)
                     throw new ArgumentNullException("request object is null or Required variables is null");

@@ -22,5 +22,12 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         {
             get { return eItemType.LinearViews; }
         }
+
+        [JsonProperty("typeDescription")]
+        public string TypeDescription
+        {
+            get { return eItemType.LinearViews.ToString(); }
+            set { }
+        }
     }
 }

@@ -11,5 +11,11 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         {
             get { return eItemType.Recommendation; }
         }
+
+        [JsonProperty("typeDescription")]
+        public string TypeDescription
+        {
+            get { return eItemType.Recommendation.ToString(); }
+        }
     }
 }

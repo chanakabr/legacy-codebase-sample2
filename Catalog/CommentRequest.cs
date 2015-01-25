@@ -41,7 +41,7 @@ namespace Catalog
             CommentRequest cr = oBaseRequest as CommentRequest;
 
             if (cr == null)
-                throw new Exception("request object is null or Required variables is null");
+                throw new ArgumentException("request object is null or Required variables is null");
 
             CheckSignature(cr);
 
@@ -61,44 +61,36 @@ namespace Catalog
 
             response.eStatusComment = bInsert ? StatusComment.SUCCESS : StatusComment.FAIL;
 
-            return (BaseResponse)response;
+            return response;
         }
 
         private bool WriteCommentToES(CommentRequest oCommentReq)
         {
             bool bResult = false;
 
-            GroupManager groupManager = new GroupManager();            
-            
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(oCommentReq.m_nGroupID);
 
-
-            Group group = groupManager.GetGroup(nParentGroupID);
-
-            if (group != null)
+            Comments comment = new Comments()
             {
-                Comments comment = new Comments()
-                {
-                    m_dCreateDate = DateTime.UtcNow,
-                    m_nAssetID = oCommentReq.m_nAssetID,
-                    m_sContentText = oCommentReq.m_sContentText,
-                    m_sHeader = oCommentReq.m_sHeader,
-                    m_sSubHeader = oCommentReq.m_sSubHeader,
-                    m_sSiteGuid = oCommentReq.m_sSiteGuid,
-                    m_sWriter = oCommentReq.m_sWriter,
-                    m_nLang = oCommentReq.m_oFilter.m_nLanguage,
-                    m_sAssetType = CatalogDAL.Get_MediaTypeIdByMediaId(oCommentReq.m_nAssetID).ToString(),
-                    m_Action = "comment",
-                    m_nGroupID = group.m_nParentGroupID,
-                };
+                m_dCreateDate = DateTime.UtcNow,
+                m_nAssetID = oCommentReq.m_nAssetID,
+                m_sContentText = oCommentReq.m_sContentText,
+                m_sHeader = oCommentReq.m_sHeader,
+                m_sSubHeader = oCommentReq.m_sSubHeader,
+                m_sSiteGuid = oCommentReq.m_sSiteGuid,
+                m_sWriter = oCommentReq.m_sWriter,
+                m_nLang = oCommentReq.m_oFilter.m_nLanguage,
+                m_sAssetType = CatalogDAL.Get_MediaTypeIdByMediaId(oCommentReq.m_nAssetID).ToString(),
+                m_Action = "comment",
+                m_nGroupID = nParentGroupID,
+            };
 
-                string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
-                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-                Guid guid = Guid.NewGuid();
+            string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            Guid guid = Guid.NewGuid();
 
-                bResult = esApi.InsertRecord(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(group.m_nParentGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJson);
-            }
+            bResult = esApi.InsertRecord(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nParentGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJson);
 
             return bResult;
         }
