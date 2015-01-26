@@ -67,7 +67,8 @@ namespace Catalog
                     else //LuceneWrapper
                     {   
                         GroupManager groupManager = new GroupManager();
-                        int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                        CatalogCache catalogCache = CatalogCache.Instance();
+                        int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                         Group groupInCache = groupManager.GetGroup(nParentGroupID); 
                         List<int> channelIds = request.m_lChannles;
 

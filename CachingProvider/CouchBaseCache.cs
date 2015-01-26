@@ -221,10 +221,52 @@ namespace CachingProvider
 
         public override IDictionary<string, object> GetValues(List<string> keys)
         {
-            return null;
+            try
+            {
+                IDictionary<string, object> dRes = m_Client.Get(keys);
+                return dRes;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
-      
-      
+        public override bool SetJson<T>(string sKey, T obj, double dCacheTT)
+        {
+            var json = ObjectToJson<T>(obj);
+            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, json);
+        }
+
+        public override bool GetJsonAsT<T>(string sKey, out T res)
+        {
+            var json = Get<string>(sKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                res = JsonToObject<T>(json);
+                return true;
+            }
+            res = default(T);
+            return false;
+        }
+
+        private static string ObjectToJson<T>(T obj)
+        {
+            if (obj != null)
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            else
+                return string.Empty;
+        }
+
+        private static T JsonToObject<T>(string json)
+        {
+            if (!string.IsNullOrEmpty(json))
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            else
+                return default(T);
+        }
+
+
+
     }
 }

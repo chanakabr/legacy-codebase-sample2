@@ -82,10 +82,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase, Version=1.2.9.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Couchbase-Net-Client\net40\Couchbase.dll</HintPath>
-    </Reference>
     <Reference Include="Enyim.Caching, Version=1.2.9.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\Couchbase-Net-Client\net40\Enyim.Caching.dll</HintPath>

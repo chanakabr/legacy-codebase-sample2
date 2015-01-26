@@ -163,7 +163,8 @@ namespace Catalog
             int nPlayerID = 0;
             int nPlatform = 0;
             int nSwhoosh = 0;
-
+            int nCountryID = 0;
+            int nSiteGuid;
             MediaPlayActions action;
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
@@ -176,19 +177,17 @@ namespace Catalog
             {
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
+           
+           
 
-            int nCountryID = 0;
-
-            if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+            if (!Catalog.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                 ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
             {
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
 
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-
-            int nSiteGuid;
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);            
 
             //non-anonymous user
             if (nSiteGuid != 0)
