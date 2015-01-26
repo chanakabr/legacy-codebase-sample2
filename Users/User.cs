@@ -15,8 +15,7 @@ namespace Users
             m_oBasicData = new UserBasicData();
             m_oDynamicData = new UserDynamicData();
             m_sSiteGUID = "";
-            m_eUserState = UserState.Unknown;
-            m_eDomainSuspentionStatus = DomainSuspentionStatus.OK;
+            m_eUserState = UserState.Unknown;           
         }
 
         public User(int nGroupID, int nUserID) : this()
@@ -109,6 +108,11 @@ namespace Users
                             retVal = UsersDal.Get_CountOfActiveUserSessions(siteGuid) > 0 ? UserState.DoubleSignIn : UserState.SingleSignIn;
                             instanceID = AddUserSession(siteGuid, sessionID, sIP, sIDInDevices);
                         }
+                        break;
+                    }
+                case UserState.Suspended:
+                    {
+                        retVal = UserState.Suspended;
                         break;
                     }
 
@@ -721,7 +725,11 @@ namespace Users
                     int nSiteGuid = 0;
                     Int32.TryParse(retObj.m_user.m_sSiteGUID, out nSiteGuid);
                     UserState currUserState = GetCurrentUserState(nSiteGuid);
-                    if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
+                    if (currUserState == UserState.Suspended)
+                    {
+                        retObj.m_RespStatus = ResponseStatus.UserSuspended;
+                    }
+                    else if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
                     {
                         DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                     }
@@ -959,7 +967,6 @@ namespace Users
         public int              m_domianID;
         public bool             m_isDomainMaster;
         public UserState        m_eUserState;
-        public int              m_nSSOOperatorID;
-        public DomainSuspentionStatus m_eDomainSuspentionStatus;
+        public int              m_nSSOOperatorID;       
     }
 }

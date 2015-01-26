@@ -11,13 +11,11 @@ namespace Users
         public void Initialize(ResponseStatus theStatus, User u)
         {
             m_RespStatus = theStatus;
-            m_user = u;
-            m_eDomainSuspentionStatus = u.m_eDomainSuspentionStatus;
+            m_user = u;           
         }
 
         public ResponseStatus m_RespStatus;
         public User m_user;
-        public string m_userInstanceID;
-        public DomainSuspentionStatus m_eDomainSuspentionStatus;
+        public string m_userInstanceID;      
     }
 }

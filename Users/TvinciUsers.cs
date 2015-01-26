@@ -96,21 +96,19 @@ namespace Users
                 return UserActivationState.Activated;
             }
 
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);       
 
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
 
             return activStatus;
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);         
 
             int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);          
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);          
 
             return activStatus;
         }
@@ -158,6 +156,10 @@ namespace Users
                             ret = ResponseStatus.UserDoesNotExist;
                             break;
 
+                        case UserActivationState.UserSuspended:
+                            ret = ResponseStatus.UserSuspended;
+                            break;
+
                         case UserActivationState.NotActivated:
                             o.m_user = new User(nGroupID, nUserID);
                             ret = ResponseStatus.UserNotActivated;
@@ -171,7 +173,8 @@ namespace Users
                         case UserActivationState.UserRemovedFromDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             ret = ResponseStatus.UserNotIndDomain;
-                            break;   
+                            break; 
+  
                         case UserActivationState.UserWIthNoDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);

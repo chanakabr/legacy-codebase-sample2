@@ -28,7 +28,8 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,     
+        UserWithNoDomain = 21,    
+        UserSuspended = 22,
         InternalError = 999
     }
 
@@ -45,7 +46,8 @@ namespace Users
         Activated = 1,
         SingleSignIn = 2,
         DoubleSignIn = 3,
-        LoggedOut = 4       
+        LoggedOut = 4,
+        Suspended = 5
     }
 
     public enum UserActivationState
@@ -57,7 +59,7 @@ namespace Users
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
         UserWIthNoDomain  = 4,
-        UserDomainSuspended = 5
+        UserSuspended = 5
     }
 
     public enum DeviceState
@@ -190,10 +192,10 @@ namespace Users
         Frequency = 2
     }
 
-    public enum DomainSuspentionStatus
-    {
-        OK = 0,
-        Suspended = 1
-    }
+    //public enum DomainSuspentionStatus
+    //{
+    //    OK = 0,
+    //    Suspended = 1
+    //}
 
 }
