@@ -47,21 +47,28 @@ namespace CommonWithSL.Converters.Gallery
 
         private string getPicLink(Dictionary<string, object> inputObjectDic, string picSize = null)
         {
-            string link = string.Empty;
-            if (string.IsNullOrEmpty(picSize))
+            string link = (inputObjectDic["PicURL"] == null) ? null : inputObjectDic["PicURL"].ToString();
+
+            if (string.IsNullOrEmpty(link))
             {
-                link = ((Dictionary<string, object>)(((object[])(inputObjectDic["Pictures"]))[0]))["URL"].ToString();
-            }
-            else
-            {
-                var ImageObj = ((object[])(inputObjectDic["Pictures"])).Where(dicItem =>
+                if (!string.IsNullOrEmpty(picSize))
                 {
-                    Dictionary<string, object> picObject = (Dictionary<string, object>)dicItem;
-                    return picObject["PicSize"].ToString() == picSize;
-                }).FirstOrDefault();
-                if (ImageObj != null)
-                    link = ((Dictionary<string, object>)ImageObj)["URL"].ToString();
+                    var ImageObj = ((object[])(inputObjectDic["Pictures"])).Where(dicItem =>
+                    {
+                        Dictionary<string, object> picObject = (Dictionary<string, object>)dicItem;
+                        return picObject["PicSize"].ToString() == picSize;
+                    }).FirstOrDefault();
+                    if (ImageObj != null)
+                        link = ((Dictionary<string, object>)ImageObj)["URL"].ToString();
+                }
+
+                if (string.IsNullOrEmpty(link))//default get first image
+                {
+                    link = ((Dictionary<string, object>)(((object[])(inputObjectDic["Pictures"]))[0]))["URL"].ToString();
+                }
+                inputObjectDic["PicURL"] = link;
             }
+
             return link;
         }
 
