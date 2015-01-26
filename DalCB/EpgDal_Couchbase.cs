@@ -19,6 +19,7 @@ namespace DalCB
     {
         private static readonly string sEndMaxValue = @"\uefff";
         private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
+        private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
 
         CouchbaseClient m_oClient;
         private int m_nGroupID;
@@ -27,6 +28,11 @@ namespace DalCB
         {
             m_nGroupID = nGroupID;
             m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.EPG);
+        }
+
+        private string GetLogFileName()
+        {
+            return String.Concat(EPG_DAL_CB_LOG_FILE, "_", m_nGroupID);
         }
 
         //Given a key, will generatre a unique number that can be used as a unique identifier
@@ -380,7 +386,35 @@ namespace DalCB
             return lRes;
         }
 
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, int nParentGroupID, List<string> eIds)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> Keys = new List<object>();
+            try
+            {
+                foreach (string eID in eIds)
+                {
+                    List<object> obj = new List<object>() { nParentGroupID, eID.ToString() };
 
+                    Keys.Add(obj);
+                }
+
+                var res = (nPageSize > 0) ? m_oClient.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys).Skip(nStartIndex).Limit(nPageSize) :
+                    m_oClient.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys);
+
+                if (res != null)
+                {
+                    lRes = res.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , nParentGroupID: {4}, ST: {5}",
+                    ex.Message, nPageSize, nStartIndex, ex.GetType().Name, nParentGroupID, ex.StackTrace), GetLogFileName());
+            }
+
+            return lRes;
+        }
 
     }
 }

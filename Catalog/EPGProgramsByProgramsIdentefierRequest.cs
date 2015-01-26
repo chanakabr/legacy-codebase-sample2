@@ -29,33 +29,33 @@ namespace Catalog
             this.pids = epg.pids;
         }
 
-         public BaseResponse GetResponse(BaseRequest oBaseRequest)
-         {
-             try
-             {
-                 EPGProgramsByProgramsIdentefierRequest request = oBaseRequest as EPGProgramsByProgramsIdentefierRequest;
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        {
+            try
+            {
+                EPGProgramsByProgramsIdentefierRequest request = oBaseRequest as EPGProgramsByProgramsIdentefierRequest;
 
-                 if (request == null)
-                     throw new ArgumentException("request object is null or Required variables is null");
+                if (request == null)
+                    throw new ArgumentException("request object is null or Required variables is null");
 
-                 CheckSignature(request);
+                CheckSignature(request);
 
-                 EpgProgramsResponse response = new EpgProgramsResponse();
-                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
+                EpgProgramsResponse response = new EpgProgramsResponse();
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
 
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByProgramsIdentefier(request.m_nGroupID, request.pids, request.eLang, request.duration);
-                 if (retList != null && retList.Count > 0)
-                 {
-                     response.lEpgList = retList;
-                     response.m_nTotalItems = retList.Count;
-                 }
-                 return response;
-             }
-             catch (Exception ex)
-             {
-                 return new BaseResponse();
-             }
-         }
+                List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                if (retList != null && retList.Count > 0)
+                {
+                    response.lEpgList = retList;
+                    response.m_nTotalItems = retList.Count;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse();
+            }
+        }
 
     }
 }
