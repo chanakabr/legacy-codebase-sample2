@@ -77,7 +77,8 @@ namespace Catalog
                 try
                 {
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                    int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                     groupManager.GetGroupAndChannel(request.m_nChannelID, nParentGroupID, ref group, ref channel);
 
                 }

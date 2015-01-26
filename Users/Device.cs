@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,22 +7,37 @@ using System.Linq;
 using System.Text;
 
 namespace Users
-{
+{    
+    [Serializable]
+    [JsonObject(Id = "Device")]
     public class Device : IEquatable<Device>
-    {
+    {   
         public string m_id;
+     
         public string m_deviceUDID;
+     
         public string m_deviceBrand;
+     
         public string m_deviceFamily;
+     
         public int m_deviceFamilyID;
+     
         public int m_domainID;
+     
         public string m_deviceName;
+     
         private int m_groupID;
+     
         public int m_deviceBrandID;
+     
         public string m_pin;
+     
         public DateTime m_activationDate;
+     
         public DeviceState m_state;
+     
         public string m_sStreamType;
+     
         public string m_sProfile;
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
@@ -226,7 +242,6 @@ namespace Users
             {
                 retVal = DAL.DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
                 deviceFound = retVal > 0;
-
             }
             else
             {

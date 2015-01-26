@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Users.Cache;
 
 namespace Users
 {
@@ -17,7 +18,7 @@ namespace Users
         {
         }
 
-        //Override Methods
+        //Override Methods - get domainID from DB
         public override int GetDomainIDByCoGuid(string coGuid)
         {
             int domainID = DAL.DomainDal.GetDomainIDByCoGuid(coGuid);
@@ -25,6 +26,7 @@ namespace Users
             return domainID;
         }
 
+        //Override Methods - get domainID from DB - then - try to get it from Cache
         public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
         {
             // Create new response
@@ -39,16 +41,28 @@ namespace Users
                 return oDomainResponseObject;
             }
 
-            Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
-
+            // get domain by domain id from Cache 
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID);
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
             return oDomainResponseObject;
         }
 
-        protected override Domain DomainInitializer(int nGroupID, int nDomainID)
+        /*protected override Domain DomainInitializer(int nGroupID, int nDomainID)
         {
-            return DomainFactory.GetDomain(nGroupID, nDomainID);
+            // get domain by domain id from Cache 
+            DomainCache oDomainCache = DomainCache.Instance();
+            Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID, false);
+            return domain;
+        }*/
+
+        protected override Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true)
+        {
+            // get domain by domain id from Cache 
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);
+            return domain;
         }
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
@@ -59,28 +73,26 @@ namespace Users
 
                 DomainResponseObject oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UnKnown);
 
-                if (domain.m_DomainStatus != DomainStatus.OK)
+                switch (domain.m_DomainStatus)
                 {
-                    switch (domain.m_DomainStatus)
-                    {
-                        case DomainStatus.DomainAlreadyExists:
-                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
-                            break;
-                        case DomainStatus.HouseholdUserFailed:
-                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
-                            break;
-                        case DomainStatus.Error:
-                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-                            break;
-                        default:
-                            Logger.Logger.Log("Error", string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid), GetLogFilename());
-                            break;
-                    }
-
-                    return oDomainResponseObject;
+                    case DomainStatus.OK: // add domain to Cache
+                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                        DomainsCache oDomainCache = DomainsCache.Instance();                      
+                        bool bInsertDomain = oDomainCache.InsertDomain(domain);
+                        break;
+                    case DomainStatus.DomainAlreadyExists:
+                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
+                        break;
+                    case DomainStatus.HouseholdUserFailed:
+                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
+                        break;
+                    case DomainStatus.Error:
+                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                        break;
+                    default:
+                        Logger.Logger.Log("Error", string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid), GetLogFilename());
+                        break;
                 }
-
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
                 return oDomainResponseObject;
             }
@@ -99,8 +111,6 @@ namespace Users
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 throw;
             }
-
-            
         }
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID)
@@ -128,7 +138,6 @@ namespace Users
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
             }
-
             oDomainResponseObject = domain.SubmitAddUserToDomainRequest(nGroupID, nUserGuid, sMasterUsername);
 
             return oDomainResponseObject;

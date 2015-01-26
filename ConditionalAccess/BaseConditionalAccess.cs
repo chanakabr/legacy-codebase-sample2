@@ -8954,7 +8954,7 @@ namespace ConditionalAccess
                                         {
                                             nViewLifeCycle = objUsageModule.m_tsViewLifeCycle;
                                             nFullLifeCycle = objUsageModule.m_tsMaxUsageModuleLifeCycle;
-                                            bIsOfflinePlayback = objUsageModule.IsOfflinePlayback;
+                                            bIsOfflinePlayback = objUsageModule.m_bIsOfflinePlayBack;
                                         }
                                     }
                                 }
@@ -9110,7 +9110,7 @@ namespace ConditionalAccess
                     {
                         p_nViewLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
                         p_nFullLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.IsOfflinePlayback;
+                        p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
                     }
                     else
                     {
@@ -9133,7 +9133,7 @@ namespace ConditionalAccess
                     {
                         p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
                         p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.IsOfflinePlayback;
+                        p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
                     }
                     else
                     {
@@ -9150,7 +9150,7 @@ namespace ConditionalAccess
                     {
                         p_nViewLifeCycle = objPPV.m_oUsageModule.m_tsViewLifeCycle;
                         p_nFullLifeCycle = objPPV.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = objPPV.m_oUsageModule.IsOfflinePlayback;
+                        p_bIsOfflinePlayback = objPPV.m_oUsageModule.m_bIsOfflinePlayBack;
                     }
                     else
                     {
