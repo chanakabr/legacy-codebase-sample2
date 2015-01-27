@@ -41,11 +41,11 @@ namespace ConditionalAccess
         Ideal = 5,
         Incaso = 6,
         Gift = 7,
-        ChangeSubscription = 8, 
         Visa = 20,
         MasterCard = 21,
         InApp = 200,
-        M1 = 60
+        M1 = 60,
+        ChangeSubscription = 8
     }
 
     public enum BillingAction
