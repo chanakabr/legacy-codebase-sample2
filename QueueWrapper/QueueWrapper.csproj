@@ -69,6 +69,7 @@
     <Compile Include="QueueImplFactory.cs" />
     <Compile Include="Queues\QueueObjects\EPGQueue.cs" />
     <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
+    <Compile Include="Queues\QueueObjects\PSNotificationsQueue.cs" />
     <Compile Include="Queues\QueueObjects\SocialQueue.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConfigurationData.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConnection.cs" />

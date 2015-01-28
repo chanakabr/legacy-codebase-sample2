@@ -2942,5 +2942,33 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        /// <summary>
+        /// Returns a full domain object for a given ID
+        /// </summary>
+        /// <param name="p_nDomainId"></param>
+        /// <param name="p_nGroupId"></param>
+        /// <returns></returns>
+        public static TvinciDomains.Domain GetDomainInfo(int p_nDomainId, int p_nGroupId)
+        {
+            TvinciDomains.Domain oDomain = null;
+
+            using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
+            {
+                string wsUsername = string.Empty;
+                string wsPassword = string.Empty;
+                Utils.GetWSCredentials(p_nGroupId, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
+                string sWSURL = Utils.GetWSURL("domains_ws");
+
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    svcDomains.Url = sWSURL;
+                }
+
+                oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+            }
+
+            return (oDomain);
+        }
     }
 }

@@ -260,4 +260,13 @@ namespace ApiObjects
         [EnumMember]
         TimeShifted = 1
     }
+
+    [Serializable]
+    public enum StatusObjectCode
+    {
+        [EnumMember]
+        OK = 0,
+        Error = 1,
+        Fail = 2
+    }
 }
