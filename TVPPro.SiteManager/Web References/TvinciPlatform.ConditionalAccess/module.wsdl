@@ -49,11 +49,11 @@
           <s:enumeration value="Ideal" />
           <s:enumeration value="Incaso" />
           <s:enumeration value="Gift" />
-          <s:enumeration value="ChangeSubscription" />
           <s:enumeration value="Visa" />
           <s:enumeration value="MasterCard" />
           <s:enumeration value="InApp" />
           <s:enumeration value="M1" />
+          <s:enumeration value="ChangeSubscription" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetDomainPermittedItems">
@@ -689,6 +689,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedBySiteGuid" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_lPurchasedMediaFileID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_lRelatedMediaFileIDs" type="tns:ArrayOfInt" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dtStartDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dtEndDate" nillable="true" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="PriceReason">
@@ -2302,6 +2304,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_device_limit_id" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bWaiver" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nWaiverPeriod" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsOfflinePlayBack" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="CouponsGroup">
@@ -6416,13 +6419,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <soap:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <soap12:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <http:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
