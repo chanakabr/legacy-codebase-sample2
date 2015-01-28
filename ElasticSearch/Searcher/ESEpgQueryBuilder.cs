@@ -122,6 +122,16 @@ namespace ElasticSearch.Searcher
                 filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
                 filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
 
+
+                if (!string.IsNullOrEmpty(m_oEpgSearchObj.m_sOrderBy))
+                {
+                    filteredQuery.ESSort.Add(new ESOrderObj()
+                    {
+                        m_eOrderDir = OrderDir.ASC,
+                        m_sOrderValue = m_oEpgSearchObj.m_sOrderBy
+                    });
+                }
+
                 res.Add(filteredQuery.ToString());
             }
             else
