@@ -151,25 +151,18 @@ namespace Users.Cache
                 if (!bSuccess || oDomain == null)
                 {
                     bool bInsert = false;
-                    Domain tempDomain = DomainFactory.GetDomain(nGroupID, nDomainID);
+                    oDomain = DomainFactory.GetDomain(nGroupID, nDomainID);
+                    
                     // if bInsertToCache = true = need to insert the domain to cache 
                     if (bInsertToCache)
                     {
                         for (int i = 0; i < 3 && !bInsert; i++)
                         {
                             //try insert to Cache                                              
-                            bInsert = this.cache.SetJson<Domain>(sKey, tempDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
-
-                            if (bInsert)
-                            {
-                                oDomain = tempDomain;
-                            }
+                            bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
                         }
                     }
-                    else // no need to insert domain to cache 
-                    {
-                        oDomain = tempDomain;
-                    }
+
                 }
                 return oDomain;
             }
