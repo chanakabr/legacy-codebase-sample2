@@ -106,8 +106,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVPLibs\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="QueueWrapper">
-      <HintPath>..\QueueWrapper\bin\Debug\QueueWrapper.dll</HintPath>
+    <Reference Include="QueueWrapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\QueueWrapper.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.0.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
