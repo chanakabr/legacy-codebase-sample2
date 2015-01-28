@@ -106,10 +106,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVPLibs\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="QueueWrapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\QueueWrapper.dll</HintPath>
-    </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.0.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\RabbitMQ.Client.dll</HintPath>
@@ -225,6 +221,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
