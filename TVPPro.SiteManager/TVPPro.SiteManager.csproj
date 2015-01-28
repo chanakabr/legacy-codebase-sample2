@@ -759,10 +759,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/WS_CAS/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/WS_CAS/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -814,10 +814,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/pricing/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/WS_pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/WS_pricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
