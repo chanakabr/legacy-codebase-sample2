@@ -2953,21 +2953,29 @@ namespace ConditionalAccess
         {
             TvinciDomains.Domain oDomain = null;
 
-            using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
+            try
             {
-                string wsUsername = string.Empty;
-                string wsPassword = string.Empty;
-                Utils.GetWSCredentials(p_nGroupId, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
-                string sWSURL = Utils.GetWSURL("domains_ws");
-
-                if (!string.IsNullOrEmpty(sWSURL))
+                using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
                 {
-                    svcDomains.Url = sWSURL;
+                    string wsUsername = string.Empty;
+                    string wsPassword = string.Empty;
+                    Utils.GetWSCredentials(p_nGroupId, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
+                    string sWSURL = Utils.GetWSURL("domains_ws");
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        svcDomains.Url = sWSURL;
+                    }
+
+                    oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
                 }
 
-                oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
             }
-
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", 
+                    string.Format("Failed getting domain info from WS. Domain Id = {0}, Group Id = {1}, Msg = {2}", p_nDomainId, p_nGroupId, ex.Message), "CAS.Utils");
+            }
             return (oDomain);
         }
     }
