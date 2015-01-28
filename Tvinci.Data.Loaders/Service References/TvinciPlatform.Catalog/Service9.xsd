@@ -11,6 +11,7 @@
           <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
           <xs:element minOccurs="0" name="Period" type="xs:int" />
           <xs:element minOccurs="0" name="PeriodDescription" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -32,6 +33,7 @@
           <xs:element minOccurs="0" name="ProgramId" type="xs:long" />
           <xs:element minOccurs="0" name="ProgramImage" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="ProgramName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Views" type="xs:int" />
         </xs:sequence>
       </xs:extension>
