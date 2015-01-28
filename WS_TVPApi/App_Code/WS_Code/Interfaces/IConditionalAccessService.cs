@@ -92,7 +92,7 @@ namespace TVPApiServices
         string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3);
 
         [OperationContract]
-        bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType);
+        bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool bIsForce);
 
         [OperationContract]
         bool WaiverTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType);
@@ -134,5 +134,13 @@ namespace TVPApiServices
         [OperationContract]
         LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode);
 
+        [OperationContract]
+        StatusObject CancelDomainServiceNow(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool isForce);
+
+        [OperationContract]
+        bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID);
+
+        [OperationContract]
+        StatusObject CancelDomainSubscriptionRenewal(InitializationObject initObj, string sSubscriptionID);
     }
 }

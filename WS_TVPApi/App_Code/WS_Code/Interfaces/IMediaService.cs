@@ -161,9 +161,6 @@ namespace TVPApiServices
         BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode);
 
         [OperationContract]
-        bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID);
-
-        [OperationContract]
         List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs);
 
         [OperationContract]

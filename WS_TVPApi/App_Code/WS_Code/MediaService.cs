@@ -1634,31 +1634,7 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
-        public bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID)
-        {
-            bool response = false;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                try
-                {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSubscription(initObj.SiteGuid, sSubscriptionID, sSubscriptionPurchaseID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
-
-            return response;
-        }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
         public string ChargeUserForMediaSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)

@@ -778,7 +778,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Transaction")]
-        public bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType)
+        public bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool bIsForce)
         {
             bool isTransactionCancelled = false;
 
@@ -790,7 +790,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    isTransactionCancelled = new ApiConditionalAccessService(groupId, initObj.Platform).CancelTransaction(siteGuid, assetId, transactionType);
+                    isTransactionCancelled = new ApiConditionalAccessService(groupId, initObj.Platform).CancelTransaction(siteGuid, assetId, transactionType, bIsForce);
                 }
                 catch (Exception ex)
                 {
@@ -1159,6 +1159,110 @@ namespace TVPApiServices
             }
 
             return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Cancel household service now")]
+        public StatusObject CancelDomainServiceNow(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
+        {
+            StatusObject oResult = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "CancelHHServiceNow", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
+                        CancelDomainServiceNow(siteGuid, initObj.DomainID, assetId, transactionType, isForce);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    oResult = new StatusObject()
+                    {
+                        Status = StatusObjectCode.Error,
+                        Message = "Error"
+                    };
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                oResult = new StatusObject()
+                {
+                    Status = StatusObjectCode.Error,
+                    Message = "Unkown group"
+                };
+            }
+
+            return (oResult);
+        }
+
+        [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
+        public bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID)
+        {
+            bool response = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSubscription(initObj.SiteGuid, sSubscriptionID, sSubscriptionPurchaseID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Cancel Subscription Renewal")]
+        public StatusObject CancelDomainSubscriptionRenewal(InitializationObject initObj, string subscriptionID)
+        {
+            StatusObject oResult = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscriptionRenewal", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
+                        CancelSubscriptionRenewal(initObj.SiteGuid, initObj.DomainID, subscriptionID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    oResult = new StatusObject()
+                    {
+                        Status = StatusObjectCode.Error,
+                        Message = "Error"
+                    };
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                oResult = new StatusObject()
+                {
+                    Status = StatusObjectCode.Error,
+                    Message = "Unkown group"
+                };
+            }
+
+            return (oResult);
         }
     }
 }
