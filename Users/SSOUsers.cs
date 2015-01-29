@@ -68,11 +68,11 @@ namespace Users
                     DataTable dt = selectQuery.Table("query");
                     if (dt.DefaultView.Count > 0)
                     {
-                       nTypeImp = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "Type");
-                       if (nTypeImp > 0)
-                       {
-                           UsersCache.AddItem(key, nTypeImp);
-                       }
+                        nTypeImp = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "Type");
+                        if (nTypeImp > 0)
+                        {
+                            UsersCache.AddItem(key, nTypeImp);
+                        }
                     }
                 }
                 selectQuery.Finish();

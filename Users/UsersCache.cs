@@ -17,12 +17,12 @@ namespace Users
             return TvinciCache.WSCache.Instance.Get<T>(key);
         }
 
-        internal static bool AddItem(string key, object obj)
+        public static bool AddItem(string key, object obj)
         {
             return (!string.IsNullOrEmpty(key)) && Add(key, obj);
         }
 
-        internal static bool GetItem<T>(string key, out T oValue)
+        public static bool GetItem<T>(string key, out T oValue)
         {
             bool res = false;
             T temp = Get<T>(key);

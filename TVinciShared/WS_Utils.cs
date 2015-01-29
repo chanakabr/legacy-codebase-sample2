@@ -48,11 +48,11 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public Int32 GetGroupID(string sWSName , string sModuleName, string sUN, string sPass, string sIP)
+        static public Int32 GetGroupID(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
         {
             try
             {
-                Int32 nGroupID = DAL.UtilsDal.GetGroupID(sUN, sPass, sModuleName, sIP, sWSName); 
+                Int32 nGroupID = DAL.UtilsDal.GetGroupID(sUN, sPass, sModuleName, sIP, sWSName);
                 return nGroupID;
             }
             catch (Exception ex)
@@ -76,13 +76,13 @@ namespace TVinciShared
             return 0;
         }
 
-        static public string GetSecretCode(string sWSName, string sModuleName, string sUN , ref Int32 nGroupID)
+        static public string GetSecretCode(string sWSName, string sModuleName, string sUN, ref Int32 nGroupID)
         {
             string sSecret = DAL.UtilsDal.GetSecretCode(sWSName, sModuleName, sUN, ref nGroupID);
             return sSecret;
         }
 
-        static public bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName , string sWSName , string sIP , ref string sWSUN, ref string sWSPassword)
+        static public bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName, string sWSName, string sIP, ref string sWSUN, ref string sWSPassword)
         {
             sWSUN = string.Empty;
             sWSPassword = string.Empty;
@@ -109,6 +109,11 @@ namespace TVinciShared
         static public int GetModuleImplID(int nGroupID, int nModuleID)
         {
             return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID);
+        }
+
+        static public string GetModuleImplName(int nGroupID, int nModuleID, int operatorId = -1)
+        {
+            return DAL.UtilsDal.GetModuleImplName(nGroupID, nModuleID, operatorId);
         }
 
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
@@ -176,7 +181,7 @@ namespace TVinciShared
             }
         }
 
-        static public string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string,string> postHeaders, string contentType = "text/xml; charset=utf-8",
+        static public string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string, string> postHeaders, string contentType = "text/xml; charset=utf-8",
                                             string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
         {
 
@@ -293,7 +298,7 @@ namespace TVinciShared
             WebResponse response = null;
             StreamReader reader = null;
             try
-            {                
+            {
 
                 // build request
                 webRequest = WebRequest.Create(sUrl);
@@ -347,7 +352,7 @@ namespace TVinciShared
         /*
          * Before you change anything in this method, keep in mind it is used in Cinepolis billing process. Good luck :)
          * 
-         */ 
+         */
         public static string BuildDelimiterSeperatedString(List<KeyValuePair<string, string>> lst, string sDelimiter, bool bIsPutDelimiterAtStart, bool bIsPutDelimiterAtEnd)
         {
             StringBuilder sb = new StringBuilder();
@@ -380,7 +385,7 @@ namespace TVinciShared
                 jtr = new JsonTextReader(new StringReader(sJSON));
                 string sKey = string.Empty;
                 while (jtr.Read())
-                {                    
+                {
                     if (jtr.Value != null)
                     {
                         string sCurrent = jtr.Value.ToString().Trim().ToLower();
@@ -410,12 +415,12 @@ namespace TVinciShared
             catch (Exception ex)
             {
                 bIsParsingSuccessful = false;
-                sbErrorMsg.Append(String.Concat(ex.Message, "|"));                
+                sbErrorMsg.Append(String.Concat(ex.Message, "|"));
             }
             finally
             {
                 #region Disposing
-                if (jtr != null) 
+                if (jtr != null)
                 {
                     jtr.Close();
                     jtr = null;
@@ -458,7 +463,7 @@ namespace TVinciShared
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message , "Tcm");
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
             }
             return result;
         }
