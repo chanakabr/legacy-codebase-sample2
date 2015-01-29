@@ -101,6 +101,11 @@ namespace Users
                 return dom;
             }
 
+            if (dom.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                return dom;
+            }
+
             Domain resDomain = dom;
             int masterUserID = (resDomain.m_masterGUIDs != null && resDomain.m_masterGUIDs.Count > 0) ? resDomain.m_masterGUIDs[0] : 0;
             if (masterUserID <= 0)

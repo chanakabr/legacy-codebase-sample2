@@ -424,12 +424,12 @@ namespace DAL
         {
             int nOperatorID = 0;
             bool bIsDomainMaster = false;
-
-            int nDomainID = GetUserDomainID(sSiteGUID, ref nOperatorID, ref bIsDomainMaster);
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+            int nDomainID = GetUserDomainID(sSiteGUID, ref nOperatorID, ref bIsDomainMaster, ref eSuspendStat);
             return nDomainID;
         }
 
-        public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster)
+        public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStatus)
         {
             int nDomainID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -438,23 +438,23 @@ namespace DAL
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
+                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID, D.IS_SUSPENDED FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", sSiteGUID);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int count = selectQuery.Table("query").DefaultView.Count;
                     if (count > 0)
                     {
-                        nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["domain_id"].ToString());
+                        nDomainID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "domain_id", 0);
+                        
+                        nOperatorID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "operator_id", 0);
 
-                        if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString()))
-                        {
-                            nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString());
-                        }
+                        bIsDomainMaster = (ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "is_master", 0) == "1");                        
 
-                        if (selectQuery.Table("query").DefaultView[0].Row["is_master"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["is_master"] != null)
+                        int suspendInt = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "IS_SUSPENDED", 0);
+                        if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendInt))
                         {
-                            bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["is_master"].ToString() == "1");
+                            eSuspendStatus = (DomainSuspentionStatus)suspendInt;
                         }
                     }
                 }

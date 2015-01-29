@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using DAL;
 using NPVR;
 using System;
 using System.Collections.Generic;
@@ -82,11 +83,12 @@ namespace ConditionalAccess
         // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
         public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
-            RecordResponse res = new RecordResponse();
+            RecordResponse res = new RecordResponse();    
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     string epgChannelID = string.Empty;
                     DateTime programStartDate = DateTime.MinValue;
@@ -172,10 +174,11 @@ namespace ConditionalAccess
         public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
@@ -258,10 +261,11 @@ namespace ConditionalAccess
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
@@ -337,10 +341,11 @@ namespace ConditionalAccess
         public override QuotaResponse GetNPVRQuota(string siteGuid)
         {
             QuotaResponse res = new QuotaResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
@@ -385,10 +390,11 @@ namespace ConditionalAccess
         public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
         {
             NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
 
@@ -525,7 +531,9 @@ namespace ConditionalAccess
             if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID) && domainID > 0)
+                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0 
+                                                                && suspendStatus == DomainSuspentionStatus.OK)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
@@ -565,8 +573,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    // user not valid.
-                    Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                    // user not valid/ user is suspended.
+                    Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain or suspended.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
                 }
             }
             else

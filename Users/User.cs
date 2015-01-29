@@ -15,7 +15,8 @@ namespace Users
             m_oBasicData = new UserBasicData();
             m_oDynamicData = new UserDynamicData();
             m_sSiteGUID = "";
-            m_eUserState = UserState.Unknown;           
+            m_eUserState = UserState.Unknown;
+            m_eSuspendState = DomainSuspentionStatus.OK;
         }
 
         public User(int nGroupID, int nUserID) : this()
@@ -110,12 +111,6 @@ namespace Users
                         }
                         break;
                     }
-                case UserState.Suspended:
-                    {
-                        retVal = UserState.Suspended;
-                        break;
-                    }
-
             }
             UsersDal.Update_UserStateInUsers(siteGuid, (int)retVal);
             return retVal;
@@ -259,10 +254,17 @@ namespace Users
                 {
                     if (IsUserTypeExist(nGroupID, nUserTypeID) == true)
                     {
-                        bool result = UsersDal.UpdateUserTypeByUserID(userID, nUserTypeID);
-                        if (!result)
+                        if (m_eSuspendState == DomainSuspentionStatus.Suspended)
                         {
-                            ret = ResponseStatus.ErrorOnUpdatingUserType;
+                            ret = ResponseStatus.UserSuspended;
+                        }
+                        else
+                        {
+                            bool result = UsersDal.UpdateUserTypeByUserID(userID, nUserTypeID);
+                            if (!result)
+                            {
+                                ret = ResponseStatus.ErrorOnUpdatingUserType;
+                            }
                         }
                     }
                     else
@@ -313,7 +315,7 @@ namespace Users
                 m_oDynamicData = oDynamicData;
                 if (!string.IsNullOrEmpty(m_sSiteGUID))
                 {
-                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
                 }
 
                 return true;
@@ -342,11 +344,11 @@ namespace Users
                 bool res2   = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                 m_sSiteGUID = nUserID.ToString();
-                m_domianID  = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                m_domianID  = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
 
                 if (m_domianID <= 0)
                 {
-                    m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                    m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
                 }
 
                 m_eUserState = GetCurrentUserState(nUserID);
@@ -725,11 +727,13 @@ namespace Users
                     int nSiteGuid = 0;
                     Int32.TryParse(retObj.m_user.m_sSiteGUID, out nSiteGuid);
                     UserState currUserState = GetCurrentUserState(nSiteGuid);
-                    if (currUserState == UserState.Suspended)
+
+                    if (retObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         retObj.m_RespStatus = ResponseStatus.UserSuspended;
                     }
-                    else if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
+                    
+                    if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
                     {
                         DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                     }
@@ -967,6 +971,7 @@ namespace Users
         public int              m_domianID;
         public bool             m_isDomainMaster;
         public UserState        m_eUserState;
-        public int              m_nSSOOperatorID;       
+        public int              m_nSSOOperatorID;
+        public DomainSuspentionStatus m_eSuspendState;
     }
 }

@@ -19,5 +19,11 @@ namespace DAL
         UserWIthNoDomain = 4,
         UserDomainSuspended = 5
     }
+
+    public enum DomainSuspentionStatus
+    {
+        OK = 0,
+        Suspended = 1
+    }
     
 }

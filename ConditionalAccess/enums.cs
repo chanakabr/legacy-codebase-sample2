@@ -19,7 +19,8 @@ namespace ConditionalAccess
         GeoCommerceBlocked = 8,
         EntitledToPreviewModule = 9,
         FirstDeviceLimitation =10,
-        CollectionPurchased
+        CollectionPurchased = 11,
+        UserSuspended
     }
 
     public enum BillingItemsType
@@ -178,7 +179,8 @@ namespace ConditionalAccess
         Concurrency = 6,
         MediaConcurrency = 7,
         InvalidBaseLink = 8,
-        InvalidFileData = 9
+        InvalidFileData = 9,
+        UserSuspended = 10
     }
 
     public enum eUrlType

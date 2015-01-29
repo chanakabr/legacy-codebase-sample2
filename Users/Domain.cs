@@ -344,8 +344,11 @@ namespace Users
             int numOfDevices = GetDeviceList();
 
             m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID, false);
-
-            m_DomainStatus = dStatus == DomainResponseStatus.OK ? DomainStatus.OK : DomainStatus.Error;
+           
+            if (m_DomainStatus != DomainStatus.DomainSuspended)
+            {
+                m_DomainStatus = dStatus == DomainResponseStatus.OK ? DomainStatus.OK : DomainStatus.Error;
+            }
 
             return m_DomainStatus == DomainStatus.OK;
         }
@@ -432,9 +435,11 @@ namespace Users
             GetDeviceList(false);
 
             m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID, false);
-
-            m_DomainStatus = DomainStatus.OK;
-
+            
+            if (m_DomainStatus != DomainStatus.DomainSuspended)
+            {
+                m_DomainStatus = DomainStatus.OK;
+            }
             return true;
         }
 
@@ -466,6 +471,12 @@ namespace Users
             if ((!User.IsUserValid(nGroupID, nUserID)))
             {
                 eRetVal = DomainResponseStatus.InvalidUser;
+                return eRetVal;
+            }
+
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eRetVal = DomainResponseStatus.DomainSuspended;
                 return eRetVal;
             }
 
@@ -548,11 +559,17 @@ namespace Users
 
             int isActive = 0;
             int nDeviceID = 0;
-
-            // try to get device from cache 
+            
             DomainsCache oDomainCache = DomainsCache.Instance();
             Domain domain = oDomainCache.GetDomain(m_nDomainID, m_nGroupID, false);
             
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                bRes = DomainResponseStatus.DomainSuspended;
+                return bRes;
+            }
+
+            // try to get device from cache 
             bool bDeviceExist = IsDeviceExistInDomain(domain, sUDID, ref isActive, ref nDeviceID);
 
             //int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
@@ -671,6 +688,12 @@ namespace Users
         public DomainResponseStatus ChangeDeviceDomainStatus(int nGroupID, int nDomainID, string sUDID, bool bIsEnable)
         {
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
+
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+                return eDomainResponseStatus;
+            }
 
             /** 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
              **     device brand id to ValidateFrequency method
@@ -891,10 +914,18 @@ namespace Users
         {
             string sUDID = string.Empty;
             int nBrandID = 0;
+            Device device = null;
+
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eRetVal = DeviceResponseStatus.Error;
+                device = new Device(m_nGroupID);
+                device.m_state = DeviceState.Error;
+                return device;
+            }
 
             bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
-
-            Device device = null;
+           
 
             // If devices to register was found in devices table, register it to domain
             if (!string.IsNullOrEmpty(sUDID))
@@ -932,8 +963,11 @@ namespace Users
 
         public DomainResponseStatus ResetDomain(int nFreqencyType = 0)
         {
-            bool res = DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
-
+            bool res = false;
+            if (m_DomainStatus != DomainStatus.DomainSuspended)
+            {
+                res = DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
+            }
             if (!res)
             {
                 return DomainResponseStatus.Error;
@@ -976,6 +1010,11 @@ namespace Users
             if (m_nDomainID <= 0)
             {
                 return DomainResponseStatus.DomainNotInitialized;
+            }
+
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                return DomainResponseStatus.DomainSuspended;
             }
 
             if (m_UsersIDs == null || m_UsersIDs.Count == 0)
@@ -1321,10 +1360,11 @@ namespace Users
             string sCoGuid = string.Empty;
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat);
 
             if (res)
             {
@@ -1341,7 +1381,10 @@ namespace Users
                 m_minUserPeriodId = nUserMinPeriodId;
                 m_sCoGuid = sCoGuid;
                 m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
-
+                if (eSuspendStat == DomainSuspentionStatus.Suspended)
+                {
+                    m_DomainStatus = DomainStatus.DomainSuspended;
+                }
                 InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
 
                 if (m_minPeriodId != 0)
@@ -1769,6 +1812,13 @@ namespace Users
             int numOfUsers = m_UsersIDs.Count;
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                bRemove = false;
+                return DomainResponseStatus.DomainSuspended;
+            }
+
+
             // If domain has no users, insert new Master user
             int status = 1;
             int isActive = 1;
@@ -1881,7 +1931,11 @@ namespace Users
             {
                 return new DomainResponseObject(this, DomainResponseStatus.UserNotAllowed);
             }
+            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            {
+                return new DomainResponseObject(this, DomainResponseStatus.DomainSuspended);
 
+            }
             // Let's try to find the domain of this master
             nDomainID = masterUser.m_domianID;
 
@@ -2023,6 +2077,13 @@ namespace Users
             int status = 0;
             int tempDeviceID = 0;
             int nDbDomainDeviceID = 0;
+
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eRetVal = DomainResponseStatus.DomainSuspended;
+                return eRetVal;
+            }           
+           
             int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
 
             //Very Patchy - change the group check to be configurable!!

@@ -1622,6 +1622,14 @@ namespace ConditionalAccess
                 return null;
             }
 
+            int nDomainID = 0;
+            DomainSuspentionStatus suspendStat = DomainSuspentionStatus.OK;
+            if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == DomainSuspentionStatus.Suspended)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;//check this is OK
+            }            
+
             theReason = PriceReason.UnKnown;
             TvinciPricing.Price price = null;
             Int32[] nMediaFilesIDs = { nMediaFileID };
@@ -1851,9 +1859,9 @@ namespace ConditionalAccess
                     }
                     #endregion
                 }
-            } // end if site guid is not null or empty
+            } // end if site guid is not null or empty            
             else
-            {
+            {   
                 price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
 
@@ -2913,7 +2921,7 @@ namespace ConditionalAccess
             return string.Empty;
         }
 
-        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID)
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref DomainSuspentionStatus eSuspnedStatus)
         {
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
@@ -2932,15 +2940,16 @@ namespace ConditionalAccess
                 {
                     domainID = resp.m_user.m_domianID;
                     res = true;
+                    //add here check for suspention status
+
                 }
                 else
                 {
                     res = false;
                 }
-
             }
 
             return res;
-        }
+        }       
     }
 }

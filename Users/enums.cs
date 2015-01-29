@@ -29,9 +29,9 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,    
-        UserSuspended = 22,
-        InternalError = 999
+        UserWithNoDomain = 21,  
+        InternalError = 999,
+        UserSuspended = 22
     }
 
     public enum UserAction
@@ -47,8 +47,7 @@ namespace Users
         Activated = 1,
         SingleSignIn = 2,
         DoubleSignIn = 3,
-        LoggedOut = 4,
-        Suspended = 5
+        LoggedOut = 4        
     }
 
     public enum UserActivationState
@@ -204,6 +203,13 @@ namespace Users
         Quantity = 1,
         Frequency = 2
     }
+
+    public enum Code
+    {
+        Success = 0,
+        Failure = 1
+    }
+
 
     //public enum DomainSuspentionStatus
     //{
