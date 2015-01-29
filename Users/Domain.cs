@@ -98,6 +98,7 @@ namespace Users
         public List<HomeNetwork> m_homeNetworks;
 
         [XmlIgnore]
+        [JsonProperty()]
         protected LimitationsManager m_oLimitationsManager;
 
         [XmlIgnore]
