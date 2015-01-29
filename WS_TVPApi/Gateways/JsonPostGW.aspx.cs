@@ -42,16 +42,31 @@ public partial class Gateways_JsonPostGW : BaseGateway
                 if (pair.Value.GetType() == typeof(JArray))
                     sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
                 else
-                    sValue = (!pair.Key.Equals("initObj") &&
+                {
+                    sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+
+                    #region Remove opening and closing ""
+                    if ((!pair.Key.Equals("initObj") &&
                               !pair.Key.Equals("tagPairs") &&
                               !pair.Key.Equals("metaPairs") &&
                               !pair.Key.Equals("userBasicData") &&
                               !pair.Key.Equals("userDynamicData")) &&
-                              !pair.Key.Equals("orderObj") ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                              !pair.Key.Equals("orderObj") &&
+                              !pair.Key.Equals("recordedEPGOrderObj"))
+                    {
+                        if (sValue[0] == '\"' && sValue[sValue.Length - 1] == '\"')
+                        {
+                            sValue = sValue.Remove(sValue.Length - 1).Substring(1);
+                        }
+                    }
+
+                    #endregion
+                }
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
         }
+
 
         // add web service
         MethodFinder queryServices = new MethodFinder(m_MediaService,
