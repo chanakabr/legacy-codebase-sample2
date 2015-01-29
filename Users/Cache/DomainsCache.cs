@@ -55,6 +55,7 @@ namespace Users.Cache
         private ICachingService cache = null;
         private readonly double dCacheTT;
         private string sDomainKeyCache = "domain_";
+        private string sDLMCache = "DLM_";
         #endregion
 
         #region Constants
@@ -316,5 +317,43 @@ namespace Users.Cache
                 return default(T);
         }
 
+
+        internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager, DateTime dtLastActionDate)
+        {
+            string sKey = string.Empty;
+            sKey = string.Format("{0}{1}", sDLMCache, nDomainLimitID);
+            oLimitationsManager = null;
+
+            // try to get the DLM id from cache
+            bool bSuccess = this.cache.GetJsonAsT<LimitationsManager>(sKey, out oLimitationsManager);
+
+            if (!bSuccess || oLimitationsManager == null)
+            {
+                bool bInsert = false;
+                oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID, dtLastActionDate);
+
+                    for (int i = 0; i < 3 && !bInsert; i++)
+                    {
+                        //try insert to Cache                                              
+                        bInsert = this.cache.SetJson<LimitationsManager>(sKey, oLimitationsManager, dCacheTT); // set this DLM object anyway
+                    }
+            }
+            if (oLimitationsManager != null)
+                return true;
+            else
+                return false;
+
+
+
+      /*      InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
+
+
+
+
+            DeviceFamiliesInitializer(nDomainLimitID, nGroupID);*/
+
+
+
+        }
     }
 }

@@ -98,6 +98,7 @@ namespace Users
         public List<HomeNetwork> m_homeNetworks;
 
         [XmlIgnore]
+        [JsonProperty()]
         protected LimitationsManager m_oLimitationsManager;
 
         [XmlIgnore]
@@ -162,7 +163,13 @@ namespace Users
             int nGroupConcurrentLimit = 0;
             int nDeviceFreqLimit = 0;
             long npvrQuotaInSecs = 0;
-            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInSecs);
+
+
+            // try to get the DomainLimitID
+            int nDomainLimitID = DomainDal.Get_DomainLimitID(nGroupID);
+            // try to get basic values from DB + the nDomainLimitID
+        //int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit, ref npvrQuotaInSecs);
+         
 
             bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
 
@@ -177,6 +184,7 @@ namespace Users
             int nStatus = 0;
 
             Domain domainDbObj = this;
+
             bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
 
             m_sName = sName;
@@ -187,17 +195,49 @@ namespace Users
             m_sCoGuid = sCoGuid;
             m_nGroupID = nGroupID;
 
-            m_nDeviceLimit = m_nLimit = nDeviceLimit;
-            m_nUserLimit = nUserLimit;
-            m_nConcurrentLimit = nConcurrentLimit;
+            m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
+            
+            //m_nDeviceLimit = nDeviceLimit;
+           // m_nUserLimit = nUserLimit;
+            //m_nConcurrentLimit = nConcurrentLimit;
+
+            // try to get from chace - DomainLimitID by nDomainLimitID
+
+            LimitationsManager oLimitationsManager = GetDLM(nDomainLimitID, m_nGroupID, Utils.FICTIVE_DATE);
+            if (oLimitationsManager != null) // initialize all fileds 
+            {
+                m_nConcurrentLimit = oLimitationsManager.Concurrency;
+                m_nDeviceLimit = oLimitationsManager.Quantity;
+                m_nUserLimit = oLimitationsManager.nUserLimit;
+
+                m_oLimitationsManager = new LimitationsManager();
+                m_oLimitationsManager.Concurrency = oLimitationsManager.Concurrency;
+                
+                m_oLimitationsManager.Frequency = oLimitationsManager.Frequency;
+                m_oLimitationsManager.npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
+                m_oLimitationsManager.Quantity = oLimitationsManager.Quantity;
+                m_oLimitationsManager.NextActionFreqDate = oLimitationsManager.NextActionFreqDate;
+                foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                {
+                    int nOverrideQuantityLimit = item.quantity > -1 ? item.quantity : m_oLimitationsManager.Quantity;
+                    int nOverrideConcurrencyLimit = item.concurrency > -1 ? item.concurrency : m_oLimitationsManager.Concurrency;
+
+                    DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, nOverrideQuantityLimit, nOverrideConcurrencyLimit);
+                    if (!m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                    {
+                        m_deviceFamilies.Add(dc);
+                        m_oDeviceFamiliesMapping.Add(item.deviceFamily, dc);
+                    }
+                }
+            }
 
             // initialize device limitations manager. user limitations are not managed through this object.
-            InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
-
+           // InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
+              //DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
 
             m_DomainStatus = DomainStatus.OK;
 
-            DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
+            
 
             m_UsersIDs = new List<int>();
             m_PendingUsersIDs = new List<int>();
@@ -248,7 +288,24 @@ namespace Users
 
             return this;
         }
-        
+
+        private LimitationsManager GetDLM(int nDomainLimitID, int m_nGroupID, DateTime dtLastActionDate)
+        {
+            LimitationsManager oLimitationsManager = null;
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                bool bGet = oDomainCache.GetDLM(nDomainLimitID, m_nGroupID, out oLimitationsManager, dtLastActionDate);
+
+                return oLimitationsManager;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
         public DomainResponseStatus Remove()
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
