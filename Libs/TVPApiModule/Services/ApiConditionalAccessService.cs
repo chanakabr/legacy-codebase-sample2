@@ -1334,17 +1334,17 @@ namespace TVPApiModule.Services
         }
 
 
-        public StatusObject CancelDomainServiceNow(string siteGuid, int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
+        public StatusObject CancelDomainServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
         {
             StatusObject oResult = null;
 
             try
             {
-                oResult = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, siteGuid, domainId, assetId, transactionType, bIsForce);
+                oResult = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : CancelServiceNow, Error Message: {0}, Parameters :  siteGuid: {1}, assetId: {2}", ex.Message, siteGuid, assetId);
+                logger.ErrorFormat("Error calling webservice protocol : CancelServiceNow, Error Message: {0}, Parameters: domain Id: {1}, assetId: {2}", ex.Message, domainId, assetId);
                 oResult = new StatusObject()
                 {
                     Status = StatusObjectCode.Error,
@@ -1355,19 +1355,19 @@ namespace TVPApiModule.Services
             return (oResult);
         }
 
-        public StatusObject CancelSubscriptionRenewal(string p_sUserGuid, int p_nDomainId, string p_sSubscriptionID)
+        public StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID)
         {
             StatusObject oResult = null;
 
             try
             {
-                oResult = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_sUserGuid, p_nDomainId, p_sSubscriptionID);
+                oResult = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat(
-                    "Error calling webservice protocol : CancelSubscriptionRenewal, Error Message: {0}, Parameters :  User: {1} Susbcription: {2}",
-                    ex.Message, p_sUserGuid, p_sSubscriptionID);
+                    "Error calling webservice protocol : CancelSubscriptionRenewal, Error Message: {0}, Parameters :  Domain: {1} Susbcription: {2}",
+                    ex.Message, p_nDomainId, p_sSubscriptionID);
 
                 oResult = new StatusObject()
                 {
