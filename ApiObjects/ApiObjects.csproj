@@ -161,6 +161,7 @@
     <Compile Include="MediaStatistics.cs" />
     <Compile Include="MeidaMaper.cs" />
     <Compile Include="MetaObject.cs" />
+    <Compile Include="NotifiedActions.cs" />
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="PicObject.cs" />

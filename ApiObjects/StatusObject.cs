@@ -23,8 +23,9 @@ namespace ApiObjects
         /// Default constructor
         /// </summary>
         public StatusObject()
+            : this(StatusObjectCode.Unkown)
         {
-            Message = string.Empty;
+            
         }
 
         /// <summary>
@@ -33,7 +34,7 @@ namespace ApiObjects
         /// <param name="p_eStatusObjectCode"></param>
         /// <param name="p_sMessage"></param>
         /// <param name="p_oBody"></param>
-        public StatusObject(StatusObjectCode p_eStatusObjectCode = StatusObjectCode.OK, string p_sMessage = "")
+        public StatusObject(StatusObjectCode p_eStatusObjectCode = StatusObjectCode.Unkown, string p_sMessage = "")
         {
             this.Status = p_eStatusObjectCode;
             this.Message = p_sMessage;

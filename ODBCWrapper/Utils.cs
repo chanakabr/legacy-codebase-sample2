@@ -673,8 +673,5 @@ namespace ODBCWrapper
 
             return (oResult);
         }
-
     }
-
-    
 }

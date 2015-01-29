@@ -267,6 +267,7 @@ namespace ApiObjects
         [EnumMember]
         OK = 0,
         Error = 1,
-        Fail = 2
+        Fail = 2,
+        Unkown = 3
     }
 }

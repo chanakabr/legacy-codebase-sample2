@@ -22,7 +22,7 @@ namespace ApiObjects.MediaIndexingObjects
         /// The action that is being notified
         /// </summary>
         [DataMember]
-        public string Action;
+        public NotifiedAction Action;
 
         /// <summary>
         /// Json object that will be written to queue
@@ -48,13 +48,13 @@ namespace ApiObjects.MediaIndexingObjects
         /// </summary>
         /// <param name="p_nGroupID"></param>
         /// <param name="p_dicData"></param>
-        /// <param name="p_sAction"></param>
-        public PSNotificationData(int p_nGroupID, Dictionary<string, object> p_dicData, string p_sAction)
+        /// <param name="p_eAction"></param>
+        public PSNotificationData(int p_nGroupID, Dictionary<string, object> p_dicData, NotifiedAction p_eAction)
             : this()
         {
             this.GroupId = p_nGroupID;
             this.m_dicData = p_dicData;
-            this.Action = p_sAction;
+            this.Action = p_eAction;
 
             if (this.m_dicData != null)
             {

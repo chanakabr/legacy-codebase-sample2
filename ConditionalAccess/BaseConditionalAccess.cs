@@ -1652,10 +1652,10 @@ namespace ConditionalAccess
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
-        /// <param name="p_sSiteGUID"></param>
+        /// <param name="p_nDomainId"></param>
         /// <param name="p_sSubscriptionCode"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelSubscriptionRenewal(string p_sSiteGUID, int p_nDomainId, string p_sSubscriptionCode)
+        public virtual StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
         {
             StatusObject oResult = new StatusObject();
             bool bResult = false;
@@ -1674,75 +1674,66 @@ namespace ConditionalAccess
                 {
                     int[] arrUsers = oDomain.m_UsersIDs;
 
-                    DataTable dtUserPurchases;
-                    bool bIsPermitted = IsSubscriptionPermittedForUsers(p_sSubscriptionCode, arrUsers, out dtUserPurchases);
+                    DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers);
 
-                    // If one of the users purchased this subscription
-                    if (!bIsPermitted)
+                    // If all of the users didn't purchase this subscription
+                    if (drUserPurchase == null)
                     {
                         oResult.Status = StatusObjectCode.Fail;
                         oResult.Message = "Subscription is not permitted for this domain";
                     }
                     else
                     {
-                        if (dtUserPurchases != null && dtUserPurchases.Rows != null && dtUserPurchases.Rows.Count > 0)
+                        int nPurchaseID = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID");
+                        int nIsRecurringStatus = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "IS_RECURRING_STATUS");
+                        string sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractValue<string>(drUserPurchase, "SITE_USER_GUID");
+
+                        // If the subscription is not recurring already
+                        if (nIsRecurringStatus != 1)
                         {
-                            DataRow drPurchase = dtUserPurchases.Rows[0];
-                            int nID = ODBCWrapper.Utils.ExtractInteger(drPurchase, "ID");
-                            int nIsRecurringStatus = ODBCWrapper.Utils.ExtractInteger(drPurchase, "IS_RECURRING_STATUS");
-
-                            // If the subscription is not recurring already
-                            if (nIsRecurringStatus != 1)
-                            {
-                                oResult.Status = StatusObjectCode.Fail;
-                                oResult.Message = "Subscription already does not renew";
-                            }
-                            else
-                            {
-                                // Try to cancel subscription
-                                bResult = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, p_sSiteGUID, p_sSubscriptionCode) > 0;
-
-                                if (bResult)
-                                {
-                                    WriteToUserLog(p_sSiteGUID,
-                                        String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ", 
-                                        ODBCWrapper.Utils.ExtractInteger(drPurchase, "ID"), " has been canceled."));
-
-                                    oResult.Status = StatusObjectCode.OK;
-                                    oResult.Message = "Subscription renewal cancelled";
-
-                                    DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drPurchase, "END_DATE");
-
-                                    // Fire event that action occurred
-                                    Dictionary<string, object> dicData = new Dictionary<string, object>()
-                                    {
-                                        {"DomainId", p_nDomainId},
-                                        {"ServiceID", p_sSubscriptionCode},
-                                        {"ServiceType", (int)eTransactionType.Subscription},
-                                        {"ServiceEndDate", dtServiceEndDate}
-                                    };
-
-                                    EnqueueEventRecord("CancelDomainSubscriptionRenewal", dicData);
-                                }
-                                else
-                                {
-                                    #region Logging
-                                    StringBuilder sb = new StringBuilder("CancelSubscriptionRenewal. Probably failed to cancel subscription on DB. ");
-                                    sb.Append(String.Concat("Site Guid: ", p_sSiteGUID));
-                                    sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));                                    
-
-                                    Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
-                                    #endregion
-
-                                    oResult.Status = StatusObjectCode.Error;
-                                    oResult.Message = "Error while cancelling";
-                                }
-                            }
+                            oResult.Status = StatusObjectCode.Fail;
+                            oResult.Message = "Subscription already does not renew";
                         }
                         else
                         {
-                            oResult.Status = StatusObjectCode.Fail;
-                            oResult.Message = "Subscription purchase is invalid";
+                            // Try to cancel subscription
+                            bResult = ConditionalAccessDAL.CancelSubscription(nPurchaseID, m_nGroupID, sPurchasingSiteGuid, p_sSubscriptionCode) > 0;
+
+                            if (bResult)
+                            {
+                                // site guid of purchasing user
+                                WriteToUserLog(sPurchasingSiteGuid,
+                                    String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ",
+                                    ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
+
+                                oResult.Status = StatusObjectCode.OK;
+                                oResult.Message = "Subscription renewal cancelled";
+
+                                DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                // Fire event that action occurred
+                                Dictionary<string, object> dicData = new Dictionary<string, object>()
+                                    {
+                                        {"DomainId", p_nDomainId},
+                                        {"ServiceID", p_sSubscriptionCode},
+                                        {"ServiceEndDate", dtServiceEndDate}
+                                    };
+
+                                EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData);
+                            }
+                            else
+                            {
+                                #region Logging
+                                StringBuilder sb = new StringBuilder("CancelSubscriptionRenewal. Probably failed to cancel subscription on DB. ");
+                                sb.Append(String.Concat("Domain Id: ", p_nDomainId));
+                                sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
+
+                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                #endregion
+
+                                oResult.Status = StatusObjectCode.Error;
+                                oResult.Message = "Error while cancelling";
+                            }
                         }
                     }
                 }
@@ -1752,7 +1743,7 @@ namespace ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", p_sSiteGUID));
+                sb.Append(String.Concat(" Domain Id: ", p_nDomainId));
                 sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
@@ -1803,6 +1794,26 @@ namespace ConditionalAccess
             }
 
             return (bResult);
+        }
+
+        /// <summary>
+        /// Gets the subscription purchase row of the given subscription by any of the given users
+        /// </summary>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <param name="p_arrUsers"></param>
+        /// <returns></returns>
+        private DataRow GetSubscriptionPurchaseRow(string p_sSubscriptionCode, int[] p_arrUsers)
+        {
+            DataRow drUserPurchase = null;
+            DataTable dtUsersPurchases = ConditionalAccessDAL.Get_UsersSubscriptionPurchases(p_arrUsers.ToList(), p_sSubscriptionCode);
+
+            // If there is at least one valid purchase
+            if (dtUsersPurchases != null && dtUsersPurchases.Rows != null && dtUsersPurchases.Rows.Count > 0)
+            {
+                drUserPurchase = dtUsersPurchases.Rows[0];
+            }
+
+            return (drUserPurchase);
         }
 
         /// <summary>
@@ -10276,13 +10287,13 @@ namespace ConditionalAccess
         /// Immediately cancel a household service 
         /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
         /// </summary>
-        /// <param name="p_sSiteGuid"></param>
+        /// <param name="p_nDomainID"></param>
         /// <param name="p_nAssetID"></param>
         /// <param name="p_enmTransactionType"></param>
         /// <param name="p_nGroupID"></param>
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelServiceNow(string p_sSiteGuid, int p_nDomainID, int p_nAssetID, 
+        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID, 
             eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
             StatusObject oResult = new StatusObject();
@@ -10305,9 +10316,11 @@ namespace ConditionalAccess
                     int[] arrUserIDs = oDomain.m_UsersIDs;
 
                     DataTable dtUserPurchases = null;
+                    DataRow drUserPurchase = null;
+                    string sPurchasingSiteGuid = string.Empty;
 
                     // Check if within cancellation window
-                    bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases);
+                    bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases);
 
                     // Check if the user purchased the asset at all
                     if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
@@ -10318,23 +10331,26 @@ namespace ConditionalAccess
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                     else if (bCancellationWindow || p_bIsForce)
                     {
+                        drUserPurchase = dtUserPurchases.Rows[0];
+                        sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
+
                         // Cancel NOW - according to type
 
                         switch (p_enmTransactionType)
                         {
                             case eTransactionType.PPV:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                 break;
                             }
                             case eTransactionType.Subscription:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                 break;
                             }
                             case eTransactionType.Collection:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                 break;
                             }
                             default:
@@ -10352,17 +10368,16 @@ namespace ConditionalAccess
                     if (bResult)
                     {
                         // Report to user log
-                        WriteToUserLog(p_sSiteGuid, 
-                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), 
+                        WriteToUserLog(sPurchasingSiteGuid, 
+                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), 
                             p_nAssetID));
                         //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
                         oResult.Status = StatusObjectCode.OK;
                         oResult.Message = "Service successfully cancelled";
 
-                        if (dtUserPurchases != null && dtUserPurchases.Rows.Count > 0)
+                        if (drUserPurchase != null)
                         {
-                            DataRow drUserPurchase = dtUserPurchases.Rows[0];
                             DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
 
                             EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
@@ -10379,8 +10394,8 @@ namespace ConditionalAccess
             {
                 #region Logging
                 string sLoggingMessage = 
-                    string.Format("Exception at CancelServiceNow. Ex Msg: {0}, Site Guid: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
-                    ex.Message, p_sSiteGuid, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
+                    string.Format("Exception at CancelServiceNow. Ex Msg: {0}, Domain Id: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
+                    ex.Message, p_nDomainID, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelServiceNow. ");
 
                 Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
@@ -10400,8 +10415,9 @@ namespace ConditionalAccess
         /// <param name="p_nAssetID"></param>
         /// <param name="p_enmTransactionType"></param>
         /// <param name="p_dtServiceEndDate"></param>
-        private void EnqueueCancelServiceRecord(int p_nDomainId, int p_nAssetID, eTransactionType p_enmTransactionType, DateTime p_dtServiceEndDate)
+        private bool EnqueueCancelServiceRecord(int p_nDomainId, int p_nAssetID, eTransactionType p_enmTransactionType, DateTime p_dtServiceEndDate)
         {
+            bool bResult = false;
             try
             {
                 Dictionary<string, object> dicData = new Dictionary<string, object>();
@@ -10410,24 +10426,28 @@ namespace ConditionalAccess
                 dicData.Add("ServiceType", (int)p_enmTransactionType);
                 dicData.Add("ServiceEndDate", p_dtServiceEndDate);
 
-                EnqueueEventRecord("CancelDomainServiceNow", dicData);
+                bResult = EnqueueEventRecord(NotifiedAction.CancelDomainServiceNow, dicData);
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Exception", string.Format("Error when trying to enqueue event record. Msg: {0}", ex.Message), GetLogFilename());
             }
+
+            return (bResult);
         }
 
         /// <summary>
         /// Fire event to the queue
         /// </summary>
         /// <param name="p_dicData"></param>
-        private void EnqueueEventRecord(string p_sAction, Dictionary<string, object> p_dicData)
+        private bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
         {
-            PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_sAction);
+            PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
 
             PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
-            qNotificationQueue.Enqueue(oNotification, m_nGroupID.ToString());
+            bool bResult = qNotificationQueue.Enqueue(oNotification, m_nGroupID.ToString());
+
+            return (bResult);
         }
 
         /// <summary>
