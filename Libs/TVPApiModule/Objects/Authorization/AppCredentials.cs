@@ -27,8 +27,8 @@ namespace TVPApiModule.Objects.Authorization
 
         public AppCredentials(int groupId)
         {
-            EncryptedAppId = AuthorizationManager.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
-            EncryptedAppSecret = AuthorizationManager.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
+            EncryptedAppId = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
+            EncryptedAppSecret = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
             GroupId = groupId;
         }
 

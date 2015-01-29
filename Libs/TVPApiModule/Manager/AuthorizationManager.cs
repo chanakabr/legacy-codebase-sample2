@@ -134,7 +134,7 @@ namespace TVPApiModule.Manager
         }
 
         //Maybe should be deleted later
-        public static AppCredentials GenerateAppCredentials(int groupId)
+        public AppCredentials GenerateAppCredentials(int groupId)
         {
             new AuthorizationManager();
             AppCredentials appCredentials = null;
@@ -147,7 +147,7 @@ namespace TVPApiModule.Manager
 
         
 
-        public static string GenerateDeviceToken(string udid, string appId)
+        public string GenerateDeviceToken(string udid, string appId)
         {
             // validate request parameters
             if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId))
@@ -172,7 +172,7 @@ namespace TVPApiModule.Manager
             return deviceToken.Token;        
         }
 
-        public static object ExchangeDeviceToken(string udid, string appId, string appSecret, string deviceToken)
+        public object ExchangeDeviceToken(string udid, string appId, string appSecret, string deviceToken)
         {
             // validate request parameters
             if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(appSecret) || string.IsNullOrEmpty(deviceToken))
@@ -209,7 +209,7 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(apiToken);
         }
 
-        public static object RefreshAccessToken(string appId, string appSecret, string refreshToken, string accessToken)
+        public object RefreshAccessToken(string appId, string appSecret, string refreshToken, string accessToken)
         {
             // validate request parameters
             if (string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(appSecret) || string.IsNullOrEmpty(refreshToken))
@@ -260,7 +260,7 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(apiToken);
         }
 
-        public static bool IsAccessTokenValid(string accessToken)
+        public bool IsAccessTokenValid(string accessToken)
         {
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
@@ -283,7 +283,7 @@ namespace TVPApiModule.Manager
             return true;
         }
 
-        private static void returnError(int statusCode, string description = null)
+        private void returnError(int statusCode, string description = null)
         {
             HttpContext.Current.Items["StatusCode"] = statusCode;
             if (!string.IsNullOrEmpty(description))
@@ -292,7 +292,7 @@ namespace TVPApiModule.Manager
             }
         }
 
-        private static object GetTokenResponseObject(APIToken apiToken)
+        private object GetTokenResponseObject(APIToken apiToken)
         {
             var expirationInSeconds = accessTokenExpirationSeconds;
             if (apiToken == null)
@@ -306,14 +306,14 @@ namespace TVPApiModule.Manager
             };
         }
 
-        public static string EncryptData(string data)
+        public string EncryptData(string data)
         {
             if (data == null)
                 return null;
             return SecurityHelper.EncryptData(_key, _iv, data);
         }
 
-        public static string DecryptData(string data)
+        public string DecryptData(string data)
         {
             if (data == null)
                 return null;
