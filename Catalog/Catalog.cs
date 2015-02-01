@@ -134,9 +134,10 @@ namespace Catalog
                 bool bUseStartDate = true;
                 int nLanguage = 0;
 
+                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+
                 if (mediaRequest.m_oFilter != null)
                 {
-                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(mediaRequest.m_oFilter.m_bUseFinalDate);
                     bOnlyActiveMedia = mediaRequest.m_oFilter.m_bOnlyActiveMedia;
                     bUseStartDate = mediaRequest.m_oFilter.m_bUseStartDate;
                     nLanguage = mediaRequest.m_oFilter.m_nLanguage;
