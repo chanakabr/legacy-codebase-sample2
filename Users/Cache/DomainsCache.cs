@@ -345,5 +345,30 @@ namespace Users.Cache
             else
                 return false;
         }
+
+        internal bool RemoveDLM(int nDlmID)
+        {
+            bool bIsRemove = false;
+            try
+            {
+                string sKey = string.Format("{0}{1}", sDLMCache, nDlmID);
+
+                //try remove domain from cache 
+                for (int i = 0; i < 3 && !bIsRemove; i++)
+                {
+                    BaseModuleCache bModule = cache.Remove(sKey);
+                    if (bModule != null && bModule.result != null)
+                    {
+                        bIsRemove = (bool)bModule.result;
+                    }
+                }
+                return bIsRemove;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RemoveDLM", string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDlmID, ex.Message), DOMAIN_LOG_FILENAME);
+                return false;
+            }
+        }
     }
 }
