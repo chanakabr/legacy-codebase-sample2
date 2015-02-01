@@ -1162,7 +1162,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel household service now")]
-        public StatusObject CancelDomainServiceNow(InitializationObject initObj, int domainId, int assetId, eTransactionType transactionType, bool isForce)
+        public StatusObject CancelServiceNow(InitializationObject initObj, int domainId, int assetId, eTransactionType transactionType, bool isForce)
         {
             StatusObject oResult = null;
 
@@ -1227,7 +1227,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription Renewal")]
-        public StatusObject CancelDomainSubscriptionRenewal(InitializationObject initObj, int domainId, string subscriptionID)
+        public StatusObject CancelSubscriptionRenewal(InitializationObject initObj, int domainId, string subscriptionID)
         {
             StatusObject oResult = null;
 
