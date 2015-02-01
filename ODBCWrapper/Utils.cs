@@ -499,6 +499,20 @@ namespace ODBCWrapper
 
             return res;
         }
+        public static int GetIntSafeVal(DataRow dr, string sField, int returnThisInCaseOfFail)
+        {
+            int res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = int.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }          
+        }
 
         /// <summary>
         /// Extracts an integer value from a data row in the most efficient way
