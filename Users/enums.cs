@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace Users
 {
     public enum ResponseStatus
@@ -29,6 +25,7 @@ namespace Users
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
         UserWithNoDomain = 21,
+        LoginServerDown = 22,
         InternalError = 999
     }
 
