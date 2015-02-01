@@ -56,17 +56,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/WS_pricing/module.asmx")]
-        public string TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule {
-            get {
-                return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/users/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_users/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Users_UsersService {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Users_UsersService"]));
@@ -106,7 +96,17 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/WS_CAS/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/pricing/module.asmx")]
+        public string TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule {
+            get {
+                return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_conditionalaccess/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module"]));
