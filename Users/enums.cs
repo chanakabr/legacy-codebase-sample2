@@ -25,8 +25,8 @@ namespace Users
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
         UserWithNoDomain = 21,
-        LoginServerDown = 22,
-        InternalError = 999
+        InternalError = 999,
+        LoginServerDown = 22
     }
 
     public enum UserAction
