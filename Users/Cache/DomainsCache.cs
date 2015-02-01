@@ -140,7 +140,7 @@ namespace Users.Cache
         #region Public methods
 
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
-        internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
+        internal Domain GetDomain(int nDomainID, int nGroupID,  bool bInsertToCache = true)
         {
             Domain oDomain = null;
             try
@@ -165,6 +165,7 @@ namespace Users.Cache
                     }
 
                 }
+               
                 return oDomain;
             }
             catch (Exception ex)
@@ -173,6 +174,7 @@ namespace Users.Cache
                 return null;
             }
         }
+        
 
         internal bool InsertDomain(Domain domain)
         {   
@@ -342,18 +344,6 @@ namespace Users.Cache
                 return true;
             else
                 return false;
-
-
-
-      /*      InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
-
-
-
-
-            DeviceFamiliesInitializer(nDomainLimitID, nGroupID);*/
-
-
-
         }
     }
 }

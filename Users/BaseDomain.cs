@@ -229,7 +229,7 @@ namespace Users
         public virtual Domain GetDomainInfo(int nDomainID, int nGroupID)
         {
             Domain domain = DomainInitializer(nGroupID, nDomainID, true);
-
+            
             return domain;
         }
 

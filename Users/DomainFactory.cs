@@ -202,6 +202,8 @@ namespace Users
                                 dfl = new DeviceFamilyLimitations();
                                 dfl.deviceFamily = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                                 dfl.deviceFamilyName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                dfl.concurrency = -1;
+                                dfl.quantity = -1;
 
                                 DataRow[] drSpecific = dtSpecificLimits.Select("device_family_id = " + dfl.deviceFamily);
                                 foreach (DataRow drItem in drSpecific)
@@ -224,6 +226,13 @@ namespace Users
                                         }
                                     }
                                 }
+                                // if concurency / quntity is -1 take the value from the group itself.
+                                if (dfl.concurrency == -1)
+                                    dfl.concurrency =  oLimitationsManager.Concurrency;
+                                if (dfl.quantity == -1)
+                                dfl.quantity = oLimitationsManager.Quantity;
+
+                                oLimitationsManager.lDeviceFamilyLimitations.Add(dfl);
                             }
                         }
                     }

@@ -18,12 +18,16 @@ namespace Users
         public string m_deviceFamilyName;
         [JsonProperty()]
         public int m_deviceFamilyID;
-        [JsonProperty()]
+       
+
+        [JsonIgnore]
         public int m_deviceLimit;
-        [JsonProperty()]
+        
+        [JsonIgnore]
         public int m_deviceConcurrentLimit;
 
         [XmlIgnore]
+        [JsonIgnore]
         public LimitationsManager m_oLimitationsManager;
 
         public DeviceContainer()
@@ -53,6 +57,7 @@ namespace Users
             m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, 0);
         }
 
+        [JsonIgnore]
         public List<Device> DeviceInstances
         {
             get
