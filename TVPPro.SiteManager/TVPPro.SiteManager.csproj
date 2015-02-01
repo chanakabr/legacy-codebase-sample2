@@ -818,10 +818,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Users\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

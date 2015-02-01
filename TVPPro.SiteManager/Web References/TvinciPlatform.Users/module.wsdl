@@ -52,6 +52,7 @@
           <s:enumeration value="UserAlreadyMasterApproved" />
           <s:enumeration value="UserWithNoDomain" />
           <s:enumeration value="InternalError" />
+          <s:enumeration value="LoginServerDown" />
         </s:restriction>
       </s:simpleType>
       <s:complexType name="User">
@@ -4103,13 +4104,13 @@
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://192.168.192.146/webservices/users/module.asmx" />
+      <soap:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/users/module.asmx" />
+      <soap12:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://192.168.192.146/webservices/users/module.asmx" />
+      <http:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
