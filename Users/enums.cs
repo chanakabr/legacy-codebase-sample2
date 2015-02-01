@@ -200,4 +200,19 @@ namespace Users
         Frequency = 2
     }
 
+    [Serializable]
+    public enum ResponseDLMStatus
+    {
+        [EnumMember]
+        OK = 0,
+        [EnumMember]
+        DlmNotExsit = 1,
+        [EnumMember]
+        WrongPasswordOrUserName = 2,
+        [EnumMember]
+        NoDlmId = 2,
+        [EnumMember]
+        InternalError = 999
+    }
+
 }
