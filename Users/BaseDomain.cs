@@ -238,7 +238,7 @@ namespace Users
         public virtual Domain GetDomainInfo(int nDomainID, int nGroupID)
         {
             Domain domain = DomainInitializer(nGroupID, nDomainID, true);
-
+            
             return domain;
         }
 
@@ -1065,5 +1065,27 @@ namespace Users
 
 
         #endregion
+        public ResponseDLMStatus RemoveDLM(int nDlmID)
+        {
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                bool bRes = oDomainCache.RemoveDLM(nDlmID);
+                if (bRes)
+                    return ResponseDLMStatus.OK;
+                else
+                    return ResponseDLMStatus.DlmNotExsit;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RemoveDLM", string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), "BaseDomain");
+                return ResponseDLMStatus.InternalError;
+            }
+
+        }
+
+        
+        
+       
     }
 }

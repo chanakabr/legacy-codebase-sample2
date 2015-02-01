@@ -55,6 +55,7 @@ namespace Users.Cache
         private ICachingService cache = null;
         private readonly double dCacheTT;
         private string sDomainKeyCache = "domain_";
+        private string sDLMCache = "DLM_";
         #endregion
 
         #region Constants
@@ -139,7 +140,7 @@ namespace Users.Cache
         #region Public methods
 
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
-        internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
+        internal Domain GetDomain(int nDomainID, int nGroupID,  bool bInsertToCache = true)
         {
             Domain oDomain = null;
             try
@@ -164,6 +165,7 @@ namespace Users.Cache
                     }
 
                 }
+               
                 return oDomain;
             }
             catch (Exception ex)
@@ -172,6 +174,7 @@ namespace Users.Cache
                 return null;
             }
         }
+        
 
         internal bool InsertDomain(Domain domain)
         {   
@@ -316,5 +319,56 @@ namespace Users.Cache
                 return default(T);
         }
 
+
+        internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager, DateTime dtLastActionDate)
+        {
+            string sKey = string.Empty;
+            sKey = string.Format("{0}{1}", sDLMCache, nDomainLimitID);
+            oLimitationsManager = null;
+
+            // try to get the DLM id from cache
+            bool bSuccess = this.cache.GetJsonAsT<LimitationsManager>(sKey, out oLimitationsManager);
+
+            if (!bSuccess || oLimitationsManager == null)
+            {
+                bool bInsert = false;
+                oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID, dtLastActionDate);
+
+                    for (int i = 0; i < 3 && !bInsert; i++)
+                    {
+                        //try insert to Cache                                              
+                        bInsert = this.cache.SetJson<LimitationsManager>(sKey, oLimitationsManager, dCacheTT); // set this DLM object anyway
+                    }
+            }
+            if (oLimitationsManager != null)
+                return true;
+            else
+                return false;
+        }
+
+        internal bool RemoveDLM(int nDlmID)
+        {
+            bool bIsRemove = false;
+            try
+            {
+                string sKey = string.Format("{0}{1}", sDLMCache, nDlmID);
+
+                //try remove domain from cache 
+                for (int i = 0; i < 3 && !bIsRemove; i++)
+                {
+                    BaseModuleCache bModule = cache.Remove(sKey);
+                    if (bModule != null && bModule.result != null)
+                    {
+                        bIsRemove = (bool)bModule.result;
+                    }
+                }
+                return bIsRemove;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RemoveDLM", string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDlmID, ex.Message), DOMAIN_LOG_FILENAME);
+                return false;
+            }
+        }
     }
 }

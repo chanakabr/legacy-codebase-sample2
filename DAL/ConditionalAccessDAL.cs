@@ -1704,5 +1704,30 @@ namespace DAL
 
             return nUrlType;
         }
+
+        /// <summary>
+        /// Returns a table of all subscription purchases made by the list of users and with the given subscription code
+        /// </summary>
+        /// <param name="p_lstUsers"></param>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <returns></returns>
+        public static DataTable Get_UsersSubscriptionPurchases(List<int> p_lstUsers, string p_sSubscriptionCode)
+        {
+            DataTable dtUserPurchases = null;
+            StoredProcedure spStoredProcedure = new StoredProcedure("Get_UsersSubscriptionPurchases");
+            spStoredProcedure.SetConnectionKey("CONNECTION_STRING");
+            spStoredProcedure.AddIDListParameter<int>("@UserIDs", p_lstUsers, "Id");
+            spStoredProcedure.AddParameter("@SubscriptionCode", p_sSubscriptionCode);
+
+            DataSet dsStoredProcedureResult = spStoredProcedure.ExecuteDataSet();
+
+            // If stored procedure was succesful, get the first one
+            if (dsStoredProcedureResult != null && dsStoredProcedureResult.Tables.Count == 1)
+            {
+                dtUserPurchases = dsStoredProcedureResult.Tables[0];
+            }
+
+            return (dtUserPurchases);
+        }
     }
 }

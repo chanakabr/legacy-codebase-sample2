@@ -499,6 +499,20 @@ namespace ODBCWrapper
 
             return res;
         }
+        public static int GetIntSafeVal(DataRow dr, string sField, int returnThisInCaseOfFail)
+        {
+            int res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = int.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }          
+        }
 
         /// <summary>
         /// Extracts an integer value from a data row in the most efficient way
@@ -615,7 +629,63 @@ namespace ODBCWrapper
 
             return (dtResult);
         }
-    }
 
-    
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public string ExtractString(DataRow p_drSource, string p_sFieldName)
+        {
+            string sResult = string.Empty;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        sResult = Convert.ToString(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (sResult);
+        }
+
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
+        {
+            T oResult = default(T);
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        oResult = (T)Convert.ChangeType(objValue, typeof(T));
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (oResult);
+        }
+    }
 }

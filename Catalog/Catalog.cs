@@ -157,9 +157,10 @@ namespace Catalog
                 bool bUseStartDate = true;
                 int nLanguage = 0;
 
+                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+
                 if (mediaRequest.m_oFilter != null)
                 {
-                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(mediaRequest.m_oFilter.m_bUseFinalDate);
                     bOnlyActiveMedia = mediaRequest.m_oFilter.m_bOnlyActiveMedia;
                     bUseStartDate = mediaRequest.m_oFilter.m_bUseStartDate;
                     nLanguage = mediaRequest.m_oFilter.m_nLanguage;
@@ -1152,8 +1153,13 @@ namespace Catalog
         {
             int opID = 0;
             bool isMaster = false;
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+
             if (nDomainID < 1)
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+            {
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
+            }
+             
             if (nDomainID > 0)
             {
                 switch (eNPVR)

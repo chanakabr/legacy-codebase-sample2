@@ -31,7 +31,8 @@ namespace Users
         UserAlreadyMasterApproved = 20,
         UserWithNoDomain = 21,  
         InternalError = 999,
-        UserSuspended = 22
+        LoginServerDown = 22,
+        UserSuspended = 23
     }
 
     public enum UserAction
@@ -216,5 +217,20 @@ namespace Users
     //    OK = 0,
     //    Suspended = 1
     //}
+    
+    [Serializable]
+    public enum ResponseDLMStatus
+    {
+        [EnumMember]
+        OK = 0,
+        [EnumMember]
+        DlmNotExsit = 1,
+        [EnumMember]
+        WrongPasswordOrUserName = 2,
+        [EnumMember]
+        NoDlmId = 2,
+        [EnumMember]
+        InternalError = 999
+    }
 
 }

@@ -2951,5 +2951,41 @@ namespace ConditionalAccess
 
             return res;
         }       
+
+        /// <summary>
+        /// Returns a full domain object for a given ID
+        /// </summary>
+        /// <param name="p_nDomainId"></param>
+        /// <param name="p_nGroupId"></param>
+        /// <returns></returns>
+        public static TvinciDomains.Domain GetDomainInfo(int p_nDomainId, int p_nGroupId)
+        {
+            TvinciDomains.Domain oDomain = null;
+
+            try
+            {
+                using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
+                {
+                    string wsUsername = string.Empty;
+                    string wsPassword = string.Empty;
+                    Utils.GetWSCredentials(p_nGroupId, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
+                    string sWSURL = Utils.GetWSURL("domains_ws");
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        svcDomains.Url = sWSURL;
+                    }
+
+                    oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", 
+                    string.Format("Failed getting domain info from WS. Domain Id = {0}, Group Id = {1}, Msg = {2}", p_nDomainId, p_nGroupId, ex.Message), "CAS.Utils");
+            }
+            return (oDomain);
+        }
     }
 }
