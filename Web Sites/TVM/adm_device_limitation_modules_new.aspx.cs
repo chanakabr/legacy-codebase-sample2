@@ -60,6 +60,17 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
 
                                 UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
 
+                                // delete from cache this DLM object    
+                                DomainsWS.module p = new DomainsWS.module();
+
+                                string sIP = "1.1.1.1";
+                                string sWSUserName = "";
+                                string sWSPass = "";
+                                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                                string sWSURL = GetWSURL("domains_ws");
+                                if (sWSURL != "")
+                                    p.Url = sWSURL;
+                                DomainsWS.ResponseDLMStatus resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
                             }
                         }
                         finally
@@ -508,5 +519,10 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
             }
         }
         return retVal;
+    }
+
+    static public string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 }
