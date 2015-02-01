@@ -1162,7 +1162,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel household service now")]
-        public StatusObject CancelServiceNow(InitializationObject initObj, int domainId, int assetId, eTransactionType transactionType, bool isForce)
+        public StatusObject CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel)
         {
             StatusObject oResult = null;
 
@@ -1175,7 +1175,7 @@ namespace TVPApiServices
                 try
                 {
                     oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
-                        CancelDomainServiceNow(domainId, assetId, transactionType, isForce);
+                        CancelDomainServiceNow(domainID, serviceID, serviceType, forceCancel);
                 }
                 catch (Exception ex)
                 {
@@ -1227,7 +1227,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription Renewal")]
-        public StatusObject CancelSubscriptionRenewal(InitializationObject initObj, int domainId, string subscriptionID)
+        public StatusObject CancelSubscriptionRenewal(InitializationObject initObj, int domainID, string serviceID)
         {
             StatusObject oResult = null;
 
@@ -1240,7 +1240,7 @@ namespace TVPApiServices
                 try
                 {
                     oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
-                        CancelSubscriptionRenewal(domainId, subscriptionID);
+                        CancelSubscriptionRenewal(domainID, serviceID);
                 }
                 catch (Exception ex)
                 {
