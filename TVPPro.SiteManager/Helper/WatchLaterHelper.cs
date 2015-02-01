@@ -32,58 +32,18 @@ namespace TVPPro.SiteManager.Helper
 
         public static bool RemoveItemFromWatchList(int mediaId, int order = 0)
         {
-            bool isRemoved = false;
-
-            var requestObject = new
-           {
-               initObj = TVPApiHelper.GetInitObj(),
-               itemObjects = new List<object>() { new { item = mediaId, orderNum = order } },
-               itemType = "Media",
-               listType = "Watch"
-           };
-
-            string response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.RemoveItemFromList, json.Serialize(requestObject));
-
-            TVPApiHelper.CastResponse<bool>(response, out isRemoved);
-
-            return isRemoved;
+           return invoke<bool>(TVPApiHelper.TVPAPI_METHODS.RemoveItemFromList, mediaId, order);
         }
 
         public static bool AddItemToList(int mediaId, int order = 0)
         {
-            bool isAdded = false;
-
-            var requestObject = new
-            {
-                initObj = TVPApiHelper.GetInitObj(),
-                itemObjects = new List<object>() { new { item = mediaId, orderNum = order } },
-                itemType = "Media",
-                listType = "Watch"
-            };
-
-            string response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.AddItemToList, json.Serialize(requestObject));
-
-            TVPApiHelper.CastResponse<bool>(response, out isAdded);
-
-            return isAdded;
+            return invoke<bool>(TVPApiHelper.TVPAPI_METHODS.AddItemToList, mediaId, order);
         }
 
         public static bool IsItemExistsInList(int mediaId, int order = 0)
         {
             bool isExist = false;
-
-            var requestObject = new
-            {
-                initObj = TVPApiHelper.GetInitObj(),
-                itemObjects = new List<object>() { new { item = mediaId, orderNum = order } },
-                itemType = "Media",
-                listType = "Watch"
-            };
-
-            string response = TVPApiHelper.MakeRequest(TVPApiHelper.TVPAPI_METHODS.IsItemExistsInList, json.Serialize(requestObject));
-
-            object[] responseArr = null;
-            TVPApiHelper.CastResponse<object[]>(response, out responseArr);
+            object[] responseArr = invoke<object[]>(TVPApiHelper.TVPAPI_METHODS.IsItemExistsInList,mediaId,order);
 
             if (responseArr != null && responseArr.Length > 0)
             {
@@ -94,5 +54,21 @@ namespace TVPPro.SiteManager.Helper
 
             return isExist;
         }
+        private static T invoke<T>(TVPApiHelper.TVPAPI_METHODS method, int mediaId, int order = 0)
+        {
+            T result = default(T);
+
+            var requestObject = new
+         {
+             initObj = TVPApiHelper.GetInitObj(),
+             itemObjects = new List<object>() { new { item = mediaId, orderNum = order } },
+             itemType = "Media",
+             listType = "Watch"
+         };
+            string response = TVPApiHelper.MakeRequest(method, json.Serialize(requestObject));
+            TVPApiHelper.CastResponse<T>(response, out result);
+            return result;
+        }
+
     }
 }
