@@ -25,7 +25,15 @@ namespace Users
                 if (kdgLoginResp != null)
                 {
                     Logger.Logger.Log("KDG-SSO", string.Format("ValidateCredentials res:{0}", kdgLoginResp.Status), "KDG-SSO");
-                    if (kdgLoginResp.Status != eKdgStatus.BadCredsOutOfNetwork && kdgLoginResp.Status != eKdgStatus.BadCredsInNetwork && kdgLoginResp.Status != eKdgStatus.Unknown)
+
+                    if (kdgLoginResp.Status == eKdgStatus.ServerDown)
+                    {
+                        retResponseObject.m_RespStatus = ResponseStatus.LoginServerDown;
+                        Logger.Logger.Log("KDG-SSO", string.Format("No response from KDG Login Server down: UN:{0} Pass:{1}", username, pass), "KDG-SSO");
+                    }
+                    else if (kdgLoginResp.Status != eKdgStatus.BadCredsOutOfNetwork &&
+                            kdgLoginResp.Status != eKdgStatus.BadCredsInNetwork &&
+                            kdgLoginResp.Status != eKdgStatus.Unknown)
                     {
                         retResponseObject = HandleLoginRequest(username, pass, kdgLoginResp);
                     }
@@ -34,8 +42,9 @@ namespace Users
             catch (Exception ex)
             {
                 retResponseObject.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
-                Logger.Logger.Log("KDG-SSO", string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), "KDG-SSO");
+                Logger.Logger.Log("KDG-SSO", string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.ToString(), username, pass), "KDG-SSO");
             }
+
             return retResponseObject;
         }
 
@@ -241,7 +250,8 @@ namespace Users
             BadCredsInNetwork = 2,
             CredsOkOutOfNetworkPackageDoesntExist = 3,
             CredsOkInNetworkPackageDoesntExist = 4,
-            CredsOkOutOfNetwork = 5
+            CredsOkOutOfNetwork = 5,
+            ServerDown = 6
         }
 
         #endregion
