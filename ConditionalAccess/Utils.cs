@@ -1623,8 +1623,8 @@ namespace ConditionalAccess
             }
 
             int nDomainID = 0;
-            DomainSuspentionStatus suspendStat = DomainSuspentionStatus.OK;
-            if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == DomainSuspentionStatus.Suspended)
+            TvinciUsers.DomainSuspentionStatus suspendStat = TvinciUsers.DomainSuspentionStatus.OK;
+            if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == TvinciUsers.DomainSuspentionStatus.Suspended)
             {
                 theReason = PriceReason.UserSuspended;
                 return null;//check this is OK
@@ -2921,7 +2921,7 @@ namespace ConditionalAccess
             return string.Empty;
         }
 
-        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref DomainSuspentionStatus eSuspnedStatus)
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref TvinciUsers.DomainSuspentionStatus eSuspnedStatus)
         {
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
@@ -2939,9 +2939,8 @@ namespace ConditionalAccess
                 if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
+                    eSuspnedStatus = resp.m_user.m_eSuspendState;
                     res = true;
-                    //add here check for suspention status
-
                 }
                 else
                 {

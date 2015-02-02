@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
+
 namespace ConditionalAccess
 {
     public class VodafoneConditionalAccess : TvinciConditionalAccess
@@ -83,8 +84,8 @@ namespace ConditionalAccess
         // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
         public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
-            RecordResponse res = new RecordResponse();    
-            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            RecordResponse res = new RecordResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -174,7 +175,7 @@ namespace ConditionalAccess
         public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
-            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -261,7 +262,7 @@ namespace ConditionalAccess
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
-            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -341,7 +342,7 @@ namespace ConditionalAccess
         public override QuotaResponse GetNPVRQuota(string siteGuid)
         {
             QuotaResponse res = new QuotaResponse();
-            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -390,7 +391,7 @@ namespace ConditionalAccess
         public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
         {
             NPVRResponse res = new NPVRResponse();
-            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -531,9 +532,9 @@ namespace ConditionalAccess
             if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
                 int domainID = 0;
-                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
-                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0 
-                                                                && suspendStatus == DomainSuspentionStatus.OK)
+                TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0
+                                                                && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)

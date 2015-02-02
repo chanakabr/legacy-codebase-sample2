@@ -455,9 +455,9 @@ namespace ConditionalAccess
         {
             // validate user state (suspended or not)
             int domainId = 0;
-            DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
+            TvinciUsers.DomainSuspentionStatus domainStatus = TvinciUsers.DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
-            if (domainStatus == DomainSuspentionStatus.Suspended)
+            if (domainStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
                 throw new ArgumentException("User is suspended");
 
             string url = string.Empty;
