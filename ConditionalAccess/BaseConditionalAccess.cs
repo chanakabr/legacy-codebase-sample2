@@ -15,6 +15,9 @@ using ConditionalAccess.TvinciPricing;
 using System.Collections;
 using Tvinci.Core.DAL;
 using ApiObjects;
+using QueueWrapper;
+using Newtonsoft.Json;
+using ApiObjects.MediaIndexingObjects;
 
 
 namespace ConditionalAccess
@@ -1585,9 +1588,14 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+        
         /// <summary>
-        /// Cancel Subscription
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
+        /// <param name="sSiteGUID"></param>
+        /// <param name="sSubscriptionCode"></param>
+        /// <param name="nSubscriptionPurchaseID"></param>
+        /// <returns></returns>
         public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             bool bRet = false;
@@ -1607,7 +1615,8 @@ namespace ConditionalAccess
                         bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) > 0;
                         if (bRet)
                         {
-                            WriteToUserLog(sSiteGUID, String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
+                            WriteToUserLog(sSiteGUID, 
+                                String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
                         }
                         else
                         {
@@ -1626,7 +1635,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("Exception at CancelSubscription. ");
+                StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
@@ -1640,6 +1649,173 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+        /// <summary>
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
+        /// </summary>
+        /// <param name="p_nDomainId"></param>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <returns></returns>
+        public virtual StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
+        {
+            StatusObject oResult = new StatusObject();
+            bool bResult = false;
+
+            try
+            {
+                // Get domain info - both for validation and for getting users in domain
+                TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainId, this.m_nGroupID);
+
+                if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
+                {
+                    oResult.Status = StatusObjectCode.Fail;
+                    oResult.Message = "Invalid domain";
+                }
+                else
+                {
+                    int[] arrUsers = oDomain.m_UsersIDs;
+
+                    DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers);
+
+                    // If all of the users didn't purchase this subscription
+                    if (drUserPurchase == null)
+                    {
+                        oResult.Status = StatusObjectCode.Fail;
+                        oResult.Message = "Subscription is not permitted for this domain";
+                    }
+                    else
+                    {
+                        int nPurchaseID = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID");
+                        int nIsRecurringStatus = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "IS_RECURRING_STATUS");
+                        string sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractValue<string>(drUserPurchase, "SITE_USER_GUID");
+
+                        // If the subscription is not recurring already
+                        if (nIsRecurringStatus != 1)
+                        {
+                            oResult.Status = StatusObjectCode.Fail;
+                            oResult.Message = "Subscription already does not renew";
+                        }
+                        else
+                        {
+                            // Try to cancel subscription
+                            bResult = ConditionalAccessDAL.CancelSubscription(nPurchaseID, m_nGroupID, sPurchasingSiteGuid, p_sSubscriptionCode) > 0;
+
+                            if (bResult)
+                            {
+                                // site guid of purchasing user
+                                WriteToUserLog(sPurchasingSiteGuid,
+                                    String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ",
+                                    ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
+
+                                oResult.Status = StatusObjectCode.OK;
+                                oResult.Message = "Subscription renewal cancelled";
+
+                                DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                // Fire event that action occurred
+                                Dictionary<string, object> dicData = new Dictionary<string, object>()
+                                    {
+                                        {"DomainId", p_nDomainId},
+                                        {"ServiceID", p_sSubscriptionCode},
+                                        {"ServiceEndDate", dtServiceEndDate}
+                                    };
+
+                                EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData);
+                            }
+                            else
+                            {
+                                #region Logging
+                                StringBuilder sb = new StringBuilder("CancelSubscriptionRenewal. Probably failed to cancel subscription on DB. ");
+                                sb.Append(String.Concat("Domain Id: ", p_nDomainId));
+                                sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
+
+                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                #endregion
+
+                                oResult.Status = StatusObjectCode.Error;
+                                oResult.Message = "Error while cancelling";
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Domain Id: ", p_nDomainId));
+                sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+
+                oResult.Status = StatusObjectCode.Fail;
+                oResult.Message = "Unexpected error occured";
+            }
+
+            return oResult;
+        }
+
+        /// <summary>
+        /// Tells whether the users purchased this subscription or not.
+        /// Also gets the user permitted subscriptions' purchases
+        /// </summary>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <param name="p_arrUsers"></param>
+        /// <returns></returns>
+        private bool IsSubscriptionPermittedForUsers(string p_sSubscriptionCode, int[] p_arrUsers, out DataTable p_dtUserPurchases)
+        {
+            bool bResult = false;
+
+            p_dtUserPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(p_arrUsers.ToList(), false);
+
+            // If there is at least one valid subscription
+            if (p_dtUserPurchases != null && p_dtUserPurchases.Rows != null && p_dtUserPurchases.Rows.Count > 0)
+            {
+                // Run on all purchases until a match is found
+                foreach (DataRow drUserPurchase in p_dtUserPurchases.Rows)
+                {
+                    // If this it the subscription we are looking for
+                    if (p_sSubscriptionCode == ODBCWrapper.Utils.ExtractString(drUserPurchase, "SUBSCRIPTION_CODE"))
+                    {
+                        object oCancellationDate = drUserPurchase["CANCELLATION_DATE"];
+
+                        // Check if the subscription is not cancelled
+                        if ((oCancellationDate == null) || (oCancellationDate == DBNull.Value))
+                        {
+                            bResult = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Gets the subscription purchase row of the given subscription by any of the given users
+        /// </summary>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <param name="p_arrUsers"></param>
+        /// <returns></returns>
+        private DataRow GetSubscriptionPurchaseRow(string p_sSubscriptionCode, int[] p_arrUsers)
+        {
+            DataRow drUserPurchase = null;
+            DataTable dtUsersPurchases = ConditionalAccessDAL.Get_UsersSubscriptionPurchases(p_arrUsers.ToList(), p_sSubscriptionCode);
+
+            // If there is at least one valid purchase
+            if (dtUsersPurchases != null && dtUsersPurchases.Rows != null && dtUsersPurchases.Rows.Count > 0)
+            {
+                drUserPurchase = dtUsersPurchases.Rows[0];
+            }
+
+            return (drUserPurchase);
+        }
+
         /// <summary>
         /// Update Subscription
         /// </summary>
@@ -6758,7 +6934,7 @@ namespace ConditionalAccess
         {
 
             string sFirstDeviceNameFound = string.Empty;
-            TvinciPricing.mdoule m = null;
+            TvinciPricing.mdoule objPricingModule = null;
             MediaFileItemPricesContainer[] ret = null;
             string sPricingUsername = string.Empty;
             string sPricingPassword = string.Empty;
@@ -6771,8 +6947,8 @@ namespace ConditionalAccess
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
-                InitializePricingModule(ref m);
-                oModules = m.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                InitializePricingModule(ref objPricingModule);
+                oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                 if (oModules != null && oModules.Length > 0)
                 {
@@ -6804,6 +6980,9 @@ namespace ConditionalAccess
                             string lowestPurchasedBySiteGuid = string.Empty;
                             int lowestPurchasedAsMediaFileID = 0;
                             List<int> lowestRelatedMediaFileIDs = new List<int>();
+                            DateTime? dtLowestStartDate = null;
+                            DateTime? dtLowestEndDate = null;
+
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
@@ -6815,14 +6994,18 @@ namespace ConditionalAccess
                                 string purchasedBySiteGuid = string.Empty;
                                 int purchasedAsMediaFileID = 0;
                                 List<int> relatedMediaFileIDs = new List<int>();
+                                DateTime? dtEntitlementStartDate = null;
+                                DateTime? dtEntitlementEndDate = null;
+
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs);
+                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
                                 sProductCode = oModules[i].m_sProductCode;
 
-                                //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however has been purchased and is is still valid for watching
+                                //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however 
+                                // has been purchased and is is still valid for watching
                                 if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
                                 {
                                     if (!bOnlyLowest)
@@ -6830,7 +7013,8 @@ namespace ConditionalAccess
                                         var tempItemPriceContainer = new ItemPriceContainer();
                                         tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
                                             theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs);
+                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtEntitlementStartDate,
+                                            dtEntitlementEndDate);
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
                                     else
@@ -6848,6 +7032,8 @@ namespace ConditionalAccess
                                             lowestPurchasedBySiteGuid = purchasedBySiteGuid;
                                             lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
                                             lowestRelatedMediaFileIDs = relatedMediaFileIDs;
+                                            dtLowestStartDate = dtEntitlementStartDate;
+                                            dtLowestEndDate = dtEntitlementEndDate;
                                         }
                                     }
                                 }
@@ -6860,7 +7046,7 @@ namespace ConditionalAccess
                                     ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
                                     relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
                                     relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs);
+                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
 
                                 itemPriceCont.Insert(0, tempItemPriceContainer);
 
@@ -6930,9 +7116,9 @@ namespace ConditionalAccess
             finally
             {
                 #region Disposing
-                if (m != null)
+                if (objPricingModule != null)
                 {
-                    m.Dispose();
+                    objPricingModule.Dispose();
                 }
 
                 #endregion
@@ -8844,176 +9030,368 @@ namespace ConditionalAccess
         public virtual string GetItemLeftViewLifeCycle(string sMediaFileID, string sSiteGUID, bool bIsCoGuid,
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            Int32 nMediaFileID = 0;
-            string res = TimeSpan.Zero.ToString();
+            string strResponse = TimeSpan.Zero.ToString();
+
+            EntitlementResponse objItemLeftLifeCycle = this.GetEntitlement(sMediaFileID, sSiteGUID, bIsCoGuid, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+
+            if (objItemLeftLifeCycle != null)
+            {
+                strResponse = objItemLeftLifeCycle.ViewLifceCycle;
+            }
+
+            return (strResponse);
+        }
+
+        /// <summary>
+        /// Gets the time-spans of what's left for this specific item's life cycle (both full and view)
+        /// </summary>
+        /// <param name="p_sMediaFileID"></param>
+        /// <param name="p_sSiteGUID"></param>
+        /// <param name="p_bIsCoGuid"></param>
+        /// <param name="p_sCOUNTRY_CODE"></param>
+        /// <param name="p_sLANGUAGE_CODE"></param>
+        /// <param name="p_sDEVICE_NAME"></param>
+        /// <returns></returns>
+        public EntitlementResponse GetEntitlement(
+            string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME)
+        {
+            EntitlementResponse objResponse = new EntitlementResponse();
+
+            int nMediaFileID = 0;
+            string strViewLifeCycle = TimeSpan.Zero.ToString();
+            string strFullLifeCycle = TimeSpan.Zero.ToString();
+            bool bIsOfflinePlayback = false;
 
             try
             {
-                if (bIsCoGuid)
+                if (p_bIsCoGuid)
                 {
-                    if (!Utils.GetMediaFileIDByCoGuid(sMediaFileID, m_nGroupID, sSiteGUID, ref nMediaFileID))
+                    if (!Utils.GetMediaFileIDByCoGuid(p_sMediaFileID, m_nGroupID, p_sSiteGUID, ref nMediaFileID))
                     {
                         throw new Exception("Failed to retrieve Media File ID from WS Catalog.");
                     }
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(sMediaFileID) || !Int32.TryParse(sMediaFileID, out nMediaFileID))
+                    if (string.IsNullOrEmpty(p_sMediaFileID) || !Int32.TryParse(p_sMediaFileID, out nMediaFileID))
                     {
-                        throw new ArgumentException(String.Concat("MediaFileID is in incorrect format: ", sMediaFileID));
+                        throw new ArgumentException(String.Concat("MediaFileID is in incorrect format: ", p_sMediaFileID));
                     }
                 }
 
                 if (nMediaFileID > 0)
                 {
-                    Int32[] nMediaFileIDs = { nMediaFileID };
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, string.Empty, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+                    int[] arrMediaFileIDs = { nMediaFileID };
+                    MediaFileItemPricesContainer[] arrPrices =
+                        GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
 
-                    if (prices != null && prices.Length > 0 && IsFreeItem(prices[0]))
+                    if (arrPrices != null && arrPrices.Length > 0)
                     {
-                        // it is free item
-                        TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+                        MediaFileItemPricesContainer objPrice = arrPrices[0];
 
-                        string val = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
-
-                        if (!string.IsNullOrEmpty(val))
+                        // If the item is free
+                        if (IsFreeItem(objPrice))
                         {
-                            DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(val), true);
-                            ts = dEndDate.Subtract(DateTime.UtcNow);
+                            GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
                         }
-
-                        res = ts.ToString();
-                    }
-                    else
-                    {
-
-                        bool isOfflineStatus = false;
-                        string sPPVMCode = string.Empty;
-                        Int32 nViewLifeCycle = 0;
-                        DateTime dPurchaseDate = new DateTime();
-                        DateTime dNow = DateTime.UtcNow;
-                        List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
-                        List<int> relatedMediaFiles = GetRelatedMediaFiles(prices[0], nMediaFileID);
-
-                        if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lUsersIds, relatedMediaFiles, ref sPPVMCode, ref isOfflineStatus, ref dNow,
-                            ref dPurchaseDate))
+                        else
+                        // Item is not free
                         {
-                            string pricingUsername = string.Empty, pricingPassword = string.Empty;
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+                            bool bIsOfflineStatus = false;
+                            string sPPVMCode = string.Empty;
+                            int nViewLifeCycle = 0;
+                            int nFullLifeCycle = 0;
+                            DateTime dtViewDate = new DateTime();
+                            DateTime dtNow = DateTime.UtcNow;
+                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID);
+                            List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
+                            DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
+                            DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
 
-                            if (isOfflineStatus)
+                            string sPricingUsername = string.Empty;
+                            string sPricingPassword = string.Empty;
+
+                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+
+                            // Get latest use (watch/download) of the media file. If there was one, continue.
+                            if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lstUsersIds, lstRelatedMediaFiles, ref sPPVMCode, ref bIsOfflineStatus, ref dtNow,
+                                ref dtViewDate))
                             {
-
-                                string groupUsageModuleCode = string.Empty;
-                                if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref groupUsageModuleCode))
+                                if (bIsOfflineStatus)
                                 {
-                                    UsageModule um = Utils.GetUsageModuleDataWithCaching(groupUsageModuleCode, pricingUsername, pricingPassword,
-                                        sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
-                                    if (um != null)
+                                    string sGroupUsageModuleCode = string.Empty;
+
+                                    if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref sGroupUsageModuleCode))
                                     {
-                                        nViewLifeCycle = um.m_tsViewLifeCycle;
+                                        UsageModule objUsageModule = Utils.GetUsageModuleDataWithCaching(sGroupUsageModuleCode, sPricingUsername, sPricingPassword,
+                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
+
+                                        if (objUsageModule != null)
+                                        {
+                                            nViewLifeCycle = objUsageModule.m_tsViewLifeCycle;
+                                            nFullLifeCycle = objUsageModule.m_tsMaxUsageModuleLifeCycle;
+                                            bIsOfflinePlayback = objUsageModule.m_bIsOfflinePlayBack;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode, 
+                                        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
+
+                                    // If getting didn't succeed for any reason, write to log
+                                    if (!bIsSuccess)
+                                    {
+                                        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
                                     }
                                 }
                             }
-                            else
+
+                            // If we found the view cycle (and there was a view), calculate what's left of it
+                            // Base date is the view date
+                            if (nViewLifeCycle > 0)
                             {
-                                eTransactionType businessModuleType = GetBusinessModuleType(sPPVMCode);
-                                switch (businessModuleType)
+                                DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
+                                TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
+                                strViewLifeCycle = tsViewLeftSpan.ToString();
+                            }
+
+                            //// In case user purchased the item but didn't view it - we need to find what is the usage module's full life cycle
+                            //if (nFullLifeCycle == 0 && dtStartDate.HasValue)
+                            //{
+                            //    string sPPVMCodeFromPrice = GetPPVModuleCode(objPrice);
+
+                            //    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCodeFromPrice,
+                            //        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
+
+                            //    // If getting didn't succeed for any reason, write to log
+                            //    if (!bIsSuccess)
+                            //    {
+                            //        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCodeFromPrice, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                            //            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
+                            //    }
+                            //}
+
+                            eTransactionType eBusinessModuleType = GetBusinessModuleType(sPPVMCode);
+
+                            // If it is a subscription, use the end date that is saved in the DB and that was gotten in GetItemPrice
+                            if (eBusinessModuleType == eTransactionType.Subscription || eBusinessModuleType == eTransactionType.Collection)
+                            {
+                                if (dtEntitlementEndDate.HasValue)
                                 {
-                                    case eTransactionType.Subscription:
-                                        {
-                                            string subCode = sPPVMCode.Split(' ')[1];
-                                            Subscription[] subscriptions = Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { subCode }, pricingUsername, pricingPassword, m_nGroupID);
-                                            if (subscriptions != null && subscriptions.Length > 0 && subscriptions[0] != null
-                                                && subscriptions[0].m_oSubscriptionUsageModule != null)
-                                            {
-                                                nViewLifeCycle = subscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(subCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.Subscription), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
-                                    case eTransactionType.Collection:
-                                        {
-                                            string collCode = sPPVMCode.Split(' ')[1];
-                                            Collection[] collections = Utils.GetCollectionsDataWithCaching(new List<string>(1) { collCode }, pricingUsername, pricingPassword, m_nGroupID);
-                                            if (collections != null && collections.Length > 0 && collections[0] != null
-                                                && collections[0].m_oCollectionUsageModule != null)
-                                            {
-                                                nViewLifeCycle = collections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(collCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.Collection), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            // ppv module
-                                            PPVModule ppv = Utils.GetPPVModuleDataWithCaching(sPPVMCode, pricingUsername, pricingPassword, m_nGroupID,
-                                                sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-                                            if (ppv != null && ppv.m_oUsageModule != null)
-                                            {
-                                                nViewLifeCycle = ppv.m_oUsageModule.m_tsViewLifeCycle;
-                                            }
-                                            else
-                                            {
-                                                // log
-                                                #region Logging
-                                                Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCode, sSiteGUID, sMediaFileID, bIsCoGuid,
-                                                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
-                                                #endregion
-                                            }
-                                            break;
-                                        }
+                                    TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
+                                    strFullLifeCycle = tsFullLeftSpan.ToString();
+                                }
+                            }
+                            else if (eBusinessModuleType == eTransactionType.PPV)
+                            {
+                                // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
+                                // Base date is purchase date
+                                if (nFullLifeCycle > 0 && dtEntitlementStartDate.HasValue)
+                                {
+                                    DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
+                                    TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
+                                    strFullLifeCycle = tsFullLeftSpan.ToString();
                                 }
                             }
                         }
-
-                        if (nViewLifeCycle > 0)
-                        {
-                            DateTime dEndDate = Utils.GetEndDateTime(dPurchaseDate, nViewLifeCycle);
-
-                            TimeSpan ts = dEndDate.Subtract(dNow);
-                            res = ts.ToString();
-                        }
                     }
-
-
                 } // end if nMediaFileID > 0
             }
             catch (Exception ex)
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("Exception at GetItemLeftViewLifeCycle. ");
+                StringBuilder sb = new StringBuilder("Exception at GetItemLeftLifeCycle. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" MF ID or CG: ", sMediaFileID));
-                sb.Append(String.Concat(" Is CG: ", bIsCoGuid.ToString().ToLower()));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
-                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" MF ID or CG: ", p_sMediaFileID));
+                sb.Append(String.Concat(" Is CG: ", p_bIsCoGuid.ToString().ToLower()));
+                sb.Append(String.Concat(" Site Guid: ", p_sSiteGUID));
+                sb.Append(String.Concat(" Country Cd: ", p_sCOUNTRY_CODE));
+                sb.Append(String.Concat(" Lng Cd: ", p_sLANGUAGE_CODE));
+                sb.Append(String.Concat(" Device Name: ", p_sDEVICE_NAME));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 #endregion
-
             }
 
-            return res;
+            objResponse.ViewLifceCycle = strViewLifeCycle;
+            objResponse.FullLifceCycle = strFullLifeCycle;
+            objResponse.IsOfflinePlayBack = bIsOfflinePlayback;
+
+            return (objResponse);
+        }
+
+        /// <summary>
+        /// Returns the default timespans of free items
+        /// </summary>
+        /// <param name="p_strViewLifeCycle"></param>
+        /// <param name="p_strFullLifeCycle"></param>
+        private void GetFreeItemLeftLifeCycle(ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        {
+            // Default is 2 days
+            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+
+            // Get the group's configuration for free view life cycle
+            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+
+            if (!string.IsNullOrEmpty(sFreeLeftView))
+            {
+                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
+                ts = dEndDate.Subtract(DateTime.UtcNow);
+            }
+
+            p_strViewLifeCycle = ts.ToString();
+            // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
+            p_strFullLifeCycle = ts.ToString();
+        }
+
+        /// <summary>
+        /// For a given PPVMCode, returns the full life cycle, view life cycle and is offline playback
+        /// </summary>
+        /// <param name="p_sCOUNTRY_CODE"></param>
+        /// <param name="p_sLANGUAGE_CODE"></param>
+        /// <param name="p_sDEVICE_NAME"></param>
+        /// <param name="p_bIsOfflinePlayback"></param>
+        /// <param name="p_sPPVMCode"></param>
+        /// <param name="p_nViewLifeCycle"></param>
+        /// <param name="p_nFullLifeCycle"></param>
+        /// <param name="p_sPricingUsername"></param>
+        /// <param name="p_sPricingPassword"></param>
+        /// <returns>If the get succeeded or not</returns>
+        private bool GetLifeCycleByPPVMCode(string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, ref bool p_bIsOfflinePlayback, 
+            string p_sPPVMCode, ref int p_nViewLifeCycle, ref int p_nFullLifeCycle, string p_sPricingUsername, string p_sPricingPassword)
+        {
+            bool bIsSuccess = true;
+
+            eTransactionType eBusinessModuleType = GetBusinessModuleType(p_sPPVMCode);
+
+            switch (eBusinessModuleType)
+            {
+                case eTransactionType.Subscription:
+                {
+                    // Get the code itself, without the prefix
+                    string sSubCode = p_sPPVMCode.Substring(3);
+
+                    // Get the subscription item of this code
+                    Subscription[] arrSubscriptions =
+                        Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                    // If there is a valid subscription with a valid usage module
+                    if (arrSubscriptions != null && arrSubscriptions.Length > 0 && arrSubscriptions[0] != null &&
+                        arrSubscriptions[0].m_oSubscriptionUsageModule != null)
+                    {
+                        p_nViewLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                case eTransactionType.Collection:
+                {
+                    // Get the code itself, without the prefix
+                    string sCollCode = p_sPPVMCode.Substring(3);
+
+                    // Get the collection item of this code
+                    Collection[] arrCollections =
+                        Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                    // If there is a valid collection with a valid usage module
+                    if (arrCollections != null && arrCollections.Length > 0 && arrCollections[0] != null &&
+                        arrCollections[0].m_oCollectionUsageModule != null)
+                    {
+                        p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                case eTransactionType.PPV:
+                {
+                    PPVModule objPPV = Utils.GetPPVModuleDataWithCaching(p_sPPVMCode, p_sPricingUsername, p_sPricingPassword, m_nGroupID,
+                        p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
+
+                    if (objPPV != null && objPPV.m_oUsageModule != null)
+                    {
+                        p_nViewLifeCycle = objPPV.m_oUsageModule.m_tsViewLifeCycle;
+                        p_nFullLifeCycle = objPPV.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                        p_bIsOfflinePlayback = objPPV.m_oUsageModule.m_bIsOfflinePlayBack;
+                    }
+                    else
+                    {
+                        bIsSuccess = false;
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            return (bIsSuccess);            
+        }
+
+        /// <summary>
+        /// Returns the ppv module code of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private string GetPPVModuleCode(MediaFileItemPricesContainer p_objPrice)
+        {
+            string strCode = string.Empty;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                strCode = p_objPrice.m_oItemPrices[0].m_sPPVModuleCode;
+            }
+
+            return (strCode);
+        }
+
+        /// <summary>
+        /// Returns the start date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private DateTime? GetStartDate(MediaFileItemPricesContainer p_objPrice)
+        {
+            DateTime? dtStartDate = null;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                dtStartDate = p_objPrice.m_oItemPrices[0].m_dtStartDate;
+            }
+
+            return (dtStartDate);
+        }
+
+        /// <summary>
+        /// Returns the end date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        private DateTime? GetEndDate(MediaFileItemPricesContainer p_objPrice)
+        {
+            DateTime? dtEndDate = null;
+
+            if (p_objPrice != null && p_objPrice.m_oItemPrices != null && p_objPrice.m_oItemPrices.Length > 0)
+            {
+                dtEndDate = p_objPrice.m_oItemPrices[0].m_dtEndDate;
+            }
+
+            return (dtEndDate);
         }
 
         private string GetPricingErrLogMsg(string businessModuleCode, string siteGuid, string mediaFileIDStr,
@@ -9905,40 +10283,227 @@ namespace ConditionalAccess
             WriteToUserLog(sSiteGuid, sb.ToString());
         }
 
-
-        /* This method shall set the cancellation Date column in the user entitlement table (subscriptions/ppv/collection_purchases) to the current date 
-       * and set the is_active state to 0. 
-       * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
-        public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
+        /// <summary>
+        /// Immediately cancel a household service 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+        /// </summary>
+        /// <param name="p_nDomainID"></param>
+        /// <param name="p_nAssetID"></param>
+        /// <param name="p_enmTransactionType"></param>
+        /// <param name="p_nGroupID"></param>
+        /// <param name="p_bIsForce"></param>
+        /// <returns></returns>
+        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID, 
+            eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
-            bool bRes = false;
-            System.Data.DataTable dt = null;
+            StatusObject oResult = new StatusObject();
+
+            bool bResult = false;
 
             try
             {
-                // get the usage module for the asset id 
-                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
-                if (bCancellationWindow)
+                // Start with getting domain info - both for validation and to get domain's users
+                TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
+
+                // Check if the domain is OK
+                if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
-                    switch (transactionType)
+                    oResult.Status = StatusObjectCode.Fail;
+                    oResult.Message = "Invalid domain";
+                }
+                else
+                {
+                    int[] arrUserIDs = oDomain.m_UsersIDs;
+
+                    DataTable dtUserPurchases = null;
+                    DataRow drUserPurchase = null;
+                    string sPurchasingSiteGuid = string.Empty;
+
+                    // Check if within cancellation window
+                    bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases);
+
+                    // Check if the user purchased the asset at all
+                    if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
+                    {
+                        oResult.Status = StatusObjectCode.Fail;
+                        oResult.Message = "There is not a valid purchase for this user and asset ID";
+                    }
+                    // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+                    else if (bCancellationWindow || p_bIsForce)
+                    {
+                        drUserPurchase = dtUserPurchases.Rows[0];
+                        sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
+
+                        // Cancel NOW - according to type
+
+                        switch (p_enmTransactionType)
+                        {
+                            case eTransactionType.PPV:
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                break;
+                            }
+                            case eTransactionType.Subscription:
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                break;
+                            }
+                            case eTransactionType.Collection:
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        oResult.Status = StatusObjectCode.Fail;
+                        oResult.Message = "Subscription could not be cancelled because it is not in cacnellation window";
+                    }
+
+                    if (bResult)
+                    {
+                        // Report to user log
+                        WriteToUserLog(sPurchasingSiteGuid, 
+                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), 
+                            p_nAssetID));
+                        //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                        oResult.Status = StatusObjectCode.OK;
+                        oResult.Message = "Service successfully cancelled";
+
+                        if (drUserPurchase != null)
+                        {
+                            DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                            EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
+                        }
+                    }
+                    else
+                    {
+                        oResult.Status = StatusObjectCode.Fail;
+                        oResult.Message = "Cancellation failed";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                string sLoggingMessage = 
+                    string.Format("Exception at CancelServiceNow. Ex Msg: {0}, Domain Id: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
+                    ex.Message, p_nDomainID, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
+                StringBuilder sb = new StringBuilder("Exception at CancelServiceNow. ");
+
+                Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
+                #endregion
+
+                oResult.Status = StatusObjectCode.OK;
+                oResult.Message = "Unexpected error occurred";
+            }
+
+            return oResult;
+        }
+
+        /// <summary>
+        /// Fire event that cancellation occurred 
+        /// </summary>
+        /// <param name="p_nDomainId"></param>
+        /// <param name="p_nAssetID"></param>
+        /// <param name="p_enmTransactionType"></param>
+        /// <param name="p_dtServiceEndDate"></param>
+        private bool EnqueueCancelServiceRecord(int p_nDomainId, int p_nAssetID, eTransactionType p_enmTransactionType, DateTime p_dtServiceEndDate)
+        {
+            bool bResult = false;
+            try
+            {
+                Dictionary<string, object> dicData = new Dictionary<string, object>();
+                dicData.Add("DomainId", p_nDomainId);
+                dicData.Add("ServiceID", p_nAssetID);
+                dicData.Add("ServiceType", (int)p_enmTransactionType);
+                dicData.Add("ServiceEndDate", p_dtServiceEndDate);
+
+                bResult = EnqueueEventRecord(NotifiedAction.CancelDomainServiceNow, dicData);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("Error when trying to enqueue event record. Msg: {0}", ex.Message), GetLogFilename());
+            }
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Fire event to the queue
+        /// </summary>
+        /// <param name="p_dicData"></param>
+        private bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
+        {
+            PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
+
+            PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
+            bool bResult = qNotificationQueue.Enqueue(oNotification, m_nGroupID.ToString());
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Immediately cancel a household service 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+        /// </summary>
+        /// <param name="p_sSiteGuid"></param>
+        /// <param name="p_nAssetID"></param>
+        /// <param name="p_enmTransactionType"></param>
+        /// <param name="p_nGroupID"></param>
+        /// <param name="p_bIsForce"></param>
+        /// <returns></returns>
+        public virtual bool CancelTransaction(string p_sSiteGuid, int p_nAssetID, eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
+        {
+            bool bResult = false;
+
+            try
+            {
+                System.Data.DataTable dtUserPurchases = null;
+
+                // Check if within cancellation window
+                bool bCancellationWindow = GetCancellationWindow(p_sSiteGuid, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases);
+
+                // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+                if (bCancellationWindow || p_bIsForce)
+                {
+                    // Cancel NOW - according to type
+
+                    switch (p_enmTransactionType)
                     {
                         case eTransactionType.PPV:
-                            bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                        {
+                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
+                        }
                         case eTransactionType.Subscription:
-                            bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                        {
+                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
+                        }
                         case eTransactionType.Collection:
-                            bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                        {
+                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
                             break;
+                        }
                         default:
-                            return false;
+                        {
+                            break;
+                        }
                     }
                 }
 
-                if (bRes)
+                if (bResult)
                 {
-                    WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
+                    // Report to user log
+                    WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
                 }
 
@@ -9947,53 +10512,93 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
+                string sLoggingMessage = string.Format("Exception at CancelTransaction. Ex Msg: {0}, Site Guid: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
+                    ex.Message, p_sSiteGuid, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelTransaction. ");
-                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
-                sb.Append(String.Concat(" Asset ID: ", nAssetID));
-                sb.Append(String.Concat(" Trans Type: ", transactionType.ToString()));
-                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
                 #endregion
             }
 
-            return bRes;
+            return bResult;
         }
 
+        /// <summary>
+        /// Tells whether the user can still cancel the given asset or not - if it is within the cancellation window
+        /// </summary>
+        /// <param name="sSiteGuid"></param>
+        /// <param name="nAssetID"></param>
+        /// <param name="transactionType"></param>
+        /// <param name="nGroupID"></param>
+        /// <param name="dt"></param>
+        /// <returns></returns>
         private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt)
         {
+            bool bResult = false;
+            int nSiteGuid;
 
+            if (int.TryParse(sSiteGuid, out nSiteGuid))
+            {
+                bResult = GetCancellationWindow(new int[] { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt);
+            }
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Tells whether the users can still cancel the given asset or not - if they are within the cancellation window
+        /// </summary>
+        /// <param name="p_arrUserIDs"></param>
+        /// <param name="p_nAssetID"></param>
+        /// <param name="p_enmServiceType"></param>
+        /// <param name="p_nGroupID"></param>
+        /// <param name="p_dtUserPurchases"></param>
+        /// <returns></returns>
+        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases)
+        {
             TvinciPricing.UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
-            DateTime dCreateDate = DateTime.MinValue;
-            int nSiteGuid = 0;
-            string assetCode = string.Empty;
-            bool bParse = int.TryParse(sSiteGuid, out nSiteGuid);
-            switch (transactionType)
+            DateTime dtCreateDate = DateTime.MinValue;
+            string sAssetCode = string.Empty;
+
+            // According to service type (sub, ppv or col), get all purchases of users
+            switch (p_enmServiceType)
             {
                 case eTransactionType.PPV:
-                    dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
+                {
+                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
                     break;
+                }
                 case eTransactionType.Subscription:
-                    dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
+                {
+                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
                     break;
+                }
                 case eTransactionType.Collection:
-                    dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
+                {
+                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
                     break;
+                }
                 default:
+                {
                     bCancellationWindow = false;
                     break;
+                }
             }
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-                assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
-                IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
-            }
-            return bCancellationWindow;
 
+            // If any of the users purchased this asset and it is valid
+            if (p_dtUserPurchases != null && p_dtUserPurchases.Rows != null && p_dtUserPurchases.Rows.Count > 0)
+            {
+                // First row is supposed to be the relevant purchase
+                DataRow drUserPurchase = p_dtUserPurchases.Rows[0];
+
+                dtCreateDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "CREATE_DATE");
+                sAssetCode = ODBCWrapper.Utils.ExtractString(drUserPurchase, "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
+
+                IsCancellationWindow(ref oUsageModule, sAssetCode, dtCreateDate, ref bCancellationWindow, p_enmServiceType);
+            }
+
+            return bCancellationWindow;
         }
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
@@ -10006,6 +10611,7 @@ namespace ConditionalAccess
             try
             {
                 bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
+
                 if (bCancellationWindow)
                 {
                     // if it's relevant by dates cancel it
@@ -10507,6 +11113,7 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
+
 
     }
 

@@ -10,6 +10,7 @@ namespace QueueWrapper.Enums
         DefaultConfig,
         PictureConfig,
         SocialFeedConfig,
-        EPGConfig
+        EPGConfig,
+        ProfessionalServicesNotificationsConfig
     }
 }

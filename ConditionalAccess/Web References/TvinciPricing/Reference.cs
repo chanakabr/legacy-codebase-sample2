@@ -2717,6 +2717,8 @@ namespace ConditionalAccess.TvinciPricing {
         
         private int m_nWaiverPeriodField;
         
+        private bool m_bIsOfflinePlayBackField;
+        
         /// <remarks/>
         public int m_nObjectID {
             get {
@@ -2876,10 +2878,20 @@ namespace ConditionalAccess.TvinciPricing {
                 this.m_nWaiverPeriodField = value;
             }
         }
+        
+        /// <remarks/>
+        public bool m_bIsOfflinePlayBack {
+            get {
+                return this.m_bIsOfflinePlayBackField;
+            }
+            set {
+                this.m_bIsOfflinePlayBackField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]

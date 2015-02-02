@@ -239,5 +239,16 @@ namespace CachingProvider
 
         }
 
+        public bool SetJson<T>(string sKey, T obj, double dCacheTT)
+        {
+            return false;
+        }
+
+        public bool GetJsonAsT<T>(string sKey, out T res) where T : class
+        {
+            res = null;
+            return false;
+        }
+
     }
 }

@@ -20,122 +20,124 @@ namespace ODBCWrapper
                 return o.ToString();
         }
 
-         public static int GetIntSafeVal(DataRow dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                     return int.Parse(dr[sField].ToString());
-                 return 0;
-             }
-             catch
-             {
-                 return 0;
-             }
-         }
+        public static int GetIntSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
-         public static int GetIntSafeVal(DataRowView dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                     return int.Parse(dr[sField].ToString());
-                 return 0;
-             }
-             catch
-             {
-                 return 0;
-             }
-         }
+        public static int GetIntSafeVal(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
-         static public Byte GetByteSafeVal(DataRow dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                 {
-                     return Convert.ToByte(dr[sField]);
-                 }
-                 return 0;
-             }
-             catch
-             {
-                 return 0;
-             }
-         }
+        static public Byte GetByteSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToByte(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
-         public static double GetDoubleSafeVal(DataRow dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                     return double.Parse(dr[sField].ToString());
-                 return -1.0;
-             }
-             catch
-             {
-                 return -1.0;
-             }
-         }
+        public static double GetDoubleSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return double.Parse(dr[sField].ToString());
+                return -1.0;
+            }
+            catch
+            {
+                return -1.0;
+            }
+        }
 
-         public static string GetSafeStr(DataRow dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                     return dr[sField].ToString();
-                 return string.Empty;
-             }
-             catch
-             {
-                 return string.Empty;
-             }
-         }
+        public static string GetSafeStr(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return dr[sField].ToString();
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
 
-         public static string GetSafeStr(DataRowView dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                     return dr[sField].ToString();
-                 return string.Empty;
-             }
-             catch
-             {
-                 return string.Empty;
-             }
-         }
+        public static string GetSafeStr(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return dr[sField].ToString();
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
 
-         static public Int64 GetLongSafeVal(DataRow dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                 {
-                     return Convert.ToInt64(dr[sField]);
-                 }
-                 return 0;
-             }
-             catch
-             {
-                 return 0;
-             }
-         }
-         static public Int64 GetLongSafeVal(DataRowView dr, string sField)
-         {
-             try
-             {
-                 if (dr != null && dr[sField] != DBNull.Value)
-                 {
-                     return Convert.ToInt64(dr[sField]);
-                 }
-                 return 0;
-             }
-             catch
-             {
-                 return 0;
-             }
-         }
+        static public Int64 GetLongSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToInt64(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        static public Int64 GetLongSafeVal(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToInt64(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+
 
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec)
         {
@@ -144,18 +146,18 @@ namespace ODBCWrapper
 
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec, string sConnectionKey)
         {
-            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec , sConnectionKey);
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
         }
 
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
         {
-            return GetTableSingleVal(sTable, sFieldName, nID , "");
-        }  
+            return GetTableSingleVal(sTable, sFieldName, nID, "");
+        }
 
 
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string sConnectionKey)
         {
-            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID , sConnectionKey);
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, sConnectionKey);
         }
 
         static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal)
@@ -165,24 +167,24 @@ namespace ODBCWrapper
 
         static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string sConnectionKey)
         {
-            return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, -1 , sConnectionKey);
+            return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, -1, sConnectionKey);
         }
 
         static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec)
         {
             return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, nCachSec, "");
         }
-        
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec  , string sConnectionKey)
+
+        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec, string sConnectionKey)
         {
             object oRet = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             if (nCachSec != -1)
                 selectQuery.SetCachedSec(nCachSec);
-            if (sConnectionKey != "") 
-                selectQuery.SetConnectionKey(sConnectionKey);            
-          
+            if (sConnectionKey != "")
+                selectQuery.SetConnectionKey(sConnectionKey);
+
             //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
             selectQuery += "select " + sFieldName + " from " + sTable + " where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sWhereField, sWhereSign, sWhereVal);
@@ -198,7 +200,7 @@ namespace ODBCWrapper
             selectQuery = null;
             return oRet;
         }
-        
+
         static public string ReWriteTableValue(string sVal)
         {
             double number;
@@ -209,7 +211,7 @@ namespace ODBCWrapper
             else
             {
                 return sVal;
-            }             
+            }
         }
 
         static public DateTime GetCurrentDBTime()
@@ -418,7 +420,7 @@ namespace ODBCWrapper
 
                     if (DateTime.TryParseExact(o.ToString(), format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
                     {
-                        return dt; 
+                        return dt;
                     }
                     else
                     {
@@ -497,7 +499,179 @@ namespace ODBCWrapper
 
             return res;
         }
-    }
 
-    
+        /// <summary>
+        /// Extracts an integer value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public int ExtractInteger(DataRow p_drSource, string p_sFieldName)
+        {
+            int nResult = 0;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        nResult = Convert.ToInt32(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (nResult);
+        }
+
+        /// <summary>
+        /// Extracts a boolean value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public bool ExtractBoolean(DataRow p_drSource, string p_sFieldName)
+        {
+            bool bResult = false;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        bResult = Convert.ToBoolean(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Extracts a date time value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public DateTime ExtractDateTime(DataRow p_drSource, string p_sFieldName)
+        {
+            DateTime dtResult = DateTime.MinValue;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        dtResult = Convert.ToDateTime(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (dtResult);
+        }
+
+        /// <summary>
+        /// Extracts a nullable date time value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public DateTime? ExtractNullableDateTime(DataRow p_drSource, string p_sFieldName)
+        {
+            DateTime? dtResult = null;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        dtResult = Convert.ToDateTime(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (dtResult);
+        }
+
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public string ExtractString(DataRow p_drSource, string p_sFieldName)
+        {
+            string sResult = string.Empty;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        sResult = Convert.ToString(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (sResult);
+        }
+
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        static public T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
+        {
+            T oResult = default(T);
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        oResult = (T)Convert.ChangeType(objValue, typeof(T));
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (oResult);
+        }
+    }
 }

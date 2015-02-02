@@ -148,8 +148,9 @@ namespace QueueWrapper
                         m_sQueue = Utils.GetConfigValue("queueSocialFeed");
                         m_sVirtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
                         m_sExchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+
+                        break;
                     }
-                    break;
                 case ConfigType.EPGConfig:
                     {
                         m_sRoutingKey = Utils.GetConfigValue("routingKeyEPG");
@@ -157,8 +158,19 @@ namespace QueueWrapper
                         m_sQueue = Utils.GetConfigValue("queueEPG");
                         m_sVirtualHost = Utils.GetConfigValue("virtualHostEPG");
                         m_sExchangeType = Utils.GetConfigValue("exchangeTypeEPG");
+
+                        break;
                     }
-                    break;
+                case ConfigType.ProfessionalServicesNotificationsConfig:
+                    {
+                        m_sRoutingKey = "*";
+                        m_sExchange = Utils.GetConfigValue("ProfessionalServices.exchange");
+                        m_sQueue = ".";
+                        m_sVirtualHost = Utils.GetConfigValue("ProfessionalServices.virtualHost");
+                        m_sExchangeType = Utils.GetConfigValue("ProfessionalServices.exchangeType");
+
+                        break;
+                    }
                 default:
                     break;
             }

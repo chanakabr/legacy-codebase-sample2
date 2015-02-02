@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CachingProvider;
 using TVinciShared;
 
@@ -85,10 +87,28 @@ namespace TvinciCache
             }
             else
             {
-                return default(T); 
+                return default(T);
             }
         }
 
+        public bool TryGet<T>(string key, out T value)
+        {
+            bool res = false;
+
+            BaseModuleCache obj = cache.Get(key);
+
+            if (obj != null && obj.result != null)
+            {
+                value = (T)obj.result;
+                res = true;
+            }
+            else
+            {
+                value = default(T);
+            }
+
+            return (res);
+        }
         public bool Add(string key, object obj)
         {
             BaseModuleCache bModule = new BaseModuleCache(obj);
@@ -98,7 +118,7 @@ namespace TvinciCache
 
         public IDictionary<string, object> GetValues(List<string> keys)
         {
-            if (keys == null || keys.Count ==0)
+            if (keys == null || keys.Count == 0)
                 return null;
 
             return cache.GetValues(keys);

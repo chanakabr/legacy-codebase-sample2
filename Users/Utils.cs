@@ -6,7 +6,12 @@ using System.Configuration;
 using System.Data;
 using DAL;
 using ApiObjects;
+
 using System.Reflection;
+
+using System.Security.Principal;
+using System.Security.AccessControl;
+using Users.Cache;
 
 namespace Users
 {
@@ -447,38 +452,60 @@ namespace Users
             }
         }
 
-        internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID)
-        {
+        internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID, bool bCache = false)
+        { 
             List<HomeNetwork> res = null;
-
-            DataTable dt = DomainDal.Get_DomainHomeNetworks(lDomainID, nGroupID);
-
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                int length = dt.Rows.Count;
-                res = new List<HomeNetwork>(length);
-                for (int i = 0; i < length; i++)
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            
+            if (bCache)
+            {   
+                int nDomainID = (int)lDomainID;
+                // need to get Domain from cache                 
+                Domain oDomain = oDomainCache.GetDomain(nDomainID, nGroupID);
+                if (oDomain != null && oDomain.m_homeNetworks != null && oDomain.m_homeNetworks.Count > 0)
                 {
-                    HomeNetwork hn = new HomeNetwork();
-                    hn.UID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NETWORK_ID"]);
-                    if (string.IsNullOrEmpty(hn.UID))
-                        continue;
-                    hn.Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
-                    hn.Description = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["DESCRIPTION"]);
-                    hn.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_ACTIVE"]) != 0;
-                    hn.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["CREATE_DATE"]);
+                    res = oDomain.m_homeNetworks;
+                }
+                if (res != null)
+                {
+                    return res;
+                }
+                bCache = false; // need to go get data from DB
+            }
+            if (!bCache)
+            {
+                // res from Cache return null - go to get details from DB
+                DataTable dt = DomainDal.Get_DomainHomeNetworks(lDomainID, nGroupID);
 
-                    res.Add(hn);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int length = dt.Rows.Count;
+                    res = new List<HomeNetwork>(length);
+                    for (int i = 0; i < length; i++)
+                    {
+                        HomeNetwork hn = new HomeNetwork();
+                        hn.UID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NETWORK_ID"]);
+                        if (string.IsNullOrEmpty(hn.UID))
+                            continue;
+                        hn.Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
+                        hn.Description = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["DESCRIPTION"]);
+                        hn.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_ACTIVE"]) != 0;
+                        hn.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["CREATE_DATE"]);
+
+                        res.Add(hn);
+                    }
+                    // remove current domain from cache
+                    oDomainCache.RemoveDomain((int)lDomainID);
+                }
+                else
+                {
+                    res = new List<HomeNetwork>(0);
                 }
             }
-            else
-            {
-                res = new List<HomeNetwork>(0);
-            }
-
             return res;
         }
 
+<<<<<<< HEAD
         static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {
             bool res = false;
@@ -501,6 +528,18 @@ namespace Users
             }
 
             return res;
+=======
+
+        internal static MutexSecurity CreateMutex()
+        {
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            MutexSecurity mutexSecurity = new MutexSecurity();
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
+            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+
+            return mutexSecurity;
+>>>>>>> origin/master
         }
     }
 }

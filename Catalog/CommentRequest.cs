@@ -68,7 +68,8 @@ namespace Catalog
         {
             bool bResult = false;
 
-            int nParentGroupID = CatalogCache.GetParentGroup(oCommentReq.m_nGroupID);
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(oCommentReq.m_nGroupID);
 
             Comments comment = new Comments()
             {

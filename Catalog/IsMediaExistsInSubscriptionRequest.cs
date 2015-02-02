@@ -47,7 +47,8 @@ namespace Catalog
                 response.m_nTotalItems = 0;
                                 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                 Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                 List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, eBundleType.SUBSCRIPTION);

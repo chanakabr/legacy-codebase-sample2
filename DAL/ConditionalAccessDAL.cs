@@ -592,15 +592,15 @@ namespace DAL
             return null;
         }
 
-        public static bool Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID, string sPPVCode, ref int ppvID, ref string subCode,
-            ref string ppCode, ref int nWaiver, ref DateTime dCreateDate, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID)
+        public static bool Get_AllUsersPurchases(List<int> p_lstUserIDs, List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
             spGet_AllUsersPurchases.SetConnectionKey("CONNECTION_STRING");
-            spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
-            spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", FileIds, "Id");
-            spGet_AllUsersPurchases.AddParameter("@nMediaFileID", fileID);
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", p_lstUserIDs, "Id");
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", p_lstFileIds, "Id");
+            spGet_AllUsersPurchases.AddParameter("@nMediaFileID", p_nFileID);
 
             DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
 
@@ -615,17 +615,20 @@ namespace DAL
                     {
                         DataRow dr = dt.Rows[i];
                         sCustomData = ODBCWrapper.Utils.GetSafeStr(dr, "CUSTOMDATA");
-                        if (sCustomData.IndexOf(string.Format("<ppvm>{0}</ppvm>", sPPVCode)) > 0)
+                        if (sCustomData.IndexOf(string.Format("<ppvm>{0}</ppvm>", p_sPPVCode)) > 0)
                         {
                             res = true;
-                            ppvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
-                            subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
-                            ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["rel_pp"]);
-                            purchasedBySiteGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["SITE_USER_GUID"]);
-                            purchasedAsMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["MEDIA_FILE_ID"]);
+                            DataRow drSource = dt.Rows[0];
+
+                            p_nPPVID = ODBCWrapper.Utils.GetIntSafeVal(drSource["ID"]);
+                            p_sSubCode = ODBCWrapper.Utils.GetSafeStr(drSource["subscription_code"]);
+                            p_sPPCode = ODBCWrapper.Utils.GetSafeStr(drSource["rel_pp"]);
+                            p_sPurchasedBySiteGuid = ODBCWrapper.Utils.GetSafeStr(drSource["SITE_USER_GUID"]);
+                            p_nPurchasedAsMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(drSource["MEDIA_FILE_ID"]);
                             //cancellation window 
-                            nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "WAIVER");
-                            dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE");
+                            p_nWaiver = ODBCWrapper.Utils.GetIntSafeVal(drSource, "WAIVER");
+                            p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(drSource, "CREATE_DATE");
+                            p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(drSource, "START_DATE");
                         }
                     }
                 }
@@ -1700,6 +1703,31 @@ namespace DAL
             }
 
             return nUrlType;
+        }
+
+        /// <summary>
+        /// Returns a table of all subscription purchases made by the list of users and with the given subscription code
+        /// </summary>
+        /// <param name="p_lstUsers"></param>
+        /// <param name="p_sSubscriptionCode"></param>
+        /// <returns></returns>
+        public static DataTable Get_UsersSubscriptionPurchases(List<int> p_lstUsers, string p_sSubscriptionCode)
+        {
+            DataTable dtUserPurchases = null;
+            StoredProcedure spStoredProcedure = new StoredProcedure("Get_UsersSubscriptionPurchases");
+            spStoredProcedure.SetConnectionKey("CONNECTION_STRING");
+            spStoredProcedure.AddIDListParameter<int>("@UserIDs", p_lstUsers, "Id");
+            spStoredProcedure.AddParameter("@SubscriptionCode", p_sSubscriptionCode);
+
+            DataSet dsStoredProcedureResult = spStoredProcedure.ExecuteDataSet();
+
+            // If stored procedure was succesful, get the first one
+            if (dsStoredProcedureResult != null && dsStoredProcedureResult.Tables.Count == 1)
+            {
+                dtUserPurchases = dsStoredProcedureResult.Tables[0];
+            }
+
+            return (dtUserPurchases);
         }
     }
 }

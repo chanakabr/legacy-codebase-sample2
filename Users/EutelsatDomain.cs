@@ -20,7 +20,7 @@ namespace Users
 
 
         #region Overriden Methods
-        protected override Domain DomainInitializer(int nGroupID, int nDomainID)
+        protected override Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache)
         {
             return InitializeDomain(nGroupID, nDomainID);
         }

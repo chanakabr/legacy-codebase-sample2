@@ -52,7 +52,16 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>   
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
@@ -91,6 +100,7 @@
     <Compile Include="ConditionalAccessCache.cs" />
     <Compile Include="DeleteNPVRCommand.cs" />
     <Compile Include="DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -561,7 +571,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CDNTokenizers\CDNTokenizers\CDNTokenizers.csproj">
+    <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
     </ProjectReference>
@@ -616,6 +626,10 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
