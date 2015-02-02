@@ -116,8 +116,9 @@
     <Compile Include="BaseDomain.cs" />
     <Compile Include="KalturaSSOUsers.cs" />
     <Compile Include="KalturaBaseUsers.cs" />
-    <Compile Include="DomainInfo.cs" />
+    <Compile Include="DomainInfo.cs" />       
     <Compile Include="Cache\DomainsCache.cs" />
+    <Compile Include="DeviceFamilyLimitations.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />

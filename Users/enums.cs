@@ -30,7 +30,8 @@ namespace Users
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
         UserWithNoDomain = 21,
-        InternalError = 999
+        InternalError = 999,
+        LoginServerDown = 22
     }
 
     public enum UserAction
@@ -198,6 +199,21 @@ namespace Users
         Concurrency = 0,
         Quantity = 1,
         Frequency = 2
+    }
+
+    [Serializable]
+    public enum ResponseDLMStatus
+    {
+        [EnumMember]
+        OK = 0,
+        [EnumMember]
+        DlmNotExsit = 1,
+        [EnumMember]
+        WrongPasswordOrUserName = 2,
+        [EnumMember]
+        NoDlmId = 2,
+        [EnumMember]
+        InternalError = 999
     }
 
 }

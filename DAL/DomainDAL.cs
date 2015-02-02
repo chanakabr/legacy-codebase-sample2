@@ -1733,5 +1733,26 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+
+
+        public static int Get_DomainLimitID(int nGroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DomainLimitID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static DataSet Get_GroupLimitsAndDeviceFamilies(int nGroupID, int nDomainLimitID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_GroupLimitsAndDeviceFamilies");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DomainLimitID", nDomainLimitID);
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
     }
 }
