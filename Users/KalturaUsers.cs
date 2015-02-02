@@ -28,91 +28,82 @@ namespace Users
         internal override bool MidAddDomain(ref UserResponseObject userResponse, User user, string username, int userId, DomainInfo domainInfo)
         {
             bool succeded = false;
-
             Users.DomainResponseObject domainResponse = null;
-
             bool isSus = DAL.DomainDal.IsSingleDomainEnvironment(GroupId);
 
             //check domain type 
-            if (domainInfo.AddDomainType != DomainInfo.eAddToDomainType.DontAddDomain)
+            if (isSus)
             {
-                if (isSus)
-                {
-                    // backward compatibility - domainInfo should not be null for new clients
+                // backward compatibility - domainInfo should not be null for new clients
 
-                    // SUS - add new domain
-                    domainResponse = AddNewDomain(username, userId, GroupId);
-                    if (domainResponse != null && domainResponse.m_oDomain != null)
-                        user.m_domianID = domainResponse.m_oDomain.m_nDomainID;
+                // SUS - add new domain
+                domainResponse = AddNewDomain(username, userId, GroupId);
+                if (domainResponse != null && domainResponse.m_oDomain != null)
+                    user.m_domianID = domainResponse.m_oDomain.m_nDomainID;
 
-                    if (domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
-                        userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                    else
-                    {
-                        userResponse.Initialize(ResponseStatus.OK, user);
-                        succeded = true;
-                    }
-                }
+                if (domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                    userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
                 else
                 {
-                    if (domainInfo == null)
-                    {
-                        // MUS without domainInfo - creation of domain is not dealt at this flow.
-                        userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                        succeded = true;
-                    }
-                    else
-                    {
-                        // MUS
-                        TvinciDomain domain = new TvinciDomain(GroupId);
-                        switch (domainInfo.AddDomainType)
-                        {
-                            case DomainInfo.eAddToDomainType.CreateNewDomain:
-
-                                //add a new domain
-                                domainResponse = domain.AddDomain(username + "/Domain", username + "/Domain", userId, domainInfo.GroupId, domainInfo.DomainCoGuid);
-
-                                if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
-                                {
-                                    // Error adding to domain
-                                    userResponse = new UserResponseObject();
-                                    userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                                }
-                                else
-                                    succeded = true;
-                                break;
-
-                            case DomainInfo.eAddToDomainType.AddToExistingDomain:
-                                // add a user to existing domain
-
-                                domainResponse = domain.AddUserToDomain(GroupId, domainInfo.DomainId, userId, domainInfo.DomainMasterId, false);
-
-                                if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
-                                {
-                                    // Error join to domain
-                                    //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
-                                    userResponse = new UserResponseObject();
-                                    userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                                }
-                                else
-                                    succeded = true;
-                                break;
-
-                            case DomainInfo.eAddToDomainType.DontAddDomain:
-                            default:
-
-                                userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                                break;
-                        }
-                    }
+                    userResponse.Initialize(ResponseStatus.OK, user);
+                    succeded = true;
                 }
             }
             else
             {
-                // do not create a domain
-                userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
-                succeded = true;
+                if (domainInfo == null)
+                {
+                    // MUS without domainInfo - creation of domain is not dealt at this flow.
+                    userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
+                    succeded = true;
+                }
+                else
+                {
+                    // MUS
+                    TvinciDomain domain = new TvinciDomain(GroupId);
+                    switch (domainInfo.AddDomainType)
+                    {
+                        case DomainInfo.eAddToDomainType.CreateNewDomain:
+
+                            //add a new domain
+                            domainResponse = domain.AddDomain(username + "/Domain", username + "/Domain", userId, domainInfo.GroupId, domainInfo.DomainCoGuid);
+
+                            if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                            {
+                                // Error adding to domain
+                                userResponse = new UserResponseObject();
+                                userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
+                            }
+                            else
+                                succeded = true;
+                            break;
+
+                        case DomainInfo.eAddToDomainType.AddToExistingDomain:
+                            // add a user to existing domain
+
+                            domainResponse = domain.AddUserToDomain(GroupId, domainInfo.DomainId, userId, domainInfo.DomainMasterId, false);
+
+                            if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                            {
+                                // Error join to domain
+                                //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
+                                userResponse = new UserResponseObject();
+                                userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
+                            }
+                            else
+                                succeded = true;
+                            break;
+
+                        case DomainInfo.eAddToDomainType.DontAddDomain:
+                        default:
+
+                            userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
+                            break;
+                    }
+                }
             }
+
+
             return succeded;
         }
 
