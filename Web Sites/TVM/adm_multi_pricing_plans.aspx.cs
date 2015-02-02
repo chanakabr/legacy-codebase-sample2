@@ -168,6 +168,13 @@ public partial class adm_multi_pricing_plans : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_subscription_services.aspx", "Services", "");
+            linkColumn1.AddQueryStringValue("subscription_id", "field=id");
+            linkColumn1.AddQueryStringValue("mpp", "1");
+            theTable.AddLinkColumn(linkColumn1);
+        }
+
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_multi_pricing_plans_new.aspx", "Edit", "");

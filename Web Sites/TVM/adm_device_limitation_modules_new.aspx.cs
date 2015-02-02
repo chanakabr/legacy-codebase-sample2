@@ -204,11 +204,11 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_Name);
 
         DataRecordShortIntField dr_limit = new DataRecordShortIntField(true, 9, 9);
-        dr_limit.Initialize("Limit", "adm_table_header_nbg", "FormInput", "max_limit", false);
+        dr_limit.Initialize("Device Limit", "adm_table_header_nbg", "FormInput", "max_limit", false);
         theRecord.AddRecord(dr_limit);
 
         DataRecordDropDownField dr_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
-        dr_frequency.Initialize("Frequency", "adm_table_header_nbg", "FormInput", "freq_period_id", false);
+        dr_frequency.Initialize("Device Change Frequency", "adm_table_header_nbg", "FormInput", "freq_period_id", false);
         theRecord.AddRecord(dr_frequency);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
@@ -235,6 +235,14 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         DataRecordDropDownField dr_hn_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
         dr_hn_frequency.Initialize("Home Network Frequency", "adm_table_header_nbg", "FormInput", "Home_network_frequency", false);
         theRecord.AddRecord(dr_hn_frequency);
+
+        DataRecordShortIntField dr_user_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_user_limit.Initialize("User Limit", "adm_table_header_nbg", "FormInput", "user_max_limit", false);
+        theRecord.AddRecord(dr_user_limit);
+
+        DataRecordDropDownField dr_user_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_user_frequency.Initialize("User Change Frequency", "adm_table_header_nbg", "FormInput", "user_freq_period_id", false);
+        theRecord.AddRecord(dr_user_frequency);
 
         string sTable = theRecord.GetTableHTML("adm_device_limitation_modules_new.aspx?submited=1");
 
