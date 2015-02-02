@@ -246,5 +246,10 @@ namespace Users
                 return null;
             }
         }
+
+        public static void InitializeDLM(Domain domain)
+        {
+            domain.InitializeDLM();
+        }
     }
 }

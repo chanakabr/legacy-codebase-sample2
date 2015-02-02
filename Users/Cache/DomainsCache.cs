@@ -149,11 +149,12 @@ namespace Users.Cache
                 // try to get the domain id from cache
                 bool bSuccess = this.cache.GetJsonAsT<Domain>(sKey, out oDomain);
 
+
                 if (!bSuccess || oDomain == null)
                 {
                     bool bInsert = false;
                     oDomain = DomainFactory.GetDomain(nGroupID, nDomainID);
-                    
+
                     // if bInsertToCache = true = need to insert the domain to cache 
                     if (bInsertToCache)
                     {
@@ -163,9 +164,12 @@ namespace Users.Cache
                             bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
                         }
                     }
-
                 }
-               
+                else
+                {
+                    DomainFactory.InitializeDLM(oDomain);
+                }
+
                 return oDomain;
             }
             catch (Exception ex)
