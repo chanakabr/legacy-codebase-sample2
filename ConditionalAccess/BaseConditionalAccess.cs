@@ -828,6 +828,13 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {                        
+                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                        InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                    } 
                     else
                     {
                         sWSUserName = string.Empty;
@@ -1205,6 +1212,13 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                        InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(InApp): error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                    } 
                     else
                     {
                         PriceReason theReason = PriceReason.UnKnown;
@@ -4058,6 +4072,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase  media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    }
                     else
                     {
                         sWSUserName = string.Empty;
@@ -4244,6 +4265,13 @@ namespace ConditionalAccess
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
+                    }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                     }
                     else
                     {
@@ -5337,6 +5365,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    }    
                     else
                     {
                         bool bIsCouponValid = false;
@@ -6495,8 +6530,15 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase Bundle(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
+                    }
+                    else
+                    {                       
                         dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
@@ -8115,6 +8157,12 @@ namespace ConditionalAccess
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                       
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(PP): " + nMediaFileID + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         //Get User Valid PP
@@ -8367,7 +8415,7 @@ namespace ConditionalAccess
                                         ret.m_oStatus = PrePaidResponseStatus.Fail;
                                         ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
+                                    }                                  
                                 }
                             }
                             else
@@ -8469,6 +8517,12 @@ namespace ConditionalAccess
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                     
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         //Get User Valid PP
@@ -9565,6 +9619,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
@@ -9711,6 +9772,14 @@ namespace ConditionalAccess
                                         ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                                     }
+                                    else if (theReason == PriceReason.UserSuspended)
+                                    {
+                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                                        ret.m_sRecieptCode = string.Empty;
+                                        ret.m_sStatusDescription = "The user is suspended";
+                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+
+                                    }
                                 }
                             }
                             else
@@ -9810,7 +9879,14 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                    } 
+                    else                 
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {

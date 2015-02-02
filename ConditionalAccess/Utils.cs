@@ -1627,7 +1627,7 @@ namespace ConditionalAccess
             if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == TvinciUsers.DomainSuspentionStatus.Suspended)
             {
                 theReason = PriceReason.UserSuspended;
-                return null;//check this is OK
+                return null;
             }            
 
             theReason = PriceReason.UnKnown;

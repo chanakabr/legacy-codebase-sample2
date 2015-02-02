@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -192,6 +192,7 @@
           <s:enumeration value="ExternalError" />
           <s:enumeration value="CellularPermissionsError" />
           <s:enumeration value="UnKnownBillingProvider" />
+          <s:enumeration value="UserSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="DD_ChargeUser">
@@ -1396,13 +1397,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_BILLING/module.asmx" />
+      <soap:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_BILLING/module.asmx" />
+      <soap12:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_BILLING/module.asmx" />
+      <http:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

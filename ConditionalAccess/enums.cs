@@ -92,7 +92,8 @@ namespace ConditionalAccess
         UnKnownUser = 4,
         UnKnownPPVModule = 5,
         UnKnownPPModule = 6,
-        NoCredit = 7
+        NoCredit = 7,
+        UserSuspended = 8
     }
 
     public enum CampaignActionResult
