@@ -23,7 +23,7 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string,string> dParams)
+        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
         {
 
             CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
@@ -446,21 +446,28 @@ namespace ConditionalAccess
         /*
          * Vodafone patch. 2.12.14
          * If this method is called from the module.asmx, sProgramId will be an int.
-         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not neccessarily an int.
+         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not necessarily an int.
          * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
-         */ 
-        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
+         */
+        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
+            // validate user state (suspended or not)
+            int domainId = 0;
+            DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
+            Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
+            if (domainStatus == DomainSuspentionStatus.Suspended)
+                throw new ArgumentException("User is suspended");
+
             string url = string.Empty;
             TvinciAPI.API api = null;
             try
             {
+                // validate EPG type format
                 if (!Enum.IsDefined(typeof(eEPGFormatType), format))
-                {
                     throw new ArgumentException(String.Concat("Unknown format. Format: ", format));
-                }
+
                 eEPGFormatType eformat = (eEPGFormatType)format;
                 if (eformat == eEPGFormatType.NPVR)
                 {
@@ -469,7 +476,7 @@ namespace ConditionalAccess
                      * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)
                      * CalcNPVRLicensedLink returns string.Empty unless it is Vodafone. Meaning, that if the account is not Vodafone,
                      * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
-                     */ 
+                     */
                     string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
                         sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                     if (npvrLicensedLink.Length > 0)
@@ -478,7 +485,7 @@ namespace ConditionalAccess
                     }
                 }
                 int nProgramId = Int32.Parse(sProgramId);
-                int fileMainStreamingCoID = 0; // CDN Straming id
+                int fileMainStreamingCoID = 0; // CDN Streaming id
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
@@ -488,7 +495,7 @@ namespace ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
-                //call api service to get schedualing details
+                //call API service to get scheduling details
                 api = new TvinciAPI.API();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
@@ -504,7 +511,7 @@ namespace ConditionalAccess
                 if (scheduling != null)
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
-                    
+
                     dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
                     switch (eformat)
                     {
