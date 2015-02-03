@@ -731,10 +731,10 @@ namespace TVPApiServices
             return domain;
         }
 
-        [WebMethod(EnableSession = true, Description = "Changes the domain state to suspended")]
-        public Status SuspendDomain(InitializationObject initObj, int domainId)
+        [WebMethod(EnableSession = true, Description = "Suspends a domain for the given domain ID")]
+        public TVPApiModule.Objects.Status SuspendDomain(InitializationObject initObj, int domainId)
         {
-            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
 
             int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -752,10 +752,10 @@ namespace TVPApiServices
             return statusResponse;
         }
 
-        [WebMethod(EnableSession = true, Description = "Changes the domain state from suspended to OK")]
-        public Status ResumeDomain(InitializationObject initObj, int domainId)
+        [WebMethod(EnableSession = true, Description = "Resuming a suspended domain for the given domain ID")]
+        public TVPApiModule.Objects.Status ResumeDomain(InitializationObject initObj, int domainId)
         {
-            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
 
             int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

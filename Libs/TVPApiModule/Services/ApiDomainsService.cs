@@ -521,13 +521,14 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Status SuspendDomain(int domainId)
+        public TVPApiModule.Objects.Status SuspendDomain(int domainId)
         {
-            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
 
             try
             {
-                statusResponse = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
+                var response = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
+                statusResponse.Code = (int)response.m_SuccessCode;
             }
             catch (Exception ex)
             {
@@ -537,13 +538,14 @@ namespace TVPApiModule.Services
             return statusResponse;
         }
 
-        public Status ResumeDomain(int domainId)
+        public TVPApiModule.Objects.Status ResumeDomain(int domainId)
         {
-            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
 
             try
             {
-                statusResponse = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
+                var response = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
+                statusResponse.Code = (int)response.m_SuccessCode;
             }
             catch (Exception ex)
             {

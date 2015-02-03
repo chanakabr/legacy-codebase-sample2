@@ -18,5 +18,11 @@ namespace TVPApiModule.Objects
             EXTERNAL = 0,
             INTERNAL = 1
         }
+
+        public enum eCode
+        {
+            Success = 0,
+            Failure = 1
+        }
     }
 }
