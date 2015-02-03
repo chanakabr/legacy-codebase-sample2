@@ -203,6 +203,6 @@ namespace ConditionalAccess
         AssetDoesNotExist = 8,
         AssetAlreadyRecorded = 9,
         QuotaExceeded = 10,
-
+        Suspended = 11
    }
 }
