@@ -260,10 +260,10 @@ namespace TVPApiServices
                     devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
 
                     for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() 
-                        { 
-                            DomainID = domains[i].m_nDomainID, 
-                            DomainName = domains[i].m_sName, 
+                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain()
+                        {
+                            DomainID = domains[i].m_nDomainID,
+                            DomainName = domains[i].m_sName,
                             SiteGuid = domains[i].m_masterGUIDs[0].ToString(),
                             DefaultUser = domains[i].m_DefaultUsersIDs[0].ToString()
                         };
@@ -729,6 +729,48 @@ namespace TVPApiServices
                 }
             }
             return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Changes the domain state to suspended")]
+        public Status SuspendDomain(InitializationObject initObj, int domainId)
+        {
+            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    statusResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SuspendDomain(domainId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return statusResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Changes the domain state from suspended to OK")]
+        public Status ResumeDomain(InitializationObject initObj, int domainId)
+        {
+            Status statusResponse = new Status() { m_SuccessCode = Code.Failure };
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    statusResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResumeDomain(domainId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return statusResponse;
         }
     }
 }
