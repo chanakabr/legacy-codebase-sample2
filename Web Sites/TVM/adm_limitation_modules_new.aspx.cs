@@ -201,7 +201,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_limit_type);
 
         DataRecordShortIntField dr_limit_val = new DataRecordShortIntField(true, 9, 9);
-        dr_limit_val.Initialize("Value [0 for unlimited (concurrency only)]", "adm_table_header_nbg", "FormInput", "Value", true);
+        dr_limit_val.Initialize("Value [0 for unlimited]", "adm_table_header_nbg", "FormInput", "Value", true);
         theRecord.AddRecord(dr_limit_val);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
