@@ -371,8 +371,11 @@ namespace GracenoteFeeder
                         {
                             if (contibutorDict != null && contibutorDict.Count > 0 && contibutorDict.ContainsKey(XmlRefName.ToUpper())) // if tag exsits in contibutorDict - than add all its values
                             {
-                                bValueFromIngest = true;
-                                FieldEntityMapping[i].Value.AddRange(contibutorDict[XmlRefName.ToUpper()]);
+                                if (!string.IsNullOrEmpty(contibutorDict[XmlRefName.ToUpper()][0]))
+                                {
+                                    bValueFromIngest = true;
+                                    FieldEntityMapping[i].Value.AddRange(contibutorDict[XmlRefName.ToUpper()]);
+                                }
                             }
                             else // regular tag
                             {
