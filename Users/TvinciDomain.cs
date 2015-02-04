@@ -63,8 +63,7 @@ namespace Users
             DomainsCache oDomainCache = DomainsCache.Instance();
             
             Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);            
-            domain.InitializeDLM();
-            
+                       
             return domain;
         }
 

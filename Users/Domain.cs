@@ -251,7 +251,7 @@ namespace Users
             return npvrQuotaInSecs;
         }
 
-        internal void InitializeDLM()
+       public void InitializeDLM()
         {
             long npvrQuotaInSecs = 0;
             npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, this.m_nGroupID, this.m_NextActionFreq);            
@@ -2226,7 +2226,7 @@ namespace Users
             }
 
             int isActive = 0;
-            int nDeviceID = 0;
+            int nDeviceID = 0;           
             // Get row id from domains_devices
             int nDomainsDevicesID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
 
@@ -2241,9 +2241,8 @@ namespace Users
 
                 if (domainDeviceRecordID > 0)
                 {
-                    device.m_state = DeviceState.Activated;
-                    container.AddDeviceInstance(device);
-
+                    device.m_state = DeviceState.Activated;                   
+                    m_oDeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
                     m_totalNumOfDevices++;
 
                     bRemove = true;
@@ -2268,6 +2267,9 @@ namespace Users
                         eRetVal = DomainResponseStatus.OK;
                         device.m_domainID = nDomainID;
                         int deviceID = device.Save(1);
+
+                        // change the device in the container                      
+                        m_oDeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
                     }
                 }
                 else
@@ -2276,11 +2278,10 @@ namespace Users
                 }
             }
 
-            GetDeviceList();
+            //GetDeviceList();
 
             return eRetVal;
         }
-
         private bool IsDomainRemovedSuccessfully(int statusRes)
         {
             return statusRes == 2;
