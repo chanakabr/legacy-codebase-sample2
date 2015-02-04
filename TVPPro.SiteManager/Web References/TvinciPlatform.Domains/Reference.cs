@@ -1403,12 +1403,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SuspendDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SuspendDomain(int nDomainID, string sWSUserName, string sWSPassword) {
+        public StatusObject SuspendDomain(int nDomainID, string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("SuspendDomain", new object[] {
                         nDomainID,
                         sWSUserName,
                         sWSPassword});
-            return ((Status)(results[0]));
+            return ((StatusObject)(results[0]));
         }
         
         /// <remarks/>
@@ -1436,12 +1436,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ResumeDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ResumeDomain(int nDomainID, string sWSUserName, string sWSPassword) {
+        public StatusObject ResumeDomain(int nDomainID, string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("ResumeDomain", new object[] {
                         nDomainID,
                         sWSUserName,
                         sWSPassword});
-            return ((Status)(results[0]));
+            return ((StatusObject)(results[0]));
         }
         
         /// <remarks/>
@@ -2069,17 +2069,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class Status {
+    public partial class StatusObject {
         
-        private Code m_SuccessCodeField;
+        private StatusObjectCode statusField;
+        
+        private string messageField;
         
         /// <remarks/>
-        public Code m_SuccessCode {
+        public StatusObjectCode Status {
             get {
-                return this.m_SuccessCodeField;
+                return this.statusField;
             }
             set {
-                this.m_SuccessCodeField = value;
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
             }
         }
     }
@@ -2088,13 +2100,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public enum Code {
+    public enum StatusObjectCode {
         
         /// <remarks/>
-        Success,
+        OK,
         
         /// <remarks/>
-        Failure,
+        Error,
+        
+        /// <remarks/>
+        Fail,
+        
+        /// <remarks/>
+        Unkown,
     }
     
     /// <remarks/>
@@ -3334,10 +3352,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public Status Result {
+        public StatusObject Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((StatusObject)(this.results[0]));
             }
         }
     }
@@ -3360,10 +3378,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public Status Result {
+        public StatusObject Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((StatusObject)(this.results[0]));
             }
         }
     }
