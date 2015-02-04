@@ -2179,9 +2179,8 @@ namespace Users
 
                 if (domainDeviceRecordID > 0)
                 {
-                    device.m_state = DeviceState.Activated;
-                    container.AddDeviceInstance(device);
-
+                    device.m_state = DeviceState.Activated;                   
+                    m_oDeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
                     m_totalNumOfDevices++;
 
                     bRemove = true;
@@ -2207,8 +2206,8 @@ namespace Users
                         device.m_domainID = nDomainID;
                         int deviceID = device.Save(1);
 
-                        // change the device in the container
-                        container.ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
+                        // change the device in the container                      
+                        m_oDeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
                     }
                 }
                 else
