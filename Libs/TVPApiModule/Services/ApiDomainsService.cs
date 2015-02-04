@@ -155,7 +155,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                network = m_Module.AddHomeNetworkToDomain(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc); 
+                network = m_Module.AddHomeNetworkToDomain(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc);
             }
             catch (Exception ex)
             {
@@ -521,6 +521,38 @@ namespace TVPApiModule.Services
             return domain;
         }
 
+        public TVPApiModule.Objects.Status SuspendDomain(int domainId)
+        {
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
 
+            try
+            {
+                var response = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
+                statusResponse.Code = (int)response.m_SuccessCode;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to suspend a domain. Domain ID: {0}", domainId), ex);
+            }
+
+            return statusResponse;
+        }
+
+        public TVPApiModule.Objects.Status ResumeDomain(int domainId)
+        {
+            TVPApiModule.Objects.Status statusResponse = new TVPApiModule.Objects.Status();
+
+            try
+            {
+                var response = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
+                statusResponse.Code = (int)response.m_SuccessCode;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to resume a suspended domain. Domain ID: {0}", domainId), ex);
+            }
+
+            return statusResponse;
+        }
     }
 }
