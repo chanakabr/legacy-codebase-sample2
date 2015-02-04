@@ -89,9 +89,9 @@ namespace TVPApiServices
         DomainResponseObject ResetDomainFrequency(InitializationObject initObj, int frequencyType);
 
         [OperationContract]
-        TVPApiModule.Objects.Status SuspendDomain(InitializationObject initObj, int domainId);
+        TVPApiModule.Objects.ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId);
 
         [OperationContract]
-        TVPApiModule.Objects.Status ResumeDomain(InitializationObject initObj, int domainId);
+        TVPApiModule.Objects.ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId);
     }
 }
