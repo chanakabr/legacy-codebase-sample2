@@ -430,7 +430,7 @@ namespace Users
                 m_DomainStatus = dStatus == DomainResponseStatus.OK ? DomainStatus.OK : DomainStatus.Error;
             }
 
-            return m_DomainStatus == DomainStatus.OK;
+            return (m_DomainStatus == DomainStatus.OK || m_DomainStatus == DomainStatus.DomainSuspended);
         }
 
         /// <summary>
@@ -1485,7 +1485,6 @@ namespace Users
                 {
                     m_DomainStatus = DomainStatus.DomainSuspended;
                 }
-                InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
 
                 long npvrQuotaInSecs = 0;
                 npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, dDeviceFrequencyLastAction);
