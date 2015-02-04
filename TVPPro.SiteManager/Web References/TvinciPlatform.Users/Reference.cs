@@ -2599,6 +2599,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         LoginServerDown,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
@@ -2622,6 +2625,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         private UserState m_eUserStateField;
         
         private int m_nSSOOperatorIDField;
+        
+        private DomainSuspentionStatus m_eSuspendStateField;
         
         /// <remarks/>
         public UserBasicData m_oBasicData {
@@ -2690,6 +2695,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             }
             set {
                 this.m_nSSOOperatorIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DomainSuspentionStatus m_eSuspendState {
+            get {
+                return this.m_eSuspendStateField;
+            }
+            set {
+                this.m_eSuspendStateField = value;
             }
         }
     }
@@ -3595,6 +3610,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         LoggedOut,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum DomainSuspentionStatus {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        Suspended,
     }
     
     /// <remarks/>
