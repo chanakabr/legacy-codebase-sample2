@@ -263,6 +263,7 @@
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
     <Compile Include="Objects\Responses\Enums\SocialPlatform.cs" />
     <Compile Include="Objects\Responses\State.cs" />
+    <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\Subscription.cs" />
     <Compile Include="Objects\Responses\SubscriptionCodeContainer.cs" />
     <Compile Include="Objects\Responses\SubscriptionsPricesContainer.cs" />
