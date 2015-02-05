@@ -9,7 +9,7 @@ namespace TVPPro.SiteManager.Helper
 {
     public class WebRequestHelper
     {
-        public static T SendRequest<T>(string url, string postData)
+        public static T SendRequest<T>(string url, string postData,int timeOut=-1)
         {
             Stream dataStream = null;
             StreamReader reader = null;
@@ -19,6 +19,7 @@ namespace TVPPro.SiteManager.Helper
                 WebRequest request = WebRequest.Create(url);
                 request.Method = "POST";
                 request.ContentType = "application/json; charset=utf-8";
+                request.Timeout = (timeOut > 0) ? timeOut : request.Timeout;
 
                 byte[] byteArray = Encoding.UTF8.GetBytes(postData);
 
