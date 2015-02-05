@@ -76,5 +76,7 @@ namespace TVPApiServices
         [OperationContract]
         SocialActivityDoc[] GetUserActivityFeed(InitializationObject initObj, string siteGuid, int nPageSize, int nPageIndex, string sPicDimension);
 
+        [OperationContract]
+        FBSignin FBUserSignin(InitializationObject initObj, string token);
     }
 }

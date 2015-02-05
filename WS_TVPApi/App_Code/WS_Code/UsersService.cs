@@ -82,7 +82,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user facebook ID")]
-        public UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
+        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
         {
             UserResponseObject response = new UserResponseObject();
 

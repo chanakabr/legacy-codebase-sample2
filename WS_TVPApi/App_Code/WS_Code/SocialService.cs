@@ -562,7 +562,7 @@ namespace TVPApiServices
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");                
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -592,7 +592,7 @@ namespace TVPApiServices
 
             return response;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Validate Facebook user by token")]
         public FacebookTokenResponse FBTokenValidation(InitializationObject initObj, string token)
         {
@@ -616,6 +616,33 @@ namespace TVPApiServices
             }
 
             return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sign-In using Facebook token")]
+        public FBSignin FBUserSignin(InitializationObject initObj, string token)
+        {
+            FBSignin responseData = new FBSignin();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserSignin", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupId, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    responseData = new ApiSocialService(groupId, initObj.Platform).FBUserSignin(token, initObj.UDID, isSingleLogin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return responseData;
         }
     }
 }

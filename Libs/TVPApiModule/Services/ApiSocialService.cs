@@ -336,7 +336,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_lAssetIDs = new int[]{ assetID },
+                    m_lAssetIDs = new int[] { assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -369,7 +369,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_lAssetIDs = new int[]{ assetID },
+                    m_lAssetIDs = new int[] { assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -424,7 +424,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                     res = m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
-                else 
+                else
                     throw new Exception("siteGuid not in the right format");
             }
             catch (Exception ex)
@@ -444,7 +444,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                     res = m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
-                else 
+                else
                     throw new Exception("siteGuid not in the right format");
             }
             catch (Exception ex)
@@ -464,7 +464,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                     res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
-                else 
+                else
                     throw new Exception("siteGuid not in the right format");
             }
             catch (Exception ex)
@@ -484,7 +484,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                     res = m_Module.SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
-                else 
+                else
                     throw new Exception("siteGuid not in the right format");
             }
             catch (Exception ex)
@@ -539,6 +539,22 @@ namespace TVPApiModule.Services
             {
 
                 logger.ErrorFormat("Error occurred in SetUserExternalActionPrivacy, Error : {0}", e.Message);
+            }
+            return res;
+        }
+
+        public FBSignin FBUserSignin(string token, string deviceId, bool preventDoubleLogin)
+        {
+            FBSignin res = null;
+
+            try
+            {
+                res = m_Module.FBUserSignin(m_wsUserName, m_wsPassword, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
+            }
+            catch (Exception e)
+            {
+
+                logger.ErrorFormat("Error occurred in FBUserSignin, Error : {0}", e.Message);
             }
             return res;
         }

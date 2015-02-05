@@ -14,28 +14,28 @@ namespace TVPApiServices
     public interface IUsersService
     {
         [OperationContract]
-        UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
 
         [OperationContract]
-        UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId);
 
         [OperationContract]
-        UserResponseObject GetUserByUsername(InitializationObject initObj, string userName);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByUsername(InitializationObject initObj, string userName);
 
         [OperationContract]
         void Logout(InitializationObject initObj, string sSiteGuid);
 
         [OperationContract]
-        UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
 
         [OperationContract]
         bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
 
         [OperationContract]
-        Country[] GetCountriesList(InitializationObject initObj);
+        TVPPro.SiteManager.TvinciPlatform.Users.Country[] GetCountriesList(InitializationObject initObj);
 
         [OperationContract]
-        UserType[] GetGroupUserTypes(InitializationObject initObj);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserType[] GetGroupUserTypes(InitializationObject initObj);
 
         [OperationContract]
         string CheckTemporaryToken(InitializationObject initObj, string sToken);
@@ -44,7 +44,7 @@ namespace TVPApiServices
         string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
 
         [OperationContract]
-        UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
 
         [OperationContract]
         bool SendPasswordMail(InitializationObject initObj, string userName);
