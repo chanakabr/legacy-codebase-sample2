@@ -528,7 +528,7 @@ namespace TVPApiModule.Services
             try
             {
                 var response = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
-                statusResponse.Status.Code = (int)response.m_SuccessCode;
+                statusResponse.Status.Code = (int)response.Status;
             }
             catch (Exception ex)
             {
@@ -545,7 +545,7 @@ namespace TVPApiModule.Services
             try
             {
                 var response = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
-                statusResponse.Status.Code = (int)response.m_SuccessCode;
+                statusResponse.Status.Code = (int)response.Status;
             }
             catch (Exception ex)
             {
