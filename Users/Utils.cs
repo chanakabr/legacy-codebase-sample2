@@ -453,12 +453,12 @@ namespace Users
         }
 
         internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID, bool bCache = false)
-        { 
+        {
             List<HomeNetwork> res = null;
             DomainsCache oDomainCache = DomainsCache.Instance();
-            
+
             if (bCache)
-            {   
+            {
                 int nDomainID = (int)lDomainID;
                 // need to get Domain from cache                 
                 Domain oDomain = oDomainCache.GetDomain(nDomainID, nGroupID);
@@ -505,7 +505,7 @@ namespace Users
             return res;
         }
 
-<<<<<<< HEAD
+
         static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {
             bool res = false;
@@ -528,7 +528,7 @@ namespace Users
             }
 
             return res;
-=======
+        }
 
         internal static MutexSecurity CreateMutex()
         {
@@ -539,7 +539,6 @@ namespace Users
             mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
 
             return mutexSecurity;
->>>>>>> origin/master
         }
     }
 }
