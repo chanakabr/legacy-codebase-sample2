@@ -1622,6 +1622,14 @@ namespace ConditionalAccess
                 return null;
             }
 
+            int nDomainID = 0;
+            TvinciUsers.DomainSuspentionStatus suspendStat = TvinciUsers.DomainSuspentionStatus.OK;
+            if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == TvinciUsers.DomainSuspentionStatus.Suspended)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
+            }            
+
             theReason = PriceReason.UnKnown;
             TvinciPricing.Price price = null;
             Int32[] nMediaFilesIDs = { nMediaFileID };
@@ -1851,9 +1859,9 @@ namespace ConditionalAccess
                     }
                     #endregion
                 }
-            } // end if site guid is not null or empty
+            } // end if site guid is not null or empty            
             else
-            {
+            {   
                 price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
 
@@ -2913,7 +2921,7 @@ namespace ConditionalAccess
             return string.Empty;
         }
 
-        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID)
+        internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref TvinciUsers.DomainSuspentionStatus eSuspnedStatus)
         {
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
@@ -2931,17 +2939,17 @@ namespace ConditionalAccess
                 if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
+                    eSuspnedStatus = resp.m_user.m_eSuspendState;
                     res = true;
                 }
                 else
                 {
                     res = false;
                 }
-
             }
 
             return res;
-        }
+        }       
 
         /// <summary>
         /// Returns a full domain object for a given ID

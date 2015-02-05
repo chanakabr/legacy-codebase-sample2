@@ -828,6 +828,13 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {                        
+                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                        InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                    } 
                     else
                     {
                         sWSUserName = string.Empty;
@@ -1205,6 +1212,13 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                        InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(InApp): error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                    } 
                     else
                     {
                         PriceReason theReason = PriceReason.UnKnown;
@@ -4058,6 +4072,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase  media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    }
                     else
                     {
                         sWSUserName = string.Empty;
@@ -4244,6 +4265,13 @@ namespace ConditionalAccess
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
+                    }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                     }
                     else
                     {
@@ -5337,6 +5365,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    }    
                     else
                     {
                         bool bIsCouponValid = false;
@@ -6495,8 +6530,15 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase Bundle(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
+                    }
+                    else
+                    {                       
                         dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
@@ -7019,7 +7061,7 @@ namespace ConditionalAccess
                                     }
                                     else
                                     {
-                                        if (p.m_dPrice < dLowest || j == 0)
+                                        if (p != null && p.m_dPrice < dLowest || j == 0)
                                         {
                                             nLowestIndex = j;
                                             dLowest = p.m_dPrice;
@@ -8115,6 +8157,12 @@ namespace ConditionalAccess
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                       
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(PP): " + nMediaFileID + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         //Get User Valid PP
@@ -8367,7 +8415,7 @@ namespace ConditionalAccess
                                         ret.m_oStatus = PrePaidResponseStatus.Fail;
                                         ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
+                                    }                                  
                                 }
                             }
                             else
@@ -8469,6 +8517,12 @@ namespace ConditionalAccess
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                     
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         //Get User Valid PP
@@ -9093,9 +9147,9 @@ namespace ConditionalAccess
                         if (IsFreeItem(objPrice))
                         {
                             GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
-                        }
-                        else
-                        // Item is not free
+                        }                        
+                        else if (!IsUserSuspended(objPrice))
+                        // Item is not free and also not user is not suspended
                         {
                             bool bIsOfflineStatus = false;
                             string sPPVMCode = string.Empty;
@@ -9136,7 +9190,7 @@ namespace ConditionalAccess
                                 }
                                 else
                                 {
-                                    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode, 
+                                    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode,
                                         ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
 
                                     // If getting didn't succeed for any reason, write to log
@@ -9565,6 +9619,13 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    } 
                     else
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
@@ -9711,6 +9772,14 @@ namespace ConditionalAccess
                                         ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                                     }
+                                    else if (theReason == PriceReason.UserSuspended)
+                                    {
+                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                                        ret.m_sRecieptCode = string.Empty;
+                                        ret.m_sStatusDescription = "The user is suspended";
+                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+
+                                    }
                                 }
                             }
                             else
@@ -9810,7 +9879,14 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    {
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                        ret.m_sRecieptCode = string.Empty;
+                        ret.m_sStatusDescription = "Cannot charge a suspended user";
+                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                    } 
+                    else                 
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
@@ -10738,89 +10814,99 @@ namespace ConditionalAccess
                         //int fileMainStreamingCoID = 0;
                         int fileAltStreamingCoID = 0;
 
-                        if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
-                            ref fileAltStreamingCoID, ref nMediaID))
+                        if (!IsUserSuspended(prices[0]))       //check that the user is not suspended
                         {
-                            Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
-                                fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-
-                            if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
+                            if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
+                                ref fileAltStreamingCoID, ref nMediaID))
                             {
-                                string CdnStrID = string.Empty;
-                                bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+                                Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
+                                    fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
-                                if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)                                
+                                if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
                                 {
-                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
-                                    if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
+                                    string CdnStrID = string.Empty;
+                                    bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+
+                                    if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)                                
                                     {
-                                        if (IsItemPurchased(prices[0]))
+                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
+                                        if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                         {
-                                            HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-                                        }
-                                        
-                                        // TO DO if dynamic call to right provider to get the URL
-                                        if (eLinkType == eObjectType.Media && bIsDynamic)
-                                        {
-                                            //call the right provider to get the link 
-                                            StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
-                                            if (provider != null)
+                                            if (IsItemPurchased(prices[0]))
                                             {
-                                                string vodUrl = provider.GenerateVODLink(sBasicLink);
-                                                if (!string.IsNullOrEmpty(vodUrl))
+                                                HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+                                            }
+                                        
+                                            // TO DO if dynamic call to right provider to get the URL
+                                            if (eLinkType == eObjectType.Media && bIsDynamic)
+                                            {
+                                                //call the right provider to get the link 
+                                                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                                                if (provider != null)
                                                 {
-                                                    licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
+                                                    string vodUrl = provider.GenerateVODLink(sBasicLink);
+                                                    if (!string.IsNullOrEmpty(vodUrl))
+                                                    {
+                                                        licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
+                                                    }
                                                 }
                                             }
-                                        }
                                         
 
-                                        res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
-                                        licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
-                                        res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
-                                        res.status = mediaConcurrencyResponse.ToString();
+                                            res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
+                                            licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
+                                            res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
+                                            res.status = mediaConcurrencyResponse.ToString();
 
-                                        // create PlayCycle
-                                        CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
+                                            // create PlayCycle
+                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
+                                        }
+                                        else
+                                        {
+                                            res.altUrl = GetErrorLicensedLink(sBasicLink);
+                                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
+                                            res.status = mediaConcurrencyResponse.ToString();
+
+                                            Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
+                                                mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
+                                        }
                                     }
                                     else
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = mediaConcurrencyResponse.ToString();
+                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
 
-                                        Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
-                                            mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
+                                        Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", 
+                                            sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
                                     }
                                 }
                                 else
                                 {
                                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                    res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
+                                    res.status = eLicensedLinkStatus.InvalidPrice.ToString();
 
-                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", 
-                                        sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
+                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, 
+                                        nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
                                 }
                             }
                             else
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidPrice.ToString();
+                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
 
-                                Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, 
-                                    nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
+                                Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
+                                    sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
                             }
                         }
-                        else
-                        {
-                            res.altUrl = GetErrorLicensedLink(sBasicLink);
-                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                            res.status = eLicensedLinkStatus.InvalidFileData.ToString();
+                        else //user is Suspended
+                        {          
+                            //returns empty url
+                            res.status = eLicensedLinkStatus.UserSuspended.ToString();
 
-                            Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
-                                sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
+                            Logger.Logger.Log("GetLicensedLinks", string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                         }
                     }
                     else
@@ -11053,6 +11139,11 @@ namespace ConditionalAccess
         private bool IsFreeItem(MediaFileItemPricesContainer container)
         {
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
+        }
+
+        private bool IsUserSuspended(MediaFileItemPricesContainer container)
+        {
+            return (container.m_oItemPrices[0] != null && container.m_oItemPrices[0].m_PriceReason == PriceReason.UserSuspended);          
         }
 
         public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)

@@ -1,10 +1,12 @@
 ﻿using ApiObjects;
+using DAL;
 using NPVR;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 
 namespace ConditionalAccess
 {
@@ -79,78 +81,85 @@ namespace ConditionalAccess
             return res;
         }
 
-        // here assetID will be the epg program id as appearing in epg_channels_schedule in CB.
+        // here assetID will be the EPG program id as appearing in epg_channels_schedule in CB.
         public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
             RecordResponse res = new RecordResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
-                    string epgChannelID = string.Empty;
-                    DateTime programStartDate = DateTime.MinValue;
-                    string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
-                    if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
+                    // validate user is not suspended
+                    if (suspendStatus != TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
-                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-                        if (npvr != null)
+                        string epgChannelID = string.Empty;
+                        DateTime programStartDate = DateTime.MinValue;
+                        string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
+                        if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
                         {
-                            NPVRRecordResponse response = null;
-                            if (isSeries)
+                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                            if (npvr != null)
                             {
-                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
-                            }
-                            else
-                            {
-                                response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
-                            }
-                            if (response != null)
-                            {
-                                switch (response.status)
+                                NPVRRecordResponse response = null;
+                                if (isSeries)
+                                    response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                                else
+                                    response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                                if (response != null)
                                 {
-                                    case RecordStatus.OK:
-                                        res.status = NPVRStatus.OK.ToString();
-                                        res.recordingID = response.recordingID;
-                                        break;
-                                    case RecordStatus.ResourceAlreadyExists:
-                                        res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
-                                        res.recordingID = string.Empty;
-                                        break;
-                                    case RecordStatus.Error:
-                                        res.status = NPVRStatus.Error.ToString();
-                                        res.recordingID = string.Empty;
-                                        break;
-                                    case RecordStatus.QuotaExceeded:
-                                        res.status = NPVRStatus.QuotaExceeded.ToString();
-                                        res.recordingID = string.Empty;
-                                        break;
-                                    default:
-                                        Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Unidentified RecordStatus: ", response.status.ToString()), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
-                                        res.status = NPVRStatus.Unknown.ToString();
-                                        res.recordingID = string.Empty;
-                                        break;
+                                    switch (response.status)
+                                    {
+                                        case RecordStatus.OK:
+                                            res.status = NPVRStatus.OK.ToString();
+                                            res.recordingID = response.recordingID;
+                                            break;
+                                        case RecordStatus.ResourceAlreadyExists:
+                                            res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        case RecordStatus.Error:
+                                            res.status = NPVRStatus.Error.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        case RecordStatus.QuotaExceeded:
+                                            res.status = NPVRStatus.QuotaExceeded.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        default:
+                                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Unidentified RecordStatus: ", response.status.ToString()), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                                            res.status = NPVRStatus.Unknown.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Response returned from NPVR layer is null.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                    res.status = NPVRStatus.Error.ToString();
                                 }
                             }
                             else
                             {
-                                Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Response returned from NPVR layer is null.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
+                                Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Failed to instantiate an INPVRProvider instance.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
                                 res.status = NPVRStatus.Error.ToString();
                             }
                         }
                         else
                         {
-                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg("Failed to instantiate an INPVRProvider instance.", siteGuid, assetID, isSeries, null), VODAFONE_NPVR_LOG);
-                            res.status = NPVRStatus.Error.ToString();
+                            // asset id or EPG channel id or program start date is invalid
+                            Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Either ALU Asset ID: ", assetIDToALU, " or Epg Channel ID: ", epgChannelID, " or StartDate: ", programStartDate.ToString(), " is invalid."), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
+                            res.status = NPVRStatus.InvalidAssetID.ToString();
                         }
                     }
                     else
                     {
-                        // asset id or epg channel id or program start date is invalid
-                        Logger.Logger.Log("RecordNPVR", GetNPVRLogMsg(String.Concat("Either ALU Asset ID: ", assetIDToALU, " or Epg Channel ID: ", epgChannelID, " or StartDate: ", programStartDate.ToString(), " is invalid."), siteGuid, assetID, false, null), VODAFONE_NPVR_LOG);
-                        res.status = NPVRStatus.InvalidAssetID.ToString();
+                        // user is suspended
+                        res.status = NPVRStatus.Suspended.ToString();
+                        res.msg = "User is suspended";
+                        Logger.Logger.Log("RecordNPVR", string.Format("User {0} tried to record while in suspended state", siteGuid), VODAFONE_NPVR_LOG);
                     }
-
                 }
                 else
                 {
@@ -172,10 +181,11 @@ namespace ConditionalAccess
         public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
@@ -258,10 +268,11 @@ namespace ConditionalAccess
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
@@ -337,10 +348,11 @@ namespace ConditionalAccess
         public override QuotaResponse GetNPVRQuota(string siteGuid)
         {
             QuotaResponse res = new QuotaResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
@@ -385,10 +397,11 @@ namespace ConditionalAccess
         public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
         {
             NPVRResponse res = new NPVRResponse();
+            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID) && domainID > 0)
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
 
@@ -491,8 +504,8 @@ namespace ConditionalAccess
                     {
                         res = prog.m_oProgram.EPG_IDENTIFIER;
                         epgChannelID = prog.m_oProgram.EPG_CHANNEL_ID;
-                    
-                        if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", new CultureInfo("he-IL"), DateTimeStyles.None, out startDate))    
+
+                        if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", new CultureInfo("he-IL"), DateTimeStyles.None, out startDate))
                         {
                             // failed to parse date.
                             startDate = UNIX_ZERO_TIME;
@@ -525,7 +538,9 @@ namespace ConditionalAccess
             if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
                 int domainID = 0;
-                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID) && domainID > 0)
+                TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0
+                                                                && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
@@ -565,8 +580,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    // user not valid.
-                    Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
+                    // user not valid/ user is suspended.
+                    Logger.Logger.Log("Error", GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain or suspended.", sSiteGUID, sProgramId, false, null), VODAFONE_NPVR_LOG);
                 }
             }
             else
@@ -583,7 +598,7 @@ namespace ConditionalAccess
             bool res = false;
             string wsUsername = string.Empty, wsPassword = string.Empty;
             Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
-            if(string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword)) 
+            if (string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
             {
                 Logger.Logger.Log("Error", string.Format("Failed to retrieve WS_Domains credentials. UDID: {0} , D ID: {1}", udid, domainID), "GetDeviceStreamTypeAndProfile");
                 return false;

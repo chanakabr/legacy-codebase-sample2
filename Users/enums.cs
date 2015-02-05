@@ -29,9 +29,10 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,
+        UserWithNoDomain = 21,  
         InternalError = 999,
-        LoginServerDown = 22
+        LoginServerDown = 22,
+        UserSuspended = 23
     }
 
     public enum UserAction
@@ -47,7 +48,7 @@ namespace Users
         Activated = 1,
         SingleSignIn = 2,
         DoubleSignIn = 3,
-        LoggedOut = 4
+        LoggedOut = 4        
     }
 
     public enum UserActivationState
@@ -58,7 +59,8 @@ namespace Users
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserWIthNoDomain  = 4
+        UserWIthNoDomain  = 4,
+        UserSuspended = 5
     }
 
     [Serializable]
@@ -92,7 +94,8 @@ namespace Users
         UserNotInDomain = 9,
         DomainNotExists = 10,
         HouseholdUserFailed = 11,
-        DomainCreatedWithoutNPVRAccount = 12
+        DomainCreatedWithoutNPVRAccount = 12,
+        DomainSuspended = 13
     }
 
     [Serializable]
@@ -136,7 +139,8 @@ namespace Users
         RequestFailed = 22,
         InvalidUser = 23,
         ConcurrencyLimitation = 24,
-        MediaConcurrencyLimitation = 25
+        MediaConcurrencyLimitation = 25,
+        DomainSuspended = 26
     }
 
     public enum DeviceResponseStatus
@@ -201,6 +205,19 @@ namespace Users
         Frequency = 2
     }
 
+    public enum Code
+    {
+        Success = 0,
+        Failure = 1
+    }
+
+
+    //public enum DomainSuspentionStatus
+    //{
+    //    OK = 0,
+    //    Suspended = 1
+    //}
+    
     [Serializable]
     public enum ResponseDLMStatus
     {

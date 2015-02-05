@@ -1153,8 +1153,13 @@ namespace Catalog
         {
             int opID = 0;
             bool isMaster = false;
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+
             if (nDomainID < 1)
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+            {
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
+            }
+             
             if (nDomainID > 0)
             {
                 switch (eNPVR)
