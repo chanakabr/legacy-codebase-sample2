@@ -217,7 +217,7 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             get
             {
-                return Parameters.GetParameter<string>(eParameterType.Retrieve, "UseFinalEndDate", "true");
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "UseFinalEndDate", "false");
             }
             set
             {
