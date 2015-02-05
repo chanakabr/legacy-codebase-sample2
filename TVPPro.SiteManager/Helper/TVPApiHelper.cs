@@ -37,7 +37,14 @@ namespace TVPPro.SiteManager.Helper
             RecordAll,
             GetMediaLicenseLink,
             GetMediaLicenseLinkWithIP,
-            SetUserDynamicDataEx
+            MediaHit,
+            SetUserDynamicDataEx,
+            FBTokenValidation,
+            GetAutoCompleteSearchList,
+            GetUserActivityFeed,
+            GetCrowdsourceFeed,
+            GetAccountSTBs,
+            MediaMark
         }
 
         static byte[] GetBytes(string str)
@@ -103,18 +110,18 @@ namespace TVPPro.SiteManager.Helper
             return baseTVPapiURL + method;
         }
 
-        public static object GetInitObj()
+        public static object GetInitObj(string language = "")
         {
-            return GetInitObj(Services.UsersService.Instance.GetDomainID(), Services.UsersService.Instance.GetUserID());
+            return GetInitObj(Services.UsersService.Instance.GetDomainID(), Services.UsersService.Instance.GetUserID(), language);
         }
 
-        public static object GetInitObj(int domainID,string siteGuid)
+        public static object GetInitObj(int domainID, string siteGuid, string language = "")
         {
             return new
             {
                 Locale = new
                 {
-                    LocaleLanguage = "",
+                    LocaleLanguage = language,
                     LocaleCountry = "",
                     LocaleDevice = "",
                     LocaleUserState = "Unknown"
@@ -140,55 +147,5 @@ namespace TVPPro.SiteManager.Helper
                 catch { }
             }
         }
-
-        public static string RecordAll(string channelCode, string recordDate, string recordTime, string versionId)
-        {
-            var response = "";
-            string userID = Services.UsersService.Instance.GetUserID();
-
-            UserResponseObject userData = Services.UsersService.Instance.GetUserData(userID);
-            if (userData != null)
-            {
-                UserDynamicDataContainer accNumDynamicData = userData.m_user.m_oDynamicData.m_sUserData.Where(item => item.m_sDataType.Equals("accNum")).FirstOrDefault();
-                string accountNumber = (accNumDynamicData != null) ? accNumDynamicData.m_sValue : null;
-
-                var postData = new
-                {
-                    initObj = GetInitObj(),
-                    accountNumber = accountNumber,
-                    channelCode = channelCode,
-                    recordDate = recordDate,
-                    recordTime = recordTime,
-                    versionId = versionId
-                };
-                if (useTVPAPI)
-                {
-                    response = MakeRequest(TVPApiHelper.TVPAPI_METHODS.RecordAll, new JavaScriptSerializer().Serialize(postData));
-                }
-                return response;
-            }
-            else
-            {
-                throw new Exception("UserData is null, probably logged out");
-            }
-        }
-
-        public static string SetUserDynamicDataEx(string key, string value,  int domainID =0, string siteGuid = null)
-        {
-            string response = string.Empty;
-            var postData = new
-            {
-                initObj = GetInitObj(domainID,siteGuid),
-                key = key,
-                value = value
-            };
-           
-
-            response = MakeRequest(TVPAPI_METHODS.SetUserDynamicDataEx, new JavaScriptSerializer().Serialize(postData));
-
-            var deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
-
-            return response;
-        } 
     }
 }
