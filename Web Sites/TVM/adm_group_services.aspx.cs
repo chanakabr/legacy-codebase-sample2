@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Tvinci.Core.DAL;
 using TVinciShared;
 
 public partial class adm_group_services : System.Web.UI.Page
@@ -69,27 +70,57 @@ public partial class adm_group_services : System.Web.UI.Page
 
     protected void InsertGroupService(Int32 nServiceID, Int32 nGroupID)
     {
+        bool bInsert = false;
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("groups_services");
         insertQuery.SetConnectionKey("CONNECTION_STRING");
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SERVICE_ID", "=", nServiceID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-        insertQuery.Execute();
+        bInsert = insertQuery.Execute();
         insertQuery.Finish();
         insertQuery = null;
+
+        if (bInsert)
+        {
+            List<ApiObjects.ServiceObject> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            groupManager.AddServices(nGroupID, lServices);
+        }
+
     }
 
-    protected void UpdateGroupsServices(Int32 nID, Int32 nStatus)
+    private List<ApiObjects.ServiceObject> GetGroupServiceByID(int nServiceID, int nGroupID)
     {
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("groups_services");
+        return CatalogDAL.GetGroupServices(nGroupID, nServiceID);
+    }
+
+    protected void UpdateGroupsServices(Int32 nID, Int32 nStatus, int nServiceID, int nGroupID)
+    {
+        bool bUpdate = false;
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("groups_services");        
         updateQuery.SetConnectionKey("CONNECTION_STRING");
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
         updateQuery += "where ";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
-        updateQuery.Execute();
+        bUpdate = updateQuery.Execute();
         updateQuery.Finish();
         updateQuery = null;
+
+        if (bUpdate)
+        {
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            long lServiceID = Convert.ToInt64(nServiceID);
+            if (nStatus == 0) // unactive 
+            {
+                groupManager.DeleteServices(nGroupID, new List<long>() { lServiceID });
+            }
+            else
+            {
+                List<ApiObjects.ServiceObject> lServices = GetGroupServiceByID(nServiceID, nGroupID);
+                groupManager.AddServices(nGroupID, lServices);
+            }
+        }
     }
 
     protected Int32 GetGroupServiceID(Int32 nServiceID, Int32 nLogedInGroupID, ref Int32 nStatus)
@@ -122,13 +153,15 @@ public partial class adm_group_services : System.Web.UI.Page
     {
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         Int32 nStatus = 0;
-        Int32 nGroupServiceID = GetGroupServiceID(int.Parse(sID), nLogedInGroupID, ref nStatus);
+        int nServiceID = int.Parse(sID);
+        Int32 nGroupServiceID = GetGroupServiceID(nServiceID, nLogedInGroupID, ref nStatus);
+        
         if (nGroupServiceID != 0)
         {
             if (nStatus == 0)
-                UpdateGroupsServices(nGroupServiceID, 1);
+                UpdateGroupsServices(nGroupServiceID, 1, nServiceID, nLogedInGroupID);
             else
-                UpdateGroupsServices(nGroupServiceID, 0);
+                UpdateGroupsServices(nGroupServiceID, 0, nServiceID, nLogedInGroupID);
         }
         else
         {
