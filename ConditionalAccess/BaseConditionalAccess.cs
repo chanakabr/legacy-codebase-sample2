@@ -1682,6 +1682,7 @@ namespace ConditionalAccess
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
                     oResult.Status = StatusObjectCode.Fail;
+                    oResult.Code = 11;
                     oResult.Message = "Invalid domain";
                 }
                 else
@@ -1694,6 +1695,7 @@ namespace ConditionalAccess
                     if (drUserPurchase == null)
                     {
                         oResult.Status = StatusObjectCode.Fail;
+                        oResult.Code = 12;
                         oResult.Message = "Subscription is not permitted for this domain";
                     }
                     else
@@ -1706,6 +1708,7 @@ namespace ConditionalAccess
                         if (nIsRecurringStatus != 1)
                         {
                             oResult.Status = StatusObjectCode.Fail;
+                            oResult.Code = 13;
                             oResult.Message = "Subscription already does not renew";
                         }
                         else
@@ -1721,6 +1724,7 @@ namespace ConditionalAccess
                                     ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
 
                                 oResult.Status = StatusObjectCode.OK;
+                                oResult.Code = 0;
                                 oResult.Message = "Subscription renewal cancelled";
 
                                 DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
@@ -1746,6 +1750,7 @@ namespace ConditionalAccess
                                 #endregion
 
                                 oResult.Status = StatusObjectCode.Error;
+                                oResult.Code = 1;
                                 oResult.Message = "Error while cancelling";
                             }
                         }
@@ -1766,7 +1771,8 @@ namespace ConditionalAccess
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 #endregion
 
-                oResult.Status = StatusObjectCode.Fail;
+                oResult.Status = StatusObjectCode.Error;
+                oResult.Code = 1;
                 oResult.Message = "Unexpected error occured";
             }
 
@@ -10385,6 +10391,7 @@ namespace ConditionalAccess
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
                     oResult.Status = StatusObjectCode.Fail;
+                    oResult.Code = 11;
                     oResult.Message = "Invalid domain";
                 }
                 else
@@ -10402,6 +10409,7 @@ namespace ConditionalAccess
                     if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
                     {
                         oResult.Status = StatusObjectCode.Fail;
+                        oResult.Code = 12;
                         oResult.Message = "There is not a valid purchase for this user and asset ID";
                     }
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -10438,6 +10446,7 @@ namespace ConditionalAccess
                     else
                     {
                         oResult.Status = StatusObjectCode.Fail;
+                        oResult.Code = 13;
                         oResult.Message = "Subscription could not be cancelled because it is not in cacnellation window";
                     }
 
@@ -10450,6 +10459,7 @@ namespace ConditionalAccess
                         //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
                         oResult.Status = StatusObjectCode.OK;
+                        oResult.Code = 0;
                         oResult.Message = "Service successfully cancelled";
 
                         if (drUserPurchase != null)
@@ -10461,7 +10471,8 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        oResult.Status = StatusObjectCode.Fail;
+                        oResult.Status = StatusObjectCode.Error;
+                        oResult.Code = 1;
                         oResult.Message = "Cancellation failed";
                     }
                 }
@@ -10477,7 +10488,8 @@ namespace ConditionalAccess
                 Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
                 #endregion
 
-                oResult.Status = StatusObjectCode.OK;
+                oResult.Status = StatusObjectCode.Error;
+                oResult.Code = 1;
                 oResult.Message = "Unexpected error occurred";
             }
 
