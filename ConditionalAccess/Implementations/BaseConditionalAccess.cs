@@ -10549,7 +10549,7 @@ namespace ConditionalAccess
                     {
                         oResult.Status = StatusObjectCode.Fail;
                         oResult.Code = 13;
-                        oResult.Message = "Subscription could not be cancelled because it is not in cacnellation window";
+                        oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
                     }
 
                     if (bResult)
