@@ -9,7 +9,7 @@ namespace ApiObjects
     public class StatusObject
     {
         /// <summary>
-        /// Http Status code: According to global rules and standarts
+        /// General status 
         /// </summary>
         public StatusObjectCode Status;
 
