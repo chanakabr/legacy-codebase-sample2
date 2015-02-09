@@ -103,6 +103,11 @@ namespace Users
                 return dom;
             }
 
+            if (dom.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                return dom;
+            }
+
             Domain resDomain = dom;
             int masterUserID = (resDomain.m_masterGUIDs != null && resDomain.m_masterGUIDs.Count > 0) ? resDomain.m_masterGUIDs[0] : 0;
             if (masterUserID <= 0)
@@ -163,27 +168,27 @@ namespace Users
                 {
                     oLimitationsManager = new LimitationsManager();
 
-                    #region GroupLevel
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    #region GroupLevel + DLM Level 
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0 &&
+                        ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
                         DataRow drGroup = ds.Tables[0].Rows[0];
-                        if (drGroup != null)
-                        {
-
-                            int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "CONCURRENT_MAX_LIMIT");
-                            int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");
-
-                            oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);
-                            oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "freq_period_id");
-                            oLimitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "DEVICE_MAX_LIMIT");
+                        DataRow drDLM = ds.Tables[1].Rows[0];
+                        if (drGroup != null && drDLM != null)
+                        {   
+                            int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");                            
                             oLimitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
-                            oLimitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "USER_MAX_LIMIT");
+                            int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
+                            oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
+                            oLimitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
+                            oLimitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
+
+                            oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);   
 
                             if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || oLimitationsManager.Frequency == 0)
                                 oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
                             else
-                                oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, oLimitationsManager.Frequency);
-
+                                oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, oLimitationsManager.Frequency);                        
                         }
                     }
                     #endregion
@@ -191,8 +196,8 @@ namespace Users
                     #region DeviceFamily
                     if (ds.Tables.Count >= 3)
                     {
-                        DataTable dt = ds.Tables[1];
-                        DataTable dtSpecificLimits = ds.Tables[2];
+                        DataTable dt = ds.Tables[2];
+                        DataTable dtSpecificLimits = ds.Tables[3];
                         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
                             oLimitationsManager.lDeviceFamilyLimitations = new List<DeviceFamilyLimitations>();

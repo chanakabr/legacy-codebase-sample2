@@ -134,8 +134,15 @@ namespace ConditionalAccess
                     ret.m_sStatusDescription = "Cant charge an unknown user";
 
                     return ret;
-                }
-
+                }            
+                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                {
+                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                    ret.m_sRecieptCode = string.Empty;
+                    ret.m_sStatusDescription = "Cannot charge a suspended user";
+                    WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    return ret;
+                } 
 
                 int nDomainID = uObj.m_user.m_domianID;
 
@@ -407,7 +414,7 @@ namespace ConditionalAccess
                                     break;
                                 case PriceReason.SubscriptionPurchased:
                                     ret.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                    break;
+                                    break;                               
                                 default:
                                     break;
                             }
@@ -712,6 +719,14 @@ namespace ConditionalAccess
                     ret.m_sStatusDescription = "Cant charge an unknown user";
 
                     return ret;
+                }
+
+                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                {
+                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                    ret.m_sRecieptCode = string.Empty;
+                    ret.m_sStatusDescription = "Cannot charge a suspended user";
+                    WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                 }
 
                 #endregion

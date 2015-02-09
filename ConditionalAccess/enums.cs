@@ -19,7 +19,8 @@ namespace ConditionalAccess
         GeoCommerceBlocked = 8,
         EntitledToPreviewModule = 9,
         FirstDeviceLimitation =10,
-        CollectionPurchased
+        CollectionPurchased = 11,
+        UserSuspended
     }
 
     public enum BillingItemsType
@@ -93,7 +94,8 @@ namespace ConditionalAccess
         UnKnownUser = 4,
         UnKnownPPVModule = 5,
         UnKnownPPModule = 6,
-        NoCredit = 7
+        NoCredit = 7,
+        UserSuspended = 8
     }
 
     public enum CampaignActionResult
@@ -181,7 +183,8 @@ namespace ConditionalAccess
         Concurrency = 6,
         MediaConcurrency = 7,
         InvalidBaseLink = 8,
-        InvalidFileData = 9
+        InvalidFileData = 9,
+        UserSuspended = 10
     }
 
     public enum eUrlType
@@ -203,6 +206,6 @@ namespace ConditionalAccess
         AssetDoesNotExist = 8,
         AssetAlreadyRecorded = 9,
         QuotaExceeded = 10,
-
+        Suspended = 11
    }
 }

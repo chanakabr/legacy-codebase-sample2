@@ -368,7 +368,25 @@
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciUsers\KeyValuePair.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\ResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserBasicData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserGroupRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserItemList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciUsers\UserState.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserType.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
   </ItemGroup>
@@ -406,10 +424,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/TVMBilling/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/TVMBilling/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -433,10 +451,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciPricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="https://platform-us.tvinci.com/users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciUsers\</RelPath>
-      <UpdateFromURL>https://platform-us.tvinci.com/users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

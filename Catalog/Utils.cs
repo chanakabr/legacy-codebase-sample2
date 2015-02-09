@@ -346,7 +346,8 @@ namespace Catalog
         {
             int res = 0;
             bool bIsDomainMaster = false;
-            DomainDal.GetDomainIDBySiteGuid(nGroupID, (int)lSiteGuid, ref res, ref bIsDomainMaster);
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+            DomainDal.GetDomainIDBySiteGuid(nGroupID, (int)lSiteGuid, ref res, ref bIsDomainMaster, ref eSuspendStat);
 
             return res;
 

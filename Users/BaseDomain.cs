@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using Users.Cache;
+using ApiObjects;
 
 namespace Users
 {
@@ -43,7 +44,7 @@ namespace Users
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }          
+            }
 
             //Init The Domain
             domain = DomainInitializer(m_nGroupID, nDomainID, false);
@@ -70,6 +71,10 @@ namespace Users
                 {
                     oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
                 }
+            }
+            else if (domain != null && domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
             }
             else
             {
@@ -165,12 +170,17 @@ namespace Users
             {
                 oDomainResponseObject.m_oDomain = null;
             }
+            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+                oDomainResponseObject.m_oDomain = domain;
+            }
             else
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                bool res  = device.Initialize(sUDID, sDeviceName);
-                
+                bool res = device.Initialize(sUDID, sDeviceName);
+
                 oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
@@ -201,7 +211,7 @@ namespace Users
 
             return oDomainResponseObject;
         }
-        
+
         public virtual DomainResponseObject RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserGUID)
         {
             DomainResponseObject oDomainResponseObject;
@@ -229,7 +239,7 @@ namespace Users
         public virtual Domain GetDomainInfo(int nDomainID, int nGroupID)
         {
             Domain domain = DomainInitializer(nGroupID, nDomainID, true);
-            
+
             return domain;
         }
 
@@ -238,8 +248,16 @@ namespace Users
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
 
             DomainResponseObject oDomainResponseObject;
+            DomainResponseStatus eDomainResponseStatus;
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+            }
+            else
+            {
+                eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
+            }
 
-            DomainResponseStatus eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
             return oDomainResponseObject;
@@ -266,6 +284,12 @@ namespace Users
             }
 
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
+
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainSuspended);
+                return oDomainResponseObject;
+            }
 
             Device device = new Device(sDeviceUdid, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
@@ -308,11 +332,18 @@ namespace Users
                 return resp;
             }
 
+            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            {
+                resp.m_oDomain = null;
+                resp.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+                return resp;
+            }
+
             // Check if such device exists
             Device device = new Device(m_nGroupID);
             bInit = device.Initialize(sUDID);
             int nDeviceID = int.Parse(device.m_id);
-            
+
             int nDomainDeviceID = 0;
             int nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
 
@@ -359,7 +390,7 @@ namespace Users
             DomainsCache oDomainCache = DomainsCache.Instance();
             domain = oDomainCache.GetDomain(nDomainID, nGroupID);
             bool bUsers = UsersFullListFromDomain(nDomainID, domain, ltempUsers);
-    
+
             if (bUsers && ltempUsers != null && ltempUsers.Count > 0)
             {
                 luser = ltempUsers.ConvertAll<string>(x => x.ToString());
@@ -436,7 +467,10 @@ namespace Users
         public virtual bool SetDomainRestriction(int nDomainID, DomainRestriction rest)
         {
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
-
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                return false;
+            }
             domain.m_DomainRestriction = rest;
             bool res = domain.Update();
 
@@ -575,7 +609,7 @@ namespace Users
             int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
-           
+
             Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
@@ -647,11 +681,11 @@ namespace Users
                             break;
                         }
                     case ValidationType.Frequency:
-                        {                           
+                        {
                             break;
                         }
                     default:
-                        {                         
+                        {
                             break;
                         }
                 }
@@ -659,7 +693,47 @@ namespace Users
 
             return res;
         }
-        
+
+        public virtual StatusObject SuspendDomain(int nDomainID)
+        {
+            bool SuspendSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.Suspended);
+
+            if (SuspendSucceed)
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(nDomainID);
+            }
+
+            StatusObject result = new StatusObject();
+
+            if (SuspendSucceed)
+                result.Status = StatusObjectCode.OK;
+            else
+                result.Status = StatusObjectCode.Fail;
+
+            return result;
+        }
+
+        public virtual StatusObject ResumeDomain(int nDomainID)
+        {
+            bool ResumeSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.OK);
+
+            if (ResumeSucceed)
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(nDomainID);
+            }
+
+            StatusObject result = new StatusObject();
+
+            if (ResumeSucceed)
+                result.Status = StatusObjectCode.OK;
+            else
+                result.Status = StatusObjectCode.Fail;
+
+            return result;
+        }
+
         #endregion
 
         #region Protected abstract
@@ -676,8 +750,8 @@ namespace Users
          * Initializing a domain in Eutelsat is different than in other customers.
          * 
          */
-       // protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
-        protected abstract Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true); 
+        // protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
+        protected abstract Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true);
 
         #endregion
 
@@ -770,7 +844,7 @@ namespace Users
             }
 
             return isDeviceRecognized;
-        } 
+        }
 
         protected string GetLogFilename()
         {
@@ -920,7 +994,8 @@ namespace Users
             {
                 bool tempIsMaster = false;
                 int tempOperatorID = 0;
-                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster);
+                DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
                 if (domainID < 1 || domainID == (int)lDomainID)
                     return null;
                 res = oDomainCache.GetDomain(domainID, m_nGroupID);
@@ -1020,8 +1095,8 @@ namespace Users
 
         }
 
-        
-        
-       
+
+
+
     }
 }
