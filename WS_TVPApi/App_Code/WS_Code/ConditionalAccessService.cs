@@ -606,7 +606,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
-            return response;                       
+            return response;
         }
 
         [WebMethod(EnableSession = true, Description = "Get collections prices")]
@@ -861,7 +861,7 @@ namespace TVPApiServices
             return collections;
         }
 
-        [WebMethod(EnableSession = true, Description = "Returns the CDN URLs to use in case one fails"]
+        [WebMethod(EnableSession = true, Description = "Returns the CDN URLs to use in case one fails")]
         public LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
         {
             LicensedLinkResponse links = null;
@@ -874,7 +874,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    links = new ApiConditionalAccessService(groupId, initObj.Platform).GetLicensedLinks(initObj.SiteGuid, mediaFileID,baseLink,initObj.UDID);
+                    links = new ApiConditionalAccessService(groupId, initObj.Platform).GetLicensedLinks(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
