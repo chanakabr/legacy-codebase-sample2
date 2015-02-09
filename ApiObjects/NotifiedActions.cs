@@ -12,6 +12,10 @@ namespace ApiObjects
     public enum NotifiedAction
     {
         CancelDomainServiceNow = 1,
-        CancelDomainSubscriptionRenewal = 2
+        CancelDomainSubscriptionRenewal = 2,
+        ChargedMediaFile = 3,
+        ChargedSubscription = 4,
+        ChargedCollection = 5,
+        ChargedSubscriptionRenewal = 6
     }
 }

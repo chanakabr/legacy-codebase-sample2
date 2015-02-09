@@ -61,7 +61,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <ItemGroup>   
+  <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
@@ -88,52 +88,52 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
-    <Compile Include="BaseConditionalAccess.cs" />
-    <Compile Include="BaseNPVRCommand.cs" />
-    <Compile Include="BillingResponse.cs" />
+    <Compile Include="Implementations\BaseConditionalAccess.cs" />
+    <Compile Include="Commands\BaseNPVRCommand.cs" />
+    <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
-    <Compile Include="CancelDeleteResponse.cs" />
-    <Compile Include="CancelNPVRCommand.cs" />
-    <Compile Include="CancelSeriesNPVRCommand.cs" />
-    <Compile Include="CinepolisConditionalAccess.cs" />
+    <Compile Include="Response\CancelDeleteResponse.cs" />
+    <Compile Include="Commands\CancelNPVRCommand.cs" />
+    <Compile Include="Commands\CancelSeriesNPVRCommand.cs" />
+    <Compile Include="Implementations\CinepolisConditionalAccess.cs" />
     <Compile Include="ConditionalAccessCache.cs" />
-    <Compile Include="DeleteNPVRCommand.cs" />
-    <Compile Include="DeleteSeriesNPVRCommand.cs" />
-    <Compile Include="EntitlementResponse.cs" />
+    <Compile Include="Commands\DeleteNPVRCommand.cs" />
+    <Compile Include="Commands\DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="Response\EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LicensedLinkNPVRCommand.cs" />
-    <Compile Include="LicensedLinkNPVRResponse.cs" />
-    <Compile Include="LicensedLinkResponse.cs" />
-    <Compile Include="ProtectionResponse.cs" />
-    <Compile Include="ProtectNPVRCommand.cs" />
-    <Compile Include="QuotaResponse.cs" />
+    <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
+    <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
+    <Compile Include="Response\LicensedLinkResponse.cs" />
+    <Compile Include="Response\ProtectionResponse.cs" />
+    <Compile Include="Commands\ProtectNPVRCommand.cs" />
+    <Compile Include="Response\QuotaResponse.cs" />
     <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
-    <Compile Include="RecordNPVRCommand.cs" />
-    <Compile Include="RecordResponse.cs" />
-    <Compile Include="RecordSeriesByNameNPVRCommand.cs" />
-    <Compile Include="RecordSeriesByProgramIdNPVRCommand.cs" />
-    <Compile Include="RetrieveQuotaNPVRCommand.cs" />
+    <Compile Include="Commands\RecordNPVRCommand.cs" />
+    <Compile Include="Response\RecordResponse.cs" />
+    <Compile Include="Commands\RecordSeriesByNameNPVRCommand.cs" />
+    <Compile Include="Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="UserBillingTransactionResponse.cs" />
+    <Compile Include="Response\UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
-    <Compile Include="EutelsatConditionalAccess.cs" />
-    <Compile Include="ElisaConditionalAccess.cs" />
+    <Compile Include="Implementations\EutelsatConditionalAccess.cs" />
+    <Compile Include="Implementations\ElisaConditionalAccess.cs" />
     <Compile Include="enums.cs" />
-    <Compile Include="FilmoConditionalAccess.cs" />
+    <Compile Include="Implementations\FilmoConditionalAccess.cs" />
     <Compile Include="InAppReceipt.cs" />
     <Compile Include="ItemPriceContainer.cs" />
     <Compile Include="LicenseContainer.cs" />
     <Compile Include="PermittedMediaContainer.cs" />
     <Compile Include="PermittedSubscriptionContainer.cs" />
-    <Compile Include="PrePaidResponse.cs" />
+    <Compile Include="Response\PrePaidResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -146,10 +146,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SocialInviteCampaignImpl.cs" />
-    <Compile Include="TvinciConditionalAccess.cs" />
+    <Compile Include="Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="UserPrePaidContainer.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="VodafoneConditionalAccess.cs" />
+    <Compile Include="Implementations\VodafoneConditionalAccess.cs" />
     <Compile Include="VoucherCampaignImpl.cs" />
     <Compile Include="Web References\NotificationService\Reference.cs">
       <AutoGen>True</AutoGen>

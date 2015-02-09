@@ -45,7 +45,9 @@ namespace ConditionalAccess
         MasterCard = 21,
         InApp = 200,
         M1 = 60,
-        ChangeSubscription = 8
+        ChangeSubscription = 8,
+        // PS takes care of billing in the payment day. We still don't know the method
+        Offline = 50
     }
 
     public enum BillingAction
@@ -121,7 +123,8 @@ namespace ConditionalAccess
        Adyen = 10,
        Dummy = 11,      
        Cinepolis = 17,
-       M1 = 100
+       M1 = 100,
+       Offline = 50
     }
 
     public enum CinepolisConfirmationStatus : byte

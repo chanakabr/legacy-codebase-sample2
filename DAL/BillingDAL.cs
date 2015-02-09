@@ -852,6 +852,41 @@ namespace DAL
 
             return res;
         }
+
+        /// <summary>
+        /// Insert a new record to offline_transactions with given parameters. Returns the new transaction Id
+        /// </summary>
+        /// <param name="p_nSiteGuid"></param>
+        /// <param name="p_dPrice"></param>
+        /// <param name="p_sCurrencyCode"></param>
+        /// <param name="p_nGroupId"></param>
+        /// <param name="p_sOfflineCustomData"></param>
+        /// <param name="p_nUpdaterId"></param>
+        /// <returns></returns>
+        public static long Insert_NewOfflineTransaction(long p_nSiteGuid, double p_dPrice, string p_sCurrencyCode, int p_nGroupId, string p_sOfflineCustomData, int? p_nUpdaterId)
+        {
+            long lTransactionId = 0;
+            
+            object oUpdaterId = DBNull.Value;
+
+            if (p_nUpdaterId.HasValue)
+            {
+                oUpdaterId = p_nUpdaterId.Value;
+            }
+
+            StoredProcedure spInsertStoredProcedure = new StoredProcedure("Insert_NewOfflineTransaction");
+            spInsertStoredProcedure.SetConnectionKey("CONNECTION_STRING");
+            spInsertStoredProcedure.AddParameter("SiteGuid", p_nSiteGuid);
+            spInsertStoredProcedure.AddParameter("Price", p_dPrice);
+            spInsertStoredProcedure.AddParameter("CurrencyCode", p_sCurrencyCode);
+            spInsertStoredProcedure.AddParameter("GroupID", p_nGroupId);
+            spInsertStoredProcedure.AddParameter("OfflineCustomData", p_sOfflineCustomData);
+            spInsertStoredProcedure.AddParameter("UpdaterID", oUpdaterId);
+
+            lTransactionId = spInsertStoredProcedure.ExecuteReturnValue<long>();
+
+            return (lTransactionId);
+        }
         
     }
 }
