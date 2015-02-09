@@ -10048,7 +10048,7 @@ namespace ConditionalAccess
                                     // Enqueue notification for PS so they know a collection was charged
                                     var dicData = new Dictionary<string, object>()
                                             {
-                                                {"SubscriptionCode", sBundleCode},
+                                                {"SubscriptionCode", sSubscriptionCode},
                                                 {"BillingTransactionID", lBillingTransactionID},
                                                 {"SiteGUID", sSiteGUID},
                                                 {"PurchaseID", lPurchaseID},
