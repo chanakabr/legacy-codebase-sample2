@@ -2605,6 +2605,10 @@ namespace ConditionalAccess
                             {"BillingTransactionID", oBillingResponse.m_sRecieptCode},
                             {"SiteGUID", sSiteGUID},
                             {"PaymentNumber", nPaymentNumber},
+                            {"TotalPaymentsNumber", nTotalPaymentsNumber},
+                            {"CustomData", sCustomData},
+                            {"Price", dPrice},
+                            {"PurchaseID", nPurchaseID},
                             {"SubscriptionCode", sSubscriptionCode}
                         };
 
@@ -5515,20 +5519,22 @@ namespace ConditionalAccess
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
 
+                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
+                                                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
+                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+
                                             // Enqueue notification for PS so they know a media file was charged
                                             var dicData = new Dictionary<string, object>()
                                             {
                                                 {"MediaFileID", nMediaFileID},
                                                 {"BillingTransactionID", lBillingTransactionID},
+                                                {"PPVModuleCode", sPPVModuleCode},
                                                 {"SiteGUID", sSiteGUID},
+                                                {"CouponCode", sCouponCode},
                                                 {"CustomData", sCustomData}
                                             };
 
                                             this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
-
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
-                                                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
-                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
                                         }
                                         else
                                         {
@@ -6778,6 +6784,19 @@ namespace ConditionalAccess
                 HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
                     bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+
+                // Enqueue notification for PS so they know a collection was charged
+                var dicData = new Dictionary<string, object>()
+                    {
+                        {"SubscriptionCode", sBundleCode},
+                        {"BillingTransactionID", lBillingTransactionID},
+                        {"SiteGUID", sSiteGUID},
+                        {"PurchaseID", lPurchaseID},
+                        {"CouponCode", sCouponCode},
+                        {"CustomData", sCustomData}
+                    };
+
+                this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
             }
             else
             {
@@ -6820,8 +6839,23 @@ namespace ConditionalAccess
             {
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
+
                 HandleChargeUserForCollectionBillingSuccess(sSiteGUID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
                     sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
+
+                // Enqueue notification for PS so they know a collection was charged
+                var dicData = new Dictionary<string, object>()
+                                            {
+                                                {"CollectionCode", sBundleCode},
+                                                {"BillingTransactionID", lBillingTransactionID},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"CouponCode", sCouponCode},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"CustomData", sCustomData}
+                                            };
+
+                this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData);
+
             }
             else
             {
@@ -9776,6 +9810,19 @@ namespace ConditionalAccess
                                             HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
                                                                                        thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+
+                                            // Enqueue notification for PS so they know a collection was charged
+                                            var dicData = new Dictionary<string, object>()
+                                            {
+                                                {"MediaFileID", nMediaFileID},
+                                                {"BillingTransactionID", lBillingTransactionID},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"PurchaseID", lPurchaseID},
+                                                {"CouponCode", sCouponCode},
+                                                {"CustomData", sCustomData}
+                                            };
+
+                                            this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
                                         }
                                         else
                                         {
@@ -9997,6 +10044,19 @@ namespace ConditionalAccess
                                     HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
                                                                                   sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
                                                                                   bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+
+                                    // Enqueue notification for PS so they know a collection was charged
+                                    var dicData = new Dictionary<string, object>()
+                                            {
+                                                {"SubscriptionCode", sBundleCode},
+                                                {"BillingTransactionID", lBillingTransactionID},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"PurchaseID", lPurchaseID},
+                                                {"CouponCode", sCouponCode},
+                                                {"CustomData", sCustomData}
+                                            };
+
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
 
                                 }
                                 else
@@ -10570,7 +10630,7 @@ namespace ConditionalAccess
         /// Fire event to the queue
         /// </summary>
         /// <param name="p_dicData"></param>
-        private bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
+        protected bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
         {
             PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
 
