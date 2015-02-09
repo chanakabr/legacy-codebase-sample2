@@ -20,7 +20,7 @@ namespace ElasticSearch.Searcher
 
         public FilteredQuery(bool bIsRoot = true)
         {
-            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"epg_id\"", "\"name\", \"cache_date\"" };
+            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"epg_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
             ESSort = new List<ESOrderObj>();
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
             m_bIsRoot = bIsRoot;
