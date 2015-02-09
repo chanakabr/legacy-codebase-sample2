@@ -20,5 +20,7 @@ namespace TVPApiServices
         DummyChargeUserForMediaFileResponse DummyChargeUserForMediaFile(DummyChargeUserForMediaFileRequest request);
         
         GetUserByUsernameResponse GetUserByUsername(GetUserByUsernameRequest request);
+
+        SearchUsersResponse SearchUsers(SearchUsersRequest request);
     }
 }

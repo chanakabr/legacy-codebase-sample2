@@ -20,5 +20,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetClientMerchantSig(InitializationObject initObj, string sParamaters);
+
+        [OperationContract]
+        AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid);
     }
 }
