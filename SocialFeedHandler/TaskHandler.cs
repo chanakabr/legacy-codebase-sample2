@@ -19,14 +19,11 @@ namespace SocialFeedHandler
 
                 SocialFeedRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialFeedRequest>(data);
 
-                SocialFeeder feeder = new SocialFeeder(request.GroupId, request.ActorSiteGuid);
+                SocialFeeder feeder = new SocialFeeder(request.GroupId, Convert.ToInt32(request.ActorSiteGuid));
                 bool bResult = feeder.UpdateFriendsFeed(request.DbActionId);
 
                 if (bResult)
-                {
                     res = "success";
-                }
-
             }
             catch (Exception ex)
             {
