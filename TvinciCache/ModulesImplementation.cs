@@ -14,10 +14,9 @@ namespace TvinciCache
         public static int GetModuleID(eWSModules eMainWSModule, int nGroupID, int nModuleID)
         {
             int nImplID = 0;
-
             string key = string.Format("{0}_GetModuleID_{1}_{2}", eMainWSModule, nGroupID, nModuleID);            
-
-            if ((nImplID = WSCache.Instance.Get<int>(key)) == 0)
+             
+            if (!WSCache.Instance.TryGet<int>(key, out nImplID))
             {
                 lock (lck)
                 {
