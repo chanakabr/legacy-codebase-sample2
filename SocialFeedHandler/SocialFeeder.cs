@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Social;
-using SocialBL;
 
 namespace SocialFeedHandler
 {
     public class SocialFeeder
     {
         public int m_nGroupID { get; set; }
-        public string m_sSiteGuid { get; set; }
+        public int m_sSiteGuid { get; set; }
 
-        public SocialFeeder(int nGroupId, string sSiteGuid)
+        public SocialFeeder(int nGroupId, int sSiteGuid)
         {
             m_nGroupID = nGroupId;
             m_sSiteGuid = sSiteGuid;
@@ -22,63 +20,59 @@ namespace SocialFeedHandler
         {
             bool bResult = false;
 
-            if (m_nGroupID == 0 || string.IsNullOrEmpty(m_sSiteGuid) || string.IsNullOrEmpty(sDbActionID))
+            if (m_nGroupID == 0 || m_sSiteGuid == 0 || string.IsNullOrEmpty(sDbActionID))
             {
-                throw new ArgumentNullException("UpdateFriendsFeed - Must provide a valud for group ID, site guid, and db action id");
+                throw new ArgumentNullException("UpdateFriendsFeed - Must provide a value for group ID, site guid, and db action id");
             }
 
-            FacebookWrapper oFBWrapper = new FacebookWrapper(m_nGroupID);
-            BaseSocialBL oSocialBL = BaseSocialBL.GetBaseSocialImpl(m_nGroupID) as BaseSocialBL;
-            
-
-            List<string> lFriendsGuid = null;
-
-            int nSiteGuid;
-            if (int.TryParse(m_sSiteGuid, out nSiteGuid))
+            using (SocialReference.module socialRef = new SocialReference.module())
             {
-                if (oFBWrapper.GetUserFriendsGuid(nSiteGuid, out lFriendsGuid))
+                try
                 {
-                    if(lFriendsGuid != null && lFriendsGuid.Count > 0)
-                        bResult = oSocialBL.UpdateUserActivityFeed(lFriendsGuid, sDbActionID);
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "UpdateFriendsFeed", "social", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("users_ws");
+                    if (sWSURL.Length > 0)
+                        socialRef.Url = sWSURL;
+
+                    bResult = socialRef.UpdateFriendsActivityFeed(sWSUserName, sWSPass, m_sSiteGuid, sDbActionID);
                 }
-                else
+                catch (Exception ex)
                 {
-                    Logger.Logger.Log("Info", "caught error when getting user friends guid. site guid={0}", "SocialFeedHandler");
+                    Logger.Logger.Log("Info", string.Format("Error occurred while updating friends feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), "UpdateFriendsFeed");
                 }
             }
+
             return bResult;
         }
 
         public void DeleteUserFeed()
         {
-            if (m_nGroupID == 0 || string.IsNullOrEmpty(m_sSiteGuid))
+            if (m_nGroupID == 0 || m_sSiteGuid == 0)
             {
-                throw new ArgumentNullException("DeleteUserFeed - Must provide a valud for group ID and site guid");
+                throw new ArgumentNullException("DeleteUserFeed - Must provide a value for group ID and site guid");
             }
 
-            BaseSocialBL oSocialBL = BaseSocialBL.GetBaseSocialImpl(m_nGroupID);
-
-            List<string> lDocIDs;
-            bool bHasNoErrors = true;
-
-            int nNumOfDocs = 50;
-
-            do
+            using (SocialReference.module socialRef = new SocialReference.module())
             {
-                bHasNoErrors = oSocialBL.GetFeedIDsByActorID(m_sSiteGuid, nNumOfDocs, out lDocIDs);
-                if (bHasNoErrors && lDocIDs != null && lDocIDs.Count > 0)
+                try
                 {
-                    foreach (string docID in lDocIDs)
-                    {
-                        bHasNoErrors &= oSocialBL.DeleteActivityFromUserFeed(docID);
-                    }
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "DeleteUserFeed", "social", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("users_ws");
+                    if (sWSURL.Length > 0)
+                        socialRef.Url = sWSURL;
+
+                    socialRef.DeleteFriendsFeed(sWSUserName, sWSPass, m_sSiteGuid);
                 }
-
-            } while (bHasNoErrors == true && lDocIDs != null && lDocIDs.Count > 0);
-
-            if (!bHasNoErrors)
-            {
-                throw new Exception("Error occured during deletion of feed");
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Info", string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), "DeleteUserFeed");
+                }
             }
         }
     }
