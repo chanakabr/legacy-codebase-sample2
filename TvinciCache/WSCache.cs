@@ -89,6 +89,31 @@ namespace TvinciCache
             }
         }
 
+        /// <summary>
+        /// Tried to get a value from the cache, and tells wether succeeded or failed
+        /// </summary>
+        /// <typeparam name="T">The type of the value that we get</typeparam>
+        /// <param name="p_sKey"></param>
+        /// <param name="p_tValue"></param>
+        /// <returns>Wether the key exists in the cache or not</returns>
+        public bool TryGet<T>(string p_sKey, out T p_tValue)
+        {
+            BaseModuleCache oInnerResult = cache.Get(p_sKey);
+            p_tValue = default(T);
+
+            if (oInnerResult != null && oInnerResult.result != null)
+            {
+                // cast the result from the inner cache
+                p_tValue = (T)oInnerResult.result;
+
+                return (true);
+            }
+            else
+            {
+                return (false);    
+            }
+        }
+
         public bool Add(string key, object obj)
         {
             BaseModuleCache bModule = new BaseModuleCache(obj);
