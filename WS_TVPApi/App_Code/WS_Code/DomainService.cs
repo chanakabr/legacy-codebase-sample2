@@ -15,6 +15,7 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using System.Web;
 using TVPApiModule.Interfaces;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -771,6 +772,37 @@ namespace TVPApiServices
                 }
             }
             return statusResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets the domain limitation module by ID")]
+        public DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int dlmID)
+        {
+            DomainLimitationModuleResponse response = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainLimitationModule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainLimitationModule(dlmID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new DomainLimitationModuleResponse();
+                    response.Status.Code = 1;
+                    response.Status.Message = "Error";
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new DomainLimitationModuleResponse();
+                response.Status.Code = 1;
+                response.Status.Message = "Unknown Group";
+            }
+            return response;
         }
     }
 }

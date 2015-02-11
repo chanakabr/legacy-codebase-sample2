@@ -13,6 +13,7 @@ using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using System.Web;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -321,7 +322,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                    TVPApiModule.Objects.Responses.LicensedLinkResponse response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                    if (response != null)
+                        res = response.Url;
                 }
                 catch (Exception ex)
                 {
@@ -862,9 +865,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get User Expired Collection")]
-        public LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
         {
-            LicensedLinkResponse links = null;
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse links = null;
 
             string clientIp = SiteHelper.GetClientIP();
 
@@ -1263,6 +1266,69 @@ namespace TVPApiServices
             }
 
             return (oResult);
+        }
+
+        [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
+        public ServicesResponse GetDomainServices(InitializationObject initObj, int domainID)
+        {
+            ServicesResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainServices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainServices(domainID);
+                    response.Status.Code = 0;
+                    response.Status.Message = "OK";
+                }
+                catch (Exception ex)
+                {
+                    new ServicesResponse();
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response.Status.Code = 1;
+                    response.Status.Message = "Error";
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                new ServicesResponse();
+                response.Status.Code = 1;
+                response.Status.Message = "Unknown Group";
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets link for EPG")]
+        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        {
+            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGLicensedResponse", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.LicensedLinkResponse();
+                    response.Status.Code = 1;
+                    response.Status.Message = "Error";
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.LicensedLinkResponse();
+                response.Status.Code = 1;
+                response.Status.Message = "Unknown Group";
+            }
+            return response;
         }
     }
 }

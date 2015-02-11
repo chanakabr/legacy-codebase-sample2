@@ -7,6 +7,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.Configuration.Site;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -783,23 +784,6 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public string GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
-        {
-            string res = string.Empty;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-
-            try
-            {
-                return m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
-            }
-            return res;
-        }
-
         public UserBillingTransactionsResponse[] GetUsersBillingHistory(string[] siteGuids, DateTime startDate, DateTime endDate)
         {
             UserBillingTransactionsResponse[] retVal = null;
@@ -1048,9 +1032,9 @@ namespace TVPApiModule.Services
             return collections;
         }
 
-        public LicensedLinkResponse GetLicensedLinks(string siteGuid, int mediaFileID, string baseLink, string udid)
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(string siteGuid, int mediaFileID, string baseLink, string udid)
         {
-            LicensedLinkResponse res = null;
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse res = null;
 
             try
             {
@@ -1379,7 +1363,49 @@ namespace TVPApiModule.Services
             return (oResult);
         }
 
+        public ServicesResponse GetDomainServices(int domainId)
+        {
+            ServicesResponse servicesRes = new ServicesResponse();
+            try
+            {
+                servicesRes.Services = m_Module.GetDomainServices(m_wsUserName, m_wsPassword, domainId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat(
+                    "Error calling webservice protocol : GetDomainServices, Error Message: {0}, Parameters :  DomainID: {1}",
+                    ex.Message, domainId);
+
+                servicesRes.Status.Code = 1;
+                servicesRes.Status.Message = "Failed to call webservice";
+
+
+            }
+
+            return servicesRes;
+        }
+
         #endregion
 
+        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        {
+            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+
+            try
+            {
+                var res = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                response = new Objects.Responses.LicensedLinkResponse(res);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
+                response = new Objects.Responses.LicensedLinkResponse();
+                response.Status.Code = 1;
+                response.Status.Message = "Failed to call webservice";
+            }
+            return response;
+        }
     }
 }

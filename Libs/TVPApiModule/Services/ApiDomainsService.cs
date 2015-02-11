@@ -554,5 +554,26 @@ namespace TVPApiModule.Services
 
             return statusResponse;
         }
+
+        public TVPApiModule.Objects.Responses.DomainLimitationModuleResponse GetDomainLimitationModule(int dlmID)
+        {
+            TVPApiModule.Objects.Responses.DomainLimitationModuleResponse dlm = null;
+
+            try
+            {
+                var res = m_Module.GetDLM(m_wsUserName, m_wsPassword, dlmID);
+                dlm = new Objects.Responses.DomainLimitationModuleResponse(res);
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get domain limitation module. DLM ID: {0}", dlmID), ex);
+                dlm = new Objects.Responses.DomainLimitationModuleResponse();
+                dlm.Status.Code = 1;
+                dlm.Status.Message = "Failed to call webservice";
+            }
+
+            return dlm;
+        }
     }
 }

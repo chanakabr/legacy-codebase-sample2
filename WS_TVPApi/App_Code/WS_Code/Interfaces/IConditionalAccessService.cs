@@ -142,5 +142,8 @@ namespace TVPApiServices
 
         [OperationContract]
         StatusObject CancelSubscriptionRenewal(InitializationObject initObj, int domainId, string sSubscriptionID);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
     }
 }
