@@ -7106,6 +7106,7 @@ namespace ConditionalAccess
                             List<int> lowestRelatedMediaFileIDs = new List<int>();
                             DateTime? dtLowestStartDate = null;
                             DateTime? dtLowestEndDate = null;
+                            bool isUserSuspended = false;
 
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
@@ -7119,51 +7120,74 @@ namespace ConditionalAccess
                                 int purchasedAsMediaFileID = 0;
                                 List<int> relatedMediaFileIDs = new List<int>();
                                 DateTime? dtEntitlementStartDate = null;
-                                DateTime? dtEntitlementEndDate = null;
+                                DateTime? dtEntitlementEndDate = null;                                
 
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
                                     ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
+                                
                                 sProductCode = oModules[i].m_sProductCode;
+                                                               
+                                var tempItemPriceContainer = new ItemPriceContainer();
+                                tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
+                                    theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
+                                    sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtEntitlementStartDate,
+                                    dtEntitlementEndDate);
 
-                                //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however 
-                                // has been purchased and is is still valid for watching
-                                if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
+                                if (theReason == PriceReason.UserSuspended)
                                 {
+                                    isUserSuspended = true;
+                                   
                                     if (!bOnlyLowest)
                                     {
-                                        var tempItemPriceContainer = new ItemPriceContainer();
-                                        tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
-                                            theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-                                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtEntitlementStartDate,
-                                            dtEntitlementEndDate);
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
                                     else
                                     {
-                                        if (p != null && p.m_dPrice < dLowest || j == 0)
+                                        if (j == 0)//insert only the first ppvModule (when the user is suspended we cannot compare prices)
                                         {
-                                            nLowestIndex = j;
-                                            dLowest = p.m_dPrice;
-                                            pLowest = p;
-                                            theLowestReason = theReason;
-                                            relevantLowestSub = relevantSub;
-                                            relevantLowestCol = relevantCol;
-                                            relevantLowestPrePaid = relevantPrePaid;
-                                            tempCancellationWindow = bCancellationWindow;
-                                            lowestPurchasedBySiteGuid = purchasedBySiteGuid;
-                                            lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
-                                            lowestRelatedMediaFileIDs = relatedMediaFileIDs;
-                                            dtLowestStartDate = dtEntitlementStartDate;
-                                            dtLowestEndDate = dtEntitlementEndDate;
+                                            itemPriceCont.Insert(0, tempItemPriceContainer);
+                                        }
+                                    }
+                                }
+                                else //user is not suspended
+                                {
+                                    //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however 
+                                    // has been purchased and is is still valid for watching
+                                    if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
+                                    {
+                                        if (!bOnlyLowest)
+                                        {                                           
+                                            itemPriceCont.Add(tempItemPriceContainer);
+                                        }
+                                        else
+                                        {
+                                            if (p != null && (p.m_dPrice < dLowest || j == 0))
+                                            {
+                                                #region insert lowest price parameters
+                                                nLowestIndex = j;
+                                                dLowest = p.m_dPrice;
+                                                pLowest = p;
+                                                theLowestReason = theReason;
+                                                relevantLowestSub = relevantSub;
+                                                relevantLowestCol = relevantCol;
+                                                relevantLowestPrePaid = relevantPrePaid;
+                                                tempCancellationWindow = bCancellationWindow;
+                                                lowestPurchasedBySiteGuid = purchasedBySiteGuid;
+                                                lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
+                                                lowestRelatedMediaFileIDs = relatedMediaFileIDs;
+                                                dtLowestStartDate = dtEntitlementStartDate;
+                                                dtLowestEndDate = dtEntitlementEndDate; 
+                                                #endregion
+                                            }
                                         }
                                     }
                                 }
                             } // end for
 
-                            if (bOnlyLowest)
+                            if (bOnlyLowest && !isUserSuspended)
                             {
                                 var tempItemPriceContainer = new ItemPriceContainer();
                                 tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
@@ -7173,8 +7197,8 @@ namespace ConditionalAccess
                                     lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
 
                                 itemPriceCont.Insert(0, tempItemPriceContainer);
-
                             }
+
                             mf.Initialize(nMediaFileID, itemPriceCont.ToArray(), sProductCode);
                         }
                         else
@@ -7186,10 +7210,10 @@ namespace ConditionalAccess
                                 ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
                                 priceContainer[0] = GetFreeItemPriceContainer();
 
-                                mf.Initialize(mediaFileID, priceContainer);
+                                mf.Initialize(mediaFileID, priceContainer);                              
                             } // end foreach
 
-                            ret[0] = mc;
+                            ret[0] = mc;                           
                         }
 
                         ret[i] = mf;
@@ -7197,7 +7221,6 @@ namespace ConditionalAccess
                 }
                 else
                 {
-
                     ret = new MediaFileItemPricesContainer[1];
                     MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
                     foreach (int mediaFileID in nMediaFiles)
