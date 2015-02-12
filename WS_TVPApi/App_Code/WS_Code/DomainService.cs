@@ -266,7 +266,8 @@ namespace TVPApiServices
                             DomainID = domains[i].m_nDomainID,
                             DomainName = domains[i].m_sName,
                             SiteGuid = domains[i].m_masterGUIDs[0].ToString(),
-                            DefaultUser = domains[i].m_DefaultUsersIDs[0].ToString()
+                            DefaultUser = domains[i].m_DefaultUsersIDs[0].ToString(),
+                            DomainStatus = domains[i].m_DomainStatus
                         };
                 }
                 catch (Exception ex)

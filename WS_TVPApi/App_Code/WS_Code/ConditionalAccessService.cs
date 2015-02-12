@@ -609,7 +609,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
-            return response;                       
+            return response;
         }
 
         [WebMethod(EnableSession = true, Description = "Get collections prices")]
@@ -864,7 +864,7 @@ namespace TVPApiServices
             return collections;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get User Expired Collection")]
+        [WebMethod(EnableSession = true, Description = "Returns the CDN URLs to use in case one fails")]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse links = null;
@@ -877,7 +877,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    links = new ApiConditionalAccessService(groupId, initObj.Platform).GetLicensedLinks(initObj.SiteGuid, mediaFileID,baseLink,initObj.UDID);
+                    links = new ApiConditionalAccessService(groupId, initObj.Platform).GetLicensedLinks(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -892,8 +892,7 @@ namespace TVPApiServices
             return links;
         }
 
-
-
+        [WebMethod(EnableSession = true, Description = "Issues a record asset request")]
         public RecordResponse RecordAsset(InitializationObject initObj, string epgId)
         {
             RecordResponse res = null;
@@ -921,6 +920,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a cancel asset request")]
         public NPVRResponse CancelAssetRecording(InitializationObject initObj, string recordingId)
         {
             NPVRResponse res = null;
@@ -948,6 +948,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a delete asset request")]
         public NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId)
         {
             NPVRResponse res = null;
@@ -975,6 +976,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a get NPVR quota request")]
         public QuotaResponse GetNPVRQuota(InitializationObject initObj)
         {
             QuotaResponse res = null;
@@ -1002,6 +1004,7 @@ namespace TVPApiServices
             return res;
         }
 
+        //[WebMethod(EnableSession = true, Description = "")]
         //public NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId)
         //{
         //    NPVRResponse res = null;
@@ -1029,6 +1032,7 @@ namespace TVPApiServices
         //    return res;
         //}
 
+        [WebMethod(EnableSession = true, Description = "Issues a record series request")]
         public NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId)
         {
             NPVRResponse res = null;
@@ -1056,6 +1060,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a delete series request")]
         public NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId)
         {
             NPVRResponse res = null;
@@ -1083,6 +1088,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a cancel series request")]
         public NPVRResponse CancelSeriesRecording(InitializationObject initObj, string seriesRecordingId)
         {
             NPVRResponse res = null;
@@ -1110,6 +1116,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Issues a cancel series request")]
         public NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect)
         {
             NPVRResponse res = null;
@@ -1137,6 +1144,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;

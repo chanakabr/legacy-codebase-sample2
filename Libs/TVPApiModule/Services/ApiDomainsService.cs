@@ -28,6 +28,7 @@ namespace TVPApiModule.Services
             public int DomainID;
             public string DomainName;
             public string DefaultUser;
+            public DomainStatus DomainStatus;
         }
 
         [Serializable]
@@ -529,6 +530,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
                 statusResponse.Status.Code = (int)response.Status;
+                statusResponse.Status.Message = response.Message;
             }
             catch (Exception ex)
             {
@@ -546,6 +548,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
                 statusResponse.Status.Code = (int)response.Status;
+                statusResponse.Status.Message = response.Message;
             }
             catch (Exception ex)
             {
