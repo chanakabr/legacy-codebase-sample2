@@ -282,7 +282,7 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingProperty() { name = "is_active", analyzed = false, type = eESFieldType.INTEGER });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "start_date", analyzed = false, type = eESFieldType.DATE });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "end_date", analyzed = false, type = eESFieldType.DATE });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "date_routing", analyzed = false, type = eESFieldType.DATE });
+            mappingObj.AddProperty(new BasicMappingProperty() { name = "date_routing", analyzed = false, type = eESFieldType.STRING });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name.analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = "whitespace", index_analyzer = "whitespace" });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
@@ -331,9 +331,11 @@ namespace ElasticSearch.Common
             string name = oEpg.Name;
             string description = oEpg.Description;
 
-            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": \"{6}\", \"name.analyzed\": \"{6}\", \"description\": \"{7}\", \"description.analyzed\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\",",
+            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": " +
+                "\"{6}\", \"name.analyzed\": \"{6}\", \"description\": \"{7}\", \"description.analyzed\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), oEpg.StartDate.ToString("yyyyMMdd000000"));
+                Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description), 
+                /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"));
 
             #region add metas
             sRecord.Append(" \"metas\": {");
