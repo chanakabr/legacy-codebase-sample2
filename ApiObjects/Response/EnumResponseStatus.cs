@@ -27,6 +27,13 @@ namespace ApiObjects.Response
         NoDlmId = 1012,
 
         // User Section 2000 - 2999
+        UserNotExists = 2000,
+
+        // CAS Section 3000 - 3999
+
+        InvalidPurchase = 3000,
+        CancelationWindowPeriodExpired = 3001,
+        SubscriptionNotRenewable = 3002,
 
     }
 }

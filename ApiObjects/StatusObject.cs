@@ -8,16 +8,12 @@ namespace ApiObjects
     [Serializable]
     public class StatusObject
     {
-        /// <summary>
-        /// General status 
-        /// </summary>
-        public StatusObjectCode Status;
 
         /// <summary>
         /// Full status code
         /// </summary>
         public int Code;
-        
+
         /// <summary>
         /// Full status message
         /// </summary>
@@ -27,9 +23,9 @@ namespace ApiObjects
         /// Default constructor
         /// </summary>
         public StatusObject()
-            : this(StatusObjectCode.Unkown)
+            : this(0, "")
         {
-            
+
         }
 
         /// <summary>
@@ -38,9 +34,8 @@ namespace ApiObjects
         /// <param name="p_eStatusObjectCode"></param>
         /// <param name="p_sMessage"></param>
         /// <param name="p_oBody"></param>
-        public StatusObject(StatusObjectCode p_eStatusObjectCode = StatusObjectCode.Unkown, int p_nCode = 0, string p_sMessage = "")
+        public StatusObject(int p_nCode = 0, string p_sMessage = "")
         {
-            this.Status = p_eStatusObjectCode;
             this.Code = p_nCode;
             this.Message = p_sMessage;
         }

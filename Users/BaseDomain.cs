@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Users.Cache;
 using ApiObjects;
+using ApiObjects.Response;
 
 namespace Users
 {
@@ -703,8 +704,7 @@ namespace Users
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
-                result.Status = StatusObjectCode.Fail;
-                result.Code = (int)StatusObjectCode.Fail;
+                result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
             }
             else
@@ -719,13 +719,11 @@ namespace Users
                 // update result
                 if (SuspendSucceed)
                 {
-                    result.Status = StatusObjectCode.OK;
-                    result.Code = (int)StatusObjectCode.OK;
+                    result.Code = (int)eResponseStatus.OK;
                 }
                 else
                 {
-                    result.Status = StatusObjectCode.Fail;
-                    result.Code = (int)StatusObjectCode.Fail;
+                    result.Code = (int)eResponseStatus.Error;
                     result.Message = "Failed to suspend domain";
                 }
             }
@@ -742,8 +740,7 @@ namespace Users
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
-                result.Status = StatusObjectCode.Fail;
-                result.Code = (int)StatusObjectCode.Fail;
+                result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
             }
             else
@@ -757,14 +754,10 @@ namespace Users
 
                 // update result
                 if (ResumeSucceed)
-                {
-                    result.Status = StatusObjectCode.OK;
-                    result.Code = (int)StatusObjectCode.OK;
-                }
+                    result.Code = (int)eResponseStatus.OK;
                 else
                 {
-                    result.Status = StatusObjectCode.Fail;
-                    result.Code = (int)StatusObjectCode.Fail;
+                    result.Code = (int)eResponseStatus.Error;
                     result.Message = "Failed to suspend domain";
                 }
             }

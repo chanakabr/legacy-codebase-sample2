@@ -18,6 +18,7 @@ using ApiObjects;
 using QueueWrapper;
 using Newtonsoft.Json;
 using ApiObjects.MediaIndexingObjects;
+using ApiObjects.Response;
 
 
 namespace ConditionalAccess
@@ -198,7 +199,7 @@ namespace ConditionalAccess
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                
+
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
                 if (!string.IsNullOrEmpty(sWSURL))
@@ -829,12 +830,12 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
-                    {                        
+                    {
                         InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                    } 
+                    }
                     else
                     {
                         sWSUserName = string.Empty;
@@ -1196,7 +1197,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -1218,7 +1219,7 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase subscription(InApp): error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                    } 
+                    }
                     else
                     {
                         PriceReason theReason = PriceReason.UnKnown;
@@ -1602,7 +1603,7 @@ namespace ConditionalAccess
             }
             return bRet;
         }
-        
+
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
@@ -1629,7 +1630,7 @@ namespace ConditionalAccess
                         bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) > 0;
                         if (bRet)
                         {
-                            WriteToUserLog(sSiteGUID, 
+                            WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
                         }
                         else
@@ -1681,9 +1682,8 @@ namespace ConditionalAccess
 
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
-                    oResult.Status = StatusObjectCode.Fail;
-                    oResult.Code = 11;
-                    oResult.Message = "Invalid domain";
+                    oResult.Code = (int)eResponseStatus.DomainNotExists;
+                    oResult.Message = "Domain doesn't exist";
                 }
                 else
                 {
@@ -1694,8 +1694,7 @@ namespace ConditionalAccess
                     // If all of the users didn't purchase this subscription
                     if (drUserPurchase == null)
                     {
-                        oResult.Status = StatusObjectCode.Fail;
-                        oResult.Code = 12;
+                        oResult.Code = (int)eResponseStatus.InvalidPurchase;
                         oResult.Message = "Subscription is not permitted for this domain";
                     }
                     else
@@ -1707,8 +1706,7 @@ namespace ConditionalAccess
                         // If the subscription is not recurring already
                         if (nIsRecurringStatus != 1)
                         {
-                            oResult.Status = StatusObjectCode.Fail;
-                            oResult.Code = 13;
+                            oResult.Code = (int)eResponseStatus.SubscriptionNotRenewable;
                             oResult.Message = "Subscription already does not renew";
                         }
                         else
@@ -1723,8 +1721,7 @@ namespace ConditionalAccess
                                     String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ",
                                     ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
 
-                                oResult.Status = StatusObjectCode.OK;
-                                oResult.Code = 0;
+                                oResult.Code = (int)eResponseStatus.SubscriptionNotRenewable;
                                 oResult.Message = "Subscription renewal cancelled";
 
                                 DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
@@ -1749,8 +1746,7 @@ namespace ConditionalAccess
                                 Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
                                 #endregion
 
-                                oResult.Status = StatusObjectCode.Error;
-                                oResult.Code = 1;
+                                oResult.Code = (int)eResponseStatus.Error;
                                 oResult.Message = "Error while cancelling";
                             }
                         }
@@ -1771,9 +1767,8 @@ namespace ConditionalAccess
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 #endregion
 
-                oResult.Status = StatusObjectCode.Error;
-                oResult.Code = 1;
-                oResult.Message = "Unexpected error occured";
+                oResult.Code = (int)eResponseStatus.Error;
+                oResult.Message = "Unexpected error occurred";
             }
 
             return oResult;
@@ -1809,7 +1804,7 @@ namespace ConditionalAccess
                             bResult = true;
                             break;
                         }
-                    }  
+                    }
                 }
             }
 
@@ -1936,7 +1931,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -2187,7 +2182,7 @@ namespace ConditionalAccess
                 {
                     #region Init useres web service
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -2469,7 +2464,7 @@ namespace ConditionalAccess
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    
+
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     m = new TvinciPricing.mdoule();
                     string sWSURL = Utils.GetWSURL("cloud_pricing_ws");
@@ -2574,7 +2569,6 @@ namespace ConditionalAccess
         public virtual TvinciBilling.BillingResponse DD_BaseRenewMultiUsageSubscription(string sSiteGUID, string sSubscriptionCode, string sUserIP, string sExtraParams,
             Int32 nPurchaseID, int nBillingMethod, Int32 nPaymentNumber, int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
             int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, ConditionalAccess.eBillingProvider eBillingProvider)
-
         {
             TvinciBilling.BillingResponse oBillingResponse = new ConditionalAccess.TvinciBilling.BillingResponse();
             oBillingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown;
@@ -2613,7 +2607,7 @@ namespace ConditionalAccess
                         };
 
                         this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
- 
+
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
                            bIsMPPRecurringInfinitely, nRecPeriods);
@@ -2736,7 +2730,7 @@ namespace ConditionalAccess
                 {
                     #region Init useres web service
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -3106,7 +3100,7 @@ namespace ConditionalAccess
             {
                 #region Init useres web service
                 u = new ConditionalAccess.TvinciUsers.UsersService();
-                
+
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -3371,7 +3365,7 @@ namespace ConditionalAccess
 
         public virtual string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
-          
+
             return string.Empty;
         }
 
@@ -3379,7 +3373,7 @@ namespace ConditionalAccess
         /// Get Licensed Link
         /// </summary>
         public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
-        {   
+        {
             LicensedLinkResponse llr = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
 
             return llr.mainUrl;
@@ -3393,7 +3387,7 @@ namespace ConditionalAccess
 
             int mediaFileID = 0;
             if (Int32.TryParse(sMediaFileCoGuid, out mediaFileID) && mediaFileID > 0)
-            {                
+            {
                 LicensedLinkResponse llr = GetLicensedLinks(sSiteGUID, mediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
                 return llr.mainUrl;
             }
@@ -3728,7 +3722,7 @@ namespace ConditionalAccess
         }
 
         protected TvinciPricing.PPVModule GetPPVModule(string sPPVModuleCode, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
-        {            
+        {
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
 
@@ -3989,7 +3983,7 @@ namespace ConditionalAccess
             try
             {
                 if (OfflineStatus == 1)
-                {   
+                {
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
 
@@ -4041,7 +4035,7 @@ namespace ConditionalAccess
                 if (m != null)
                 {
                     m.Dispose();
-                }              
+                }
             }
 
             return nIsCreditDownloaded;
@@ -4095,10 +4089,10 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS,ref sWSUserName, ref sWSPass);
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
                     string sWSURL = Utils.GetWSURL("users_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
                     {
@@ -4290,7 +4284,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -4533,7 +4527,7 @@ namespace ConditionalAccess
         /// Get Domains Users
         /// </summary>
         private List<int> GetDomainsUsers(int nDomainID)
-        {            
+        {
             using (TvinciDomains.module bm = new ConditionalAccess.TvinciDomains.module())
             {
                 string sWSUserName = string.Empty;
@@ -4837,7 +4831,7 @@ namespace ConditionalAccess
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                
+
                 string sWSURL = Utils.GetWSURL("pricing_ws");
                 if (!string.IsNullOrEmpty(sWSURL))
                 {
@@ -5002,7 +4996,7 @@ namespace ConditionalAccess
         public virtual TvinciBilling.BillingResponse SMS_CheckCodeForMediaFile(string sSiteGUID, string sCellPhone, string sSMSCode, Int32 nMediaFileID,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            
+
             TvinciBilling.BillingResponse ret = null;
             string sWSUserName = "";
             string sWSPass = "";
@@ -5189,7 +5183,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             TvinciBilling.BillingResponse ret = null;
-            
+
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             TvinciBilling.module bm = null;
@@ -5389,7 +5383,7 @@ namespace ConditionalAccess
                 else
                 {
                     wsUsersService = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -5411,7 +5405,7 @@ namespace ConditionalAccess
                         oResponse.m_sRecieptCode = string.Empty;
                         oResponse.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                    }    
+                    }
                     else
                     {
                         bool bIsCouponValid = false;
@@ -5428,7 +5422,7 @@ namespace ConditionalAccess
 
                         bIsCouponUsedAndValid = bIsCouponValid && !string.IsNullOrEmpty(sCouponCode);
 
-                        
+
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
@@ -5460,7 +5454,7 @@ namespace ConditionalAccess
                             oResponse.m_sStatusDescription = "This PPVModule does not belong to item";
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                         }
-                        
+
                         if (bDummy)
                         {
                             bOK = true;
@@ -5664,7 +5658,7 @@ namespace ConditionalAccess
             {
                 Logger.Logger.Log("GetPPVCustomDataID", GetGetCustomDataLogMsg("PPV", sSiteGUID, dPrice, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sPaymentMethod, sUserIP, string.Empty), GetLogFilename());
                 u = new ConditionalAccess.TvinciUsers.UsersService();
-                
+
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -5829,7 +5823,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -5951,7 +5945,7 @@ namespace ConditionalAccess
                 {
                     Logger.Logger.Log("GetBundleCustomDataID", GetGetCustomDataLogMsg("Bundle", sSiteGUID, dPrice, 0, 0, sBundleCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -5998,7 +5992,7 @@ namespace ConditionalAccess
                             {
                                 if (price.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
-                                    
+
                                     sWSUserName = string.Empty;
                                     sWSPass = string.Empty;
 
@@ -6124,7 +6118,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -6143,7 +6137,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        
+
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
@@ -6378,7 +6372,7 @@ namespace ConditionalAccess
             {
                 using (TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService())
                 {
-                    
+
                     string sWSUserName = "";
                     string sWSPass = "";
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -6567,10 +6561,10 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS,  ref sWSUserName, ref sWSPass);
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
 
                     string sWSURL = Utils.GetWSURL("users_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
@@ -6592,7 +6586,7 @@ namespace ConditionalAccess
                         WriteToUserLog(sSiteGUID, "while trying to purchase Bundle(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
                     }
                     else
-                    {                       
+                    {
                         dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
@@ -7120,16 +7114,16 @@ namespace ConditionalAccess
                                 int purchasedAsMediaFileID = 0;
                                 List<int> relatedMediaFileIDs = new List<int>();
                                 DateTime? dtEntitlementStartDate = null;
-                                DateTime? dtEntitlementEndDate = null;                                
+                                DateTime? dtEntitlementEndDate = null;
 
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
                                     ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
-                                
+
                                 sProductCode = oModules[i].m_sProductCode;
-                                                               
+
                                 var tempItemPriceContainer = new ItemPriceContainer();
                                 tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
                                     theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
@@ -7139,7 +7133,7 @@ namespace ConditionalAccess
                                 if (theReason == PriceReason.UserSuspended)
                                 {
                                     isUserSuspended = true;
-                                   
+
                                     if (!bOnlyLowest)
                                     {
                                         itemPriceCont.Add(tempItemPriceContainer);
@@ -7159,7 +7153,7 @@ namespace ConditionalAccess
                                     if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
                                     {
                                         if (!bOnlyLowest)
-                                        {                                           
+                                        {
                                             itemPriceCont.Add(tempItemPriceContainer);
                                         }
                                         else
@@ -7179,7 +7173,7 @@ namespace ConditionalAccess
                                                 lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
                                                 lowestRelatedMediaFileIDs = relatedMediaFileIDs;
                                                 dtLowestStartDate = dtEntitlementStartDate;
-                                                dtLowestEndDate = dtEntitlementEndDate; 
+                                                dtLowestEndDate = dtEntitlementEndDate;
                                                 #endregion
                                             }
                                         }
@@ -7210,10 +7204,10 @@ namespace ConditionalAccess
                                 ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
                                 priceContainer[0] = GetFreeItemPriceContainer();
 
-                                mf.Initialize(mediaFileID, priceContainer);                              
+                                mf.Initialize(mediaFileID, priceContainer);
                             } // end foreach
 
-                            ret[0] = mc;                           
+                            ret[0] = mc;
                         }
 
                         ret[i] = mf;
@@ -7573,9 +7567,9 @@ namespace ConditionalAccess
                 for (int i = nStartIndex; i < nTopNum; i++)
                 {
                     theResp.m_Transactions[i] = new BillingTransactionContainer();
-                    
+
                     string sCurrencyCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["CURRENCY_CODE"]);
-                    string sRemarks = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["REMARKS"]);  
+                    string sRemarks = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["REMARKS"]);
 
                     double dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dvBillHistory[i].Row["TOTAL_PRICE"]);
                     Int32 nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dvBillHistory[i].Row["PURCHASE_ID"]);
@@ -8247,7 +8241,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -8264,17 +8258,17 @@ namespace ConditionalAccess
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
-                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                       
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(PP): " + nMediaFileID + " error returned: " + ret.m_sStatusDescription);
-                    } 
+                    }
                     else
                     {
                         //Get User Valid PP
                         UserPrePaidContainer userPPs = new UserPrePaidContainer();
                         userPPs.Initialize(sSiteGUID, sCurrency);
 
-                        
+
                         sWSUserName = "";
                         sWSPass = "";
 
@@ -8474,7 +8468,7 @@ namespace ConditionalAccess
                                             string sAPIWSUserName = string.Empty;
                                             string sAPIWSPass = string.Empty;
                                             Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
-                                            
+
                                             string sAPIWSURL = Utils.GetWSURL("api_ws");
                                             if (!string.IsNullOrEmpty(sAPIWSURL))
                                             {
@@ -8520,7 +8514,7 @@ namespace ConditionalAccess
                                         ret.m_oStatus = PrePaidResponseStatus.Fail;
                                         ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }                                  
+                                    }
                                 }
                             }
                             else
@@ -8607,7 +8601,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -8624,10 +8618,10 @@ namespace ConditionalAccess
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
-                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;                     
+                        ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
-                    } 
+                    }
                     else
                     {
                         //Get User Valid PP
@@ -9252,7 +9246,7 @@ namespace ConditionalAccess
                         if (IsFreeItem(objPrice))
                         {
                             GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
-                        }                        
+                        }
                         else if (!IsUserSuspended(objPrice))
                         // Item is not free and also not user is not suspended
                         {
@@ -9421,7 +9415,7 @@ namespace ConditionalAccess
         /// <param name="p_sPricingUsername"></param>
         /// <param name="p_sPricingPassword"></param>
         /// <returns>If the get succeeded or not</returns>
-        private bool GetLifeCycleByPPVMCode(string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, ref bool p_bIsOfflinePlayback, 
+        private bool GetLifeCycleByPPVMCode(string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, ref bool p_bIsOfflinePlayback,
             string p_sPPVMCode, ref int p_nViewLifeCycle, ref int p_nFullLifeCycle, string p_sPricingUsername, string p_sPricingPassword)
         {
             bool bIsSuccess = true;
@@ -9431,75 +9425,75 @@ namespace ConditionalAccess
             switch (eBusinessModuleType)
             {
                 case eTransactionType.Subscription:
-                {
-                    // Get the code itself, without the prefix
-                    string sSubCode = p_sPPVMCode.Substring(3);
-
-                    // Get the subscription item of this code
-                    Subscription[] arrSubscriptions =
-                        Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
-
-                    // If there is a valid subscription with a valid usage module
-                    if (arrSubscriptions != null && arrSubscriptions.Length > 0 && arrSubscriptions[0] != null &&
-                        arrSubscriptions[0].m_oSubscriptionUsageModule != null)
                     {
-                        p_nViewLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
-                        p_nFullLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
+                        // Get the code itself, without the prefix
+                        string sSubCode = p_sPPVMCode.Substring(3);
+
+                        // Get the subscription item of this code
+                        Subscription[] arrSubscriptions =
+                            Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                        // If there is a valid subscription with a valid usage module
+                        if (arrSubscriptions != null && arrSubscriptions.Length > 0 && arrSubscriptions[0] != null &&
+                            arrSubscriptions[0].m_oSubscriptionUsageModule != null)
+                        {
+                            p_nViewLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsViewLifeCycle;
+                            p_nFullLifeCycle = arrSubscriptions[0].m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                            p_bIsOfflinePlayback = arrSubscriptions[0].m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
+                        }
+                        else
+                        {
+                            bIsSuccess = false;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        bIsSuccess = false;
-                    }
-                    break;
-                }
                 case eTransactionType.Collection:
-                {
-                    // Get the code itself, without the prefix
-                    string sCollCode = p_sPPVMCode.Substring(3);
-
-                    // Get the collection item of this code
-                    Collection[] arrCollections =
-                        Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
-
-                    // If there is a valid collection with a valid usage module
-                    if (arrCollections != null && arrCollections.Length > 0 && arrCollections[0] != null &&
-                        arrCollections[0].m_oCollectionUsageModule != null)
                     {
-                        p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
-                        p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
+                        // Get the code itself, without the prefix
+                        string sCollCode = p_sPPVMCode.Substring(3);
+
+                        // Get the collection item of this code
+                        Collection[] arrCollections =
+                            Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, p_sPricingUsername, p_sPricingPassword, m_nGroupID);
+
+                        // If there is a valid collection with a valid usage module
+                        if (arrCollections != null && arrCollections.Length > 0 && arrCollections[0] != null &&
+                            arrCollections[0].m_oCollectionUsageModule != null)
+                        {
+                            p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
+                            p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                            p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
+                        }
+                        else
+                        {
+                            bIsSuccess = false;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        bIsSuccess = false;
-                    }
-                    break;
-                }
                 case eTransactionType.PPV:
-                {
-                    PPVModule objPPV = Utils.GetPPVModuleDataWithCaching(p_sPPVMCode, p_sPricingUsername, p_sPricingPassword, m_nGroupID,
-                        p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
+                    {
+                        PPVModule objPPV = Utils.GetPPVModuleDataWithCaching(p_sPPVMCode, p_sPricingUsername, p_sPricingPassword, m_nGroupID,
+                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
 
-                    if (objPPV != null && objPPV.m_oUsageModule != null)
-                    {
-                        p_nViewLifeCycle = objPPV.m_oUsageModule.m_tsViewLifeCycle;
-                        p_nFullLifeCycle = objPPV.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
-                        p_bIsOfflinePlayback = objPPV.m_oUsageModule.m_bIsOfflinePlayBack;
+                        if (objPPV != null && objPPV.m_oUsageModule != null)
+                        {
+                            p_nViewLifeCycle = objPPV.m_oUsageModule.m_tsViewLifeCycle;
+                            p_nFullLifeCycle = objPPV.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                            p_bIsOfflinePlayback = objPPV.m_oUsageModule.m_bIsOfflinePlayBack;
+                        }
+                        else
+                        {
+                            bIsSuccess = false;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        bIsSuccess = false;
-                    }
-                    break;
-                }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
-            return (bIsSuccess);            
+            return (bIsSuccess);
         }
 
         /// <summary>
@@ -9708,7 +9702,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -9730,7 +9724,7 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                    } 
+                    }
                     else
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
@@ -9795,7 +9789,7 @@ namespace ConditionalAccess
                             TvinciPricing.Collection relevantCol = null;
                             TvinciPricing.PrePaidModule relevantPP = null;
 
-                            
+
                             TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (thePPVModule != null)
                             {
@@ -9981,7 +9975,7 @@ namespace ConditionalAccess
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-                    
+
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -10003,8 +9997,8 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
-                    } 
-                    else                 
+                    }
+                    else
                     {
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
@@ -10297,7 +10291,7 @@ namespace ConditionalAccess
                     }
                     string pricingUsername = string.Empty, pricingPassword = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
-                    
+
                     Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { nNewSub }, pricingUsername, pricingPassword, m_nGroupID);
                     if (subs != null && subs.Length > 0)
                     {
@@ -10500,7 +10494,7 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID, 
+        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID,
             eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
             StatusObject oResult = new StatusObject();
@@ -10515,9 +10509,8 @@ namespace ConditionalAccess
                 // Check if the domain is OK
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
-                    oResult.Status = StatusObjectCode.Fail;
-                    oResult.Code = 11;
-                    oResult.Message = "Invalid domain";
+                    oResult.Code = (int)eResponseStatus.DomainNotExists;
+                    oResult.Message = "Domain doesn't exist";
                 }
                 else
                 {
@@ -10533,8 +10526,7 @@ namespace ConditionalAccess
                     // Check if the user purchased the asset at all
                     if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
                     {
-                        oResult.Status = StatusObjectCode.Fail;
-                        oResult.Code = 12;
+                        oResult.Code = (int)eResponseStatus.InvalidPurchase;
                         oResult.Message = "There is not a valid purchase for this user and asset ID";
                     }
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -10548,43 +10540,41 @@ namespace ConditionalAccess
                         switch (p_enmTransactionType)
                         {
                             case eTransactionType.PPV:
-                            {
-                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                break;
-                            }
+                                {
+                                    bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                    break;
+                                }
                             case eTransactionType.Subscription:
-                            {
-                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                break;
-                            }
+                                {
+                                    bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                    break;
+                                }
                             case eTransactionType.Collection:
-                            {
-                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                break;
-                            }
+                                {
+                                    bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                    break;
+                                }
                             default:
-                            {
-                                break;
-                            }
+                                {
+                                    break;
+                                }
                         }
                     }
                     else
                     {
-                        oResult.Status = StatusObjectCode.Fail;
-                        oResult.Code = 13;
+                        oResult.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
                         oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
                     }
 
                     if (bResult)
                     {
                         // Report to user log
-                        WriteToUserLog(sPurchasingSiteGuid, 
-                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), 
+                        WriteToUserLog(sPurchasingSiteGuid,
+                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
                             p_nAssetID));
                         //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
-                        oResult.Status = StatusObjectCode.OK;
-                        oResult.Code = 0;
+                        oResult.Code = (int)eResponseStatus.OK;
                         oResult.Message = "Service successfully cancelled";
 
                         if (drUserPurchase != null)
@@ -10596,8 +10586,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        oResult.Status = StatusObjectCode.Error;
-                        oResult.Code = 1;
+                        oResult.Code = (int)eResponseStatus.Error;
                         oResult.Message = "Cancellation failed";
                     }
                 }
@@ -10605,7 +10594,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
-                string sLoggingMessage = 
+                string sLoggingMessage =
                     string.Format("Exception at CancelServiceNow. Ex Msg: {0}, Domain Id: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
                     ex.Message, p_nDomainID, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelServiceNow. ");
@@ -10613,8 +10602,7 @@ namespace ConditionalAccess
                 Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
                 #endregion
 
-                oResult.Status = StatusObjectCode.Error;
-                oResult.Code = 1;
+                oResult.Code = (int)eResponseStatus.Error;
                 oResult.Message = "Unexpected error occurred";
             }
 
@@ -10692,24 +10680,24 @@ namespace ConditionalAccess
                     switch (p_enmTransactionType)
                     {
                         case eTransactionType.PPV:
-                        {
-                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
-                            break;
-                        }
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                break;
+                            }
                         case eTransactionType.Subscription:
-                        {
-                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
-                            break;
-                        }
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                break;
+                            }
                         case eTransactionType.Collection:
-                        {
-                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
-                            break;
-                        }
+                            {
+                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                break;
+                            }
                         default:
-                        {
-                            break;
-                        }
+                            {
+                                break;
+                            }
                     }
                 }
 
@@ -10778,25 +10766,25 @@ namespace ConditionalAccess
             switch (p_enmServiceType)
             {
                 case eTransactionType.PPV:
-                {
-                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
-                    break;
-                }
+                    {
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        break;
+                    }
                 case eTransactionType.Subscription:
-                {
-                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
-                    break;
-                }
+                    {
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        break;
+                    }
                 case eTransactionType.Collection:
-                {
-                    p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
-                    break;
-                }
+                    {
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        break;
+                    }
                 default:
-                {
-                    bCancellationWindow = false;
-                    break;
-                }
+                    {
+                        bCancellationWindow = false;
+                        break;
+                    }
             }
 
             // If any of the users purchased this asset and it is valid
@@ -10906,18 +10894,18 @@ namespace ConditionalAccess
         }
 
 
-         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
-         {
-             int fileMainStreamingCoID = 0;
-             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
-         }
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
+        {
+            int fileMainStreamingCoID = 0;
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+        }
 
-         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
-         {
-             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
-         }
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
+        {
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+        }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
             string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID)
@@ -10927,7 +10915,7 @@ namespace ConditionalAccess
             try
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
-                int streamingCoID = 0;               
+                int streamingCoID = 0;
 
                 if ((!string.IsNullOrEmpty(sBasicLink) && nMediaFileID > 0))
                 {
@@ -10964,7 +10952,7 @@ namespace ConditionalAccess
                                     string CdnStrID = string.Empty;
                                     bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
 
-                                    if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)                                
+                                    if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)
                                     {
                                         mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
                                         if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
@@ -10973,7 +10961,7 @@ namespace ConditionalAccess
                                             {
                                                 HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
                                             }
-                                        
+
                                             // TO DO if dynamic call to right provider to get the URL
                                             if (eLinkType == eObjectType.Media && bIsDynamic)
                                             {
@@ -10988,7 +10976,7 @@ namespace ConditionalAccess
                                                     }
                                                 }
                                             }
-                                        
+
 
                                             res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                             licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
@@ -11014,7 +11002,7 @@ namespace ConditionalAccess
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                         res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
 
-                                        Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", 
+                                        Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
                                             sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
                                     }
                                 }
@@ -11024,7 +11012,7 @@ namespace ConditionalAccess
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                     res.status = eLicensedLinkStatus.InvalidPrice.ToString();
 
-                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, 
+                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
                                         nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
                                 }
                             }
@@ -11039,7 +11027,7 @@ namespace ConditionalAccess
                             }
                         }
                         else //user is Suspended
-                        {          
+                        {
                             //returns empty url
                             res.status = eLicensedLinkStatus.UserSuspended.ToString();
 
@@ -11280,7 +11268,7 @@ namespace ConditionalAccess
 
         private bool IsUserSuspended(MediaFileItemPricesContainer container)
         {
-            return (container.m_oItemPrices[0] != null && container.m_oItemPrices[0].m_PriceReason == PriceReason.UserSuspended);          
+            return (container.m_oItemPrices[0] != null && container.m_oItemPrices[0].m_PriceReason == PriceReason.UserSuspended);
         }
 
         public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
