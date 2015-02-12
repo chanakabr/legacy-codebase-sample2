@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace ApiObjects
+namespace ApiObjects.Response
 {
     public class Status
     {

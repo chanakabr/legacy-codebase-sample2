@@ -177,7 +177,7 @@
     <Compile Include="RateMediaObject.cs" />
     <Compile Include="RateResponseObject.cs" />
     <Compile Include="RequestObj.cs" />
-    <Compile Include="ResponseStatus.cs" />
+    <Compile Include="Response\ResponseStatus.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\ChannelContainObj.cs" />
@@ -203,7 +203,7 @@
     <Compile Include="Statistics\ChannelBucket.cs" />
     <Compile Include="Statistics\SocialActionStatistics.cs" />
     <Compile Include="Statistics\ViewStatistics.cs" />
-    <Compile Include="Status.cs" />
+    <Compile Include="Response\Status.cs" />
     <Compile Include="StatusObject.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
