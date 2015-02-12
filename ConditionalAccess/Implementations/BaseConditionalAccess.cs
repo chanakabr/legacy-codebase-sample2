@@ -453,6 +453,14 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                        {
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "User suspended";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase pre paid module(CC):" + sPrePaidModuleCode + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
 
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
