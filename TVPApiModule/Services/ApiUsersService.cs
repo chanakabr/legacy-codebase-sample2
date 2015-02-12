@@ -427,26 +427,29 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public bool SentNewPasswordToUser(string UserName)
+        public Status SentNewPasswordToUser(string UserName)
         {
-            bool returnedValue = false;
+            Status statusResult;
 
-            returnedValue = Convert.ToBoolean(Execute(() =>
+            statusResult = Execute(() =>
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject uro = Users.ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
+                    statusResult = new Status();
                     if (uro.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
                     {
                         logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
-                        return true;
+                        statusResult.status = StatusObjectCode.OK;
+                        return statusResult;
                     }
                     else
                     {
                         logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", UserName);
-                        return false;
+                        statusResult.status = StatusObjectCode.Fail;
+                        return statusResult;
                     }
-                }));
+                }) as Status;
 
-            return returnedValue;
+            return statusResult;
         }
 
         public string IpToCountry(string sIP)

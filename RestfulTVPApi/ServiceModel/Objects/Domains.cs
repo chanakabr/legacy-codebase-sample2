@@ -26,6 +26,13 @@ namespace RestfulTVPApi.ServiceModel
         public int domain_id { get; set; }
     }
 
+    [Route("/domains/{domain_id}/users_list", "GET", Summary = "Get the users related to a given domain")]
+    public class GetDomainUsersListRequest : RequestBase, IReturn<List<string>>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+    }
+
     //TODO: CONTINUEEEEEEEEE
     //[Route("/domains/{domain_id}", "GET", Summary = "Confirmation with token invoked by domain master to approve adding pending device to the domain", Notes = "Usually called from landing page set in the email that was sent to the master")]
     //public class ConfirmDeviceByDomainMaster : RequestBase, IReturn<DomainResponseObject>
@@ -128,7 +135,7 @@ namespace RestfulTVPApi.ServiceModel
     public class AddDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_name", Description = "Domain Name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string device_name { get; set; }
+        public string domain_name { get; set; }
         [ApiMember(Name = "domain_desc", Description = "Domain desc", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string domain_desc { get; set; }
         [ApiMember(Name = "master_guid_id", Description = "Master Guid Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
@@ -147,12 +154,12 @@ namespace RestfulTVPApi.ServiceModel
         public string master_user_name { get; set; }
     }
 
-    [Route("/domains/{domain_id}/users/{site_guid}", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
+    [Route("/domains/users/add_to_domain", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
     public class AddUserToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "site_guid", Description = "The new user to add to domain", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guid", Description = "The new user to add to domain", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
@@ -341,7 +348,7 @@ namespace RestfulTVPApi.ServiceModel
         public int domain_id { get; set; }
     }
 
-    [Route("/domains/{domain_id}/users/{site_guid}", "DELETE", Summary = "Removes a user from a domain", Notes = "Removes a user from a domain")]
+    [Route("/domains/users/remove", "DELETE", Summary = "Removes a user from a domain", Notes = "Removes a user from a domain")]
     public class RemoveUserFromDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "site_guid", Description = "The user to remove from domain", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]

@@ -186,12 +186,7 @@ namespace RestfulTVPApi.ServiceInterface
         public object Get(GetCustomDataIDRequest request)
         {
             return _repository.GetCustomDataID(request);
-        }
-
-        public object Get(SendNewPasswordRequest request)
-        {
-            return _repository.SendNewPassword(request);
-        }
+        }        
 
         public object Get(GetLastBillingTypeUserInfoRequest request)
         {
@@ -206,6 +201,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Get(GetUserExpiredCollectionsRequest request)
         {
             return _repository.GetUserExpiredCollections(request);
+        }
+
+        public object Get(CheckTemporaryTokenRequest request)
+        {
+            return _repository.CheckTemporaryToken(request);
         }
 
         #endregion
@@ -315,6 +315,11 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return _repository.InApp_ChargeUserForMediaFile(request);
         }
+        
+        public object Post(SendNewPasswordRequest request)
+        {
+            return _repository.SendNewPassword(request);
+        }
 
         public object Post(CreatePurchaseTokenRequest request)
         {
@@ -383,6 +388,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Delete(CancelSubscriptionRequest request)
         {
             return _repository.CancelSubscription(request);
+        }
+
+        public object Delete(CancelSubscriptionRenewalRequest request)
+        {
+            return _repository.CancelSubscriptionRenewal(request);
         }
 
         public void Delete(SignOutRequest request)

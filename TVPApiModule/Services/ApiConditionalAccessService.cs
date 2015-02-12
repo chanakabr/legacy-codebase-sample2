@@ -123,12 +123,12 @@ namespace TVPApiModule.Services
 
             response = Convert.ToBoolean(Execute(() =>
                 {
-                    response = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+                    response = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);                    
                     return response;
                 }));
 
             return response;
-        }
+        }        
 
         public TVPApiModule.Objects.Responses.BillingResponse InAppChargeUserForSubscription(double iPrice, string sCurrency, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sProductCode, string sReceipt)
         {
@@ -1024,7 +1024,7 @@ namespace TVPApiModule.Services
             return permittedCollections;
         }
 
-        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
         {
             bool isCancelationSucceeded = false;
 
@@ -1032,7 +1032,7 @@ namespace TVPApiModule.Services
             {
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
-                    isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                    isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType, isForce);
                 }
 
                 return isCancelationSucceeded;
@@ -1056,6 +1056,21 @@ namespace TVPApiModule.Services
             }));
 
             return isWaiverTransactionSucceeded;
+        }
+
+        public Status CancelSubscriptionRenewal(int domain_id, string subscription_id)
+        {
+            Status response = new Status();
+
+            response = Execute(() =>
+            {
+                var status = ConditionalAccess.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, domain_id, subscription_id);
+                if (status != null)
+                    response = status.ToApiObject();
+                return response;
+            }) as Status;
+
+            return response;
         }
     }
 }

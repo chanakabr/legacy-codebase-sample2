@@ -21,6 +21,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetDeviceDomains(request);
         }
 
+        public object Get(GetDomainUsersListRequest request)
+        {
+            return _repository.GetDomainUsersList(request);
+        }
+
         //public object Get(GetDomainByCoGuidRequest request)
         //{
         //    var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);

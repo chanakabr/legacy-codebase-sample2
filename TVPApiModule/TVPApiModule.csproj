@@ -216,6 +216,7 @@
     <Compile Include="Objects\Responses\Enums\eGroupRuleType.cs" />
     <Compile Include="Objects\Responses\Enums\eOperatorType.cs" />
     <Compile Include="Objects\Responses\Enums\NetworkResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\StatusObjectCode.cs" />
     <Compile Include="Objects\Responses\Enums\TransactionType.cs" />
     <Compile Include="Objects\Responses\HomeNetwork.cs" />
     <Compile Include="Objects\Responses\NetworkResponseObject.cs" />

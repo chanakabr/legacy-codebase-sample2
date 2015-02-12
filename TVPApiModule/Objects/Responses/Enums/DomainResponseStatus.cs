@@ -82,5 +82,8 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         ConcurrencyLimitation,
+
+        /// <remarks/>
+        DomainCreatedWithoutNPVRAccount
     }
 }

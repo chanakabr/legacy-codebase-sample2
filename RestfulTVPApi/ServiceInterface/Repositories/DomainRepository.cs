@@ -24,7 +24,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public DomainResponseObject AddDomain(AddDomainRequest request)
         {
-            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).AddDomain(request.device_name, request.domain_desc, request.master_guid_id);
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).AddDomain(request.domain_name, request.domain_desc, request.master_guid_id);
         }
 
         public List<DeviceDomain> GetDeviceDomains(GetDeviceDomainsRequest request)
@@ -245,6 +245,12 @@ namespace RestfulTVPApi.ServiceInterface
         public List<PermittedCollectionContainer> GetDomainPermittedCollections(GetDomainPermittedCollectionsRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetDomainPermittedCollections(request.domain_id); 
+        }
+
+
+        public List<string> GetDomainUsersList(GetDomainUsersListRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainUsersList(request.domain_id);
         }
     }
 }

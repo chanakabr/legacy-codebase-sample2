@@ -9,7 +9,7 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/subscriptions/{subscription_ids}", "GET", Notes = "This method returns an array containing the data of subscription IDs (array) posted to the system")]
-    public class GetSubscriptionDataRequest : RequestBase, IReturn<List<SubscriptionPrice>>
+    public class GetSubscriptionDataRequest : RequestBase, IReturn<List<Subscription>>
     {
         [ApiMember(Name = "subscription_ids", Description = "Subscriptions Identifiers", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] subscription_ids { get; set; }

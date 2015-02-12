@@ -151,7 +151,7 @@ namespace TVPApiModule.Services
 
             domainResponse = Execute(() =>
                 {
-                    Domain domain = new Domain();
+                    Domain domain = new Domain();                    
                     var res = Domains.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
                     if (res != null)
                         domain = res.ToApiObject();
@@ -553,6 +553,22 @@ namespace TVPApiModule.Services
             }) as DomainResponseObject;
 
             return domainResponse;
+        }
+
+        public List<string> GetDomainUsersList(int domain_id)
+        {
+            List<string> users_ids = null;
+
+            users_ids = Execute(() =>
+            {
+                var response = Domains.GetDomainUserList(m_wsUserName, m_wsPassword, domain_id);
+                if (response != null)
+                    users_ids = response.ToList();
+
+                return users_ids;
+            }) as List<string>;
+
+            return users_ids;
         }
     }
 }

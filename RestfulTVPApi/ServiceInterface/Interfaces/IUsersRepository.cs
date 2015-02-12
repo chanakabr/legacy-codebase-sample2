@@ -85,6 +85,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool CancelSubscription(CancelSubscriptionRequest request);
 
+        Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request);
+
         List<Notification> GetDeviceNotifications(GetDeviceNotificationsRequest request);
 
         bool SetNotificationMessageViewStatus(SetNotificationMessageViewStatusRequest request);
@@ -95,7 +97,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<string> GetUserStartedWatchingMedias(GetUserStartedWatchingMediasRequest request);
 
-        bool SendNewPassword(SendNewPasswordRequest request);
+        Status SendNewPassword(SendNewPasswordRequest request);
 
         bool IsUserSignedIn(IsUserSignedInRequest request);
 
@@ -162,5 +164,7 @@ namespace RestfulTVPApi.ServiceInterface
         bool CancelTransaction(CancelTransactionRequest request);
 
         bool WaiverTransaction(WaiverTransactionRequest request);
+
+        UserResponseObject CheckTemporaryToken(CheckTemporaryTokenRequest request);
     }
 }

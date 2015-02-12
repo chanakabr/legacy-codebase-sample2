@@ -264,7 +264,7 @@ namespace RestfulTVPApi.ServiceInterface
             return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetUserStartedWatchingMedias(request.site_guid, request.page_size);            
         }
 
-        public bool SendNewPassword(SendNewPasswordRequest request)
+        public Status SendNewPassword(SendNewPasswordRequest request)
         {
             return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SentNewPasswordToUser(request.user_name);
         }
@@ -436,12 +436,24 @@ namespace RestfulTVPApi.ServiceInterface
 
         public bool CancelTransaction(CancelTransactionRequest request)
         {
-            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type);
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type, request.is_force);
         }
 
         public bool WaiverTransaction(WaiverTransactionRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).WaiverTransaction(request.site_guid, request.asset_id, request.transaction_type);
+        }
+
+
+        public UserResponseObject CheckTemporaryToken(CheckTemporaryTokenRequest request)
+        {
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).CheckTemporaryToken(request.token);
+        }
+
+
+        public Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscriptionRenewal(request.domain_id, request.subscription_id);
         }
     }
 }

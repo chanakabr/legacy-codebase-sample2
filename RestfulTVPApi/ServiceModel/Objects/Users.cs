@@ -400,10 +400,10 @@ namespace RestfulTVPApi.ServiceModel
         public string override_end_date { get; set; }
     }
 
-    [Route("/users/{user_name}/password", "GET", Notes = "This method is used when the user has forgotten his/her password. A new password is emailed to the user")]
-    public class SendNewPasswordRequest : RequestBase, IReturn<bool>
+    [Route("/users/password", "POST", Notes = "This method is used when the user has forgotten his/her password. A new password is emailed to the user")]
+    public class SendNewPasswordRequest : RequestBase, IReturn<Status>
     {
-        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
     }
 
@@ -421,14 +421,23 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
+    [Route("/users/token/{token}", "GET", Summary = "Returns the user username by checking the token", Notes = "")]
+    public class CheckTemporaryTokenRequest : RequestBase, IReturn<UserResponseObject>
+    {
+        [ApiMember(Name = "token", Description = "Token", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string token { get; set; }
+    }
+
+
+
     #endregion
 
     #region PUT
 
-    [Route("/users/{site_guid}", "PUT", Summary = "Update User", Notes = "Update User")]
+    [Route("/users", "PUT", Summary = "Update User", Notes = "Update User")]
     public class SetUserDataRequest : RequestBase, IReturn<UserResponseObject>
     {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "user_basic_data", Description = "User Basic Data", ParameterType = "body", DataType = "UserBasicData", IsRequired = true)]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData user_basic_data { get; set; }
@@ -460,10 +469,10 @@ namespace RestfulTVPApi.ServiceModel
         public int is_active { get; set; }
     }
 
-    [Route("/users/{user_name}/password", "PUT", Notes = "User wants to change password. Must enter Old and new passwords.")]
+    [Route("/users/password", "PUT", Notes = "User wants to change password. Must enter Old and new passwords.")]
     public class ChangeUserPasswordRequest : RequestBase, IReturn<UserResponseObject>
     {
-        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
         [ApiMember(Name = "old_password", Description = "Old password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string old_password { get; set; }
@@ -564,15 +573,17 @@ namespace RestfulTVPApi.ServiceModel
         public int new_subscription { get; set; }
     }
 
-    [Route("/users/{site_guid}/transaction_cancel/{asset_id}", "PUT", Summary = "", Notes = "")]
+    [Route("/users/transaction/cancel", "PUT", Summary = "", Notes = "")]
     public class CancelTransactionRequest : RequestBase, IReturn<bool>
     {
-        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
-        [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eTransactionType transaction_type { get; set; }
+        [ApiMember(Name = "is_force", Description = "Cancel now or in end of period", ParameterType = "body", DataType = SwaggerType.Boolean, IsRequired = true)]
+        public bool is_force { get; set; }
     }
 
     [Route("/users/{site_guid}/transaction_waiver/{asset_id}", "PUT", Summary = "", Notes = "")]
@@ -599,7 +610,7 @@ namespace RestfulTVPApi.ServiceModel
         public TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData user_dynamic_data { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
-        [ApiMember(Name = "affiliate_code", Description = "Affiliate Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "affiliate_code", Description = "Affiliate Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = false)]
         public string affiliate_code { get; set; }
     }
 
@@ -672,10 +683,10 @@ namespace RestfulTVPApi.ServiceModel
         public string receipt { get; set; }
     }
 
-    [Route("/users/{user_name}/password", "POST", Notes = "This method sets a new password when user has forgotten password. Admin uses to set a new password.")]
+    [Route("/users/reset_password", "POST", Notes = "This method sets a new password when user has forgotten password. Admin uses to set a new password.")]
     public class RenewUserPasswordRequest : RequestBase, IReturn<UserResponseObject>
     {
-        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
@@ -918,15 +929,24 @@ namespace RestfulTVPApi.ServiceModel
         public int[] media_ids { get; set; }
     }
 
-    [Route("/users/{site_guid}/subscriptions/{subscription_id}", "DELETE", Notes = "This method cancels a subscription previously purchased by the user. Requires the subscription identifier and the subscription purchase identifier. Returns boolean success/fail")]
-    public class CancelSubscriptionRequest : RequestBase, IReturn<bool>
+    [Route("/users/subscriptions/cancel", "DELETE", Notes = "This method cancels a subscription previously purchased by the user. Requires the subscription identifier and the subscription purchase identifier. Returns boolean success/fail")]
+    public class CancelSubscriptionRequest : RequestBase, IReturn<Status>
     {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiMember(Name = "subscription_id", Description = "Subscription Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "subscription_id", Description = "Subscription Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string subscription_id { get; set; }
-        [ApiMember(Name = "subscription_purchase_id", Description = "Subscription Purchase ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "subscription_purchase_id", Description = "Subscription Purchase ID", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int subscription_purchase_id { get; set; }
+    }
+
+    [Route("/users/subscriptions/renewal/cancel", "DELETE", Notes = "Cancel a household service subscription at the next renewal. The subscription stays valid untill the next renewal")]
+    public class CancelSubscriptionRenewalRequest : RequestBase, IReturn<Status>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+        [ApiMember(Name = "subscription_id", Description = "Subscription Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string subscription_id { get; set; }
     }
 
     [Route("/users/{user_name}/session", "DELETE", Notes = "This method signs-in a user.")]

@@ -66,12 +66,7 @@ namespace RestfulTVPApi.ServiceInterface
         public object Get(FBConfigRequest request)
         {
             return _repository.FBConfig(request);
-        }
-
-        public object Get(GetFBUserDataRequest request)
-        {
-            return _repository.GetFBUserData(request);
-        }
+        }        
 
         public object Get(GetDomainByCoGuidRequest request)
         {
@@ -119,6 +114,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Post(RegisterDeviceByPINRequest request)
         {
             return _repository.RegisterDeviceByPIN(request);
+        }
+
+        public object Post(GetFBUserDataRequest request)
+        {
+            return _repository.GetFBUserData(request);
         }
 
         #endregion

@@ -31,10 +31,10 @@ namespace RestfulTVPApi.ServiceModel
     [Route("/social_platforms/facebook/config", "GET", Notes = "This method returns a specific page from the site map.")]
     public class FBConfigRequest : RequestBase, IReturn<FBConnectConfig> { }
 
-    [Route("/social_platforms/facebook/user/{token}", "GET", Notes = "This method verifies existence of user in Facebook and in Tvinci then returns user’s Facebook user-data. This follows receipt of a token from Facebook.")]
+    [Route("/social_platforms/facebook/user", "POST", Notes = "This method verifies existence of user in Facebook and in Tvinci then returns user’s Facebook user-data. This follows receipt of a token from Facebook.")]
     public class GetFBUserDataRequest : RequestBase, IReturn<FacebookResponseObject>
     {
-        [ApiMember(Name = "token", Description = "Token", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "token", Description = "Token", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string token { get; set; }
     }
 

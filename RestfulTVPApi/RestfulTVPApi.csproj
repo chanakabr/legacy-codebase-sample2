@@ -581,6 +581,11 @@
     <Content Include="Configuration\EutelSat\staging\Web\PlatformServicesConfiguration.config" />
     <Content Include="Configuration\EutelSat\staging\Web\SiteConfiguration.config" />
     <Content Include="Configuration\EutelSat\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\MediaConfiguration.config" />
     <None Include="Properties\PublishProfiles\TvpApiRest.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

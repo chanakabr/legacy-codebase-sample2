@@ -1060,6 +1060,9 @@ namespace TVPApiModule.Extentions
                 case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.HouseholdUserFailed:
                     status = DomainResponseStatus.HouseholdUserFailed;
                     break;
+                case TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
+                    status = DomainResponseStatus.DomainCreatedWithoutNPVRAccount;
+                    break;
                 default:
                     break;
             }           
@@ -1418,7 +1421,7 @@ namespace TVPApiModule.Extentions
             retVal.subscription_product_code = response.m_ProductCode;
             retVal.subscription_code = response.m_SubscriptionCode;
 
-            if (response.m_oSubscriptionUsageModule != null)
+            if (response.m_MultiSubscriptionUsageModule != null)
                 retVal.multi_subscription_usage_module = response.m_MultiSubscriptionUsageModule.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
             retVal.geo_commerce_id = response.n_GeoCommerceID;
             retVal.is_infinite_recurring = response.m_bIsInfiniteRecurring;
@@ -1428,6 +1431,9 @@ namespace TVPApiModule.Extentions
 
             if (response.m_UserTypes != null)
                 retVal.user_types = response.m_UserTypes.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
+
+            if (response.m_sDescription != null)
+                retVal.description = response.m_sDescription.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
 
             return retVal;
         }
@@ -1822,6 +1828,17 @@ namespace TVPApiModule.Extentions
             returnedResponse.action_response_status_intern = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)response.m_eActionResponseStatusIntern;
             
             return returnedResponse;
+        }
+
+        public static TVPApiModule.Objects.Responses.Status ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.StatusObject response)
+        {
+            TVPApiModule.Objects.Responses.Status retVal = new TVPApiModule.Objects.Responses.Status();
+
+            retVal.status = (TVPApiModule.Objects.Responses.StatusObjectCode)response.Status;
+            retVal.message = response.Message;
+            retVal.code = response.Code;
+
+            return retVal;
         }
     }
 }

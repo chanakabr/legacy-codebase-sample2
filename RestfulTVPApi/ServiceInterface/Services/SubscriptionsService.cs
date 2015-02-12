@@ -13,7 +13,6 @@ using ServiceStack;
 namespace RestfulTVPApi.ServiceInterface
 {
 
-    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class SubscriptionsService : Service
     {

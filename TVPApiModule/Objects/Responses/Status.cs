@@ -8,6 +8,15 @@ namespace TVPApiModule.Objects.Responses
 {
     public class Status
     {
-        public object status { get; set; }        
+        public StatusObjectCode status { get; set; }
+        public int code { get; set; }
+        public string message { get; set; }
+
+        public Status(StatusObjectCode statusObjectCode = StatusObjectCode.Unkown, int code = 0, string message = "")
+        {
+            this.status = statusObjectCode;
+            this.code = code;
+            this.message = message;
+        }
     }
 }

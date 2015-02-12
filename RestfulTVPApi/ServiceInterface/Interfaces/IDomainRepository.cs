@@ -77,5 +77,7 @@ namespace RestfulTVPApi.ServiceInterface
         DomainResponseObject ResetDomainFrequency(ResetDomainFrequencyRequest request);
 
         List<PermittedCollectionContainer> GetDomainPermittedCollections(GetDomainPermittedCollectionsRequest request);
+
+        List<string> GetDomainUsersList(GetDomainUsersListRequest request);
     }
 }
