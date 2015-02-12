@@ -696,40 +696,78 @@ namespace Users
 
         public virtual StatusObject SuspendDomain(int nDomainID)
         {
-            bool SuspendSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.Suspended);
-
-            if (SuspendSucceed)
-            {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(nDomainID);
-            }
-
             StatusObject result = new StatusObject();
+            DomainsCache oDomainCache = DomainsCache.Instance();
 
-            if (SuspendSucceed)
-                result.Status = StatusObjectCode.OK;
-            else
+            // validate domain
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            {
                 result.Status = StatusObjectCode.Fail;
+                result.Code = (int)StatusObjectCode.Fail;
+                result.Message = "Domain doesn't exist";
+            }
+            else
+            {
+                // suspend domain
+                bool SuspendSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.Suspended);
+
+                // remove from cache
+                if (SuspendSucceed)
+                    oDomainCache.RemoveDomain(nDomainID);
+
+                // update result
+                if (SuspendSucceed)
+                {
+                    result.Status = StatusObjectCode.OK;
+                    result.Code = (int)StatusObjectCode.OK;
+                }
+                else
+                {
+                    result.Status = StatusObjectCode.Fail;
+                    result.Code = (int)StatusObjectCode.Fail;
+                    result.Message = "Failed to suspend domain";
+                }
+            }
 
             return result;
         }
 
         public virtual StatusObject ResumeDomain(int nDomainID)
         {
-            bool ResumeSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.OK);
-
-            if (ResumeSucceed)
-            {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(nDomainID);
-            }
-
             StatusObject result = new StatusObject();
+            DomainsCache oDomainCache = DomainsCache.Instance();
 
-            if (ResumeSucceed)
-                result.Status = StatusObjectCode.OK;
-            else
+            // validate domain
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            {
                 result.Status = StatusObjectCode.Fail;
+                result.Code = (int)StatusObjectCode.Fail;
+                result.Message = "Domain doesn't exist";
+            }
+            else
+            {
+                // resume domain
+                bool ResumeSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.OK);
+
+                // remove from cache
+                if (ResumeSucceed)
+                    oDomainCache.RemoveDomain(nDomainID);
+
+                // update result
+                if (ResumeSucceed)
+                {
+                    result.Status = StatusObjectCode.OK;
+                    result.Code = (int)StatusObjectCode.OK;
+                }
+                else
+                {
+                    result.Status = StatusObjectCode.Fail;
+                    result.Code = (int)StatusObjectCode.Fail;
+                    result.Message = "Failed to suspend domain";
+                }
+            }
 
             return result;
         }
