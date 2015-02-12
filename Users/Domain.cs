@@ -1048,6 +1048,11 @@ namespace Users
             {
                 res = DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
             }
+            else
+            {
+                return DomainResponseStatus.DomainSuspended;
+            }
+
             if (!res)
             {
                 return DomainResponseStatus.Error;
