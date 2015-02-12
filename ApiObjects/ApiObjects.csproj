@@ -177,7 +177,8 @@
     <Compile Include="RateMediaObject.cs" />
     <Compile Include="RateResponseObject.cs" />
     <Compile Include="RequestObj.cs" />
-    <Compile Include="Response\ResponseStatus.cs" />
+    <Compile Include="Response\EnumResponseStatus.cs" />
+    <Compile Include="Response\StatusWrapper.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\ChannelContainObj.cs" />
