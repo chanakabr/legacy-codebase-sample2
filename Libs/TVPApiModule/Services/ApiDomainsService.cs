@@ -570,7 +570,7 @@ namespace TVPApiModule.Services
                 logger.Error(string.Format("Error while trying to get domain limitation module. DLM ID: {0}", dlmID), ex);
                 dlm = new Objects.Responses.DomainLimitationModuleResponse();
                 dlm.Status.Code = 1;
-                dlm.Status.Message = "Failed to call webservice";
+                dlm.Status.Message = "Error while calling webservice";
             }
 
             return dlm;

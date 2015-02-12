@@ -775,7 +775,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the domain limitation module by ID")]
-        public DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int dlmID)
+        public DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int deviceLimitationID)
         {
             DomainLimitationModuleResponse response = null;
 
@@ -785,7 +785,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainLimitationModule(dlmID);
+                    response = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainLimitationModule(deviceLimitationID);
                 }
                 catch (Exception ex)
                 {

@@ -1356,7 +1356,7 @@ namespace TVPApiModule.Services
                 oResult = new StatusObject()
                 {
                     Status = StatusObjectCode.Error,
-                    Message = "Failed calling webservice"
+                    Message = "Error while calling webservice"
                 };
             }
 
@@ -1377,7 +1377,7 @@ namespace TVPApiModule.Services
                     ex.Message, domainId);
 
                 servicesRes.Status.Code = 1;
-                servicesRes.Status.Message = "Failed to call webservice";
+                servicesRes.Status.Message = "Error while calling webservice";
 
 
             }
@@ -1400,10 +1400,10 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
+                logger.ErrorFormat("Error while calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
                 response = new Objects.Responses.LicensedLinkResponse();
                 response.Status.Code = 1;
-                response.Status.Message = "Failed to call webservice";
+                response.Status.Message = "Error while calling webservice";
             }
             return response;
         }
