@@ -93,6 +93,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback ValidateLimitationNpvrOperationCompleted;
         
+        private System.Threading.SendOrPostCallback RemoveDLMOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ChangeDLMOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDLMOperationCompleted;
+        
         private System.Threading.SendOrPostCallback SuspendDomainOperationCompleted;
         
         private System.Threading.SendOrPostCallback ResumeDomainOperationCompleted;
@@ -230,6 +236,15 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event ValidateLimitationNpvrCompletedEventHandler ValidateLimitationNpvrCompleted;
+        
+        /// <remarks/>
+        public event RemoveDLMCompletedEventHandler RemoveDLMCompleted;
+        
+        /// <remarks/>
+        public event ChangeDLMCompletedEventHandler ChangeDLMCompleted;
+        
+        /// <remarks/>
+        public event GetDLMCompletedEventHandler GetDLMCompleted;
         
         /// <remarks/>
         public event SuspendDomainCompletedEventHandler SuspendDomainCompleted;
@@ -1402,6 +1417,107 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDLM", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public StatusObject RemoveDLM(string sWSUsername, string sWSPassword, int nDlmID) {
+            object[] results = this.Invoke("RemoveDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID});
+            return ((StatusObject)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RemoveDLMAsync(string sWSUsername, string sWSPassword, int nDlmID) {
+            this.RemoveDLMAsync(sWSUsername, sWSPassword, nDlmID, null);
+        }
+        
+        /// <remarks/>
+        public void RemoveDLMAsync(string sWSUsername, string sWSPassword, int nDlmID, object userState) {
+            if ((this.RemoveDLMOperationCompleted == null)) {
+                this.RemoveDLMOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDLMOperationCompleted);
+            }
+            this.InvokeAsync("RemoveDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID}, this.RemoveDLMOperationCompleted, userState);
+        }
+        
+        private void OnRemoveDLMOperationCompleted(object arg) {
+            if ((this.RemoveDLMCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RemoveDLMCompleted(this, new RemoveDLMCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ChangeDLM", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ChangeDLMObj ChangeDLM(string sWSUsername, string sWSPassword, int nDomainID, int nDlmID) {
+            object[] results = this.Invoke("ChangeDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDomainID,
+                        nDlmID});
+            return ((ChangeDLMObj)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ChangeDLMAsync(string sWSUsername, string sWSPassword, int nDomainID, int nDlmID) {
+            this.ChangeDLMAsync(sWSUsername, sWSPassword, nDomainID, nDlmID, null);
+        }
+        
+        /// <remarks/>
+        public void ChangeDLMAsync(string sWSUsername, string sWSPassword, int nDomainID, int nDlmID, object userState) {
+            if ((this.ChangeDLMOperationCompleted == null)) {
+                this.ChangeDLMOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChangeDLMOperationCompleted);
+            }
+            this.InvokeAsync("ChangeDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDomainID,
+                        nDlmID}, this.ChangeDLMOperationCompleted, userState);
+        }
+        
+        private void OnChangeDLMOperationCompleted(object arg) {
+            if ((this.ChangeDLMCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ChangeDLMCompleted(this, new ChangeDLMCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDLM", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DLMResponse GetDLM(string sWSUsername, string sWSPassword, int nDlmID) {
+            object[] results = this.Invoke("GetDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID});
+            return ((DLMResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDLMAsync(string sWSUsername, string sWSPassword, int nDlmID) {
+            this.GetDLMAsync(sWSUsername, sWSPassword, nDlmID, null);
+        }
+        
+        /// <remarks/>
+        public void GetDLMAsync(string sWSUsername, string sWSPassword, int nDlmID, object userState) {
+            if ((this.GetDLMOperationCompleted == null)) {
+                this.GetDLMOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDLMOperationCompleted);
+            }
+            this.InvokeAsync("GetDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID}, this.GetDLMOperationCompleted, userState);
+        }
+        
+        private void OnGetDLMOperationCompleted(object arg) {
+            if ((this.GetDLMCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDLMCompleted(this, new GetDLMCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SuspendDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public StatusObject SuspendDomain(int nDomainID, string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("SuspendDomain", new object[] {
@@ -2069,19 +2185,262 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DeviceFamilyLimitations {
+        
+        private int deviceFamilyField;
+        
+        private string deviceFamilyNameField;
+        
+        private int concurrencyField;
+        
+        private int quantityField;
+        
+        /// <remarks/>
+        public int deviceFamily {
+            get {
+                return this.deviceFamilyField;
+            }
+            set {
+                this.deviceFamilyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string deviceFamilyName {
+            get {
+                return this.deviceFamilyNameField;
+            }
+            set {
+                this.deviceFamilyNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int concurrency {
+            get {
+                return this.concurrencyField;
+            }
+            set {
+                this.concurrencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int quantity {
+            get {
+                return this.quantityField;
+            }
+            set {
+                this.quantityField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class LimitationsManager {
+        
+        private int concurrencyField;
+        
+        private int quantityField;
+        
+        private int frequencyField;
+        
+        private System.DateTime nextActionFreqDateField;
+        
+        private DeviceFamilyLimitations[] lDeviceFamilyLimitationsField;
+        
+        private int domianLimitIDField;
+        
+        private string domainLimitNameField;
+        
+        private int npvrQuotaInSecsField;
+        
+        private int nUserLimitField;
+        
+        private int userFrequencyField;
+        
+        private string userFrequencyDescritionField;
+        
+        private string frequencyDescritionField;
+        
+        /// <remarks/>
+        public int Concurrency {
+            get {
+                return this.concurrencyField;
+            }
+            set {
+                this.concurrencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int Quantity {
+            get {
+                return this.quantityField;
+            }
+            set {
+                this.quantityField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int Frequency {
+            get {
+                return this.frequencyField;
+            }
+            set {
+                this.frequencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime NextActionFreqDate {
+            get {
+                return this.nextActionFreqDateField;
+            }
+            set {
+                this.nextActionFreqDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DeviceFamilyLimitations[] lDeviceFamilyLimitations {
+            get {
+                return this.lDeviceFamilyLimitationsField;
+            }
+            set {
+                this.lDeviceFamilyLimitationsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int domianLimitID {
+            get {
+                return this.domianLimitIDField;
+            }
+            set {
+                this.domianLimitIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DomainLimitName {
+            get {
+                return this.domainLimitNameField;
+            }
+            set {
+                this.domainLimitNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int npvrQuotaInSecs {
+            get {
+                return this.npvrQuotaInSecsField;
+            }
+            set {
+                this.npvrQuotaInSecsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int nUserLimit {
+            get {
+                return this.nUserLimitField;
+            }
+            set {
+                this.nUserLimitField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int UserFrequency {
+            get {
+                return this.userFrequencyField;
+            }
+            set {
+                this.userFrequencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserFrequencyDescrition {
+            get {
+                return this.userFrequencyDescritionField;
+            }
+            set {
+                this.userFrequencyDescritionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string FrequencyDescrition {
+            get {
+                return this.frequencyDescritionField;
+            }
+            set {
+                this.frequencyDescritionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DLMResponse {
+        
+        private StatusObject respField;
+        
+        private LimitationsManager dlmField;
+        
+        /// <remarks/>
+        public StatusObject resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LimitationsManager dlm {
+            get {
+                return this.dlmField;
+            }
+            set {
+                this.dlmField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class StatusObject {
         
-        private StatusObjectCode statusField;
+        private int codeField;
         
         private string messageField;
         
         /// <remarks/>
-        public StatusObjectCode Status {
+        public int Code {
             get {
-                return this.statusField;
+                return this.codeField;
             }
             set {
-                this.statusField = value;
+                this.codeField = value;
             }
         }
         
@@ -2099,20 +2458,46 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public enum StatusObjectCode {
+    public partial class ChangeDLMObj {
+        
+        private StatusObject respField;
+        
+        private string[] usersField;
+        
+        private string[] devicesField;
         
         /// <remarks/>
-        OK,
+        public StatusObject resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
         
         /// <remarks/>
-        Error,
+        public string[] users {
+            get {
+                return this.usersField;
+            }
+            set {
+                this.usersField = value;
+            }
+        }
         
         /// <remarks/>
-        Fail,
-        
-        /// <remarks/>
-        Unkown,
+        public string[] devices {
+            get {
+                return this.devicesField;
+            }
+            set {
+                this.devicesField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3330,6 +3715,84 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((ValidationResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void RemoveDLMCompletedEventHandler(object sender, RemoveDLMCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveDLMCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public StatusObject Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((StatusObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void ChangeDLMCompletedEventHandler(object sender, ChangeDLMCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ChangeDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ChangeDLMCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ChangeDLMObj Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ChangeDLMObj)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetDLMCompletedEventHandler(object sender, GetDLMCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDLMCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DLMResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DLMResponse)(this.results[0]));
             }
         }
     }

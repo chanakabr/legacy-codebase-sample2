@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://pricing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://pricing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://pricing.tvinci.com/" xmlns:s1="http://pricing.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://pricing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:element name="GetCurrencyValues">
@@ -72,6 +72,8 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsInfiniteRecurring" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="tns:ArrayOfUserType" />
               <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="tns:PreviewModule" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="tns:ArrayOfServiceObject" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -165,6 +167,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_device_limit_id" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bWaiver" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nWaiverPeriod" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsOfflinePlayBack" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="CouponsGroup">
@@ -239,6 +242,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsFullLifeCycle" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsNonRenewPeriod" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfServiceObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="tns:ServiceObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ServiceObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetSubscriptionsContainingUserTypes">
@@ -734,6 +748,48 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetPPVModuleListForMediaFilesWithExpiry">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nMediaFileIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModuleListForMediaFilesWithExpiryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModuleListForMediaFilesWithExpiryResult" type="tns:ArrayOfMediaFilePPVContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfMediaFilePPVContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MediaFilePPVContainer" nillable="true" type="tns:MediaFilePPVContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MediaFilePPVContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPPVModules" type="tns:ArrayOfPPVModuleWithExpiry" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nMediaFileID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPPVModuleWithExpiry">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PPVModuleWithExpiry" nillable="true" type="tns:PPVModuleWithExpiry" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PPVModuleWithExpiry">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PPVModule" type="tns:PPVModule" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsValidForPurchase" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetPPVModuleShrinkList">
         <s:complexType>
           <s:sequence>
@@ -1169,6 +1225,7 @@
       <s:element name="ArrayOfPPVModuleContainer" nillable="true" type="tns:ArrayOfPPVModuleContainer" />
       <s:element name="ArrayOfDiscountModule" nillable="true" type="tns:ArrayOfDiscountModule" />
       <s:element name="ArrayOfMediaFilePPVModule" nillable="true" type="tns:ArrayOfMediaFilePPVModule" />
+      <s:element name="ArrayOfMediaFilePPVContainer" nillable="true" type="tns:ArrayOfMediaFilePPVContainer" />
       <s:element name="PPVModule" nillable="true" type="tns:PPVModule" />
       <s:element name="PrePaidModule" nillable="true" type="tns:PrePaidModule" />
       <s:element name="ArrayOfPriceCode" nillable="true" type="tns:ArrayOfPriceCode" />
@@ -1346,6 +1403,12 @@
   </wsdl:message>
   <wsdl:message name="GetPPVModuleListForMediaFilesSTSoapOut">
     <wsdl:part name="parameters" element="tns:GetPPVModuleListForMediaFilesSTResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleListForMediaFilesWithExpirySoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModuleListForMediaFilesWithExpiry" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleListForMediaFilesWithExpirySoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModuleListForMediaFilesWithExpiryResponse" />
   </wsdl:message>
   <wsdl:message name="GetPPVModuleShrinkListSoapIn">
     <wsdl:part name="parameters" element="tns:GetPPVModuleShrinkList" />
@@ -1717,6 +1780,17 @@
   <wsdl:message name="GetPPVModuleListForMediaFilesSTHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaFilePPVModule" />
   </wsdl:message>
+  <wsdl:message name="GetPPVModuleListForMediaFilesWithExpiryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFileIDs" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleListForMediaFilesWithExpiryHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFilePPVContainer" />
+  </wsdl:message>
   <wsdl:message name="GetPPVModuleShrinkListHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2008,6 +2082,10 @@
       <wsdl:input message="tns:GetPPVModuleListForMediaFilesSTSoapIn" />
       <wsdl:output message="tns:GetPPVModuleListForMediaFilesSTSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleListForMediaFilesWithExpiry">
+      <wsdl:input message="tns:GetPPVModuleListForMediaFilesWithExpirySoapIn" />
+      <wsdl:output message="tns:GetPPVModuleListForMediaFilesWithExpirySoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetPPVModuleShrinkList">
       <wsdl:input message="tns:GetPPVModuleShrinkListSoapIn" />
       <wsdl:output message="tns:GetPPVModuleShrinkListSoapOut" />
@@ -2189,6 +2267,10 @@
     <wsdl:operation name="GetPPVModuleListForMediaFilesST">
       <wsdl:input message="tns:GetPPVModuleListForMediaFilesSTHttpPostIn" />
       <wsdl:output message="tns:GetPPVModuleListForMediaFilesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleListForMediaFilesWithExpiry">
+      <wsdl:input message="tns:GetPPVModuleListForMediaFilesWithExpiryHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModuleListForMediaFilesWithExpiryHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPPVModuleShrinkList">
       <wsdl:input message="tns:GetPPVModuleShrinkListHttpPostIn" />
@@ -2491,6 +2573,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetPPVModuleListForMediaFilesST">
       <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModuleListForMediaFilesST" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleListForMediaFilesWithExpiry">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModuleListForMediaFilesWithExpiry" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2906,6 +2997,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleListForMediaFilesWithExpiry">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModuleListForMediaFilesWithExpiry" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetPPVModuleShrinkList">
       <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModuleShrinkList" style="document" />
       <wsdl:input>
@@ -3314,6 +3414,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleListForMediaFilesWithExpiry">
+      <http:operation location="/GetPPVModuleListForMediaFilesWithExpiry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetPPVModuleShrinkList">
       <http:operation location="/GetPPVModuleShrinkList" />
       <wsdl:input>
@@ -3497,13 +3606,13 @@
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap:address location="http://localhost/WS_pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap12:address location="http://localhost/WS_pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <http:address location="http://localhost/WS_pricing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
