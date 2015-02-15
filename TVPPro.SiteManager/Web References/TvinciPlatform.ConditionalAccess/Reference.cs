@@ -4183,6 +4183,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         ChangeSubscription,
+        
+        /// <remarks/>
+        Offline,
     }
     
     /// <remarks/>
@@ -5135,6 +5138,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         NoCredit,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
@@ -5197,7 +5203,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum BillingResponseStatus {
         
         /// <remarks/>
@@ -5229,6 +5235,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         UnKnownBillingProvider,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
@@ -5317,6 +5326,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         CollectionPurchased,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
@@ -7059,17 +7071,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class StatusObject {
         
-        private StatusObjectCode statusField;
+        private int codeField;
         
         private string messageField;
         
         /// <remarks/>
-        public StatusObjectCode Status {
+        public int Code {
             get {
-                return this.statusField;
+                return this.codeField;
             }
             set {
-                this.statusField = value;
+                this.codeField = value;
             }
         }
         
@@ -7082,25 +7094,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.messageField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum StatusObjectCode {
-        
-        /// <remarks/>
-        OK,
-        
-        /// <remarks/>
-        Error,
-        
-        /// <remarks/>
-        Fail,
-        
-        /// <remarks/>
-        Unkown,
     }
     
     /// <remarks/>

@@ -93,6 +93,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback ValidateLimitationNpvrOperationCompleted;
         
+        private System.Threading.SendOrPostCallback RemoveDLMOperationCompleted;
+        
         private System.Threading.SendOrPostCallback SuspendDomainOperationCompleted;
         
         private System.Threading.SendOrPostCallback ResumeDomainOperationCompleted;
@@ -230,6 +232,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event ValidateLimitationNpvrCompletedEventHandler ValidateLimitationNpvrCompleted;
+        
+        /// <remarks/>
+        public event RemoveDLMCompletedEventHandler RemoveDLMCompleted;
         
         /// <remarks/>
         public event SuspendDomainCompletedEventHandler SuspendDomainCompleted;
@@ -1402,6 +1407,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDLM", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ResponseDLMStatus RemoveDLM(string sWSUsername, string sWSPassword, int nDlmID) {
+            object[] results = this.Invoke("RemoveDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID});
+            return ((ResponseDLMStatus)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RemoveDLMAsync(string sWSUsername, string sWSPassword, int nDlmID) {
+            this.RemoveDLMAsync(sWSUsername, sWSPassword, nDlmID, null);
+        }
+        
+        /// <remarks/>
+        public void RemoveDLMAsync(string sWSUsername, string sWSPassword, int nDlmID, object userState) {
+            if ((this.RemoveDLMOperationCompleted == null)) {
+                this.RemoveDLMOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDLMOperationCompleted);
+            }
+            this.InvokeAsync("RemoveDLM", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        nDlmID}, this.RemoveDLMOperationCompleted, userState);
+        }
+        
+        private void OnRemoveDLMOperationCompleted(object arg) {
+            if ((this.RemoveDLMCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RemoveDLMCompleted(this, new RemoveDLMCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SuspendDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public StatusObject SuspendDomain(int nDomainID, string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("SuspendDomain", new object[] {
@@ -2071,17 +2109,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class StatusObject {
         
-        private StatusObjectCode statusField;
+        private int codeField;
         
         private string messageField;
         
         /// <remarks/>
-        public StatusObjectCode Status {
+        public int Code {
             get {
-                return this.statusField;
+                return this.codeField;
             }
             set {
-                this.statusField = value;
+                this.codeField = value;
             }
         }
         
@@ -2094,25 +2132,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                 this.messageField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public enum StatusObjectCode {
-        
-        /// <remarks/>
-        OK,
-        
-        /// <remarks/>
-        Error,
-        
-        /// <remarks/>
-        Fail,
-        
-        /// <remarks/>
-        Unkown,
     }
     
     /// <remarks/>
@@ -2500,6 +2519,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         Frequency,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public enum ResponseDLMStatus {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        DlmNotExsit,
+        
+        /// <remarks/>
+        WrongPasswordOrUserName,
+        
+        /// <remarks/>
+        NoDlmId,
+        
+        /// <remarks/>
+        InternalError,
     }
     
     /// <remarks/>
@@ -3330,6 +3371,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((ValidationResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void RemoveDLMCompletedEventHandler(object sender, RemoveDLMCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveDLMCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ResponseDLMStatus Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ResponseDLMStatus)(this.results[0]));
             }
         }
     }
