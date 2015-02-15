@@ -22,7 +22,8 @@ namespace TVPApiModule.Objects
         public enum eCode
         {
             Success = 0,
-            Failure = 1
+            Failure = 1,
+            BadArguments = 2
         }
     }
 }
