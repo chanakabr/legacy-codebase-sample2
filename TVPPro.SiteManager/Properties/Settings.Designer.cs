@@ -66,7 +66,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/domains/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Domains_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Domains_module"]));
@@ -76,7 +76,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.162.36/ws_social/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/social/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Social_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Social_module"]));
@@ -96,7 +96,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/pricing/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_pricing/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule"]));

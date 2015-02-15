@@ -53,6 +53,7 @@
           <s:enumeration value="UserWithNoDomain" />
           <s:enumeration value="InternalError" />
           <s:enumeration value="LoginServerDown" />
+          <s:enumeration value="UserSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:complexType name="User">
@@ -64,6 +65,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_isDomainMaster" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eUserState" type="tns:UserState" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nSSOOperatorID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eSuspendState" type="tns:DomainSuspentionStatus" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="UserBasicData">
@@ -135,6 +137,12 @@
           <s:enumeration value="SingleSignIn" />
           <s:enumeration value="DoubleSignIn" />
           <s:enumeration value="LoggedOut" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="DomainSuspentionStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="Suspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SignIn">
