@@ -180,7 +180,7 @@
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\Responses.cs" />
-    <Compile Include="Objects\ResponseStatus.cs" />
+    <Compile Include="Objects\ClientResponseStatus.cs" />
     <Compile Include="Objects\Status.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />

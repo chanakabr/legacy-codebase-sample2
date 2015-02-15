@@ -1331,7 +1331,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : CancelServiceNow, Error Message: {0}, Parameters: domain Id: {1}, assetId: {2}", ex.Message, domainId, assetId);
                 oResult = new StatusObject()
                 {
-                    Status = StatusObjectCode.Error,
+                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
                     Message = "Failed calling webservice"
                 };
             }
@@ -1355,8 +1355,8 @@ namespace TVPApiModule.Services
 
                 oResult = new StatusObject()
                 {
-                    Status = StatusObjectCode.Error,
-                    Message = "Error while calling webservice"
+                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
+                    Message = "Failed calling webservice"
                 };
             }
 

@@ -1173,9 +1173,10 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel household service now")]
-        public StatusObject CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel)
+        public ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel)
         {
             StatusObject oResult = null;
+            ClientResponseStatus clientResponse = new ClientResponseStatus();
 
             string clientIp = SiteHelper.GetClientIP();
 
@@ -1191,24 +1192,16 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    oResult = new StatusObject()
-                    {
-                        Status = StatusObjectCode.Error,
-                        Message = "Error"
-                    };
+                    clientResponse.Status.Code = (int)TVPApiModule.Objects.Enums.eCode.Failure;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-                oResult = new StatusObject()
-                {
-                    Status = StatusObjectCode.Error,
-                    Message = "Unkown group"
-                };
+                clientResponse.Status.Code = (int)TVPApiModule.Objects.Enums.eCode.Failure;
+                clientResponse.Status.Message = "Unknown group";
             }
 
-            return (oResult);
+            return clientResponse;
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
@@ -1258,7 +1251,7 @@ namespace TVPApiServices
                     HttpContext.Current.Items.Add("Error", ex);
                     oResult = new StatusObject()
                     {
-                        Status = StatusObjectCode.Error,
+                        Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
                         Message = "Error"
                     };
                 }
@@ -1268,7 +1261,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
                 oResult = new StatusObject()
                 {
-                    Status = StatusObjectCode.Error,
+                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
                     Message = "Unkown group"
                 };
             }

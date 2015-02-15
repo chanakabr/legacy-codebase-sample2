@@ -112,7 +112,7 @@ namespace TVPApiServices
 
         [OperationContract]
         NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId);
-        
+
         [OperationContract]
         QuotaResponse GetNPVRQuota(InitializationObject initObj);
 
@@ -135,7 +135,7 @@ namespace TVPApiServices
         LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode);
 
         [OperationContract]
-        StatusObject CancelServiceNow(InitializationObject initObj, int domainId, int assetId, eTransactionType transactionType, bool isForce);
+        ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel);
 
         [OperationContract]
         bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID);
@@ -145,5 +145,6 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
+
     }
 }
