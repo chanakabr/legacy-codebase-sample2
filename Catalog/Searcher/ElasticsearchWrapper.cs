@@ -229,8 +229,20 @@ namespace Catalog
                     }
                 }
 
+                string sOrderValue = string.Empty;
+
+                // If order is request by a specific Id, e.g media id and not _id -- use it
+                if (oOrderObj.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.ID && !string.IsNullOrEmpty(oOrderObj.m_sOrderValue))
+                {
+                    sOrderValue = oOrderObj.m_sOrderValue;
+                }
+                else
+                {
+                    sOrderValue = FilteredQuery.GetESSortValue(oOrderObj);
+                }
+
                 tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
-                tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = FilteredQuery.GetESSortValue(oOrderObj) });
+                tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = sOrderValue });
                 tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
 
                 string sSearchQuery = tempQuery.ToString();
@@ -277,6 +289,10 @@ namespace Catalog
                             UpdateDate = item.update_date
                         }).ToList();
                     }
+
+                    StringBuilder sb = new StringBuilder();
+
+                    lSearchResults.ForEach(a => sb.Append(string.Format("{0},", a.asset_id)));
                 }
             }
             DateTime dtEnd = DateTime.Now;
