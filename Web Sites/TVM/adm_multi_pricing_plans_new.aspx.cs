@@ -1120,7 +1120,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_domain_limitation_module = new DataRecordDropDownField("groups_device_limitation_modules", "Name", "id", string.Empty, null, 60, true);
         dr_domain_limitation_module.SetSelectsDT(DomainLimitationModulesDT);
-        dr_domain_limitation_module.Initialize("Domain Limitation Module", "adm_table_header_nbg", "FormInput", "DLM_ID", false);
+        dr_domain_limitation_module.Initialize("Domain Limitation Module", "adm_table_header_nbg", "FormInput", "device_limit_id", false);
         dr_domain_limitation_module.SetFieldType("string");
         dr_domain_limitation_module.SetDefaultVal(GetMppDlm(t));
         dr_domain_limitation_module.SetNoSelectStr("No Domain Limitation Module");
@@ -1141,7 +1141,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         {
             int subID = (int)subscriptionID;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select gdlm.NAME from groups_device_limitation_modules gdlm inner join on Pricing.subscriptions s on gdlm.id = s.dlm_id where  ";
+            selectQuery += "select gdlm.NAME from groups_device_limitation_modules gdlm inner join on Pricing.subscriptions s on gdlm.id = s.device_limit_id where  ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("s.id", "=", subID);
             if (selectQuery.Execute("query", true) != null)
             {

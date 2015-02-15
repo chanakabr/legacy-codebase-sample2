@@ -150,9 +150,6 @@
 									    <div id="DualListPH"></div>
 									</td>
 								</tr>
-								<tr>
-								    <td onclick='window.document.location.href="adm_media.aspx";'><a href="#" class="btn_back"></a></td>
-								</tr>
 							</table>
 						</td>
 					</tr>

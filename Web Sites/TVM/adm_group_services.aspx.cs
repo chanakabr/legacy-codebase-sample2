@@ -77,6 +77,7 @@ public partial class adm_group_services : System.Web.UI.Page
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SERVICE_ID", "=", nServiceID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", LoginManager.GetLoginID());
         bInsert = insertQuery.Execute();
         insertQuery.Finish();
         insertQuery = null;
@@ -101,6 +102,7 @@ public partial class adm_group_services : System.Web.UI.Page
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("groups_services");        
         updateQuery.SetConnectionKey("CONNECTION_STRING");
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", LoginManager.GetLoginID());
         updateQuery += "where ";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
         bUpdate = updateQuery.Execute();
