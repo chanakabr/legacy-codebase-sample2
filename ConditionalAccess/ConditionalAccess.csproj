@@ -339,6 +339,9 @@
     <None Include="Web References\TvinciDomains\DeviceResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\DLMResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\Domain.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -360,6 +363,9 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Web References\TvinciDomains\ResponseDLMStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\StatusObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">

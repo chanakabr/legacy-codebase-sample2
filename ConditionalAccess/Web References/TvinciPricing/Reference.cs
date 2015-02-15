@@ -3288,6 +3288,8 @@ namespace ConditionalAccess.TvinciPricing {
         
         private int m_nDomainLimitationModuleField;
         
+        private ServiceObject[] m_lServicesField;
+        
         /// <remarks/>
         public BundleCodeContainer[] m_sCodes {
             get {
@@ -3488,6 +3490,16 @@ namespace ConditionalAccess.TvinciPricing {
                 this.m_nDomainLimitationModuleField = value;
             }
         }
+        
+        /// <remarks/>
+        public ServiceObject[] m_lServices {
+            get {
+                return this.m_lServicesField;
+            }
+            set {
+                this.m_lServicesField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3589,6 +3601,39 @@ namespace ConditionalAccess.TvinciPricing {
             }
             set {
                 this.m_tsNonRenewPeriodField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class ServiceObject {
+        
+        private long idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public long ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
             }
         }
     }

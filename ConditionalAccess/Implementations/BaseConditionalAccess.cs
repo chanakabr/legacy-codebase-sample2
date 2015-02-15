@@ -11357,9 +11357,10 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
-        public List<ServiceObject> GetDomainServices(int groupID, int domainID)
+        public DomainServicesResponse GetDomainServices(int groupID, int domainID)
         {
-            List<ServiceObject> domainServices = null;
+            DomainServicesResponse domainServicesResponse;
+            List<ApiObjects.ServiceObject> domainServices = null;
             PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
             
             if (domainSubscriptions != null)
@@ -11368,19 +11369,20 @@ namespace ConditionalAccess
                 DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(groupID, subscriptionIDs);
                 if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
                 {
-                    domainServices = new List<ServiceObject>();
+                    domainServices = new List<ApiObjects.ServiceObject>();
                     foreach (DataRow row in subscriptionServices.Rows)
                     {
-                        domainServices.Add(new ServiceObject()
+                        domainServices.Add(new ApiObjects.ServiceObject()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row["service_id"]),
                             Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
                         });
                     }
-                    domainServices.Distinct<ServiceObject>();
+                    domainServices.Distinct<ApiObjects.ServiceObject>();
                 }
             }
-            return domainServices;
+            domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK, domainServices);
+            return domainServicesResponse;
         }
 
         protected void UpdateDLM(int domainID, int dlm)
@@ -11389,7 +11391,7 @@ namespace ConditionalAccess
             {
                 long lastDomainDLM = ConditionalAccessDAL.Get_LastDomainDLM(m_nGroupID, domainID);
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
-                if (changeDlmObj.resp != TvinciDomains.ResponseDLMStatus.OK)
+                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to last DLM");
@@ -11404,7 +11406,7 @@ namespace ConditionalAccess
             else
             {
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
-                if (changeDlmObj.resp != TvinciDomains.ResponseDLMStatus.OK)
+                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to new DLM");
@@ -11423,7 +11425,7 @@ namespace ConditionalAccess
             GroupsCacheManager.Group group = GroupsCache.Instance().GetGroup(groupID);
             if (group != null)
             {
-                List<ServiceObject> enforcedGroupServices = group.GetServices();
+                List<ApiObjects.ServiceObject> enforcedGroupServices = group.GetServices();
                 //check if service is part of the group enforced services
                 if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || enforcedGroupServices.Where(s => s.ID == (int)service).FirstOrDefault() == null)
                 {
@@ -11431,8 +11433,9 @@ namespace ConditionalAccess
                 }
 
                 // check if the service is allowed for the domain
-                List<ServiceObject> allowedDomainServices = GetDomainServices(groupID, domainID);
-                if (allowedDomainServices != null && allowedDomainServices.Count > 0 && allowedDomainServices.Where(s => s.ID == (int)service).FirstOrDefault() != null)
+                DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
+                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 && 
+                    allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
                 {
                     return true;
                 }
