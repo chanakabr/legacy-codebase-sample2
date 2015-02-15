@@ -1,3 +1,4 @@
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -971,9 +972,9 @@ namespace ConditionalAccess
             return ret;
         }
 
-        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+       public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
-            string url = string.Empty;
+            LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
             TvinciAPI.API api = null;
             try
             {
@@ -981,17 +982,18 @@ namespace ConditionalAccess
                 int nProgramId = Int32.Parse(sProgramId);
                 if ((nProgramId <= 0) || (string.IsNullOrEmpty(sBasicLink)) || (string.IsNullOrEmpty(sSiteGUID)))
                 {
-                    return string.Empty;
+                    oLicensedLinkResponse.status = eLicensedLinkStatus.Error.ToString();
+                    return oLicensedLinkResponse;
                 }
 
                 int fileMainStreamingCoID = 0; // CDN Straming id
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
+                oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
                     Logger.Logger.Log("LicensedLink",
                         string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
-                    return string.Empty;
+                    return oLicensedLinkResponse;
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
@@ -1043,7 +1045,10 @@ namespace ConditionalAccess
                             }
                             break;
                         default:
-                            return string.Empty;
+                            {
+                                oLicensedLinkResponse.status = eLicensedLinkStatus.Error.ToString();
+                                return oLicensedLinkResponse;
+                            }
                     }
 
                 }
@@ -1068,11 +1073,11 @@ namespace ConditionalAccess
                     string liveUrl = provider.GenerateEPGLink(dURLParams);
                     if (!string.IsNullOrEmpty(liveUrl))
                     {
-                        url = liveUrl;
+                        oLicensedLinkResponse.status = eLicensedLinkStatus.OK.ToString();
+                        oLicensedLinkResponse.mainUrl = liveUrl;
                     }
                 }
-
-                return url;
+                return oLicensedLinkResponse;
             }
 
             catch (Exception ex)
@@ -1097,7 +1102,8 @@ namespace ConditionalAccess
                 }
             }
 
-            return url;
+            return oLicensedLinkResponse;
         }
     }
+    
 }

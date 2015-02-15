@@ -333,6 +333,9 @@
     <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\DeviceResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -355,6 +358,9 @@
     <None Include="Web References\TvinciDomains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\TvinciDomains\ResponseDLMStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -620,6 +626,10 @@
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
       <Name>GoogleAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{e56da89e-efe0-4077-ab1b-fe00389d5a02}</Project>

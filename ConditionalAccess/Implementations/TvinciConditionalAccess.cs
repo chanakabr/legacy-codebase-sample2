@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -252,7 +252,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
@@ -270,11 +270,9 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID,
-                sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData,
-                sCountryCd, sLanguageCode, sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
-                lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty);
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData,sCountryCd, sLanguageCode, 
+                sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
+                lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -325,7 +323,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, TvinciPricing.Collection theCol,
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
@@ -342,11 +340,9 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcCollectionEndDate(theCol, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID,
-                sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData,
-                sCountryCd, sLanguageCode, sDeviceName, bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
-                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty);
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName, 
+                bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
+                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -397,7 +393,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,
+        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
             TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
@@ -417,7 +413,7 @@ namespace ConditionalAccess
             lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, lMediaFileID, sSiteGUID, dPrice, sCurrency,
                 bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
                 relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, dtUtcNow, dtEndDate,
-                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, string.Empty);
+                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -477,18 +473,43 @@ namespace ConditionalAccess
          * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */ 
-        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, 
+       public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
+            LicensedLinkResponse response = new LicensedLinkResponse();
+            // validate user state (suspended or not)
+            int domainId = 0;
+            TvinciUsers.DomainSuspentionStatus domainStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
+            if (domainStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
+                throw new ArgumentException("User is suspended");
+
             string url = string.Empty;
+
             TvinciAPI.API api = null;
             try
             {
+                // validate EPG type format
                 if (!Enum.IsDefined(typeof(eEPGFormatType), format))
-                {
                     throw new ArgumentException(String.Concat("Unknown format. Format: ", format));
-                }
+
                 eEPGFormatType eformat = (eEPGFormatType)format;
+
+                // check if the service allowed for domain  
+                eService eservice = GetServiceByEPGFormat(eformat);
+                if (eservice != eService.Unknown && !IsServiceAllowed(m_nGroupID, domainId, eservice))
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("GetEPGLink: service not allowed.");
+                    sb.Append(String.Concat(" service: ", eservice.ToString()));
+                    sb.Append(String.Concat(" group ID: ", m_nGroupID));
+                    sb.Append(String.Concat(" domain ID: ", domainId));
+                    Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                    #endregion
+                    response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
+                    return response;
+                }
+
                 if (eformat == eEPGFormatType.NPVR)
                 {
                     /*
@@ -496,16 +517,18 @@ namespace ConditionalAccess
                      * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)
                      * CalcNPVRLicensedLink returns string.Empty unless it is Vodafone. Meaning, that if the account is not Vodafone,
                      * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
-                     */ 
+                     */
                     string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
                         sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                     if (npvrLicensedLink.Length > 0)
                     {
-                        return npvrLicensedLink;
+                        response.status = eLicensedLinkStatus.OK.ToString();
+                        response.mainUrl = npvrLicensedLink;
+                        return response;
                     }
                 }
                 int nProgramId = Int32.Parse(sProgramId);
-                int fileMainStreamingCoID = 0; // CDN Straming id
+                int fileMainStreamingCoID = 0; // CDN Streaming id
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
@@ -515,7 +538,7 @@ namespace ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
-                //call api service to get schedualing details
+                //call API service to get scheduling details
                 api = new TvinciAPI.API();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
@@ -531,7 +554,7 @@ namespace ConditionalAccess
                 if (scheduling != null)
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
-                    
+
                     dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
                     switch (eformat)
                     {
@@ -570,7 +593,8 @@ namespace ConditionalAccess
                 {
                     // to do write to log
                     Logger.Logger.Log("get epg url link", string.Format("api.GetProgramSchedule return null response can't create link with no dates "), "GetEPGLink");
-                    return string.Empty;
+                    response.status = eLicensedLinkStatus.Error.ToString();
+                    return response;
                 }
 
                 //call the right provider to get the epg link 
@@ -590,7 +614,9 @@ namespace ConditionalAccess
                     }
                 }
 
-                return url;
+                response.status = eLicensedLinkStatus.OK.ToString();
+                response.mainUrl = url;
+                return response;
 
             }
             catch (Exception ex)
@@ -611,7 +637,8 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
-                return string.Empty;
+                response.status = eLicensedLinkStatus.Error.ToString();
+                return response;
             }
             finally
             {

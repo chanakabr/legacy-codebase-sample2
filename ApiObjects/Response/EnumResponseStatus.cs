@@ -9,7 +9,7 @@ namespace ApiObjects.Response
     {
         OK = 0,
         Error = 1,
-
+        InternalError = 2,
         // Domain Section 1000 - 1999
 
         DomainAlreadyExists = 1000,
@@ -24,8 +24,7 @@ namespace ApiObjects.Response
         DomainSuspended = 1009,
         DlmNotExist = 1010,
         WrongPasswordOrUserName = 1011,
-        NoDlmId = 1012,
-
+        
         // User Section 2000 - 2999
         UserNotExists = 2000,
 

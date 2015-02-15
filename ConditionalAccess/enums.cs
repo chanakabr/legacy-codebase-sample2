@@ -184,7 +184,8 @@ namespace ConditionalAccess
         MediaConcurrency = 7,
         InvalidBaseLink = 8,
         InvalidFileData = 9,
-        UserSuspended = 10
+        UserSuspended = 10,
+        ServiceNotAllowed = 11
     }
 
     public enum eUrlType
@@ -206,6 +207,17 @@ namespace ConditionalAccess
         AssetDoesNotExist = 8,
         AssetAlreadyRecorded = 9,
         QuotaExceeded = 10,
-        Suspended = 11
-   }
+        Suspended = 11,
+        ServiceNotAllowed = 12
+    }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
+    }
+
 }

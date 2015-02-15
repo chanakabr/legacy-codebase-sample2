@@ -456,5 +456,26 @@ namespace Users
 
             return mutexSecurity;
         }
+
+        public static string GetMinPeriodDescription(int id)
+        {
+            string res = null;
+            Dictionary<string, string> minPeriods;
+            if (CachingManager.CachingManager.Exist("MinPeriods"))
+            {
+                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
+            }
+            else
+            {
+                minPeriods = Tvinci.Core.DAL.CatalogDAL.GetMinPeriods();
+                if (minPeriods != null)
+                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            }
+
+            if (minPeriods != null)
+                minPeriods.TryGetValue(id.ToString(), out res);
+
+            return res;
+        }
     }
 }

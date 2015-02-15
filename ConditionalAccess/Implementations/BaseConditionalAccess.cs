@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,15 +11,15 @@ using System.Xml;
 using System.Data;
 using DAL;
 using M1BL;
-using ConditionalAccess.TvinciPricing;
 using System.Collections;
 using Tvinci.Core.DAL;
 using ApiObjects;
 using QueueWrapper;
 using Newtonsoft.Json;
 using ApiObjects.MediaIndexingObjects;
+using GroupsCacheManager;
+using ConditionalAccess.TvinciPricing;
 using ApiObjects.Response;
-
 
 namespace ConditionalAccess
 {
@@ -51,17 +51,17 @@ namespace ConditionalAccess
             ref TvinciBilling.module bm);
 
 
-        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
+        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData,
             bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
 
-        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, TvinciPricing.Collection theCol,
+        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID);
 
-        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, TvinciPricing.Subscription relevantSub,
+        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
@@ -3371,10 +3371,9 @@ namespace ConditionalAccess
 
 
 
-        public virtual string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
-        {
-
-            return string.Empty;
+        public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        {          
+            return new LicensedLinkResponse();
         }
 
         /// <summary>
@@ -5521,7 +5520,7 @@ namespace ConditionalAccess
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
 
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                 sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
                                                 thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
@@ -6653,14 +6652,14 @@ namespace ConditionalAccess
 
                                             InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
-                                            ret = ExecuteCCSubscriprionPurchaseFlow(theBundle as TvinciPricing.Subscription, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode,
+                                            ret = ExecuteCCSubscriprionPurchaseFlow(theBundle as TvinciPricing.Subscription, sBundleCode, sSiteGUID, uObj.m_user.m_domianID, dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
                                                                         sPaymentMethodID, sEncryptedCVV, p, ref bm, sWSUserName, sWSPass);
                                             break;
                                         }
                                     case eBundleType.COLLECTION:
                                         {
-                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode,
+                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, uObj.m_user.m_domianID,dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
                                                                         sPaymentMethodID, sEncryptedCVV, p, ref bm);
 
@@ -6752,7 +6751,7 @@ namespace ConditionalAccess
             return true;
         }
 
-        private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
+        private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, int domianID, double dPrice,
                                     string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                     bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
                                     ref TvinciBilling.module bm, string sBillingUsername, string sBillingPassword)
@@ -6783,9 +6782,15 @@ namespace ConditionalAccess
             {
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
-                HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
+                HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
                     bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+
+                // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                if (theSub.m_nDomainLimitationModule != 0)
+                {
+                    UpdateDLM(domianID, theSub.m_nDomainLimitationModule);
+                }
 
                 // Enqueue notification for PS so they know a collection was charged
                 var dicData = new Dictionary<string, object>()
@@ -6808,7 +6813,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-        private TvinciBilling.BillingResponse ExecuteCCCollectionPurchaseFlow(TvinciPricing.Collection theCol, string sBundleCode, string sSiteGUID, double dPrice,
+        private TvinciBilling.BillingResponse ExecuteCCCollectionPurchaseFlow(TvinciPricing.Collection theCol, string sBundleCode, string sSiteGUID, int domainID, double dPrice,
                                     string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                     bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
                                     ref TvinciBilling.module bm)
@@ -6842,7 +6847,7 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID ,theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
                     sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
 
                 // Enqueue notification for PS so they know a collection was charged
@@ -9832,7 +9837,7 @@ namespace ConditionalAccess
                                         {
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID ,relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
                                                                                        thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
@@ -10066,7 +10071,7 @@ namespace ConditionalAccess
 
                                     long lBillingTransactionID = 0;
                                     long lPurchaseID = 0;
-                                    HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
+                                    HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, theSub, dPrice, sCurrency, sCouponCode,
                                                                                   sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
                                                                                   bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
@@ -10261,7 +10266,7 @@ namespace ConditionalAccess
                 //check if user exists
                 UserResponseObject ExistUser = Utils.GetExistUser(sSiteGuid, m_nGroupID);
 
-                if (ExistUser != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                if (ExistUser != null && ExistUser.m_user != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
                     Subscription userSubNew = null;
@@ -10313,8 +10318,8 @@ namespace ConditionalAccess
                             Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
                             return ChangeSubscriptionStatus.NewSubNotRenewable;
                         }
-
-                        return SetSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
+                       
+                       return SetSubscriptionChange(sSiteGuid,ExistUser.m_user.m_domianID, userSubNew, userSubOld);
                     }
                     else
                     {
@@ -10348,7 +10353,7 @@ namespace ConditionalAccess
 
         //the new subscription is dummy charged and its end date is set according the previous subscriptions end date
         //the previous  subscription is cancled and its end date is set to 'now'
-        private ChangeSubscriptionStatus SetSubscriptionChange(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
+        private ChangeSubscriptionStatus SetSubscriptionChange(string sSiteGuid, int nDomainID, Subscription subNew, PermittedSubscriptionContainer userSubOld)
         {
             ChangeSubscriptionStatus status = ChangeSubscriptionStatus.Error;
             try
@@ -10404,8 +10409,20 @@ namespace ConditionalAccess
 
                         if (updateEndDateNew && updateBillingTrans && bCancel && updateEndDateOld)
                         {
+                            // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                            UpdateDLM(nDomainID, subNew.m_nDomainLimitationModule);
                             status = ChangeSubscriptionStatus.OK;
                             WriteSubChangeToUserLog(sSiteGuid, subNew, userSubOld);
+                            // Enqueue notification for PS so they know a collection was charged
+                            var dicData = new Dictionary<string, object>()
+                            {
+                                {"oldSubscription", userSubOld.m_sSubscriptionCode},
+                                {"newSubscription", subNew},
+                                {"SiteGUID", sSiteGuid},
+                                {"domainID", nDomainID}
+                            };
+
+                            this.EnqueueEventRecord(NotifiedAction.ChangedSubscription, dicData);
                         }
                         else
                         {
@@ -10576,6 +10593,9 @@ namespace ConditionalAccess
 
                     if (bResult)
                     {
+                        // Update domain with last domain DLM
+                        UpdateDLM(p_nDomainID, 0);
+
                         // Report to user log
                         WriteToUserLog(sPurchasingSiteGuid,
                             string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
@@ -11337,7 +11357,113 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
+        public List<ServiceObject> GetDomainServices(int groupID, int domainID)
+        {
+            List<ServiceObject> domainServices = null;
+            PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
+            
+            if (domainSubscriptions != null)
+            {
+                List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
+                DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(groupID, subscriptionIDs);
+                if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
+                {
+                    domainServices = new List<ServiceObject>();
+                    foreach (DataRow row in subscriptionServices.Rows)
+                    {
+                        domainServices.Add(new ServiceObject()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row["service_id"]),
+                            Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
+                        });
+                    }
+                    domainServices.Distinct<ServiceObject>();
+                }
+            }
+            return domainServices;
+        }
 
+        protected void UpdateDLM(int domainID, int dlm)
+        {
+            if (dlm == 0)
+            {
+                long lastDomainDLM = ConditionalAccessDAL.Get_LastDomainDLM(m_nGroupID, domainID);
+                ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
+                if (changeDlmObj.resp != TvinciDomains.ResponseDLMStatus.OK)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Failed to change domain DLM to last DLM");
+                    sb.Append(String.Concat(" with Status: ", changeDlmObj.resp));
+                    sb.Append(String.Concat(" Domain ID: ", domainID));
+                    sb.Append(String.Concat(" Last DLM ID: ", lastDomainDLM));
+                    sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
+                    Logger.Logger.Log("ChangeDLM", sb.ToString(), GetLogFilename());
+                    #endregion
+                }
+            }
+            else
+            {
+                ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
+                if (changeDlmObj.resp != TvinciDomains.ResponseDLMStatus.OK)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Failed to change domain DLM to new DLM");
+                    sb.Append(String.Concat(" with Status: ", changeDlmObj.resp));
+                    sb.Append(String.Concat(" Domain ID: ", domainID));
+                    sb.Append(String.Concat(" New DLM ID: ", dlm));
+                    sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
+                    Logger.Logger.Log("ChangeDLM", sb.ToString(), GetLogFilename());
+                    #endregion
+                }
+            }
+        }
+
+        protected bool IsServiceAllowed(int groupID, int domainID, eService service)
+        {
+            GroupsCacheManager.Group group = GroupsCache.Instance().GetGroup(groupID);
+            if (group != null)
+            {
+                List<ServiceObject> enforcedGroupServices = group.GetServices();
+                //check if service is part of the group enforced services
+                if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || enforcedGroupServices.Where(s => s.ID == (int)service).FirstOrDefault() == null)
+                {
+                    return true;
+                }
+
+                // check if the service is allowed for the domain
+                List<ServiceObject> allowedDomainServices = GetDomainServices(groupID, domainID);
+                if (allowedDomainServices != null && allowedDomainServices.Count > 0 && allowedDomainServices.Where(s => s.ID == (int)service).FirstOrDefault() != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected eService GetServiceByEPGFormat(eEPGFormatType eformat)
+        {
+            eService eservice;
+
+            switch (eformat)
+            {
+                case eEPGFormatType.Catchup:
+                    eservice = eService.CatchUp;
+                    break;
+                case eEPGFormatType.StartOver:
+                    eservice = eService.StartOver;
+                    break;
+                case eEPGFormatType.LivePause:
+                    eservice = eService.Unknown;
+                    break;
+                case eEPGFormatType.NPVR:
+                    eservice = eService.NPVR;
+                    break;
+                default:
+                    eservice = eService.Unknown;
+                    break;
+            }
+            return eservice;
+        }
 
     }
 

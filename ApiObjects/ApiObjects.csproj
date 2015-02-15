@@ -198,6 +198,7 @@
     <Compile Include="SendAdminTokenRequest.cs" />
     <Compile Include="SendPasswordMailRequest.cs" />
     <Compile Include="SendToFriendMailRequest.cs" />
+    <Compile Include="ServiceObject.cs" />
     <Compile Include="SocialObjects.cs" />
     <Compile Include="Statistics\BuzzWeightedAverScore.cs" />
     <Compile Include="Statistics\ChannelBucket.cs" />

@@ -175,13 +175,18 @@ namespace Users
                         DataRow drGroup = ds.Tables[0].Rows[0];
                         DataRow drDLM = ds.Tables[1].Rows[0];
                         if (drGroup != null && drDLM != null)
-                        {   
+                        {
+                            oLimitationsManager.domianLimitID = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "ID");
+                            oLimitationsManager.DomainLimitName = ODBCWrapper.Utils.GetSafeStr(drDLM, "NAME");
                             int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");                            
                             oLimitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
                             int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
                             oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
+                            oLimitationsManager.FrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.Frequency);
                             oLimitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
                             oLimitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
+                            oLimitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
+                            oLimitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.UserFrequency);
 
                             oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);   
 
@@ -194,7 +199,7 @@ namespace Users
                     #endregion
 
                     #region DeviceFamily
-                    if (ds.Tables.Count >= 3)
+                    if (ds.Tables.Count >= 4)
                     {
                         DataTable dt = ds.Tables[2];
                         DataTable dtSpecificLimits = ds.Tables[3];

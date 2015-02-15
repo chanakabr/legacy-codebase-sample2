@@ -38,7 +38,8 @@ namespace GroupsCacheManager
         public List<string> m_sPermittedWatchRules { get; set; }
         [JsonProperty("m_nSubGroup")]
         public List<int> m_nSubGroup { get; set; }
-
+        [JsonProperty]
+        public List<ServiceObject> m_oServiceObject { get; set; }
 
         [JsonProperty("m_oOperatorChannelIDs")]
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
@@ -48,6 +49,8 @@ namespace GroupsCacheManager
         protected Dictionary<int, LanguageObj> m_dLangauges;
         [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
+        
+
         #endregion
 
         #region CTOR
@@ -69,6 +72,7 @@ namespace GroupsCacheManager
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
+            this.m_oServiceObject = new List<ServiceObject>();
             this.m_oDefaultLanguage = null;
         }
 
@@ -532,6 +536,107 @@ namespace GroupsCacheManager
         {
             return m_oDefaultLanguage;
         }
+        #endregion
+
+        #region Services
+       
+        public bool AddServices(List<ServiceObject> services)
+        {
+            bool bRes = false;
+            if (services != null && services.Count > 0)
+            {
+                try
+                {
+                    bool bInsert = true;
+                    foreach (ServiceObject newItem in services)                    
+                    {
+                        foreach (ServiceObject item in m_oServiceObject)
+                        {
+                            if (item.ID == newItem.ID)
+                            {
+                                bInsert = false;
+                            }
+                        }
+                        if (bInsert)
+                        {
+                            m_oServiceObject.Add(newItem);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(string.Format("failed to add Service . groupID={0};", this.m_nParentGroupID));
+                }
+            }
+
+            return bRes;
+        }
+
+        public ServiceObject GetServices(long nServiceID)
+        {
+            ServiceObject res = null;
+
+            foreach (ServiceObject item in m_oServiceObject)
+            {
+                if (item.ID == nServiceID)
+                {
+                    res = item;
+                    break;
+                }
+            }
+
+            return res;
+        }
+
+        public List<ServiceObject> GetServices()
+        {
+            return this.m_oServiceObject;
+        }
+
+        public bool RemoveServices(List<long> servicesID)
+        {
+            try
+            {
+                foreach (ServiceObject item in m_oServiceObject)
+                {
+                    if (servicesID.Contains(item.ID))
+                    {
+                        m_oServiceObject.Remove(item);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateServices(List<ServiceObject> services)
+        {
+            try
+            {
+                foreach (ServiceObject item in m_oServiceObject)
+                {
+                    foreach (ServiceObject updateItem in services)
+                    {
+                        if (item.ID == updateItem.ID)
+                        {
+                            item.Name = updateItem.Name;
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+
+
+
         #endregion
 
     }

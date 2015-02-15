@@ -1770,5 +1770,90 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
+
+        public static List<string> SetUsersStatus(List<int> users, int nUserToDelete, int status, int isActive, int domainID)
+        {
+            List<string> usersChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetUsersStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nUserToDelete);
+            sp.AddParameter("@status", status);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@usersID", users, "Id");            
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    usersChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "user_id"));
+                }
+            }
+            return usersChange; 
+        }
+
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)            
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);            
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            if (status != null)
+                sp.AddParameter("@status", status);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesChange;
+        }
+
+        public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatusNotInList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            if (status != null)
+                sp.AddParameter("@status", status);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesChange;
+        }
+
+        public static bool ChangeDomainDLM(int domainID, int domianLimitID)
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("ChangeDomainDLM");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@domainID", domainID);
+            sp.AddParameter("@domianLimitID", domianLimitID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }

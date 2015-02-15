@@ -11,6 +11,8 @@ using System.Xml.Serialization;
 using Users.Cache;
 using NPVR;
 using Newtonsoft.Json;
+using ApiObjects;
+using ApiObjects.Response;
 
 namespace Users
 {
@@ -204,6 +206,7 @@ namespace Users
             {
                 m_UsersIDs = new List<int>();
                 m_UsersIDs.Add(nMasterGuID);
+                m_totalNumOfUsers++;
             }
 
             #region NPVR
@@ -264,11 +267,11 @@ namespace Users
             {
                 m_nConcurrentLimit = oLimitationsManager.Concurrency;
                 m_nDeviceLimit = oLimitationsManager.Quantity;
-                m_nUserLimit = oLimitationsManager.nUserLimit;
+                m_nUserLimit = oLimitationsManager.nUserLimit;                
 
                 m_oLimitationsManager = new LimitationsManager();
                 m_oLimitationsManager.Concurrency = oLimitationsManager.Concurrency;
-
+                m_oLimitationsManager.domianLimitID = oLimitationsManager.domianLimitID;
                 m_oLimitationsManager.Frequency = oLimitationsManager.Frequency;
                 m_oLimitationsManager.npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
                 npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
@@ -283,29 +286,32 @@ namespace Users
                 {
                     m_deviceFamilies = new List<DeviceContainer>();
                 }
-                foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                if (oLimitationsManager.lDeviceFamilyLimitations != null)
                 {
-                    DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency);
-                    if (!m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                    foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                     {
-                        m_deviceFamilies.Add(dc);
-                        m_oDeviceFamiliesMapping.Add(item.deviceFamily, dc);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < m_deviceFamilies.Count; i++)
+                        DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency);
+                        if (!m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                         {
-                            if (m_deviceFamilies[i].m_deviceFamilyID == item.deviceFamily)
-                            {
-                                m_deviceFamilies[i].m_oLimitationsManager = dc.m_oLimitationsManager;
-                                m_deviceFamilies[i].m_deviceLimit = dc.m_deviceLimit;
-                                m_deviceFamilies[i].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
-                                break;
-                            }
+                            m_deviceFamilies.Add(dc);
+                            m_oDeviceFamiliesMapping.Add(item.deviceFamily, dc);
                         }
-                        m_oDeviceFamiliesMapping[item.deviceFamily].m_oLimitationsManager = dc.m_oLimitationsManager;
-                        m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceLimit = dc.m_deviceLimit;
-                        m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
+                        else
+                        {
+                            for (int i = 0; i < m_deviceFamilies.Count; i++)
+                            {
+                                if (m_deviceFamilies[i].m_deviceFamilyID == item.deviceFamily)
+                                {
+                                    m_deviceFamilies[i].m_oLimitationsManager = dc.m_oLimitationsManager;
+                                    m_deviceFamilies[i].m_deviceLimit = dc.m_deviceLimit;
+                                    m_deviceFamilies[i].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
+                                    break;
+                                }
+                            }
+                            m_oDeviceFamiliesMapping[item.deviceFamily].m_oLimitationsManager = dc.m_oLimitationsManager;
+                            m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceLimit = dc.m_deviceLimit;
+                            m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
+                        }
                     }
                 }
             }
@@ -420,6 +426,9 @@ namespace Users
             }
             
             DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID, false);   // OK or NoUsersInDomain --  get user list from DB (not from cache)
+
+            if (m_UsersIDs != null)
+                m_totalNumOfUsers = m_UsersIDs.Count();
 
             int numOfDevices = GetDeviceList(false);
 
@@ -1593,7 +1602,9 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
-            if (m_totalNumOfDevices >= m_oLimitationsManager.Quantity || activatedDevices >= dc.m_oLimitationsManager.Quantity)
+            // m_oLimitationsManager.Quantity == 0 is unlimited 
+            if ( (m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity != 0) ||
+                (activatedDevices >= dc.m_oLimitationsManager.Quantity && dc.m_oLimitationsManager.Quantity != 0))
             {
                 res = DomainResponseStatus.ExceededLimit;
             }
@@ -2372,6 +2383,134 @@ namespace Users
         }
 
         #endregion
-              
+
+
+        internal bool CompareDLM(LimitationsManager oLimitationsManager, ref ChangeDLMObj oChangeDLMObj)
+        {
+            try
+            {
+                if (oLimitationsManager != null) // initialize all fileds 
+                {
+                    #region Devices
+                    List<string> devicesChange = new List<string>();
+                    DeviceContainer currentDC = new DeviceContainer();
+
+                    foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                    {
+                        devicesChange = new List<string>();
+                        if (m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                        {
+                            currentDC = m_oDeviceFamiliesMapping[item.deviceFamily];
+                            if (currentDC != null && currentDC.m_oLimitationsManager != null)
+                            {
+                                // quntity of the new dlm is less than the cuurent dlm only if new dlm is <> 0 (0 = unlimited)
+                                if (currentDC.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
+                                {                                   
+                                    // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
+                                    List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
+                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quntity
+                                    {
+                                        int nDeviceToDelete = lDevicesID.Count - item.quantity;
+                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+                                        if (devicesChange != null && devicesChange.Count > 0)
+                                        {
+                                            oChangeDLMObj.devices.AddRange(devicesChange);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                   
+                    foreach (KeyValuePair<int, DeviceContainer> currentItem in m_oDeviceFamiliesMapping) // all keys not exsits in new DLM - Delete
+                    { 
+                        devicesChange = new List<string>();
+                        bool bNeedToDelete = true;
+                        // get from DB the last update date domains_devices table  change status to is_active = 0 + status 2 
+                        foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                        {
+                            if (item.deviceFamily == currentItem.Value.m_deviceFamilyID)
+                            {
+                                bNeedToDelete = false;
+                            }
+                        }
+                        if (bNeedToDelete) // family device id not exsits in new DLM - delete all devices
+                        {
+                            List<int> lDevicesID = currentItem.Value.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
+                            int nDeviceToDelete = lDevicesID.Count();
+                            if (nDeviceToDelete > 0)
+                            {
+                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+                                oChangeDLMObj.devices.AddRange(devicesChange);
+                            }
+                        }
+                    }
+
+                    // compare the total quntity of this domain 
+                    if (this.m_oLimitationsManager != null && this.m_oLimitationsManager.Quantity > oLimitationsManager.Quantity && oLimitationsManager.Quantity != 0)
+                    {
+                        devicesChange = new List<string>();
+
+                        List<int> lDevicesID = new List<int>();
+                        // from all families that are not 0 delete all last devices by activation date
+                        foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                        {
+                            if (item.quantity == 0) // create list of all devices that can't be deleteed!!!!!
+                            {
+                                if (m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                                {
+                                    List<Device> lDevices = m_oDeviceFamiliesMapping[item.deviceFamily].DeviceInstances;
+                                    lDevicesID.AddRange(lDevices.Select(x => int.Parse(x.m_id)));
+                                }
+                            }
+                        }
+                        if (lDevicesID.Count > 0)
+                        {
+                              int nDeviceToDelete = lDevicesID.Count - oLimitationsManager.Quantity;
+                              if (nDeviceToDelete > 0)
+                              {
+                                   devicesChange = DomainDal.SetDevicesDomainStatusNotInList(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+                                  if (devicesChange != null && devicesChange.Count > 0)
+                                  {
+                                      oChangeDLMObj.devices.AddRange(devicesChange);
+                                  }
+                              }
+                        }
+                    }
+
+                    #endregion
+
+                    #region Users limit
+                    List<string> users = new List<string>();
+                    if (this.m_nUserLimit > oLimitationsManager.nUserLimit && oLimitationsManager.nUserLimit != 0)
+                    {
+                        // change users status to Pending
+                        if (this.m_UsersIDs != null && this.m_UsersIDs.Count > 0 && this.m_UsersIDs.Count > oLimitationsManager.nUserLimit)
+                        {
+                            int nUserToDelete = this.m_UsersIDs.Count - oLimitationsManager.nUserLimit;
+                            users = DomainDal.SetUsersStatus(this.m_UsersIDs, nUserToDelete, 3, 0, this.m_nDomainID);
+                            if (users != null && users.Count > 0)
+                            {
+                                oChangeDLMObj.users.AddRange(users);
+                            }
+                        }
+                    }
+                    #endregion
+                }
+
+                // change dlmid in domain table 
+                bool bChangeDoamin = DomainDal.ChangeDomainDLM(this.m_nDomainID, oLimitationsManager.domianLimitID);
+
+                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.OK, string.Empty); 
+                return true;
+            }
+            catch (Exception ex)
+            {
+                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty); 
+                return false;
+            }
+        }
+
+        
     }
 }

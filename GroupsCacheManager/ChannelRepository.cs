@@ -40,13 +40,27 @@ namespace GroupsCacheManager
             {
                 GetGroupsTagsTypes(ref newGroup);
                 GetAllGroupChannels(newGroup);
-                GetGroupLanguages(ref newGroup);
+                GetGroupLanguages(ref newGroup);      
+                // get all services related to group
+                GetGroupServices(ref newGroup);
             }
 
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
+      
             return newGroup;
         }
+
+        private static void GetGroupServices(ref Group group)
+        {
+            List<ServiceObject> services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(group.m_nParentGroupID);
+            if (services != null)
+            {
+                group.AddServices(services);
+            }
+        }
+
+
         private static List<int> Get_SubGroupsTree(int nGroupID)
         {
             List<int> lGroups = new List<int>();

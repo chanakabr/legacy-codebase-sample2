@@ -2028,6 +2028,9 @@ namespace ConditionalAccess
                 }
             }
 
+             //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
             return lDomainsUsers;
         }
         private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
@@ -3012,5 +3015,37 @@ namespace ConditionalAccess
             }
             return (oDomain);
         }
+
+        public static ConditionalAccess.TvinciDomains.ChangeDLMObj ChangeDLM(int groupID, int domainId, int dlmID)
+        {
+            ConditionalAccess.TvinciDomains.ChangeDLMObj changeDLMObj = null;
+
+            try
+            {
+                using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
+                {
+                    string wsUsername = string.Empty;
+                    string wsPassword = string.Empty;
+                    Utils.GetWSCredentials(groupID, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
+                    string sWSURL = Utils.GetWSURL("domains_ws");
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        svcDomains.Url = sWSURL;
+                    }
+
+                    changeDLMObj = svcDomains.ChangeDLM(wsUsername, wsPassword, domainId, dlmID);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception",
+                    string.Format("Failed changing DLM using Domains WS. domainId = {0}, dlmID = {1}, groupID = {2}, Msg = {3}", domainId, dlmID, groupID, ex.Message), "CAS.Utils");
+            }
+            return changeDLMObj;
+        }
+
+        
     }
 }

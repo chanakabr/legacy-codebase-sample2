@@ -16,6 +16,7 @@ namespace ApiObjects
         ChargedMediaFile = 3,
         ChargedSubscription = 4,
         ChargedCollection = 5,
-        ChargedSubscriptionRenewal = 6
+        ChargedSubscriptionRenewal = 6,
+        ChangedSubscription = 7
     }
 }

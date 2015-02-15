@@ -1107,27 +1107,102 @@ namespace Users
 
 
         #endregion
-        public ResponseDLMStatus RemoveDLM(int nDlmID)
+        public StatusObject RemoveDLM(int nDlmID)
         {
+            StatusObject resp = new StatusObject();
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRes = oDomainCache.RemoveDLM(nDlmID);
                 if (bRes)
-                    return ResponseDLMStatus.OK;
+                    resp.Code = (int)eResponseStatus.OK;
                 else
-                    return ResponseDLMStatus.DlmNotExsit;
+                    resp.Code = (int)eResponseStatus.DlmNotExist;
+
+                return resp;
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("RemoveDLM", string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), "BaseDomain");
-                return ResponseDLMStatus.InternalError;
+                resp.Code = (int)eResponseStatus.InternalError;
+                return resp;
             }
 
         }
 
+        public ChangeDLMObj ChangeDLM(int domainID, int dlmID, int nGroupID)
+        {
+            ChangeDLMObj oChangeDLMObj = new ChangeDLMObj();
+            try
+            {
+                LimitationsManager oLimitationsManager = null;
+                // get Domain (with it current DLM) by domain ID 
+                DomainsCache oDomainsCache = DomainsCache.Instance();
+                Domain domain = oDomainsCache.GetDomain(domainID, nGroupID);
+                if (domain != null)
+                {
+                    if (domain.m_nLimit == dlmID) // noo need to change anything
+                    {
+                        oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.OK, string.Empty); 
+                    }
+                    else
+                    {
+                        // get the new DLM from cache 
+                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager, Utils.FICTIVE_DATE);
+                        if (!bDLM || oLimitationsManager == null)
+                        {   
+                            oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.DlmNotExist, string.Empty); 
+                        }
+                        else // start compare between two DLMs
+                        {
+                            bool bSuccess = domain.CompareDLM(oLimitationsManager, ref oChangeDLMObj);                           
+                        }
+                    }
+                    oDomainsCache.RemoveDomain(domainID);                
+                }
+                else
+                {   
+                    oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.DomainNotExists, string.Empty); 
+                }                    
 
+                return oChangeDLMObj;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ChangeDLM", string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID,ex.Message), "BaseDomain");                
+                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty); 
+                return oChangeDLMObj;
+            }
+        }
 
+        public DLMResponse GetDLM(int nDlmID, int nGroupID)
+        {
+            DLMResponse oDLMResponse = new DLMResponse();
+            try
+            {
+                LimitationsManager dlmObj;
+                 DomainsCache oDomainsCache = DomainsCache.Instance();                
+                        // get the DLM from cache 
+                 bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj, Utils.FICTIVE_DATE);
+                 if (bDLM && dlmObj != null)
+                 {
+                     oDLMResponse.dlm = dlmObj;                     
+                      oDLMResponse.resp = new StatusObject((int)eResponseStatus.OK, string.Empty); 
+                 }
+                 
+                 else
+                 {   
+                     oDLMResponse.resp = new StatusObject((int)eResponseStatus.DlmNotExist, string.Empty); 
+                 }
 
+                 return oDLMResponse;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetDLM", string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), "BaseDomain");                
+                oDLMResponse.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty); 
+                return oDLMResponse;
+            }
+        }
     }
 }
