@@ -1318,92 +1318,79 @@ namespace TVPApiModule.Services
         }
 
 
-        public StatusObject CancelDomainServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
+        public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
         {
-            StatusObject oResult = null;
+            StatusObject result = null;
+            ClientResponseStatus clientResponse;
 
             try
             {
-                oResult = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
+                result = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
+                clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : CancelServiceNow, Error Message: {0}, Parameters: domain Id: {1}, assetId: {2}", ex.Message, domainId, assetId);
-                oResult = new StatusObject()
-                {
-                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
-                    Message = "Failed calling webservice"
-                };
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
-            return (oResult);
+            return clientResponse;
         }
 
-        public StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID)
+        public ClientResponseStatus CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID)
         {
-            StatusObject oResult = null;
+            StatusObject result = null;
+            ClientResponseStatus clientResponse;
 
             try
             {
-                oResult = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
+                result = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
+                clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat(
-                    "Error calling webservice protocol : CancelSubscriptionRenewal, Error Message: {0}, Parameters :  Domain: {1} Susbcription: {2}",
+                logger.ErrorFormat("Error calling webservice protocol : CancelSubscriptionRenewal, Error Message: {0}, Parameters :  Domain: {1} Susbcription: {2}",
                     ex.Message, p_nDomainId, p_sSubscriptionID);
-
-                oResult = new StatusObject()
-                {
-                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
-                    Message = "Failed calling webservice"
-                };
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
-            return (oResult);
+            return clientResponse;
         }
 
         public ServicesResponse GetDomainServices(int domainId)
         {
-            ServicesResponse servicesRes = new ServicesResponse();
+            ServicesResponse response;
             try
             {
-                servicesRes.Services = m_Module.GetDomainServices(m_wsUserName, m_wsPassword, domainId);
+                var result = m_Module.GetDomainServices(m_wsUserName, m_wsPassword, domainId);
+                response = new ServicesResponse(result.Services, result.Status);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat(
                     "Error calling webservice protocol : GetDomainServices, Error Message: {0}, Parameters :  DomainID: {1}",
                     ex.Message, domainId);
-
-                servicesRes.Status.Code = 1;
-                servicesRes.Status.Message = "Error while calling webservice";
-
-
+                response = new ServicesResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
-
-            return servicesRes;
+            return response;
         }
 
         #endregion
 
-        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        public LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
-            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
+            LicensedLinkResponse response = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
 
             try
             {
-                var res = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
-                response = new Objects.Responses.LicensedLinkResponse(res);
+                response = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error while calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
-                response = new Objects.Responses.LicensedLinkResponse();
-                response.Status.Code = 1;
-                response.Status.Message = "Error while calling webservice";
             }
             return response;
         }

@@ -322,9 +322,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPApiModule.Objects.Responses.LicensedLinkResponse response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                    var response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
                     if (response != null)
-                        res = response.Url;
+                        res = response.mainUrl;
                 }
                 catch (Exception ex)
                 {
@@ -1175,30 +1175,28 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Cancel household service now")]
         public ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel)
         {
-            StatusObject oResult = null;
-            ClientResponseStatus clientResponse = new ClientResponseStatus();
+            ClientResponseStatus clientResponse;
 
             string clientIp = SiteHelper.GetClientIP();
 
-            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "CancelHHServiceNow", initObj.ApiUser, initObj.ApiPass, clientIp);
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "CancelServiceNow", initObj.ApiUser, initObj.ApiPass, clientIp);
 
             if (nGroupId > 0)
             {
                 try
                 {
-                    oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
-                        CancelDomainServiceNow(domainID, serviceID, serviceType, forceCancel);
+                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    clientResponse.Status.Code = (int)TVPApiModule.Objects.Enums.eCode.Failure;
+                    clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse();
                 }
             }
             else
             {
-                clientResponse.Status.Code = (int)TVPApiModule.Objects.Enums.eCode.Failure;
-                clientResponse.Status.Message = "Unknown group";
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                clientResponse = ResponseUtils.ReturnBadCredentialsClientResponse();
             }
 
             return clientResponse;
@@ -1231,9 +1229,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription Renewal")]
-        public StatusObject CancelSubscriptionRenewal(InitializationObject initObj, int domainID, string serviceID)
+        public ClientResponseStatus CancelSubscriptionRenewal(InitializationObject initObj, int domainID, string serviceID)
         {
-            StatusObject oResult = null;
+            ClientResponseStatus clientResponse = new ClientResponseStatus();
 
             string clientIp = SiteHelper.GetClientIP();
 
@@ -1243,36 +1241,27 @@ namespace TVPApiServices
             {
                 try
                 {
-                    oResult = new ApiConditionalAccessService(nGroupId, initObj.Platform).
-                        CancelSubscriptionRenewal(domainID, serviceID);
+                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelSubscriptionRenewal(domainID, serviceID);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    oResult = new StatusObject()
-                    {
-                        Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
-                        Message = "Error"
-                    };
+                    clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                oResult = new StatusObject()
-                {
-                    Code = (int)TVPApiModule.Objects.Enums.eCode.Failure,
-                    Message = "Unkown group"
-                };
+                clientResponse = ResponseUtils.ReturnBadCredentialsClientResponse();
             }
 
-            return (oResult);
+            return clientResponse;
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
         public ServicesResponse GetDomainServices(InitializationObject initObj, int domainID)
         {
-            ServicesResponse response = null;
+            ServicesResponse response;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainServices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1281,32 +1270,28 @@ namespace TVPApiServices
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainServices(domainID);
-                    response.Status.Code = 0;
-                    response.Status.Message = "OK";
                 }
                 catch (Exception ex)
                 {
-                    new ServicesResponse();
                     HttpContext.Current.Items.Add("Error", ex);
-                    response.Status.Code = 1;
-                    response.Status.Message = "Error";
+                    response = new ServicesResponse(); ;
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                new ServicesResponse();
-                response.Status.Code = 1;
-                response.Status.Message = "Unknown Group";
+                response = new ServicesResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
             return response;
         }
 
         [WebMethod(EnableSession = true, Description = "Gets link for EPG")]
-        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        public LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
-            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
+            LicensedLinkResponse response = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGLicensedResponse", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -1317,17 +1302,11 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    response = new TVPApiModule.Objects.Responses.LicensedLinkResponse();
-                    response.Status.Code = 1;
-                    response.Status.Message = "Error";
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                response = new TVPApiModule.Objects.Responses.LicensedLinkResponse();
-                response.Status.Code = 1;
-                response.Status.Message = "Unknown Group";
             }
             return response;
         }

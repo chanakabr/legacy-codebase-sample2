@@ -179,9 +179,14 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
-    <Compile Include="Objects\Responses\Responses.cs" />
-    <Compile Include="Objects\ClientResponseStatus.cs" />
-    <Compile Include="Objects\Status.cs" />
+    <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
+    <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
+    <Compile Include="Objects\Responses\LimitationsManager.cs" />
+    <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
+    <Compile Include="Objects\Responses\ResponseUtils.cs" />
+    <Compile Include="Objects\Responses\ServiceObject.cs" />
+    <Compile Include="Objects\Responses\ServicesResponse.cs" />
+    <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />
     <Compile Include="Objects\Notification.cs" />

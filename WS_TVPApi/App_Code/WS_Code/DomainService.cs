@@ -734,9 +734,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Suspends a domain for the given domain ID")]
-        public TVPApiModule.Objects.ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId)
+        public ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId)
         {
-            TVPApiModule.Objects.ClientResponseStatus statusResponse = new TVPApiModule.Objects.ClientResponseStatus();
+            ClientResponseStatus clientResponse;
 
             int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -744,20 +744,25 @@ namespace TVPApiServices
             {
                 try
                 {
-                    statusResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SuspendDomain(domainId);
+                    clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SuspendDomain(domainId);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
+                    clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse();
                 }
             }
-            return statusResponse;
+            else
+            {
+                clientResponse = ResponseUtils.ReturnBadCredentialsClientResponse();
+            }
+            return clientResponse;
         }
 
         [WebMethod(EnableSession = true, Description = "Resuming a suspended domain for the given domain ID")]
-        public TVPApiModule.Objects.ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId)
+        public ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId)
         {
-            TVPApiModule.Objects.ClientResponseStatus statusResponse = new TVPApiModule.Objects.ClientResponseStatus();
+            ClientResponseStatus clientResponse;
 
             int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SuspendDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -765,14 +770,19 @@ namespace TVPApiServices
             {
                 try
                 {
-                    statusResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResumeDomain(domainId);
+                    clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResumeDomain(domainId);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
+                    clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse();
                 }
             }
-            return statusResponse;
+            else
+            {
+                clientResponse = ResponseUtils.ReturnBadCredentialsClientResponse();
+            }
+            return clientResponse;
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the domain limitation module by ID")]
@@ -792,16 +802,14 @@ namespace TVPApiServices
                 {
                     HttpContext.Current.Items.Add("Error", ex);
                     response = new DomainLimitationModuleResponse();
-                    response.Status.Code = 1;
-                    response.Status.Message = "Error";
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
                 response = new DomainLimitationModuleResponse();
-                response.Status.Code = 1;
-                response.Status.Message = "Unknown Group";
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
             return response;
         }
