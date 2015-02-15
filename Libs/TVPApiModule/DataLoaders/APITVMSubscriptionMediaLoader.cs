@@ -129,7 +129,8 @@ namespace TVPApiModule.DataLoaders
                     Platform = Platform.ToString(),
                     Culture = Language,
                     MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null,
-                    SiteGuid = SiteGuid
+                    SiteGuid = SiteGuid,
+                    OrderMetaMame = "media_id"
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
             }
