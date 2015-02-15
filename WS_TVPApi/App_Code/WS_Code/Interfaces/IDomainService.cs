@@ -10,6 +10,7 @@ using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -89,9 +90,9 @@ namespace TVPApiServices
         DomainResponseObject ResetDomainFrequency(InitializationObject initObj, int frequencyType);
 
         [OperationContract]
-        TVPApiModule.Objects.ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId);
+        ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId);
 
         [OperationContract]
-        TVPApiModule.Objects.ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId);
+        ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId);
     }
 }
