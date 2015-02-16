@@ -877,7 +877,7 @@ namespace TVPApiModule.Services
         }
 
         public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
-        {            
+        {
             try
             {
                 return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
@@ -904,7 +904,7 @@ namespace TVPApiModule.Services
             }
 
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
-        }        
+        }
 
         public CollectionsPricesContainer[] GetCollectionsPrices(string[] collections, string userGuid, string countryCode2, string languageCode3, string deviceName)
         {
@@ -1067,7 +1067,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("RecordAsset: Error calling webservice protocol : GetNPVRResponse with RecordNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, epgId: {4}", 
+                logger.ErrorFormat("RecordAsset: Error calling webservice protocol : GetNPVRResponse with RecordNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, epgId: {4}",
                     ex.Message, siteGuid, domainId, udid, epgId);
             }
             return res;
@@ -1158,7 +1158,7 @@ namespace TVPApiModule.Services
             {
                 RecordSeriesByNameNPVRCommand commend = new RecordSeriesByNameNPVRCommand()
                 {
-                    assetID = assetId,                    
+                    assetID = assetId,
                     domainID = domainId,
                     siteGuid = siteGuid,
                     udid = udid,
@@ -1281,7 +1281,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid, 
+        public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid,
             string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
@@ -1302,7 +1302,7 @@ namespace TVPApiModule.Services
                     countryCd = countryCode,
                     langCd = languageCode,
                     couponCode = couponCode,
-                    format = 3,                    
+                    format = 3,
                     wsPassword = m_wsPassword,
                     wsUsername = m_wsUserName
                 };

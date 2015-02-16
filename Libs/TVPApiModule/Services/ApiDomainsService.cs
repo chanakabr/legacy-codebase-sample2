@@ -5,6 +5,7 @@ using System.Text;
 using log4net;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -522,40 +523,61 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public TVPApiModule.Objects.ClientResponseStatus SuspendDomain(int domainId)
+        public ClientResponseStatus SuspendDomain(int domainId)
         {
-            TVPApiModule.Objects.ClientResponseStatus statusResponse = new TVPApiModule.Objects.ClientResponseStatus();
+            ClientResponseStatus clientResponse;
 
             try
             {
-                var response = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
-                statusResponse.Status.Code = (int)response.Code;
-                statusResponse.Status.Message = response.Message;
+                var result = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
+                clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
             {
                 logger.Error(string.Format("Error while trying to suspend a domain. Domain ID: {0}", domainId), ex);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
-            return statusResponse;
+            return clientResponse;
         }
 
-        public TVPApiModule.Objects.ClientResponseStatus ResumeDomain(int domainId)
+        public ClientResponseStatus ResumeDomain(int domainId)
         {
-            TVPApiModule.Objects.ClientResponseStatus statusResponse = new TVPApiModule.Objects.ClientResponseStatus();
+            ClientResponseStatus clientResponse;
 
             try
             {
-                var response = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
-                statusResponse.Status.Code = (int)response.Code;
-                statusResponse.Status.Message = response.Message;
+                var result = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
+                clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
             {
                 logger.Error(string.Format("Error while trying to resume a suspended domain. Domain ID: {0}", domainId), ex);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
-            return statusResponse;
+            return clientResponse;
+        }
+
+        public DomainLimitationModuleResponse GetDomainLimitationModule(int dlmID)
+        {
+            DomainLimitationModuleResponse response = null;
+
+            try
+            {
+                var result = m_Module.GetDLM(m_wsUserName, m_wsPassword, dlmID);
+                response = new DomainLimitationModuleResponse();
+                response.DLM = new Objects.Responses.LimitationsManager(result.dlm);
+                response.Status = new Status(result.resp.Code, result.resp.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get domain limitation module. DLM ID: {0}", dlmID), ex);
+                response = new DomainLimitationModuleResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
         }
     }
 }
