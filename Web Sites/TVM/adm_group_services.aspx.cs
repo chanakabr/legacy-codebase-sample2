@@ -84,14 +84,14 @@ public partial class adm_group_services : System.Web.UI.Page
 
         if (bInsert)
         {
-            List<ApiObjects.ServiceObject> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
+            List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
             groupManager.AddServices(nGroupID, lServices);
         }
 
     }
 
-    private List<ApiObjects.ServiceObject> GetGroupServiceByID(int nServiceID, int nGroupID)
+    private List<int> GetGroupServiceByID(int nServiceID, int nGroupID)
     {
         return CatalogDAL.GetGroupServices(nGroupID, nServiceID);
     }
@@ -119,7 +119,7 @@ public partial class adm_group_services : System.Web.UI.Page
             }
             else
             {
-                List<ApiObjects.ServiceObject> lServices = GetGroupServiceByID(nServiceID, nGroupID);
+                List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);
                 groupManager.AddServices(nGroupID, lServices);
             }
         }
