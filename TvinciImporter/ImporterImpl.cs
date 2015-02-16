@@ -4330,9 +4330,15 @@ namespace TvinciImporter
                         try
                         {
                             wsCatalog = GetCatalogClient(sEndPointAddress);
-                            bUpdate = wsCatalog.UpdateChannel(nGroupId, nChannelID);
 
-                            Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, sEndPointAddress, bUpdate), "LuceneUpdate");
+                            if (wsCatalog != null)
+                            {
+                                bUpdate = wsCatalog.UpdateChannel(nGroupId, nChannelID);
+
+                                Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, sEndPointAddress, bUpdate), "LuceneUpdate");
+
+                                wsCatalog.Close();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -4347,7 +4353,7 @@ namespace TvinciImporter
             }
             finally
             {
-                client.Close();
+                wsCatalog.Close();
             }
 
             return bUpdate;
@@ -4537,12 +4543,17 @@ namespace TvinciImporter
                                     try
                                     {
                                         wsCatalog = GetCatalogClient(sEndPointAddress);
-                                        
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
-                                        
-                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", sEndPointAddress, sInfo), "UpdateIndex");
-                                        updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+
+                                        if (wsCatalog != null)
+                                        {
+                                            isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
+
+                                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                            Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", sEndPointAddress, sInfo), "UpdateIndex");
+                                            updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+
+                                            wsCatalog.Close();
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -4613,10 +4624,15 @@ namespace TvinciImporter
                                     {
                                         wsCatalog = GetCatalogClient(sEndPointAddress);
 
-                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
+                                        if (wsCatalog != null)
+                                        {
+                                            isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
 
-                                        string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+                                            string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                            updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+
+                                            wsCatalog.Close();
+                                        }
 
                                     }
                                     catch (Exception ex)
@@ -4672,7 +4688,12 @@ namespace TvinciImporter
                         {
                             wsCatalog = GetCatalogClient(arrAddresses[i]);
 
-                            res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                            if (wsCatalog != null)
+                            {
+                                res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+
+                                wsCatalog.Close();
+                            }
                         }
                     }
                 }
@@ -4737,10 +4758,16 @@ namespace TvinciImporter
                                     try
                                     {
                                         wsCatalog = GetCatalogClient(sEndPointAddress);
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
-                                        
-                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+
+                                        if (wsCatalog != null)
+                                        {
+                                            isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
+
+                                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                            updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
+
+                                            wsCatalog.Close();
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
