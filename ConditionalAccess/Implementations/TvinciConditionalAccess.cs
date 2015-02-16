@@ -23,7 +23,7 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string,string> dParams)
+        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
         {
 
             CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
@@ -117,7 +117,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, 
+        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP,
             string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider eBillingProvider)
         {
             TvinciBilling.module wsBillingModule = null;
@@ -146,8 +146,8 @@ namespace ConditionalAccess
                             }
                         case eBillingProvider.Offline:
                             {
-                                oResponse = 
-                                    wsBillingModule.DD_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, 
+                                oResponse =
+                                    wsBillingModule.DD_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber,
                                                                     nRecPeriods, lPurchaseID.ToString(), nBillingMethod);
 
                                 break;
@@ -232,13 +232,13 @@ namespace ConditionalAccess
             return bSuccesful;
         }
 
-        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid, 
-            double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, 
+        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
+            double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module wsBillingService)
         {
             if (!bIsDummy && !bIsEntitledToPreviewModule)
             {
-                return wsBillingService.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, 
+                return wsBillingService.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1,
                     nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
             }
             else
@@ -246,8 +246,8 @@ namespace ConditionalAccess
                 // if the user is entitled to preview module, and this function is called it means
                 // we already have the user's cc details so we can dummy charge him
                 // (this comment is correct for Adyen only. In Cinepolis there is no dummy charge. During development only MediaCorp and Cinepolis asked for preview module.)
-                return wsBillingService.CC_DummyChargeUser(sWSUsername, sWSPassword, sSiteGuid, 
-                    bIsEntitledToPreviewModule ? 0.0 : dPrice, 
+                return wsBillingService.CC_DummyChargeUser(sWSUsername, sWSPassword, sSiteGuid,
+                    bIsEntitledToPreviewModule ? 0.0 : dPrice,
                     sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams);
             }
         }
@@ -270,7 +270,7 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData,sCountryCd, sLanguageCode, 
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
                 sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
                 lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
@@ -340,7 +340,7 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcCollectionEndDate(theCol, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName, 
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName,
                 bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
                 dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
@@ -469,20 +469,29 @@ namespace ConditionalAccess
         /*
          * Vodafone patch. 2.12.14
          * If this method is called from the module.asmx, sProgramId will be an int.
-         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not neccessarily an int.
+         * If this method is called from LicensedLinkNPVRCommand, sProgramId is not necessarily an int.
          * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
-         */ 
-       public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+         */
+        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
             // validate user state (suspended or not)
             int domainId = 0;
             TvinciUsers.DomainSuspentionStatus domainStatus = TvinciUsers.DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
+
+            // check if domain is suspended
             if (domainStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
-                throw new ArgumentException("User is suspended");
+            {
+                StringBuilder sb = new StringBuilder("GetEPGLink: domain is suspended.");
+                sb.Append(String.Concat(" sSiteGUID: ", sSiteGUID));
+                sb.Append(String.Concat(" group ID: ", m_nGroupID));
+                sb.Append(String.Concat(" domain ID: ", domainId));
+                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                response.status = ApiObjects.Response.eResponseStatus.DomainSuspended.ToString();
+            }
 
             string url = string.Empty;
 

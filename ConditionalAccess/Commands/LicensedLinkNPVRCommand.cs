@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects.Response;
 
 namespace ConditionalAccess
 {
@@ -29,6 +30,10 @@ namespace ConditionalAccess
             else if (licensedLinkResponse.status == "ServiceNotAllowed")
             {
                 res.status = NPVRStatus.ServiceNotAllowed.ToString();
+            }
+            else if (licensedLinkResponse.status == eResponseStatus.DomainSuspended.ToString())
+            {
+                res.status = NPVRStatus.Suspended.ToString();
             }
             else
             {
