@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
+using ApiObjects.Response;
 using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
@@ -490,7 +491,8 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" group ID: ", m_nGroupID));
                 sb.Append(String.Concat(" domain ID: ", domainId));
                 Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
-                response.status = ApiObjects.Response.eResponseStatus.DomainSuspended.ToString();
+                response.status = eResponseStatus.DomainSuspended.ToString();
+                return response;
             }
 
             string url = string.Empty;
