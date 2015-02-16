@@ -309,7 +309,8 @@ namespace Users
                 uro = GetUserData(sSiteGUID);
             }
 
-            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null)
+            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null 
+                || uro.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                 return false;
 
             if (uro.m_user.m_oDynamicData.m_sUserData == null)
