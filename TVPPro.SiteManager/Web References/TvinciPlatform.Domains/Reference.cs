@@ -107,7 +107,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = global::TVPPro.SiteManager.Properties.Settings.Default.TVPPro_SiteManager_TvinciPlatform_Domains_module;
+            this.Url = "http://localhost/ws_domains/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

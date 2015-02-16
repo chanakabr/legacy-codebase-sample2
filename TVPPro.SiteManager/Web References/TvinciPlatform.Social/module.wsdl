@@ -773,6 +773,59 @@
           <s:element minOccurs="0" maxOccurs="1" name="user" type="s1:UserResponseObject" />
         </s:sequence>
       </s:complexType>
+      <s:element name="UpdateFriendsActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="dbActionId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateFriendsActivityFeedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateFriendsActivityFeedResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFriendsFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFriendsFeedResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="DeleteUserFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteUserFeedResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="MergeFriendsActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="MergeFriendsActivityFeedResponse">
+        <s:complexType />
+      </s:element>
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="ArrayOfFriendWatchedObject" nillable="true" type="tns:ArrayOfFriendWatchedObject" />
       <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
@@ -1054,6 +1107,30 @@
   <wsdl:message name="FBUserSigninSoapOut">
     <wsdl:part name="parameters" element="tns:FBUserSigninResponse" />
   </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateFriendsActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateFriendsActivityFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteFriendsFeed" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteFriendsFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteUserFeed" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteUserFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:MergeFriendsActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:MergeFriendsActivityFeedResponse" />
+  </wsdl:message>
   <wsdl:message name="GetUsersLikedMediaHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1254,6 +1331,33 @@
   <wsdl:message name="FBUserSigninHttpPostOut">
     <wsdl:part name="Body" element="tns:FBSignin" />
   </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="dbActionId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedHttpPostOut" />
+  <wsdl:message name="DeleteUserFeedHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedHttpPostOut" />
+  <wsdl:message name="MergeFriendsActivityFeedHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedHttpPostOut" />
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUsersLikedMedia">
       <wsdl:input message="tns:GetUsersLikedMediaSoapIn" />
@@ -1355,6 +1459,22 @@
       <wsdl:input message="tns:FBUserSigninSoapIn" />
       <wsdl:output message="tns:FBUserSigninSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <wsdl:input message="tns:UpdateFriendsActivityFeedSoapIn" />
+      <wsdl:output message="tns:UpdateFriendsActivityFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <wsdl:input message="tns:DeleteFriendsFeedSoapIn" />
+      <wsdl:output message="tns:DeleteFriendsFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <wsdl:input message="tns:DeleteUserFeedSoapIn" />
+      <wsdl:output message="tns:DeleteUserFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <wsdl:input message="tns:MergeFriendsActivityFeedSoapIn" />
+      <wsdl:output message="tns:MergeFriendsActivityFeedSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetUsersLikedMedia">
@@ -1436,6 +1556,22 @@
     <wsdl:operation name="FBUserSignin">
       <wsdl:input message="tns:FBUserSigninHttpPostIn" />
       <wsdl:output message="tns:FBUserSigninHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <wsdl:input message="tns:UpdateFriendsActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:UpdateFriendsActivityFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <wsdl:input message="tns:DeleteFriendsFeedHttpPostIn" />
+      <wsdl:output message="tns:DeleteFriendsFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <wsdl:input message="tns:DeleteUserFeedHttpPostIn" />
+      <wsdl:output message="tns:DeleteUserFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <wsdl:input message="tns:MergeFriendsActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:MergeFriendsActivityFeedHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -1658,6 +1794,42 @@
     </wsdl:operation>
     <wsdl:operation name="FBUserSignin">
       <soap:operation soapAction="http://social.tvinci.com/FBUserSignin" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/UpdateFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <soap:operation soapAction="http://social.tvinci.com/DeleteFriendsFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <soap:operation soapAction="http://social.tvinci.com/DeleteUserFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/MergeFriendsActivityFeed" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1893,6 +2065,42 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/UpdateFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/DeleteFriendsFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/DeleteUserFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/MergeFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2075,6 +2283,36 @@
       <wsdl:output>
         <mime:mimeXml part="Body" />
       </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <http:operation location="/UpdateFriendsActivityFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <http:operation location="/DeleteFriendsFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <http:operation location="/DeleteUserFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <http:operation location="/MergeFriendsActivityFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">

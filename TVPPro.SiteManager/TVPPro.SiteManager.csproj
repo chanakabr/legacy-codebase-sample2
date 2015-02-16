@@ -792,10 +792,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/billing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Billing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

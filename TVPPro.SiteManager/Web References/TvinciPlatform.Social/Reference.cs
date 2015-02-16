@@ -81,11 +81,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         private System.Threading.SendOrPostCallback FBUserSigninOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdateFriendsActivityFeedOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteFriendsFeedOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteUserFeedOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback MergeFriendsActivityFeedOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
         public module() {
-            this.Url = global::TVPPro.SiteManager.Properties.Settings.Default.TVPPro_SiteManager_TvinciPlatform_Social_module;
+            this.Url = "http://192.168.192.146/webservices/social/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -193,6 +201,18 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         public event FBUserSigninCompletedEventHandler FBUserSigninCompleted;
+        
+        /// <remarks/>
+        public event UpdateFriendsActivityFeedCompletedEventHandler UpdateFriendsActivityFeedCompleted;
+        
+        /// <remarks/>
+        public event DeleteFriendsFeedCompletedEventHandler DeleteFriendsFeedCompleted;
+        
+        /// <remarks/>
+        public event DeleteUserFeedCompletedEventHandler DeleteUserFeedCompleted;
+        
+        /// <remarks/>
+        public event MergeFriendsActivityFeedCompletedEventHandler MergeFriendsActivityFeedCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUsersLikedMedia", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1102,6 +1122,137 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
             if ((this.FBUserSigninCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.FBUserSigninCompleted(this, new FBUserSigninCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/UpdateFriendsActivityFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool UpdateFriendsActivityFeed(string wsUserName, string wsPassword, int siteGuid, string dbActionId) {
+            object[] results = this.Invoke("UpdateFriendsActivityFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid,
+                        dbActionId});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, string dbActionId) {
+            this.UpdateFriendsActivityFeedAsync(wsUserName, wsPassword, siteGuid, dbActionId, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, string dbActionId, object userState) {
+            if ((this.UpdateFriendsActivityFeedOperationCompleted == null)) {
+                this.UpdateFriendsActivityFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateFriendsActivityFeedOperationCompleted);
+            }
+            this.InvokeAsync("UpdateFriendsActivityFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid,
+                        dbActionId}, this.UpdateFriendsActivityFeedOperationCompleted, userState);
+        }
+        
+        private void OnUpdateFriendsActivityFeedOperationCompleted(object arg) {
+            if ((this.UpdateFriendsActivityFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateFriendsActivityFeedCompleted(this, new UpdateFriendsActivityFeedCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/DeleteFriendsFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void DeleteFriendsFeed(string wsUserName, string wsPassword, int siteGuid) {
+            this.Invoke("DeleteFriendsFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid});
+        }
+        
+        /// <remarks/>
+        public void DeleteFriendsFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
+            this.DeleteFriendsFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteFriendsFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+            if ((this.DeleteFriendsFeedOperationCompleted == null)) {
+                this.DeleteFriendsFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteFriendsFeedOperationCompleted);
+            }
+            this.InvokeAsync("DeleteFriendsFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid}, this.DeleteFriendsFeedOperationCompleted, userState);
+        }
+        
+        private void OnDeleteFriendsFeedOperationCompleted(object arg) {
+            if ((this.DeleteFriendsFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteFriendsFeedCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/DeleteUserFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void DeleteUserFeed(string wsUserName, string wsPassword, int siteGuid) {
+            this.Invoke("DeleteUserFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid});
+        }
+        
+        /// <remarks/>
+        public void DeleteUserFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
+            this.DeleteUserFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteUserFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+            if ((this.DeleteUserFeedOperationCompleted == null)) {
+                this.DeleteUserFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteUserFeedOperationCompleted);
+            }
+            this.InvokeAsync("DeleteUserFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid}, this.DeleteUserFeedOperationCompleted, userState);
+        }
+        
+        private void OnDeleteUserFeedOperationCompleted(object arg) {
+            if ((this.DeleteUserFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteUserFeedCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/MergeFriendsActivityFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void MergeFriendsActivityFeed(string wsUserName, string wsPassword, int siteGuid) {
+            this.Invoke("MergeFriendsActivityFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid});
+        }
+        
+        /// <remarks/>
+        public void MergeFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
+            this.MergeFriendsActivityFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void MergeFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+            if ((this.MergeFriendsActivityFeedOperationCompleted == null)) {
+                this.MergeFriendsActivityFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnMergeFriendsActivityFeedOperationCompleted);
+            }
+            this.InvokeAsync("MergeFriendsActivityFeed", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        siteGuid}, this.MergeFriendsActivityFeedOperationCompleted, userState);
+        }
+        
+        private void OnMergeFriendsActivityFeedOperationCompleted(object arg) {
+            if ((this.MergeFriendsActivityFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.MergeFriendsActivityFeedCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3982,6 +4133,44 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
             }
         }
     }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void UpdateFriendsActivityFeedCompletedEventHandler(object sender, UpdateFriendsActivityFeedCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateFriendsActivityFeedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateFriendsActivityFeedCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void DeleteFriendsFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void DeleteUserFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void MergeFriendsActivityFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
 }
 
 #pragma warning restore 1591
