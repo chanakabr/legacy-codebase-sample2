@@ -560,7 +560,7 @@ namespace GroupsCacheManager
             }
         }
         
-        internal bool AddServices(int nGroupID, List<ServiceObject> services)
+        internal bool AddServices(int nGroupID, List<int> services)
         {
             try
             {
@@ -628,7 +628,7 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-        internal bool UpdateServices(int nGroupID, List<ServiceObject> services)
+        internal bool UpdateServices(int nGroupID, List<int> services)
         {
             try
             {

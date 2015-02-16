@@ -53,7 +53,7 @@ namespace GroupsCacheManager
 
         private static void GetGroupServices(ref Group group)
         {
-            List<ServiceObject> services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(group.m_nParentGroupID);
+            List<int> services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(group.m_nParentGroupID);
             if (services != null)
             {
                 group.AddServices(services);

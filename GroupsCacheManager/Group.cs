@@ -39,7 +39,7 @@ namespace GroupsCacheManager
         [JsonProperty("m_nSubGroup")]
         public List<int> m_nSubGroup { get; set; }
         [JsonProperty]
-        public List<ServiceObject> m_oServiceObject { get; set; }
+        public List<int> m_lServiceObject { get; set; }
 
         [JsonProperty("m_oOperatorChannelIDs")]
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
@@ -72,7 +72,7 @@ namespace GroupsCacheManager
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
-            this.m_oServiceObject = new List<ServiceObject>();
+            this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
         }
 
@@ -540,7 +540,7 @@ namespace GroupsCacheManager
 
         #region Services
        
-        public bool AddServices(List<ServiceObject> services)
+        public bool AddServices(List<int> services)
         {
             bool bRes = false;
             if (services != null && services.Count > 0)
@@ -548,18 +548,18 @@ namespace GroupsCacheManager
                 try
                 {
                     bool bInsert = true;
-                    foreach (ServiceObject newItem in services)                    
+                    foreach (int newItem in services)                    
                     {
-                        foreach (ServiceObject item in m_oServiceObject)
+                        foreach (int item in m_lServiceObject)
                         {
-                            if (item.ID == newItem.ID)
+                            if (item == newItem)
                             {
                                 bInsert = false;
                             }
                         }
                         if (bInsert)
                         {
-                            m_oServiceObject.Add(newItem);
+                            m_lServiceObject.Add(newItem);
                         }
                     }
                 }
@@ -572,13 +572,13 @@ namespace GroupsCacheManager
             return bRes;
         }
 
-        public ServiceObject GetServices(long nServiceID)
+        public int GetServices(long nServiceID)
         {
-            ServiceObject res = null;
+            int res = 0;
 
-            foreach (ServiceObject item in m_oServiceObject)
+            foreach (int item in m_lServiceObject)
             {
-                if (item.ID == nServiceID)
+                if (item == nServiceID)
                 {
                     res = item;
                     break;
@@ -588,20 +588,20 @@ namespace GroupsCacheManager
             return res;
         }
 
-        public List<ServiceObject> GetServices()
+        public List<int> GetServices()
         {
-            return this.m_oServiceObject;
+            return this.m_lServiceObject;
         }
 
         public bool RemoveServices(List<long> servicesID)
         {
             try
             {
-                foreach (ServiceObject item in m_oServiceObject)
+                foreach (int item in m_lServiceObject)
                 {
-                    if (servicesID.Contains(item.ID))
+                    if (servicesID.Contains(item))
                     {
-                        m_oServiceObject.Remove(item);
+                        m_lServiceObject.Remove(item);
                     }
                 }
                 return true;
@@ -612,20 +612,20 @@ namespace GroupsCacheManager
             }
         }
 
-        public bool UpdateServices(List<ServiceObject> services)
+        public bool UpdateServices(List<int> services)
         {
             try
             {
-                foreach (ServiceObject item in m_oServiceObject)
-                {
-                    foreach (ServiceObject updateItem in services)
-                    {
-                        if (item.ID == updateItem.ID)
-                        {
-                            item.Name = updateItem.Name;
-                        }
-                    }
-                }
+                //foreach (int item in m_lServiceObject)
+                //{
+                //    foreach (int updateItem in services)
+                //    {
+                //        if (item.ID == updateItem.ID)
+                //        {
+                //            item.Name = updateItem.Name;
+                //        }
+                //    }
+                //}
                 return true;
             }
             catch (Exception ex)

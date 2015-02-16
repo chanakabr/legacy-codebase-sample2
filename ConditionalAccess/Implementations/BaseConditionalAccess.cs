@@ -11357,10 +11357,10 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
-        public DomainServicesResponse GetDomainServices(int groupID, int domainID)
+        public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int groupID, int domainID)
         {
-            DomainServicesResponse domainServicesResponse;
-            List<ApiObjects.ServiceObject> domainServices = null;
+            ConditionalAccess.Response.DomainServicesResponse domainServicesResponse;
+            List<ServiceObject> domainServices = null;
             PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
             
             if (domainSubscriptions != null)
@@ -11369,19 +11369,19 @@ namespace ConditionalAccess
                 DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(groupID, subscriptionIDs);
                 if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
                 {
-                    domainServices = new List<ApiObjects.ServiceObject>();
+                    domainServices = new List<ServiceObject>();
                     foreach (DataRow row in subscriptionServices.Rows)
                     {
-                        domainServices.Add(new ApiObjects.ServiceObject()
+                        domainServices.Add(new ServiceObject()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row["service_id"]),
                             Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
                         });
                     }
-                    domainServices.Distinct<ApiObjects.ServiceObject>();
+                    domainServices.Distinct<ServiceObject>();
                 }
             }
-            domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK, domainServices);
+            domainServicesResponse = new ConditionalAccess.Response.DomainServicesResponse((int)eResponseStatus.OK, domainServices);
             return domainServicesResponse;
         }
 
@@ -11425,15 +11425,15 @@ namespace ConditionalAccess
             GroupsCacheManager.Group group = GroupsCache.Instance().GetGroup(groupID);
             if (group != null)
             {
-                List<ApiObjects.ServiceObject> enforcedGroupServices = group.GetServices();
+                List<int> enforcedGroupServices = group.GetServices();
                 //check if service is part of the group enforced services
-                if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || enforcedGroupServices.Where(s => s.ID == (int)service).FirstOrDefault() == null)
+                if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
                 {
                     return true;
                 }
 
                 // check if the service is allowed for the domain
-                DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
+                ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
                 if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 && 
                     allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
                 {

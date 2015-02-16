@@ -180,7 +180,7 @@ namespace GroupsCacheManager
         }
 
 
-        public bool AddServices(int nGroupID, List<ServiceObject> services)
+        public bool AddServices(int nGroupID, List<int> services)
         {
             bool bAdd = false;
             try
@@ -208,7 +208,7 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-        public bool UpdateServices(int nGroupID, List<ServiceObject> services)
+        public bool UpdateServices(int nGroupID, List<int> services)
         {
             bool bUpdate = false;
             try

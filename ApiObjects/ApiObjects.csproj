@@ -109,7 +109,6 @@
     <Compile Include="ChannelRequestObject.cs" />
     <Compile Include="DeviceObject.cs" />
     <Compile Include="DeviceRule.cs" />
-    <Compile Include="DomainServicesResponse.cs" />
     <Compile Include="EmailNotificationRequest.cs" />
     <Compile Include="Epg.cs" />
     <Compile Include="EPGChannelProgrammeObject.cs" />
@@ -199,7 +198,6 @@
     <Compile Include="SendAdminTokenRequest.cs" />
     <Compile Include="SendPasswordMailRequest.cs" />
     <Compile Include="SendToFriendMailRequest.cs" />
-    <Compile Include="ServiceObject.cs" />
     <Compile Include="SocialObjects.cs" />
     <Compile Include="Statistics\BuzzWeightedAverScore.cs" />
     <Compile Include="Statistics\ChannelBucket.cs" />

@@ -2395,9 +2395,9 @@ namespace Tvinci.Core.DAL
             return dicMinPeriods;
         }
 
-        public static List<ServiceObject> GetGroupServices(int groupID, int? serviceID = null)
+        public static List<int> GetGroupServices(int groupID, int? serviceID = null)
         {
-            List<ServiceObject> lServices = new List<ServiceObject>();
+            List<int> lServices = new List<int>();
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupServices");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -2412,10 +2412,7 @@ namespace Tvinci.Core.DAL
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        ServiceObject oService = new ServiceObject();
-                        oService.ID = ODBCWrapper.Utils.GetLongSafeVal(dr, "SERVICE_ID");
-                        oService.Name = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                        lServices.Add(oService);
+                        lServices.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "SERVICE_ID"));
                     }
                 }
             }
