@@ -350,7 +350,9 @@ namespace Users
             {             
                 uro.m_user.UpdateDynamicData(uro.m_user.m_oDynamicData, m_nGroupID);
             }
-            else if (newPairs.Count > 0)
+
+            //else 
+            if (newPairs.Count > 0)
             {
                 UserDynamicData newUdd = new UserDynamicData();
                 newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + newPairs.Count];
@@ -363,10 +365,10 @@ namespace Users
                 for (int j = 0; j < newPairs.Count; j++)//add the new pairs
                 {
                     newUdd.m_sUserData[j + preLength] = newPairs[j];
-                }                       
+                }                   
+    
                 uro.m_user.UpdateDynamicData(newUdd, m_nGroupID);
             }
-
 
            #region Old Code
          //for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
@@ -399,7 +401,6 @@ namespace Users
 
          //       uro.m_user.Update(uro.m_user.m_oBasicData, newUdd, m_nGroupID); 
 	#endregion
-
 
             return true;
         }
