@@ -229,17 +229,8 @@ namespace Catalog
                     }
                 }
 
-                string sOrderValue = string.Empty;
+                string sOrderValue = FilteredQuery.GetESSortValue(oOrderObj);
 
-                // If order is request by a specific Id, e.g media id and not _id -- use it
-                if (oOrderObj.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.ID && !string.IsNullOrEmpty(oOrderObj.m_sOrderValue))
-                {
-                    sOrderValue = oOrderObj.m_sOrderValue;
-                }
-                else
-                {
-                    sOrderValue = FilteredQuery.GetESSortValue(oOrderObj);
-                }
 
                 tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
                 tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = sOrderValue });
