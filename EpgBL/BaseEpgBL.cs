@@ -17,7 +17,8 @@ namespace EpgBL
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
         public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
-        
+        public abstract List<EpgCB> GetEpgs(List<string> lIds);
+
         public abstract EpgCB GetEpgCB(ulong nProgramID);
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
 
@@ -31,10 +32,14 @@ namespace EpgBL
 
         public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 
+        public abstract bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
+
         public abstract bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null);
 
         public abstract void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate);
 
         public abstract void RemoveGroupPrograms(List<DateTime> lDates, int channelID);
+
+        public abstract void RemoveGroupPrograms(List<int> lprogramIDs);
     }
 }
