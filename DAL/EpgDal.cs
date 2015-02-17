@@ -269,9 +269,9 @@ namespace Tvinci.Core.DAL
 
         // get all channels by group id from DB
         //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' - the DB ID and the channel name.
-        public static Dictionary<string, KeyValuePair<int, string>> GetAllEpgChannelsDic(int nGroupID)
+        public static Dictionary<string,  List<KeyValuePair<int, string>>> GetAllEpgChannelsDic(int nGroupID)
         {
-            Dictionary<string, KeyValuePair<int, string>> result = new Dictionary<string, KeyValuePair<int, string>>();
+            Dictionary<string, List<KeyValuePair<int, string>>> result = new Dictionary<string, List<KeyValuePair<int, string>>>();
             try
             {
                 DataTable dt = GetAllEpgChannelsList(nGroupID);
@@ -285,7 +285,12 @@ namespace Tvinci.Core.DAL
                         KeyValuePair<int, string> kvp = new KeyValuePair<int, string>(nID, name);
                         if (!result.ContainsKey(channelId))
                         {
-                            result.Add(channelId, kvp);
+                           List<KeyValuePair<int, string>> lKvp = new List<KeyValuePair<int,string>>(){kvp};
+                            result.Add(channelId, lKvp);
+                        }
+                        else
+                        {
+                            result[channelId].Add(kvp);
                         }
                     }
                 }
@@ -293,7 +298,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                return new Dictionary<string, KeyValuePair<int, string>>();
+                return new Dictionary<string, List<KeyValuePair<int, string>>>();
             }
         }
 
