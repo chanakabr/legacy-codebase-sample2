@@ -840,6 +840,7 @@ namespace Catalog
                 {
                     oSearchOrderObj.m_bIsSlidingWindowField = oOrderObj.m_bIsSlidingWindowField;
                     oSearchOrderObj.lu_min_period_id = oOrderObj.lu_min_period_id;
+
                     switch (oOrderObj.m_eOrderDir)
                     {
                         case ApiObjects.SearchObjects.OrderDir.ASC:
