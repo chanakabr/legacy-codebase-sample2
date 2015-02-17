@@ -117,39 +117,12 @@ namespace Users
                 return o;
             }
 
-
-
-            //if ((yesUserData.ContainsKey("USER_PERMISSIONS")) && (!string.IsNullOrEmpty(yesUserData["USER_PERMISSIONS"])) &&
-            //    (string.Compare(yesUserData["USER_PERMISSIONS"], "OK", StringComparison.OrdinalIgnoreCase) != 0))
-            //{
-            //    UserBasicData userBasic = GetUserBasicData(yesUserData, sUN.ToLower(), sUN);
-            //    UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
-
-            //    o = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
-
-            //    //o = new UserResponseObject();
-            //    //o.m_user = new User();
-
-            //    o.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
-            //    return o;
-            //}
-
-
             // Check the user CoGuid stuff
             string sUserCoGuid = string.Empty;
             GetUserContentInfo(ref sUserCoGuid, "userUuid", yesUserData);
 
             string domainCoGuid = string.Empty;
             GetUserContentInfo(ref domainCoGuid, "AccountUuid", yesUserData);
-
-            // If not valid return user not exist
-            //if (string.IsNullOrEmpty(sUserCoGuid) || string.IsNullOrEmpty(domainCoGuid))
-            //{
-            //    o = new UserResponseObject();
-            //    o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-            //    return o;
-            //}
-
 
             // Check recommendation flag, if 'Y' - do ORCA SignIn
             char recommendflag;
@@ -500,7 +473,15 @@ namespace Users
                 ushort.TryParse(yesUserData["tvestatus_rac"], out tveStatus);
 
                 ushort satstatus = 0;
-                ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
+                ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);               
+
+                if ((satstatus == 3) &&
+                    ((!yesUserData.ContainsKey("AccountUuid")) ||
+                     (yesUserData.ContainsKey("AccountUuid") && string.IsNullOrEmpty(yesUserData["AccountUuid"]))))
+                {
+                    sRet = "LOGIN_MSG_115";
+                    return sRet;
+                }
 
                 if (((!yesUserData.ContainsKey("AccountUuid")) ||
                      (yesUserData.ContainsKey("AccountUuid") && string.IsNullOrEmpty(yesUserData["AccountUuid"]))) &&
@@ -513,15 +494,15 @@ namespace Users
                         return sRet;
                     }
 
+                    //if (satstatus == 3)
+                    //{
+                    //    sRet = "LOGIN_MSG_115";
+                    //    return sRet;
+                    //}
+
                     if (tveStatus != 1)
                     {
                         sRet = "LOGIN_MSG_109";
-                        return sRet;
-                    }
-
-                    if (satstatus == 3)
-                    {
-                        sRet = "LOGIN_MSG_115";
                         return sRet;
                     }
                 }

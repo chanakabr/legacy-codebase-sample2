@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using TVinciShared;
 
 namespace Users
@@ -200,7 +201,65 @@ namespace Users
             return saved;
         }
 
-        
+
+        /// <summary>
+        /// New Save (21.01.2015, Michael)
+        /// </summary>
+        /// <param name="nUserID"></param>
+        /// <returns></returns>
+        public bool Save(int nUserID, int nGroupID)
+        {
+            bool saved = false;
+
+            try
+            {
+                Dictionary<string, string> dTypeValue = new Dictionary<string, string>();
+
+                for (int i = 0; i < m_sUserData.Length; i++)
+                {
+                    UserDynamicDataContainer dc = (UserDynamicDataContainer)(m_sUserData[i]);
+                    string sType = dc.m_sDataType;
+                    string sVal = dc.m_sValue;
+
+                    if (!string.IsNullOrEmpty(sType))
+                    {
+                        dTypeValue[sType] = sVal;
+                    }
+                }
+
+                dTypeValue = dTypeValue
+                    .Where(tv => !string.IsNullOrEmpty(tv.Key))
+                    .ToDictionary(tv => tv.Key, tv => tv.Value);
+
+                XElement root = new XElement("root");  //     dTypeValue.Select(kv => new XElement(kv.Key, kv.Value)));
+
+                if (dTypeValue != null && dTypeValue.Count > 0)
+                {
+                    foreach (var typeVal in dTypeValue)
+                    {
+                        XElement cElement = new XElement("row");
+
+                        //cElement.SetAttributeValue("site_guid", nUserID.ToString());
+                        cElement.SetAttributeValue("data_type", typeVal.Key);
+                        cElement.SetAttributeValue("data_value", typeVal.Value);
+                        //cElement.SetAttributeValue("group_id", nGroupID);                       
+                        
+                        root.Add(cElement);
+                    }
+                }
+
+                int res = DAL.UsersDal.Update_UserDynamicData(nUserID, nGroupID, root.ToString());
+                saved = true;
+            }
+            catch
+            {
+            }
+
+            return saved;
+        }
+
+
+
 
         //generate a temporary table and insert to it all the data that need to be updated\inserted
         private bool UpdateAllDynamicData(int nUserID, int nGroupID, Dictionary<int, KeyValuePair<string, string>> dUpdate, List<KeyValuePair<string, string>> lInsert, List<int> lToRemove)
