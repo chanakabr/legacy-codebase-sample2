@@ -2711,20 +2711,12 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
-                if (!startDate.HasValue)
-                {
-                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
-                }
-                else
+                if (startDate.HasValue)
                 {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (!endDate.HasValue)
-                {
-                    //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
-                }
-                else
+                if (endDate.HasValue)
                 {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                 }
@@ -2742,20 +2734,12 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
 
-                if (!startDate.HasValue)
-                {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
-                }
-                else
+                if (startDate.HasValue)
                 {
                     updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                 }
 
-                if (!endDate.HasValue)
-                {
-                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
-                }
-                else
+                if (endDate.HasValue)
                 {
                     updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                 }
