@@ -1708,7 +1708,6 @@ namespace DAL
             return retOperatorId;
         }
 
-
         public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
         {   
             try
@@ -1730,6 +1729,32 @@ namespace DAL
             {
                 return null;
             }
-        }       
+        }
+
+        public static int Update_UserDynamicData(int nUserID, int nGroupID, string xmlTypeValue)
+        {
+            int rows = 0;
+
+            if (string.IsNullOrEmpty(xmlTypeValue))
+            {
+                return rows;
+            }
+
+            try
+            {
+                StoredProcedure spUpdateUserDynamicData = new StoredProcedure("Update_UserDynamicData");
+                
+                spUpdateUserDynamicData.AddParameter("@doc", xmlTypeValue);
+                spUpdateUserDynamicData.AddParameter("@group_id", nGroupID);
+                spUpdateUserDynamicData.AddParameter("@site_guid", nUserID);
+
+                rows = spUpdateUserDynamicData.ExecuteReturnValue<int>();
+            }
+            catch
+            {
+            }
+
+            return rows;
+        }
     } 
 }
