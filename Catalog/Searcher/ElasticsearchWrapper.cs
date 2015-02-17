@@ -232,8 +232,11 @@ namespace Catalog
                     }
                 }
 
+                string sOrderValue = FilteredQuery.GetESSortValue(oOrderObj);
+
+
                 tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
-                tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = FilteredQuery.GetESSortValue(oOrderObj) });
+                tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = sOrderValue });
                 tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
 
                 string sSearchQuery = tempQuery.ToString();

@@ -444,6 +444,66 @@ namespace DalCB
 
 
 
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, dtExpiresAt.Value) :
+                                                   m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas, dtExpiresAt.Value) :
+                                                   m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
     }
    
 }

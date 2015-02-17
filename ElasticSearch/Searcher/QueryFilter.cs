@@ -181,12 +181,14 @@ namespace ElasticSearch.Searcher
             }
             else
             {
+                string[] arrValues = new string[Value.Count];
+
                 for (int i = 0; i < Value.Count; i++)
                 {
-                    Value[i] = string.Format("\"{0}\"", Value[i]);
+                    arrValues[i] = string.Format("\"{0}\"", Value[i]);
                 }
-                
-                sb.Append(Value.Aggregate((current, next) => current + "," + next));
+
+                sb.Append(arrValues.Aggregate((current, next) => current + "," + next));
             }
             sb.Append("]}}");
 
