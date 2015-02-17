@@ -57,7 +57,8 @@ namespace GracenoteFeeder
             {
                 //get all epg channel ids by group
                 Dictionary<string, EpgChannelObj> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
-                    //GetAllChannels();
+                
+                //GetAllChannels();
                 List<string> channels = channelDic.Keys.ToList();
                 if (channels != null && channels.Count == 0)
                 {
@@ -91,6 +92,8 @@ namespace GracenoteFeeder
                 List<XmlDocument> xmlList = getChannelXMLs(lResponse);
                
                 #region send to celery Queue if needed
+                try
+                {
                 bool bSendToQueue = false;
 
                 string groupIDs = TVinciShared.WS_Utils.GetTcmConfigValue("graceNoteXDTVTransformGroups");
@@ -105,8 +108,21 @@ namespace GracenoteFeeder
                 {
                     foreach (XmlDocument xml in xmlList)
                     {
-                        SendToQueue(xml);                        
+                        try
+                        {
+                            SendToQueue(xml);
+                        }
+                        catch (Exception exp)
+                        {
+                            Logger.Logger.Log("SendToQueue in to loop", string.Format("failed to SendToQueue ex={0}", exp.Message), "SendToQueue");
+                        }
                     }
+                }
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("SendToQueue", string.Format("failed to SendToQueue ex={0}", ex.Message), "SendToQueue");
                 }
                 #endregion
 
@@ -125,7 +141,6 @@ namespace GracenoteFeeder
                         SaveChannel(xml, nChannelIDDB, sChannelID, channelDic[sChannelID].ChannelType);
                     }
                 }
-
             }
             catch (Exception ex)
             {
