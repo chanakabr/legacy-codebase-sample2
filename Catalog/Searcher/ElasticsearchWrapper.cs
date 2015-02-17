@@ -280,10 +280,6 @@ namespace Catalog
                             UpdateDate = item.update_date
                         }).ToList();
                     }
-
-                    StringBuilder sb = new StringBuilder();
-
-                    lSearchResults.ForEach(a => sb.Append(string.Format("{0},", a.asset_id)));
                 }
             }
             DateTime dtEnd = DateTime.Now;
