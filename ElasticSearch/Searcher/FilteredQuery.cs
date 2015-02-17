@@ -152,7 +152,7 @@ namespace ElasticSearch.Searcher
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sRes = "_id";
+                sRes = "_uid";
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
