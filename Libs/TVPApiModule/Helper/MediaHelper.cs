@@ -1104,13 +1104,31 @@ namespace TVPApi
             List<Media> retVal = new List<Media>();
 
             TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { MediaType = mediaType, WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute();
+            APITVMSubscriptionMediaLoader oSubscriptionMediaLoader = new APITVMSubscriptionMediaLoader(
+                parentAccount.TVMUser, parentAccount.TVMPass, sBaseID)
+                {
+                    MediaType = mediaType,
+                    WithInfo = true,
+                    Platform = initObj.Platform,
+                    GroupID = iGroupID,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    PicSize = picSize,
+                    BaseID = sBaseID,
+                    Language = initObj.Locale.LocaleLanguage,
+                    SiteGuid = initObj.SiteGuid
+                };
+
+            dsItemInfo mediaInfo = oSubscriptionMediaLoader.Execute();
 
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
+                long lTotalItems;
+                oSubscriptionMediaLoader.TryGetItemsCount(out lTotalItems);
+
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item.Rows)
                 {
-                    retVal.Add(new Media(row, initObj, iGroupID, false));
+                    retVal.Add(new Media(row, initObj, iGroupID, false, lTotalItems));
                 }
             }
 
