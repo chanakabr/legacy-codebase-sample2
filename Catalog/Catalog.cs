@@ -1573,9 +1573,11 @@ namespace Catalog
             int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
             int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
 
-            if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
+            if ((nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0) ||
+                nEndIndex > pRequest.m_lProgramsIds.Count)
+            {
                 nEndIndex = pRequest.m_lProgramsIds.Count();
-
+            }
 
 
             //generate a list with the relevant EPG IDs (according to page size and page index)
