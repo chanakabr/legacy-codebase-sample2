@@ -836,5 +836,83 @@ namespace GracenoteFeeder
             }
         }
 
+
+        public static DataTable InitEPGDataTableWithID()
+        {
+            DataTable dt = new DataTable();
+            // Add three column objects to the table. 
+            DataColumn ID = new DataColumn();
+            ID.DataType = typeof(long);
+            ID.ColumnName = "ID";
+            ID.Unique = true;
+            dt.Columns.Add(ID);
+            dt.Columns.Add("EPG_CHANNEL_ID", typeof(long));
+            dt.Columns.Add("EPG_IDENTIFIER", typeof(string));
+            dt.Columns.Add("NAME", typeof(string));
+            dt.Columns.Add("DESCRIPTION", typeof(string));
+            dt.Columns.Add("START_DATE", typeof(DateTime));
+            dt.Columns.Add("END_DATE", typeof(DateTime));
+            dt.Columns.Add("PIC_ID", typeof(long));
+            dt.Columns.Add("STATUS", typeof(int));
+            dt.Columns.Add("IS_ACTIVE", typeof(int));
+            dt.Columns.Add("GROUP_ID", typeof(long));
+            dt.Columns.Add("UPDATER_ID", typeof(long));
+            dt.Columns.Add("UPDATE_DATE", typeof(DateTime));
+            dt.Columns.Add("PUBLISH_DATE", typeof(DateTime));
+            dt.Columns.Add("CREATE_DATE", typeof(DateTime));
+            dt.Columns.Add("EPG_TAG", typeof(string));
+            dt.Columns.Add("media_id", typeof(long));
+            dt.Columns.Add("FB_OBJECT_ID", typeof(string));
+            dt.Columns.Add("like_counter", typeof(long));
+            return dt;
+        }
+
+        public static void FillEPGDataTable(Dictionary<string, EpgCB> epgDic, ref DataTable dtEPG, DateTime dPublishDate)
+        {
+            if (epgDic != null && epgDic.Count > 0)
+            {
+                foreach (EpgCB epg in epgDic.Values)
+                {
+                    if (epg != null)
+                    {
+                        DataRow row = dtEPG.NewRow();
+                        row["EPG_CHANNEL_ID"] = epg.ChannelID;
+                        row["EPG_IDENTIFIER"] = epg.EpgIdentifier;
+
+                        epg.Name = epg.Name.Replace("\r", "").Replace("\n", "");
+                        if (epg.Name.Length >= MaxNameSize)
+                            row["NAME"] = epg.Name.Substring(0, MaxNameSize); //insert only 255 chars (limitation of the column in the DB)
+                        else
+                            row["NAME"] = epg.Name;
+                        epg.Description = epg.Description.Replace("\r", "").Replace("\n", "");
+                        if (epg.Description.Length >= MaxDescriptionSize)
+                            row["DESCRIPTION"] = epg.Description.Substring(0, MaxDescriptionSize); //insert only 1024 chars (limitation of the column in the DB)
+                        else
+                            row["DESCRIPTION"] = epg.Description;
+                        row["START_DATE"] = epg.StartDate;
+                        row["END_DATE"] = epg.EndDate;
+                        row["PIC_ID"] = epg.PicID;
+                        row["STATUS"] = epg.Status;
+                        row["IS_ACTIVE"] = epg.isActive;
+                        row["GROUP_ID"] = epg.GroupID;
+                        row["UPDATER_ID"] = 400;
+                        row["UPDATE_DATE"] = epg.UpdateDate;
+                        row["PUBLISH_DATE"] = dPublishDate;
+                        row["CREATE_DATE"] = epg.CreateDate;
+                        row["EPG_TAG"] = null;
+                        row["media_id"] = epg.ExtraData.MediaID;
+                        row["FB_OBJECT_ID"] = epg.ExtraData.FBObjectID;
+                        row["like_counter"] = epg.Statistics.Likes;
+
+                        if (row.Table.Columns.Contains("ID") && epg.EpgID > 0)
+                        {
+                            row["ID"] = epg.EpgID;
+                        }
+                        dtEPG.Rows.Add(row);
+                    }
+                }
+            }
+
+        }
     }
 }
