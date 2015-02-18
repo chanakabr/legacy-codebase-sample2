@@ -181,6 +181,8 @@
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
+    <Compile Include="Objects\Responses\LicensedLink.cs" />
+    <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
     <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />

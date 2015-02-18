@@ -1378,19 +1378,22 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
-            LicensedLinkResponse response = null;
+            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
 
             try
             {
-                response = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                var result = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                response = new TVPApiModule.Objects.Responses.LicensedLinkResponse(result);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error while calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
+                response = new TVPApiModule.Objects.Responses.LicensedLinkResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
             return response;
         }

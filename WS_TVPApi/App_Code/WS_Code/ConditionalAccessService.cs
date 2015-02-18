@@ -324,7 +324,7 @@ namespace TVPApiServices
                 {
                     var response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
                     if (response != null)
-                        res = response.mainUrl;
+                        res = response.LicensedLink.MainUrl;
                 }
                 catch (Exception ex)
                 {
@@ -1289,9 +1289,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets link for EPG")]
-        public LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
-            LicensedLinkResponse response = null;
+            TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGLicensedResponse", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {

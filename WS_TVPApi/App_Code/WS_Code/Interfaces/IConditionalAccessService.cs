@@ -102,8 +102,7 @@ namespace TVPApiServices
         PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems);
 
         [OperationContract]
-        LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
-
+        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
         RecordResponse RecordAsset(InitializationObject initObj, string epgId);
@@ -145,7 +144,7 @@ namespace TVPApiServices
         ClientResponseStatus CancelSubscriptionRenewal(InitializationObject initObj, int domainId, string sSubscriptionID);
 
         [OperationContract]
-        LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
+        TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
 
     }
 }
