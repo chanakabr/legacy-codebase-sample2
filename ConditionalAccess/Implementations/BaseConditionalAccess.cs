@@ -1729,7 +1729,7 @@ namespace ConditionalAccess
                                     String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ",
                                     ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
 
-                                oResult.Code = (int)eResponseStatus.SubscriptionNotRenewable;
+                                oResult.Code = (int)eResponseStatus.OK;
                                 oResult.Message = "Subscription renewal cancelled";
 
                                 DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
