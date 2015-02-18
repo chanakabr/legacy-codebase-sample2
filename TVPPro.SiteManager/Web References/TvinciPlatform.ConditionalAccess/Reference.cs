@@ -7989,6 +7989,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LicensedLinkResponse {
         
         private string mainUrlField;
@@ -7996,6 +8029,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private string altUrlField;
         
         private string statusField;
+        
+        private Status statusField1;
         
         /// <remarks/>
         public string mainUrl {
@@ -8024,6 +8059,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField1;
+            }
+            set {
+                this.statusField1 = value;
             }
         }
     }
@@ -8082,6 +8127,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         Error,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
