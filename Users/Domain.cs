@@ -415,7 +415,13 @@ namespace Users
                 m_DomainStatus = DomainStatus.Error;
                 return false;
             }
-            
+
+            // If we found out that the domain doesn't exist, get out now
+            if (this.m_DomainStatus == DomainStatus.DomainNotExists)
+            {
+                return (true);
+            }
+
             if (!string.IsNullOrEmpty(sName))
             {
                 m_sName = sName;
@@ -1477,40 +1483,41 @@ namespace Users
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
                 ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat);
-
+            
             if (res)
             {
-                m_sName = sName;
-                m_sDescription = sDescription;
-                m_deviceLimitationModule = nDeviceLimitationModule;
-                m_nLimit = nDeviceLimitationModule;
-                m_nDeviceLimit =  nDeviceLimit;
-                m_nUserLimit = nUserLimit;
-                m_nConcurrentLimit = nConcurrentLimit;
-                m_nStatus = nStatus;
-                m_nIsActive = nIsActive;
-                m_frequencyFlag = nFrequencyFlag;
-                m_minPeriodId = nDeviceMinPeriodId;
-                m_minUserPeriodId = nUserMinPeriodId;
-                m_sCoGuid = sCoGuid;
-                m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
-
-                if (eSuspendStat == DomainSuspentionStatus.Suspended)
+                // If the domain is not in status 1, the rest of the initialization has no meaning
+                if (nStatus != 1)
                 {
-                    m_DomainStatus = DomainStatus.DomainSuspended;
+                    this.m_DomainStatus = DomainStatus.DomainNotExists;
                 }
-
-                long npvrQuotaInSecs = 0;
-                npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, dDeviceFrequencyLastAction);
-                
-                if (m_minPeriodId != 0)
+                else
                 {
-                    m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
-                }
+                    m_sName = sName;
+                    m_sDescription = sDescription;
+                    m_deviceLimitationModule = nDeviceLimitationModule;
+                    m_nDeviceLimit = m_nLimit = nDeviceLimit;
+                    m_nUserLimit = nUserLimit;
+                    m_nConcurrentLimit = nConcurrentLimit;
+                    m_nStatus = nStatus;
+                    m_nIsActive = nIsActive;
+                    m_frequencyFlag = nFrequencyFlag;
+                    m_minPeriodId = nDeviceMinPeriodId;
+                    m_minUserPeriodId = nUserMinPeriodId;
+                    m_sCoGuid = sCoGuid;
+                    m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
 
-                if (m_minUserPeriodId != 0)
-                {
-                    m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                    InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
+
+                    if (m_minPeriodId != 0)
+                    {
+                        m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
+                    }
+
+                    if (m_minUserPeriodId != 0)
+                    {
+                        m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                    }
                 }
             }
 
@@ -1851,6 +1858,7 @@ namespace Users
                     bool sendingMailResult = Utils.SendMail(nGroupID, sMailRequest);
 
                     return sendingMailResult ? DomainResponseStatus.RequestSent : DomainResponseStatus.RequestFailed;
+
                 }
             }
 
