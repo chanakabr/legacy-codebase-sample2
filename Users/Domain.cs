@@ -1496,7 +1496,8 @@ namespace Users
                     m_sName = sName;
                     m_sDescription = sDescription;
                     m_deviceLimitationModule = nDeviceLimitationModule;
-                    m_nDeviceLimit = m_nLimit = nDeviceLimit;
+                    m_nLimit = nDeviceLimitationModule;
+                    m_nDeviceLimit = nDeviceLimit;
                     m_nUserLimit = nUserLimit;
                     m_nConcurrentLimit = nConcurrentLimit;
                     m_nStatus = nStatus;
