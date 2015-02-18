@@ -1508,7 +1508,8 @@ namespace Users
                     m_sCoGuid = sCoGuid;
                     m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
 
-                    InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
+                    long npvrQuotaInSecs = 0;
+                    npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, dDeviceFrequencyLastAction);
 
                     if (m_minPeriodId != 0)
                     {
