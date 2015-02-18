@@ -11034,6 +11034,7 @@ namespace ConditionalAccess
                                             licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                             res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                                             res.status = mediaConcurrencyResponse.ToString();
+                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             // create PlayCycle
                                             CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
@@ -11043,6 +11044,7 @@ namespace ConditionalAccess
                                             res.altUrl = GetErrorLicensedLink(sBasicLink);
                                             res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                             res.status = mediaConcurrencyResponse.ToString();
+                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
                                                 mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
@@ -11052,7 +11054,8 @@ namespace ConditionalAccess
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
+                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString(); 
+                                        res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
 
                                         Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
                                             sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
@@ -11063,6 +11066,7 @@ namespace ConditionalAccess
                                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                     res.status = eLicensedLinkStatus.InvalidPrice.ToString();
+                                    res.Status.Code = (int)eResponseStatus.Error;
 
                                     Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
                                         nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
@@ -11072,7 +11076,8 @@ namespace ConditionalAccess
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
+                                res.status = eLicensedLinkStatus.InvalidFileData.ToString(); 
+                                res.Status.Code = (int)eResponseStatus.Error;
 
                                 Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
                                     sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
@@ -11082,6 +11087,7 @@ namespace ConditionalAccess
                         {
                             //returns empty url
                             res.status = eLicensedLinkStatus.UserSuspended.ToString();
+                            res.Status.Code = (int)eResponseStatus.UserSuspended;
 
                             Logger.Logger.Log("GetLicensedLinks", string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                         }
@@ -11090,7 +11096,8 @@ namespace ConditionalAccess
                     {
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
+                        res.status = eLicensedLinkStatus.InvalidPrice.ToString(); 
+                        res.Status.Code = (int)eResponseStatus.Error;
 
                         Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                     }
@@ -11099,7 +11106,8 @@ namespace ConditionalAccess
                 {
                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
+                    res.status = eLicensedLinkStatus.InvalidInput.ToString(); 
+                    res.Status.Code = (int)eResponseStatus.Error;
 
                     Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
                         sSiteGuid, nMediaFileID, sDeviceName, sBasicLink), GetLogFilename());
@@ -11110,6 +11118,7 @@ namespace ConditionalAccess
                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
                 res.status = eLicensedLinkStatus.Error.ToString();
+                res.Status.Code = (int)eResponseStatus.Error;
 
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
@@ -11131,6 +11140,50 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private int ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
+        {
+            eResponseStatus res;
+
+            switch (mediaConcurrencyResponse)
+            {
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.LimitationPeriod:
+                    res = eResponseStatus.LimitationPeriod;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.Error:
+                    res = eResponseStatus.Error;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ExceededLimit:
+                    res = eResponseStatus.ExceededLimit;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceTypeNotAllowed:
+                    res = eResponseStatus.DeviceTypeNotAllowed;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceNotInDomain:
+                    res = eResponseStatus.DeviceNotInDomain;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceAlreadyExists:
+                    res = eResponseStatus.DeviceAlreadyExists;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.OK:
+                    res = eResponseStatus.OK;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceExistsInOtherDomains:
+                    res = eResponseStatus.DeviceExistsInOtherDomains;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ConcurrencyLimitation:
+                    res = eResponseStatus.ConcurrencyLimitation;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.MediaConcurrencyLimitation:
+                    res = eResponseStatus.MediaConcurrencyLimitation;
+                    break;
+                default:
+                    res = eResponseStatus.Error;
+                    break;
+            }
+
+            return (int)res;
         }
 
         /*******************************************************************************************

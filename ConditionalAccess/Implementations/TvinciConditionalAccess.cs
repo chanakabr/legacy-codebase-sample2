@@ -492,6 +492,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" domain ID: ", domainId));
                 Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
                 response.status = eResponseStatus.DomainSuspended.ToString();
+                response.Status.Code = (int)eResponseStatus.DomainSuspended;
                 return response;
             }
 
@@ -518,6 +519,7 @@ namespace ConditionalAccess
                     Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
                     #endregion
                     response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
+                    response.Status.Code = (int)eResponseStatus.ServiceNotAllowed;
                     return response;
                 }
 
@@ -533,6 +535,7 @@ namespace ConditionalAccess
                         sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                     if (npvrLicensedLink.Length > 0)
                     {
+                        response.Status.Code = (int)eResponseStatus.OK;
                         response.status = eLicensedLinkStatus.OK.ToString();
                         response.mainUrl = npvrLicensedLink;
                         return response;
@@ -605,6 +608,7 @@ namespace ConditionalAccess
                     // to do write to log
                     Logger.Logger.Log("get epg url link", string.Format("api.GetProgramSchedule return null response can't create link with no dates "), "GetEPGLink");
                     response.status = eLicensedLinkStatus.Error.ToString();
+                    response.Status.Code = (int)eResponseStatus.Error;
                     return response;
                 }
 
@@ -624,7 +628,7 @@ namespace ConditionalAccess
                         url = liveUrl;
                     }
                 }
-
+                response.Status.Code = (int)eResponseStatus.OK;
                 response.status = eLicensedLinkStatus.OK.ToString();
                 response.mainUrl = url;
                 return response;
@@ -649,6 +653,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
                 response.status = eLicensedLinkStatus.Error.ToString();
+                response.Status.Code = (int)eResponseStatus.Error;
                 return response;
             }
             finally
