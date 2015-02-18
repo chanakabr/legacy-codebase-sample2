@@ -10584,38 +10584,38 @@ namespace ConditionalAccess
                                     break;
                                 }
                         }
+
+                        if (bResult)
+                        {
+                            // Update domain with last domain DLM
+                            UpdateDLM(p_nDomainID, 0);
+
+                            // Report to user log
+                            WriteToUserLog(sPurchasingSiteGuid,
+                                string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
+                                p_nAssetID));
+                            //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                            oResult.Code = (int)eResponseStatus.OK;
+                            oResult.Message = "Service successfully cancelled";
+
+                            if (drUserPurchase != null)
+                            {
+                                DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
+                            }
+                        }
+                        else
+                        {
+                            oResult.Code = (int)eResponseStatus.Error;
+                            oResult.Message = "Cancellation failed";
+                        }
                     }
                     else
                     {
                         oResult.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
                         oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
-                    }
-
-                    if (bResult)
-                    {
-                        // Update domain with last domain DLM
-                        UpdateDLM(p_nDomainID, 0);
-
-                        // Report to user log
-                        WriteToUserLog(sPurchasingSiteGuid,
-                            string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
-                            p_nAssetID));
-                        //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-
-                        oResult.Code = (int)eResponseStatus.OK;
-                        oResult.Message = "Service successfully cancelled";
-
-                        if (drUserPurchase != null)
-                        {
-                            DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
-
-                            EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
-                        }
-                    }
-                    else
-                    {
-                        oResult.Code = (int)eResponseStatus.Error;
-                        oResult.Message = "Cancellation failed";
                     }
                 }
             }
