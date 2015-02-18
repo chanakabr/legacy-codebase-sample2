@@ -327,7 +327,13 @@ namespace Users
                 m_DomainStatus = DomainStatus.Error;
                 return false;
             }
-            
+
+            // If we found out that the domain doesn't exist, get out now
+            if (this.m_DomainStatus == DomainStatus.DomainNotExists)
+            {
+                return (true);
+            }
+
             if (!string.IsNullOrEmpty(sName))
             {
                 m_sName = sName;
@@ -1570,30 +1576,38 @@ namespace Users
 
             if (res)
             {
-                m_sName = sName;
-                m_sDescription = sDescription;
-                m_deviceLimitationModule = nDeviceLimitationModule;
-                m_nDeviceLimit = m_nLimit = nDeviceLimit;
-                m_nUserLimit = nUserLimit;
-                m_nConcurrentLimit = nConcurrentLimit;
-                m_nStatus = nStatus;
-                m_nIsActive = nIsActive;
-                m_frequencyFlag = nFrequencyFlag;
-                m_minPeriodId = nDeviceMinPeriodId;
-                m_minUserPeriodId = nUserMinPeriodId;
-                m_sCoGuid = sCoGuid;
-                m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
-
-                InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
-
-                if (m_minPeriodId != 0)
+                // If the domain is not in status 1, the rest of the initialization has no meaning
+                if (nStatus != 1)
                 {
-                    m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
+                    this.m_DomainStatus = DomainStatus.DomainNotExists;
                 }
-
-                if (m_minUserPeriodId != 0)
+                else
                 {
-                    m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                    m_sName = sName;
+                    m_sDescription = sDescription;
+                    m_deviceLimitationModule = nDeviceLimitationModule;
+                    m_nDeviceLimit = m_nLimit = nDeviceLimit;
+                    m_nUserLimit = nUserLimit;
+                    m_nConcurrentLimit = nConcurrentLimit;
+                    m_nStatus = nStatus;
+                    m_nIsActive = nIsActive;
+                    m_frequencyFlag = nFrequencyFlag;
+                    m_minPeriodId = nDeviceMinPeriodId;
+                    m_minUserPeriodId = nUserMinPeriodId;
+                    m_sCoGuid = sCoGuid;
+                    m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
+
+                    InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
+
+                    if (m_minPeriodId != 0)
+                    {
+                        m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
+                    }
+
+                    if (m_minUserPeriodId != 0)
+                    {
+                        m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                    }
                 }
             }
 
