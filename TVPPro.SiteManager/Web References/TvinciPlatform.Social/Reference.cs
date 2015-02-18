@@ -93,7 +93,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://192.168.192.146/webservices/social/module.asmx";
+            this.Url = "http://localhost/ws_social/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -2010,31 +2010,52 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class FBSignin {
+    public partial class StatusObject {
         
-        private string statusField;
+        private int codeField;
         
         private string messageField;
         
-        private UserResponseObject userField;
-        
         /// <remarks/>
-        public string status {
+        public int Code {
             get {
-                return this.statusField;
+                return this.codeField;
             }
             set {
-                this.statusField = value;
+                this.codeField = value;
             }
         }
         
         /// <remarks/>
-        public string message {
+        public string Message {
             get {
                 return this.messageField;
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class FBSignin {
+        
+        private StatusObject statusField;
+        
+        private UserResponseObject userField;
+        
+        /// <remarks/>
+        public StatusObject status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
         
