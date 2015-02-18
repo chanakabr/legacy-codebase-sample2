@@ -151,7 +151,8 @@ namespace ConditionalAccess
         OldSubNotRenewable = 4,
         NewSubNotRenewable = 5,
         UserHadNewSub = 6,
-        Error = 7
+        Error = 7,
+        UserSuspended = 8,
     }
     
     [Serializable]

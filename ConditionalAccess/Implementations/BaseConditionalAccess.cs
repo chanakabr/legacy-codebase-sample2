@@ -1688,10 +1688,19 @@ namespace ConditionalAccess
                 // Get domain info - both for validation and for getting users in domain
                 TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainId, this.m_nGroupID);
 
+                // Check if the domain is OK
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
-                    oResult.Code = (int)eResponseStatus.DomainNotExists;
-                    oResult.Message = "Domain doesn't exist";
+                    if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
+                    {
+                        oResult.Code = (int)eResponseStatus.DomainSuspended;
+                        oResult.Message = "Domain suspended";
+                    }
+                    else
+                    {
+                        oResult.Code = (int)eResponseStatus.DomainNotExists;
+                        oResult.Message = "Domain doesn't exist";
+                    }
                 }
                 else
                 {
@@ -10264,74 +10273,81 @@ namespace ConditionalAccess
             try
             {
                 //check if user exists
-                UserResponseObject ExistUser = Utils.GetExistUser(sSiteGuid, m_nGroupID);
+                TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                int domainID = 0;
 
-                if (ExistUser != null && ExistUser.m_user != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
-                {
-                    PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
-                    Subscription userSubNew = null;
-                    PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
-                    List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
-                    //check if old sub exists
-                    if (userSubsArray != null)
-                    {
-                        userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
-                    }
-                    if (userOldSubList == null || userOldSubList.Count == 0)
-                    {
-                        return ChangeSubscriptionStatus.OldSubNotExists;
-                    }
-                    else
-                    {
-                        if (userOldSubList.Count > 0 && userOldSubList[0] != null)
-                        {
-                            userSubOld = userOldSubList[0];
-                            //check if the Subscription has autorenewal  
-                            if (!userSubOld.m_bRecurringStatus)
-                            {
-                                Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
-                                return ChangeSubscriptionStatus.OldSubNotRenewable;
-                            }
-                        }
-                    }
-
-                    //check if new subscsription already exists for this user
-                    List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nNewSub.ToString()).ToList();
-                    if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
-                    {
-                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
-                        return ChangeSubscriptionStatus.UserHadNewSub;
-                    }
-                    string pricingUsername = string.Empty, pricingPassword = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
-
-                    Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { nNewSub }, pricingUsername, pricingPassword, m_nGroupID);
-                    if (subs != null && subs.Length > 0)
-                    {
-                        userSubNew = subs[0];
-                    }
-                    //set new subscprion
-                    if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
-                    {
-                        if (!userSubNew.m_bIsRecurring)
-                        {
-                            Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
-                            return ChangeSubscriptionStatus.NewSubNotRenewable;
-                        }
-                       
-                       return SetSubscriptionChange(sSiteGuid,ExistUser.m_user.m_domianID, userSubNew, userSubOld);
-                    }
-                    else
-                    {
-                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " was not found. Subscription was not changed", "BaseConditionalAccess");
-                        return ChangeSubscriptionStatus.NewSubNotExits;
-                    }
-                }
-                else
+                if (!Utils.IsUserValid(sSiteGuid, m_nGroupID, ref domainID, ref suspendStatus))
                 {
                     Logger.Logger.Log("ChangeSubscription", " User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed", "BaseConditionalAccess");
                     return ChangeSubscriptionStatus.UserNotExists;
                 }
+
+                if (suspendStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
+                {
+                    Logger.Logger.Log("ChangeSubscription", " User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed", "BaseConditionalAccess");
+                    return ChangeSubscriptionStatus.UserSuspended;
+                }
+
+                PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
+                Subscription userSubNew = null;
+                PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
+                List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
+                //check if old sub exists
+                if (userSubsArray != null)
+                {
+                    userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                }
+                if (userOldSubList == null || userOldSubList.Count == 0)
+                {
+                    return ChangeSubscriptionStatus.OldSubNotExists;
+                }
+                else
+                {
+                    if (userOldSubList.Count > 0 && userOldSubList[0] != null)
+                    {
+                        userSubOld = userOldSubList[0];
+                        //check if the Subscription has autorenewal  
+                        if (!userSubOld.m_bRecurringStatus)
+                        {
+                            Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                            return ChangeSubscriptionStatus.OldSubNotRenewable;
+                        }
+                    }
+                }
+
+                //check if new subscsription already exists for this user
+                List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nNewSub.ToString()).ToList();
+                if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
+                {
+                    Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
+                    return ChangeSubscriptionStatus.UserHadNewSub;
+                }
+                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+
+                Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { nNewSub }, pricingUsername, pricingPassword, m_nGroupID);
+                if (subs != null && subs.Length > 0)
+                {
+                    userSubNew = subs[0];
+                }
+                //set new subscprion
+                if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
+                {
+                    if (!userSubNew.m_bIsRecurring)
+                    {
+                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                        return ChangeSubscriptionStatus.NewSubNotRenewable;
+                    }
+
+                    return SetSubscriptionChange(sSiteGuid, domainID, userSubNew, userSubOld);
+                }
+                else
+                {
+                    Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " was not found. Subscription was not changed", "BaseConditionalAccess");
+                    return ChangeSubscriptionStatus.NewSubNotExits;
+                }
+
+
             }
             catch (Exception exc)
             {
@@ -10534,8 +10550,16 @@ namespace ConditionalAccess
                 // Check if the domain is OK
                 if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
                 {
-                    oResult.Code = (int)eResponseStatus.DomainNotExists;
-                    oResult.Message = "Domain doesn't exist";
+                    if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
+                    {
+                        oResult.Code = (int)eResponseStatus.DomainSuspended;
+                        oResult.Message = "Domain suspended";
+                    }
+                    else
+                    {
+                        oResult.Code = (int)eResponseStatus.DomainNotExists;
+                        oResult.Message = "Domain doesn't exist";
+                    }
                 }
                 else
                 {
