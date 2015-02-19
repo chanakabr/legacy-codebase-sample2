@@ -9,17 +9,17 @@ namespace Users
 {
     public class DLMResponse
     {
-        public StatusObject resp { get; set; }
+        public ApiObjects.Response.Status resp { get; set; }
 
         public LimitationsManager dlm { get; set; }
 
         public DLMResponse()
         {
-            resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
             dlm = new LimitationsManager();
         }
 
-        public DLMResponse(StatusObject eResp, LimitationsManager oDlm)
+        public DLMResponse(ApiObjects.Response.Status eResp, LimitationsManager oDlm)
         {
             this.resp = eResp;
             this.dlm = oDlm;            

@@ -11,5 +11,11 @@ namespace ApiObjects.Response
         public int Code { get; set; }
 
         public string Message { get; set; }
+
+        public Status(int code = 0, string message = "")
+        {
+            this.Code = code;
+            this.Message = message;
+        }
     }
 }

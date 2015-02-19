@@ -8,11 +8,11 @@ namespace ConditionalAccess.Response
 {
     public class DomainServicesResponse
     {
-        public StatusObject Status { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
 
         public List<ConditionalAccess.TvinciPricing.ServiceObject> Services { get; set; }
 
-        public DomainServicesResponse(StatusObject status, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
+        public DomainServicesResponse(ApiObjects.Response.Status status, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
         {
             Status = status;
             Services = services;
@@ -20,13 +20,13 @@ namespace ConditionalAccess.Response
 
         public DomainServicesResponse(int code, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
         {
-            Status = new StatusObject(code);
+            Status = new ApiObjects.Response.Status(code);
             Services = services;
         }
 
         public DomainServicesResponse()
         {
-            Status = new StatusObject();
+            Status = new ApiObjects.Response.Status();
         }
     }
 }

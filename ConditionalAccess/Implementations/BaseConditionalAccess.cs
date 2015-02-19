@@ -1678,9 +1678,9 @@ namespace ConditionalAccess
         /// <param name="p_nDomainId"></param>
         /// <param name="p_sSubscriptionCode"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
+        public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
         {
-            StatusObject oResult = new StatusObject();
+            ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
             bool bResult = false;
 
             try
@@ -10535,10 +10535,10 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID,
+        public virtual ApiObjects.Response.Status CancelServiceNow(int p_nDomainID, int p_nAssetID,
             eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
-            StatusObject oResult = new StatusObject();
+            ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
 
             bool bResult = false;
 

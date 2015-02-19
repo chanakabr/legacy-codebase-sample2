@@ -204,7 +204,6 @@
     <Compile Include="Statistics\SocialActionStatistics.cs" />
     <Compile Include="Statistics\ViewStatistics.cs" />
     <Compile Include="Response\Status.cs" />
-    <Compile Include="StatusObject.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="UserComment.cs" />
