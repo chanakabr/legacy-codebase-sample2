@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
+
 namespace ApiObjects.Response
 {
+    [Serializable]
     public class Status
     {
         public int Code { get; set; }
@@ -16,6 +18,10 @@ namespace ApiObjects.Response
         {
             this.Code = code;
             this.Message = message;
+        }
+
+        public Status()
+        {
         }
     }
 }
