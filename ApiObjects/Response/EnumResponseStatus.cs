@@ -41,6 +41,7 @@ namespace ApiObjects.Response
         SubscriptionNotRenewable = 3002,
         ServiceNotAllowed = 3003,
         InvalidBaseLink = 3004,
+        ContentAlreadyConsumed = 3005,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

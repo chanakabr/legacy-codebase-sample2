@@ -10583,57 +10583,66 @@ namespace ConditionalAccess
                     {
                         drUserPurchase = dtUserPurchases.Rows[0];
                         sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
+                        int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "NUM_OF_USES");
 
-                        // Cancel NOW - according to type
-
-                        switch (p_enmTransactionType)
+                        // If user already consumed service - cannot be cancelled without force
+                        if (nNumOfUses > 0 && !p_bIsForce)
                         {
-                            case eTransactionType.PPV:
+                            oResult.Code = (int)eResponseStatus.ContentAlreadyConsumed;
+                            oResult.Message = "Service could not be cancelled because content was already consumed";
+                        }
+                        else
+                        {
+                            // Cancel NOW - according to type
+                            switch (p_enmTransactionType)
+                            {
+                                case eTransactionType.PPV:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            case eTransactionType.Subscription:
+                                case eTransactionType.Subscription:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            case eTransactionType.Collection:
+                                case eTransactionType.Collection:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            default:
+                                default:
                                 {
                                     break;
                                 }
-                        }
-
-                        if (bResult)
-                        {
-                            // Update domain with last domain DLM
-                            UpdateDLM(p_nDomainID, 0);
-
-                            // Report to user log
-                            WriteToUserLog(sPurchasingSiteGuid,
-                                string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
-                                p_nAssetID));
-                            //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-
-                            oResult.Code = (int)eResponseStatus.OK;
-                            oResult.Message = "Service successfully cancelled";
-
-                            if (drUserPurchase != null)
-                            {
-                                DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
-
-                                EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
                             }
-                        }
-                        else
-                        {
-                            oResult.Code = (int)eResponseStatus.Error;
-                            oResult.Message = "Cancellation failed";
+
+                            if (bResult)
+                            {
+                                // Update domain with last domain DLM
+                                UpdateDLM(p_nDomainID, 0);
+
+                                // Report to user log
+                                WriteToUserLog(sPurchasingSiteGuid,
+                                    string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
+                                    p_nAssetID));
+                                //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                                oResult.Code = (int)eResponseStatus.OK;
+                                oResult.Message = "Service successfully cancelled";
+
+                                if (drUserPurchase != null)
+                                {
+                                    DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                    EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
+                                }
+                            }
+                            else
+                            {
+                                oResult.Code = (int)eResponseStatus.Error;
+                                oResult.Message = "Cancellation failed";
+                            }
                         }
                     }
                     else
