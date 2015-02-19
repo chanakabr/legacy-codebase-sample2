@@ -983,6 +983,7 @@ namespace ConditionalAccess
                 if ((nProgramId <= 0) || (string.IsNullOrEmpty(sBasicLink)) || (string.IsNullOrEmpty(sSiteGUID)))
                 {
                     oLicensedLinkResponse.status = eLicensedLinkStatus.Error.ToString();
+                    oLicensedLinkResponse.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                     return oLicensedLinkResponse;
                 }
 
@@ -1047,6 +1048,7 @@ namespace ConditionalAccess
                         default:
                             {
                                 oLicensedLinkResponse.status = eLicensedLinkStatus.Error.ToString();
+                                oLicensedLinkResponse.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error; 
                                 return oLicensedLinkResponse;
                             }
                     }
@@ -1074,6 +1076,7 @@ namespace ConditionalAccess
                     if (!string.IsNullOrEmpty(liveUrl))
                     {
                         oLicensedLinkResponse.status = eLicensedLinkStatus.OK.ToString();
+                        oLicensedLinkResponse.Status.Code = (int)ApiObjects.Response.eResponseStatus.OK;
                         oLicensedLinkResponse.mainUrl = liveUrl;
                     }
                 }
