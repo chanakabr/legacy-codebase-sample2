@@ -2516,12 +2516,12 @@ namespace Users
                 // change dlmid in domain table 
                 bool bChangeDoamin = DomainDal.ChangeDomainDLM(this.m_nDomainID, oLimitationsManager.domianLimitID);
 
-                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.OK, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
                 return true;
             }
             catch (Exception ex)
             {
-                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return false;
             }
         }

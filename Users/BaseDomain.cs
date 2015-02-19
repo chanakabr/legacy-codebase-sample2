@@ -695,9 +695,9 @@ namespace Users
             return res;
         }
 
-        public virtual StatusObject SuspendDomain(int nDomainID)
+        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID)
         {
-            StatusObject result = new StatusObject();
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
@@ -738,9 +738,9 @@ namespace Users
             return result;
         }
 
-        public virtual StatusObject ResumeDomain(int nDomainID)
+        public virtual ApiObjects.Response.Status ResumeDomain(int nDomainID)
         {
-            StatusObject result = new StatusObject();
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
@@ -1121,9 +1121,9 @@ namespace Users
 
 
         #endregion
-        public StatusObject RemoveDLM(int nDlmID)
+        public ApiObjects.Response.Status RemoveDLM(int nDlmID)
         {
-            StatusObject resp = new StatusObject();
+            ApiObjects.Response.Status resp = new ApiObjects.Response.Status();
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
@@ -1157,7 +1157,7 @@ namespace Users
                 {
                     if (domain.m_nLimit == dlmID) // noo need to change anything
                     {
-                        oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.OK, string.Empty);
+                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
                     }
                     else
                     {
@@ -1165,7 +1165,7 @@ namespace Users
                         bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager, Utils.FICTIVE_DATE);
                         if (!bDLM || oLimitationsManager == null)
                         {
-                            oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.DlmNotExist, string.Empty);
+                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
                         }
                         else // start compare between two DLMs
                         {
@@ -1176,7 +1176,7 @@ namespace Users
                 }
                 else
                 {
-                    oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.DomainNotExists, string.Empty);
+                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
                 }
 
                 return oChangeDLMObj;
@@ -1184,7 +1184,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("ChangeDLM", string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), "BaseDomain");
-                oChangeDLMObj.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return oChangeDLMObj;
             }
         }
@@ -1201,12 +1201,12 @@ namespace Users
                 if (bDLM && dlmObj != null)
                 {
                     oDLMResponse.dlm = dlmObj;
-                    oDLMResponse.resp = new StatusObject((int)eResponseStatus.OK, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
                 }
 
                 else
                 {
-                    oDLMResponse.resp = new StatusObject((int)eResponseStatus.DlmNotExist, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
                 }
 
                 return oDLMResponse;
@@ -1214,7 +1214,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("GetDLM", string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), "BaseDomain");
-                oDLMResponse.resp = new StatusObject((int)eResponseStatus.InternalError, string.Empty);
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return oDLMResponse;
             }
         }
