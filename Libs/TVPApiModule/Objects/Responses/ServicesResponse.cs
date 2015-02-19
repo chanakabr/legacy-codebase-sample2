@@ -14,7 +14,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public ServicesResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ServiceObject[] services, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.StatusObject status)
+        public ServicesResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ServiceObject[] services, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Status status)
         {
             if (services != null)
             {

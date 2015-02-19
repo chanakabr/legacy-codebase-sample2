@@ -1320,7 +1320,7 @@ namespace TVPApiModule.Services
 
         public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
         {
-            StatusObject result = null;
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Status result = null;
             ClientResponseStatus clientResponse;
 
             try
@@ -1339,7 +1339,7 @@ namespace TVPApiModule.Services
 
         public ClientResponseStatus CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID)
         {
-            StatusObject result = null;
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Status result = null;
             ClientResponseStatus clientResponse;
 
             try
