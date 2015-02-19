@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Catalog" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Catalog" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
+  <xs:import schemaLocation="http://192.168.162.36/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="BundlesContainingMediaRequest">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseRequest">
@@ -396,6 +396,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Picture" nillable="true" type="tns:Picture" />
+  <xs:complexType name="ProgramObj">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseObject">
+        <xs:sequence>
+          <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q15:EPGChannelProgrammeObject" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="MediaFileObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">
@@ -439,16 +449,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AdProvider" nillable="true" type="tns:AdProvider" />
-  <xs:complexType name="ProgramObj">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseObject">
-        <xs:sequence>
-          <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q15:EPGChannelProgrammeObject" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="MediaObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">

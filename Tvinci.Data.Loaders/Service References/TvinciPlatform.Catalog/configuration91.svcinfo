@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="f2gfH7JzU07QgSpXuYPT4rUlc3o=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="8H8UHaikhNF69z2txe3/6ysGNY0=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="wsHttpBinding" name="WSHttpBinding_Iservice1">
       <properties>
@@ -127,10 +127,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="WSHttpBinding_Iservice1" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://192.168.192.146/webservices/catalog/Service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
+    <endpoint name="WSHttpBinding_Iservice1" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://192.168.162.36/WS_Catalog/Service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://192.168.192.146/webservices/catalog/Service.svc</serializedValue>
+          <serializedValue>http://192.168.162.36/WS_Catalog/Service.svc</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
