@@ -605,7 +605,10 @@ namespace Users
                 if (rowsAffected > 0)
                 {
                     SetDomainFlag(nDomainID, 1, false);
-                    eRetVal = RemoveUserFromList(nUserID);
+                    RemoveUserFromList(nUserID);
+
+                    // MHUB-169: return value shouldn't depend on inner-list removal, but on successful operation in DB instead.
+                    eRetVal = DomainResponseStatus.OK;
 
                     // remove domain from cache 
                     DomainsCache oDomainCache = DomainsCache.Instance();
