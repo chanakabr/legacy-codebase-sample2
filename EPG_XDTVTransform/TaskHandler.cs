@@ -29,25 +29,28 @@ namespace EPG_XDTVTransform
             xmlDoc.LoadXml(sXml);
 
             Dictionary<int, int> channelID_DB_ALU = getALUIDs();    
-            Dictionary<string, KeyValuePair<int, string>> channelDic = EpgDal.GetAllEpgChannelsDic(request.nGroupID);   
+            Dictionary<string, List<KeyValuePair<int, string>>> channelDic = EpgDal.GetAllEpgChannelsDic(request.nGroupID);   
        
             XmlNodeList xmlChannel = xmlDoc.GetElementsByTagName("TVGRIDBATCH");
             string sChannelID = Utils.GetSingleNodeValue(xmlChannel[0], "GN_ID");        
 
             if (channelDic.ContainsKey(sChannelID))
             {
-                int nChannelIDDB = channelDic[sChannelID].Key;
-                if (channelID_DB_ALU.ContainsKey(nChannelIDDB))
+                foreach (KeyValuePair<int, string> item in channelDic[sChannelID])
                 {
-                    int nChannelIDALU = channelID_DB_ALU[nChannelIDDB];
-                    string sChannelName = channelDic[sChannelID].Value;
+                    int nChannelIDDB = item.Key;
+                    if (channelID_DB_ALU.ContainsKey(nChannelIDDB))
+                    {
+                        int nChannelIDALU = channelID_DB_ALU[nChannelIDDB];
+                        string sChannelName = item.Value;
 
-                    //tranform to xdtv and get response to send to ALU
-                    res = TransformAndResponseALU(xmlDoc, nChannelIDALU, sChannelName);
-                }
-                else
-                {
-                    Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0}. channel cannot be sent to ALU", nChannelIDDB), "EPG_XDTVTransform");
+                        //tranform to xdtv and get response to send to ALU
+                        res = TransformAndResponseALU(xmlDoc, nChannelIDALU, sChannelName);
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0}. channel cannot be sent to ALU", nChannelIDDB), "EPG_XDTVTransform");
+                    }
                 }
             }
             return res;
