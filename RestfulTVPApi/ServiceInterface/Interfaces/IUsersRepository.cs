@@ -83,7 +83,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<Media> GetRecommendedMediasByTypes(GetRecommendedMediasByTypesRequest request);
 
-        bool CancelSubscription(CancelSubscriptionRequest request);        
+        Status CancelSubscription(CancelSubscriptionRequest request);        
 
         List<Notification> GetDeviceNotifications(GetDeviceNotificationsRequest request);
 

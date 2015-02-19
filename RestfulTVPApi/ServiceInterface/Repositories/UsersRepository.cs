@@ -232,7 +232,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public bool CancelSubscription(CancelSubscriptionRequest request)
+        public Status CancelSubscription(CancelSubscriptionRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscription(request.site_guid, request.subscription_id, request.subscription_purchase_id);             
         }

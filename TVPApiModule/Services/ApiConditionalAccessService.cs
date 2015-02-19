@@ -117,15 +117,17 @@ namespace TVPApiModule.Services
             return concatenatedRes;
         }
 
-        public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
+        public Status CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
         {
-            bool response = false;
+            Status response = new Status();
 
-            response = Convert.ToBoolean(Execute(() =>
+            response = Execute(() =>
                 {
-                    response = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);                    
+                    bool isCanceled = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);       
+                    response.status = isCanceled ? StatusObjectCode.OK : StatusObjectCode.Fail;
+
                     return response;
-                }));
+                }) as Status;
 
             return response;
         }        
