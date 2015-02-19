@@ -25,15 +25,17 @@ namespace EPG_XDTVTransform
 
             string sXml = Utils.Decompress(request.sXml);
 
+            Logger.Logger.Log("Info", string.Concat("Received EPG XDTV: ", sXml), "EPG_XDTVTransform");
+
             XmlDocument xmlDoc = new XmlDocument();
 
             xmlDoc.LoadXml(sXml);
 
             Dictionary<int, int> channelID_DB_ALU = getALUIDs();
             Dictionary<string, EpgChannelObj> channelDic = EpgDal.GetAllEpgChannelsDic(request.nGroupID);
-       
+
             XmlNodeList xmlChannel = xmlDoc.GetElementsByTagName("TVGRIDBATCH");
-            string sChannelID = Utils.GetSingleNodeValue(xmlChannel[0], "GN_ID");        
+            string sChannelID = Utils.GetSingleNodeValue(xmlChannel[0], "GN_ID");
 
             if (channelDic.ContainsKey(sChannelID))
             {
@@ -51,6 +53,8 @@ namespace EPG_XDTVTransform
                     Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0}. channel cannot be sent to ALU", nChannelIDDB), "EPG_XDTVTransform");
                 }
             }
+
+            Logger.Logger.Log("Info", string.Concat("EPG XDTV transformed result: ", res), "EPG_XDTVTransform");
 
             return res;
         }
@@ -77,8 +81,8 @@ namespace EPG_XDTVTransform
                     transformer.Transform(XMLDoc, writer);
 
                     string utf8String = Utils.convertUTF16toUTF8(writer.ToString());
-                    
-                    xmlResult.LoadXml(utf8String);                   
+
+                    xmlResult.LoadXml(utf8String);
                 }
                 catch (Exception exp)
                 {
@@ -88,7 +92,7 @@ namespace EPG_XDTVTransform
                 return xmlResult;
             }
         }
-    
+
 
         private Dictionary<int, int> getALUIDs()
         {
