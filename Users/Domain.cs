@@ -119,6 +119,7 @@ namespace Users
             m_UsersIDs = new List<int>();
             m_masterGUIDs = new List<int>();
             m_DefaultUsersIDs = new List<int>();
+            m_totalNumOfUsers = 0;
 
             m_DomainStatus = DomainStatus.UnKnown;
             m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
@@ -203,6 +204,8 @@ namespace Users
             {
                 m_UsersIDs = new List<int>();
                 m_UsersIDs.Add(nMasterGuID);
+
+                m_totalNumOfUsers = 1;
             }
 
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
@@ -884,6 +887,8 @@ namespace Users
             if (inserted > 0)
             {
                 m_UsersIDs.Add(nUserID);
+                m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
+
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
             else
@@ -1473,6 +1478,8 @@ namespace Users
                 m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
                 m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
                 m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
+
+                this.m_totalNumOfUsers = this.m_UsersIDs.Count - this.m_DefaultUsersIDs.Count;
 
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
