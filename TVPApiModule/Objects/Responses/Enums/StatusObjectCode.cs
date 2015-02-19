@@ -11,6 +11,6 @@ namespace TVPApiModule.Objects.Responses
         OK,
         Error,
         Fail,
-        Unkown
+        Unknown
     }
 }

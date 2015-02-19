@@ -12,7 +12,7 @@ namespace TVPApiModule.Objects.Responses
         public int code { get; set; }
         public string message { get; set; }
 
-        public Status(StatusObjectCode statusObjectCode = StatusObjectCode.Unkown, int code = 0, string message = "")
+        public Status(StatusObjectCode statusObjectCode = StatusObjectCode.Unknown, int code = 0, string message = "")
         {
             this.status = statusObjectCode;
             this.code = code;

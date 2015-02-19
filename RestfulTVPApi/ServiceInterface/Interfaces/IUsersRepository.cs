@@ -83,9 +83,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<Media> GetRecommendedMediasByTypes(GetRecommendedMediasByTypesRequest request);
 
-        bool CancelSubscription(CancelSubscriptionRequest request);
-
-        Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request);
+        bool CancelSubscription(CancelSubscriptionRequest request);        
 
         List<Notification> GetDeviceNotifications(GetDeviceNotificationsRequest request);
 
@@ -104,6 +102,8 @@ namespace RestfulTVPApi.ServiceInterface
         bool SetUserDynamicData(SetUserDynamicDataRequest request);
 
         TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(SignInRequest request);
+
+        FBSignIn FBUserSignin(FBUserSigninRequest request);
 
         void SignOut(SignOutRequest request);
 
@@ -166,5 +166,7 @@ namespace RestfulTVPApi.ServiceInterface
         bool WaiverTransaction(WaiverTransactionRequest request);
 
         UserResponseObject CheckTemporaryToken(CheckTemporaryTokenRequest request);
+
+        //Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request);
     }
 }

@@ -5,6 +5,7 @@ using log4net;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
 using TVPPro.SiteManager.TvinciPlatform.Social;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -89,14 +90,14 @@ namespace TVPApiModule.Services
                     BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
                     {
                         m_eAction = userAction,
-                        m_eAssetType = eAssetType.MEDIA,
+                        m_eAssetType = TVPPro.SiteManager.TvinciPlatform.Social.eAssetType.MEDIA,
                         m_eSocialPlatform = socialPlatform,
                         m_nAssetID = mediaID,
                         m_oKeyValue = extraParams,
                         m_sDeviceUDID = udid,
                         m_sSiteGuid = siteGuid
                     };
-                    DoSocialActionResponse response = Social.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                    TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse response = Social.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
                     if (response != null)
                         eRes = response.ToApiObject();
 
@@ -106,19 +107,19 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public List<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserSocialActions(string siteGuid,
+        public List<TVPApiModule.Objects.Responses.SocialActivityDoc> GetUserSocialActions(string siteGuid,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            List<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
+            List<TVPApiModule.Objects.Responses.SocialActivityDoc> res = null;
 
             res = Execute(() =>
                 {
 
-                    TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] response;
+                    TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] response;
 
                     if (onlyFriends)
                     {
@@ -146,55 +147,14 @@ namespace TVPApiModule.Services
                     }
 
                     if (response != null)
-                        res = response.Where(usa => usa != null).Select(u => u.ToApiObject()).ToList();
+                        res = new List<TVPApiModule.Objects.Responses.SocialActivityDoc>();//res = response.Where(usa => usa != null).Select(u => u.ToApiObject()).ToList();
 
 
                     return res;
-                }) as List<TVPApiModule.Objects.Responses.UserSocialActionObject>;
+                }) as List<TVPApiModule.Objects.Responses.SocialActivityDoc>;
 
             return res;
 
-            //try
-            //{
-            //    TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] response;
-
-            //    if (onlyFriends)
-            //    {
-            //        TVPPro.SiteManager.TvinciPlatform.Social.GetFriendsActionsRequest friendActionRequest = new TVPPro.SiteManager.TvinciPlatform.Social.GetFriendsActionsRequest()
-            //        {
-            //            m_eSocialPlatform = socialPlatform,
-            //            m_eUserActions = userAction,
-            //            m_nNumOfRecords = numOfItems,
-            //            m_nStartIndex = startIndex,
-            //            m_sSiteGuid = siteGuid
-            //        };
-            //        response = Social.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
-            //    }
-            //    else
-            //    {
-            //        TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionQueryRequest userActionRequest = new TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionQueryRequest()
-            //        {
-            //            m_eSocialPlatform = socialPlatform,
-            //            m_eUserActions = userAction,
-            //            m_nNumOfRecords = numOfItems,
-            //            m_nStartIndex = startIndex,
-            //            m_sSiteGuid = siteGuid
-            //        };
-            //        response = Social.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
-            //    }
-
-            //    if (response != null)
-            //        res = response.Where(usa => usa != null).Select(u => u.ToApiObject()).ToList();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.ErrorFormat(
-            //        "Error occurred in GetUserSocialActions, Error : {0} Parameters : siteGuid {1}, action: {2}, platform: {3}",
-            //        ex.Message, siteGuid,
-            //        userAction, socialPlatform);
-            //}
-
-            //return res;
         }
 
         public List<TVPApiModule.Objects.Responses.FriendWatchedObject> GetAllFriendsWatched(string sGuid, int maxResult)
@@ -386,9 +346,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public List<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserActions(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public List<TVPApiModule.Objects.Responses.SocialActivityDoc> GetUserActions(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
-            List<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
+            List<TVPApiModule.Objects.Responses.SocialActivityDoc> res = null;
 
             res = Execute(() =>
                 {
@@ -397,20 +357,21 @@ namespace TVPApiModule.Services
                     {
                         m_eSocialPlatform = socialPlatform,
                         m_eUserActions = userAction,
-                        m_nAssetID = assetID,
+                        //m_nAssetID = assetID,
                         m_eAssetType = assetType,
                         m_nNumOfRecords = numOfRecords,
                         m_nStartIndex = startIndex,
-                        m_sSiteGuid = siteGuid
+                        m_sSiteGuid = siteGuid,
+                        
                     };
 
                     var response = Social.GetUserActions(m_wsUserName, m_wsPassword, request);
 
                     if (response != null)
-                        res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
+                        res = new List<TVPApiModule.Objects.Responses.SocialActivityDoc>();//res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
 
                     return res;
-                }) as List<TVPApiModule.Objects.Responses.UserSocialActionObject>;
+                }) as List<TVPApiModule.Objects.Responses.SocialActivityDoc>;
 
             return res;
         }
@@ -431,7 +392,7 @@ namespace TVPApiModule.Services
                     {
                         m_eSocialPlatform = socialPlatform,
                         m_eUserActions = userAction,
-                        m_nAssetID = assetID,
+                        //m_nAssetID = assetID,
                         m_eAssetType = assetType,
                         m_nNumOfRecords = numOfRecords,
                         m_nStartIndex = startIndex,
@@ -440,7 +401,7 @@ namespace TVPApiModule.Services
 
                     var response = Social.GetFriendsActions(m_wsUserName, m_wsPassword, request);
                     if (response != null)
-                        res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
+                        res = new List<TVPApiModule.Objects.Responses.UserSocialActionObject>(); //res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
 
                     return res;
                 }) as List<TVPApiModule.Objects.Responses.UserSocialActionObject>;
@@ -477,7 +438,7 @@ namespace TVPApiModule.Services
         //    return res;            
         //}
 
-        public TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID)
         {
             TVPApiModule.Objects.Responses.DoSocialActionResponse response = null;
 
@@ -569,6 +530,27 @@ namespace TVPApiModule.Services
                 }));
 
             return res;
+        }
+
+        public FBSignIn FBUserSignin(string token, string ip, string deviceId, bool preventDoubleLogins)
+        {
+            FBSignIn signIn = new FBSignIn();
+
+            signIn = Execute(() =>
+            {
+
+                var res = Social.FBUserSignin(m_wsUserName, m_wsPassword, token, ip, deviceId, preventDoubleLogins);
+                if (res != null)
+                {
+                    signIn = res.ToApiObject();
+                }
+
+                return signIn;
+
+            }) as FBSignIn;
+
+            return signIn;
+
         }
     }
 }

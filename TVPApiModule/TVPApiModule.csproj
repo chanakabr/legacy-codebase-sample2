@@ -171,6 +171,7 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
+    <Compile Include="Objects\Responses\ActionProperties.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
     <Compile Include="Objects\Responses\AssetStatsResult.cs" />
     <Compile Include="Objects\Responses\BundleCodeContainer.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Objects\Responses\Enums\NetworkResponseStatus.cs" />
     <Compile Include="Objects\Responses\Enums\StatusObjectCode.cs" />
     <Compile Include="Objects\Responses\Enums\TransactionType.cs" />
+    <Compile Include="Objects\Responses\FBSignIn.cs" />
     <Compile Include="Objects\Responses\HomeNetwork.cs" />
     <Compile Include="Objects\Responses\NetworkResponseObject.cs" />
     <Compile Include="Objects\Responses\ResponseStatus.cs" />
@@ -261,6 +263,9 @@
     <Compile Include="Objects\Responses\Enums\eResponseStatus.cs" />
     <Compile Include="Objects\Responses\Scope.cs" />
     <Compile Include="Objects\Responses\Enums\SocialActionResponseStatus.cs" />
+    <Compile Include="Objects\Responses\SocialActivityObject.cs" />
+    <Compile Include="Objects\Responses\SocialActivitySubject.cs" />
+    <Compile Include="Objects\Responses\SocialActivityVerb.cs" />
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
     <Compile Include="Objects\Responses\Enums\SocialPlatform.cs" />
     <Compile Include="Objects\Responses\State.cs" />
@@ -332,6 +337,7 @@
     <Compile Include="Services\ServicesCache\BaseService.cs" />
     <Compile Include="Services\ServicesCache\ServiceFactory.cs" />
     <Compile Include="Services\ServicesCache\ServicesManager.cs" />
+    <Compile Include="Objects\Responses\SocialActivityDoc.cs" />
     <Compile Include="Web References\tvapi\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

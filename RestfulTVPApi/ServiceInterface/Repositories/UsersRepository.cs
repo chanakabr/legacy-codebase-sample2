@@ -311,7 +311,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<UserSocialActionObject> GetUserActions(GetUserActionsRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserActions(request.site_guid, request.user_action, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
+            throw new NotImplementedException();//return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserActions(request.site_guid, request.user_action, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
         }
 
         public List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(GetUserAllowedSocialPrivacyListRequest request)
@@ -434,9 +434,14 @@ namespace RestfulTVPApi.ServiceInterface
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserExpiredCollections(request.site_guid, request.num_of_items);
         }
 
-        public bool CancelTransaction(CancelTransactionRequest request)
+        /*public bool CancelTransaction(CancelTransactionRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type, request.is_force);
+        }*/
+
+        public bool CancelTransaction(CancelTransactionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type);
         }
 
         public bool WaiverTransaction(WaiverTransactionRequest request)
@@ -451,9 +456,15 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
 
-        public Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request)
+        /*public Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscriptionRenewal(request.domain_id, request.subscription_id);
+        }*/
+
+
+        public FBSignIn FBUserSignin(FBUserSigninRequest request)
+        {
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserSignin(request.token, request.ip, request.device_id, request.prevent_double_logins);
         }
     }
 }

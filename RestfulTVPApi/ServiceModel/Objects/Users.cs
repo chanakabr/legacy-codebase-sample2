@@ -14,10 +14,10 @@ namespace RestfulTVPApi.ServiceModel
 
     #region GET
 
-    [Route("/users/{site_guids}", "GET", Notes = "This method returns the user details, as an array, for each user ID entered. When entering user IDs, enter them in a single string, separated by a semicolon.")]
+    [Route("/users/data", "POST", Notes = "This method returns the user details, as an array, for each user ID entered. When entering user IDs, enter them in a single string, separated by a semicolon.")]
     public class GetUsersDataRequest : RequestBase, IReturn<List<UserResponseObject>>
     {
-        [ApiMember(Name = "site_guids", Description = "Users Identifiers", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guids", Description = "Users Identifiers", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guids { get; set; }
     }
 
@@ -428,6 +428,15 @@ namespace RestfulTVPApi.ServiceModel
         public string token { get; set; }
     }
 
+    [Route("/users/{site_guid}/subscription/{sub_id}/permitted", "GET", Summary = "Returns if the subscription is permitted to the user", Notes = "")]
+    public class IsPermittedSubscriptionRequest : RequestBase, IReturn<Status>
+    {
+        [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "sub_id", Description = "Subscription id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int sub_id { get; set; }
+    }
+
 
 
     #endregion
@@ -634,6 +643,19 @@ namespace RestfulTVPApi.ServiceModel
         public string user_name { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
+    }
+
+    [Route("/users/fb/sign_in", "POST", Notes = "This method signs-in a user via FB.")]
+    public class FBUserSigninRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.FBSignIn>
+    {
+        [ApiMember(Name = "token", Description = "token", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string token { get; set; }
+        [ApiMember(Name = "ip", Description = "IP", ParameterType = "body", DataType = SwaggerType.String, IsRequired = false)]
+        public string ip { get; set; }
+        [ApiMember(Name = "device_id", Description = "Device id", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string device_id { get; set; }
+        [ApiMember(Name = "prevent_double_logins", Description = "prevent double logins", ParameterType = "body", DataType = SwaggerType.Boolean, IsRequired = false)]
+        public bool prevent_double_logins { get; set; }
     }
 
     [Route("/users/{token}/token_sign_in", "POST", Notes = "This method signs-in a user with a token")]

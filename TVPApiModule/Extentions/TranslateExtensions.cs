@@ -1535,7 +1535,7 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.UserSocialActionObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject response)
+        /*public static TVPApiModule.Objects.Responses.UserSocialActionObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject response)
         {
             TVPApiModule.Objects.Responses.UserSocialActionObject retVal = new TVPApiModule.Objects.Responses.UserSocialActionObject();
 
@@ -1549,6 +1549,132 @@ namespace TVPApiModule.Extentions
 
 
             return retVal;
+        }*/
+
+        public static FBSignIn ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FBSignin response)
+        {
+            FBSignIn retVal = new FBSignIn();
+
+            retVal.status = response.status;
+            if (response.user != null)
+            {
+                retVal.user = response.user.ToApiObject();
+            }
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.UserResponseObject response)
+        {
+            UserResponseObject retVal = new UserResponseObject();
+
+            retVal.resp_status = (eResponseStatus)response.m_RespStatus;
+            retVal.user_instance_id = response.m_userInstanceID;
+            if (response.m_user != null)
+            {
+                retVal.user = response.m_user.ToApiObject();
+            }
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.User ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.User response)
+        {
+            User retVal = new User();
+
+            retVal.domain_id = response.m_domianID;
+            retVal.user_state = (TVPApiModule.Objects.Responses.UserState)response.m_eUserState;
+            retVal.is_domain_master = response.m_isDomainMaster;
+            retVal.sso_operator_id = response.m_nSSOOperatorID;
+
+            if (response.m_oBasicData != null)
+            {
+                retVal.basic_data = new TVPApiModule.Objects.Responses.UserBasicData();
+
+                retVal.basic_data.is_facebook_image_permitted = response.m_oBasicData.m_bIsFacebookImagePermitted;
+                retVal.basic_data.co_guid = response.m_oBasicData.m_CoGuid;
+
+                if (retVal.basic_data.country != null)
+                {
+                    retVal.basic_data.country = response.m_oBasicData.m_Country.ToApiObject();
+                }
+
+                retVal.basic_data.external_token = response.m_oBasicData.m_ExternalToken;
+                retVal.basic_data.address = response.m_oBasicData.m_sAddress;
+                retVal.basic_data.affiliate_code = response.m_oBasicData.m_sAffiliateCode;
+                retVal.basic_data.city = response.m_oBasicData.m_sCity;
+                retVal.basic_data.email = response.m_oBasicData.m_sEmail;
+                retVal.basic_data.facebook_id = response.m_oBasicData.m_sFacebookID;
+                retVal.basic_data.facebook_image = response.m_oBasicData.m_sFacebookImage;
+                retVal.basic_data.facebook_token = response.m_oBasicData.m_sFacebookToken;
+                retVal.basic_data.first_name = response.m_oBasicData.m_sFirstName;
+                retVal.basic_data.last_name = response.m_oBasicData.m_sLastName;
+                retVal.basic_data.phone = response.m_oBasicData.m_sPhone;
+
+                if (retVal.basic_data.state != null)
+                    retVal.basic_data.state = response.m_oBasicData.m_State.ToApiObject();
+
+                retVal.basic_data.user_name = response.m_oBasicData.m_sUserName;
+                retVal.basic_data.zip = response.m_oBasicData.m_sZip;
+
+                retVal.basic_data.user_type = response.m_oBasicData.m_UserType.ToApiObject();
+            }
+
+            if (response.m_oDynamicData != null)
+            {
+                retVal.dynamic_data = new TVPApiModule.Objects.Responses.UserDynamicData();
+
+                if (response.m_oDynamicData.m_sUserData != null)
+                {
+                    retVal.dynamic_data.user_data = response.m_oDynamicData.m_sUserData.Select(x => new TVPApiModule.Objects.Responses.UserDynamicDataContainer()
+                    {
+                        data_type = x.m_sDataType,
+                        value = x.m_sValue
+                    }).ToArray();
+                }
+            }
+
+            retVal.site_guid = response.m_sSiteGUID;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserType ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.UserType response)
+        {
+            TVPApiModule.Objects.Responses.UserType userType = new UserType();
+
+            userType.description = response.Description;
+            userType.id = response.ID;
+            userType.is_default = response.IsDefault;
+
+            return userType;
+        }
+
+        public static TVPApiModule.Objects.Responses.State ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.State response)
+        {
+            TVPApiModule.Objects.Responses.State state = new State();
+
+            state.state_code = response.m_sStateCode;
+            state.state_name = response.m_sStateName;
+            state.object_id = response.m_nObjecrtID;
+
+            if (response.m_Country != null)
+            {
+                state.country = response.m_Country.ToApiObject();
+            }
+
+            return state;
+        }
+
+        public static TVPApiModule.Objects.Responses.Country ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.Country response)
+        {
+            TVPApiModule.Objects.Responses.Country country = new Country();
+
+            country.country_code = response.m_sCountryCode;
+            country.country_name = response.m_sCountryName;
+            country.object_id = response.m_nObjecrtID;            
+
+            return country;
         }
 
         public static TVPApiModule.Objects.Responses.UserBasicData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData response)
@@ -1830,15 +1956,14 @@ namespace TVPApiModule.Extentions
             return returnedResponse;
         }
 
-        public static TVPApiModule.Objects.Responses.Status ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.StatusObject response)
+        /*public static TVPApiModule.Objects.Responses.Status ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.StatusObject response)
         {
             TVPApiModule.Objects.Responses.Status retVal = new TVPApiModule.Objects.Responses.Status();
 
-            retVal.status = (TVPApiModule.Objects.Responses.StatusObjectCode)response.Status;
             retVal.message = response.Message;
             retVal.code = response.Code;
 
             return retVal;
-        }
+        }*/
     }
 }

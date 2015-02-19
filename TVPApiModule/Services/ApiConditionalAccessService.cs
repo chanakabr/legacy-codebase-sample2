@@ -1024,7 +1024,7 @@ namespace TVPApiModule.Services
             return permittedCollections;
         }
 
-        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
+        /*public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
         {
             bool isCancelationSucceeded = false;
 
@@ -1033,6 +1033,23 @@ namespace TVPApiModule.Services
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
                     isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType, isForce);
+                }
+
+                return isCancelationSucceeded;
+            }));
+
+            return isCancelationSucceeded;
+        }*/
+
+        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isCancelationSucceeded = false;
+
+            isCancelationSucceeded = Convert.ToBoolean(Execute(() =>
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
                 }
 
                 return isCancelationSucceeded;
@@ -1058,7 +1075,7 @@ namespace TVPApiModule.Services
             return isWaiverTransactionSucceeded;
         }
 
-        public Status CancelSubscriptionRenewal(int domain_id, string subscription_id)
+        /*public Status CancelSubscriptionRenewal(int domain_id, string subscription_id)
         {
             Status response = new Status();
 
@@ -1071,6 +1088,6 @@ namespace TVPApiModule.Services
             }) as Status;
 
             return response;
-        }
+        }*/
     }
 }
