@@ -1283,13 +1283,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelSubscriptionRenewal", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
+        public Status CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
             object[] results = this.Invoke("CancelSubscriptionRenewal", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainId,
                         sSubscriptionCode});
-            return ((StatusObject)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -3795,7 +3795,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelServiceNow", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject CancelServiceNow(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
+        public Status CancelServiceNow(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
             object[] results = this.Invoke("CancelServiceNow", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -3803,7 +3803,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         nAssetID,
                         transactionType,
                         bIsForce});
-            return ((StatusObject)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -4234,12 +4234,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DomainServicesResponse {
         
-        private StatusObject statusField;
+        private Status statusField;
         
         private ServiceObject[] servicesField;
         
         /// <remarks/>
-        public StatusObject Status {
+        public Status Status {
             get {
                 return this.statusField;
             }
@@ -4265,7 +4265,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class StatusObject {
+    public partial class Status {
         
         private int codeField;
         
@@ -7989,39 +7989,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LicensedLinkResponse {
         
         private string mainUrlField;
@@ -8746,10 +8713,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public StatusObject Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -10098,10 +10065,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public StatusObject Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }

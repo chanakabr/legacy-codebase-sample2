@@ -633,16 +633,10 @@
       <s:element name="CancelSubscriptionRenewalResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CancelSubscriptionRenewalResult" type="tns:StatusObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="CancelSubscriptionRenewalResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="StatusObject">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="ChangeSubscriptionDates">
         <s:complexType>
           <s:sequence>
@@ -2034,7 +2028,7 @@
       <s:element name="CancelServiceNowResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CancelServiceNowResult" type="tns:StatusObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="CancelServiceNowResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2245,7 +2239,7 @@
       </s:element>
       <s:complexType name="DomainServicesResponse">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:StatusObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfServiceObject" />
         </s:sequence>
       </s:complexType>
@@ -2264,7 +2258,7 @@
       <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
       <s:element name="ArrayOfDomainBillingTransactionsResponse" nillable="true" type="tns:ArrayOfDomainBillingTransactionsResponse" />
       <s:element name="BillingTransactionsResponse" nillable="true" type="tns:BillingTransactionsResponse" />
-      <s:element name="StatusObject" nillable="true" type="tns:StatusObject" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
       <s:element name="ArrayOfCollectionsPricesContainer" nillable="true" type="tns:ArrayOfCollectionsPricesContainer" />
@@ -3225,7 +3219,7 @@
     <wsdl:part name="sSubscriptionCode" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CancelSubscriptionRenewalHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ChangeSubscriptionDatesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3971,7 +3965,7 @@
     <wsdl:part name="bIsForce" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CancelServiceNowHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="CancelTransactionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
