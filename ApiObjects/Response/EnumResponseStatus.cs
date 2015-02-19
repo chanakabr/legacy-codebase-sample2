@@ -24,6 +24,8 @@ namespace ApiObjects.Response
         DomainSuspended = 1009,
         DlmNotExist = 1010,
         WrongPasswordOrUserName = 1011,
+        DomainAlreadySuspended = 1012,
+        DomainAlreadyActive = 1013,
         
         // User Section 2000 - 2999
         UserNotExists = 2000,
