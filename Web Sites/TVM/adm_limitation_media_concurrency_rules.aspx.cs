@@ -20,9 +20,9 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
     {
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted("adm_device_limitation_modules.aspx") == false)
+        if (LoginManager.IsPagePermitted("adm_domain_limitation_modules.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
-        if (LoginManager.IsActionPermittedOnPage("adm_device_limitation_modules.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT) == false)
+        if (LoginManager.IsActionPermittedOnPage("adm_domain_limitation_modules.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT) == false)
             LoginManager.LogoutFromSite("login.html");
 
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
@@ -30,7 +30,7 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
         if (!IsPostBack)
         {
             Int32 nMenuID = 0;
-            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_device_limitation_modules.aspx");
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_domain_limitation_modules.aspx");
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
             if (Request.QueryString["limit_module_id"] != null && Request.QueryString["limit_module_id"].ToString() != "")
             {

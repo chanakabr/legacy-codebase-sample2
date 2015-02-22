@@ -159,7 +159,7 @@
 									</td>
 								</tr>
 								<tr>
-								    <td onclick='window.document.location.href="adm_device_limitation_modules.aspx";'><a href="#" class="btn_back"></a></td>
+								    <td onclick='window.document.location.href="adm_domain_limitation_modules.aspx";'><a href="#" class="btn_back"></a></td>
 								</tr>
 							</table>
 						</td>
