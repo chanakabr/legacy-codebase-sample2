@@ -107,7 +107,7 @@ public partial class adm_domain_limitation_modules : System.Web.UI.Page
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn2 = new DataTableLinkColumn("adm_device_limitation_modules_new.aspx", "Edit", "");
+            DataTableLinkColumn linkColumn2 = new DataTableLinkColumn("adm_domain_limitation_modules_new.aspx", "Edit", "");
             linkColumn2.AddQueryStringValue("limit_id", "field=id");
             theTable.AddLinkColumn(linkColumn2);
         }
