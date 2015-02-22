@@ -911,6 +911,7 @@ namespace Users
             if (inserted > 0)
             {
                 m_UsersIDs.Add(nUserID);
+                this.m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
 
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
@@ -1390,6 +1391,8 @@ namespace Users
 
         protected DomainResponseStatus GetUserList(int nDomainID, int nGroupID, bool bCache = false)
         {
+            DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
+
             m_UsersIDs = new List<int>();
             m_masterGUIDs = new List<int>();
             m_DefaultUsersIDs = new List<int>();
@@ -1398,12 +1401,15 @@ namespace Users
             // get UsersList from Cache
             if (bCache)
             {
-                return GetUserListFromCache(nDomainID, nGroupID);
+                domainResponseStatus = GetUserListFromCache(nDomainID, nGroupID);
             }
             else
             {
-                return GetUserListFromDB(nDomainID, nGroupID);
+                domainResponseStatus = GetUserListFromDB(nDomainID, nGroupID);
             }
+
+            this.m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
+            return domainResponseStatus;
         }
 
         protected bool SetDomainFlag(int domainId, int val, bool deviceFlag = true)
