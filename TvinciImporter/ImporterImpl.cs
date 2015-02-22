@@ -1809,13 +1809,7 @@ namespace TvinciImporter
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-
-                    //TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
-                    //UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
-
-                    //TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
-                    //UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
-
+                    
                     for (int nI = 0; nI < nCount; nI++)
                     {
 
@@ -1823,15 +1817,6 @@ namespace TvinciImporter
                         int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", nI);
                         ImageManager.ImageObj image = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.SIZE, nWidth, nHeight, sUploadedFileExt);
                         images.Add(image);
-
-                        /*
-                        string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
-                        string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
-                        string sEndName = sWidth + "X" + sHeight;
-                        string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
-                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
-                         */
                     }
                 }
                 selectQuery.Finish();
@@ -1846,10 +1831,7 @@ namespace TvinciImporter
                 string sDestImagePath = sBasePath + "/pics/" + nGroupID.ToString();
 
                 bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sFullImagePath, sDestImagePath, images, sPicBaseName, sUploadedFileExt);
-                //if (!downloadRes)
-                //{
-                //    ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sUploadedFile, sBasePath, images, sPicBaseName, sUploadedFileExt);
-                //}
+              
                 if (downloadRes)
                 {
                     foreach (ImageManager.ImageObj image in images)
@@ -1862,9 +1844,6 @@ namespace TvinciImporter
 
                     nPicID = InsertNewEPGPic(sName, picName, sPicBaseName + sUploadedFileExt, nGroupID);
                 }
-
-                
-                //nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
             }
             return nPicID;
         }
