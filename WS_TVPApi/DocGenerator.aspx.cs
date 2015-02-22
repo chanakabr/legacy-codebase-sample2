@@ -42,59 +42,59 @@ public partial class DocGenerator : BaseGateway
         foreach (var w in ws)
         {
             Response.Write("<html><body>");
-            Response.Write(string.Format("<h2>{0}</h2>", w.GetType()));
-            var ms = w.GetType().GetMethods();
+            Response.Write(string.Format("<h3>{0}</h3>", w.GetType()));
+            var ms = w.GetType().GetMethods().OrderBy(item => item.Name);
 
             foreach (var a in ms)
             {
                 if (ignoreMethods.Contains(a.Name))
                     continue;
 
-                Response.Write("<p style='padding-bottom: 10px'>");
-                Response.Write(string.Format("<h3>{0}</h3>", a.Name));
+               // Response.Write("<p style='padding-bottom: 10px'>");
+                Response.Write(string.Format("<div>{0}</div>", a.Name));
 
-                var attt = a.GetCustomAttributes(true);
+                //var attt = a.GetCustomAttributes(true);
 
-                if (attt.Count() > 0)
-                {
-                    var att = attt.Where(x => x is WebMethodAttribute).First();
+                //if (attt.Count() > 0)
+                //{
+                //    var att = attt.Where(x => x is WebMethodAttribute).First();
 
-                    if (att != null)
-                    {
-                        Response.Write(string.Format("<h4>Description</h4>"));
-                        Response.Write(((System.Web.Services.WebMethodAttribute)att).Description);
-                    }
+                //    if (att != null)
+                //    {
+                //        Response.Write(string.Format("<h4>Description</h4>"));
+                //        Response.Write(((System.Web.Services.WebMethodAttribute)att).Description);
+                //    }
 
-                    
-                }
-                object[] CallParameters = new object[a.GetParameters().Length];
-                for (int i = 0; i < a.GetParameters().Length; i++)
-                {
-                    ParameterInfo TargetParameter = a.GetParameters()[i];
 
-                    // get the object value of the parameter
-                    CallParameters[i] = InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
-                }
+                //}
+                //object[] CallParameters = new object[a.GetParameters().Length];
+                //for (int i = 0; i < a.GetParameters().Length; i++)
+                //{
+                //    ParameterInfo TargetParameter = a.GetParameters()[i];
 
-                // post handle request
-                string SerializedReturnValue = PostParametersInit(a.GetParameters(), CallParameters);
-                Response.Write(string.Format("<h4>Request</h4><p>{0}</p>", SerializedReturnValue));
+                //    // get the object value of the parameter
+                //    CallParameters[i] = InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
+                //}
 
-                for (int i = 0; i < a.GetParameters().Length; i++)
-                {
-                    ParameterInfo TargetParameter = a.GetParameters()[i];
+                //// post handle request
+                //string SerializedReturnValue = PostParametersInit(a.GetParameters(), CallParameters);
+                //Response.Write(string.Format("<h4>Request</h4><p>{0}</p>", SerializedReturnValue));
 
-                    Response.Write(string.Format("<div><b>{0}</b> - {1}", TargetParameter.Name, TargetParameter.ParameterType.Name));
-                    if (attt.Where(x => x is RequestDescription && (x as RequestDescription).paramName == TargetParameter.Name).Count() > 0)
-                    {
-                        var ab = attt.Where(x => x is RequestDescription && (x as RequestDescription).paramName == TargetParameter.Name).First();
-                        Response.Write(" - <b>" + (ab as RequestDescription).paramDesc + "</b></div>");
-                    }
-                    else
-                        Response.Write("</div>");
-                }
+                //for (int i = 0; i < a.GetParameters().Length; i++)
+                //{
+                //    ParameterInfo TargetParameter = a.GetParameters()[i];
 
-                Response.Write("</p>");
+                //    Response.Write(string.Format("<div><b>{0}</b> - {1}", TargetParameter.Name, TargetParameter.ParameterType.Name));
+                //    if (attt.Where(x => x is RequestDescription && (x as RequestDescription).paramName == TargetParameter.Name).Count() > 0)
+                //    {
+                //        var ab = attt.Where(x => x is RequestDescription && (x as RequestDescription).paramName == TargetParameter.Name).First();
+                //        Response.Write(" - <b>" + (ab as RequestDescription).paramDesc + "</b></div>");
+                //    }
+                //    else
+                //        Response.Write("</div>");
+                //}
+
+               // Response.Write("</p>");
             }
 
             Response.Write("</body></html>");
@@ -285,7 +285,7 @@ public partial class DocGenerator : BaseGateway
 
     public bool TryFindType(string typeName, out Type t)
     {
-        t = Type.GetType(typeName); 
+        t = Type.GetType(typeName);
         if (t == null)
         {
             foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())

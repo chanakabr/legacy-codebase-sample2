@@ -553,7 +553,6 @@ namespace TVPApiModule.Services
             }
             catch (Exception e)
             {
-
                 logger.ErrorFormat("Error occurred in FBUserSignin, Error : {0}", e.Message);
             }
             return res;
