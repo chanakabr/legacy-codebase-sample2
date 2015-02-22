@@ -1772,7 +1772,7 @@ namespace TvinciImporter
             string sPicBaseName1 = getPictureFileName(sThumb);
 
             Int32 nPicID = 0;
-            string picName = string.Format("{0}_{1}_{2}", nChannelID, sPicBaseName1, ratioID);
+            string picName = string.Format("{0}_{1}_{2}", nChannelID, ratioID, sPicBaseName1);
             nPicID = DoesEPGPicExists(picName, nGroupID);
 
             if (nPicID == 0)
@@ -1837,7 +1837,15 @@ namespace TvinciImporter
                 selectQuery.Finish();
                 selectQuery = null;
 
-                bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sUploadedFile, sBasePath, images, sPicBaseName, sUploadedFileExt);
+                //chnage the second parameter to BaseURL 
+                string sFullImagePath = sBasePath + "/pics/" + sUploadedFile;
+                if (sThumb.Contains("http://") || sThumb.Contains("https://"))
+                {
+                    sFullImagePath = sThumb;
+                }
+                string sDestImagePath = sBasePath + "/pics/" + nGroupID.ToString();
+
+                bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sFullImagePath, sDestImagePath, images, sPicBaseName, sUploadedFileExt);
                 //if (!downloadRes)
                 //{
                 //    ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sUploadedFile, sBasePath, images, sPicBaseName, sUploadedFileExt);
@@ -1851,8 +1859,8 @@ namespace TvinciImporter
                             UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, image.ToString());
                         }
                     }
-                  
-                    nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile+"_" + ratioID , sPicBaseName + sUploadedFileExt, nGroupID);
+
+                    nPicID = InsertNewEPGPic(sName, picName, sPicBaseName + sUploadedFileExt, nGroupID);
                 }
 
                 
@@ -1870,7 +1878,7 @@ namespace TvinciImporter
             string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);            
             string sPicName = getPictureFileName(sThumb);
             Int32 nPicID = 0;
-            string picName = string.Format("{0}_{1}_{2}", nChannelID, sPicName,ratioID);
+            string picName = string.Format("{0}_{1}_{2}", nChannelID, ratioID, sPicName);
             nPicID = DoesEPGPicExists(picName, nGroupID);
           
             if (nPicID == 0)
@@ -1881,7 +1889,7 @@ namespace TvinciImporter
                
                 bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
 
-                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sPicName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
+                nPicID = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
             }
             #region old Code - changed to CB
             // Liat comment this update 02.02.2014
