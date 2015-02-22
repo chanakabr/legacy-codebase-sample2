@@ -96,6 +96,6 @@ namespace TVPApiServices
         ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId);
 
         [OperationContract]
-        DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int deviceLimitationID);
+        DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int domainLimitationID);
     }
 }

@@ -1378,7 +1378,7 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceUDID, int formatType)
         {
             TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
@@ -1386,7 +1386,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var result = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                var result = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceUDID, formatType);
                 response = new TVPApiModule.Objects.Responses.LicensedLinkResponse(result);
             }
             catch (Exception ex)
