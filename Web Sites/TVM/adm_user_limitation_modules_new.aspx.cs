@@ -109,7 +109,7 @@ public partial class adm_user_limitation_modules_new : System.Web.UI.Page
         object t = null; ;
         if (Session["limit_id"] != null && Session["limit_id"].ToString() != "" && int.Parse(Session["limit_id"].ToString()) != 0)
             t = Session["limit_id"];
-        string sBack = "adm_device_limitation_modules.aspx?search_save=1";
+        string sBack = "adm_domain_limitation_modules.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_device_limitation_modules", "adm_table_pager", sBack, "", "ID", t, sBack, "");
 
         DataRecordShortTextField dr_Name = new DataRecordShortTextField("ltr", true, 60, 128);

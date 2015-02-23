@@ -148,7 +148,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
         theTable.Finish();
-        Session["ContentPage"] = "adm_device_limitation_modules.aspx";
+        Session["ContentPage"] = "adm_domain_limitation_modules.aspx";
 
         theTable = null;
         return sTable;

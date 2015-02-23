@@ -56,7 +56,7 @@ namespace GracenoteFeeder
             try
             {
                 //get all epg channel ids by group
-                Dictionary<string, EpgChannelObj> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
+                Dictionary<string, List<EpgChannelObj>> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
                 
                 //GetAllChannels();
                 List<string> channels = channelDic.Keys.ToList();
@@ -85,7 +85,7 @@ namespace GracenoteFeeder
 
 
         //saves the EPGs and sends them to ALU
-        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse, Dictionary<string, EpgChannelObj> channelDic)
+        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse, Dictionary<string, List<EpgChannelObj>> channelDic)
         {
             try
             {
@@ -135,10 +135,13 @@ namespace GracenoteFeeder
 
                     if (channelDic.ContainsKey(sChannelID))             
                     {
-                        nChannelIDDB = channelDic[sChannelID].ChannelId;
-                       
-                        // Save epg programs for each xml documnet
-                        SaveChannel(xml, nChannelIDDB, sChannelID, channelDic[sChannelID].ChannelType);
+                        foreach (EpgChannelObj channel in channelDic[sChannelID])
+                        {
+                            nChannelIDDB = channel.ChannelId;
+
+                            // Save epg programs for each xml documnet
+                            SaveChannel(xml, nChannelIDDB, sChannelID, channel.ChannelType);
+                        }
                     }
                 }
             }
