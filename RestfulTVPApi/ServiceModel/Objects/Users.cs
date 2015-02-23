@@ -744,6 +744,29 @@ namespace RestfulTVPApi.ServiceModel
         public string coupon_code { get; set; }        
     }
 
+    [Route("/users/subscriptions/charge/dummy", "POST", Notes = "")]
+    public class DummyChargeUserForSubscriptionRequest : RequestBase, IReturn<BillingResponse>
+    {
+        [ApiMember(Name = "subscription_id", Description = "Subscription Id", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string subscription_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }        
+    }
+
     [Route("/users/{site_guid}/charge_collection/{collection_id}", "POST", Notes = "")]
     public class ChargeUserForCollectionRequest : RequestBase, IReturn<BillingResponse>
     {
@@ -794,14 +817,14 @@ namespace RestfulTVPApi.ServiceModel
         public string coupon_code { get; set; }        
     }
 
-    [Route("/users/{site_guid}/charge_subscription/{subscription_id}/payment_method/{payment_method_id}", "POST", Notes = "")]
+    [Route("/users/subscriptions/charge/payment_method", "POST", Notes = "")]
     public class ChargeUserForSubscriptionByPaymentMethodRequest : RequestBase, IReturn<string>
     {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiMember(Name = "subscription_id", Description = "Subscription Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "subscription_id", Description = "Subscription Id", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string subscription_code { get; set; }
-        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string payment_method_id { get; set; }
         [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
         public double price { get; set; }

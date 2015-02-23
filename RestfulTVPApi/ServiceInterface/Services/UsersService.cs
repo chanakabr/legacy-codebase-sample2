@@ -336,6 +336,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.DummyChargeUserForCollection(request);
         }
 
+        public object Post(DummyChargeUserForSubscriptionRequest request)
+        {
+            return _repository.DummyChargeUserForSubscription(request);
+        }
+
         public object Post(ChargeUserForCollectionRequest request)
         {
             return _repository.ChargeUserForCollection(request);

@@ -91,17 +91,20 @@ namespace TVPApiModule.Services
             return concatenatedRes;            
         }
 
-        public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
+        public TVPApiModule.Objects.Responses.BillingResponse DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
         {
-            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
+            TVPApiModule.Objects.Responses.BillingResponse retVal = new Objects.Responses.BillingResponse();
 
-            string concatenatedRes = Execute(() =>
+            retVal = Execute(() =>
             {
-                response = ConditionalAccess.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
-                return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
-            }) as string;
+                TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = ConditionalAccess.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                if (response != null)
+                    retVal = response.ToApiObject();
 
-            return concatenatedRes;
+                return retVal;
+            }) as TVPApiModule.Objects.Responses.BillingResponse;
+
+            return retVal;
         }
 
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)

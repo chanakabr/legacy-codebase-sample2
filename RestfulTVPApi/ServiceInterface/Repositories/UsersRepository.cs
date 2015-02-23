@@ -466,5 +466,11 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserSignin(request.token, request.ip, request.device_id, request.prevent_double_logins);
         }
+
+
+        public TVPApiModule.Objects.Responses.BillingResponse DummyChargeUserForSubscription(DummyChargeUserForSubscriptionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).DummyChargeUserForSubscription(request.price, request.currency, request.subscription_id, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.extra_parameters, request.udid);
+        }
     }
 }

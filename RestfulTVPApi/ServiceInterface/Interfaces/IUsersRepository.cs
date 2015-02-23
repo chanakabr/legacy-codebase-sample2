@@ -145,6 +145,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         string DummyChargeUserForCollection(DummyChargeUserForCollectionRequest request);
 
+        BillingResponse DummyChargeUserForSubscription(DummyChargeUserForSubscriptionRequest request);
+
         BillingResponse ChargeUserForCollection(ChargeUserForCollectionRequest request);
 
         BillingResponse CellularChargeUserForSubscription(CellularChargeUserForSubscriptionRequest request);
