@@ -1678,9 +1678,9 @@ namespace ConditionalAccess
         /// <param name="p_nDomainId"></param>
         /// <param name="p_sSubscriptionCode"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
+        public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
         {
-            StatusObject oResult = new StatusObject();
+            ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
             bool bResult = false;
 
             try
@@ -10535,10 +10535,10 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
-        public virtual StatusObject CancelServiceNow(int p_nDomainID, int p_nAssetID,
+        public virtual ApiObjects.Response.Status CancelServiceNow(int p_nDomainID, int p_nAssetID,
             eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
         {
-            StatusObject oResult = new StatusObject();
+            ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
 
             bool bResult = false;
 
@@ -10583,57 +10583,66 @@ namespace ConditionalAccess
                     {
                         drUserPurchase = dtUserPurchases.Rows[0];
                         sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
+                        int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "NUM_OF_USES");
 
-                        // Cancel NOW - according to type
-
-                        switch (p_enmTransactionType)
+                        // If user already consumed service - cannot be cancelled without force
+                        if (nNumOfUses > 0 && !p_bIsForce)
                         {
-                            case eTransactionType.PPV:
+                            oResult.Code = (int)eResponseStatus.ContentAlreadyConsumed;
+                            oResult.Message = "Service could not be cancelled because content was already consumed";
+                        }
+                        else
+                        {
+                            // Cancel NOW - according to type
+                            switch (p_enmTransactionType)
+                            {
+                                case eTransactionType.PPV:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            case eTransactionType.Subscription:
+                                case eTransactionType.Subscription:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            case eTransactionType.Collection:
+                                case eTransactionType.Collection:
                                 {
                                     bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
                                     break;
                                 }
-                            default:
+                                default:
                                 {
                                     break;
                                 }
-                        }
-
-                        if (bResult)
-                        {
-                            // Update domain with last domain DLM
-                            UpdateDLM(p_nDomainID, 0);
-
-                            // Report to user log
-                            WriteToUserLog(sPurchasingSiteGuid,
-                                string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
-                                p_nAssetID));
-                            //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-
-                            oResult.Code = (int)eResponseStatus.OK;
-                            oResult.Message = "Service successfully cancelled";
-
-                            if (drUserPurchase != null)
-                            {
-                                DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
-
-                                EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
                             }
-                        }
-                        else
-                        {
-                            oResult.Code = (int)eResponseStatus.Error;
-                            oResult.Message = "Cancellation failed";
+
+                            if (bResult)
+                            {
+                                // Update domain with last domain DLM
+                                UpdateDLM(p_nDomainID, 0);
+
+                                // Report to user log
+                                WriteToUserLog(sPurchasingSiteGuid,
+                                    string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
+                                    p_nAssetID));
+                                //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                                oResult.Code = (int)eResponseStatus.OK;
+                                oResult.Message = "Service successfully cancelled";
+
+                                if (drUserPurchase != null)
+                                {
+                                    DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                    EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
+                                }
+                            }
+                            else
+                            {
+                                oResult.Code = (int)eResponseStatus.Error;
+                                oResult.Message = "Cancellation failed";
+                            }
                         }
                     }
                     else
@@ -11034,6 +11043,7 @@ namespace ConditionalAccess
                                             licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                             res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                                             res.status = mediaConcurrencyResponse.ToString();
+                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             // create PlayCycle
                                             CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
@@ -11043,6 +11053,7 @@ namespace ConditionalAccess
                                             res.altUrl = GetErrorLicensedLink(sBasicLink);
                                             res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                             res.status = mediaConcurrencyResponse.ToString();
+                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
                                                 mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
@@ -11052,7 +11063,8 @@ namespace ConditionalAccess
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
+                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString(); 
+                                        res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
 
                                         Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
                                             sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
@@ -11063,6 +11075,7 @@ namespace ConditionalAccess
                                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                     res.status = eLicensedLinkStatus.InvalidPrice.ToString();
+                                    res.Status.Code = (int)eResponseStatus.Error;
 
                                     Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
                                         nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
@@ -11072,7 +11085,8 @@ namespace ConditionalAccess
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
+                                res.status = eLicensedLinkStatus.InvalidFileData.ToString(); 
+                                res.Status.Code = (int)eResponseStatus.Error;
 
                                 Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
                                     sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
@@ -11082,6 +11096,7 @@ namespace ConditionalAccess
                         {
                             //returns empty url
                             res.status = eLicensedLinkStatus.UserSuspended.ToString();
+                            res.Status.Code = (int)eResponseStatus.UserSuspended;
 
                             Logger.Logger.Log("GetLicensedLinks", string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                         }
@@ -11090,7 +11105,8 @@ namespace ConditionalAccess
                     {
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
+                        res.status = eLicensedLinkStatus.InvalidPrice.ToString(); 
+                        res.Status.Code = (int)eResponseStatus.Error;
 
                         Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
                     }
@@ -11099,7 +11115,8 @@ namespace ConditionalAccess
                 {
                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
+                    res.status = eLicensedLinkStatus.InvalidInput.ToString(); 
+                    res.Status.Code = (int)eResponseStatus.Error;
 
                     Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
                         sSiteGuid, nMediaFileID, sDeviceName, sBasicLink), GetLogFilename());
@@ -11110,6 +11127,7 @@ namespace ConditionalAccess
                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
                 res.status = eLicensedLinkStatus.Error.ToString();
+                res.Status.Code = (int)eResponseStatus.Error;
 
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
@@ -11131,6 +11149,50 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private int ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
+        {
+            eResponseStatus res;
+
+            switch (mediaConcurrencyResponse)
+            {
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.LimitationPeriod:
+                    res = eResponseStatus.LimitationPeriod;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.Error:
+                    res = eResponseStatus.Error;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ExceededLimit:
+                    res = eResponseStatus.ExceededLimit;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceTypeNotAllowed:
+                    res = eResponseStatus.DeviceTypeNotAllowed;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceNotInDomain:
+                    res = eResponseStatus.DeviceNotInDomain;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceAlreadyExists:
+                    res = eResponseStatus.DeviceAlreadyExists;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.OK:
+                    res = eResponseStatus.OK;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceExistsInOtherDomains:
+                    res = eResponseStatus.DeviceExistsInOtherDomains;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ConcurrencyLimitation:
+                    res = eResponseStatus.ConcurrencyLimitation;
+                    break;
+                case ConditionalAccess.TvinciDomains.DomainResponseStatus.MediaConcurrencyLimitation:
+                    res = eResponseStatus.MediaConcurrencyLimitation;
+                    break;
+                default:
+                    res = eResponseStatus.Error;
+                    break;
+            }
+
+            return (int)res;
         }
 
         /*******************************************************************************************

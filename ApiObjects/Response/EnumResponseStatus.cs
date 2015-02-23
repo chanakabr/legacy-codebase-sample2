@@ -15,7 +15,7 @@ namespace ApiObjects.Response
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
         DeviceTypeNotAllowed = 1002,
-        DeviceNotInDomin = 1003,
+        DeviceNotInDomain = 1003,
         MasterEmailAlreadyExists = 1004,
         UserNotInDomain = 1005,
         DomainNotExists = 1006,
@@ -26,15 +26,25 @@ namespace ApiObjects.Response
         WrongPasswordOrUserName = 1011,
         DomainAlreadySuspended = 1012,
         DomainAlreadyActive = 1013,
+        LimitationPeriod = 1014,//
+        DeviceAlreadyExists = 1015, 
+        DeviceExistsInOtherDomains = 1016,
         
         // User Section 2000 - 2999
         UserNotExists = 2000,
+        UserSuspended = 2001,
 
         // CAS Section 3000 - 3999
 
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
         SubscriptionNotRenewable = 3002,
+        ServiceNotAllowed = 3003,
+        InvalidBaseLink = 3004,
+        ContentAlreadyConsumed = 3005,
 
+        //Catalog 4000 - 4999
+        MediaConcurrencyLimitation = 4000,
+        ConcurrencyLimitation = 4001
     }
 }
