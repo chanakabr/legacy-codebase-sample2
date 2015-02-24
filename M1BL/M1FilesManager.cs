@@ -296,7 +296,7 @@ namespace M1BL
                 foreach (DataRow rowPPV in ppvTransactionsRows)
                 {
                     int nM1TransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["id"]);
-                    int nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["BillingTransactionID"]);
+                    long nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["BillingTransactionID"]);
                     string sChargedNumber = ODBCWrapper.Utils.GetSafeStr(rowPPV["charged_mobile_number"]);
                     //string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
 
@@ -365,7 +365,7 @@ namespace M1BL
                 foreach (DataRow rowSubscription in subscriptionTransactionsRows)
                 {
                     int nTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["id"]);               
-                    int nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["BillingTransactionID"]); 
+                    long nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["BillingTransactionID"]); 
                     string sChargedNumber = ODBCWrapper.Utils.GetSafeStr(rowSubscription["charged_mobile_number"]);
                    // string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
                     DateTime dTransactionDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["create_date"]);
@@ -424,7 +424,7 @@ namespace M1BL
             return result;
         }
 
-        private string GetFormattedBillDescription(int nBillingTransactionID)
+        private string GetFormattedBillDescription(long nBillingTransactionID)
         {
             string result = string.Format("Toggle Id:{0} (Tel:63883888)", nBillingTransactionID.ToString());  //ex: Toggle Id:123456 (Tel:63883888)
             return result;                 

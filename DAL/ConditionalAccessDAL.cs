@@ -758,7 +758,7 @@ namespace DAL
         public static long Insert_NewPPVPurchase(long lGroupID, long lMediaFileID, string sSiteGuid, double dPrice,
        string sCurrencyCode, long lMaxNumOfUses, string sCustomData, string sSubscriptionCode,
        long lBillingTransactionID, DateTime dtStartDate, DateTime dtEndDate, DateTime dtCreateAndUpdateDate,
-       string sCountryCode, string sLanguageCode, string sDeviceName, string sConnKey)
+       string sCountryCode, string sLanguageCode, string sDeviceName, string sConnKey, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -788,6 +788,7 @@ namespace DAL
             sp.AddParameter("@LanguageCode", sLanguageCode);
             sp.AddParameter("@DeviceName", sDeviceName);
             sp.AddParameter("@RelPp", DBNull.Value);
+            sp.AddParameter("@domainID", domainID);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -796,7 +797,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs, bool bIsRecurringStatus,
             long lBillingTransactionID, long lPreviewModuleID, DateTime dtSubscriptionStartDate, DateTime dtSubscriptionEndDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey)
+            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -829,6 +830,7 @@ namespace DAL
             sp.AddParameter("@RelPp", DBNull.Value);
             sp.AddParameter("@NotificationSent", 0);
             sp.AddParameter("@PreviewModuleID", lPreviewModuleID);
+            sp.AddParameter("@domainID", domainID);
 
             return sp.ExecuteReturnValue<long>();
 
@@ -987,7 +989,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
             long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey)
+            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -1014,6 +1016,7 @@ namespace DAL
             sp.AddParameter("@LanguageCode", sLanguageCode);
             sp.AddParameter("@DeviceName", sDeviceName);
             sp.AddParameter("@FailCount", 0);
+            sp.AddParameter("@domainID", domainID);
 
             return sp.ExecuteReturnValue<long>();
 
@@ -1728,6 +1731,26 @@ namespace DAL
             }
 
             return (dtUserPurchases);
+        }
+
+        public static long Get_LastDomainDLM(int groupID, int domainID)
+        {
+            long dlmID = 0;
+
+            StoredProcedure sp = new StoredProcedure("Get_LastDomainDLM");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
+
+            object value = sp.ExecuteReturnValue<long>();
+
+            // If stored procedure was succesful, get the first one
+            if (value != null)
+            {
+                dlmID = (long)value;
+            }
+
+            return dlmID;
         }
     }
 }

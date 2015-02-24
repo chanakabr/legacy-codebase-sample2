@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects.Response;
 
 namespace ConditionalAccess
 {
@@ -20,11 +21,19 @@ namespace ConditionalAccess
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
             LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
-            res.mainUrl = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd,
-                udid, couponCode);
-            if (!string.IsNullOrEmpty(res.mainUrl))
+            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd, udid, couponCode);
+            if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(res.mainUrl))
             {
                 res.status = NPVRStatus.OK.ToString();
+                res.mainUrl = licensedLinkResponse.mainUrl;
+            }
+            else if (licensedLinkResponse.status == "ServiceNotAllowed")
+            {
+                res.status = NPVRStatus.ServiceNotAllowed.ToString();
+            }
+            else if (licensedLinkResponse.status == eResponseStatus.DomainSuspended.ToString())
+            {
+                res.status = NPVRStatus.Suspended.ToString();
             }
             else
             {

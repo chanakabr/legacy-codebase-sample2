@@ -474,6 +474,8 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<bool>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
@@ -489,6 +491,8 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<int>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
@@ -504,6 +508,8 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<DateTime>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
@@ -519,6 +525,8 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<T>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {

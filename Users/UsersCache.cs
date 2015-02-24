@@ -24,20 +24,7 @@ namespace Users
 
         public static bool GetItem<T>(string key, out T oValue)
         {
-            bool res = false;
-            T temp = Get<T>(key);
-            if (temp != null)
-            {
-                res = true;
-                oValue = temp;
-            }
-            else
-            {
-                res = false;
-                oValue = default(T);
-            }
-
-            return res;
+            return TvinciCache.WSCache.Instance.TryGet(key, out oValue);
         }
     }
 }

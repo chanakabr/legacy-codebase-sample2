@@ -34,22 +34,48 @@ namespace ConditionalAccess
             GetBaseConditionalAccessImpl(ref t, nGroupID, "");
         }
 
-        static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID, string sConnKey)
+        static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess oConditionalAccess, Int32 nGroupID, string sConnKey)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.CONDITIONALACCESS, nGroupID, 1);
 
-            if (nImplID == 1)
-                t = new ConditionalAccess.TvinciConditionalAccess(nGroupID, sConnKey);
-            if (nImplID == 4)
-                t = new ConditionalAccess.FilmoConditionalAccess(nGroupID, sConnKey);
-            if (nImplID == 6)
-                t = new ConditionalAccess.ElisaConditionalAccess(nGroupID, sConnKey);
-            if (nImplID == 7)
-                t = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
-            if (nImplID == 9)
-                t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
-            if (nImplID == 10)
-                t = new ConditionalAccess.VodafoneConditionalAccess(nGroupID);
+            switch (nImplID)
+            {
+                case (1):
+                {
+                    oConditionalAccess = new ConditionalAccess.TvinciConditionalAccess(nGroupID, sConnKey);
+                    break;
+                }
+                case (4):
+                {
+                    oConditionalAccess = new ConditionalAccess.FilmoConditionalAccess(nGroupID, sConnKey);
+                    break;
+                }
+
+                case (6):
+                {
+                    oConditionalAccess = new ConditionalAccess.ElisaConditionalAccess(nGroupID, sConnKey);
+                    break;
+                }
+                case (7):
+                {
+                    oConditionalAccess = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
+                    break;
+                }
+                case (9):
+                {
+                    oConditionalAccess = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
+                    break;
+                }
+                case (10):
+                {
+                    oConditionalAccess = new ConditionalAccess.VodafoneConditionalAccess(nGroupID);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
         }
 
         public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
@@ -2002,6 +2028,9 @@ namespace ConditionalAccess
                 }
             }
 
+             //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
             return lDomainsUsers;
         }
         private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
@@ -2986,5 +3015,37 @@ namespace ConditionalAccess
             }
             return (oDomain);
         }
+
+        public static ConditionalAccess.TvinciDomains.ChangeDLMObj ChangeDLM(int groupID, int domainId, int dlmID)
+        {
+            ConditionalAccess.TvinciDomains.ChangeDLMObj changeDLMObj = null;
+
+            try
+            {
+                using (TvinciDomains.module svcDomains = new ConditionalAccess.TvinciDomains.module())
+                {
+                    string wsUsername = string.Empty;
+                    string wsPassword = string.Empty;
+                    Utils.GetWSCredentials(groupID, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
+                    string sWSURL = Utils.GetWSURL("domains_ws");
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        svcDomains.Url = sWSURL;
+                    }
+
+                    changeDLMObj = svcDomains.ChangeDLM(wsUsername, wsPassword, domainId, dlmID);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception",
+                    string.Format("Failed changing DLM using Domains WS. domainId = {0}, dlmID = {1}, groupID = {2}, Msg = {3}", domainId, dlmID, groupID, ex.Message), "CAS.Utils");
+            }
+            return changeDLMObj;
+        }
+
+        
     }
 }

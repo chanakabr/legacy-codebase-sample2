@@ -81,7 +81,6 @@ namespace Catalog
                     {
                         if (allChannels.Count > 0)
                         {
-                            List<MediaSearchObj> channelsSearchObjects = new List<MediaSearchObj>();
                             string[] sMediaTypesFromRequest;
                             if (string.IsNullOrEmpty(request.m_sMediaType))
                                 sMediaTypesFromRequest = new string[1] { "0" };
@@ -102,6 +101,8 @@ namespace Catalog
                             if (request.m_oFilter != null)
                                 nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
 
+                            MediaSearchObj[] arrChannelSearchObjects = new MediaSearchObj[allChannels.Count];
+
                             // Building search object for each channel
                             for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
                             {
@@ -110,9 +111,12 @@ namespace Catalog
                                      {
                                          try
                                          {
+                                             int nChannelIndex = (int)obj;
+
                                              if (groupInCache != null)
                                              {
-                                                 GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
+                                                 GroupsCacheManager.Channel currentChannel = allChannels[nChannelIndex];
+
                                                  if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
                                                  {
                                                      MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
@@ -122,7 +126,7 @@ namespace Catalog
                                                          channelSearchObject.m_sMediaTypes = sMediaTypesFromRequest[0];
                                                      }
                                                      channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
-                                                     channelsSearchObjects.Add(channelSearchObject);
+                                                     arrChannelSearchObjects[nChannelIndex] = channelSearchObject;
                                                  }
                                              }
                                          }
@@ -136,6 +140,9 @@ namespace Catalog
 
                             //Wait for all parallel tasks to end
                             Task.WaitAll(channelsSearchObjectTasks);
+
+                            List<MediaSearchObj> channelsSearchObjects = arrChannelSearchObjects.ToList();
+                            
                             for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
                             {
                                 if (channelsSearchObjectTasks[i] != null)
@@ -163,6 +170,7 @@ namespace Catalog
                                             oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
                                             oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                                         }
+                                        
 
                                         // Getting all medias in bundle   
                                         List<SearchResult> lMediaRes = null;

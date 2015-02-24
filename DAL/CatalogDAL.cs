@@ -2394,5 +2394,30 @@ namespace Tvinci.Core.DAL
 
             return dicMinPeriods;
         }
+
+        public static List<int> GetGroupServices(int groupID, int? serviceID = null)
+        {
+            List<int> lServices = new List<int>();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupServices");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            if (serviceID != null)
+                sp.AddParameter("@ServiceID", serviceID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        lServices.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "SERVICE_ID"));
+                    }
+                }
+            }
+
+            return lServices;
+        }
     }
 }

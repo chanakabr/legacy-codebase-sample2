@@ -253,19 +253,12 @@ namespace Users
                 if (parseResult == true)
                 {
                     if (IsUserTypeExist(nGroupID, nUserTypeID) == true)
-                    {
-                        if (m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    {                       
+                        bool result = UsersDal.UpdateUserTypeByUserID(userID, nUserTypeID);
+                        if (!result)
                         {
-                            ret = ResponseStatus.UserSuspended;
-                        }
-                        else
-                        {
-                            bool result = UsersDal.UpdateUserTypeByUserID(userID, nUserTypeID);
-                            if (!result)
-                            {
-                                ret = ResponseStatus.ErrorOnUpdatingUserType;
-                            }
-                        }
+                            ret = ResponseStatus.ErrorOnUpdatingUserType;
+                        }                       
                     }
                     else
                     {
@@ -544,7 +537,7 @@ namespace Users
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 int nID = int.Parse(m_sSiteGUID);
-                saved = m_oDynamicData.Save(nID);                
+                saved = m_oDynamicData.Save(nID, nGroupID);
             }
 
             try

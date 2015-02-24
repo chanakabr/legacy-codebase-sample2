@@ -7,6 +7,7 @@ using System.Threading;
 using CachingProvider;
 using DAL;
 using Enyim.Caching.Memcached;
+using ApiObjects;
 
 namespace GroupsCacheManager
 {
@@ -558,5 +559,109 @@ namespace GroupsCacheManager
                 return false;
             }
         }
+        
+        internal bool AddServices(int nGroupID, List<int> services)
+        {
+            try
+            {
+                bool bAdd = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+
+                //get group by id from Cache
+                for (int i = 0; i < 3 && !bAdd; i++)
+                {
+                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+
+                    if (vModule != null && vModule.result != null)
+                    {
+                        group = vModule.result as Group;
+                        //try update to CB
+                        if (group.AddServices(services))
+                        {
+                            vModule.result = group;
+                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bAdd;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("AddServices", string.Format("failed to AddServices to IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        internal bool DeleteServices(int nGroupID, List<long> services)
+        {
+            try
+            {
+                bool bAdd = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+
+                //get group by id from Cache
+                for (int i = 0; i < 3 && !bAdd; i++)
+                {
+                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+
+                    if (vModule != null && vModule.result != null)
+                    {
+                        group = vModule.result as Group;
+                        //try update to CB
+                        if (group.RemoveServices(services))
+                        {
+                            vModule.result = group;
+                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bAdd;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("DeleteServices", string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        internal bool UpdateServices(int nGroupID, List<int> services)
+        {
+            try
+            {
+                bool bAdd = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+
+                //get group by id from Cache
+                for (int i = 0; i < 3 && !bAdd; i++)
+                {
+                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+
+                    if (vModule != null && vModule.result != null)
+                    {
+                        group = vModule.result as Group;
+                        //try update to CB
+                        if (group.UpdateServices(services))
+                        {
+                            vModule.result = group;
+                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bAdd;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UpdateServices", string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+
     }
 }

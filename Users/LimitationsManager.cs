@@ -74,6 +74,8 @@ namespace Users
             }
         }
 
+
+
         public DateTime NextActionFreqDate
         {
             get
@@ -91,9 +93,17 @@ namespace Users
 
         public int domianLimitID { get; set; }
 
+        public string DomainLimitName { get; set; }
+
         public int npvrQuotaInSecs { get; set; }
 
         public int nUserLimit { get; set; }
+
+        public int UserFrequency { get; set; }
+
+        public string UserFrequencyDescrition { get; set; }
+
+        public string FrequencyDescrition { get; set; }
         
         public void SetConcurrency(int nConcurrencyDomainLevel, int nConcurrencyGroupLevel)
         {

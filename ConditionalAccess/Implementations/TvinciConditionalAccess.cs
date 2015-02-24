@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
+using ApiObjects.Response;
 using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
@@ -117,41 +118,47 @@ namespace ConditionalAccess
             }
         }
 
-        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp)
+        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP,
+            string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider eBillingProvider)
         {
-            TvinciBilling.module bm = null;
-            TvinciBilling.BillingResponse res = null;
+            TvinciBilling.module wsBillingModule = null;
+            TvinciBilling.BillingResponse oResponse = null;
 
             try
             {
                 string sWSUsername = string.Empty;
                 string sWSPass = string.Empty;
 
-                InitializeBillingModule(ref bm, ref sWSUsername, ref sWSPass);
+                InitializeBillingModule(ref wsBillingModule, ref sWSUsername, ref sWSPass);
 
                 if (dPrice != 0)
                 {
-                    switch (bp)
+                    switch (eBillingProvider)
                     {
                         case eBillingProvider.Adyen:
                             {
-                                res = bm.DD_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString(), nBillingMethod);
+                                oResponse = wsBillingModule.DD_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString(), nBillingMethod);
                                 break;
                             }
                         case eBillingProvider.M1:
                             {
-                                res = bm.Cellular_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString());
+                                oResponse = wsBillingModule.Cellular_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString());
+                                break;
+                            }
+                        case eBillingProvider.Offline:
+                            {
+                                oResponse =
+                                    wsBillingModule.DD_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber,
+                                                                    nRecPeriods, lPurchaseID.ToString(), nBillingMethod);
+
                                 break;
                             }
                     }
-
-
-
                 }
                 else
                 {
                     sExtraParams = "AdyanDummy";
-                    res = bm.CC_DummyChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, sExtraParams);
+                    oResponse = wsBillingModule.CC_DummyChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, sExtraParams);
                 }
             }
             catch (Exception ex)
@@ -161,45 +168,61 @@ namespace ConditionalAccess
             finally
             {
                 #region Disposing
-                if (bm != null)
+                if (wsBillingModule != null)
                 {
-                    bm.Dispose();
-                    bm = null;
+                    wsBillingModule.Dispose();
+                    wsBillingModule = null;
                 }
                 #endregion
             }
 
-            return res;
+            return oResponse;
         }
 
+        /// <summary>
+        /// Handle success of renewal. Returns true if this method worked fine, false otherwise.
+        /// </summary>
+        /// <param name="sSiteGUID"></param>
+        /// <param name="sSubscriptionCode"></param>
+        /// <param name="dtCurrentEndDate"></param>
+        /// <param name="bIsPurchasedWithPreviewModule"></param>
+        /// <param name="lPurchaseID"></param>
+        /// <param name="sCurrency"></param>
+        /// <param name="dPrice"></param>
+        /// <param name="nPaymentNumber"></param>
+        /// <param name="sBillingTransactionID"></param>
+        /// <param name="nUsageModuleMaxVLC"></param>
+        /// <param name="bIsMPPRecurringInfinitely"></param>
+        /// <param name="nNumOfRecPeriods"></param>
+        /// <returns></returns>
         protected override bool HandleMPPRenewalBillingSuccess(string sSiteGUID, string sSubscriptionCode, DateTime dtCurrentEndDate,
             bool bIsPurchasedWithPreviewModule, long lPurchaseID, string sCurrency, double dPrice, int nPaymentNumber,
             string sBillingTransactionID, int nUsageModuleMaxVLC, bool bIsMPPRecurringInfinitely, int nNumOfRecPeriods)
         {
-            bool res = true;
+            bool bSuccesful = true;
             WriteToUserLog(sSiteGUID, String.Concat("MPP Renewal: ", sSubscriptionCode, " renewed ", dPrice.ToString(), sCurrency));
 
-            DateTime dNext = Utils.GetEndDateTime(dtCurrentEndDate, nUsageModuleMaxVLC);
+            DateTime dtNextEndDate = Utils.GetEndDateTime(dtCurrentEndDate, nUsageModuleMaxVLC);
 
             if (IsLastPeriodOfLastUsageModule(bIsPurchasedWithPreviewModule, bIsMPPRecurringInfinitely, nNumOfRecPeriods, nPaymentNumber))
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, false, dNext, 0, "CA_CONNECTION_STRING");
+                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, false, dtNextEndDate, 0, "CA_CONNECTION_STRING");
             }
             else
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, true, dNext, 0, "CA_CONNECTION_STRING");
+                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, true, dtNextEndDate, 0, "CA_CONNECTION_STRING");
             }
 
             long lBillingTransactionID = 0;
 
-            if (!string.IsNullOrEmpty(sBillingTransactionID) && Int64.TryParse(sBillingTransactionID, out lBillingTransactionID) && lBillingTransactionID > 0)
+            if (!string.IsNullOrEmpty(sBillingTransactionID) && long.TryParse(sBillingTransactionID, out lBillingTransactionID) && lBillingTransactionID > 0)
             {
                 ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID);
             }
             else
             {
                 // invalid format for billing transaction id
-                res = false;
+                bSuccesful = false;
 
                 #region Logging
                 Logger.Logger.Log("DD_BaseRenewMultiUsageSubscription", string.Format("HandleMPPRenewalBillingSuccess. Failed to update purchase id in billing_transactions. Purchase ID: {0} , Billing Transaction ID: {1} , Site Guid: {2} , BaseConditionalAccess is: {3}", lPurchaseID, sBillingTransactionID, sSiteGUID, this.GetType().ToString()), "TvinciRenewer");
@@ -207,25 +230,30 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            return res;
+            return bSuccesful;
         }
 
-        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module bm)
+        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
+            double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
+            string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module wsBillingService)
         {
             if (!bIsDummy && !bIsEntitledToPreviewModule)
             {
-                return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
+                return wsBillingService.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1,
+                    nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
             }
             else
             {
                 // if the user is entitled to preview module, and this function is called it means
                 // we already have the user's cc details so we can dummy charge him
                 // (this comment is correct for Adyen only. In Cinepolis there is no dummy charge. During development only MediaCorp and Cinepolis asked for preview module.)
-                return bm.CC_DummyChargeUser(sWSUsername, sWSPassword, sSiteGuid, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams);
+                return wsBillingService.CC_DummyChargeUser(sWSUsername, sWSPassword, sSiteGuid,
+                    bIsEntitledToPreviewModule ? 0.0 : dPrice,
+                    sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams);
             }
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
@@ -243,11 +271,9 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID,
-                sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData,
-                sCountryCd, sLanguageCode, sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
-                lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty);
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
+                sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
+                lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -298,7 +324,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, TvinciPricing.Collection theCol,
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
@@ -315,11 +341,9 @@ namespace ConditionalAccess
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = CalcCollectionEndDate(theCol, dtUtcNow);
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID,
-                sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData,
-                sCountryCd, sLanguageCode, sDeviceName, bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
-                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty);
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName,
+                bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
+                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -370,7 +394,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,
+        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
             TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
@@ -390,7 +414,7 @@ namespace ConditionalAccess
             lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, lMediaFileID, sSiteGUID, dPrice, sCurrency,
                 bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
                 relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, dtUtcNow, dtEndDate,
-                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, string.Empty);
+                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, string.Empty, domianID);
 
             if (lPurchaseID > 0)
             {
@@ -450,17 +474,30 @@ namespace ConditionalAccess
          * Question: Why we decided to do that and not just create a GetNPVRLicensedLink method inside VodafoneConditionalAccess ? 
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */
-        public override string GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
+            LicensedLinkResponse response = new LicensedLinkResponse();
             // validate user state (suspended or not)
             int domainId = 0;
             TvinciUsers.DomainSuspentionStatus domainStatus = TvinciUsers.DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
+
+            // check if domain is suspended
             if (domainStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
-                throw new ArgumentException("User is suspended");
+            {
+                StringBuilder sb = new StringBuilder("GetEPGLink: domain is suspended.");
+                sb.Append(String.Concat(" sSiteGUID: ", sSiteGUID));
+                sb.Append(String.Concat(" group ID: ", m_nGroupID));
+                sb.Append(String.Concat(" domain ID: ", domainId));
+                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                response.status = eResponseStatus.DomainSuspended.ToString();
+                response.Status.Code = (int)eResponseStatus.DomainSuspended;
+                return response;
+            }
 
             string url = string.Empty;
+
             TvinciAPI.API api = null;
             try
             {
@@ -469,6 +506,23 @@ namespace ConditionalAccess
                     throw new ArgumentException(String.Concat("Unknown format. Format: ", format));
 
                 eEPGFormatType eformat = (eEPGFormatType)format;
+
+                // check if the service allowed for domain  
+                eService eservice = GetServiceByEPGFormat(eformat);
+                if (eservice != eService.Unknown && !IsServiceAllowed(m_nGroupID, domainId, eservice))
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("GetEPGLink: service not allowed.");
+                    sb.Append(String.Concat(" service: ", eservice.ToString()));
+                    sb.Append(String.Concat(" group ID: ", m_nGroupID));
+                    sb.Append(String.Concat(" domain ID: ", domainId));
+                    Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                    #endregion
+                    response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
+                    response.Status.Code = (int)eResponseStatus.ServiceNotAllowed;
+                    return response;
+                }
+
                 if (eformat == eEPGFormatType.NPVR)
                 {
                     /*
@@ -481,7 +535,10 @@ namespace ConditionalAccess
                         sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                     if (npvrLicensedLink.Length > 0)
                     {
-                        return npvrLicensedLink;
+                        response.Status.Code = (int)eResponseStatus.OK;
+                        response.status = eLicensedLinkStatus.OK.ToString();
+                        response.mainUrl = npvrLicensedLink;
+                        return response;
                     }
                 }
                 int nProgramId = Int32.Parse(sProgramId);
@@ -550,7 +607,9 @@ namespace ConditionalAccess
                 {
                     // to do write to log
                     Logger.Logger.Log("get epg url link", string.Format("api.GetProgramSchedule return null response can't create link with no dates "), "GetEPGLink");
-                    return string.Empty;
+                    response.status = eLicensedLinkStatus.Error.ToString();
+                    response.Status.Code = (int)eResponseStatus.Error;
+                    return response;
                 }
 
                 //call the right provider to get the epg link 
@@ -569,8 +628,10 @@ namespace ConditionalAccess
                         url = liveUrl;
                     }
                 }
-
-                return url;
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.status = eLicensedLinkStatus.OK.ToString();
+                response.mainUrl = url;
+                return response;
 
             }
             catch (Exception ex)
@@ -591,7 +652,9 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
-                return string.Empty;
+                response.status = eLicensedLinkStatus.Error.ToString();
+                response.Status.Code = (int)eResponseStatus.Error;
+                return response;
             }
             finally
             {

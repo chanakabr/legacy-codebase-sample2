@@ -210,27 +210,4 @@ namespace Users
         Success = 0,
         Failure = 1
     }
-
-
-    //public enum DomainSuspentionStatus
-    //{
-    //    OK = 0,
-    //    Suspended = 1
-    //}
-    
-    [Serializable]
-    public enum ResponseDLMStatus
-    {
-        [EnumMember]
-        OK = 0,
-        [EnumMember]
-        DlmNotExsit = 1,
-        [EnumMember]
-        WrongPasswordOrUserName = 2,
-        [EnumMember]
-        NoDlmId = 2,
-        [EnumMember]
-        InternalError = 999
-    }
-
 }

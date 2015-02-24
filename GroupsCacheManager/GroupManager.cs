@@ -179,6 +179,51 @@ namespace GroupsCacheManager
             return res;
         }
 
+
+        public bool AddServices(int nGroupID, List<int> services)
+        {
+            bool bAdd = false;
+            try
+            {
+                bAdd = cache.AddServices(nGroupID, services);
+                return bAdd;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("AddServices", string.Format("failed AddServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        public bool DeleteServices(int nGroupID, List<long> services)
+        {
+            bool bDelete = false;
+            try
+            {
+                bDelete = cache.DeleteServices(nGroupID, services);
+                return bDelete;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("DeleteServices", string.Format("failed DeleteServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        public bool UpdateServices(int nGroupID, List<int> services)
+        {
+            bool bUpdate = false;
+            try
+            {
+                bUpdate = cache.UpdateServices(nGroupID, services);
+                return bUpdate;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UpdateServices", string.Format("failed UpdateServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+               
+
         #endregion
 
         #region Private
