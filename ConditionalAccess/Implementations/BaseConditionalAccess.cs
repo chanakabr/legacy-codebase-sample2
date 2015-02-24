@@ -6885,8 +6885,8 @@ namespace ConditionalAccess
                                                 {"CollectionCode", sBundleCode},
                                                 {"BillingTransactionID", lBillingTransactionID},
                                                 {"SiteGUID", sSiteGUID},
+                                                {"PurchaseID", lPurchaseID},
                                                 {"CouponCode", sCouponCode},
-                                                {"SiteGUID", sSiteGUID},
                                                 {"CustomData", sCustomData}
                                             };
 
