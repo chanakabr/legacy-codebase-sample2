@@ -2264,27 +2264,38 @@ namespace Users
 
             int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
 
-            //Very Patchy - change the group check to be configurable!!
-            if (domainID != 0 && m_nGroupID != 147)
+            // If the device is already contained in any domain
+            if (domainID != 0)
             {
-                if (status == 3 && isDevActive == 3)    // Pending master approval
+                // If the device is already contained in ANOTHER domain
+                if (domainID != nDomainID)
                 {
-                    bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
-                    if (updated)
-                    {
-                        eRetVal = DomainResponseStatus.OK;
-                        bRemove = true;
-                        device.m_domainID = nDomainID;
-                        device.m_state = DeviceState.Activated;
-                        int deviceID = device.Save(1, 1, tempDeviceID);
-                        GetDeviceList();
-
-                        return eRetVal;
-                    }
+                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
+                    return eRetVal;
                 }
+                // If the device is already contained in THIS domain
+                else
+                {
+                    // Pending master approval
+                    if (status == 3 && isDevActive == 3)    
+                    {
+                        bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
+                        if (updated)
+                        {
+                            eRetVal = DomainResponseStatus.OK;
+                            bRemove = true;
+                            device.m_domainID = nDomainID;
+                            device.m_state = DeviceState.Activated;
+                            int deviceID = device.Save(1, 1, tempDeviceID);
+                            GetDeviceList();
 
-                eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                return eRetVal;
+                            return eRetVal;
+                        }
+                    }
+
+                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
+                    return eRetVal;
+                }
             }
 
             DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);

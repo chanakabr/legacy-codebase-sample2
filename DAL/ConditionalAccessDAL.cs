@@ -1671,6 +1671,9 @@ namespace DAL
             else
                 sp.AddParameter("@DeviceName", string.Empty);
 
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+
             return sp.ExecuteReturnValue<long>();
         }
 
