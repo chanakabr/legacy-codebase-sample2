@@ -6643,6 +6643,7 @@ namespace ConditionalAccess
                             sCurrency = p.m_oCurrency.m_sCurrencyCD3;
                         }
                         bool bIsEntitledToPreviewModule = theReason == PriceReason.EntitledToPreviewModule;
+
                         if (theReason == PriceReason.ForPurchase || bIsEntitledToPreviewModule)
                         {
                             if (bDummy || (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
@@ -6689,19 +6690,38 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            if (theReason == PriceReason.Free)
+                            // If we reached this else section, there can be only 3 correct price reasons - free or already purchased.
+                            // Everything else should be noted as an error of GetSubscription/CollectionFinalPrice
+
+                            string collectionOrSubscription = bundleType == eBundleType.SUBSCRIPTION ? "subscription" : "collection";
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+
+                            switch (theReason)
                             {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "The subscription is free";
-                                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + " error returned: " + ret.m_sStatusDescription);
-                            }
-                            if (theReason == PriceReason.SubscriptionPurchased)
-                            {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "The subscription is already purchased";
-                                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                case PriceReason.Free:
+                                {
+                                    ret.m_sStatusDescription = string.Format("The {0} is free", collectionOrSubscription);
+                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+
+                                    break;
+                                }
+                                case PriceReason.SubscriptionPurchased:
+                                case PriceReason.CollectionPurchased:
+                                {
+                                    ret.m_sStatusDescription = string.Format("The {0} is already purchased", collectionOrSubscription);
+                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                    break;
+                                }
+                                default:
+                                {
+                                    Logger.Logger.Log("ChargeUserForBundle",
+                                        string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
+                                        "price reason = {1} for site guid = {2} and bundle id = {3}",
+                                        collectionOrSubscription, theReason, sSiteGUID, sBundleCode), 
+                                        this.GetLogFilename());
+                                    break;
+                                }
                             }
                         }
                     }
