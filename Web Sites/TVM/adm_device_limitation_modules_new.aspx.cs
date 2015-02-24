@@ -39,9 +39,9 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                     if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                     {
                         ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                        List<int> currentDeviceFamilyIDs = new List<int>();
                         try
                         {
-                            List<int> currentDeviceFamilyIDs = null;
                             selectQuery = new ODBCWrapper.DataSetSelectQuery();
                             selectQuery += "select device_family_id from groups_device_families with (nolock) where is_active=1 and [status]=1";
                             selectQuery += " and ";
@@ -55,22 +55,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                                 for (int i = 0; i < nCount; i++)
                                 {
                                     currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString()));
-
-                                } // end for
-
-                                UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
-
-                                // delete from cache this DLM object    
-                                DomainsWS.module p = new DomainsWS.module();
-
-                                string sIP = "1.1.1.1";
-                                string sWSUserName = "";
-                                string sWSPass = "";
-                                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                                string sWSURL = GetWSURL("domains_ws");
-                                if (sWSURL != "")
-                                    p.Url = sWSURL;
-                                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                                }
                             }
                         }
                         finally
@@ -80,6 +65,28 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                                 selectQuery.Finish();
                                 selectQuery = null;
                             }
+                        }
+
+                        UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
+
+                        // delete from cache this DLM object    
+                        DomainsWS.module p = new DomainsWS.module();
+
+                        string sIP = "1.1.1.1";
+                        string sWSUserName = "";
+                        string sWSPass = "";
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        string sWSURL = GetWSURL("domains_ws");
+                        if (sWSURL != "")
+                            p.Url = sWSURL;
+                        try
+                        {
+                            DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
                         }
                     }
                 }
@@ -526,24 +533,33 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                     }
             }
 
-            // delete from cache this DLM object    
-            DomainsWS.module p = new DomainsWS.module();
 
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = GetWSURL("domains_ws");
-            if (sWSURL != "")
-                p.Url = sWSURL;
             int limitID = 0;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
                 int.TryParse(Session["limit_id"].ToString(), out limitID);
-             
-                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-            }
+               
+                // delete from cache this DLM object    
+                DomainsWS.module p = new DomainsWS.module();
 
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = GetWSURL("domains_ws");
+                if (sWSURL != "")
+                    p.Url = sWSURL;
+
+                try
+                {
+                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                }
+            }
         }
         return retVal;
     }
