@@ -214,6 +214,7 @@ namespace Users
                                 dfl.deviceFamilyName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                                 dfl.concurrency = -1;
                                 dfl.quantity = -1;
+                                dfl.Frequency = -1;
 
                                 DataRow[] drSpecific = dtSpecificLimits.Select("device_family_id = " + dfl.deviceFamily);
                                 foreach (DataRow drItem in drSpecific)
@@ -227,12 +228,13 @@ namespace Users
                                         {
                                             dfl.concurrency = nLimitationValue;
                                         }
-                                        else
+                                        else if (sLimitationType.ToLower() == "quantity")
                                         {
-                                            if (sLimitationType.ToLower() == "quantity")
-                                            {
-                                                dfl.quantity = nLimitationValue;
-                                            }
+                                            dfl.quantity = nLimitationValue;
+                                        }
+                                        else if (sLimitationType.ToLower() == "frequency")
+                                        {
+                                            dfl.Frequency = nLimitationValue;
                                         }
                                     }
                                 }

@@ -288,9 +288,10 @@ namespace Users
                 }
                 if (oLimitationsManager.lDeviceFamilyLimitations != null)
                 {
+                    m_oLimitationsManager.lDeviceFamilyLimitations = oLimitationsManager.lDeviceFamilyLimitations;
                     foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                     {
-                        DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency);
+                        DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency, item.Frequency);
                         if (!m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                         {
                             m_deviceFamilies.Add(dc);
@@ -1241,9 +1242,41 @@ namespace Users
 
         public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
+            // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
+            if (m_oDeviceFamiliesMapping != null)
+            {
+                DeviceContainer deviceFamily = GetDeviceFamilyByUDID(sUDID);
+                
+                if (deviceFamily != null)
+                {
+                    if (deviceFamily.m_oLimitationsManager != null)
+                    {
+                        if (deviceFamily.m_oLimitationsManager.Frequency == 0)
+                        {
+                            return DomainResponseStatus.OK;
+                        }
+                    }
+                }
+            }
+
+            // check DLM device frequency
             if (m_oLimitationsManager.NextActionFreqDate > DateTime.UtcNow)
                 return DomainResponseStatus.LimitationPeriod;
             return DomainResponseStatus.OK;
+        }
+
+        private DeviceContainer GetDeviceFamilyByUDID(string sUDID)
+        {
+            foreach (var family in m_oDeviceFamiliesMapping)
+            {
+                Device device = family.Value.DeviceInstances.Where(d => d.m_deviceUDID == sUDID).FirstOrDefault();
+                if (device != null)
+                {
+                    return family.Value;
+                }
+            }
+
+            return null;
         }
 
         public DomainResponseStatus ValidateQuantity(string sUDID, int nDeviceBrandID, DeviceContainer dc = null, Device device = null)
@@ -1340,7 +1373,7 @@ namespace Users
                 {
                     nOverrideQuantityLimit = quantityOverride[nFamilyID];
                 }
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > -1 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > -1 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
+                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > -1 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > -1 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency, m_oLimitationsManager.Frequency);
                 if (!m_oDeviceFamiliesMapping.ContainsKey(nFamilyID))
                 {
                     m_deviceFamilies.Add(dc);
