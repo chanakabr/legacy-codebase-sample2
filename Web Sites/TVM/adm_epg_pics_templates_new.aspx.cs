@@ -97,7 +97,7 @@ public partial class adm_epg_pics_templates_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_ratios = new DataRecordDropDownField("lu_groups_ratios", "ratio", "id", "", null, 60, false);
         dr_ratios.Initialize("Ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", true);
-        dr_ratios.SetSelectsQuery("select lur.ratio as 'txt', lur.id from  lu_pics_ratios lur, groups g where g.id = " + LoginManager.GetLoginGroupID() + " and lur.id = g.ratio_id" + " UNION select lur.ratio as 'txt', lur.id from lu_pics_ratios lur, group_ratios gr where gr.group_id = " + LoginManager.GetLoginGroupID() + " and gr.ratio_id = lur.id and gr.status = 1");
+        dr_ratios.SetSelectsQuery("select lur.ratio as 'txt', lur.id from  lu_pics_epg_ratios lur, groups g where g.id = " + LoginManager.GetLoginGroupID() + " and lur.id = g.ratio_id" + " UNION select lur.ratio as 'txt', lur.id from lu_pics_ratios lur, group_ratios gr where gr.group_id = " + LoginManager.GetLoginGroupID() + " and gr.ratio_id = lur.id and gr.status = 1");
         theRecord.AddRecord(dr_ratios);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
