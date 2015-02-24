@@ -120,6 +120,8 @@ namespace Catalog
             bool bValidMediaAction = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
 
             int nSiteGuid;
+            bool isAnonymous = false;
+
             //anonymous user - write new play cycle when first play
             if (string.IsNullOrEmpty(m_oMediaPlayRequestData.m_sSiteGuid) || !int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid) || nSiteGuid == 0)
             {
@@ -128,13 +130,13 @@ namespace Catalog
                     CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, this.m_oMediaPlayRequestData.m_sUDID, nCountryID, Guid.NewGuid().ToString());
                 }
 
-                return oMediaMarkResponse;
+                isAnonymous = true;
             }
 
 
             // do for all non-anonymous users
-            if (bValidMediaAction)
-             {
+            if (bValidMediaAction && !isAnonymous)
+            {
                 bool isError = false;
                 bool isConcurrent = false;
                 HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
@@ -160,7 +162,7 @@ namespace Catalog
             {
                 if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
                 {
-                    if (string.IsNullOrEmpty(sPlayCycleKey))
+                    if (string.IsNullOrEmpty(sPlayCycleKey) && !isAnonymous)
                     {
                         sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);
                     }        
