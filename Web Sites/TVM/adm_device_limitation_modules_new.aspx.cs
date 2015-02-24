@@ -70,7 +70,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                                 string sWSURL = GetWSURL("domains_ws");
                                 if (sWSURL != "")
                                     p.Url = sWSURL;
-                                DomainsWS.ResponseDLMStatus resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
                             }
                         }
                         finally
@@ -541,7 +541,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
             {
                 int.TryParse(Session["limit_id"].ToString(), out limitID);
              
-                DomainsWS.ResponseDLMStatus resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
             }
 
         }

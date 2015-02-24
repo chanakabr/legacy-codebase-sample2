@@ -6,6 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 using DAL;
+using System.Collections.Specialized;
 
 public partial class adm_limitation_modules_new : System.Web.UI.Page
 {
@@ -24,70 +25,87 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                int idOfOverridingRule = DBManipulator.DoTheWork();
-                if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["device_families"] != null &&
-                    Session["device_families"] is List<UMObj> && Session["parent_limit_id"] != null
-                    && Session["parent_limit_id"].ToString().Length > 0)
+                if (IsValidFrequencyValue())
                 {
-                    List<UMObj> updatedDeviceFamilyObjs = Session["device_families"] as List<UMObj>;
-                    List<int> updatedDeviceFamilyIDs = updatedDeviceFamilyObjs.Select(item => Int32.Parse(item.m_id)).ToList<int>();
-                    int limitID = Int32.Parse(Session["limit_id"].ToString());
-                    if (limitID == 0)
-                        limitID = idOfOverridingRule;
-                    int parentLimitID = Int32.Parse(Session["parent_limit_id"].ToString());
-                    int groupID = LoginManager.GetLoginGroupID();
-                    if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
+
+                    int idOfOverridingRule = DBManipulator.DoTheWork();
+                    if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["device_families"] != null &&
+                        Session["device_families"] is List<UMObj> && Session["parent_limit_id"] != null
+                        && Session["parent_limit_id"].ToString().Length > 0)
                     {
-                        ODBCWrapper.DataSetSelectQuery selectQuery = null;
-                        try
+                        List<UMObj> updatedDeviceFamilyObjs = Session["device_families"] as List<UMObj>;
+                        List<int> updatedDeviceFamilyIDs = updatedDeviceFamilyObjs.Select(item => Int32.Parse(item.m_id)).ToList<int>();
+                        int limitID = Int32.Parse(Session["limit_id"].ToString());
+                        if (limitID == 0)
+                            limitID = idOfOverridingRule;
+                        int parentLimitID = Int32.Parse(Session["parent_limit_id"].ToString());
+                        int groupID = LoginManager.GetLoginGroupID();
+                        if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                         {
-                            List<int> currentDeviceFamilyIDs = null;
-                            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                            selectQuery += "select device_family_id from device_families_limitation_modules with (nolock) where is_active=1 and [status]=1";
-                            selectQuery += " and ";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
-                            selectQuery += " and ";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_limitation_module_id", "=", limitID);
-                            //selectQuery += " and ";
-                            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
-                            if (selectQuery.Execute("query", true) != null)
+                            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                            try
                             {
-                                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                                currentDeviceFamilyIDs = new List<int>(nCount);
-                                for (int i = 0; i < nCount; i++)
+                                List<int> currentDeviceFamilyIDs = null;
+                                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                                selectQuery += "select device_family_id from device_families_limitation_modules with (nolock) where is_active=1 and [status]=1";
+                                selectQuery += " and ";
+                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+                                selectQuery += " and ";
+                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_limitation_module_id", "=", limitID);
+                                //selectQuery += " and ";
+                                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
+                                if (selectQuery.Execute("query", true) != null)
                                 {
-                                    currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString()));
+                                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                                    currentDeviceFamilyIDs = new List<int>(nCount);
+                                    for (int i = 0; i < nCount; i++)
+                                    {
+                                        currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString()));
 
-                                } // end for
+                                    } // end for
 
-                                UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
+                                    UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
 
-                                // delete from cache this DLM object    
-                                DomainsWS.module p = new DomainsWS.module();
+                                    // delete from cache this DLM object    
+                                    DomainsWS.module p = new DomainsWS.module();
 
-                                string sIP = "1.1.1.1";
-                                string sWSUserName = "";
-                                string sWSPass = "";
-                                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                                string sWSURL = GetWSURL("domains_ws");
-                                if (sWSURL != "")
-                                    p.Url = sWSURL;
-                                DomainsWS.ResponseDLMStatus resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+
+                                    string sIP = "1.1.1.1";
+                                    string sWSUserName = "";
+                                    string sWSPass = "";
+                                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                                    string sWSURL = GetWSURL("domains_ws");
+                                    if (sWSURL != "")
+                                        p.Url = sWSURL;
+                                    try
+                                    {
+                                        DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                    }
+
+                                }
                             }
-                        }
-                        finally
-                        {
-                            if (selectQuery != null)
+                            finally
                             {
-                                selectQuery.Finish();
-                                selectQuery = null;
+                                if (selectQuery != null)
+                                {
+                                    selectQuery.Finish();
+                                    selectQuery = null;
+                                }
                             }
                         }
+
                     }
+                    //Session["limit_id"] = null;
+                    //Session["parent_limit_id"] = null;
+                    return;
                 }
-                //Session["limit_id"] = null;
-                //Session["parent_limit_id"] = null;
-                return;
+                else
+                {
+                    HttpContext.Current.Session["error_msg"] = "frequency value can be only 0!";
+                }
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
@@ -134,6 +152,21 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
 
         }
+    }
+
+
+    // validates the Value field is 0, only in case the selected Limit Type is Frequency.
+    // uses "hard coded" values, in case of updating the page / values, the method MUST be updated as well.
+    private bool IsValidFrequencyValue()
+    {
+        NameValueCollection coll = HttpContext.Current.Request.Form;
+        string ruleType = coll["1_val"];
+        string ruleVal = coll["2_val"];
+        if (ruleType == "3" && ruleVal != "0")
+            return false;
+        else
+            return true;
+        
     }
 
     static public string GetWSURL(string sKey)
@@ -415,7 +448,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             {
                 int.TryParse(Session["limit_id"].ToString(), out limitID);
 
-                DomainsWS.ResponseDLMStatus resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
             }
 
         }
