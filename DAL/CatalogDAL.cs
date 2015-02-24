@@ -9,6 +9,7 @@ using CouchbaseManager;
 using System.Threading;
 using Newtonsoft.Json;
 using DAL;
+using ApiObjects.Epg;
 
 namespace Tvinci.Core.DAL
 {
@@ -1676,6 +1677,66 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
+
+
+        public static Dictionary<int,List<Picture>> GetGroupTreePicEpgUrl(int parentGroupID)
+        {
+            Dictionary<int, List<Picture>> res = null;
+            StoredProcedure sp = new StoredProcedure("Get_GroupTreePicEpgUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, List<Picture>>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int groupID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["GROUP_ID"]);
+                        if (groupID > 0)
+                        {
+                            string baseUrl = string.Empty;
+                            int width = 0;
+                            int height = 0;
+                            string ration = string.Empty;
+                            baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["baseURL"]);
+                            if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                            {
+                                baseUrl = String.Concat(baseUrl, '/');
+                            }
+                            width = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i],"WIDTH");
+                            height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i],"HEIGHT");
+                            ration = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "ratio");
+
+                            Picture picture = new Picture();
+                            picture.Initialize(width, height, ration, baseUrl);
+                            if (!res.ContainsKey(groupID))
+                            {
+                            res.Add(groupID, new List<Picture>() { picture });
+                            }
+                            else
+                            {
+                                res[groupID].Add(picture);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    res = new Dictionary<int, List<Picture>>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, List<Picture>>(0);
+            }
+
+            return res;
+        }
+
 
         public static DataTable GetPicEpgURL(int groupID)
         {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ApiObjects;
 using DalCB;
 using Logger;
+using ApiObjects.Epg;
 
 namespace EpgBL
 {
@@ -502,10 +503,65 @@ namespace EpgBL
             List<EPGChannelProgrammeObject> lRes = null;
             if (lResCB != null)
             {
-                lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+                lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID)); 
+                // get picture sozes from DB
+                Dictionary<int, List<Picture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreePicEpgUrl(m_nGroupID);
+                if (pictures != null)
+                {
+                    MutateFullEpgPicURL(lRes, pictures);
+                }
             }
             return lRes;
         }
+
+        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<Picture>> pictures)
+        {
+            bool IsFirstPicture;
+            string baseEpgPicUrl;
+            string picUrl;
+            foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
+            {
+                int groupID = int.Parse(oProgram.GROUP_ID);
+                IsFirstPicture = true;
+                baseEpgPicUrl = string.Empty;
+                picUrl = string.Empty;
+                if (pictures.ContainsKey(groupID))
+                {
+                    if (oProgram != null && pictures[groupID] != null)
+                    {
+                        foreach (Picture pict in pictures[groupID])
+                        {
+                            if (pict != null && !string.IsNullOrEmpty(pict.Url))
+                            {
+                                Picture pictureItem = new Picture();
+                                pictureItem.PicHeight = pict.PicHeight;
+                                pictureItem.PicWidth = pict.PicWidth;
+                                pictureItem.Ratio = pict.Ratio;
+                                if (IsFirstPicture)
+                                {
+                                    baseEpgPicUrl = pict.Url;
+                                    picUrl = oProgram.PIC_URL;
+                                    if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                                    {
+                                        oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                                    }
+                                    oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
+                                    IsFirstPicture = false;
+                                }
+                                
+                                if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                                {
+                                    pictureItem.Url = picUrl.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                                }
+                                pictureItem.Url = string.Format("{0}{1}", baseEpgPicUrl, pictureItem.Url);
+                                oProgram.EPG_PICTURES.Add(pictureItem);                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
 
         public override List<EpgCB> GetEpgs(List<string> lIds)
         {
@@ -531,6 +587,12 @@ namespace EpgBL
                     if (lResCB != null)
                     {
                         lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+
+                        Dictionary<int, List<Picture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreePicEpgUrl(m_nGroupID);
+                        if (pictures != null)
+                        {
+                            MutateFullEpgPicURL(lRes, pictures);
+                        }
                     }
                 }
 
