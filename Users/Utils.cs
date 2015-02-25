@@ -119,9 +119,10 @@ namespace Users
                 if (!String.IsNullOrEmpty(moduleName))
                 {
                     // load user assembly
-                    Assembly userAssembly = Assembly.LoadFile(string.Format(@"{0}{1}.dll",
-                                      ConfigurationManager.AppSettings["UsersAssemblyLocation"].EndsWith("\\") ? ConfigurationManager.AppSettings["UsersAssemblyLocation"] : ConfigurationManager.AppSettings["UsersAssemblyLocation"] + "\\",
-                                      moduleName));
+                    // load user assembly
+                    string usersAssemblyLocation = Utils.GetWSURL("UsersAssemblyLocation");
+                    Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
+                        usersAssemblyLocation + "\\", moduleName));
 
                     // get user class 
                     Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
