@@ -118,6 +118,7 @@
     <Compile Include="ChangeDLMObj.cs" />
     <Compile Include="DeviceFamilyLimitations.cs" />
     <Compile Include="DLMResponse.cs" />
+    <Compile Include="DomainInfo.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />
@@ -125,6 +126,10 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="FlowManager.cs" />
+    <Compile Include="KalturaBaseUsers.cs" />
+    <Compile Include="KalturaSSOUsers.cs" />
+    <Compile Include="KalturaUsers.cs" />
     <Compile Include="LimitationsManager.cs" />
     <Compile Include="MailFactory.cs" />
     <Compile Include="HomeNetwork.cs" />

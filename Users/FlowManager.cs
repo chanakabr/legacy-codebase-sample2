@@ -1,0 +1,144 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ApiObjects;
+
+namespace Users
+{
+    public class FlowManager
+    {
+        public static UserResponseObject SignIn(string userName, string password, Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
+                                                int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
+                                                List<KeyValuePair> keyValueList)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            // pre
+            response = user.PreSignIn(ref siteGuid, ref userName, ref password,
+                                      ref maxFailCount, ref lockMin, ref groupId,
+                                      ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
+
+            if (response.m_RespStatus == ResponseStatus.OK)
+            {
+                // mid
+                response = user.MidSignIn(siteGuid, userName, password,
+                                       maxFailCount, lockMin, groupId,
+                                      sessionId, ip, deviceId, preventDoubleLogin);
+
+                // post
+                user.PostSignIn(ref response, ref keyValueList);
+            }
+            return response;
+        }
+
+        public static UserResponseObject AddNewUser(KalturaBaseUsers user, UserBasicData basicData, UserDynamicData dynamicData, string password, List<KeyValuePair> keyValueList, DomainInfo domainInfo = null)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            // pre
+            response = user.PreAddNewUser(ref basicData, ref dynamicData, ref password, ref domainInfo, ref keyValueList);
+            if (response.m_RespStatus == ResponseStatus.OK)
+            {
+                // mid
+                response = user.MidAddNewUser(basicData, dynamicData, password, ref keyValueList, domainInfo);
+
+                // post
+                user.PostAddNewUser(ref response, ref keyValueList);
+            }
+            return response;
+        }
+
+        public static int SaveUser(ref UserResponseObject userResponse, KalturaBaseUsers user, ref UserBasicData basicData, User userBo, Int32 groupId, bool bIsSetUserActive, List<KeyValuePair> keyValueList)
+        {
+            int userId = 0;
+
+            // pre
+            user.PreSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, ref keyValueList);
+
+            // mid
+            userId = user.MidSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive);
+
+            // post 
+            user.PostSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, userId, ref keyValueList);
+
+            return userId;
+        }
+
+        public static bool SendWelcomeMailRequest(ref UserResponseObject userResponse, KalturaBaseUsers user, User newUser, string password, List<KeyValuePair> keyValueList)
+        {
+            bool mailSent = false;
+            Users.TvinciAPI.WelcomeMailRequest mailRequest = new TvinciAPI.WelcomeMailRequest();
+
+            if (((KalturaUsers)user).ShouldSendWelcomeMail)
+            {
+                // init
+                user.InitSendWelcomeMail(ref userResponse, ref mailRequest, newUser.m_oBasicData.m_sFirstName, newUser.m_oBasicData.m_sUserName, password, newUser.m_oBasicData.m_sEmail, newUser.m_oBasicData.m_sFacebookID);
+
+                // pre
+                user.PreSendWelcomeMail(ref userResponse, ref mailRequest, newUser.m_oBasicData.m_sFirstName, newUser.m_oBasicData.m_sUserName, password, newUser.m_oBasicData.m_sEmail, newUser.m_oBasicData.m_sFacebookID, ref keyValueList);
+
+                // mid
+                mailSent = user.MidSendWelcomeMail(ref userResponse, mailRequest);
+
+                // post
+                user.PostSendWelcomeMail(ref userResponse, mailSent, ref keyValueList);
+            }
+            return mailSent;
+        }
+
+        public static bool AddDomain(ref UserResponseObject userResponse, KalturaBaseUsers user, User userBo, string username, int userId, DomainInfo domainInfo, List<KeyValuePair> keyValueList)
+        {
+            bool passed = false;
+
+            // pre
+            user.PreAddDomain(ref userResponse, ref userBo, ref username, ref userId, ref domainInfo, ref keyValueList);
+
+            // mid
+            passed = user.MidAddDomain(ref userResponse, userBo, username, userId, domainInfo);
+
+            // post 
+            user.PostAddDomain(passed, ref userResponse, userBo, username, userId, domainInfo, ref keyValueList);
+
+            return passed;
+        }
+
+        public static bool CreateDefaultRules(ref UserResponseObject userResponse, KalturaBaseUsers user, User userBo, string siteGuid, int groupId, List<KeyValuePair> keyValueList)
+        {
+            bool passed = false;
+            if (((KalturaUsers)user).ShouldCreateDefaultRules)
+            {
+                // pre
+                user.PreDefaultRules(ref userResponse, siteGuid, groupId, ref userBo, ref keyValueList);
+
+                // mid
+                passed = user.MidCreateDefaultRules(ref userResponse, siteGuid, groupId, ref userBo);
+
+                // post
+                user.PostDefaultRules(ref userResponse, passed, siteGuid, groupId, ref userBo, ref keyValueList);
+            }
+            return passed;
+        }
+
+        public static bool SubscribeToNewsLetter(ref UserResponseObject userResponse, KalturaBaseUsers user, UserDynamicData dynamicData, User userBo, List<KeyValuePair> keyValueList)
+        {
+            bool passed = false;
+            bool shouldSubscribe = ((KalturaUsers)user).ShouldSubscribeNewsLetter;
+            if (((KalturaUsers)user).ShouldSubscribeNewsLetter)
+            {
+                // init
+                user.InitSubscribeToNewsLetter(ref userResponse, ref dynamicData, ref userBo, ref shouldSubscribe);
+
+                // pre
+                user.PreSubscribeToNewsLetter(ref userResponse, ref dynamicData, ref userBo, ref shouldSubscribe, ref keyValueList);
+
+                // mid
+                passed = user.MidSubscribeToNewsLetter(ref userResponse, dynamicData, userBo, ref shouldSubscribe);
+
+                // post
+                user.PostSubscribeToNewsLetter(ref userResponse, passed, ref dynamicData, ref userBo, ref keyValueList);
+            }
+            return passed;
+        }
+    }
+}
