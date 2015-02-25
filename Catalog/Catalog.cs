@@ -2835,13 +2835,12 @@ namespace Catalog
             bool bMedia = false;
             long ipVal = 0;
             
-            double cacheTime = 0d;            
+            double cacheTime = 120d;            
             string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_HIT_MARK_CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0)
+            if (string.IsNullOrEmpty(timeStr))
             {
                 Double.TryParse(timeStr, out cacheTime);
             }
-
 
             #region  try get values from catalog cache
             CatalogCache catalogCache = CatalogCache.Instance();
