@@ -46,7 +46,7 @@ namespace Tvinci.Core.DAL
         public static DateTime? Get_MediaUserLastWatch(int p_nMedia, string p_sSiteGuid)
         {
             DateTime? dt = null;
-            
+
             Couchbase.CouchbaseClient m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             // get document of media mark
@@ -143,7 +143,7 @@ namespace Tvinci.Core.DAL
                 spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
                 DataSet ds = spPersonalLastWatched.ExecuteDataSet();
                 if (ds != null)
-                    dt = ds.Tables[0];                
+                    dt = ds.Tables[0];
             }
 
             return dt;
@@ -176,7 +176,7 @@ namespace Tvinci.Core.DAL
             lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
             return lRes;
         }
-        
+
         public static DataTable Get_MediaUpdateDate(List<int> nMediaIDs)
         {
             ODBCWrapper.StoredProcedure spGet_MediaUpdateDate = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
@@ -225,7 +225,7 @@ namespace Tvinci.Core.DAL
                 spPersonalRecommended.AddParameter("@Top", Top);
                 spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
-                ds = spPersonalRecommended.ExecuteDataSet();                
+                ds = spPersonalRecommended.ExecuteDataSet();
             }
             else if (bGetDBData)
             {
@@ -279,7 +279,7 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByMedias(new List<int> { nMediaID });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.OrderByDescending(x => x.CreatedAt).ToList(); //.Take(nNumOfUsers).ToList();
 
-            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)? true: false;
+            bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0) ? true : false;
             if (bContunueWithCB)
             {
                 Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid).GroupBy(g => g.MediaID).ToDictionary(k => k.Key, k => k.Count());
@@ -314,7 +314,7 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-              
+
         public static DataTable Get_ChannelsBySubscription(int nGroupID, int nSubscriptionID)
         {
             ODBCWrapper.StoredProcedure spCatalog = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");
@@ -1021,7 +1021,7 @@ namespace Tvinci.Core.DAL
 
             return null;
         }
-        
+
         public static DataTable Get_Media_By_SlidingWindow(string spName, List<int> mediaIds, bool isDesc, int pageSize, int pageIndex, DateTime windowTime)
         {
             ODBCWrapper.StoredProcedure sp = new StoredProcedure(spName);
@@ -1159,7 +1159,7 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@EndDateField", sEndDate);
                     sp.AddParameter("@DeviceID", nDeviceId);
 
-                    ds = sp.ExecuteDataSet();                   
+                    ds = sp.ExecuteDataSet();
                 }
             }
             else if (bGetDBData)
@@ -1270,7 +1270,7 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
-        
+
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
@@ -1377,7 +1377,7 @@ namespace Tvinci.Core.DAL
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<UserMediaMark> sortedMediaMarksList = mediaMarksList.ToList().OrderByDescending(x => x.CreatedAt).Take(nTop).ToList();
-           
+
 
             if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
             {
@@ -1467,7 +1467,7 @@ namespace Tvinci.Core.DAL
                     default:
                         break;
                 }
-               
+
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
 
                 if (!res.Result)
@@ -1771,7 +1771,7 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static int Get_MediaIDByMediaFileID(int nMediaFileID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaIDByMediaFileID");
@@ -2077,7 +2077,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@To", to);
             sp.AddParameter("@GroupID", groupID);
 
-            return sp.ExecuteReturnValue<int>();    
+            return sp.ExecuteReturnValue<int>();
         }
 
         public static bool Drop_SiteGuidsTableForUMMMigration()
@@ -2095,11 +2095,11 @@ namespace Tvinci.Core.DAL
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            
+
             #region add data to domain
             while (limitRetries >= 0)
             {
-                
+
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
                 var data = m_oClient.GetWithCas<string>(docKey);
@@ -2197,7 +2197,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static int GetLastPosition(string NpvrID, int userID)
-        {            
+        {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string key = UtilsDal.getUserNpvrMarkDocKey(userID, NpvrID);
             var data = m_oClient.Get<string>(key);
@@ -2219,12 +2219,12 @@ namespace Tvinci.Core.DAL
 
             // get all last position order by desc              
             var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();           
+            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();
             return dmm;
         }
 
         public static void Get_IPCountryCode(long ipVal, ref int countryID)
-        {  
+        {
             StoredProcedure sp = new StoredProcedure("Get_IPCountryCode");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@IPVal", ipVal);
@@ -2232,7 +2232,7 @@ namespace Tvinci.Core.DAL
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
-            {              
+            {
                 DataTable ipTable = ds.Tables[0];
                 if (ipTable != null && ipTable.Rows != null && ipTable.Rows.Count > 0)
                 {
@@ -2247,7 +2247,7 @@ namespace Tvinci.Core.DAL
             StoredProcedure sp = new StoredProcedure("GetMediaPlayData");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@MediaID", mediaID);
-            sp.AddParameter("@MediaFileID", mediaFileID);          
+            sp.AddParameter("@MediaFileID", mediaFileID);
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
@@ -2281,7 +2281,7 @@ namespace Tvinci.Core.DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    for (int i=0; i < dt.Rows.Count ; i++)
+                    for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
                     }
@@ -2295,7 +2295,7 @@ namespace Tvinci.Core.DAL
         {
             DomainMediaMark dmm = new DomainMediaMark();
             dmm.domainID = domain_id;
-           
+
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             // create Keys 
             List<string> keys = new List<string>();
@@ -2309,7 +2309,7 @@ namespace Tvinci.Core.DAL
             IDictionary<string, object> data = m_oClient.Get(keys);
 
             List<UserMediaMark> oRes = new List<UserMediaMark>();
-                     
+
             if (data == null)
                 return null;
 
@@ -2328,7 +2328,7 @@ namespace Tvinci.Core.DAL
                     }
                 }
             }
-            
+
             dmm.devices = oRes;
             return dmm;
         }
@@ -2337,14 +2337,14 @@ namespace Tvinci.Core.DAL
         {
             StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGDeafultsValues");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@EpgChannelID",nEpgChannelID);
+            sp.AddParameter("@EpgChannelID", nEpgChannelID);
             sp.AddKeyValueListParameter<int, string>("@MetasDefaults", dMetasDefaults, "key", "value");
             sp.AddKeyValueListParameter<int, string>("@TagsDefaults", dTagsDefaults, "key", "value");
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, 
+        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive,
             int? orderNum, string TagName, int tagTypeFlag)
         {
             StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGTagTypeWithDeafultsValues");
@@ -2362,7 +2362,7 @@ namespace Tvinci.Core.DAL
 
         public static Dictionary<string, string> GetMinPeriods()
         {
-            Dictionary<string, string> dicMinPeriods = new Dictionary<string,string>();
+            Dictionary<string, string> dicMinPeriods = new Dictionary<string, string>();
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MinPeriods");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -2418,6 +2418,16 @@ namespace Tvinci.Core.DAL
             }
 
             return lServices;
+        }
+
+        public static DataSet GetMediaByEpgChannelIds(int groupId, List<string> epgChannelIds)
+        {
+            StoredProcedure storedProcedure = new StoredProcedure("[Get_MediasByEpgIds]");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddIDListParameter("@epgIdentifiers", epgChannelIds, "ID");
+            storedProcedure.AddParameter("@GroupID", groupId);
+
+            return storedProcedure.ExecuteDataSet();
         }
     }
 }
