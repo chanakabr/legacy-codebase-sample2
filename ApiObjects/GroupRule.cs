@@ -32,6 +32,10 @@ namespace ApiObjects
         [ScriptIgnore]
         public bool AgeLimit { get; set; }
 
+        [XmlIgnore]
+        [ScriptIgnore]
+        public string TagType { get; set; }
+
         public GroupRule()
         {
             RuleID = 0;
@@ -63,6 +67,33 @@ namespace ApiObjects
         }
 
         public GroupRule(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive, eGroupRuleType groupRuleType, bool blockAnonymous)
+        {
+            Initialize(ruleID, tagTypeID, tagVal, dynamicKey, name, ageRestriction, isActive, groupRuleType, blockAnonymous);
+                /*
+            RuleID = ruleID;
+            TagTypeID = tagTypeID;
+            TagValue = tagVal;
+            DynamicDataKey = dynamicKey;
+            Name = name;
+            if (ageRestriction != null && ageRestriction != System.DBNull.Value)
+            {
+                AgeRestriction = (int)ageRestriction;
+            }
+            AllTagValues = new List<string>();
+            if (isActive == 1)
+            {
+                IsActive = true;
+            }
+            GroupRuleType = groupRuleType;
+            BlockAnonymous = blockAnonymous;*/
+        }
+        public GroupRule(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive, eGroupRuleType groupRuleType, bool blockAnonymous, string tagName)
+        {
+            Initialize(ruleID, tagTypeID, tagVal, dynamicKey, name, ageRestriction, isActive, groupRuleType, blockAnonymous);
+            this.TagType = tagName;
+        }
+
+        private void Initialize(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive, eGroupRuleType groupRuleType, bool blockAnonymous)
         {
             RuleID = ruleID;
             TagTypeID = tagTypeID;
