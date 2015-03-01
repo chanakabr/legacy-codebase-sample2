@@ -84,9 +84,9 @@ public partial class adm_group_services : System.Web.UI.Page
 
         if (bInsert)
         {
-            List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
+            //List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            groupManager.AddServices(nGroupID, lServices);
+            groupManager.AddServices(nGroupID, new List<int>() { nServiceID });
         }
 
     }
@@ -119,8 +119,8 @@ public partial class adm_group_services : System.Web.UI.Page
             }
             else
             {
-                List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);
-                groupManager.AddServices(nGroupID, lServices);
+                //List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);
+                groupManager.AddServices(nGroupID, new List<int>() { nServiceID });
             }
         }
     }
