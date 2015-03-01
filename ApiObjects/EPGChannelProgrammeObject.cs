@@ -44,7 +44,7 @@ namespace ApiObjects
         public List<EPGDictionary> EPG_TAGS;
         public List<EPGDictionary> EPG_Meta;
 
-        public List<Picture> EPG_PICTURES;
+        public List<EpgPicture> EPG_PICTURES;
         
         public string media_id;
 
@@ -71,7 +71,7 @@ namespace ApiObjects
             EPG_Meta = nEPG_META;
             media_id = nmedia_id;
             LIKE_COUNTER = nLikeCounter;
-            EPG_PICTURES = new List<Picture>();
+            EPG_PICTURES = new List<EpgPicture>();
 
         }
 

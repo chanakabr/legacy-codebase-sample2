@@ -1679,9 +1679,9 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static Dictionary<int,List<Picture>> GetGroupTreePicEpgUrl(int parentGroupID)
+        public static Dictionary<int, List<EpgPicture>> GetGroupTreePicEpgUrl(int parentGroupID)
         {
-            Dictionary<int, List<Picture>> res = null;
+            Dictionary<int, List<EpgPicture>> res = null;
             StoredProcedure sp = new StoredProcedure("Get_GroupTreePicEpgUrl");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@ParentGroupID", parentGroupID);
@@ -1692,7 +1692,7 @@ namespace Tvinci.Core.DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    res = new Dictionary<int, List<Picture>>();
+                    res = new Dictionary<int, List<EpgPicture>>();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         int groupID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["GROUP_ID"]);
@@ -1711,11 +1711,11 @@ namespace Tvinci.Core.DAL
                             height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i],"HEIGHT");
                             ration = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "ratio");
 
-                            Picture picture = new Picture();
+                            EpgPicture picture = new EpgPicture();
                             picture.Initialize(width, height, ration, baseUrl);
                             if (!res.ContainsKey(groupID))
                             {
-                            res.Add(groupID, new List<Picture>() { picture });
+                                res.Add(groupID, new List<EpgPicture>() { picture });
                             }
                             else
                             {
@@ -1726,12 +1726,12 @@ namespace Tvinci.Core.DAL
                 }
                 else
                 {
-                    res = new Dictionary<int, List<Picture>>(0);
+                    res = new Dictionary<int, List<EpgPicture>>(0);
                 }
             }
             else
             {
-                res = new Dictionary<int, List<Picture>>(0);
+                res = new Dictionary<int, List<EpgPicture>>(0);
             }
 
             return res;

@@ -6,14 +6,14 @@ using System.Text;
 namespace ApiObjects.Epg
 {
     [Serializable]
-    public class Picture
+    public class EpgPicture
     {
         public Int32 PicWidth {set; get;}
         public Int32 PicHeight { set; get; }
         public string Ratio { set; get; }
         public string Url { set; get; }
 
-        public Picture()
+        public EpgPicture()
         {
             PicHeight = 0;
             PicWidth = 0;
