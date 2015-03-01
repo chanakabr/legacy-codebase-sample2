@@ -581,6 +581,159 @@ namespace Catalog
             return lSearchResults;
         }
 
+        /// <summary>
+        /// Builds search object and performs query to get asset Ids that match the request requirements
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="totalItems"></param>
+        /// <returns></returns>
+        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems)
+        {
+            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            UnifiedSearchDefinitions searchDefinitions = null;
+
+            // Group have user types per media  +  siteGuid != empty
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            {
+                if (request.m_oFilter == null)
+                {
+                    request.m_oFilter = new Filter();
+                }
+
+                //call ws_users to get userType                  
+                request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+            }
+
+            searchDefinitions = BuildUnifiedSearchObject(request);
+
+            searchDefinitions.m_nPageIndex = request.m_nPageIndex;
+            searchDefinitions.m_nPageSize = request.m_nPageSize;
+
+            if (searcher != null)
+            {
+                GroupManager groupManager = new GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                Group groupInCache = groupManager.GetGroup(nParentGroupID);
+
+                if (groupInCache != null)
+                {
+                    LanguageObj objLang = null;
+
+                    if (request.m_oFilter == null)
+                    {
+                        objLang = groupInCache.GetGroupDefaultLanguage();
+                    }
+                    else
+                    {
+                        objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
+                    }
+
+                    searchDefinitions.m_oLangauge = objLang;
+                }
+
+                SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
+
+                if (searchResultsObject != null)
+                {
+                    if (searchResultsObject.m_resultIDs != null)
+                    {
+                        searchResultsList = searchResultsObject.m_resultIDs.Select(result => result as UnifiedSearchResult).ToList();
+                    }
+
+                    totalItems = searchResultsObject.n_TotalItems;
+                }
+            }
+
+            return searchResultsList;
+        }
+
+        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
+        {
+            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+
+            definitions.m_bDesc = false;
+            //definitions.m_bIsCurrent = true;
+            //definitions.m_dAnd = request.m_l;
+
+            //Build 2 CondList for search tags / metaStr / metaDobule .
+            List<SearchValue> ands = new List<SearchValue>();
+            List<SearchValue> ors = new List<SearchValue>();
+
+            OrderObj order = new OrderObj();
+            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+
+            SearchValue search = new SearchValue();
+
+            // is it full search
+            FullSearchAddParams(request.m_nGroupID, request.m_AndList, request.m_OrList, ref ands, ref ors);
+            definitions.m_sName = string.Empty;
+            definitions.m_sDescription = string.Empty;
+
+            //NormalSearchAddParams(request, ref m_dAnd, ref m_dOr);
+
+            //definitions.m_sName = request.m_sName;
+            //definitions.m_sDescription = request.m_sDescription;
+
+            //if (request.m_bAnd)
+            //{
+            //    definitions.m_eCutWith = CutWith.AND;
+            //}
+            //else
+            //{
+            //    definitions.m_eCutWith = CutWith.OR;
+            //}
+
+            //if (!string.IsNullOrEmpty(request.m_sName) || !string.IsNullOrEmpty(request.m_sDescription))
+            //{
+            //    SearchObjectString(m_dAnd, m_dOr, request.m_sName, request.m_sDescription, request.m_bAnd);
+            //}
+
+            GetOrderValues(ref order, request.m_oOrderObj);
+
+            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+            {
+                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+            }
+
+            if (request.m_oFilter != null)
+            {
+                definitions.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
+                definitions.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
+                definitions.m_nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+            }
+
+            definitions.m_sMediaTypes = "0";
+
+            definitions.m_oOrder = new OrderObj();
+            definitions.m_oOrder.m_eOrderDir = order.m_eOrderDir;
+            definitions.m_oOrder.m_eOrderBy = order.m_eOrderBy;
+            definitions.m_oOrder.m_sOrderValue = order.m_sOrderValue;
+
+            if (ors.Count > 0)
+            {
+                definitions.m_dOr = ors;
+            }
+
+            if (ands.Count > 0)
+            {
+                definitions.m_dAnd = ands;
+            }
+
+            definitions.m_nGroupId = request.m_nGroupID;
+            definitions.m_bExact = request.m_bExact;
+            definitions.m_sPermittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
+            definitions.m_QueryType = request.m_eType;
+
+            return definitions;
+        }
+
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
         {
             try
@@ -626,7 +779,7 @@ namespace Catalog
                 if (request is MediaSearchFullRequest)
                 {
                     // is it full search
-                    FullSearchAddParams((MediaSearchFullRequest)request, ref m_dAnd, ref m_dOr);
+                    FullSearchAddParams(request.m_nGroupID, ((MediaSearchFullRequest)request).m_AndList, ((MediaSearchFullRequest)request).m_OrList, ref m_dAnd, ref m_dOr);
                     searchObj.m_sName = string.Empty;
                     searchObj.m_sDescription = string.Empty;
                 }
@@ -721,10 +874,11 @@ namespace Catalog
         }
 
         /*Build Full search object*/
-        static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
+        static internal void FullSearchAddParams(int groupId, List<KeyValue> originalAnds, List<KeyValue> originalOrs, 
+            ref List<SearchValue> resultAnds, ref List<SearchValue> resultOrs)
         {
             CatalogCache catalogCache = CatalogCache.Instance();
-            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+            int nParentGroupID = catalogCache.GetParentGroup(groupId);
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(nParentGroupID);
@@ -732,9 +886,9 @@ namespace Catalog
             if (group != null)
             {
                 string searchKey;
-                if (request.m_AndList != null)
+                if (originalAnds != null)
                 {
-                    foreach (KeyValue andKeyValue in request.m_AndList)
+                    foreach (KeyValue andKeyValue in originalAnds)
                     {
                         searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
 
@@ -742,13 +896,13 @@ namespace Catalog
                         search.m_sKey = searchKey;
                         search.m_lValue = new List<string> { andKeyValue.m_sValue };
                         search.m_sValue = andKeyValue.m_sValue;
-                        m_dAnd.Add(search);
+                        resultAnds.Add(search);
                     }
                 }
 
-                if (request.m_OrList != null)
+                if (originalOrs != null)
                 {
-                    foreach (KeyValue orKeyValue in request.m_OrList)
+                    foreach (KeyValue orKeyValue in originalOrs)
                     {
                         SearchValue search = new SearchValue();
 
@@ -756,7 +910,7 @@ namespace Catalog
                         search.m_sKey = searchKey;
                         search.m_lValue = new List<string> { orKeyValue.m_sValue };
                         search.m_sValue = orKeyValue.m_sValue;
-                        m_dOr.Add(search);
+                        resultOrs.Add(search);
                     }
                 }
             }

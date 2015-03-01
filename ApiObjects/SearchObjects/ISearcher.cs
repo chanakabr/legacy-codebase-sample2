@@ -59,5 +59,8 @@ namespace ApiObjects.SearchObjects
             List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
             List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
 
+        [OperationContract]
+        SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearch);
+
     }
 }

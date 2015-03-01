@@ -659,31 +659,57 @@ namespace Catalog
                     totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
                     if (totalItems > 0)
                     {
-                        documents = jsonObj.SelectToken("hits.hits").Select(item => new ElasticSearchApi.ESAssetDocument()
+                        documents = new List<ElasticSearchApi.ESAssetDocument>();
+
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-                            index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
-                            //score = ((tempToken = item.SelectToken("_score")) == null ? 0.0 : (double)tempToken),
-                            type = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken),
-                            asset_id = ((tempToken = item.SelectToken("fields.media_id")) == null ? 0 : (int)tempToken),
-                            group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
-                            name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
-                            cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                            update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
-                        }).ToList();
+                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+                            AssetType assetType = UnifiedSearchResult.ParseType(typeString);
+
+                            string assetIdField = string.Empty;
+
+                            switch (assetType)
+                            {
+                                case AssetType.Media:
+                                {
+                                    assetIdField = "fields.media_id";
+                                    break;
+                                }
+                                case AssetType.Epg:
+                                {
+                                    assetIdField = "fields.epg_id";
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+
+                            documents.Add(new ElasticSearchApi.ESAssetDocument()
+                              {
+                                  id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
+                                  index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
+                                  type = typeString,
+                                  asset_id = ((tempToken = item.SelectToken(assetIdField)) == null ? 0 : (int)tempToken),
+                                  group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
+                                  name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
+                                  cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                  update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
+                              });
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "Catalog");
+                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), "Catalog");
             }
 
             return documents;
         }
-
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeEpgSearchJsonObject(string sObj, ref int totalItems)
         {
@@ -850,6 +876,117 @@ namespace Catalog
             }
         }
 
+        /// <summary>
+        /// Performs a search on several types of assets in a single call
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions)
+        {
+            SearchResultsObj searchResults = new SearchResultsObj();
+
+            OrderObj order = unifiedSearchDefinitions.m_oOrder;
+
+            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
+
+            int nPageIndex = 0;
+            int nPageSize = 0;
+
+            if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && 
+                order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || 
+                order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+            {
+                nPageIndex = unifiedSearchDefinitions.m_nPageIndex;
+                nPageSize = unifiedSearchDefinitions.m_nPageSize;
+                queryParser.PageIndex = 0;
+                queryParser.PageSize = 0;
+            }
+            else
+            {
+                queryParser.PageIndex = unifiedSearchDefinitions.m_nPageIndex;
+                queryParser.PageSize = unifiedSearchDefinitions.m_nPageSize;
+            }
+
+            // ES index is on pareant group id
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(unifiedSearchDefinitions.m_nGroupId);
+
+            // In case something failed here, use the group that was sent
+            if (nParentGroupID == 0)
+            {
+                nParentGroupID = unifiedSearchDefinitions.m_nGroupId;
+            }
+
+            queryParser.QueryType = (unifiedSearchDefinitions.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
+
+            string sQuery = queryParser.BuildSearchQueryString();
+
+            if (!string.IsNullOrEmpty(sQuery))
+            {
+                int nStatus = 0;
+
+                //string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, unifiedSearchDefinitions.m_oLangauge);
+
+                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.m_QueryType, nParentGroupID);
+                string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+
+                if (nStatus == STATUS_OK)
+                {
+                    int nTotalItems = 0;
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref nTotalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        searchResults.m_resultIDs = new List<SearchResult>();
+                        searchResults.n_TotalItems = nTotalItems;
+
+                        foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                        {
+                            searchResults.m_resultIDs.Add(new UnifiedSearchResult()
+                            {
+                                assetID = doc.asset_id,
+                                UpdateDate = doc.update_date,
+                                type = UnifiedSearchResult.ParseType(doc.type)
+                            });
+                        }
+
+                        if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
+                            order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
+                            order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                        {
+                            List<int> lAssetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
+
+                            Dictionary<int, UnifiedSearchResult> dicItems = searchResults.m_resultIDs.ToDictionary(item => item.assetID, item => item as UnifiedSearchResult);
+                            searchResults.m_resultIDs.Clear();
+
+                            int nValidNumberOfMediasRange = nPageSize;
+
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lAssetIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            {
+                                if (nValidNumberOfMediasRange > 0)
+                                {
+                                    lAssetIds = lAssetIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                }
+                            }
+
+                            foreach (int id in lAssetIds)
+                            {
+                                UnifiedSearchResult tempResult;
+
+                                if (dicItems.TryGetValue(id, out tempResult))
+                                {
+                                    searchResults.m_resultIDs.Add(tempResult);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return (searchResults);
+        }
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

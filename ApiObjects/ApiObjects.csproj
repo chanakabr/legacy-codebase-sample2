@@ -193,6 +193,8 @@
     <Compile Include="SearchObjects\MediaSearchObj.cs" />
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
+    <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />
+    <Compile Include="SearchObjects\UnifiedSearchResult.cs" />
     <Compile Include="SearchOrderByObject.cs" />
     <Compile Include="ChannelObject.cs" />
     <Compile Include="SendAdminTokenRequest.cs" />

@@ -230,6 +230,8 @@
     <Compile Include="BundleContainingMediaRequest.cs" />
     <Compile Include="TagMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnifiedSearchRequest.cs" />
+    <Compile Include="UnifiedSearchResponse.cs" />
     <Compile Include="UserSocialMediasRequest.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
