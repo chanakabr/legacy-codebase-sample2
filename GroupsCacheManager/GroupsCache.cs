@@ -568,15 +568,14 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
-
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
+                
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);               
+                if (vModule != null && vModule.result != null)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
+                    group = vModule.result as Group;                
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bAdd; i++)
                     {
-                        group = vModule.result as Group;
                         //try update to CB
                         if (group.AddServices(services))
                         {
@@ -602,13 +601,11 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
-
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+                if (vModule != null && vModule.result != null)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bAdd; i++)
                     {
                         group = vModule.result as Group;
                         //try update to CB
@@ -636,13 +633,12 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
 
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
+                if (vModule != null && vModule.result != null)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bAdd; i++)
                     {
                         group = vModule.result as Group;
                         //try update to CB

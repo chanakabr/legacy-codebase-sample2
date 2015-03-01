@@ -550,11 +550,18 @@ namespace GroupsCacheManager
                     bool bInsert = true;
                     foreach (int newItem in services)                    
                     {
-                        foreach (int item in m_lServiceObject)
+                        if (m_lServiceObject == null)
                         {
-                            if (item == newItem)
+                            m_lServiceObject = new List<int>();
+                        }
+                        else
+                        {
+                            foreach (int item in m_lServiceObject)
                             {
-                                bInsert = false;
+                                if (item == newItem)
+                                {
+                                    bInsert = false;
+                                }
                             }
                         }
                         if (bInsert)
