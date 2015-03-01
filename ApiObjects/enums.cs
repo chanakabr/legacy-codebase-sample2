@@ -245,7 +245,7 @@ namespace ApiObjects
 
     [Serializable]
     public enum EpgChannelType
-    {       
+    {
         [EnumMember]
         DTT = 1,
         [EnumMember]
@@ -256,7 +256,7 @@ namespace ApiObjects
 
     [Serializable]
     public enum TagTypeFlag
-    {       
+    {
         [EnumMember]
         TimeShifted = 1
     }

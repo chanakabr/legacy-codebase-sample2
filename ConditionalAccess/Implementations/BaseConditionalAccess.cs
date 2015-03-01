@@ -20,6 +20,7 @@ using ApiObjects.MediaIndexingObjects;
 using GroupsCacheManager;
 using ConditionalAccess.TvinciPricing;
 using ApiObjects.Response;
+using ConditionalAccess.Response;
 
 namespace ConditionalAccess
 {
@@ -11465,8 +11466,7 @@ namespace ConditionalAccess
         }
         public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int groupID, int domainID)
         {
-            ConditionalAccess.Response.DomainServicesResponse domainServicesResponse;
-            List<ServiceObject> domainServices = null;
+            DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
             PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
             
             if (domainSubscriptions != null)
@@ -11475,19 +11475,26 @@ namespace ConditionalAccess
                 DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(groupID, subscriptionIDs);
                 if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
                 {
-                    domainServices = new List<ServiceObject>();
+                    HashSet<int> uniqueIds = new HashSet<int>();
+
                     foreach (DataRow row in subscriptionServices.Rows)
                     {
-                        domainServices.Add(new ServiceObject()
+                        int serviceId = ODBCWrapper.Utils.ExtractInteger(row, "service_id");
+
+                        if (!uniqueIds.Contains(serviceId))
                         {
-                            ID = ODBCWrapper.Utils.GetIntSafeVal(row["service_id"]),
-                            Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
-                        });
+                            domainServicesResponse.Services.Add(new ServiceObject()
+                            {
+                                ID = serviceId,
+                                Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
+                            });
+
+                            uniqueIds.Add(serviceId);
+                        }
                     }
-                    domainServices.Distinct<ServiceObject>();
                 }
             }
-            domainServicesResponse = new ConditionalAccess.Response.DomainServicesResponse((int)eResponseStatus.OK, domainServices);
+            
             return domainServicesResponse;
         }
 

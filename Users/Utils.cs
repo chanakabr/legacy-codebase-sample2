@@ -6,6 +6,9 @@ using System.Configuration;
 using System.Data;
 using DAL;
 using ApiObjects;
+
+using System.Reflection;
+
 using System.Security.Principal;
 using System.Security.AccessControl;
 using Users.Cache;
@@ -18,18 +21,42 @@ namespace Users
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
         internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
+
+        static public Int32 GetGroupID(string sWSUserName, string sPass)
+        {
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
+            if (nGroupID == 0)
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+
+            return nGroupID;
+        }
+
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers baseUser)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
             if (nGroupID != 0)
             {
-                Utils.GetBaseUsersImpl(ref t, nGroupID);
+                Utils.GetBaseUsersImpl(ref baseUser, nGroupID);
             }
             else
             {
                 Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
             }
+            return nGroupID;
+        }
+
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref KalturaBaseUsers user, int operatorId = -1)
+        {
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
+
+            if (nGroupID != 0)
+                Utils.GetBaseUsersImplModuleName(ref user, nGroupID, "User", operatorId);
+            else
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+
             return nGroupID;
         }
 
@@ -41,8 +68,8 @@ namespace Users
             if (nGroupID != 0)
                 Utils.GetBaseDomainsImpl(ref t, nGroupID);
             else
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains"); 
-            
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
+
             return nGroupID;
         }
 
@@ -52,8 +79,8 @@ namespace Users
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
             if (nGroupID != 0)
                 Utils.GetBaseDeviceImpl(ref t, nGroupID);
-            else 
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains"); 
+            else
+                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
             return nGroupID;
         }
 
@@ -81,7 +108,41 @@ namespace Users
                 default:
                     break;
             }
-                
+        }
+
+        static public void GetBaseUsersImplModuleName(ref KalturaBaseUsers user, Int32 nGroupID, string className = "User", int operatorId = -1)
+        {
+            try
+            {
+                string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, operatorId);
+
+                if (!String.IsNullOrEmpty(moduleName))
+                {
+                    // load user assembly
+                    // load user assembly
+                    string usersAssemblyLocation = Utils.GetWSURL("UsersAssemblyLocation");
+                    Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
+                        usersAssemblyLocation + "\\", moduleName));
+
+                    // get user class 
+                    Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
+
+                    if (operatorId == -1)
+                    {
+                        // regular user - constructor receives a single parameter
+                        user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
+                    }
+                    else
+                    {
+                        // SSO user - constructor receives 2 parameters
+                        user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetBaseUsersImplModuleName Error", string.Format(" Error while trying to get user implementation for group ID: {0} error: {1}", nGroupID, ex.Message), "users");
+            }
         }
 
         static public void GetBaseEncrypterImpl(ref Users.BaseEncrypter t, Int32 nGroupID)
@@ -124,14 +185,14 @@ namespace Users
             }
 
         }
-        
+
         static public string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
-        {   
+        {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
 
             switch (nImplID)
@@ -148,7 +209,7 @@ namespace Users
         }
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
-        {     
+        {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
             switch (nImplID)
             {
@@ -175,7 +236,7 @@ namespace Users
         {
             Country[] ret = null;
 
-           string key = "users_GetCountryList";
+            string key = "users_GetCountryList";
             List<int> lCountryIDs;
             List<Country> lCountry;
             bool bRes = UsersCache.GetItem<List<Country>>(key, out  lCountry);
@@ -205,7 +266,7 @@ namespace Users
             State[] ret = null;
             List<State> lState;
             string key = string.Format("users_GetStateList_{0}", nCountryID);
-            bool bRes = UsersCache.GetItem<List<State>>(key , out lState);
+            bool bRes = UsersCache.GetItem<List<State>>(key, out lState);
             if (!bRes)
             {
                 List<int> lStateIDs = DAL.UtilsDal.GetStatesByCountry(nCountryID);
@@ -393,12 +454,12 @@ namespace Users
         }
 
         internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID, bool bCache = false)
-        { 
+        {
             List<HomeNetwork> res = null;
             DomainsCache oDomainCache = DomainsCache.Instance();
-            
+
             if (bCache)
-            {   
+            {
                 int nDomainID = (int)lDomainID;
                 // need to get Domain from cache                 
                 Domain oDomain = oDomainCache.GetDomain(nDomainID, nGroupID);
@@ -445,6 +506,30 @@ namespace Users
             return res;
         }
 
+
+        static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        {
+            bool res = false;
+            string rawStrFromConfig = GetWSURL(sKey);
+            if (rawStrFromConfig.Length > 0)
+            {
+                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
+                {
+                    List<long> listOfIDs = strArrOfIDs.Select(s =>
+                    {
+                        long l = 0;
+                        if (Int64.TryParse(s, out l))
+                            return l;
+                        return 0;
+                    }).ToList();
+
+                    res = listOfIDs.Contains(lGroupID);
+                }
+            }
+
+            return res;
+        }
 
         internal static MutexSecurity CreateMutex()
         {
