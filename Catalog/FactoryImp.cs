@@ -204,7 +204,10 @@ namespace Catalog
             {
                 return (UnifiedSearchRequest)m_oBaseRequest;
             }
-
+            if (m_oBaseRequest is AssetInfoRequest)
+            {
+                return (AssetInfoRequest)m_oBaseRequest;
+            }
             return null;
         }
     }

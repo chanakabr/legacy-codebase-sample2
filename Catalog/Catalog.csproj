@@ -205,6 +205,8 @@
     <Compile Include="MediaResponse.cs" />
     <Compile Include="MediasProtocolRequest.cs" />
     <Compile Include="MediaUpdateDateRequest.cs" />
+    <Compile Include="AssetInfoRequest.cs" />
+    <Compile Include="AssetInfoResponse.cs" />
     <Compile Include="NPVRRetrieveRequest.cs" />
     <Compile Include="NPVRRetrieveResponse.cs" />
     <Compile Include="NPVRSeriesRequest.cs" />

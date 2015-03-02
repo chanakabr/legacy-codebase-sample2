@@ -1957,18 +1957,24 @@ namespace Catalog
             List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
+                int totalItems = 0;
+                string dot = ".";
+
                 Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
+
                 string epgPicBaseUrl = string.Empty;
                 string epgPicWidth = string.Empty;
                 string epgPicHeight = string.Empty;
                 GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+
                 bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
                 bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
                 bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+
                 string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-                string dot = ".";
-                int totalItems = 0;
+
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
+
                 for (int i = 0; i < epgs.Count; i++)
                 {
                     int tempEpgChannelID = 0;
@@ -1984,6 +1990,7 @@ namespace Catalog
                         {
                             epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
                         }
+
                         epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
                     }
 
@@ -2007,8 +2014,8 @@ namespace Catalog
                         res.programsPerChannel.Add(BuildResObjForChannel(channelIdsToProgrammesMapping[epgChannelIDs[i]], epgChannelIDs[i], ref totalItems));
                     }
                 }
-                res.m_nTotalItems = totalItems;
 
+                res.m_nTotalItems = totalItems;
             }
             else
             {
@@ -2021,6 +2028,67 @@ namespace Catalog
             }
 
             return res;
+        }
+
+        internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId)
+        {
+            List<ProgramObj> epgsInformation = new List<ProgramObj>();
+
+            List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
+
+            if (basicEpgObjects != null && basicEpgObjects.Count > 0)
+            {
+                string dot = ".";
+
+                Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(groupId);
+
+                string epgPicBaseUrl = string.Empty;
+                string epgPicWidth = string.Empty;
+                string epgPicHeight = string.Empty;
+                GetEpgPicUrlData(basicEpgObjects, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+
+                bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
+                bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
+                bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+
+                string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
+
+                for (int i = 0; i < basicEpgObjects.Count; i++)
+                {
+                    var currentEpg = basicEpgObjects[i];
+
+                    int tempEpgChannelID = 0;
+
+                    if (currentEpg == null || !Int32.TryParse(currentEpg.EPG_CHANNEL_ID, out tempEpgChannelID) || tempEpgChannelID < 1)
+                    {
+                        continue;
+                    }
+
+                    // mutate epg pic url
+                    if (epgPicBaseUrlExists && !string.IsNullOrEmpty(currentEpg.PIC_URL))
+                    {
+                        if (epgPicWidthExists && epgPicHeightExists)
+                        {
+                            currentEpg.PIC_URL = basicEpgObjects[i].PIC_URL.Replace(dot, alternativePicUrl);
+                        }
+
+                        currentEpg.PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, basicEpgObjects[i].PIC_URL);
+                    }
+
+                    DateTime updateDate = DateTime.MinValue;
+                    DateTime.TryParse(currentEpg.UPDATE_DATE, out updateDate);
+
+                    epgsInformation.Add(new ProgramObj()
+                    {
+                        m_oProgram = currentEpg,
+                        m_nID = (int)currentEpg.EPG_ID,
+                        m_dUpdateDate = updateDate
+                    }
+                    );
+                }
+            }
+
+            return epgsInformation;
         }
 
         private static EpgResultsObj BuildResObjForChannel(ICollection<EPGChannelProgrammeObject> programmes, int epgChannelID, ref int totalItems)
