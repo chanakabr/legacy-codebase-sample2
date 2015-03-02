@@ -63,77 +63,24 @@ namespace Catalog
                 return res;
             return DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
         }
+
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
         internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
         {
-            //Int32 nMedia;
-            MediaObj oMediaObj = new MediaObj();
-            List<BaseObject> lMediaObj = new List<BaseObject>();
+            List<MediaObj> lMediaObj = new List<MediaObj>();
+            int totalItems = 0;
+            int groupId = mediaRequest.m_nGroupID;
+            Filter filter = mediaRequest.m_oFilter;
+            string siteGuid = mediaRequest.m_sSiteGuid;
+            List<int> mediaIds = mediaRequest.m_lMediasIds;
 
             try
             {
-                bool bIsMainLang = Utils.IsLangMain(mediaRequest.m_nGroupID, mediaRequest.m_oFilter.m_nLanguage);
+                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, siteGuid);
 
-                if (nStartIndex == 0 && nEndIndex == 0 && mediaRequest.m_lMediasIds != null && mediaRequest.m_lMediasIds.Count > 0)
-                    nEndIndex = mediaRequest.m_lMediasIds.Count();
-
-                //Start MultiThread Call
-                Task[] tasks = new Task[nEndIndex - nStartIndex];
-                ConcurrentDictionary<int, BaseObject> dMediaObj = new ConcurrentDictionary<int, BaseObject>();
-
-                //Build the Dictionary to keep the specific order of the mediaIds
-                for (int i = nStartIndex; i < nEndIndex; i++)
-                {
-                    int nMedia = mediaRequest.m_lMediasIds[i];
-                    dMediaObj.TryAdd(nMedia, null);
-                }
-
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(mediaRequest.m_nGroupID);
-                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-
-                //complete media id details 
-                for (int i = nStartIndex; i < nEndIndex; i++)
-                {
-                    int nMedia = mediaRequest.m_lMediasIds[i];
-
-                    tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
-                         {
-                             try
-                             {
-                                 int taskMediaID = (int)obj;
-
-                                 dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, mediaRequest, bIsMainLang, lSubGroup);
-                             }
-                             catch (Exception ex)
-                             {
-                                 _logger.Error(ex.Message, ex);
-                             }
-                         }, nMedia);
-                }
-
-                Task.WaitAll(tasks);
-                if (tasks != null && tasks.Length > 0)
-                {
-                    for (int i = 0; i < tasks.Length; i++)
-                    {
-                        if (tasks[i] != null)
-                            tasks[i].Dispose();
-                    }
-                }
-
-
-                if (mediaRequest.m_lMediasIds != null)
-                {
-                    mediaResponse.m_nTotalItems = mediaRequest.m_lMediasIds.Count;
-                    foreach (int nMedia in mediaRequest.m_lMediasIds)
-                    {
-                        mediaResponse.m_lObj.Add(dMediaObj[nMedia]);
-                    }
-                }
-
+                mediaResponse.m_nTotalItems = totalItems;
+                mediaResponse.m_lObj = lMediaObj.Select(media => (BaseObject)media).ToList();
 
                 return true;
             }
@@ -145,7 +92,112 @@ namespace Catalog
             }
         }
 
+        /// <summary>
+        /// Creates list of media objects to the sent media ids.
+        /// </summary>
+        /// <param name="mediaIds"></param>
+        /// <param name="groupId"></param>
+        /// <param name="filter"></param>
+        /// <param name="siteGuid"></param>
+        /// <returns></returns>
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, string siteGuid)
+        {
+            int startIndex = 0;
+            int endIndex = 0;
+            int totalItems = 0;
+
+            return Catalog.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid);
+        }
+
+        /// <summary>
+        /// Creates list of media objects to the sent media ids. Allows use of start and end index, counts total items
+        /// </summary>
+        /// <param name="mediaIds"></param>
+        /// <param name="nStartIndex"></param>
+        /// <param name="nEndIndex"></param>
+        /// <param name="totalItems"></param>
+        /// <param name="groupId"></param>
+        /// <param name="filter"></param>
+        /// <param name="siteGuid"></param>
+        /// <returns></returns>
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex, 
+             ref int totalItems, int groupId, Filter filter, string siteGuid)
+        {
+            List<MediaObj> mediaObjects = new List<MediaObj>();
+
+            bool bIsMainLang = Utils.IsLangMain(groupId, filter.m_nLanguage);
+
+            if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count() > 0)
+            {
+                nEndIndex = mediaIds.Count();
+            }
+
+            //Start MultiThread Call
+            Task[] tasks = new Task[nEndIndex - nStartIndex];
+            ConcurrentDictionary<int, MediaObj> dMediaObj = new ConcurrentDictionary<int, MediaObj>();
+
+            //Build the Dictionary to keep the specific order of the mediaIds
+            for (int i = nStartIndex; i < nEndIndex; i++)
+            {
+                int nMedia = mediaIds[i];
+                dMediaObj.TryAdd(nMedia, null);
+            }
+
+            GroupManager groupManager = new GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(groupId);
+            List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
+
+            //complete media id details 
+            for (int i = nStartIndex; i < nEndIndex; i++)
+            {
+                int nMedia = mediaIds[i];
+
+                tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
+                {
+                    try
+                    {
+                        int taskMediaID = (int)obj;
+
+                        dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex.Message, ex);
+                    }
+                }, nMedia);
+            }
+
+            Task.WaitAll(tasks);
+            if (tasks != null && tasks.Length > 0)
+            {
+                for (int i = 0; i < tasks.Length; i++)
+                {
+                    if (tasks[i] != null)
+                        tasks[i].Dispose();
+                }
+            }
+
+
+            if (mediaIds != null)
+            {
+                totalItems = mediaIds.Count;
+
+                foreach (int nMedia in mediaIds)
+                {
+                    mediaObjects.Add(dMediaObj[nMedia]);
+                }
+            }
+
+            return mediaObjects;
+        }
+
         private static MediaObj GetMediaDetails(int nMedia, MediasProtocolRequest mediaRequest, bool bIsMainLang, List<int> lSubGroup)
+        {
+            return GetMediaDetails(nMedia, mediaRequest.m_nGroupID, mediaRequest.m_oFilter, mediaRequest.m_sSiteGuid, bIsMainLang, lSubGroup);
+        }
+
+        private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup)
         {
             bool result = true;
             try
@@ -159,14 +211,14 @@ namespace Catalog
 
                 sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
-                if (mediaRequest.m_oFilter != null)
+                if (filter != null)
                 {
-                    bOnlyActiveMedia = mediaRequest.m_oFilter.m_bOnlyActiveMedia;
-                    bUseStartDate = mediaRequest.m_oFilter.m_bUseStartDate;
-                    nLanguage = mediaRequest.m_oFilter.m_nLanguage;
+                    bOnlyActiveMedia = filter.m_bOnlyActiveMedia;
+                    bUseStartDate = filter.m_bUseStartDate;
+                    nLanguage = filter.m_nLanguage;
                 }
 
-                DataSet ds = CatalogDAL.Get_MediaDetails(mediaRequest.m_nGroupID, nMedia, mediaRequest.m_sSiteGuid, bOnlyActiveMedia, nLanguage, sEndDate, bUseStartDate, lSubGroup);
+                DataSet ds = CatalogDAL.Get_MediaDetails(groupId, nMedia, siteGuid, bOnlyActiveMedia, nLanguage, sEndDate, bUseStartDate, lSubGroup);
 
                 if (ds == null)
                     return null;
@@ -181,7 +233,7 @@ namespace Catalog
                             return null;
                         }
                         oMediaObj.m_lBranding = new List<Branding>();
-                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, mediaRequest.m_oFilter.m_noFileUrl, ref result);
+                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result);
                         if (!result)
                         {
                             return null;
@@ -199,19 +251,19 @@ namespace Catalog
 
                         /*last watched - By SiteGuid <> 0*/
 
-                        if (!string.IsNullOrEmpty(mediaRequest.m_sSiteGuid) && mediaRequest.m_sSiteGuid != "0")
+                        if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             DateTime? dtLastWatch = null;
 
                             // ask CB for it
                             try
                             {
-                                 dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, mediaRequest.m_sSiteGuid);
+                                dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, siteGuid);
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error", 
-                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", mediaRequest.m_sSiteGuid, nMedia, ex.Message), 
+                                Logger.Logger.Log("Error",
+                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", siteGuid, nMedia, ex.Message),
                                     "Catalog");
                             }
 
@@ -2030,6 +2082,12 @@ namespace Catalog
             return res;
         }
 
+        /// <summary>
+        /// For a list of Epg Ids, creates relevant program objects, filled with data 
+        /// </summary>
+        /// <param name="epgIds"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId)
         {
             List<ProgramObj> epgsInformation = new List<ProgramObj>();

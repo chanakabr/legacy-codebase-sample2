@@ -73,12 +73,9 @@ namespace Catalog
                 CheckRequestValidness();
                 CheckSignature(this);
 
-                //List<EPGChannelProgrammeObject> epgs = Catalog.GetEpgsByGroupAndIDs(parentGroupID, epgIds);
-
                 response.epgList = Catalog.GetEPGProgramInformation(epgIds, this.m_nGroupID);
-
-                //response = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, true, m_nChannelIDs);
-
+                response.mediaList = Catalog.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(),
+                    this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
             }
             catch (Exception ex)
             {
