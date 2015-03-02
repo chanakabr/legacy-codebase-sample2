@@ -194,7 +194,7 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-        public bool DeleteServices(int nGroupID, List<long> services)
+        public bool DeleteServices(int nGroupID, List<int> services)
         {
             bool bDelete = false;
             try

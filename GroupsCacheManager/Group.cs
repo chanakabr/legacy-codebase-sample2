@@ -542,31 +542,22 @@ namespace GroupsCacheManager
        
         public bool AddServices(List<int> services)
         {
-            bool bRes = false;
+            bool bAdd = false;
             if (services != null && services.Count > 0)
             {
                 try
                 {
-                    bool bInsert = true;
-                    foreach (int newItem in services)                    
+                    if (m_lServiceObject == null)
                     {
-                        if (m_lServiceObject == null)
-                        {
-                            m_lServiceObject = new List<int>();
-                        }
-                        else
-                        {
-                            foreach (int item in m_lServiceObject)
-                            {
-                                if (item == newItem)
-                                {
-                                    bInsert = false;
-                                }
-                            }
-                        }
-                        if (bInsert)
+                        m_lServiceObject = new List<int>();
+                    }
+                    
+                    foreach (int newItem in services)
+                    {
+                        if (!m_lServiceObject.Contains(newItem))
                         {
                             m_lServiceObject.Add(newItem);
+                            bAdd = true;
                         }
                     }
                 }
@@ -576,20 +567,16 @@ namespace GroupsCacheManager
                 }
             }
 
-            return bRes;
+            return bAdd;
         }
 
-        public int GetServices(long nServiceID)
+        public int GetServices(int nServiceID)
         {
             int res = 0;
 
-            foreach (int item in m_lServiceObject)
+            if (m_lServiceObject != null && m_lServiceObject.Contains(nServiceID))
             {
-                if (item == nServiceID)
-                {
-                    res = item;
-                    break;
-                }
+                res = nServiceID;             
             }
 
             return res;
@@ -600,18 +587,23 @@ namespace GroupsCacheManager
             return this.m_lServiceObject;
         }
 
-        public bool RemoveServices(List<long> servicesID)
+        public bool RemoveServices(List<int> servicesID)
         {
+            bool bRemove = false;
             try
             {
-                foreach (int item in m_lServiceObject)
+                if (m_lServiceObject != null)
                 {
-                    if (servicesID.Contains(item))
+                    foreach (int removeItem in servicesID)
                     {
-                        m_lServiceObject.Remove(item);
-                    }
+                        if (m_lServiceObject.Contains(removeItem))
+                        {
+                            m_lServiceObject.Remove(removeItem);
+                            bRemove = true;
+                        }
+                    }                    
                 }
-                return true;
+                return bRemove;
             }
             catch (Exception ex)
             {
@@ -633,7 +625,7 @@ namespace GroupsCacheManager
                 //        }
                 //    }
                 //}
-                return true;
+                return false;
             }
             catch (Exception ex)
             {
