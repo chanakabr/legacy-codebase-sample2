@@ -769,7 +769,7 @@ namespace Users
                     m_UsersIDs.Add(nUserID);
                     m_masterGUIDs.Add(nUserID);
 
-                    m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
+                    m_totalNumOfUsers = m_UsersIDs.Count;
                     eDomainResponseStatus = DomainResponseStatus.OK;
 
                     return DomainResponseStatus.OK;
