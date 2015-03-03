@@ -11,22 +11,15 @@ namespace ApiObjects.SearchObjects
     {
         #region Data Members
 
-        public bool m_bSearchOnlyDatesAndChannels;
-        public bool m_bIsCurrent;
-        public int m_nNextTop;
-        public int m_nPrevTop;
+        public bool isCurrent;
+        public int nextTop;
+        public int prevTop;
 
-        public bool m_bSearchAnd;
-        public bool m_bDesc;
-        public string m_sOrderBy;
+        public bool shouldSearchAnd;
+        public bool isDescending;
+        public string orderBy;
 
-        public bool m_bExact;
-
-        public List<SearchValue> m_lSearchAnd
-        {
-            get;
-            set;
-        }
+        public bool isExact;
 
         public int m_nPageIndex
         {
@@ -39,58 +32,57 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
-        public OrderObj m_oOrder;
-        public CutWith m_eCutWith;
+        public OrderObj order;
 
-        public bool m_bUseFinalEndDate;
-        public bool m_bUseStartDate;
+        public bool shouldUseFinalEndDate;
+        public bool shouldUseStartDate;
 
-        public string m_sName;
-        public string m_sDescription;
-        public string m_sMediaTypes;
-        public string m_sPermittedWatchRules
+        public string name;
+        public string description;
+        public string mediaTypes;
+        public string permittedWatchRules
         {
             get;
             set;
         }
 
-        public List<SearchValue> m_dAnd;
-        public List<SearchValue> m_dOr;
-        public List<SearchValue> m_lFilterTagsAndMetas
+        public List<SearchValue> andList;
+        public List<SearchValue> orList;
+        public List<SearchValue> filterTagsAndMetas
         {
             get;
             set;
         }
-        public CutWith m_eFilterTagsAndMetasCutWith
-        {
-            get;
-            set;
-        }
-
-        public int m_nGroupId
-        {
-            get;
-            set;
-        }
-        public int m_nIndexGroupId
+        public CutWith filterTagsAndMetasCutWith
         {
             get;
             set;
         }
 
-        public LanguageObj m_oLangauge
+        public int groupId
         {
             get;
             set;
         }
-        public int m_nUserTypeID;
+        public int indexGroupId
+        {
+            get;
+            set;
+        }
 
-        public int[] m_nDeviceRuleId;
-        public int[] m_nMediaFileTypes;
+        public LanguageObj langauge
+        {
+            get;
+            set;
+        }
+        public int userTypeID;
 
-        public UnifiedQueryType m_QueryType;
+        public int[] deviceRuleId;
+        public int[] mediaFileTypes;
 
-        public List<string> m_ExtraReturnFields;
+        public UnifiedQueryType queryType;
+
+        public List<string> extraReturnFields;
 
         #endregion
 
@@ -100,48 +92,41 @@ namespace ApiObjects.SearchObjects
         {
             m_nPageIndex = 0;
             m_nPageSize = 0;
-            m_nGroupId = 0;
-            m_bSearchAnd = false;
-            m_bDesc = false;
-            m_bExact = false;
-            m_lSearchAnd = new List<SearchValue>();
+            groupId = 0;
+            shouldSearchAnd = false;
+            isDescending = false;
+            isExact = false;
 
+            nextTop = 0;
+            prevTop = 0;
+            isCurrent = false;
 
-            m_lSearchAnd = new List<SearchValue>();
+            mediaTypes = string.Empty;
 
-            m_bSearchOnlyDatesAndChannels = false;
-            m_nNextTop = 0;
-            m_nPrevTop = 0;
-            m_bIsCurrent = false;
+            isExact = false;
+            name = string.Empty;
+            description = string.Empty;
 
-            m_sMediaTypes = string.Empty;
+            shouldUseFinalEndDate = false;
 
-            m_eCutWith = CutWith.OR;
-            m_bExact = false;
-            m_sName = string.Empty;
-            m_sDescription = string.Empty;
+            andList = new List<SearchValue>();
+            orList = new List<SearchValue>();
 
-            m_bUseFinalEndDate = false;
+            shouldUseStartDate = true;
 
-            m_dAnd = new List<SearchValue>();
-            m_dOr = new List<SearchValue>();
+            deviceRuleId = null;
+            mediaFileTypes = null;
 
-            m_bUseStartDate = true;
-
-            m_nDeviceRuleId = null;
-            m_nMediaFileTypes = null;
-
-            m_oOrder = new OrderObj();
+            order = new OrderObj();
 
             // By default search on both EPG and MEDIA
-            m_QueryType = UnifiedQueryType.All;
+            queryType = UnifiedQueryType.All;
 
-            m_ExtraReturnFields = new List<string>();
+            extraReturnFields = new List<string>();
         }
 
         #endregion
     }
-
 
     public enum UnifiedQueryType
     {

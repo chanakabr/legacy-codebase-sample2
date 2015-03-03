@@ -885,7 +885,7 @@ namespace Catalog
         {
             SearchResultsObj searchResults = new SearchResultsObj();
 
-            OrderObj order = unifiedSearchDefinitions.m_oOrder;
+            OrderObj order = unifiedSearchDefinitions.order;
 
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
 
@@ -909,15 +909,15 @@ namespace Catalog
 
             // ES index is on pareant group id
             CatalogCache catalogCache = CatalogCache.Instance();
-            int nParentGroupID = catalogCache.GetParentGroup(unifiedSearchDefinitions.m_nGroupId);
+            int nParentGroupID = catalogCache.GetParentGroup(unifiedSearchDefinitions.groupId);
 
             // In case something failed here, use the group that was sent
             if (nParentGroupID == 0)
             {
-                nParentGroupID = unifiedSearchDefinitions.m_nGroupId;
+                nParentGroupID = unifiedSearchDefinitions.groupId;
             }
 
-            queryParser.QueryType = (unifiedSearchDefinitions.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
+            queryParser.QueryType = (unifiedSearchDefinitions.isExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
             string sQuery = queryParser.BuildSearchQueryString();
 
@@ -927,7 +927,7 @@ namespace Catalog
 
                 //string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, unifiedSearchDefinitions.m_oLangauge);
 
-                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.m_QueryType, nParentGroupID);
+                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.queryType, nParentGroupID);
                 string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);

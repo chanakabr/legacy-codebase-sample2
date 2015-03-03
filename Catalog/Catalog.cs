@@ -684,7 +684,7 @@ namespace Catalog
                         objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
                     }
 
-                    searchDefinitions.m_oLangauge = objLang;
+                    searchDefinitions.langauge = objLang;
                 }
 
                 SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
@@ -707,7 +707,7 @@ namespace Catalog
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
-            definitions.m_bDesc = false;
+            definitions.isDescending = false;
             //definitions.m_bIsCurrent = true;
             //definitions.m_dAnd = request.m_l;
 
@@ -723,8 +723,8 @@ namespace Catalog
 
             // is it full search
             FullSearchAddParams(request.m_nGroupID, request.andList, request.orList, ref ands, ref ors);
-            definitions.m_sName = string.Empty;
-            definitions.m_sDescription = string.Empty;
+            definitions.name = string.Empty;
+            definitions.description = string.Empty;
 
             //NormalSearchAddParams(request, ref m_dAnd, ref m_dOr);
 
@@ -755,33 +755,33 @@ namespace Catalog
 
             if (request.m_oFilter != null)
             {
-                definitions.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
-                definitions.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
-                definitions.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
-                definitions.m_nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
+                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
+                definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
             }
 
-            definitions.m_sMediaTypes = "0";
+            definitions.mediaTypes = "0";
 
-            definitions.m_oOrder = new OrderObj();
-            definitions.m_oOrder.m_eOrderDir = order.m_eOrderDir;
-            definitions.m_oOrder.m_eOrderBy = order.m_eOrderBy;
-            definitions.m_oOrder.m_sOrderValue = order.m_sOrderValue;
+            definitions.order = new OrderObj();
+            definitions.order.m_eOrderDir = order.m_eOrderDir;
+            definitions.order.m_eOrderBy = order.m_eOrderBy;
+            definitions.order.m_sOrderValue = order.m_sOrderValue;
 
             if (ors.Count > 0)
             {
-                definitions.m_dOr = ors;
+                definitions.orList = ors;
             }
 
             if (ands.Count > 0)
             {
-                definitions.m_dAnd = ands;
+                definitions.andList = ands;
             }
 
-            definitions.m_nGroupId = request.m_nGroupID;
-            definitions.m_bExact = request.isExact;
-            definitions.m_sPermittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
-            definitions.m_QueryType = request.queryType;
+            definitions.groupId = request.m_nGroupID;
+            definitions.isExact = request.isExact;
+            definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
+            definitions.queryType = request.queryType;
 
             return definitions;
         }

@@ -79,9 +79,9 @@ namespace ElasticSearch.Searcher
         public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            this.ReturnFields.AddRange(definitions.m_ExtraReturnFields);
+            this.ReturnFields.AddRange(definitions.extraReturnFields);
 
-            switch (definitions.m_QueryType)
+            switch (definitions.queryType)
             {
                 case UnifiedQueryType.All:
                 {
@@ -107,7 +107,7 @@ namespace ElasticSearch.Searcher
 
             this.SearchDefinitions = definitions;
 
-            this.GroupID = definitions.m_nGroupId;
+            this.GroupID = definitions.groupId;
         }
 
         #endregion
@@ -137,16 +137,16 @@ namespace ElasticSearch.Searcher
             ESTerm groupTerm = new ESTerm(true)
             {
                 Key = "group_id",
-                Value = this.SearchDefinitions.m_nGroupId.ToString()
+                Value = this.SearchDefinitions.groupId.ToString()
             };
 
             ESTerms permittedWatcFilter = new ESTerms(true);
            
-            if (!string.IsNullOrEmpty(this.SearchDefinitions.m_sPermittedWatchRules))
+            if (!string.IsNullOrEmpty(this.SearchDefinitions.permittedWatchRules))
             {
                 permittedWatcFilter.Key = "wp_type_id";
                 List<string> permittedValues = permittedWatcFilter.Value;
-                foreach (string value in this.SearchDefinitions.m_sPermittedWatchRules.Split(' '))
+                foreach (string value in this.SearchDefinitions.permittedWatchRules.Split(' '))
                 {
                     if (!string.IsNullOrWhiteSpace(value))
                     {
@@ -166,7 +166,7 @@ namespace ElasticSearch.Searcher
 
             ESRange startDateRange = new ESRange(false);
             
-            if (this.SearchDefinitions.m_bUseStartDate)
+            if (this.SearchDefinitions.shouldUseStartDate)
             {
                 startDateRange.Key = "start_date";
                 string sMin = DateTime.MinValue.ToString("yyyyMMddHHmmss");
@@ -175,7 +175,7 @@ namespace ElasticSearch.Searcher
             }
 
             ESRange endDateRange = new ESRange(false);
-            endDateRange.Key = (this.SearchDefinitions.m_bUseFinalEndDate) ? "final_date" : "end_date";
+            endDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
 
@@ -184,18 +184,18 @@ namespace ElasticSearch.Searcher
             userTypeTerm.Key = "user_types";
             userTypeTerm.Value.Add("0");
             
-            if (this.SearchDefinitions.m_nUserTypeID > 0)
+            if (this.SearchDefinitions.userTypeID > 0)
             {
-                userTypeTerm.Value.Add(this.SearchDefinitions.m_nUserTypeID.ToString());
+                userTypeTerm.Value.Add(this.SearchDefinitions.userTypeID.ToString());
             }
 
             ESTerms mediaTypesTerms = new ESTerms(true);
 
-            if (!string.IsNullOrEmpty(this.SearchDefinitions.m_sMediaTypes) && !
-                this.SearchDefinitions.m_sMediaTypes.Equals("0"))
+            if (!string.IsNullOrEmpty(this.SearchDefinitions.mediaTypes) && !
+                this.SearchDefinitions.mediaTypes.Equals("0"))
             {
                 mediaTypesTerms.Key = "media_type_id";
-                string[] mediaTypeArr = this.SearchDefinitions.m_sMediaTypes.Split(';');
+                string[] mediaTypeArr = this.SearchDefinitions.mediaTypes.Split(';');
                 
                 foreach (string mediaType in mediaTypeArr)
                 {
@@ -220,13 +220,13 @@ namespace ElasticSearch.Searcher
 
             if (QueryType == eQueryType.EXACT)
             {
-                if (this.SearchDefinitions.m_oOrder.m_eOrderBy != OrderBy.RELATED)
+                if (this.SearchDefinitions.order.m_eOrderBy != OrderBy.RELATED)
                 {
-                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.m_dAnd, CutWith.AND);
-                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.m_dOr, CutWith.OR);
+                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
+                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
                     FilterCompositeType generatedComposite = 
-                        this.FilterMetasAndTagsConditions(this.SearchDefinitions.m_lFilterTagsAndMetas, 
-                            (CutWith)this.SearchDefinitions.m_eFilterTagsAndMetasCutWith);
+                        this.FilterMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas, 
+                            (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
 
                     filterParent.AddChild(andComposite);
                     filterParent.AddChild(orComposite);
@@ -235,10 +235,10 @@ namespace ElasticSearch.Searcher
             }
             else if (QueryType == eQueryType.BOOLEAN)
             {
-                BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.m_dAnd, CutWith.AND);
-                BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.m_dOr, CutWith.OR);
+                BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
+                BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
                 BoolQuery oMultiFilterBoolQuery = 
-                    this.QueryMetasAndTagsConditions(this.SearchDefinitions.m_lFilterTagsAndMetas, (CutWith)this.SearchDefinitions.m_eFilterTagsAndMetasCutWith);
+                    this.QueryMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas, (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
 
                 BoolQuery oBoolQuery = new BoolQuery();
                 oBoolQuery.AddChild(oAndBoolQuery, CutWith.AND);
@@ -268,7 +268,7 @@ namespace ElasticSearch.Searcher
             bool bExact = (QueryType == eQueryType.EXACT);
 
             // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.m_oOrder, !bExact);
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
