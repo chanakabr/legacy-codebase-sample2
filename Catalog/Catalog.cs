@@ -722,7 +722,7 @@ namespace Catalog
             SearchValue search = new SearchValue();
 
             // is it full search
-            FullSearchAddParams(request.m_nGroupID, request.m_AndList, request.m_OrList, ref ands, ref ors);
+            FullSearchAddParams(request.m_nGroupID, request.andList, request.orList, ref ands, ref ors);
             definitions.m_sName = string.Empty;
             definitions.m_sDescription = string.Empty;
 
@@ -745,7 +745,7 @@ namespace Catalog
             //    SearchObjectString(m_dAnd, m_dOr, request.m_sName, request.m_sDescription, request.m_bAnd);
             //}
 
-            GetOrderValues(ref order, request.m_oOrderObj);
+            GetOrderValues(ref order, request.order);
 
             if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
             {
@@ -779,9 +779,9 @@ namespace Catalog
             }
 
             definitions.m_nGroupId = request.m_nGroupID;
-            definitions.m_bExact = request.m_bExact;
+            definitions.m_bExact = request.isExact;
             definitions.m_sPermittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
-            definitions.m_QueryType = request.m_eType;
+            definitions.m_QueryType = request.queryType;
 
             return definitions;
         }

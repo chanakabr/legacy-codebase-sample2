@@ -13,11 +13,11 @@ namespace Catalog
     public class UnifiedSearchResponse : BaseResponse
     {
         [DataMember]
-        public List<UnifiedSearchResult> SearchResults;
+        public List<UnifiedSearchResult> searchResults;
         
         public UnifiedSearchResponse()
         {
-            SearchResults = new List<UnifiedSearchResult>();
+            searchResults = new List<UnifiedSearchResult>();
         }
     }
 }

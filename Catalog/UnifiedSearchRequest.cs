@@ -16,22 +16,19 @@ namespace Catalog
         #region Data Members
 
         [DataMember]
-        public bool m_bExact;
+        public bool isExact;
         
         [DataMember]
-        public OrderObj m_oOrderObj;
+        public OrderObj order;
         
         [DataMember]
-        public List<KeyValue> m_AndList;
+        public List<KeyValue> andList;
         
         [DataMember]
-        public List<KeyValue> m_OrList;
+        public List<KeyValue> orList;
 
         [DataMember]
-        public string m_sSearch;
-
-        [DataMember]
-        public UnifiedQueryType m_eType;
+        public UnifiedQueryType queryType;
 
         #endregion
 
@@ -57,12 +54,11 @@ namespace Catalog
             bool isExact, OrderObj order, string searchValue, List<KeyValue> ands, List<KeyValue> ors, UnifiedQueryType type)
                 : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
-            this.m_bExact = isExact;
-            this.m_oOrderObj = order;
-            this.m_eType = type;
-            this.m_AndList = ands;
-            this.m_OrList = ors;
-            this.m_sSearch = searchValue;
+            this.isExact = isExact;
+            this.order = order;
+            this.queryType = type;
+            this.andList = ands;
+            this.orList = ors;
         }
 
         #endregion
@@ -93,7 +89,7 @@ namespace Catalog
 
                 if (nTotalItems > 0)
                 {
-                    response.SearchResults = assetsResults;
+                    response.searchResults = assetsResults;
                 }
 
                 return (BaseResponse)response;
