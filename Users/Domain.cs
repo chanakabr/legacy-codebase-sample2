@@ -90,7 +90,8 @@ namespace Users
         protected int m_deviceLimitationModule;
 
         protected int m_totalNumOfDevices;
-
+         
+        [JsonProperty()]
         protected int m_totalNumOfUsers;
 
         protected int m_minPeriodId;
@@ -490,9 +491,11 @@ namespace Users
                 this.m_sCoGuid = domain.m_sCoGuid;
                 this.m_sDescription = domain.m_sDescription;
                 this.m_sName = domain.m_sName;
-                this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
-                this.m_totalNumOfUsers = domain.m_totalNumOfUsers;
+                this.m_totalNumOfDevices = domain.m_totalNumOfDevices;                
                 this.m_UsersIDs = domain.m_UsersIDs;
+                if (m_UsersIDs != null)
+                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();
+
                 return true;
             }
             catch (Exception)
@@ -2026,8 +2029,6 @@ namespace Users
             //Check if exceeded limit for users
             if (userType != UserDomainType.Household)
             {
-                m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
-
                 DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
                 if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
                 {
