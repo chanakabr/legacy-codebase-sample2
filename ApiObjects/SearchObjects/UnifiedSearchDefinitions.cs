@@ -11,22 +11,18 @@ namespace ApiObjects.SearchObjects
     {
         #region Data Members
 
-        public bool isCurrent;
-        public int nextTop;
-        public int prevTop;
-
         public bool shouldSearchAnd;
         public bool isDescending;
         public string orderBy;
 
         public bool isExact;
 
-        public int m_nPageIndex
+        public int pageIndex
         {
             get;
             set;
         }
-        public int m_nPageSize
+        public int pageSize
         {
             get;
             set;
@@ -90,16 +86,12 @@ namespace ApiObjects.SearchObjects
 
         public UnifiedSearchDefinitions()
         {
-            m_nPageIndex = 0;
-            m_nPageSize = 0;
+            pageIndex = 0;
+            pageSize = 0;
             groupId = 0;
             shouldSearchAnd = false;
             isDescending = false;
             isExact = false;
-
-            nextTop = 0;
-            prevTop = 0;
-            isCurrent = false;
 
             mediaTypes = string.Empty;
 

@@ -896,15 +896,15 @@ namespace Catalog
                 order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || 
                 order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
             {
-                nPageIndex = unifiedSearchDefinitions.m_nPageIndex;
-                nPageSize = unifiedSearchDefinitions.m_nPageSize;
+                nPageIndex = unifiedSearchDefinitions.pageIndex;
+                nPageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
                 queryParser.PageSize = 0;
             }
             else
             {
-                queryParser.PageIndex = unifiedSearchDefinitions.m_nPageIndex;
-                queryParser.PageSize = unifiedSearchDefinitions.m_nPageSize;
+                queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
+                queryParser.PageSize = unifiedSearchDefinitions.pageSize;
             }
 
             // ES index is on pareant group id

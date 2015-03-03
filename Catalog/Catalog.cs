@@ -661,8 +661,8 @@ namespace Catalog
 
             searchDefinitions = BuildUnifiedSearchObject(request);
 
-            searchDefinitions.m_nPageIndex = request.m_nPageIndex;
-            searchDefinitions.m_nPageSize = request.m_nPageSize;
+            searchDefinitions.pageIndex = request.m_nPageIndex;
+            searchDefinitions.pageSize = request.m_nPageSize;
 
             if (searcher != null)
             {
@@ -703,13 +703,16 @@ namespace Catalog
             return searchResultsList;
         }
 
+        /// <summary>
+        /// For agiven request, creates the proper definitions that the wrapper will use 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             definitions.isDescending = false;
-            //definitions.m_bIsCurrent = true;
-            //definitions.m_dAnd = request.m_l;
 
             //Build 2 CondList for search tags / metaStr / metaDobule .
             List<SearchValue> ands = new List<SearchValue>();
@@ -725,25 +728,6 @@ namespace Catalog
             FullSearchAddParams(request.m_nGroupID, request.andList, request.orList, ref ands, ref ors);
             definitions.name = string.Empty;
             definitions.description = string.Empty;
-
-            //NormalSearchAddParams(request, ref m_dAnd, ref m_dOr);
-
-            //definitions.m_sName = request.m_sName;
-            //definitions.m_sDescription = request.m_sDescription;
-
-            //if (request.m_bAnd)
-            //{
-            //    definitions.m_eCutWith = CutWith.AND;
-            //}
-            //else
-            //{
-            //    definitions.m_eCutWith = CutWith.OR;
-            //}
-
-            //if (!string.IsNullOrEmpty(request.m_sName) || !string.IsNullOrEmpty(request.m_sDescription))
-            //{
-            //    SearchObjectString(m_dAnd, m_dOr, request.m_sName, request.m_sDescription, request.m_bAnd);
-            //}
 
             GetOrderValues(ref order, request.order);
 
