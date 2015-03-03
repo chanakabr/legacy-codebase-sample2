@@ -375,6 +375,10 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+                if (string.IsNullOrEmpty(result))
+                {
+                    throw new Exception("miising key");
+                }
             }
             catch (Exception ex)
             {
