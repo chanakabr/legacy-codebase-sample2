@@ -56,11 +56,15 @@ namespace Users
         internal abstract bool MidAddDomain(ref UserResponseObject userResponse, User user, string username, int userId, DomainInfo domainInfo);
         public abstract void PostAddDomain(bool addDomainPassed, ref UserResponseObject userResponse, User user, string username, int userId, DomainInfo domainInfo, ref List<KeyValuePair> keyValueList);
 
-
         // SignIn                                    
         public abstract UserResponseObject PreSignIn(ref Int32 siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList);
-        internal abstract UserResponseObject MidSignIn( Int32 siteGuid, string userName, string password, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin);
+        internal abstract UserResponseObject MidSignIn(Int32 siteGuid, string userName, string password, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin);
         public abstract void PostSignIn(ref UserResponseObject userResponse, ref List<KeyValuePair> keyValueList);
+
+        // SignOut
+        public abstract UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref  string deviceUdid, ref List<KeyValuePair> keyValueList);
+        internal abstract UserResponseObject MidSignOut(int siteGuid, int groupId, string sessionId, string ip, string deviceUdid);
+        public abstract void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList);
 
         // SignUp (AddNewUser)
         public abstract UserResponseObject PreAddNewUser(ref UserBasicData basicData, ref UserDynamicData dynamicData, ref string password, ref DomainInfo domainInfo, ref List<KeyValuePair> keyValueList);

@@ -530,5 +530,15 @@ namespace Users
         /// <param name="bPreventDoubleLogins"></param>
         /// <returns></returns>
         public UserResponseObject SignIn(string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins) { return null; }
+
+        public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref  string deviceUdid, ref List<KeyValuePair> keyValueList) { return new UserResponseObject(); }
+
+        internal override UserResponseObject MidSignOut(int siteGuid, int groupId, string sessionId, string ip, string deviceUdid)
+        {
+
+            return User.SignOut(siteGuid, groupId, sessionId, ip, deviceUdid);
+        }
+
+        public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList) { }
     }
 }
