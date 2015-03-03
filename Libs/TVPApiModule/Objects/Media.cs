@@ -235,7 +235,6 @@ namespace TVPApi
                                         }
                                     }
                                 }
-                                retVal = string.Format("{0}/extra/{1}/{2}", baseUrl, sMediaName, MediaID);
                                 break;
                             case "Movie":
                                 retVal = string.Format("{0}/movies/{1}/{2}", baseUrl, sMediaName, MediaID);
