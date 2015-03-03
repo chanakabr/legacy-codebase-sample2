@@ -84,7 +84,7 @@ namespace Users
             }
 
             // load user assembly
-            string usersAssemblyLocation = Utils.GetWSURL("UsersAssemblyLocation");
+            string usersAssemblyLocation = Utils.GetWSURL("USERS_ASSEMBLY_LOCATION");
             Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
                 usersAssemblyLocation + "\\", moduleName));
 
