@@ -217,6 +217,24 @@ namespace TVPApi
                                 retVal = string.Format("{0}/series/{1}/{2}", baseUrl, sMediaName, MediaID);
                                 break;
                             case "Extra":
+                                if (Tags != null && Tags.Count > 0)
+                                {
+                                    var extraTag = Tags.Where(t => t.Key == "Extra Type").FirstOrDefault();
+                                    var tag = Tags.Where(t => t.Key == "Extra Virtual Media Link").FirstOrDefault();
+                                    if (!string.IsNullOrEmpty(tag.Value))
+                                    {
+                                        
+                                        retVal = string.Format("{0}/series/{1}/{2}/{3}", baseUrl, sMediaName, extraTag.Value, MediaID);
+                                    }
+                                    else
+                                    {
+                                        tag = Tags.Where(t => t.Key == "Extra Regular Media Link").FirstOrDefault();
+                                        if (!string.IsNullOrEmpty(tag.Value))
+                                        {
+                                            retVal = string.Format("{0}/movies/{1}/{2}/{3}", baseUrl, sMediaName, extraTag.Value, MediaID);
+                                        }
+                                    }
+                                }
                                 retVal = string.Format("{0}/extra/{1}/{2}", baseUrl, sMediaName, MediaID);
                                 break;
                             case "Movie":
@@ -339,8 +357,7 @@ namespace TVPApi
             {
                 LastWatchDate = row.LastWatchedDate;
             }
-            MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
-
+            
             BuildTagMetas(groupID, row, initObj.Platform);
 
             buildFiles(row);
@@ -357,6 +374,8 @@ namespace TVPApi
             }
 
             TotalItems = iMediaCount;
+
+            MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
         }
 
         private void builtExternalIDs(dsItemInfo.ItemRow row)
