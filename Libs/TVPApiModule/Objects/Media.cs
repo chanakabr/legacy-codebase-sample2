@@ -196,9 +196,7 @@ namespace TVPApi
                     string sMediaName = MediaName.Replace("/", "");
                     sMediaName = SiteHelper.ReplaceSpecialChars(sMediaName);
 
-                    if (groupID != 153)
-                        retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
-                    else
+                    if (groupID == 153)
                     {
                         if (MediaTypeName == "Series")
                             retVal = string.Format("{0}/ShowPage/{1}/{2}", baseUrl, sMediaName, MediaID);
@@ -206,6 +204,35 @@ namespace TVPApi
                             retVal = string.Format("{0}/ChannelPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                         else
                             retVal = string.Format("{0}/MediaPage/{1}/{2}", baseUrl, sMediaName, MediaID);
+                    }
+                    else if (groupID == 147)
+                    {
+                        switch (MediaTypeName)
+                        {
+                            case "Linear":
+                                retVal = string.Format("{0}/channels/{1}/{2}", baseUrl, sMediaName, MediaID);
+                                break;
+                            case "Series":
+                            case "Episode":
+                                retVal = string.Format("{0}/series/{1}/{2}", baseUrl, sMediaName, MediaID);
+                                break;
+                            case "Extra":
+                                retVal = string.Format("{0}/extra/{1}/{2}", baseUrl, sMediaName, MediaID);
+                                break;
+                            case "Movie":
+                                retVal = string.Format("{0}/movies/{1}/{2}", baseUrl, sMediaName, MediaID);
+                                break;
+                            case "News Series":
+                            case "News":
+                                retVal = string.Format("{0}/news/{1}/{2}", baseUrl, sMediaName, MediaID);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
                     }
                 }
                 else
