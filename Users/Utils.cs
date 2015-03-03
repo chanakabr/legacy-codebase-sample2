@@ -67,7 +67,7 @@ namespace Users
                     t = new Users.SSOUsers(nGroupID, 0);
                     break;
                 case 4:
-                    t = new Users.MediaCorpUsers(nGroupID);
+                    t = new Users.MediaCorpUsers(nGroupID, -1);
                     break;
                 case 5:
                     t = new Users.YesUsers(nGroupID);
@@ -419,6 +419,24 @@ namespace Users
             }
 
             return res;
+        }
+
+        static public void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
+        {
+            if (info.ContainsKey(key))
+            {
+                subject = info[key];
+            }
+            else if (info.ContainsKey(key.ToLower()))
+            {
+                subject = info[key.ToLower()];
+            }
+        }
+
+        internal static string DateToFilename(DateTime dateTime)
+        {
+            return 
+                (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
     }
 }
