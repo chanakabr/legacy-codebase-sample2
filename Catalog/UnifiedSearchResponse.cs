@@ -10,8 +10,12 @@ namespace Catalog
     /// <summary>
     /// Catalog response that holds list of search results and their types
     /// </summary>
+    [DataContract]
     public class UnifiedSearchResponse : BaseResponse
     {
+        /// <summary>
+        /// List of unified search results: id, type, update date
+        /// </summary>
         [DataMember]
         public List<UnifiedSearchResult> searchResults;
         

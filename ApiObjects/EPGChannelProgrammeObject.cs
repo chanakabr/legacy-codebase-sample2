@@ -45,7 +45,10 @@ namespace ApiObjects
         
         public string media_id;
 
-        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL, string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS, List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter)
+        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, 
+            string nSTART_DATE, string nEND_DATE, string nPIC_URL, string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, 
+            string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, 
+            List<EPGDictionary> nEPG_TAGS, List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter)
         {
             EPG_ID = nEPG_ID;
             EPG_CHANNEL_ID = nEPG_CHANNEL_ID;
