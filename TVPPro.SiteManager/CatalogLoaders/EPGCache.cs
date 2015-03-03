@@ -46,27 +46,25 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public object Execute()
         {
             List<BaseObject> retVal = null;
+            List<long> programIdsForCatalog = null;
 
             // Build the List of CacheKeys from the ProgramRes List
             List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID, UpdateDate = programRes.UpdateDate}).ToList();
 
             // Get programs from cache
             Log("Trying to get programIDs", ProgramIDs);
-            List<BaseObject> lProgramsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language));
+            List<BaseObject> lProgramsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out programIdsForCatalog);
             Log("Got programIDs", lProgramsFromCache.Select(program => program.m_nID).ToList());
 
-            // Check Which programs are missing in cache 
+            // Check if programs are missing in cache 
             if (lProgramsFromCache != null && lProgramsFromCache.Count > 0)
             {
-                // Get list of program ids that are not cached
-                List<int> lProgramIDs = ProgramIDs.Select(program => program.assetID).ToList();
-                var lProgramIDsForCatalog = lProgramIDs.Where(pID => !lProgramsFromCache.Select(program => program.m_nID).Contains(pID)).ToList();
-                if (lProgramIDsForCatalog.Count > 0)
+                if (programIdsForCatalog.Count > 0)
                 {
                     // Get missing programs from Catalog
                     EpgProgramDetailsRequest thisProgramsRequest = m_oRequest as EpgProgramDetailsRequest;
-                    EpgProgramDetailsRequest newProgramsRequest = BuildProgramsProtocolRequest(lProgramIDsForCatalog, thisProgramsRequest.m_nGroupID, thisProgramsRequest.m_oFilter);
-                    retVal = CatalogHelper.MergeObjListsByOrder(lProgramIDs, lProgramsFromCache, GetProgramsFromCatalog(newProgramsRequest));
+                    EpgProgramDetailsRequest newProgramsRequest = BuildProgramsProtocolRequest(programIdsForCatalog.Select(id => (int)id).ToList(), thisProgramsRequest.m_nGroupID, thisProgramsRequest.m_oFilter);
+                    retVal = CatalogHelper.MergeObjListsByOrder(ProgramIDs.Select(program => program.assetID).ToList(), lProgramsFromCache, GetProgramsFromCatalog(newProgramsRequest));
                 }
                 else
                 {

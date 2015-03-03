@@ -12,9 +12,11 @@ namespace Tvinci.Data.Loaders
     {
         private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
-        public List<BaseObject> GetObjects(List<CacheKey> cacheKeys, string keyPrefix)
+        public List<BaseObject> GetObjects(List<CacheKey> cacheKeys, string keyPrefix, out List<long> missingIds)
         {
             List<BaseObject> lObj = new List<BaseObject>();
+            missingIds = new List<long>();
+
             foreach (CacheKey cacheKey in cacheKeys)
             {
                 object cacheObj;
@@ -38,11 +40,18 @@ namespace Tvinci.Data.Loaders
                         BaseObject baseObj = cacheObj as BaseObject;
                         lObj.Add(baseObj);
                     }
+                    else // cache miss
+                    {
+                        missingIds.Add(cacheKey.ID);
+                    }
+                }
+                else // cache miss
+                {
+                    missingIds.Add(cacheKey.ID);
                 }
             }
             return lObj;
         }
-
         public void StoreObjects(List<BaseObject> objects, string keyPrefix, int duration)
         {
             DateTime experationTime = duration > 0 ? DateTime.Now.AddMinutes(duration) : DateTime.MaxValue;

@@ -44,27 +44,26 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public object Execute()
         {
             List<BaseObject> retVal = null;
+            List<long> mediaIdsForCatalog = null;
 
             // Build the List of CacheKeys from the MediaRes List
             List<CacheKey> cacheKeys = MediaIDs.Select(mediaRes => new CacheKey() { ID = mediaRes.assetID, UpdateDate = mediaRes.UpdateDate }).ToList();
 
             // Get medias from cache
             Log("Trying to get mediaIDs", MediaIDs);
-            List<BaseObject> lMediasFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language));
+            List<BaseObject> lMediasFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out mediaIdsForCatalog);
             Log("Got mediaIDs", lMediasFromCache.Select(media => media.m_nID).ToList());
 
-            // Check Which medias are missing in cache 
+            // Check if medias are missing in cache 
             if (lMediasFromCache != null && lMediasFromCache.Count > 0)
             {
-                // Get list of media ids that are not cached
-                List<int> lMediaIDs = MediaIDs.Select(media => media.assetID).ToList();
-                var lMediaIDsForCatalog = lMediaIDs.Where(mID => !lMediasFromCache.Select(media => media.m_nID).Contains(mID)).ToList();
-                if (lMediaIDsForCatalog.Count > 0 && !FailOverManager.Instance.SafeMode)
+                if (mediaIdsForCatalog.Count > 0 && !FailOverManager.Instance.SafeMode)
                 {
                     // Get missing medias from Catalog
                     MediasProtocolRequest thisMediasRequest = m_oRequest as MediasProtocolRequest;
-                    MediasProtocolRequest newMediasRequest = BuildMediasProtocolRequest(lMediaIDsForCatalog, thisMediasRequest.m_nGroupID, thisMediasRequest.m_oFilter);
-                    retVal = CatalogHelper.MergeObjListsByOrder(lMediaIDs, lMediasFromCache, GetMediasFromCatalog(newMediasRequest));
+                    MediasProtocolRequest newMediasRequest = BuildMediasProtocolRequest(mediaIdsForCatalog.Select(id => (int)id).ToList(), thisMediasRequest.m_nGroupID, thisMediasRequest.m_oFilter);
+                    // marge the lists
+                    retVal = CatalogHelper.MergeObjListsByOrder(MediaIDs.Select(media => media.assetID).ToList(), lMediasFromCache, GetMediasFromCatalog(newMediasRequest));
                 }
                 else
                 {

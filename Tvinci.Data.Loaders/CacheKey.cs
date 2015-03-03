@@ -11,5 +11,15 @@ namespace Tvinci.Data.Loaders
     {
         public int ID { get; set; }
         public DateTime UpdateDate { get; set; }
+
+        public CacheKey()
+        {
+        }
+
+        public CacheKey(int id, DateTime updateDate)
+        {
+            ID = id;
+            UpdateDate = updateDate;
+        }
     }
 }
