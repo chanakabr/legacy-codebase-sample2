@@ -30,6 +30,7 @@ using TVPPro.SiteManager.Objects;
 using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
 using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj;
 using System.Data;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -3145,6 +3146,38 @@ namespace TVPApiServices
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedSeriesObject>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
+            return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
+        public List<AssetInfo> UnifiedSearch(InitializationObject initObj, int pageSize, int pageIndex,
+            bool exact, List<KeyValue> orList, List<KeyValue> andList, UnifiedQueryType searchType, 
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue)
+        {
+            List<AssetInfo> res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, searchType) 
+                    {
+                        OrderBy = orderBy,
+                        OrderDir = orderDir,
+                        OrderValue = orderValue
+
+                    }.Execute() as List<AssetInfo>;
                 }
                 catch (Exception ex)
                 {

@@ -104,6 +104,7 @@
     <Compile Include="CatalogLoaders\APIRelatedMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APISearchMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIUnifiedSearchLoader.cs" />
     <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
     <Compile Include="Configuration\ApiOrcaRecommendationsConfiguration.cs" />
     <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
@@ -179,12 +180,17 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
+    <Compile Include="Objects\Responses\AdProvider.cs" />
+    <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
+    <Compile Include="Objects\Responses\Enums.cs" />
+    <Compile Include="Objects\Responses\File.cs" />
     <Compile Include="Objects\Responses\LicensedLink.cs" />
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
     <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Picture.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />
     <Compile Include="Objects\Responses\ServiceObject.cs" />
     <Compile Include="Objects\Responses\ServicesResponse.cs" />
