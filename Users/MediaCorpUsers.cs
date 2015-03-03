@@ -1,16 +1,14 @@
-﻿using DAL;
+﻿using System.Collections.Generic;
+using DAL;
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace Users
 {
-    public class MediaCorpUsers : TvinciUsers
+    public class MediaCorpUsers : SSOUsers, ISSOProvider
     {
-        public MediaCorpUsers(int nGroupID)
-            : base(nGroupID)
+        public MediaCorpUsers(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
 
         }
@@ -107,5 +105,27 @@ namespace Users
             }
             return (sum % 6);
         }
+
+        #region ISSOProviderImplementation
+
+        public UserResponseObject CheckLogin(string sUserName, int nOperatorID)
+        {
+            User u = new User();
+            UserResponseObject uRepsObj = new UserResponseObject();
+            int nSiteGuid = u.InitializeByUsername(sUserName, m_nGroupID);
+
+            if (nSiteGuid == 0 || u.m_sSiteGUID.Length == 0)
+            {
+                uRepsObj.Initialize(ResponseStatus.UserDoesNotExist, u);
+            }
+            else
+            {
+                uRepsObj.Initialize(ResponseStatus.OK, u);
+            }
+
+            return uRepsObj;
+        }
+
+        #endregion
     }
 }
