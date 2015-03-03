@@ -2026,6 +2026,8 @@ namespace Users
             //Check if exceeded limit for users
             if (userType != UserDomainType.Household)
             {
+                m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
+
                 DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
                 if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
                 {
