@@ -132,17 +132,17 @@ namespace Users
                         dUserInfo[key] = string.Empty;
                     }
 
-                    if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
-                        (!string.IsNullOrEmpty(dUserInfo[key])))
-                    {
-                        DateTime birthdate = new DateTime(2000, 1, 1);
-                        if (DateTime.TryParse(dUserInfo[key], out birthdate))
-                        {
-                            dUserInfo["BirthYear"] = birthdate.Year.ToString();
-                            dUserInfo["BirthMonth"] = birthdate.Month.ToString();
-                            dUserInfo["BirthDay"] = birthdate.Day.ToString();
-                        }
-                    }
+                    //if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
+                    //    (!string.IsNullOrEmpty(dUserInfo[key])))
+                    //{
+                    //    DateTime birthdate = new DateTime(2000, 1, 1);
+                    //    if (DateTime.TryParse(dUserInfo[key], out birthdate))
+                    //    {
+                    //        dUserInfo["BirthYear"] = birthdate.Year.ToString();
+                    //        dUserInfo["BirthMonth"] = birthdate.Month.ToString();
+                    //        dUserInfo["BirthDay"] = birthdate.Day.ToString();
+                    //    }
+                    //}
                 }
 
                 // If does not exist, new user will be created
@@ -186,21 +186,25 @@ namespace Users
                                 Logger.Logger.Log("Error adding user to domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC - SSO");
                             }
                         }
-                    }
-                    else
-                    {
                         // User has domain but with different cougid 
-                        if (userObj.m_RespStatus == ResponseStatus.OK)
+                        else if (userObj.m_RespStatus == ResponseStatus.OK)
                         {
-                            bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
-                            if (!changedCoguid)
+                            if (userObj.m_user.m_domianID != domain.m_oDomain.m_nDomainID)
                             {
-                                userObj.m_RespStatus = ResponseStatus.InternalError;
-                                Logger.Logger.Log("Error updating domain CoGuid", string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID), "MC - SSO");
+                                bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
+                                if (!changedCoguid)
+                                {
+                                    userObj.m_RespStatus = ResponseStatus.InternalError;
+                                    Logger.Logger.Log("Error updating domain CoGuid", string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID), "MC - SSO");
+                                }
                             }
                         }
+                    }
+                    else
+                    {                       
                             // User has no domain
-                        else if ((domainImpl != null) && (userObj.m_RespStatus == ResponseStatus.UserWithNoDomain))
+                        if ((domainImpl != null) && domain != null && (domain.m_oDomainResponseStatus != DomainResponseStatus.OK) &&
+                            userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
                         {
                             DomainResponseObject domainResponseObject =
                                 domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid);
@@ -215,7 +219,7 @@ namespace Users
                             {
                                 Logger.Logger.Log("Error creating domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC-SSO");
                             }   
-                        }
+                        }                        
                     }
                 }
             }
@@ -294,29 +298,43 @@ namespace Users
             {
                 //get the dynamic data from yes and update it in DB
                 UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
-                //Logger.Logger.Log("GetUserProfile", "Existing user: Dynamic data - " + userDynamic.ToJSON(), "Users");
+                // fill the user data with values already exsits 
 
-                List<ApiObjects.KeyValuePair> lKeyValue = new List<ApiObjects.KeyValuePair>();
-                foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
+                Logger.Logger.Log("GetUserProfile", "Existing user: Dynamic data - " + userDynamic.ToJSON(), "Users");
+                try
                 {
-                    if (container == null)
+                    List<ApiObjects.KeyValuePair> lKeyValue = new List<ApiObjects.KeyValuePair>();
+                    foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
                     {
-                        continue;
+                        if (container == null)
+                        {
+                            continue;
+                        }
+
+                        ApiObjects.KeyValuePair kvp = new ApiObjects.KeyValuePair(container.m_sDataType, (container.m_sValue != null ? container.m_sValue : string.Empty));
+
+                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");
+
+                        if (!string.IsNullOrEmpty(kvp.value))
+                        {
+                            lKeyValue.Add(kvp);
+                        }
+                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");                        
                     }
 
-                    ApiObjects.KeyValuePair kvp = new ApiObjects.KeyValuePair(container.m_sDataType, (container.m_sValue != null ? container.m_sValue : string.Empty));
-                    lKeyValue.Add(kvp);
+                    // First remove existing dynamic data
+                    UserDynamicData emptyDynamic = new UserDynamicData();
+                    emptyDynamic.m_sUserData = new UserDynamicDataContainer[] { };
+                    userInfo.m_user.UpdateDynamicData(emptyDynamic, m_nGroupID);
+
+                    // Then save updated dynamic data
+                    SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
                 }
-
-                //Logger.Logger.Log("GetUserProfile", "Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, "Users");
-
-                // First remove existing dynamic data
-                UserDynamicData emptyDynamic = new UserDynamicData();
-                emptyDynamic.m_sUserData = new UserDynamicDataContainer[] { };
-                userInfo.m_user.UpdateDynamicData(emptyDynamic, m_nGroupID);
-
-                // Then save updated dynamic data
-                SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);   
+                catch (Exception)
+                {
+                    Logger.Logger.Log("GetUserProfile", "Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, "Users");
+                    throw;
+                }
             }
 
             uo = userInfo;
@@ -336,60 +354,19 @@ namespace Users
             Utils.GetContentInfo(ref ubd.m_sFirstName, "FirstName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sLastName, "LastName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sPhone, "HomePhone", dUserData);
-            
 
             Utils.GetContentInfo(ref ubd.m_sCity, "City", dUserData);
+
             Utils.GetContentInfo(ref ubd.m_sZip, "PostalCode", dUserData);
 
-            string sCountry = string.Empty;
-            Utils.GetContentInfo(ref sCountry, "Country", dUserData);
-            ubd.m_Country = new Country();
-            if (!string.IsNullOrEmpty(sCountry))
-            {
-                ubd.m_Country.InitializeByName(sCountry);
-            }
-
-            string state = string.Empty;
-            Utils.GetContentInfo(ref state, "State", dUserData);
-            ubd.m_State = new State();
-            if (!string.IsNullOrEmpty(state) && ubd.m_Country.m_nObjecrtID > 0)
-            {
-                ubd.m_State.InitializeByName(state, ubd.m_Country.m_nObjecrtID);
-            }
-
-            string sBlock = string.Empty;
-            string street = string.Empty;
-            string sBuilding = string.Empty;
-            string sUnit = string.Empty;
-            Utils.GetContentInfo(ref sBlock, "Block", dUserData);
-            Utils.GetContentInfo(ref street, "Street", dUserData);
-            Utils.GetContentInfo(ref sBuilding, "Building", dUserData);
-            Utils.GetContentInfo(ref sUnit, "Unit", dUserData);
-
-            if (!string.IsNullOrEmpty(sBlock))
-            {
-                ubd.m_sAddress = string.Format("Blk {0} ", sBlock);
-            }
-            if (!string.IsNullOrEmpty(street))
-            {
-                ubd.m_sAddress += street + " ";
-            }
-            if (!string.IsNullOrEmpty(sUnit))
-            {
-                ubd.m_sAddress += "# " + sUnit + " ";
-            }
-            if (!string.IsNullOrEmpty(sBuilding))
-            {
-                ubd.m_sAddress += sBuilding;
-            }
-
+           
             return ubd;
         }
 
         private List<string> _dynamicParams = new List<string>()
         {
-            "Nationality", "IdentificationNumber", "BirthYear", "BirthDate", "Occupation", "Gender", "Ethnicity", "MaritalStatus", "MobilePhone", "Income", "AccountStatus", "Xinmsn_English", "Xinmsn_Chinese",
-            "MEClub", "MERadio", "OktoAsia", "CNA_MailPref", "CreatedDate", "VizPro", "SingaporeMediaAcademy", "Avatar"
+            "Nationality", "IdentificationNumber", "BirthYear", "BirthDate", "Occupation", "Gender", "Ethnicity", "MaritalStatus", "MobilePhone", "Income", "AccountStatus", 
+            "Xinmsn_English", "Xinmsn_Chinese", "MEClub", "MERadio", "OktoAsia", "CNA_MailPref", "CreatedDate", "VizPro", "SingaporeMediaAcademy", "Avatar"
         };
 
         private UserDynamicData GetUserDynamicData(Dictionary<string, string> dUserData)
@@ -413,17 +390,91 @@ namespace Users
 
             udd.m_sUserData = new UserDynamicDataContainer[lDynamicParams.Count];
 
+            int index = 0;
             for (int i = 0; i < lDynamicParams.Count; ++i)
             {
                 UserDynamicDataContainer dynamicData = new UserDynamicDataContainer();
 
-                if (dUserData.ContainsKey(lDynamicParams[i]))
+                if (lDynamicParams.Contains(lDynamicParams[i]))
                 {
                     dynamicData.m_sDataType = lDynamicParams[i];
-                    dynamicData.m_sValue = dUserData[lDynamicParams[i]];
-                    udd.m_sUserData[i] = dynamicData;
+                    switch (dynamicData.m_sDataType)
+                    {
+                        case "Unit": // The format are “#xx-yy” or “xx-yy” or “zz”
+                            string unit = dUserData[lDynamicParams[i]];
+                            if (!string.IsNullOrEmpty(unit))
+                            {
+                                string[] splitUnit = unit.Replace("#", "").Split('-');
+                                dynamicData.m_sDataType = "UnitStartNumber";
+                                if (splitUnit != null && splitUnit.Count() > 0)
+                                {
+                                    dynamicData.m_sValue = splitUnit[0];
+                                    udd.m_sUserData[index] = dynamicData;
+                                    index++;
+                                }
+
+                                dynamicData = new UserDynamicDataContainer();
+
+                                dynamicData.m_sDataType = "UnitEndNumber";
+                                if (splitUnit != null && splitUnit.Count() > 1)
+                                {
+                                    dynamicData.m_sValue = splitUnit[1];
+                                    udd.m_sUserData[index] = dynamicData;
+                                    index++;
+                                }                               
+                            }
+                            break;
+                        case "BirthYear": // do nothing - BirthYear will fill from BirthDate
+                            break;
+                        case "BirthDate": // format of BirthDate is "yyyy-MM-ddTHH:mm:ss”
+                            string BirthDate = dUserData[lDynamicParams[i]];
+                            if (!string.IsNullOrEmpty(BirthDate))
+                            {
+                                BirthDate = BirthDate.Substring(0, BirthDate.IndexOf('T'));
+                                string[] splitDate = BirthDate.Split('-');
+                                if (splitDate != null && splitDate.Count() > 0)
+                                {
+                                    dynamicData.m_sDataType = "BirthYear";
+                                    dynamicData.m_sValue = splitDate[0];
+                                    udd.m_sUserData[index] = dynamicData;
+                                    index++;
+
+                                    dynamicData = new UserDynamicDataContainer();
+                                    if (splitDate.Count() > 1)
+                                    {
+                                        dynamicData.m_sDataType = "BirthMonth";
+                                        dynamicData.m_sValue = splitDate[1];
+                                        udd.m_sUserData[index] = dynamicData;
+                                        index++;                             
+                                        dynamicData = new UserDynamicDataContainer();
+                                    }
+                                    if (splitDate.Count() > 2)
+                                    {
+                                        dynamicData.m_sDataType = "BirthDay";
+                                        dynamicData.m_sValue = splitDate[2];
+                                        udd.m_sUserData[index] = dynamicData;
+                                        index++;
+                                    }
+                                }
+                            }
+                            break;
+                        case "FirstName":
+                            dynamicData.m_sDataType = "NickName";
+                            dynamicData.m_sValue = dUserData[lDynamicParams[i]];
+                            udd.m_sUserData[index] = dynamicData;
+                             index++;
+                            break;
+                        default:
+                            if (dUserData.ContainsKey(lDynamicParams[i]))
+                            {
+                                dynamicData.m_sValue = dUserData[lDynamicParams[i]];
+                                udd.m_sUserData[index] = dynamicData;
+                                index++;
+                            }
+                            break;
+                    }
                 }
-            }
+            }  
 
             return udd;
         }
