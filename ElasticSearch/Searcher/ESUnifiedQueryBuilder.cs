@@ -134,6 +134,18 @@ namespace ElasticSearch.Searcher
                 return fullQuery;
             }
 
+            ESTerm epgTypeTerm = new ESTerm(false)
+            {
+                Key = "_type",
+                Value = "epg"
+            };
+
+            ESTerm mediaTypeTerm = new ESTerm(false)
+            {
+                Key = "_type",
+                Value = "media"
+            };
+
             StringBuilder filteredQueryBuilder = new StringBuilder();
             string queryPart = string.Empty;
 
@@ -164,24 +176,66 @@ namespace ElasticSearch.Searcher
                 Value = "1"
             };
 
-            string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+            // Dates filter: 
+            // If it is media, it should start before now and end after now
+            // If it is EPG, it should start and end around the current week
+            // Media and EPG are connected by "OR"; inside it is connected with "AND"s
+            FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+            FilterCompositeType epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
-            ESRange startDateRange = new ESRange(false);
+            // media ranges
+
+            string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+
+            ESRange mediaStartDateRange = new ESRange(false);
             
             if (this.SearchDefinitions.shouldUseStartDate)
             {
-                startDateRange.Key = "start_date";
+                mediaStartDateRange.Key = "start_date";
                 string sMin = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sNow));
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
             }
 
-            ESRange endDateRange = new ESRange(false);
-            endDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-            endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
-            endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            ESRange mediaEndDateRange = new ESRange(false);
+            mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
 
+            mediaDatesFilter.AddChild(mediaStartDateRange);
+            mediaDatesFilter.AddChild(mediaEndDateRange);
+            mediaDatesFilter.AddChild(mediaTypeTerm);
+
+            // epg ranges
+
+            string nowPlusWeekDateString = DateTime.UtcNow.AddDays(7).ToString("yyyyMMddHHmmss");
+            string nowMinusWeekDateString = DateTime.UtcNow.AddDays(-7).ToString("yyyyMMddHHmmss");
+
+            ESRange epgStartDateRange = new ESRange(false)
+            {
+                Key = "start_date"
+            };
+
+            epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
+            epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+
+            ESRange epgEndDateRange = new ESRange(false)
+            {
+                Key = "end_date"
+            };
+
+            epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
+            epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+
+            epgDatesFilter.AddChild(epgStartDateRange);
+            epgDatesFilter.AddChild(epgEndDateRange);
+            epgDatesFilter.AddChild(epgTypeTerm);
+
+            // connect media and epg with or
+            FilterCompositeType datesFilter = new FilterCompositeType(CutWith.OR);
+            datesFilter.AddChild(mediaDatesFilter);
+            datesFilter.AddChild(epgDatesFilter);
 
             ESTerms userTypeTerm = new ESTerms(true);
             userTypeTerm.Key = "user_types";
@@ -209,12 +263,6 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            ESTerm epgTypeTerm = new ESTerm(false)
-            {
-                Key = "_type",
-                Value = "epg"
-            };
-
             // should be at least one of these three:
             // group_id = parent groupd id
             // permitted watch filter 
@@ -230,8 +278,7 @@ namespace ElasticSearch.Searcher
 
             filterParent.AddChild(oGroupWPComposite);
             filterParent.AddChild(isActiveTerm);
-            filterParent.AddChild(startDateRange);
-            filterParent.AddChild(endDateRange);
+            filterParent.AddChild(datesFilter);
             //filterParent.AddChild(userTypeTerm);
             filterParent.AddChild(mediaTypesTerms);
 
