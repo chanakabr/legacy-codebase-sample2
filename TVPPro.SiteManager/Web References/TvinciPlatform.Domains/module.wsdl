@@ -472,6 +472,7 @@
           <s:enumeration value="DuplicatePin" />
           <s:enumeration value="DeviceNotExists" />
           <s:enumeration value="OK" />
+          <s:enumeration value="ExceededLimit" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SetDeviceInfo">
@@ -789,11 +790,11 @@
       <s:element name="RemoveDLMResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RemoveDLMResult" type="tns:StatusObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveDLMResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="StatusObject">
+      <s:complexType name="Status">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
@@ -818,7 +819,7 @@
       </s:element>
       <s:complexType name="ChangeDLMObj">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:StatusObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="users" type="tns:ArrayOfString" />
           <s:element minOccurs="0" maxOccurs="1" name="devices" type="tns:ArrayOfString" />
         </s:sequence>
@@ -841,7 +842,7 @@
       </s:element>
       <s:complexType name="DLMResponse">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:StatusObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="dlm" type="tns:LimitationsManager" />
         </s:sequence>
       </s:complexType>
@@ -877,32 +878,32 @@
       <s:element name="SuspendDomain">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="SuspendDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SuspendDomainResult" type="tns:StatusObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="SuspendDomainResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="ResumeDomain">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="ResumeDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ResumeDomainResult" type="tns:StatusObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="ResumeDomainResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -919,7 +920,7 @@
       <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
       <s:element name="ArrayOfHomeNetwork" nillable="true" type="tns:ArrayOfHomeNetwork" />
       <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
-      <s:element name="StatusObject" nillable="true" type="tns:StatusObject" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
       <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
     </s:schema>
@@ -1462,7 +1463,7 @@
     <wsdl:part name="nDlmID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RemoveDLMHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ChangeDLMHttpPostIn">
     <wsdl:part name="sWSUsername" type="s:string" />
@@ -1482,20 +1483,20 @@
     <wsdl:part name="Body" element="tns:DLMResponse" />
   </wsdl:message>
   <wsdl:message name="SuspendDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SuspendDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ResumeDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ResumeDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
@@ -2807,13 +2808,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/Domains/module.asmx" />
+      <soap:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/Domains/module.asmx" />
+      <soap12:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/Domains/module.asmx" />
+      <http:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

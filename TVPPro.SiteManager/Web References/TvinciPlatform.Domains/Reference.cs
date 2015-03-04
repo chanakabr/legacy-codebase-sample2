@@ -107,7 +107,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://192.168.192.146/webservices/Domains/module.asmx";
+            this.Url = "http://localhost/WS_Domains/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -1418,12 +1418,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDLM", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject RemoveDLM(string sWSUsername, string sWSPassword, int nDlmID) {
+        public Status RemoveDLM(string sWSUsername, string sWSPassword, int nDlmID) {
             object[] results = this.Invoke("RemoveDLM", new object[] {
                         sWSUsername,
                         sWSPassword,
                         nDlmID});
-            return ((StatusObject)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1519,28 +1519,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SuspendDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject SuspendDomain(int nDomainID, string sWSUserName, string sWSPassword) {
+        public Status SuspendDomain(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("SuspendDomain", new object[] {
-                        nDomainID,
                         sWSUserName,
-                        sWSPassword});
-            return ((StatusObject)(results[0]));
+                        sWSPassword,
+                        nDomainID});
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SuspendDomainAsync(int nDomainID, string sWSUserName, string sWSPassword) {
-            this.SuspendDomainAsync(nDomainID, sWSUserName, sWSPassword, null);
+        public void SuspendDomainAsync(string sWSUserName, string sWSPassword, int nDomainID) {
+            this.SuspendDomainAsync(sWSUserName, sWSPassword, nDomainID, null);
         }
         
         /// <remarks/>
-        public void SuspendDomainAsync(int nDomainID, string sWSUserName, string sWSPassword, object userState) {
+        public void SuspendDomainAsync(string sWSUserName, string sWSPassword, int nDomainID, object userState) {
             if ((this.SuspendDomainOperationCompleted == null)) {
                 this.SuspendDomainOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSuspendDomainOperationCompleted);
             }
             this.InvokeAsync("SuspendDomain", new object[] {
-                        nDomainID,
                         sWSUserName,
-                        sWSPassword}, this.SuspendDomainOperationCompleted, userState);
+                        sWSPassword,
+                        nDomainID}, this.SuspendDomainOperationCompleted, userState);
         }
         
         private void OnSuspendDomainOperationCompleted(object arg) {
@@ -1552,28 +1552,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ResumeDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject ResumeDomain(int nDomainID, string sWSUserName, string sWSPassword) {
+        public Status ResumeDomain(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("ResumeDomain", new object[] {
-                        nDomainID,
                         sWSUserName,
-                        sWSPassword});
-            return ((StatusObject)(results[0]));
+                        sWSPassword,
+                        nDomainID});
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void ResumeDomainAsync(int nDomainID, string sWSUserName, string sWSPassword) {
-            this.ResumeDomainAsync(nDomainID, sWSUserName, sWSPassword, null);
+        public void ResumeDomainAsync(string sWSUserName, string sWSPassword, int nDomainID) {
+            this.ResumeDomainAsync(sWSUserName, sWSPassword, nDomainID, null);
         }
         
         /// <remarks/>
-        public void ResumeDomainAsync(int nDomainID, string sWSUserName, string sWSPassword, object userState) {
+        public void ResumeDomainAsync(string sWSUserName, string sWSPassword, int nDomainID, object userState) {
             if ((this.ResumeDomainOperationCompleted == null)) {
                 this.ResumeDomainOperationCompleted = new System.Threading.SendOrPostCallback(this.OnResumeDomainOperationCompleted);
             }
             this.InvokeAsync("ResumeDomain", new object[] {
-                        nDomainID,
                         sWSUserName,
-                        sWSPassword}, this.ResumeDomainOperationCompleted, userState);
+                        sWSPassword,
+                        nDomainID}, this.ResumeDomainOperationCompleted, userState);
         }
         
         private void OnResumeDomainOperationCompleted(object arg) {
@@ -2397,12 +2397,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class DLMResponse {
         
-        private StatusObject respField;
+        private Status respField;
         
         private LimitationsManager dlmField;
         
         /// <remarks/>
-        public StatusObject resp {
+        public Status resp {
             get {
                 return this.respField;
             }
@@ -2428,7 +2428,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class StatusObject {
+    public partial class Status {
         
         private int codeField;
         
@@ -2463,14 +2463,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class ChangeDLMObj {
         
-        private StatusObject respField;
+        private Status respField;
         
         private string[] usersField;
         
         private string[] devicesField;
         
         /// <remarks/>
-        public StatusObject resp {
+        public Status resp {
             get {
                 return this.respField;
             }
@@ -2735,6 +2735,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         OK,
+        
+        /// <remarks/>
+        ExceededLimit,
     }
     
     /// <remarks/>
@@ -3737,10 +3740,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public StatusObject Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -3815,10 +3818,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public StatusObject Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -3841,10 +3844,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public StatusObject Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
