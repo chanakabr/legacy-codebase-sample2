@@ -200,6 +200,90 @@ namespace ElasticSearch.Searcher
         }
     }
 
+    /// <summary>
+    /// Prefix filter part
+    /// </summary>
+    public class ESPrefix : IESTerm
+    {
+        #region IESTerm Members
+
+        public eTermType eType
+        {
+            get
+            {
+                return eTermType.PREFIX;
+            }
+        }
+
+        #endregion
+
+        #region Properties
+
+        public string Value
+        {
+            get;
+            set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public bool bNot
+        {
+            get;
+            set;
+        }
+        public float Boost
+        {
+            get;
+            set;
+        }
+        #endregion
+
+        #region Public Methods
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key);
+
+        }
+
+        /// <summary>
+        /// Creates a filter object for ES search requests
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (bNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"prefix\":{");
+            sb.AppendFormat("\"{0}\":", Key);
+            sb.Append("{");
+
+            sb.AppendFormat("\"value\":\"{0}\"", Value);
+
+            if (Boost > 0.0f)
+            {
+                sb.AppendFormat(",\"boost\":{0}", Boost);
+            }
+
+            sb.Append("}}}");
+
+            if (bNot)
+                sb.Append("}");
+
+            return sb.ToString();      
+        }
+        #endregion
+    }
+
     public class ESRange : IESTerm
     {
         public eTermType eType { get; protected set; }
@@ -349,7 +433,8 @@ namespace ElasticSearch.Searcher
         MULTI_MATCH,
         EXISTS,
         MATCH,
-        MATCH_ALL
+        MATCH_ALL,
+        PREFIX
     }
 
     public enum eRangeComp

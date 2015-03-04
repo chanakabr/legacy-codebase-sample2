@@ -134,13 +134,13 @@ namespace ElasticSearch.Searcher
                 return fullQuery;
             }
 
-            ESTerm epgTypeTerm = new ESTerm(false)
+            ESPrefix epgTypeTerm = new ESPrefix()
             {
                 Key = "_type",
                 Value = "epg"
             };
 
-            ESTerm mediaTypeTerm = new ESTerm(false)
+            ESPrefix mediaTypeTerm = new ESPrefix()
             {
                 Key = "_type",
                 Value = "media"
