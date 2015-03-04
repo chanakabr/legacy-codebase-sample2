@@ -449,9 +449,9 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "user_basic_data", Description = "User Basic Data", ParameterType = "body", DataType = "UserBasicData", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData user_basic_data { get; set; }
+        public TVPApiModule.Objects.Responses.UserBasicData user_basic_data { get; set; }
         [ApiMember(Name = "user_dynamic_data", Description = "User Dynamic Data", ParameterType = "body", DataType = "UserDynamicData", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData user_dynamic_data { get; set; }
+        public TVPApiModule.Objects.Responses.UserDynamicData user_dynamic_data { get; set; }
     }
 
     [Route("/users/{site_guid}/dynamic_data/{key}", "PUT", Notes = "This method expects dynamic data key and data value; it sets the value to the existing key. Example: Key = birthday, Value = 03/03/2014.")]

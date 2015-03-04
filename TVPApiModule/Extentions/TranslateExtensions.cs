@@ -11,6 +11,118 @@ namespace TVPApiModule.Extentions
 {
     public static class TranslateExtensions
     {
+        public static TVPPro.SiteManager.TvinciPlatform.Users.Country ToTvmObject(this Country response)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.Country country = new TVPPro.SiteManager.TvinciPlatform.Users.Country();
+
+            country.m_nObjecrtID = response.object_id;
+            country.m_sCountryCode = response.country_code;
+            country.m_sCountryName = response.country_name;
+
+            return country;
+        }
+
+        public static TVPPro.SiteManager.TvinciPlatform.Users.State ToTvmObject(this TVPApiModule.Objects.Responses.State response)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.State state = new TVPPro.SiteManager.TvinciPlatform.Users.State();
+
+            if (state.m_Country != null)
+                state.m_Country = response.country.ToTvmObject();
+
+            state.m_nObjecrtID = response.object_id;
+            state.m_sStateCode = response.state_code;
+            state.m_sStateName = response.state_name;
+
+            return state;
+        }
+
+        public static TVPPro.SiteManager.TvinciPlatform.Users.UserType ToTvmObject(this TVPApiModule.Objects.Responses.UserType response)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.UserType userType = new TVPPro.SiteManager.TvinciPlatform.Users.UserType();
+
+            userType.Description = response.description;
+            userType.ID = response.id;
+            userType.IsDefault = response.is_default;
+
+            return userType;
+        }
+
+        public static TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData ToTvmObject(this TVPApiModule.Objects.Responses.UserBasicData response)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData basic_data = new TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData();
+
+            if (response != null)
+                {
+                    basic_data.m_bIsFacebookImagePermitted = response.is_facebook_image_permitted;
+                    basic_data.m_CoGuid = response.co_guid;
+
+                    if (response.country != null)
+                    {
+                        basic_data.m_Country = response.country.ToTvmObject();
+                    }
+
+                    basic_data.m_ExternalToken = response.external_token;
+                    basic_data.m_sAddress= response.address;
+                    basic_data.m_sAffiliateCode = response.affiliate_code;
+                    basic_data.m_sCity = response.city;
+                    basic_data.m_sEmail = response.email;
+                    basic_data.m_sFacebookID = response.facebook_id;
+                    basic_data.m_sFacebookImage = response.facebook_image;
+                    basic_data.m_sFacebookToken = response.facebook_token;
+                    basic_data.m_sFirstName = response.first_name;
+                    basic_data.m_sLastName = response.last_name;
+                    basic_data.m_sPhone = response.phone;
+
+                    if (response.state != null)
+                        basic_data.m_State = response.state.ToTvmObject();
+
+                    basic_data.m_sUserName = response.user_name;
+                    basic_data.m_sZip = response.zip;
+
+                    basic_data.m_UserType = response.user_type.ToTvmObject();
+                }
+
+            return basic_data;
+        }
+
+        public static TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData ToTvmObject(this TVPApiModule.Objects.Responses.UserDynamicData response)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData dynamic_data = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData();
+
+            if (response != null)
+            {
+                if (response.user_data != null)
+                {
+                    dynamic_data.m_sUserData = response.user_data.Select(x => new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer()
+                    {
+                        m_sDataType = x.data_type,
+                        m_sValue = x.value                        
+                    }).ToArray();
+                }
+            }
+
+            return dynamic_data;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserDynamicData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData response)
+        {
+            TVPApiModule.Objects.Responses.UserDynamicData retVal = new TVPApiModule.Objects.Responses.UserDynamicData();
+
+            if (response != null)
+            {
+                if (response.m_sUserData != null)
+                {
+                    retVal.user_data = response.m_sUserData.Select(x => new TVPApiModule.Objects.Responses.UserDynamicDataContainer()
+                    {
+                        data_type = x.m_sDataType,
+                        value = x.m_sValue
+                    }).ToArray();
+                }
+            }
+
+            return retVal;
+        }
+
         public static TVPApiModule.Objects.Responses.UserResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject response)
         {
             TVPApiModule.Objects.Responses.UserResponseObject retVal = new TVPApiModule.Objects.Responses.UserResponseObject();
@@ -61,16 +173,7 @@ namespace TVPApiModule.Extentions
 
                 if (response.m_user.m_oDynamicData != null)
                 {
-                    retVal.user.dynamic_data = new TVPApiModule.Objects.Responses.UserDynamicData();
-
-                    if (response.m_user.m_oDynamicData.m_sUserData != null)
-                    {
-                        retVal.user.dynamic_data.user_data = response.m_user.m_oDynamicData.m_sUserData.Select(x => new TVPApiModule.Objects.Responses.UserDynamicDataContainer()
-                        {
-                            data_type = x.m_sDataType,
-                            value = x.m_sValue
-                        }).ToArray();
-                    }
+                    retVal.user.dynamic_data = response.m_user.m_oDynamicData.ToApiObject();
                 }
 
                 retVal.user.site_guid = response.m_user.m_sSiteGUID;
