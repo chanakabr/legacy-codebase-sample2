@@ -192,6 +192,7 @@
           <s:enumeration value="ExternalError" />
           <s:enumeration value="CellularPermissionsError" />
           <s:enumeration value="UnKnownBillingProvider" />
+          <s:enumeration value="UserSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="DD_ChargeUser">
@@ -1404,13 +1405,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:84/WS_Billing/module.asmx" />
+      <soap:address location="http://localhost/WS_Billing_B/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:84/WS_Billing/module.asmx" />
+      <soap12:address location="http://localhost/WS_Billing_B/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:84/WS_Billing/module.asmx" />
+      <http:address location="http://localhost/WS_Billing_B/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
