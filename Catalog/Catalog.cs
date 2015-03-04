@@ -169,6 +169,7 @@ namespace Catalog
             }
 
             Task.WaitAll(tasks);
+
             if (tasks != null && tasks.Length > 0)
             {
                 for (int i = 0; i < tasks.Length; i++)
@@ -177,7 +178,6 @@ namespace Catalog
                         tasks[i].Dispose();
                 }
             }
-
 
             if (mediaIds != null)
             {
@@ -2075,6 +2075,12 @@ namespace Catalog
         internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId)
         {
             List<ProgramObj> epgsInformation = new List<ProgramObj>();
+
+            // Don't do anything if no valid input
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return epgsInformation;
+            }
 
             List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
 

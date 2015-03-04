@@ -74,8 +74,12 @@ namespace Catalog
                 CheckSignature(this);
 
                 response.epgList = Catalog.GetEPGProgramInformation(epgIds, this.m_nGroupID);
-                response.mediaList = Catalog.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(),
-                    this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
+
+                if (mediaIds != null && mediaIds.Count > 0)
+                {
+                    response.mediaList = Catalog.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(),
+                        this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
