@@ -529,7 +529,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var result = m_Module.SuspendDomain(domainId, m_wsUserName, m_wsPassword);
+                var result = m_Module.SuspendDomain(m_wsUserName, m_wsPassword, domainId);
                 clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
@@ -547,7 +547,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var result = m_Module.ResumeDomain(domainId, m_wsUserName, m_wsPassword);
+                var result = m_Module.ResumeDomain(m_wsUserName, m_wsPassword, domainId);
                 clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
@@ -568,7 +568,7 @@ namespace TVPApiModule.Services
                 var result = m_Module.GetDLM(m_wsUserName, m_wsPassword, dlmID);
                 response = new DomainLimitationModuleResponse();
                 response.DLM = new Objects.Responses.LimitationsManager(result.dlm);
-                response.Status = new Status(result.resp.Code, result.resp.Message);
+                response.Status = new TVPApiModule.Objects.Responses.Status(result.resp.Code, result.resp.Message);
             }
             catch (Exception ex)
             {
