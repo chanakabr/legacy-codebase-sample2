@@ -17,7 +17,7 @@ namespace ElasticSearch.Searcher
         public static readonly string OR_CONDITION = "OR";
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
-        protected readonly int MAX_RESULTS = 100;
+        protected readonly int MAX_RESULTS;
 
         public UnifiedSearchDefinitions SearchDefinitions
         {
@@ -108,6 +108,13 @@ namespace ElasticSearch.Searcher
             this.SearchDefinitions = definitions;
 
             this.GroupID = definitions.groupId;
+
+            string maxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+
+            if (!int.TryParse(maxResults, out MAX_RESULTS))
+            {
+                MAX_RESULTS = 100000;
+            }
         }
 
         #endregion
