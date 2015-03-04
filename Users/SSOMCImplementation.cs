@@ -325,7 +325,7 @@ namespace Users
                     // First remove existing dynamic data
                     UserDynamicData emptyDynamic = new UserDynamicData();
                     emptyDynamic.m_sUserData = new UserDynamicDataContainer[] { };
-                    userInfo.m_user.UpdateDynamicData(emptyDynamic, m_nGroupID);
+                   // userInfo.m_user.UpdateDynamicData(emptyDynamic, m_nGroupID);
 
                     // Then save updated dynamic data
                     SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
