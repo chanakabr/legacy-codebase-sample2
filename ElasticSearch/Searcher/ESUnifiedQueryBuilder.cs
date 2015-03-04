@@ -17,7 +17,7 @@ namespace ElasticSearch.Searcher
         public static readonly string OR_CONDITION = "OR";
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
-        protected readonly int MAX_RESULTS;
+        protected readonly int MAX_RESULTS = 100;
 
         public UnifiedSearchDefinitions SearchDefinitions
         {
@@ -120,19 +120,15 @@ namespace ElasticSearch.Searcher
         /// <returns></returns>
         public virtual string BuildSearchQueryString()
         {
-            string query = string.Empty;
+            string fullQuery = string.Empty;
 
             if (this.SearchDefinitions == null)
             {
-                return query;
+                return fullQuery;
             }
 
-            StringBuilder sbFilteredQuery = new StringBuilder();
-            string sQuery = string.Empty;
-
-            QueryFilter filter = new QueryFilter();
-
-            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+            string queryPart = string.Empty;
 
             ESTerm groupTerm = new ESTerm(true)
             {
@@ -140,12 +136,12 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            ESTerms permittedWatcFilter = new ESTerms(true);
+            ESTerms permittedWatchFilter = new ESTerms(true);
            
             if (!string.IsNullOrEmpty(this.SearchDefinitions.permittedWatchRules))
             {
-                permittedWatcFilter.Key = "wp_type_id";
-                List<string> permittedValues = permittedWatcFilter.Value;
+                permittedWatchFilter.Key = "wp_type_id";
+                List<string> permittedValues = permittedWatchFilter.Value;
                 foreach (string value in this.SearchDefinitions.permittedWatchRules.Split(' '))
                 {
                     if (!string.IsNullOrWhiteSpace(value))
@@ -219,8 +215,11 @@ namespace ElasticSearch.Searcher
             FilterCompositeType oGroupWPComposite = new FilterCompositeType(CutWith.OR);
 
             oGroupWPComposite.AddChild(groupTerm);
-            oGroupWPComposite.AddChild(permittedWatcFilter);
+            oGroupWPComposite.AddChild(permittedWatchFilter);
             oGroupWPComposite.AddChild(epgTypeTerm);
+
+            QueryFilter filterPart = new QueryFilter();
+            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
 
             filterParent.AddChild(oGroupWPComposite);
             filterParent.AddChild(isActiveTerm);
@@ -229,14 +228,18 @@ namespace ElasticSearch.Searcher
             //filterParent.AddChild(userTypeTerm);
             filterParent.AddChild(mediaTypesTerms);
 
+            filterPart.FilterSettings = filterParent;
+
+            // Use the and/or parts.
+            // If it is exact search - no query, just use terms in filter
             if (QueryType == eQueryType.EXACT)
             {
                 if (this.SearchDefinitions.order.m_eOrderBy != OrderBy.RELATED)
                 {
                     FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
                     FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
-                    FilterCompositeType generatedComposite = 
-                        this.FilterMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas, 
+                    FilterCompositeType generatedComposite =
+                        this.FilterMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas,
                             (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
 
                     filterParent.AddChild(andComposite);
@@ -244,11 +247,12 @@ namespace ElasticSearch.Searcher
                     filterParent.AddChild(generatedComposite);
                 }
             }
+            // Not exact == boolean; Use query for and/or parts
             else if (QueryType == eQueryType.BOOLEAN)
             {
                 BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
                 BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
-                BoolQuery oMultiFilterBoolQuery = 
+                BoolQuery oMultiFilterBoolQuery =
                     this.QueryMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas, (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
 
                 BoolQuery oBoolQuery = new BoolQuery();
@@ -256,25 +260,20 @@ namespace ElasticSearch.Searcher
                 oBoolQuery.AddChild(oOrBoolQuery, CutWith.AND);
                 oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.AND);
 
-                sQuery = oBoolQuery.ToString();
+                queryPart = oBoolQuery.ToString();
 
             }
-            //else if (QueryType == eQueryType.PHRASE_PREFIX)
-            //{
-            //    MultiMatchQuery multiMatch = GetMultiMatchQuery();
-            //    sQuery = multiMatch.ToString();
-            //}
-
-            filter.FilterSettings = filterParent;
 
             if (PageSize <= 0)
+            {
                 PageSize = MAX_RESULTS;
+            }
 
             int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
 
-            sbFilteredQuery.Append("{");
-            sbFilteredQuery.AppendFormat(" \"size\": {0}, ", PageSize);
-            sbFilteredQuery.AppendFormat(" \"from\": {0}, ", fromIndex);
+            filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
 
             bool bExact = (QueryType == eQueryType.EXACT);
 
@@ -284,25 +283,26 @@ namespace ElasticSearch.Searcher
             // Join return fields with commas
             if (ReturnFields.Count > 0)
             {
-                sbFilteredQuery.Append("\"fields\": [");
+                filteredQueryBuilder.Append("\"fields\": [");
 
-                sbFilteredQuery.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
 
-                sbFilteredQuery.Append("], ");
+                filteredQueryBuilder.Append("], ");
             }
 
-            sbFilteredQuery.AppendFormat("{0}, ", sSort);
-            sbFilteredQuery.Append(" \"query\": { \"filtered\": {");
+            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
-            if (!string.IsNullOrEmpty(sQuery))
+            if (!string.IsNullOrEmpty(queryPart))
             {
-                sbFilteredQuery.AppendFormat(" \"query\": {0},", sQuery.ToString());
+                filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
             }
-            sbFilteredQuery.Append(filter.ToString());
-            sbFilteredQuery.Append(" } } }");
-            query = sbFilteredQuery.ToString();
 
-            return query;
+            filteredQueryBuilder.Append(filterPart.ToString());
+            filteredQueryBuilder.Append(" } } }");
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
         }
 
         /// <summary>
