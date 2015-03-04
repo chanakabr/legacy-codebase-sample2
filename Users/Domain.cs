@@ -1287,8 +1287,27 @@ namespace Users
                 {
                     // the device is not associated to this domain. we need to validate it is not associated to different
                     // domain in the same group
-                    List<int> deviceDomainIds = DAL.DomainDal.GetDeviceDomains(Convert.ToInt32(device.m_id), m_nGroupID);
-                    if (deviceDomainIds != null && deviceDomainIds.Count > 0)
+
+                    bool deviceAlreadyExistsInOtherDomain = false;
+                    if (String.IsNullOrEmpty(device.m_id))
+                    {
+                        // check if the device exists by UDID
+                        if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+                    else
+                    {
+                        // check if the device exists by device ID
+                        List<int> deviceDomainIds = DAL.DomainDal.GetDeviceDomains(Convert.ToInt32(device.m_id), m_nGroupID);
+                        if (deviceDomainIds != null && deviceDomainIds.Count > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+
+                    if (deviceAlreadyExistsInOtherDomain)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;
