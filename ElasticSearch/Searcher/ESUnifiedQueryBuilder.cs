@@ -206,10 +206,21 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            ESTerm epgTypeTerm = new ESTerm(false)
+            {
+                Key = "_type",
+                Value = "epg"
+            };
+
+            // should be at least one of these three:
+            // group_id = parent groupd id
+            // permitted watch filter 
+            // or it is EPG
             FilterCompositeType oGroupWPComposite = new FilterCompositeType(CutWith.OR);
 
             oGroupWPComposite.AddChild(groupTerm);
             oGroupWPComposite.AddChild(permittedWatcFilter);
+            oGroupWPComposite.AddChild(epgTypeTerm);
 
             filterParent.AddChild(oGroupWPComposite);
             filterParent.AddChild(isActiveTerm);
