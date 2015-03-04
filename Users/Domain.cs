@@ -90,7 +90,7 @@ namespace Users
         protected int m_deviceLimitationModule;
 
         protected int m_totalNumOfDevices;
-         
+
         [JsonProperty()]
         protected int m_totalNumOfUsers;
 
@@ -491,7 +491,7 @@ namespace Users
                 this.m_sCoGuid = domain.m_sCoGuid;
                 this.m_sDescription = domain.m_sDescription;
                 this.m_sName = domain.m_sName;
-                this.m_totalNumOfDevices = domain.m_totalNumOfDevices;                
+                this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
                 this.m_UsersIDs = domain.m_UsersIDs;
                 if (m_UsersIDs != null)
                     this.m_totalNumOfUsers = this.m_UsersIDs.Count();
@@ -1038,24 +1038,30 @@ namespace Users
                 device.m_deviceName = sDeviceName;
                 DomainResponseStatus eStatus = AddDeviceToDomain(nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
 
-                if (eStatus == DomainResponseStatus.OK)
+                switch (eStatus)
                 {
-                    device.m_state = DeviceState.Activated;
-                    eRetVal = DeviceResponseStatus.OK;
-                }
-                else if (eStatus == DomainResponseStatus.DeviceAlreadyExists)
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
-                }
-                else
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
+                    case DomainResponseStatus.ExceededLimit:
+                        eRetVal = DeviceResponseStatus.ExceededLimit;
+                        break;
+
+                    case DomainResponseStatus.DeviceAlreadyExists:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
+
+                    case DomainResponseStatus.OK:
+                        device.m_state = DeviceState.Activated;
+                        eRetVal = DeviceResponseStatus.OK;
+                        break;
+
+                    default:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
                 }
             }
             else
             {
+                // device wasn't found
                 eRetVal = DeviceResponseStatus.DeviceNotExists;
-
                 device = new Device(m_nGroupID);
                 device.m_state = DeviceState.NotExists;
             }
@@ -1281,7 +1287,8 @@ namespace Users
                 {
                     // the device is not associated to this domain. we need to validate it is not associated to different
                     // domain in the same group
-                    if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                    List<int> deviceDomainIds = DAL.DomainDal.GetDeviceDomains(Convert.ToInt32(device.m_id), m_nGroupID);
+                    if (deviceDomainIds != null && deviceDomainIds.Count > 0)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;
@@ -2247,7 +2254,7 @@ namespace Users
                 else
                 {
                     // Pending master approval
-                    if (status == 3 && isDevActive == 3)    
+                    if (status == 3 && isDevActive == 3)
                     {
                         bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
                         if (updated)
