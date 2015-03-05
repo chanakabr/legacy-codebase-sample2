@@ -32,8 +32,25 @@ namespace Users
             return response;
         }
 
+        public static UserResponseObject SignOut(KalturaBaseUsers user, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, List<KeyValuePair> keyValueList)
+        {
+            UserResponseObject userResponse = new UserResponseObject();
+
+            // pre
+            userResponse = user.PreSignOut(ref siteGuid, ref groupId, ref sessionId, ref ip, ref deviceUdid, ref keyValueList);
+
+            // mid
+            userResponse = user.MidSignOut(siteGuid, groupId, sessionId, ip, deviceUdid);
+
+            // post
+            user.PostSignOut(ref userResponse, siteGuid, groupId, sessionId, ip, deviceUdid, ref keyValueList);
+
+            return userResponse;
+        }
+
         public static UserResponseObject AddNewUser(KalturaBaseUsers user, UserBasicData basicData, UserDynamicData dynamicData, string password, List<KeyValuePair> keyValueList, DomainInfo domainInfo = null)
         {
+
             UserResponseObject response = new UserResponseObject();
 
             // pre
