@@ -78,7 +78,20 @@ namespace Catalog
         [DataMember]
         public int m_nDomainId;
 
-        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, string sSiteGuid, int nDomainId = 0)
+        /// <summary>
+        /// Full constructor, including user Id and domain Id
+        /// </summary>
+        /// <param name="nPageSize"></param>
+        /// <param name="nPageIndex"></param>
+        /// <param name="sUserIP"></param>
+        /// <param name="nGroupID"></param>
+        /// <param name="oFilter"></param>
+        /// <param name="sSignature"></param>
+        /// <param name="sSignString"></param>
+        /// <param name="sSiteGuid"></param>
+        /// <param name="nDomainId"></param>
+        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, 
+            string sSignature, string sSignString, string sSiteGuid, int nDomainId = 0)
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
@@ -88,19 +101,24 @@ namespace Catalog
             m_sSignature = sSignature;
             m_sSignString = sSignString;
             m_sSiteGuid = sSiteGuid;
+            m_nDomainId = nDomainId;
         }
 
-        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, int nDomainId = 0)
+        /// <summary>
+        /// Constructor with requests that are not related to a specific user
+        /// </summary>
+        /// <param name="nPageSize"></param>
+        /// <param name="nPageIndex"></param>
+        /// <param name="sUserIP"></param>
+        /// <param name="nGroupID"></param>
+        /// <param name="oFilter"></param>
+        /// <param name="sSignature"></param>
+        /// <param name="sSignString"></param>
+        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
+            : this(nPageSize, nPageIndex,sUserIP,nGroupID,oFilter,sSignature,sSignString, string.Empty, 0)
         {
-            m_nGroupID = nGroupID;
-            m_sUserIP = sUserIP;
-            m_nPageSize = nPageSize;
-            m_nPageIndex = nPageIndex;
-            m_oFilter = oFilter;
-            m_sSignature = sSignature;
-            m_sSignString = sSignString;
-            m_sSiteGuid = string.Empty;
         }
+
         public BaseRequest()
         {
         }
