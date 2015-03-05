@@ -33,7 +33,7 @@ namespace TVPApiModule.Services
         }
 
         [Serializable]
-        public enum eDeviceRegistrationStatus { Success = 0, Invalid = 1, Error = 2 }
+        public enum eDeviceRegistrationStatus { Success = 0, Invalid = 1, Error = 2, ExceededLimit = 3 }
 
         [Serializable]
         public struct DeviceRegistration
