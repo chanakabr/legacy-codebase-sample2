@@ -75,8 +75,10 @@ namespace Catalog
         public Filter m_oFilter;
         [DataMember]
         public string m_sSiteGuid;
+        [DataMember]
+        public int m_nDomainId;
 
-        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, string sSiteGuid)
+        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, string sSiteGuid, int nDomainId = 0)
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
@@ -88,7 +90,7 @@ namespace Catalog
             m_sSiteGuid = sSiteGuid;
         }
 
-        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
+        public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, int nDomainId = 0)
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
