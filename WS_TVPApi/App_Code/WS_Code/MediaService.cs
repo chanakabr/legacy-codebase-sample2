@@ -3159,11 +3159,11 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
-        public List<AssetInfo> UnifiedSearch(InitializationObject initObj, int pageSize, int pageIndex,
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse UnifiedSearch(InitializationObject initObj, int pageSize, int pageIndex,
             bool exact, List<KeyValue> orList, List<KeyValue> andList, UnifiedQueryType searchType, 
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue)
         {
-            List<AssetInfo> res = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3171,23 +3171,29 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, searchType) 
+                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, searchType)
                     {
                         OrderBy = orderBy,
                         OrderDir = orderDir,
                         OrderValue = orderValue
 
-                    }.Execute() as List<AssetInfo>;
+                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.OK, string.Empty);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
+            {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-
-            return res;
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+            return response;
         }
 
     }

@@ -73,27 +73,43 @@ namespace TVPApiModule.Objects.Responses
 
         public File(Tvinci.Data.Loaders.TvinciPlatform.Catalog.FileMedia file)
         {
-            Id = file.m_nFileId;
-            Duration = file.m_nDuration;
-            Format = file.m_sFileFormat;
-            Url = file.m_sUrl;
-            BillingType = file.m_sBillingType;
-            CdnId = file.m_nCdnID;
-            PreProvider = new AdProvider(file.m_oPreProvider);
-            BreakProvider = new AdProvider(file.m_oBreakProvider);
-            OverlayProvider = new AdProvider(file.m_oOverlayProvider);
-            PostProvider = new AdProvider(file.m_oPostProvider);
-            Breakpoints = file.m_sBreakpoints;
-            Overlaypoints = file.m_sOverlaypoints;
-            IsPreSkipEnabled = file.m_bIsPreSkipEnabled;
-            IsPostSkipEnabled = file.m_bIsPostSkipEnabled;
-            CoGuid = file.m_sCoGUID;
-            Language = file.m_sLanguage;
-            IsDefaultLanguage = file.m_nIsDefaultLanguage == 1 ? true : false;            
-            AltUrl = file.m_sAltUrl;
-            AltCdnID = file.m_nAltCdnID;
-            AltCoGuid = file.m_sAltCoGUID;
-            MediaID = file.m_nMediaID;
+            if (file != null)
+            {
+                Id = file.m_nFileId;
+                Duration = file.m_nDuration;
+                Format = file.m_sFileFormat;
+                Url = file.m_sUrl;
+                BillingType = file.m_sBillingType;
+                CdnId = file.m_nCdnID;
+                Breakpoints = file.m_sBreakpoints;
+                Overlaypoints = file.m_sOverlaypoints;
+                IsPreSkipEnabled = file.m_bIsPreSkipEnabled;
+                IsPostSkipEnabled = file.m_bIsPostSkipEnabled;
+                CoGuid = file.m_sCoGUID;
+                Language = file.m_sLanguage;
+                IsDefaultLanguage = file.m_nIsDefaultLanguage == 1 ? true : false;
+                AltUrl = file.m_sAltUrl;
+                AltCdnID = file.m_nAltCdnID;
+                AltCoGuid = file.m_sAltCoGUID;
+                MediaID = file.m_nMediaID;
+
+                if (file.m_oPreProvider != null)
+                {
+                    PreProvider = new AdProvider(file.m_oPreProvider);
+                }
+                if (file.m_oBreakProvider != null)
+                {
+                    BreakProvider = new AdProvider(file.m_oBreakProvider);
+                }
+                if (file.m_oBreakProvider != null)
+                {
+                    OverlayProvider = new AdProvider(file.m_oBreakProvider);
+                }
+                if (file.m_oPostProvider != null)
+                {
+                    PostProvider = new AdProvider(file.m_oPostProvider);
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -7,6 +8,7 @@ using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -14,6 +16,8 @@ namespace TVPApiModule.CatalogLoaders
     {
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";
+
+        private static ILog logger = log4net.LogManager.GetLogger(typeof(APIUnifiedSearchLoader));
 
         public List<KeyValue> AndList { get; set; }
         public List<KeyValue> OrList { get; set; }
@@ -23,11 +27,15 @@ namespace TVPApiModule.CatalogLoaders
         public OrderDir OrderDir { get; set; }
         public string OrderValue { get; set; }
 
-        public APIUnifiedSearchLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex, bool exact, List<KeyValue> orList,
-            List<KeyValue> andList, UnifiedQueryType searchType)
+        public APIUnifiedSearchLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex, 
+            bool exact, List<KeyValue> orList, List<KeyValue> andList, UnifiedQueryType searchType)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             Platform = platform.ToString();
+            Exact = exact;
+            OrList = orList;
+            AndList = andList;
+            SearchType = searchType;
         }
 
         protected override void BuildSpecificRequest()
@@ -52,6 +60,9 @@ namespace TVPApiModule.CatalogLoaders
         {
             StringBuilder key = new StringBuilder();
 
+            // g = GroupId
+            // ps = PageSize
+            // pi = PageIndex
             // e = Exact
             // ob = OrderBy
             // od = OrderDir
@@ -60,7 +71,7 @@ namespace TVPApiModule.CatalogLoaders
             // al = AndList
             // ol = OrList
             
-            key.AppendFormat("Unified_search_st={0}_e={1}_ob={2}_od={3}", SearchType, Exact, OrderBy, OrderDir);
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}_e={4}_ob={5}_od={6}", GroupID, PageSize, PageIndex, SearchType, Exact, OrderBy, OrderDir);
             if (!string.IsNullOrEmpty(OrderValue))
                 key.AppendFormat("_ov={0}", OrderValue);
             if (AndList != null && AndList.Count > 0)
@@ -85,7 +96,8 @@ namespace TVPApiModule.CatalogLoaders
 
         protected virtual object Process()
         {
-            List<AssetInfo> result = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse result = null;
+            //List<AssetInfo> result = null;
 
             string cacheKey = GetLoaderCachekey();
 
@@ -96,10 +108,24 @@ namespace TVPApiModule.CatalogLoaders
 
             if (m_oResponse == null)// No Response from Catalog and no response from cache
             {
-                return null;
+                result = new Objects.Responses.UnifiedSearchResponse();
+                result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                return result;
             }
 
-            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+
+            if (response.status.Code != (int)eStatus.OK) // bad response
+            {
+                result = new Objects.Responses.UnifiedSearchResponse();
+                result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
+                return result;
+            }
+
+            result = new Objects.Responses.UnifiedSearchResponse();
+            //result.Status = new Status((int)m_oResponse.status.Code, m_oResponse.status.Message)
+            result.TotalItems = response.m_nTotalItems;
+
             if (response.searchResults!= null && response.searchResults.Count > 0)
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
@@ -114,11 +140,11 @@ namespace TVPApiModule.CatalogLoaders
                     GetAssetsFromCatalog(missingMediaIds, missingEpgIds, out medias, out epgs);
                 }
 
-                result = OrderResults(response.searchResults, medias, epgs);
+                result.Assets = OrderResults(response.searchResults, medias, epgs);
             }
             else
             {
-                result = new List<AssetInfo>();
+                result.Assets = new List<AssetInfo>();
             }
 
             return result;
@@ -212,7 +238,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (epgs != null && epgs.Count > 0)
                     {
-                        Log("Storing EPGs in Cache", medias);
+                        Log("Storing EPGs in Cache", epgs);
 
                         baseObjects = new List<BaseObject>();
                         epgs.ForEach(p => baseObjects.Add(p));
@@ -300,7 +326,23 @@ namespace TVPApiModule.CatalogLoaders
 
         protected override void Log(string message, object obj)
         {
-            throw new NotImplementedException();
+            StringBuilder sText = new StringBuilder();
+            sText.AppendLine(message);
+            if (obj != null)
+            {
+                if (obj is List<MediaObj>)
+                {
+                    sText.AppendFormat("APIUnifiedSearchLoader: GroupID = {0}, PageIndex = {1}, PageSize = {2}", GroupID, PageIndex, PageSize);
+                    sText.Append(CatalogHelper.IDsToString(((List<MediaObj>)obj).Select(m => m.m_nID).ToList(), "MediaIds"));
+                }
+                if (obj is List<ProgramObj>)
+                {
+                    sText.AppendFormat("APIUnifiedSearchLoader: GroupID = {0}, PageIndex = {1}, PageSize = {2}", GroupID, PageIndex, PageSize);
+                    sText.Append(CatalogHelper.IDsToString(((List<ProgramObj>)obj).Select(p => p.m_nID).ToList(), "EpgIds"));
+                }
+                   
+            }
+            logger.Debug(sText.ToString());
         }
     }
 

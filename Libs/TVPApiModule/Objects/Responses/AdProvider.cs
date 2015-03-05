@@ -16,8 +16,11 @@ namespace TVPApiModule.Objects.Responses
 
         public AdProvider(Tvinci.Data.Loaders.TvinciPlatform.Catalog.AdProvider adProvider)
         {
-            Id = adProvider.ProviderID;
-            Name = adProvider.ProviderName;
+            if (adProvider != null)
+            {
+                Id = adProvider.ProviderID;
+                Name = adProvider.ProviderName;
+            }
         }
     }
 }

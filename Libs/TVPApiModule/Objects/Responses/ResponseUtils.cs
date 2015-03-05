@@ -39,7 +39,7 @@ namespace TVPApiModule.Objects.Responses
 
         public static Status ReturnGeneralErrorStatus()
         {
-            return ReturnGeneralErrorStatus(null);
+            return ReturnGeneralErrorStatus(string.Empty);
         }
 
         public static Status ReturnGeneralErrorStatus(string message)
