@@ -313,14 +313,32 @@ namespace TVPApiServices
                     TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
                     DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
 
-                    if (device == null || device.m_oDeviceResponseStatus == DeviceResponseStatus.Error)
+                    if (device == null)
+                    {
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                    else if (device.m_oDeviceResponseStatus == DeviceResponseStatus.DuplicatePin || device.m_oDeviceResponseStatus == DeviceResponseStatus.DeviceNotExists)
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
+                    }
                     else
                     {
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.m_oDevice.m_deviceUDID;
+                        switch (device.m_oDeviceResponseStatus)
+                        {
+                            case DeviceResponseStatus.UnKnown:
+                            case DeviceResponseStatus.Error:
+                                deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
+                                break;
+                            case DeviceResponseStatus.DuplicatePin:
+                            case DeviceResponseStatus.DeviceNotExists:
+                                deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
+                                break;
+                            case DeviceResponseStatus.ExceededLimit:
+                                deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.ExceededLimit;
+                                break;
+                            case DeviceResponseStatus.OK:
+                                deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
+                                deviceRes.UDID = device.m_oDevice.m_deviceUDID;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
                 catch (Exception ex)
