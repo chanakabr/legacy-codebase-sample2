@@ -151,6 +151,7 @@
     <Compile Include="Encrypters\SHA256Encrypter.cs" />
     <Compile Include="Encrypters\SHA384Encrypter.cs" />
     <Compile Include="SSOKdgImplementation.cs" />
+    <Compile Include="SSOMCImplementation.cs" />
     <Compile Include="SSOOAuthImplementation.cs" />
     <Compile Include="ISSOProvider.cs" />
     <Compile Include="SSOOSamlImplementation.cs" />

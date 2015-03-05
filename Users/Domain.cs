@@ -91,6 +91,7 @@ namespace Users
 
         protected int m_totalNumOfDevices;
 
+        [JsonProperty()]
         protected int m_totalNumOfUsers;
 
         protected int m_minPeriodId;
@@ -491,8 +492,10 @@ namespace Users
                 this.m_sDescription = domain.m_sDescription;
                 this.m_sName = domain.m_sName;
                 this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
-                this.m_totalNumOfUsers = domain.m_totalNumOfUsers;
                 this.m_UsersIDs = domain.m_UsersIDs;
+                if (m_UsersIDs != null)
+                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();
+
                 return true;
             }
             catch (Exception)
@@ -1035,24 +1038,30 @@ namespace Users
                 device.m_deviceName = sDeviceName;
                 DomainResponseStatus eStatus = AddDeviceToDomain(nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
 
-                if (eStatus == DomainResponseStatus.OK)
+                switch (eStatus)
                 {
-                    device.m_state = DeviceState.Activated;
-                    eRetVal = DeviceResponseStatus.OK;
-                }
-                else if (eStatus == DomainResponseStatus.DeviceAlreadyExists)
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
-                }
-                else
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
+                    case DomainResponseStatus.ExceededLimit:
+                        eRetVal = DeviceResponseStatus.ExceededLimit;
+                        break;
+
+                    case DomainResponseStatus.DeviceAlreadyExists:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
+
+                    case DomainResponseStatus.OK:
+                        device.m_state = DeviceState.Activated;
+                        eRetVal = DeviceResponseStatus.OK;
+                        break;
+
+                    default:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
                 }
             }
             else
             {
+                // device wasn't found
                 eRetVal = DeviceResponseStatus.DeviceNotExists;
-
                 device = new Device(m_nGroupID);
                 device.m_state = DeviceState.NotExists;
             }
@@ -1278,7 +1287,27 @@ namespace Users
                 {
                     // the device is not associated to this domain. we need to validate it is not associated to different
                     // domain in the same group
-                    if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+
+                    bool deviceAlreadyExistsInOtherDomain = false;
+                    if (String.IsNullOrEmpty(device.m_id))
+                    {
+                        // check if the device exists by UDID
+                        if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+                    else
+                    {
+                        // check if the device exists by device ID
+                        List<int> deviceDomainIds = DAL.DomainDal.GetDeviceDomains(Convert.ToInt32(device.m_id), m_nGroupID);
+                        if (deviceDomainIds != null && deviceDomainIds.Count > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+
+                    if (deviceAlreadyExistsInOtherDomain)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;
@@ -2244,7 +2273,7 @@ namespace Users
                 else
                 {
                     // Pending master approval
-                    if (status == 3 && isDevActive == 3)    
+                    if (status == 3 && isDevActive == 3)
                     {
                         bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
                         if (updated)

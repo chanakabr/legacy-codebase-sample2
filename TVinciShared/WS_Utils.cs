@@ -457,8 +457,10 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-                if (result == null)
-                    throw new NullReferenceException("missing key");
+                if (string.IsNullOrEmpty(result))
+                {
+                    throw new Exception("miising key");
+                }
             }
             catch (Exception ex)
             {
