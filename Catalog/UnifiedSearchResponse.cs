@@ -18,10 +18,14 @@ namespace Catalog
         /// </summary>
         [DataMember]
         public List<UnifiedSearchResult> searchResults;
-        
+
+        [DataMember]
+        public ApiObjects.Response.Status status;
+
         public UnifiedSearchResponse()
         {
             searchResults = new List<UnifiedSearchResult>();
+            status = new ApiObjects.Response.Status();
         }
     }
 }

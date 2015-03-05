@@ -1,9 +1,11 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Web;
 
 namespace Catalog
 {
@@ -72,33 +74,68 @@ namespace Catalog
         /// <returns></returns>
         public BaseResponse GetResponse(BaseRequest baseRequest)
         {
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
+            
             try
             {
                 UnifiedSearchRequest request = baseRequest as UnifiedSearchRequest;
-                UnifiedSearchResponse response = new UnifiedSearchResponse();
 
                 if (request == null)
-                    throw new ArgumentNullException("request object is null or Required variables is null");
-
-                CheckSignature(baseRequest);
-
-                int nTotalItems = 0;
-                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref nTotalItems);
-
-                response.m_nTotalItems = nTotalItems;
-
-                if (nTotalItems > 0)
                 {
-                    response.searchResults = assetsResults;
+                    throw new ArgumentNullException("request object is null or Required variables is null");
                 }
+                // Request is bad if there is no condition to query by; or the group is 0
+                else if (((request.andList == null || request.andList.Count == 0) &&
+                       (request.orList == null || request.orList.Count == 0)) ||
+                       request.m_nGroupID == 0)
+                {
+                    response.status.Code = (int)eResponseStatus.BadSearchRequest;
+                    response.status.Message = "Invalid request parameters";
+                }
+                else
+                {
 
-                return (BaseResponse)response;
+                    CheckSignature(baseRequest);
+
+                    int totalItems = 0;
+                    List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems);
+
+                    response.m_nTotalItems = totalItems;
+
+                    if (totalItems > 0)
+                    {
+                        response.searchResults = assetsResults;
+                    }
+
+                    response.status.Code = (int)eResponseStatus.OK;
+                }
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Error - GetResponse", string.Format("Exception: message = {0}, ST = {1}", ex.Message, ex.StackTrace), this.GetType().Name);
-                throw ex;
+
+                if (ex is HttpException)
+                {
+                    if ((ex as HttpException).GetHttpCode() == 404)
+                    {
+                        response.status.Code = (int)eResponseStatus.IndexMissing;
+                        response.status.Message = "Data not index for this group";
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Got error with Elasticsearch";
+                    }
+                }
+                else
+                {
+                    response.status.Code = (int)eResponseStatus.Error;
+                    response.status.Message = "Search failed";
+                }
             }
+
+            return (BaseResponse)response;
+
         }
 
         #endregion

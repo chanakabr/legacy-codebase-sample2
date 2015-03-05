@@ -23,6 +23,9 @@ namespace Catalog
 
         public static readonly string ES_BASE_ADDRESS = Utils.GetWSURL("ES_URL");
         public const int STATUS_OK = 200;
+        public const int STATUS_NOT_FOUND = 404;
+        public const int STATUS_INTERNAL_ERROR = 500;
+
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
@@ -907,40 +910,40 @@ namespace Catalog
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
             }
 
-            // ES index is on pareant group id
+            // ES index is on parent group id
             CatalogCache catalogCache = CatalogCache.Instance();
-            int nParentGroupID = catalogCache.GetParentGroup(unifiedSearchDefinitions.groupId);
+            int parentGroupId = catalogCache.GetParentGroup(unifiedSearchDefinitions.groupId);
 
             // In case something failed here, use the group that was sent
-            if (nParentGroupID == 0)
+            if (parentGroupId == 0)
             {
-                nParentGroupID = unifiedSearchDefinitions.groupId;
+                parentGroupId = unifiedSearchDefinitions.groupId;
             }
 
             queryParser.QueryType = (unifiedSearchDefinitions.isExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
-            string sQuery = queryParser.BuildSearchQueryString();
+            string requestBody = queryParser.BuildSearchQueryString();
 
-            if (!string.IsNullOrEmpty(sQuery))
+            if (!string.IsNullOrEmpty(requestBody))
             {
-                int nStatus = 0;
+                int httpStatus = 0;
 
                 //string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, unifiedSearchDefinitions.m_oLangauge);
 
-                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.queryType, nParentGroupID);
+                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.queryType, parentGroupId);
                 string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
 
-                string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref httpStatus, string.Empty, string.Empty, requestBody, true);
 
-                if (nStatus == STATUS_OK)
+                if (httpStatus == STATUS_OK)
                 {
-                    int nTotalItems = 0;
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref nTotalItems);
+                    int totalItems = 0;
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
                         searchResults.m_resultIDs = new List<SearchResult>();
-                        searchResults.n_TotalItems = nTotalItems;
+                        searchResults.n_TotalItems = totalItems;
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
@@ -956,32 +959,36 @@ namespace Catalog
                             order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
                             order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                         {
-                            List<int> lAssetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
+                            List<int> assetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
 
-                            Dictionary<int, UnifiedSearchResult> dicItems = searchResults.m_resultIDs.ToDictionary(item => item.assetID, item => item as UnifiedSearchResult);
+                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = searchResults.m_resultIDs.ToDictionary(item => item.assetID, item => item as UnifiedSearchResult);
                             searchResults.m_resultIDs.Clear();
 
                             int nValidNumberOfMediasRange = nPageSize;
 
-                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lAssetIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
                             {
                                 if (nValidNumberOfMediasRange > 0)
                                 {
-                                    lAssetIds = lAssetIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                    assetIds = assetIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
                                 }
                             }
 
-                            foreach (int id in lAssetIds)
+                            foreach (int id in assetIds)
                             {
                                 UnifiedSearchResult tempResult;
 
-                                if (dicItems.TryGetValue(id, out tempResult))
+                                if (idToResultDictionary.TryGetValue(id, out tempResult))
                                 {
                                     searchResults.m_resultIDs.Add(tempResult);
                                 }
                             }
                         }
                     }
+                }
+                else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
+                {
+                    throw new System.Web.HttpException(httpStatus, queryResultString);
                 }
             }
 

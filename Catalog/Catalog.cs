@@ -661,31 +661,9 @@ namespace Catalog
 
             searchDefinitions = BuildUnifiedSearchObject(request);
 
-            searchDefinitions.pageIndex = request.m_nPageIndex;
-            searchDefinitions.pageSize = request.m_nPageSize;
-
             if (searcher != null)
             {
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                Group groupInCache = groupManager.GetGroup(nParentGroupID);
-
-                if (groupInCache != null)
-                {
-                    LanguageObj objLang = null;
-
-                    if (request.m_oFilter == null)
-                    {
-                        objLang = groupInCache.GetGroupDefaultLanguage();
-                    }
-                    else
-                    {
-                        objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
-                    }
-
-                    searchDefinitions.langauge = objLang;
-                }
+                SetLanguageDefinition(request, searchDefinitions);
 
                 SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
 
@@ -701,6 +679,35 @@ namespace Catalog
             }
 
             return searchResultsList;
+        }
+
+        /// <summary>
+        /// Sets the language parameter of a search request
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="searchDefinitions"></param>
+        private static void SetLanguageDefinition(UnifiedSearchRequest request, UnifiedSearchDefinitions searchDefinitions)
+        {
+            GroupManager groupManager = new GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup(request.m_nGroupID);
+            Group groupInCache = groupManager.GetGroup(parentGroupId);
+
+            if (groupInCache != null)
+            {
+                LanguageObj objLang = null;
+
+                if (request.m_oFilter == null)
+                {
+                    objLang = groupInCache.GetGroupDefaultLanguage();
+                }
+                else
+                {
+                    objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
+                }
+
+                searchDefinitions.langauge = objLang;
+            }
         }
 
         /// <summary>
@@ -766,6 +773,9 @@ namespace Catalog
             definitions.isExact = request.isExact;
             definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
             definitions.queryType = request.queryType;
+
+            definitions.pageIndex = request.m_nPageIndex;
+            definitions.pageSize = request.m_nPageSize;
 
             return definitions;
         }

@@ -45,6 +45,8 @@ namespace ApiObjects.Response
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
-        ConcurrencyLimitation = 4001
+        ConcurrencyLimitation = 4001,
+        BadSearchRequest = 4002,
+        IndexMissing = 4003
     }
 }

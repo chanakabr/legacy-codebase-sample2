@@ -229,12 +229,7 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        public bool bNot
-        {
-            get;
-            set;
-        }
-        public float Boost
+        public bool isNot
         {
             get;
             set;
@@ -246,7 +241,6 @@ namespace ElasticSearch.Searcher
         public bool IsEmpty()
         {
             return string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key);
-
         }
 
         /// <summary>
@@ -256,31 +250,29 @@ namespace ElasticSearch.Searcher
         public override string ToString()
         {
             if (this.IsEmpty())
+            {
                 return string.Empty;
+            }
 
             StringBuilder sb = new StringBuilder();
 
-            if (bNot)
-                sb.Append("{\"not\":");
-
-            sb.Append("{\"prefix\":{");
-            sb.AppendFormat("\"{0}\":", Key);
-            sb.Append("{");
-
-            sb.AppendFormat("\"value\":\"{0}\"", Value);
-
-            if (Boost > 0.0f)
+            if (isNot)
             {
-                sb.AppendFormat(",\"boost\":{0}", Boost);
+                sb.Append("{\"not\":");
             }
 
-            sb.Append("}}}");
+            sb.Append("{\"prefix\":{");
+            sb.AppendFormat("\"{0}\": \"{1}\"", Key, Value);
+            sb.Append("}}");
 
-            if (bNot)
+            if (isNot)
+            {
                 sb.Append("}");
+            }
 
             return sb.ToString();      
         }
+
         #endregion
     }
 
