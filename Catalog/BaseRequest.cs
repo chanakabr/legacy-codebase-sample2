@@ -76,7 +76,7 @@ namespace Catalog
         [DataMember]
         public string m_sSiteGuid;
         [DataMember]
-        public int m_nDomainId;
+        public int domainId;
 
         /// <summary>
         /// Full constructor, including user Id and domain Id
@@ -91,7 +91,7 @@ namespace Catalog
         /// <param name="sSiteGuid"></param>
         /// <param name="nDomainId"></param>
         public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, 
-            string sSignature, string sSignString, string sSiteGuid, int nDomainId = 0)
+            string sSignature, string sSignString, string sSiteGuid, int nDomainId)
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
@@ -101,7 +101,7 @@ namespace Catalog
             m_sSignature = sSignature;
             m_sSignString = sSignString;
             m_sSiteGuid = sSiteGuid;
-            m_nDomainId = nDomainId;
+            domainId = nDomainId;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Catalog
         /// <param name="sSignature"></param>
         /// <param name="sSignString"></param>
         public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
-            : this(nPageSize, nPageIndex,sUserIP,nGroupID,oFilter,sSignature,sSignString, string.Empty, 0)
+            : this(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, string.Empty, 0)
         {
         }
 

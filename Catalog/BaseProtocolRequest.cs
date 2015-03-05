@@ -31,8 +31,9 @@ namespace Catalog
         protected abstract int GetProtocolMaxResultsSize();
         #endregion
 
-        public BaseProtocolRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, string sSiteGuid)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid)
+        public BaseProtocolRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, 
+            Filter oFilter, string sSignature, string sSignString, string sSiteGuid, int nDomainId)
+            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, nDomainId)
         {            
         }
 

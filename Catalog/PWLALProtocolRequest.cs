@@ -43,8 +43,10 @@ namespace Catalog
             m_nSocialPlatform = 1;
         }
 
-        public PWLALProtocolRequest(int nMediaID, int nSocialAction, int nSocialPlatform, int nMediaFileID, int nCountryID, string sSiteGuide, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuide)
+        public PWLALProtocolRequest(int nMediaID, int nSocialAction, int nSocialPlatform, int nMediaFileID, 
+            int nCountryID, string sSiteGuide, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, 
+            string sUserIP, Filter oFilter, string sSignature, string sSignString, int nDomainId)
+            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuide, nDomainId)
         {
             m_sSiteGuid = sSiteGuide;
             m_nMediaID = nMediaID;
