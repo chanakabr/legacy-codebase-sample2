@@ -32,7 +32,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         }
         public override string GetLoaderCachekey()
         {
-            return string.Format("personal_recommended_siteguid{0}_index{1}_size{2}", SiteGuid, PageIndex, PageSize);
+            return string.Format("personal_recommended_siteguid{0}_index{1}_size{2}_group{3}", SiteGuid, PageIndex, PageSize, GroupID);
         }
 
         protected override void Log(string message, object obj)

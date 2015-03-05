@@ -76,10 +76,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public override string GetLoaderCachekey()
         {
-            return string.Format("bundle_media_bundleId{0}mediaType{1}orderDir{2}orderBy{3}orderValue{4}index{5}size{6}", 
+                
+            return string.Format("bundle_media_bundleId{0}mediaType{1}orderDir{2}orderBy{3}orderValue{4}index{5}size{6}group{7}", 
                                     bundleId, mediaType, orderObj.m_eOrderDir, orderObj.m_eOrderBy, 
                                     string.IsNullOrEmpty(orderObj.m_sOrderValue) ? string.Empty : orderObj.m_sOrderValue, 
-                                    PageIndex, PageSize);
+                                    PageIndex, PageSize, GroupID);
         }
     }
 }

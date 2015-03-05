@@ -43,7 +43,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public override string GetLoaderCachekey()
         {
-            return string.Format("social_siteguid{0}_action{1}_platform{2}_index{3}_size{4}", SiteGuid, SocialAction, SocialPlatform, PageIndex, PageSize);
+            return string.Format("social_siteguid{0}_action{1}_platform{2}_index{3}_size{4}_group_{5}", SiteGuid, SocialAction, SocialPlatform, PageIndex, PageSize, GroupID);
         }
 
         protected override void Log(string message, object obj)

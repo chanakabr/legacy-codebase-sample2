@@ -77,7 +77,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             //OrderMetaName = omn
 
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("subscription_id{0}_index{1}_size{2}", SubscriptionID, PageIndex, PageSize);
+            key.AppendFormat("subscription_id{0}_index{1}_size{2}_group{3}", SubscriptionID, PageIndex, PageSize, GroupID);
             if (MediaTypes != null && MediaTypes.Count > 0)
                 key.AppendFormat("_mt={0}", string.Join(",", MediaTypes.Select(type => type.ToString()).ToArray()));
             key.AppendFormat("ob={0}od={1}", OrderBy, OrderDir);

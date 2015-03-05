@@ -13,6 +13,7 @@
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="Iservice_InjestAdiData_InputMessage">
