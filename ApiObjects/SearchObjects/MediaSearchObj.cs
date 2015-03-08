@@ -89,6 +89,9 @@ namespace ApiObjects.SearchObjects
         public List<string> m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt;
         public List<string> m_lOrMediaNotInAnyOfTheseChannelsDefinitions;
 
+
+        public List<int> regionIds;
+
         public MediaSearchObj()
         {
             m_sMediaTypes = string.Empty;
@@ -116,6 +119,8 @@ namespace ApiObjects.SearchObjects
 
             m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = new List<string>();
             m_lOrMediaNotInAnyOfTheseChannelsDefinitions = new List<string>();
+
+            regionIds = new List<int>();
         }
     }
 
