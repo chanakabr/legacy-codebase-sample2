@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using TVinciShared;
@@ -74,7 +75,7 @@ namespace Users
             {
                 Logger.Logger.Log("GetMCUserProfile", string.Format("password:{0}, clientIp:{1}", pass, clientIP), "MC-SSO");
                 //MCUserProfile kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
-                
+
                 string ssoMcUrl = TCMClient.Settings.Instance.GetValue<string>("MCAuthURL");
 
                 if (string.IsNullOrEmpty(ssoMcUrl))
@@ -113,13 +114,13 @@ namespace Users
                 if (profJson.ToLower().Contains("api failed") && dUserInfo.Count < 3)
                 {
                     Logger.Logger.Log("MC-SSO", "Failed to retrieve user profile from MCAuth", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
-                    return userObj;                       
+                    return userObj;
                 }
 
                 if (profJson.ToLower().Contains("invalid token") && dUserInfo.Count < 3)
                 {
                     Logger.Logger.Log("MC-SSO", "Invalid Token", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
-                    return userObj;                       
+                    return userObj;
                 }
 
                 //Logger.Logger.Log("MC-SSO", string.Format("User info dict count: {0}", dUserInfo.Count), "MC-SSO");
@@ -132,17 +133,17 @@ namespace Users
                         dUserInfo[key] = string.Empty;
                     }
 
-                    if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
-                        (!string.IsNullOrEmpty(dUserInfo[key])))
-                    {
-                        DateTime birthdate = new DateTime(2000, 1, 1);
-                        if (DateTime.TryParse(dUserInfo[key], out birthdate))
-                        {
-                            dUserInfo["BirthYear"] = birthdate.Year.ToString();
-                            dUserInfo["BirthMonth"] = birthdate.Month.ToString();
-                            dUserInfo["BirthDay"] = birthdate.Day.ToString();
-                        }
-                    }
+                    //if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
+                    //    (!string.IsNullOrEmpty(dUserInfo[key])))
+                    //{
+                    //    DateTime birthdate = new DateTime(2000, 1, 1);
+                    //    if (DateTime.TryParse(dUserInfo[key], out birthdate))
+                    //    {
+                    //        dUserInfo["BirthYear"] = birthdate.Year.ToString();
+                    //        dUserInfo["BirthMonth"] = birthdate.Month.ToString();
+                    //        dUserInfo["BirthDay"] = birthdate.Day.ToString();
+                    //    }
+                    //}
                 }
 
                 // If does not exist, new user will be created
@@ -157,7 +158,7 @@ namespace Users
                 {
                     Logger.Logger.Log("MC-SSO", "User init error", "MC-SSO");
                     userObj.m_RespStatus = ResponseStatus.ErrorOnInitUser;
-                    return userObj;                       
+                    return userObj;
                 }
 
                 int userID = int.Parse(userObj.m_user.m_sSiteGUID);
@@ -186,21 +187,25 @@ namespace Users
                                 Logger.Logger.Log("Error adding user to domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC - SSO");
                             }
                         }
+                        // User has domain but with different cougid 
+                        else if (userObj.m_RespStatus == ResponseStatus.OK)
+                        {
+                            if (userObj.m_user.m_domianID != domain.m_oDomain.m_nDomainID)
+                            {
+                                bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
+                                if (!changedCoguid)
+                                {
+                                    userObj.m_RespStatus = ResponseStatus.InternalError;
+                                    Logger.Logger.Log("Error updating domain CoGuid", string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID), "MC - SSO");
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        // User has domain but with different cougid 
-                        if (userObj.m_RespStatus == ResponseStatus.OK)
-                        {
-                            bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
-                            if (!changedCoguid)
-                            {
-                                userObj.m_RespStatus = ResponseStatus.InternalError;
-                                Logger.Logger.Log("Error updating domain CoGuid", string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID), "MC - SSO");
-                            }
-                        }
-                            // User has no domain
-                        else if ((domainImpl != null) && (userObj.m_RespStatus == ResponseStatus.UserWithNoDomain))
+                        // User has no domain
+                        if ((domainImpl != null) && domain != null && (domain.m_oDomainResponseStatus != DomainResponseStatus.OK) &&
+                            userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
                         {
                             DomainResponseObject domainResponseObject =
                                 domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid);
@@ -214,7 +219,7 @@ namespace Users
                             else
                             {
                                 Logger.Logger.Log("Error creating domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC-SSO");
-                            }   
+                            }
                         }
                     }
                 }
@@ -225,7 +230,7 @@ namespace Users
             }
 
             return userObj;
-            
+
         }
 
         private UserResponseObject GetUserProfile(Dictionary<string, string> dUserInfo)
@@ -260,7 +265,7 @@ namespace Users
                 {
                     userInfo = base.AddNewUser(userBasic, userDynamic, sPass);
 
-                    userCreated = ((userInfo.m_RespStatus == ResponseStatus.OK) && 
+                    userCreated = ((userInfo.m_RespStatus == ResponseStatus.OK) &&
                                    (userInfo.m_user != null) &&
                                    (!string.IsNullOrEmpty(userInfo.m_user.m_sSiteGUID)));
                 }
@@ -278,7 +283,7 @@ namespace Users
                         Utils.SetPassword(sPass, ref userBasic, m_nGroupID);
                         userBasic.Save(nUserID);
                         userDynamic.Save(nUserID);
-                        
+
                         userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
                     }
                 }
@@ -290,33 +295,46 @@ namespace Users
                     uo.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 }
             }
-            else
+            else if (userInfo.m_user != null && userInfo.m_user.m_oBasicData != null)
             {
-                //get the dynamic data from yes and update it in DB
-                UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
-                //Logger.Logger.Log("GetUserProfile", "Existing user: Dynamic data - " + userDynamic.ToJSON(), "Users");
-
-                List<ApiObjects.KeyValuePair> lKeyValue = new List<ApiObjects.KeyValuePair>();
-                foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
+                try
                 {
-                    if (container == null)
+                    //handle basic data
+                    UserBasicData userBasicData = GetUserBasicData(dUserInfo);
+                    UpdateUserBasicData(userInfo, userBasicData);
+
+                    //get the dynamic data from and update it in DB
+                    UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
+                    Logger.Logger.Log("GetUserProfile", "Existing user: Dynamic data - " + userDynamic.ToJSON(), "Users");
+
+                    // fill the user data with values already exsits 
+                    List<ApiObjects.KeyValuePair> lKeyValue = new List<ApiObjects.KeyValuePair>();
+                    foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
                     {
-                        continue;
+                        if (container == null)
+                        {
+                            continue;
+                        }
+
+                        ApiObjects.KeyValuePair kvp = new ApiObjects.KeyValuePair(container.m_sDataType, (container.m_sValue != null ? container.m_sValue : string.Empty));
+
+                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");
+
+                        if (!string.IsNullOrEmpty(kvp.value))
+                        {
+                            lKeyValue.Add(kvp);
+                        }
+                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");
                     }
 
-                    ApiObjects.KeyValuePair kvp = new ApiObjects.KeyValuePair(container.m_sDataType, (container.m_sValue != null ? container.m_sValue : string.Empty));
-                    lKeyValue.Add(kvp);
+                    // Then save only updated dynamic data
+                    SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
                 }
-
-                //Logger.Logger.Log("GetUserProfile", "Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, "Users");
-
-                // First remove existing dynamic data
-                UserDynamicData emptyDynamic = new UserDynamicData();
-                emptyDynamic.m_sUserData = new UserDynamicDataContainer[] { };
-                userInfo.m_user.UpdateDynamicData(emptyDynamic, m_nGroupID);
-
-                // Then save updated dynamic data
-                SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);   
+                catch (Exception)
+                {
+                    Logger.Logger.Log("GetUserProfile", "Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, "Users");
+                    throw;
+                }
             }
 
             uo = userInfo;
@@ -330,66 +348,24 @@ namespace Users
             Utils.GetContentInfo(ref ubd.m_sUserName, "UserName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sPassword, "UserName", dUserData);
 
-            Utils.GetContentInfo(ref ubd.m_sEmail, "OriginatingEmailId", dUserData);
+            Utils.GetContentInfo(ref ubd.m_sEmail, "UserName", dUserData);
             Utils.GetContentInfo(ref ubd.m_CoGuid, "Id", dUserData);
 
             Utils.GetContentInfo(ref ubd.m_sFirstName, "FirstName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sLastName, "LastName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sPhone, "HomePhone", dUserData);
-            
 
             Utils.GetContentInfo(ref ubd.m_sCity, "City", dUserData);
             Utils.GetContentInfo(ref ubd.m_sZip, "PostalCode", dUserData);
-
-            string sCountry = string.Empty;
-            Utils.GetContentInfo(ref sCountry, "Country", dUserData);
-            ubd.m_Country = new Country();
-            if (!string.IsNullOrEmpty(sCountry))
-            {
-                ubd.m_Country.InitializeByName(sCountry);
-            }
-
-            string state = string.Empty;
-            Utils.GetContentInfo(ref state, "State", dUserData);
-            ubd.m_State = new State();
-            if (!string.IsNullOrEmpty(state) && ubd.m_Country.m_nObjecrtID > 0)
-            {
-                ubd.m_State.InitializeByName(state, ubd.m_Country.m_nObjecrtID);
-            }
-
-            string sBlock = string.Empty;
-            string street = string.Empty;
-            string sBuilding = string.Empty;
-            string sUnit = string.Empty;
-            Utils.GetContentInfo(ref sBlock, "Block", dUserData);
-            Utils.GetContentInfo(ref street, "Street", dUserData);
-            Utils.GetContentInfo(ref sBuilding, "Building", dUserData);
-            Utils.GetContentInfo(ref sUnit, "Unit", dUserData);
-
-            if (!string.IsNullOrEmpty(sBlock))
-            {
-                ubd.m_sAddress = string.Format("Blk {0} ", sBlock);
-            }
-            if (!string.IsNullOrEmpty(street))
-            {
-                ubd.m_sAddress += street + " ";
-            }
-            if (!string.IsNullOrEmpty(sUnit))
-            {
-                ubd.m_sAddress += "# " + sUnit + " ";
-            }
-            if (!string.IsNullOrEmpty(sBuilding))
-            {
-                ubd.m_sAddress += sBuilding;
-            }
 
             return ubd;
         }
 
         private List<string> _dynamicParams = new List<string>()
         {
-            "Nationality", "IdentificationNumber", "BirthYear", "BirthDate", "Occupation", "Gender", "Ethnicity", "MaritalStatus", "MobilePhone", "Income", "AccountStatus", "Xinmsn_English", "Xinmsn_Chinese",
-            "MEClub", "MERadio", "OktoAsia", "CNA_MailPref", "CreatedDate", "VizPro", "SingaporeMediaAcademy", "Avatar"
+            "Nationality", "IdentificationNumber", "BirthYear", "BirthDate", "Occupation", "Gender", "Ethnicity", "MaritalStatus", "MobilePhone", "Income", 
+            "AccountStatus", "Xinmsn_English", "Xinmsn_Chinese", "MEClub", "MERadio", "OktoAsia", "CNA_MailPref", "CreatedDate", "VizPro", "SingaporeMediaAcademy", 
+            "Avatar"
         };
 
         private UserDynamicData GetUserDynamicData(Dictionary<string, string> dUserData)
@@ -399,116 +375,179 @@ namespace Users
             List<string> lDynamicParams = _dynamicParams;
             string sDynamicKeys = TCMClient.Settings.Instance.GetValue<string>("MCAuthDynamicKeys");
 
-            if (!string.IsNullOrEmpty(sDynamicKeys))
+            if (string.IsNullOrEmpty(sDynamicKeys))
             {
-                lDynamicParams = sDynamicKeys.Trim().Split(new char[] {',', ';', '|'}, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                if (lDynamicParams == null || lDynamicParams.Count == 0)
-                {
-                    lDynamicParams = _dynamicParams;
-                }
-
-                lDynamicParams = lDynamicParams.Select(k => k.Trim()).ToList();
+                return udd;
+            }
+            else
+            {
+                lDynamicParams = sDynamicKeys.Trim().Split(new char[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             }
 
-            udd.m_sUserData = new UserDynamicDataContainer[lDynamicParams.Count];
+            List<UserDynamicDataContainer> uddc = new List<UserDynamicDataContainer>();
 
-            for (int i = 0; i < lDynamicParams.Count; ++i)
+            foreach (string key in lDynamicParams)
             {
-                UserDynamicDataContainer dynamicData = new UserDynamicDataContainer();
-
-                if (dUserData.ContainsKey(lDynamicParams[i]))
+                switch (key)
                 {
-                    dynamicData.m_sDataType = lDynamicParams[i];
-                    dynamicData.m_sValue = dUserData[lDynamicParams[i]];
-                    udd.m_sUserData[i] = dynamicData;
+                    case "Unit": // The format are “#xx-yy” or “xx-yy” or “zz”
+                        {
+                            string unit = GetContentInfo(key, dUserData);
+                            if (!string.IsNullOrEmpty(unit))
+                            {
+                                string[] splitUnit = unit.Replace("#", "").Split('-');
+                                int UnitEndNumberIndex = 0;
+                                if (splitUnit.Length == 2)
+                                {
+                                    AddDDToList("UnitStartNumber", splitUnit[0], ref uddc);
+                                    UnitEndNumberIndex = 1;
+                                }
+
+                                AddDDToList("UnitEndNumber", splitUnit[UnitEndNumberIndex], ref uddc);
+                            }
+                            break;
+                        }
+
+                    case "BirthDate": // format of BirthDate is "yyyy-MM-ddTHH:mm:ss”
+                        {
+                            string BirthDate = GetContentInfo(key, dUserData);
+                            try
+                            {
+                                DateTime birthDate = DateTime.ParseExact(BirthDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+
+                                AddDDToList("BirthYear", birthDate.Year.ToString(), ref uddc);
+                                AddDDToList("BirthMonth", birthDate.Month.ToString(), ref uddc);
+                                AddDDToList("BirthDay", birthDate.Day.ToString(), ref uddc);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
+                            break;
+                        }
+
+                    case "FirstName":
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList("NickName", val, ref uddc);
+                            break;
+                        }
+
+                    case "IdentificationNumber":
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList("NricFin", val, ref uddc);
+                            break;
+                        }
+
+                    case "Block":
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList("BlockHouseNumber", val, ref uddc);
+                            break;
+                        }
+                    
+                    case "Building":
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList("BuildingName", val, ref uddc);
+                            break;
+                        }
+
+                    case "Street":
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList("StreetName", val, ref uddc);
+                            break;
+                        }
+
+                    default:
+                        {
+                            string val = GetContentInfo(key, dUserData);
+                            AddDDToList(key, val, ref uddc);
+                            break;
+                        }
                 }
+            }
+
+            if (uddc.Count > 0)
+            {
+                udd.m_sUserData = uddc.ToArray<UserDynamicDataContainer>();
             }
 
             return udd;
         }
+
+        private void UpdateUserBasicData(UserResponseObject userInfo, UserBasicData newUserData)
+        {
+            UserBasicData oldUserData = userInfo.m_user.m_oBasicData;
+
+            bool isBasicChanged = false;
+            if (!oldUserData.m_sUserName.Equals(newUserData.m_sUserName))
+            {
+                oldUserData.m_sUserName = newUserData.m_sUserName;
+                oldUserData.m_sPassword = newUserData.m_sUserName.ToLower();
+                oldUserData.m_sEmail = newUserData.m_sUserName;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(newUserData.m_sFirstName) && !oldUserData.m_sFirstName.Equals(newUserData.m_sFirstName))
+            {
+                oldUserData.m_sFirstName = newUserData.m_sFirstName;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(newUserData.m_sLastName) && !oldUserData.m_sLastName.Equals(newUserData.m_sLastName))
+            {
+                oldUserData.m_sLastName = newUserData.m_sLastName;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(newUserData.m_sPhone) && !oldUserData.m_sPhone.Equals(newUserData.m_sPhone))
+            {
+                oldUserData.m_sPhone = newUserData.m_sPhone;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(newUserData.m_sCity) && !oldUserData.m_sCity.Equals(newUserData.m_sCity))
+            {
+                oldUserData.m_sCity = newUserData.m_sCity;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(newUserData.m_sZip) && !oldUserData.m_sZip.Equals(newUserData.m_sZip))
+            {
+                oldUserData.m_sZip = newUserData.m_sZip;
+                isBasicChanged = true;
+            }
+
+            if (isBasicChanged)
+            {
+                oldUserData.Save(int.Parse(userInfo.m_user.m_sSiteGUID));
+            }
+        }
+
+        private string GetContentInfo(string key, Dictionary<string, string> info)
+        {
+            if (info.ContainsKey(key))
+            {
+                return info[key];
+            }
+
+            return string.Empty;
+        }
+
+        private void AddDDToList(string key, string val, ref List<UserDynamicDataContainer> uddc)
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                UserDynamicDataContainer udd = new UserDynamicDataContainer();
+                udd.m_sValue = val;
+                udd.m_sDataType = key;
+                uddc.Add(udd);
+            }
+        }
     }
-
-
-
-    //internal class MCUserProfile
-    //{
-    //    public string FirstName { get; set; }
-    //    public string LastName { get; set; }
-    //    public string Nationality { get; set; }
-    //    public string IdentificationNumber { get; set; }
-    //    public int BirthYear { get; set; }
-    //    public DateTime BirthDate { get; set; }
-    //    public string Occupation { get; set; }
-    //    public string Gender { get; set; }
-    //    public string Ethnicity { get; set; }
-    //    public string MaritalStatus { get; set; }
-    //    public string Block { get; set; }
-    //    public string Street { get; set; }
-    //    public string Building { get; set; }
-    //    public string Unit { get; set; }
-    //    public string City { get; set; }
-    //    public object State { get; set; }
-    //    public string Country { get; set; }
-    //    public string PostalCode { get; set; }
-    //    public string HomePhone { get; set; }
-    //    public string MobilePhone { get; set; }
-    //    public string Income { get; set; }
-    //    public string OriginatingEmailId { get; set; }
-    //    public string Id { get; set; }
-    //    public string UserName { get; set; }
-    //    public string AccountStatus { get; set; }
-    //    public bool Xinmsn_English { get; set; }
-    //    public bool Xinmsn_Chinese { get; set; }
-    //    //public bool TV_Channel5 { get; set; }
-    //    //public bool TV_Channel8 { get; set; }
-    //    //public bool TV_ChannelU { get; set; }
-    //    //public bool TV_Suria { get; set; }
-    //    //public bool TV_Vasantham { get; set; }
-    //    //public bool TV_Okto { get; set; }
-    //    //public bool RDO_933 { get; set; }
-    //    //public bool RDO_938 { get; set; }
-    //    //public bool RDO_938_Slice { get; set; }
-    //    //public bool RDO_938_Work { get; set; }
-    //    //public bool RDO_938_Soul { get; set; }
-    //    //public bool RDO_924 { get; set; }
-    //    //public bool RDO_958 { get; set; }
-    //    //public bool RDO_987 { get; set; }
-    //    //public bool RDO_968 { get; set; }
-    //    //public bool RDO_Warna { get; set; }
-    //    //public bool CNA_AsiaPacific { get; set; }
-    //    //public bool CNA_World { get; set; }
-    //    //public bool CNA_Business { get; set; }
-    //    //public bool CNA_Singapore { get; set; }
-    //    //public bool CNA_Sports { get; set; }
-    //    //public bool CNA_Morning { get; set; }
-    //    //public bool CNA_Evening { get; set; }
-    //    //public bool CNA_Weekdays { get; set; }
-    //    //public bool CNA_Weekends { get; set; }
-    //    //public bool CNA_Partners { get; set; }
-    //    //public bool TDY_Singapore { get; set; }
-    //    //public bool TDY_World { get; set; }
-    //    //public bool TDY_Entertainment { get; set; }
-    //    //public bool TDY_Sports { get; set; }
-    //    //public bool TDY_Business { get; set; }
-    //    //public bool TDY_Tech { get; set; }
-    //    //public bool TDY_Voices { get; set; }
-    //    //public bool TDY_Commentary { get; set; }
-    //    //public bool TDY_Focus { get; set; }
-    //    //public bool TDY_ChinaIndia { get; set; }
-    //    //public bool TDY_Photos { get; set; }
-    //    //public bool TDY_Videos { get; set; }
-    //    //public bool TDY_Partners { get; set; }
-    //    //public string TDY_MailPref { get; set; }
-    //    public bool MEClub { get; set; }
-    //    public bool MERadio { get; set; }
-    //    public bool OktoAsia { get; set; }
-    //    public string CNA_MailPref { get; set; }
-    //    public DateTime CreatedDate { get; set; }
-    //    public bool VizPro { get; set; }
-    //    public bool SingaporeMediaAcademy { get; set; }
-    //    public string Avatar { get; set; }
-    //}
-
 
 }
