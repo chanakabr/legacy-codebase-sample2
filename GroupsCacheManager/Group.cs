@@ -57,9 +57,9 @@ namespace GroupsCacheManager
         public bool isRegionalizationEnabled;
 
         /// <summary>
-        /// List of region Ids associated with this group
+        /// List of regions associated with this group
         /// </summary>
-        public List<int> regionIds;
+        public List<Region> regions;
 
         #endregion
 
@@ -84,7 +84,7 @@ namespace GroupsCacheManager
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
             this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
-            this.regionIds = new List<int>();
+            this.regions = new List<Region>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -646,6 +646,19 @@ namespace GroupsCacheManager
 
 
 
+
+        #endregion
+
+        #region Regions
+
+        /// <summary>
+        /// Gets the default region of this group
+        /// </summary>
+        /// <returns></returns>
+        public Region GetDefaultRegion()
+        {
+            return (regions.FirstOrDefault(region => region.isDefault));
+        }
 
         #endregion
 
