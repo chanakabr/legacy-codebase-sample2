@@ -1324,17 +1324,26 @@ namespace Catalog
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
+
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
+            {
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
+            }
+
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
             searchObject.m_oLangauge = oLanguage;
 
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
+
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
+            {
                 GetOrderValues(ref oSearcherOrderObj, orderObj);
+            }
             else
+            {
                 GetOrderValues(ref oSearcherOrderObj, channel.m_OrderObject);
+            }
 
             searchObject.m_oOrder = oSearcherOrderObj;
 
@@ -1343,9 +1352,13 @@ namespace Catalog
                 searchObject.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObject.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObject.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
-
             }
+
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+
+            searchObject.regionIds =
+                Catalog.GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+
             return searchObject;
         }
 
@@ -1833,11 +1846,13 @@ namespace Catalog
         }
 
         internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, ref ISearcher initializedSearcher,
+            int domainId, string siteGuid,
             ref List<List<string>> jsonizedChannelsDefinitions)
         {
             List<long> res = new List<long>();
             Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(groupID);
             MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
+                domainId, siteGuid,
                 dict, jsonizedChannelsDefinitions);
             SearchResultsObj searcherAnswer = initializedSearcher.SearchMedias(groupID, linearChannelMediaIDsRequest, 0, true, groupID);
 
@@ -2510,7 +2525,9 @@ namespace Catalog
         }
 
 
-        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
+        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, 
+            int domainId, string siteGuid,
+            Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
         {
             MediaSearchObj res = new MediaSearchObj();
             res.m_nGroupId = nGroupID;
@@ -2520,6 +2537,9 @@ namespace Catalog
             res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
             res.m_nPageIndex = 0;
             res.m_nPageSize = GetSearcherMaxResultsSize();
+
+            res.regionIds = Catalog.GetSearchRegions(nGroupID, domainId, siteGuid);
+
             return res;
         }
 

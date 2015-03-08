@@ -92,7 +92,9 @@ namespace Catalog
             List<List<string>> jsonizedChannelsDefinitions = null;
             if (Catalog.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
             {
-                m_oEPGChannelIDs = Catalog.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher, ref jsonizedChannelsDefinitions);
+                m_oEPGChannelIDs = Catalog.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher,
+                    this.domainId, this.m_sSiteGuid, 
+                    ref jsonizedChannelsDefinitions);
                 res = BuildEPGSearchObjectInner();
             }
             else
