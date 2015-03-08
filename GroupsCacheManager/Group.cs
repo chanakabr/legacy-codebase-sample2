@@ -66,6 +66,7 @@ namespace GroupsCacheManager
         #region CTOR
         public Group()
         {
+
         }
 
         #endregion
@@ -657,7 +658,14 @@ namespace GroupsCacheManager
         /// <returns></returns>
         public Region GetDefaultRegion()
         {
-            return (regions.FirstOrDefault(region => region.isDefault));
+            if (regions == null)
+            {
+                return (null);
+            }
+            else
+            {
+                return (regions.FirstOrDefault(region => region.isDefault));
+            }
         }
 
         #endregion
