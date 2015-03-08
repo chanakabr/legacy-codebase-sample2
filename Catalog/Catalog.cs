@@ -702,46 +702,7 @@ namespace Catalog
 
                 #endregion
 
-                #region DTT Regionalization
-
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(request.m_nGroupID);
-
-                // If this group 
-                if (group.isRegionalizationEnabled)
-                {
-                    string userName = string.Empty;
-                    string password = string.Empty;
-
-                    //get username + password from wsCache
-                    Credentials credentials =
-                        TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, request.m_nGroupID, ApiObjects.eWSModules.DOMAINS);
-
-                    if (credentials != null)
-                    {
-                        userName = credentials.m_sUsername;
-                        password = credentials.m_sPassword;
-                    }
-
-                    if (userName.Length == 0 || password.Length == 0)
-                    {
-                        throw new Exception(string.Format(
-                            "No WS_Domains login parameters were extracted from DB. user={0}, groupid={1}",
-                            request.m_sSiteGuid, request.m_nGroupID));
-                    }
-
-                    using (WS_Domains.module domainsWebService = new WS_Domains.module())
-                    {
-                        string url = Utils.GetWSURL("ws_domains");
-                        domainsWebService.Url = url;
-
-                        var domain = domainsWebService.GetDomainInfo(userName, password, request.domainId);
-
-                        searchObj.regionIds = new List<int>() { domain.m_nRegion };
-                    }
-                } 
-
-                #endregion
+                searchObj.regionIds = GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
             }
             catch (Exception ex)
             {
@@ -759,6 +720,77 @@ namespace Catalog
         internal static MediaSearchObj BuildSearchObject(BaseMediaSearchRequest request, List<string> jsonizedChannelsDefinitionsToSearchIn)
         {
             return BuildSearchObject(request, jsonizedChannelsDefinitionsToSearchIn, null);
+        }
+
+        internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
+        {
+            List<int> regionIds = new List<int>();
+
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(groupId);
+
+            // If this group 
+            if (group.isRegionalizationEnabled)
+            {
+                // If this is a guest user or something like this - get default region
+                if (domainId == 0)
+                {
+                    var defaultRegion =  group.GetDefaultRegion();
+
+                    if (defaultRegion != null)
+                    {
+                        regionIds.Add(defaultRegion.id);
+                    }
+                }
+                // Otherwise get the region of the requesting domain
+                else
+                {
+                    string userName = string.Empty;
+                    string password = string.Empty;
+
+                    //get username + password from wsCache
+                    Credentials credentials =
+                        TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
+
+                    if (credentials != null)
+                    {
+                        userName = credentials.m_sUsername;
+                        password = credentials.m_sPassword;
+                    }
+
+                    if (userName.Length == 0 || password.Length == 0)
+                    {
+                        throw new Exception(string.Format(
+                            "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
+                            siteGuid, groupId));
+                    }
+
+                    using (WS_Domains.module domainsWebService = new WS_Domains.module())
+                    {
+                        string url = Utils.GetWSURL("ws_domains");
+                        domainsWebService.Url = url;
+
+                        var domain = domainsWebService.GetDomainInfo(userName, password, domainId);
+
+                        // If the domain is not associated to a domain - get default region
+                        if (domain.m_nRegion == 0)
+                        {
+                            var defaultRegion = group.GetDefaultRegion();
+
+                            if (defaultRegion != null)
+                            {
+                                regionIds.Add(defaultRegion.id);
+                            }
+                        }
+                        else
+                        {
+                            regionIds.Add(domain.m_nRegion);
+                        }
+                    }
+                }
+            }
+
+            return regionIds;
         }
 
         /*Build Full search object*/
