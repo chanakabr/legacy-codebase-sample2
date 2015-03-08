@@ -49,7 +49,17 @@ namespace GroupsCacheManager
         protected Dictionary<int, LanguageObj> m_dLangauges;
         [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
-        
+
+        /// <summary>
+        /// Indicates if this group has DTT regionalization support or not
+        /// </summary>
+        [JsonProperty("m_bIsRegionalizationEnabled")]
+        public bool isRegionalizationEnabled;
+
+        /// <summary>
+        /// List of region Ids associated with this group
+        /// </summary>
+        public List<int> regionIds;
 
         #endregion
 
@@ -74,6 +84,7 @@ namespace GroupsCacheManager
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
             this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
+            this.regionIds = new List<int>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)

@@ -112,6 +112,9 @@ namespace Users
         [JsonProperty()]
         protected Dictionary<int, DeviceContainer> m_oDeviceFamiliesMapping;
 
+        [JsonProperty()]
+        public int m_nRegion;
+        
         #endregion
 
         #region Public Methods
