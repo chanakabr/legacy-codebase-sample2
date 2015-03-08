@@ -80,6 +80,18 @@ namespace TVPApiModule.DataLoaders
             }
         }
 
+        public int DomainID
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "DomainID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
+            }
+        }
+
         public override bool ShouldExtractItemsCountInSource
         {
             get
@@ -114,6 +126,8 @@ namespace TVPApiModule.DataLoaders
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     Culture = Language,
+                    SiteGuid = SiteGuid,
+                    DomainId = DomainID
                 };
 
                 return m_oUserSocialMediaLoader.Execute() as dsItemInfo;

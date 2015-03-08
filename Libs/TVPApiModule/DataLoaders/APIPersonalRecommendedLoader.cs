@@ -91,6 +91,18 @@ namespace TVPApiModule.DataLoaders
                 Parameters.SetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", value);
             }
         }
+
+        public int DomainID
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "DomainID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
+            }
+        }
         #endregion
 
         public APIPersonalRecommendedLoader(string tvmUser, string tvmPass)
@@ -114,6 +126,7 @@ namespace TVPApiModule.DataLoaders
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     Culture = Language,
+                    DomainId = DomainID
                 };
 
                 return m_oPersonalRecommendedLoader.Execute() as dsItemInfo;

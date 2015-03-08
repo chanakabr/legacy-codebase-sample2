@@ -24,15 +24,15 @@ namespace TVPApi
             TvmPass = tvmPass;
         }
 
-        public string SiteGuid
+        public int DomainID
         {
             get
             {
-                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "DomainID", 0);
             }
             set
             {
-                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
             }
 
         }
@@ -112,7 +112,8 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     Culture = Language,
-                    SiteGuid = SiteGuid
+                    SiteGuid = SiteGuid,
+                    DomainId = DomainID
                 };
 
                 return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;

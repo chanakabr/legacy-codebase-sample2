@@ -81,15 +81,15 @@ namespace TVPApiModule.DataLoaders
             }
         }
 
-        public string SiteGuid
+        public int DomainID
         {
             get
             {
-                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "DomainID", 0);
             }
             set
             {
-                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
             }
         }
 
@@ -129,7 +129,8 @@ namespace TVPApiModule.DataLoaders
                     Platform = Platform.ToString(),
                     Culture = Language,
                     MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null,
-                    SiteGuid = SiteGuid
+                    SiteGuid = SiteGuid,
+                    DomainId = DomainID
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
             }

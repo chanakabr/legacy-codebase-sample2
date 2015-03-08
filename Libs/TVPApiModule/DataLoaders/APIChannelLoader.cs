@@ -32,6 +32,18 @@ namespace TVPApi
             }
         }
 
+        public int DomainID
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "DomainID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
+            }
+        }
+
         private string TvmUser
         {
             get
@@ -133,7 +145,8 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    SiteGuid = SiteGuid
+                    SiteGuid = SiteGuid,
+                    DomainId = DomainID
                 };
 
                 m_oCatalogChannelLoader.OrderObj = OrderObj == null ? new OrderObj() { m_eOrderDir = OrderDir.DESC, m_eOrderBy = CatalogHelper.GetCatalogOrderBy(OrderBy) } : OrderObj;

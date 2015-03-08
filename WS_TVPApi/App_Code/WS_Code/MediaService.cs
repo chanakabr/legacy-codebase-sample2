@@ -968,7 +968,9 @@ namespace TVPApiServices
                     var programsList = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, DateTime.UtcNow.AddDays(-searchOffsetDays), DateTime.UtcNow.AddDays(searchOffsetDays))
                     {
                         SiteGuid = initObj.SiteGuid,
-                        Culture = initObj.Locale.LocaleLanguage
+                        Culture = initObj.Locale.LocaleLanguage,
+                        DomainId = initObj.DomainID,
+                        
                     }.Execute() as List<BaseObject>;
                     if (programsList != null)
                         programs = programsList.Select(p => ((ProgramObj)p).m_oProgram).ToList();
@@ -2744,7 +2746,8 @@ namespace TVPApiServices
                     loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
                         Culture = initObj.Locale.LocaleLanguage,
-                        SiteGuid = initObj.SiteGuid
+                        SiteGuid = initObj.SiteGuid,
+                        DomainId = initObj.DomainID
                     }.Execute() as List<BaseObject>;
                 }
                 catch (Exception ex)
@@ -2789,7 +2792,8 @@ namespace TVPApiServices
                     retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
                         Culture = initObj.Locale.LocaleLanguage,
-                        SiteGuid = initObj.SiteGuid
+                        SiteGuid = initObj.SiteGuid,
+                        DomainId = initObj.DomainID
                     }.Execute() as List<string>;
                 }
                 catch (Exception ex)
@@ -2962,7 +2966,9 @@ namespace TVPApiServices
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
                     APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType)
                         {
-                            Culture = initObj.Locale.LocaleLanguage
+                            Culture = initObj.Locale.LocaleLanguage,
+                            SiteGuid = initObj.SiteGuid,
+                            DomainId = initObj.DomainID
                         };
                     dsItemInfo returnedRows = loader.Execute() as dsItemInfo;
                     if (returnedRows != null && returnedRows.Tables != null && returnedRows.Tables[0].Rows != null && returnedRows.Tables[0].Rows.Count > 0)
