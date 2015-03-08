@@ -722,6 +722,13 @@ namespace Catalog
             return BuildSearchObject(request, jsonizedChannelsDefinitionsToSearchIn, null);
         }
 
+        /// <summary>
+        /// Returns list of regions to perform search by them.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <param name="siteGuid"></param>
+        /// <returns></returns>
         internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
         {
             List<int> regionIds = new List<int>();
@@ -729,7 +736,7 @@ namespace Catalog
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
 
-            // If this group 
+            // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
                 // If this is a guest user or something like this - get default region
