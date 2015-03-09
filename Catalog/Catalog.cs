@@ -2834,15 +2834,22 @@ namespace Catalog
             bool bIP = false;
             bool bMedia = false;
             long ipVal = 0;
-            
-            double cacheTime = 120d;            
-            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CATALOG_HIT_MARK_CACHE_TIME_IN_MINUTES");
-            if (string.IsNullOrEmpty(timeStr))
+
+            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CTALOG_HIT_CACHE"))
             {
-                Double.TryParse(timeStr, out cacheTime);
+                ipVal = ParseIPOutOfString(userIP);
+                return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
+                    ref formatID, ref mediaTypeID, ref billingTypeID);
             }
 
             #region  try get values from catalog cache
+
+            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_MARK_CACHE_TIME_IN_MINUTES");
+            if (cacheTime == 0)
+            {
+                cacheTime = 120d;
+            }
+
             CatalogCache catalogCache = CatalogCache.Instance();
             string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
             object oCountryID = catalogCache.Get(ipKey);
