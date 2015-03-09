@@ -172,12 +172,15 @@ namespace TvinciRenewer
                                     ConditionalAccess.BaseConditionalAccess t = null;
                                     ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
-                                    if ((nTransactionBillingProvider == 10 || nTransactionBillingProvider == 17 || nTransactionBillingProvider == 100)) // adyen=10, cinepolis=17, m1=100
+                                    eBillingProvider billingProvider = (eBillingProvider)nTransactionBillingProvider;
+
+                                    if ((billingProvider == eBillingProvider.Adyen) ||
+                                        (billingProvider == eBillingProvider.Cinepolis) ||
+                                        (billingProvider == eBillingProvider.M1) ||
+                                        (billingProvider == eBillingProvider.Offline))
                                     {
                                         try
                                         {
-                                            eBillingProvider billingProvider = (eBillingProvider)(nTransactionBillingProvider);
-
                                             ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, billingProvider);
 
@@ -291,12 +294,16 @@ namespace TvinciRenewer
                                 ConditionalAccess.BaseConditionalAccess t = null;
                                 ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
-                                if ((nTransactionBillingProvider == 10 || nTransactionBillingProvider == 17 || nTransactionBillingProvider == 100)) // adyen=10, cinepolis=17, m1=100
-                                {
-                                    eBillingProvider billingProvider = (eBillingProvider)(nTransactionBillingProvider);
+                                eBillingProvider eBillingProvider = (eBillingProvider)(nTransactionBillingProvider);
 
-                                    ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
-                                    nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, billingProvider);
+                                if ((eBillingProvider == ConditionalAccess.eBillingProvider.Adyen || 
+                                    eBillingProvider == ConditionalAccess.eBillingProvider.Cinepolis || 
+                                    eBillingProvider == ConditionalAccess.eBillingProvider.M1 ||
+                                    eBillingProvider == ConditionalAccess.eBillingProvider.Offline))
+                                {
+
+                                    ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                    nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
 
                                     StringBuilder strLog = new StringBuilder();
                                     strLog.Append(string.Format("SiteGUID : {0}", sSiteGUID));
@@ -305,9 +312,9 @@ namespace TvinciRenewer
                                     strLog.Append(string.Format(" | Extra params : {0}", sExtraParams));
                                     strLog.Append(string.Format(" | Prchase ID : {0}", nPurchaseID));
                                     strLog.Append(string.Format(" | Payment number : {0}", nPaymentNumber));
-                                    strLog.Append(string.Format(" | Billing response status: {0}", resp.m_oStatus.ToString()));
-                                    strLog.Append(string.Format(" | Billing response description : {0}", resp.m_sStatusDescription));
-                                    strLog.Append(string.Format(" | Billing response reciept: {0}.", resp.m_sRecieptCode));
+                                    strLog.Append(string.Format(" | Billing response status: {0}", oBillingResponse.m_oStatus.ToString()));
+                                    strLog.Append(string.Format(" | Billing response description : {0}", oBillingResponse.m_sStatusDescription));
+                                    strLog.Append(string.Format(" | Billing response reciept: {0}.", oBillingResponse.m_sRecieptCode));
 
                                     Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJobTest ", strLog.ToString(), "TvinciRenewer");
                                 }
