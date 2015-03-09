@@ -73,6 +73,7 @@ namespace Users
         //List of device brands
         [JsonProperty()]
         public List<DeviceContainer> m_deviceFamilies;
+        
         [JsonProperty()]
         public DomainStatus m_DomainStatus;
 
@@ -82,21 +83,23 @@ namespace Users
         public DateTime m_NextUserActionFreq;
 
         // Domain's Operator ID
-
         public int m_nSSOOperatorID;
+        
         [JsonProperty()]
         public DomainRestriction m_DomainRestriction;
 
-        protected int m_deviceLimitationModule;
-
+        [JsonProperty()]
         protected int m_totalNumOfDevices;
 
         [JsonProperty()]
         protected int m_totalNumOfUsers;
 
+        [JsonProperty()]
         protected int m_minPeriodId;
 
+        [JsonProperty()]
         protected int m_minUserPeriodId;
+        
         [JsonProperty()]
         public List<HomeNetwork> m_homeNetworks;
 
@@ -105,7 +108,6 @@ namespace Users
         protected LimitationsManager m_oLimitationsManager;
 
         [XmlIgnore]
-
         protected Dictionary<string, int> m_oUDIDToDeviceFamilyMapping;
 
         [XmlIgnore]
@@ -465,7 +467,6 @@ namespace Users
             {
                 this.m_DefaultUsersIDs = domain.m_DefaultUsersIDs;
                 this.m_deviceFamilies = domain.m_deviceFamilies;
-                this.m_deviceLimitationModule = domain.m_deviceLimitationModule;
                 this.m_DomainRestriction = domain.m_DomainRestriction;
                 this.m_DomainStatus = domain.m_DomainStatus;
                 this.m_frequencyFlag = domain.m_frequencyFlag;
@@ -1409,7 +1410,7 @@ namespace Users
         {
             if (isInitializeFamilies)
             {
-                DeviceFamiliesInitializer(m_deviceLimitationModule, m_nGroupID);
+                DeviceFamiliesInitializer(m_nLimit, m_nGroupID);
             }
 
             DataTable dt = DomainDal.Get_DomainDevices(m_nGroupID, m_nDomainID);
@@ -1533,7 +1534,6 @@ namespace Users
                 {
                     m_sName = sName;
                     m_sDescription = sDescription;
-                    m_deviceLimitationModule = nDeviceLimitationModule;
                     m_nLimit = nDeviceLimitationModule;
                     m_nDeviceLimit = nDeviceLimit;
                     m_nUserLimit = nUserLimit;
@@ -1654,9 +1654,11 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
+            
             // m_oLimitationsManager.Quantity == 0 is unlimited 
-            if ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity != 0) ||
-                (activatedDevices >= dc.m_oLimitationsManager.Quantity && dc.m_oLimitationsManager.Quantity != 0))
+            if (dc.m_oLimitationsManager.Quantity > 0 && 
+                ( (m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
+                  (activatedDevices >= dc.m_oLimitationsManager.Quantity)) )
             {
                 res = DomainResponseStatus.ExceededLimit;
             }
