@@ -367,18 +367,32 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                         #region - get regions of media
 
-                        // Regions table should be 6h on stored procedure
-                        if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
+                        // Only if regionalization is enabled
+                        if (oGroup.isRegionalizationEnabled)
                         {
-                            foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
+                            // Regions table should be 6h on stored procedure
+                            if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
                             {
-                                int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
-                                int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
+                                foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
+                                {
+                                    int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
+                                    int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
 
-                                // Accumulate region ids in list
-                                medias[mediaId].regions.Add(regionId);
+                                    // Accumulate region ids in list
+                                    medias[mediaId].regions.Add(regionId);
+                                }
+                            }
+
+                            // If no regions were found for this media - use 0, that indicates that the media is region-less
+                            foreach (Media media in medias.Values)
+                            {
+                                if (media.regions.Count == 0)
+                                {
+                                    media.regions.Add(0);
+                                }
                             }
                         }
+                    
 
                         #endregion
 
