@@ -21,6 +21,8 @@ namespace ApiObjects
         public bool isDefault;
         [JsonProperty()]
         public List<int> linearChannelsIds;
+        [JsonProperty()]
+        public int groupId;
 
         #endregion
 

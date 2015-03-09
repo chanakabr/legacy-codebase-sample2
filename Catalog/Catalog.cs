@@ -732,6 +732,9 @@ namespace Catalog
         internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
         {
             List<int> regionIds = new List<int>();
+            
+            // Always search for region 0 - media that is not associated to any region
+            regionIds.Add(0);
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
