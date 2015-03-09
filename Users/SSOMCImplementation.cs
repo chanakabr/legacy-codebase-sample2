@@ -317,14 +317,7 @@ namespace Users
                         }
 
                         ApiObjects.KeyValuePair kvp = new ApiObjects.KeyValuePair(container.m_sDataType, (container.m_sValue != null ? container.m_sValue : string.Empty));
-
-                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");
-
-                        if (!string.IsNullOrEmpty(kvp.value))
-                        {
-                            lKeyValue.Add(kvp);
-                        }
-                        Logger.Logger.Log("GetUserProfile_Key_Value", string.Format("key={0} value={1}", kvp.key, kvp.value), "Users_Test");
+                        lKeyValue.Add(kvp);
                     }
 
                     // Then save only updated dynamic data
@@ -388,27 +381,29 @@ namespace Users
 
             foreach (string key in lDynamicParams)
             {
-                switch (key)
+                switch (key.ToLower())
                 {
-                    case "Unit": // The format are “#xx-yy” or “xx-yy” or “zz”
+                    case "unit": // The format are “#xx-yy” or “xx-yy” or “zz”
                         {
                             string unit = GetContentInfo(key, dUserData);
                             if (!string.IsNullOrEmpty(unit))
                             {
+                                string unitStartNumber = string.Empty;
                                 string[] splitUnit = unit.Replace("#", "").Split('-');
                                 int UnitEndNumberIndex = 0;
                                 if (splitUnit.Length == 2)
                                 {
-                                    AddDDToList("UnitStartNumber", splitUnit[0], ref uddc);
+                                    unitStartNumber = splitUnit[0];
                                     UnitEndNumberIndex = 1;
                                 }
 
+                                AddDDToList("UnitStartNumber", unitStartNumber, ref uddc, true);
                                 AddDDToList("UnitEndNumber", splitUnit[UnitEndNumberIndex], ref uddc);
                             }
                             break;
                         }
 
-                    case "BirthDate": // format of BirthDate is "yyyy-MM-ddTHH:mm:ss”
+                    case "birthdate": // format of BirthDate is "yyyy-MM-ddTHH:mm:ss”
                         {
                             string BirthDate = GetContentInfo(key, dUserData);
                             try
@@ -427,35 +422,35 @@ namespace Users
                             break;
                         }
 
-                    case "FirstName":
+                    case "firstname":
                         {
                             string val = GetContentInfo(key, dUserData);
                             AddDDToList("NickName", val, ref uddc);
                             break;
                         }
 
-                    case "IdentificationNumber":
+                    case "identificationnumber":
                         {
                             string val = GetContentInfo(key, dUserData);
                             AddDDToList("NricFin", val, ref uddc);
                             break;
                         }
 
-                    case "Block":
+                    case "block":
                         {
                             string val = GetContentInfo(key, dUserData);
                             AddDDToList("BlockHouseNumber", val, ref uddc);
                             break;
                         }
                     
-                    case "Building":
+                    case "building":
                         {
                             string val = GetContentInfo(key, dUserData);
                             AddDDToList("BuildingName", val, ref uddc);
                             break;
                         }
 
-                    case "Street":
+                    case "street":
                         {
                             string val = GetContentInfo(key, dUserData);
                             AddDDToList("StreetName", val, ref uddc);
@@ -538,9 +533,9 @@ namespace Users
             return string.Empty;
         }
 
-        private void AddDDToList(string key, string val, ref List<UserDynamicDataContainer> uddc)
+        private void AddDDToList(string key, string val, ref List<UserDynamicDataContainer> uddc, bool bInsertEmpty = false)
         {
-            if (!string.IsNullOrEmpty(val))
+            if (bInsertEmpty || !string.IsNullOrEmpty(val))
             {
                 UserDynamicDataContainer udd = new UserDynamicDataContainer();
                 udd.m_sValue = val;
