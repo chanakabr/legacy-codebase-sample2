@@ -61,6 +61,11 @@ namespace GroupsCacheManager
         /// </summary>
         public List<Region> regions;
 
+        /// <summary>
+        /// The default region of this group (in case a domain isn't associated with any region)
+        /// </summary>
+        public Region defaultRegion;
+
         #endregion
 
         #region CTOR
@@ -658,7 +663,11 @@ namespace GroupsCacheManager
         /// <returns></returns>
         public Region GetDefaultRegion()
         {
-            if (regions == null)
+            if (this.defaultRegion != null)
+            {
+                return (this.defaultRegion);
+            }
+            else if (this.regions == null)
             {
                 return (null);
             }
