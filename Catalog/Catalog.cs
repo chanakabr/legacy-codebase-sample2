@@ -2887,10 +2887,12 @@ namespace Catalog
                         {
                             CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
                             catalogCache.Set(ipKey, countryID, cacheTime);
+                            res = true;
                         }
                     }
                     if (!bMedia)
                     {
+                        res = false;
                         if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
                         {
                             InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
