@@ -504,6 +504,23 @@ namespace TVinciShared
             return result;
         }
 
+        public static double GetTcmDoubleValue(string sKey)
+        {
+            double result = 0;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<double>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
+            }
+            catch (Exception ex)
+            {
+                result = 0;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
         public static DateTime GetTcmDateTimeValue(string sKey)
         {
             DateTime result = DateTime.UtcNow;
