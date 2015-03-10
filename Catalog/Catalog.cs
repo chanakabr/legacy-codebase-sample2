@@ -2844,7 +2844,7 @@ namespace Catalog
 
             #region  try get values from catalog cache
 
-            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_MARK_CACHE_TIME_IN_MINUTES");
+            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
             if (cacheTime == 0)
             {
                 cacheTime = 120d;
