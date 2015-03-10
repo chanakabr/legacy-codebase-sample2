@@ -732,9 +732,6 @@ namespace Catalog
         internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
         {
             List<int> regionIds = new List<int>();
-            
-            // Always search for region 0 - media that is not associated to any region
-            regionIds.Add(0);
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
@@ -742,6 +739,9 @@ namespace Catalog
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
+                // Always search for region 0 - media that is not associated to any region
+                regionIds.Add(0);
+
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
                 {
