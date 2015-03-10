@@ -1855,5 +1855,15 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+        public static bool UpdateDomainRegion(int domainId, string extRegionId)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DomainRegion");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@domainID", domainId);
+            sp.AddParameter("@extRegionID", extRegionId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
