@@ -97,5 +97,8 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int domainLimitationID);
+
+        [OperationContract]
+        ClientResponseStatus SetDomainRegion(InitializationObject initObj, int domainId, string extRegionId);
     }
 }

@@ -831,5 +831,32 @@ namespace TVPApiServices
             }
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Set region for domain")]
+        public ClientResponseStatus SetDomainRegion(InitializationObject initObj, int domainId, string extRegionId)
+        {
+            ClientResponseStatus clientResponse = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "SetDomainRegion", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRegion(domainId, extRegionId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                clientResponse = ResponseUtils.ReturnBadCredentialsClientResponse();
+            }
+            return clientResponse;
+        }
     }
 }
