@@ -24,14 +24,14 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "pictures")]
         public List<Picture> Pictures { get; set; }
 
-        [JsonProperty(PropertyName = "files")]
-        public List<File> Files { get; set; }
+        //[JsonProperty(PropertyName = "files")]
+        //public List<File> Files { get; set; }
 
         [JsonProperty(PropertyName = "metas")]
-        public List<KeyValuePair<string, string>> Metas { get; set; }
+        public Dictionary<string, string> Metas { get; set; }
 
         [JsonProperty(PropertyName = "tags")]
-        public List<KeyValuePair<string, string>> Tags { get; set; }
+        public Dictionary<string, object> Tags { get; set; }
 
         [JsonProperty(PropertyName = "start_date")]
         public double StartDate { get; set; }
@@ -43,7 +43,7 @@ namespace TVPApiModule.Objects.Responses
         public Statistics Statistics { get; set; }
 
         [JsonProperty(PropertyName = "extra_params")]
-        public List<KeyValuePair<string, string>> ExtraParams { get; set; }
+        public Dictionary<string, string> ExtraParams { get; set; }
 
         public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media)
         {
@@ -78,52 +78,50 @@ namespace TVPApiModule.Objects.Responses
                     }
                 }
 
-                if (media.m_lFiles != null)
-                {
-                    Files = new List<File>();
-                    foreach (var mediaFile in media.m_lFiles)
-                    {
-                        File file = new File(mediaFile);
-                        Files.Add(file);
-                    }
-                }
+                //if (media.m_lFiles != null)
+                //{
+                //    Files = new List<File>();
+                //    foreach (var mediaFile in media.m_lFiles)
+                //    {
+                //        File file = new File(mediaFile);
+                //        Files.Add(file);
+                //    }
+                //}
 
                 if (media.m_lMetas != null)
                 {
-                    Metas = new List<KeyValuePair<string, string>>();
+                    Metas = new Dictionary<string, string>();
                     foreach (var mediaMeta in media.m_lMetas)
                     {
-                        KeyValuePair<string, string> meta = new KeyValuePair<string, string>(mediaMeta.m_oTagMeta.m_sName, mediaMeta.m_sValue);
-                        Metas.Add(meta);
+                        Metas.Add(mediaMeta.m_oTagMeta.m_sName, mediaMeta.m_sValue);
                     }
                 }
 
                 if (media.m_lTags != null)
                 {
-                    Tags = new List<KeyValuePair<string, string>>();
+                    Tags = new Dictionary<string, object>();
                     foreach (var mediaTag in media.m_lTags)
                     {
-                        KeyValuePair<string, string> tag = new KeyValuePair<string, string>(mediaTag.m_oTagMeta.m_sName, string.Join("|", mediaTag.m_lValues.ToArray()));
-                        Tags.Add(tag);
+                        Tags.Add(mediaTag.m_oTagMeta.m_sName, mediaTag.m_lValues);
                     }
                 }
 
-                ExtraParams = new List<KeyValuePair<string, string>>();
+                ExtraParams = new Dictionary<string, string>();
 
-                ExtraParams.Add(new KeyValuePair<string, string>("StartDate", media.m_dStartDate.ToString()));
-                ExtraParams.Add(new KeyValuePair<string, string>("FinalDate", media.m_dFinalDate.ToString()));
-                ExtraParams.Add(new KeyValuePair<string, string>("ExternalIds", media.m_ExternalIDs));
-                ExtraParams.Add(new KeyValuePair<string, string>("LastWatchedDevice", media.m_sLastWatchedDevice));
+                ExtraParams.Add("StartDate", media.m_dStartDate.ToString());
+                ExtraParams.Add("FinalDate", media.m_dFinalDate.ToString());
+                ExtraParams.Add("ExternalIds", media.m_ExternalIDs);
+                ExtraParams.Add("LastWatchedDevice", media.m_sLastWatchedDevice);
 
                 if (media.m_oMediaType != null)
                 {
-                    ExtraParams.Add(new KeyValuePair<string, string>("MediaTypeId", media.m_oMediaType.m_nTypeID.ToString()));
-                    ExtraParams.Add(new KeyValuePair<string, string>("MediaTypeName", media.m_oMediaType.m_sTypeName.ToString()));
+                    ExtraParams.Add("MediaTypeId", media.m_oMediaType.m_nTypeID.ToString());
+                    ExtraParams.Add("MediaTypeName", media.m_oMediaType.m_sTypeName.ToString());
                 }
 
                 if (media.m_dLastWatchedDate != null)
                 {
-                    ExtraParams.Add(new KeyValuePair<string, string>("LastWatchedDate", media.m_dLastWatchedDate.ToString()));
+                    ExtraParams.Add("LastWatchedDate", media.m_dLastWatchedDate.ToString());
                 }
             }
         }
@@ -134,8 +132,8 @@ namespace TVPApiModule.Objects.Responses
             Type = AssetType.EPG;
             Name = epg.NAME;
             Description = epg.DESCRIPTION;
-            StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.START_DATE));
-            EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.END_DATE));
+            //StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.START_DATE));
+            //EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.END_DATE));
 
             Statistics = new Statistics()
             {
@@ -144,29 +142,37 @@ namespace TVPApiModule.Objects.Responses
 
             if (epg.EPG_Meta != null)
             {
-                Metas = new List<KeyValuePair<string,string>>();
+                Metas = new Dictionary<string, string>();
                 foreach (var epgMeta in epg.EPG_Meta)
 	            {
-                    KeyValuePair<string, string> meta = new KeyValuePair<string,string>(epgMeta.Key, epgMeta.Value);
-                    Metas.Add(meta);
+                    Metas.Add(epgMeta.Key, epgMeta.Value);
 	            }
             }
 
             if (epg.EPG_TAGS != null)
             {
-                Tags = new List<KeyValuePair<string,string>>();
+                Tags = new Dictionary<string, object>();
+                List<string> tags;
                 foreach (var epgTag in epg.EPG_TAGS)
 	            {
-                    KeyValuePair<string, string> tag = new KeyValuePair<string,string>(epgTag.Key, epgTag.Value);
-                    Tags.Add(tag);
+                    if (Tags.ContainsKey(epgTag.Key))
+                    {
+                        ((List<string>)Tags[epgTag.Key]).Add(epgTag.Value);
+                    }
+                    else
+                    {
+                        tags = new List<string>();
+                        tags.Add(epgTag.Value);
+                        Tags.Add(epgTag.Key, tags);
+                    }
 	            }
             }
-            
-            ExtraParams = new List<KeyValuePair<string,string>>();
 
-            ExtraParams.Add(new KeyValuePair<string, string>("EpgChannelId", epg.EPG_CHANNEL_ID));
-            ExtraParams.Add(new KeyValuePair<string, string>("EpgIdentifier", epg.EPG_IDENTIFIER));
-            ExtraParams.Add(new KeyValuePair<string, string>("MediaId", epg.media_id));
+            ExtraParams = new Dictionary<string, string>();
+
+            ExtraParams.Add("EpgChannelId", epg.EPG_CHANNEL_ID);
+            ExtraParams.Add("EpgIdentifier", epg.EPG_IDENTIFIER);
+            ExtraParams.Add("MediaId", epg.media_id);
 
 
         }
