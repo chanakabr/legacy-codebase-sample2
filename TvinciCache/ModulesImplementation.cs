@@ -20,7 +20,7 @@ namespace TvinciCache
             {
                 lock (lck)
                 {
-                    if ((nImplID = WSCache.Instance.Get<int>(key)) == 0)
+                    if (!WSCache.Instance.TryGet<int>(key, out nImplID))
                     {
                         nImplID = WS_Utils.GetModuleImplID(nGroupID, nModuleID, connectionKey);
                         WSCache.Instance.Add(key, nImplID);
