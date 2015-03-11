@@ -9379,7 +9379,7 @@ namespace ConditionalAccess
 
             if (objItemLeftLifeCycle != null)
             {
-                strResponse = objItemLeftLifeCycle.ViewLifceCycle;
+                strResponse = objItemLeftLifeCycle.ViewLifeCycle;
             }
 
             return (strResponse);
@@ -9561,8 +9561,8 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            objResponse.ViewLifceCycle = strViewLifeCycle;
-            objResponse.FullLifceCycle = strFullLifeCycle;
+            objResponse.ViewLifeCycle = strViewLifeCycle;
+            objResponse.FullLifeCycle = strFullLifeCycle;
             objResponse.IsOfflinePlayBack = bIsOfflinePlayback;
 
             return (objResponse);
