@@ -402,6 +402,76 @@ namespace DAL
             return null;
 
         }
+
+        public static DataTable GetChildGroupTreeStr(int nGroupID)
+        {
+            DataTable dtGroups = null;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            selectQuery += "select * from dbo.F_Get_GroupsChild(" + nGroupID.ToString() + ")";
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                dtGroups = selectQuery.Table("query");
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return dtGroups;
+        }
+
+
+
+        public static DataSet Get_ChannelMediaTypes(int groupID, int channelID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_ChannelMediaTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@ChannelID", channelID);
+
+            return sp.ExecuteDataSet();
+
+        }
+
+
+        public static DataTable GetChannelMediaType(int groupID, int channelID, int mediaTypeID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetChannelMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@ChannelID", channelID);
+            sp.AddParameter("@MediaTypeID", mediaTypeID);
+
+             DataSet ds = sp.ExecuteDataSet();
+             if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+               
+
+        public static bool UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateChannelMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Status", status);
+            sp.AddParameter("@channelMediaTypeID", channelMediaTypeID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool InsertChannelMediaType(int groupID, int channelID, List<int> mediaTypeIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertChannelMediaType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@ChannelID", channelID);
+            sp.AddIDListParameter<int>("@MediaTypeID", mediaTypeIDs, "Id");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
     
 }
