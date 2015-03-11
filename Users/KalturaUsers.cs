@@ -250,7 +250,7 @@ namespace Users
 
         public override void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList) { }
 
-        public override void InitSubscribeToNewsLetter(ref UserResponseObject response, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe)
+        internal override void InitSubscribeToNewsLetter(ref UserResponseObject response, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe)
         {
             string sNewsLetter = dynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
@@ -277,7 +277,7 @@ namespace Users
 
         public override void PostSubscribeToNewsLetter(ref UserResponseObject userResponse, bool passed, ref UserDynamicData dynamicData, ref User user, ref List<KeyValuePair> keyValueList) { }
 
-        public override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
+        internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
             mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, mailRequest.m_sUsername);
             mailRequest.m_sTemplateName = WelcomeMailTemplate;

@@ -511,7 +511,7 @@ namespace TVinciShared
             {
                 string sKey = iter.Current.ToString();
                 string sValues = GetTransactionStringHolderValue(theStr, sKey, sMainLang);
-                string[] sSpliter = { ";", "," };
+                string[] sSpliter = { ";" }; //{ ";", "," };
                 string[] sVals = sValues.Split(sSpliter, StringSplitOptions.RemoveEmptyEntries);
                 for (int j = 0; j < sVals.Length; j++)
                 {
