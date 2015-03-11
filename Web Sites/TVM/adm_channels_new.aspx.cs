@@ -11,7 +11,6 @@ using System.Web.UI.HtmlControls;
 using TVinciShared;
 using TvinciImporter;
 using System.Collections.Generic;
-using DAL;
 
 public partial class adm_channels_new : System.Web.UI.Page
 {
@@ -38,20 +37,10 @@ public partial class adm_channels_new : System.Web.UI.Page
             {
                 bool result;
                 int nId = DBManipulator.DoTheWork();
-
+                //Update channel at Lucene/ ES
                 if (nId != 0)
                 {
-                    int loginGroupID = LoginManager.GetLoginGroupID();
-                    //Update MediaType if its new channel
-                    if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
-                    {
-                        List<int> updatedMediaType = Session["media_type_ids"] as List<int>;
-                        InsertChannelMediaType(updatedMediaType, nId, loginGroupID);
-                    }
-
-                    //Update channel at Lucene/ ES
-
-                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
+                    result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { nId }, ApiObjects.eAction.Update);
                 }
                 return;
             }
@@ -188,9 +177,13 @@ public partial class adm_channels_new : System.Web.UI.Page
 
     protected void AddCutBy(ref DBRecordWebEditor theRecord)
     {
-        List<string> tags = new List<string>();
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();     
-        selectQuery += " select * from media_tags_types where status=1 and group_id " + PageUtils.GetGroupsStrByParent(LoginManager.GetLoginGroupID());        
+        string sChaildsGroupStr = "";
+        string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
+        PageUtils.GetAllGroupsStr(LoginManager.GetLoginGroupID(), ref sChaildsGroupStr);
+        sGroups = sGroups.Insert(sGroups.Length - 1 , sChaildsGroupStr);
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from media_tags_types where status=1 and group_id " + sGroups;
+        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
         selectQuery += " order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
@@ -198,16 +191,12 @@ public partial class adm_channels_new : System.Web.UI.Page
             for (int i = 0; i < nCount; i++)
             {
                 string sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                if (!tags.Contains(sTagTypeName.ToLower()))
-                {
-                    tags.Add(sTagTypeName.ToLower());
-                    Int32 nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
-                    DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "channel_tags", "channel_id", "TAG_ID", true, "ltr", 60, "tags");
-                    dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
-                    dr_tags.SetCollectionLength(8);
-                    dr_tags.SetExtraWhere("TAG_TYPE_ID=" + nTagTypeID.ToString());
-                    theRecord.AddRecord(dr_tags);
-                }
+                Int32 nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "channel_tags", "channel_id", "TAG_ID", true, "ltr", 60, "tags");
+                dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
+                dr_tags.SetCollectionLength(8);
+                dr_tags.SetExtraWhere("TAG_TYPE_ID=" + nTagTypeID.ToString());
+                theRecord.AddRecord(dr_tags);
             }
         }
         selectQuery.Finish();
@@ -575,6 +564,8 @@ public partial class adm_channels_new : System.Web.UI.Page
         DataRecordShortTextField dr_admin_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_admin_name.Initialize("Unique Name", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", true);
         theRecord.AddRecord(dr_admin_name);
+
+
         
         DataRecordLongTextField dr_bio = new DataRecordLongTextField("ltr", true, 60, 20);
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
@@ -611,7 +602,11 @@ public partial class adm_channels_new : System.Web.UI.Page
         dr_pli_template.SetNoSelectStr("---");
         dr_pli_template.SetDefaultVal(sDefPT);
         theRecord.AddRecord(dr_pli_template);
-               
+
+        //DataRecordCheckBoxField dr_personal = new DataRecordCheckBoxField(true);
+        //dr_personal.Initialize("Cut with person ", "adm_table_header_nbg", "FormInput", "IS_PERSONAL", false);
+        //theRecord.AddRecord(dr_personal);
+
         DataRecordRadioField dr_cut_type = new DataRecordRadioField("lu_cut_type" , "description" , "id" , "" , null);
         dr_cut_type.Initialize("Cut Tags Type", "adm_table_header_nbg", "FormInput", "IS_AND", false);
         theRecord.AddRecord(dr_cut_type);
@@ -658,149 +653,5 @@ public partial class adm_channels_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_channels_new.aspx?submited=1");
 
         return sTable;
-    }
-
-
-
-    public string changeItemStatus(string sID, string sAction)
-    {
-        Int32 groupID = LoginManager.GetLoginGroupID();
-        Int32 nStatus = 0;
-        int mediaTypeID = int.Parse(sID);
-        int channelID = 0;
-
-        if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && int.Parse(Session["channel_id"].ToString()) != 0)
-            channelID = int.Parse(Session["channel_id"].ToString());
-        if (channelID != 0)
-        {
-            Int32 channelMediaTypeID = GetChannelMediaType(mediaTypeID, channelID, groupID, ref nStatus);
-
-            if (channelMediaTypeID != 0)
-            {
-                if (nStatus == 0)
-                    UpdateChannelMediaType(channelMediaTypeID, 1, groupID);
-                else
-                    UpdateChannelMediaType(channelMediaTypeID, 0, groupID);
-            }
-            else
-            {
-                InsertChannelMediaType(mediaTypeID, channelID, groupID);
-            }
-        }
-        else
-        {
-            // save media type id values to associate with cjannel (after get channelId)
-            List<int> mediaTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
-            {
-                mediaTypeList = Session["media_type_ids"] as List<int>;
-            }
-            mediaTypeList.Add(mediaTypeID);
-            Session["media_type_ids"] = mediaTypeList;
-
-        }
-        return "";
-    }
-
-    private void InsertChannelMediaType(int mediaTypeID, int channelID, int groupID)
-    {
-        bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID,  new List<int>(){mediaTypeID});
-    }
-
-    private void InsertChannelMediaType(List<int> mediaTypeIDs, int channelID, int groupID)
-    {
-        bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
-    }
-
-    private void UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID)
-    {
-        bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID);
-    }
-
-    public string initDualObj()
-    {
-       
-        string sRet = "";
-        sRet += "Media Types included in Channels";
-        sRet += "~~|~~";
-        sRet += "Available Media Types";
-        sRet += "~~|~~";
-        sRet += "<root>";
-        int channelID = 0;
-        if (Session["channel_id"] != null && !string.IsNullOrEmpty(Session["channel_id"].ToString()))
-        {
-            channelID = Int32.Parse(Session["channel_id"].ToString());
-        }
-
-
-        List<KeyValuePair<string,string>> mediaTypeByGroup = null;
-        List<KeyValuePair<string, string>> mediaTypeByChannel = null;
-
-        BuildMediaType(channelID, LoginManager.GetLoginGroupID(), ref mediaTypeByGroup, ref mediaTypeByChannel);
-   
-        if (mediaTypeByGroup != null && mediaTypeByGroup.Count > 0)
-        {
-            foreach (KeyValuePair<string,string> kvp in mediaTypeByGroup)
-            {
-                 sRet += "<item id=\"" + kvp.Key + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(kvp.Value, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"false\" />";
-            }           
-        }
-
-        if (mediaTypeByChannel != null && mediaTypeByChannel.Count > 0)
-        {
-            foreach (KeyValuePair<string,string> kvp in mediaTypeByChannel)
-            {
-                 sRet += "<item id=\"" + kvp.Key + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(kvp.Value, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"true\" />";
-            }           
-        }
-       
-        sRet += "</root>";
-        return sRet;
-    }
-
-    private void BuildMediaType(int channelID, int groupID, ref List<KeyValuePair<string, string>> mediaTypeByGroup, ref List<KeyValuePair<string, string>> mediaTypeByChannel)
-    {
-        DataSet ds = TvmDAL.Get_ChannelMediaTypes(groupID, channelID);
-        if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
-        {
-            DataTable mediaTypeByGroupDT = ds.Tables[0];
-            DataTable mediaTypeByChannelDT = ds.Tables[1];
-            mediaTypeByGroup = new List<KeyValuePair<string, string>>();
-            mediaTypeByChannel = new List<KeyValuePair<string, string>>();
-
-            if (mediaTypeByGroupDT != null && mediaTypeByGroupDT.Rows != null && mediaTypeByGroupDT.Rows.Count > 0)
-            {
-                mediaTypeByGroup = new List<KeyValuePair<string, string>>();
-                foreach (DataRow dr in mediaTypeByGroupDT.Rows)
-                {
-                    string sID = ODBCWrapper.Utils.GetSafeStr(dr, "ID");
-                    string sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                    mediaTypeByGroup.Add(new KeyValuePair<string, string>(sID, sName));
-                }
-            }
-
-            if (mediaTypeByChannelDT != null && mediaTypeByChannelDT.Rows != null && mediaTypeByChannelDT.Rows.Count > 0)
-            {
-                foreach (DataRow dr in mediaTypeByChannelDT.Rows)
-                {
-                    string sID = ODBCWrapper.Utils.GetSafeStr(dr, "ID");
-                    string sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                    mediaTypeByChannel.Add(new KeyValuePair<string, string>(sID, sName));
-                }
-            }
-        }        
-    }
-
-    private Int32 GetChannelMediaType(Int32 mediaTypeID, Int32 channelID, Int32 groupID, ref int nStatus)
-    {
-        Int32 nRet = 0;        
-        DataTable dt = TvmDAL.GetChannelMediaType(groupID, channelID, mediaTypeID);
-        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-        {
-            DataRow dr = dt.Rows[0];
-            nRet = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-            nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
-        }
-        return nRet;
-    }
+    }   
 }
