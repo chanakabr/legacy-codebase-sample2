@@ -51,7 +51,7 @@ namespace DAL
             return ret;
         }
 
-        public static int GetModuleImplID(int nGroupID, int moduleID)
+        public static int GetModuleImplID(int nGroupID, int moduleID, string connectionKey = "")
         {
             int nImplID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -62,6 +62,8 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", moduleID);
+                selectQuery.SetConnectionKey(connectionKey);
+
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;

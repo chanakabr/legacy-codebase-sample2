@@ -11,7 +11,7 @@ namespace TvinciCache
     {
         private static object lck = new object();
 
-        public static int GetModuleID(eWSModules eMainWSModule, int nGroupID, int nModuleID)
+        public static int GetModuleID(eWSModules eMainWSModule, int nGroupID, int nModuleID, string connectionKey = "")
         {
             int nImplID = 0;
             string key = string.Format("{0}_GetModuleID_{1}_{2}", eMainWSModule, nGroupID, nModuleID);            
@@ -22,7 +22,7 @@ namespace TvinciCache
                 {
                     if ((nImplID = WSCache.Instance.Get<int>(key)) == 0)
                     {
-                        nImplID = WS_Utils.GetModuleImplID(nGroupID, nModuleID);
+                        nImplID = WS_Utils.GetModuleImplID(nGroupID, nModuleID, connectionKey);
                         WSCache.Instance.Add(key, nImplID);
                     }
                 }
