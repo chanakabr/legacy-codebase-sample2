@@ -17,7 +17,7 @@ namespace ConditionalAccess
 
         #region Properties
 
-        public string FullLifceCycle
+        public string FullLifeCycle
         {
             get
             {
@@ -29,7 +29,7 @@ namespace ConditionalAccess
             }
         }
 
-        public string ViewLifceCycle
+        public string ViewLifeCycle
         {
             get
             {

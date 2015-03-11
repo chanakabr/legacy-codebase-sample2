@@ -72,7 +72,7 @@ namespace Users
         public abstract void PostAddNewUser(ref UserResponseObject userResponse, ref List<KeyValuePair> keyValueList);
 
         // Welcome Mail
-        public abstract void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId);
+        internal abstract void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId);
         public abstract void PreSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId, ref List<KeyValuePair> keyValueList);
         internal abstract bool MidSendWelcomeMail(ref UserResponseObject userResponse, TvinciAPI.WelcomeMailRequest mailRequest);
         public abstract void PostSendWelcomeMail(ref UserResponseObject userResponse, bool mailSent, ref List<KeyValuePair> keyValueList);
@@ -83,7 +83,7 @@ namespace Users
         public abstract void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList);
 
         // Newsletter
-        public abstract void InitSubscribeToNewsLetter(ref UserResponseObject userResponse, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe);
+        internal abstract void InitSubscribeToNewsLetter(ref UserResponseObject userResponse, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe);
         public abstract void PreSubscribeToNewsLetter(ref UserResponseObject userResponse, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe, ref List<KeyValuePair> keyValueList);
         internal abstract bool MidSubscribeToNewsLetter(ref UserResponseObject userResponse, UserDynamicData dynamicData, User user, ref bool shouldSubscribe);
         public abstract void PostSubscribeToNewsLetter(ref UserResponseObject userResponse, bool passed, ref UserDynamicData dynamicData, ref User user, ref List<KeyValuePair> keyValueList);

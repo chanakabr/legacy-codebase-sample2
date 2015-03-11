@@ -106,9 +106,9 @@ namespace TVinciShared
             return res;
         }
 
-        static public int GetModuleImplID(int nGroupID, int nModuleID)
+        static public int GetModuleImplID(int nGroupID, int nModuleID, string connectionKey = "")
         {
-            return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID);
+            return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID, connectionKey);
         }
 
         static public string GetModuleImplName(int nGroupID, int nModuleID, int operatorId = -1)
@@ -493,6 +493,23 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<int>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
+            }
+            catch (Exception ex)
+            {
+                result = 0;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
+        public static double GetTcmDoubleValue(string sKey)
+        {
+            double result = 0;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<double>(sKey);
                 if (result == null)
                     throw new NullReferenceException("missing key");
             }
