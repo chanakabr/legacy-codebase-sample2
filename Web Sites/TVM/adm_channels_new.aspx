@@ -19,12 +19,79 @@
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
 <script type="text/javascript">
-    function GetPageTable(orderBy , pageNum)
-    {
-        RS.Execute("adm_channels_new.aspx", "GetPageContent", orderBy , pageNum , callback_page_content_with_editor, errorCallback);
+    function GetPageTable(orderBy, pageNum) {
+        RS.Execute("adm_channels_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
     }
 </script>
+
+    <script type="text/javascript">
+        var flashObj1 = new SWFObj
+(
+ 'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+ 'width', '100%',
+ 'height', '100%',
+ 'src', 'flash/DualList',
+ 'scale', 'NoScale',
+ 'id', 'DualList',
+ 'bgcolor', '#869CA7',
+ 'wmode', 'Window',
+ 'name', 'DualList',
+ 'allowFullScreen', 'false',
+ 'allowScriptAccess', 'sameDomain',
+ 'movie', 'flash/DualList'
+);
+
+        function flashEvents(json) {
+            switch (json.eventType) {
+                case "move":
+                    if (json.callerID == 'DualList') {
+                        RS.Execute("adm_channels_new.aspx", "changeItemStatus", json.id, json.kindc, callback_changeItemStatus, errorCallback);
+                    }
+                    break;
+                case "ready":
+                    if (json.id == 'DualList') {
+                        var flashObj1 = document.getElementById(json.id);
+                        initDualObj();
+                    }
+                    break;
+            }
+        }
+
+        function callback_changeItemStatus(ret) {
+        }
+
+        function callback_changeItemStatus_UserTypes(ret) {
+        }
+
+        function AfterDateSelect(orderBy, pageNum, theDate) {
+        }
+        function GetPageTable(orderBy, pageNum) {
+            flashObj1.write("DualListPH");
+            RS.Execute("adm_channels_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        }
+
+        function initDualObj() {
+            RS.Execute("adm_channels_new.aspx", "initDualObj", callback_init_dobj, errorCallback);
+        }
+        function callback_init_dobj(ret) {
+            var flashObj1 = document.getElementById("DualList");
+
+
+            var split_array = ret.split("~~|~~");
+
+            if (split_array.length == 3) {
+                theTitle1 = split_array[0];
+                theTitle2 = split_array[1];
+                var xmlStr = split_array[2];
+                flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
+            }
+        }
+</script>
+
+
+
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
 <form id="form1" name="form1" action="" method="post" runat=server>
@@ -111,6 +178,8 @@
 								<tr>
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
+                                    </tr>
+                                <tr><td><div id="DualListPH"></div></td></tr>
 								</tr>
 							</table>
 						</td>
