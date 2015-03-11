@@ -585,7 +585,7 @@ namespace Users
 
         public override List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList) { return new List<UserResponseObject>(); }
 
-        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids)
+        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList)
         {
             try
             {
@@ -593,7 +593,7 @@ namespace Users
                 {
                     try
                     {
-                        UserResponseObject temp = GetUserData(siteGuids[i]);
+                        UserResponseObject temp = FlowManager.GetUserData(this, siteGuids[i], keyValueList);
                         if (temp != null)
                             userResponses.Add(temp);
                     }

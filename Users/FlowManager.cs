@@ -245,7 +245,7 @@ namespace Users
                 userResponses = user.PreGetUsersData(siteGuids, ref keyValueList);
 
                 // mid
-                user.MidGetUsersData(ref userResponses, siteGuids);
+                user.MidGetUsersData(ref userResponses, siteGuids, ref keyValueList);
 
                 // post
                 user.PostGetUsersData(ref userResponses, siteGuids, ref keyValueList);
