@@ -10,6 +10,7 @@ using ApiObjects;
 using ApiObjects.Epg;
 using EpgBL;
 using Tvinci.Core.DAL;
+using DAL;
 
 namespace YesEpgFeeder
 {
@@ -42,6 +43,7 @@ namespace YesEpgFeeder
         public YesEpgFeederObj(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {
+            lChannelIds = new List<string>();
             InitParamter();
         }
 
@@ -105,8 +107,15 @@ namespace YesEpgFeeder
             {
                 if (FeederType == 1) // YesFeeder
                 {
-                    SaveChannelByXML();
-
+                    // get list of all channels 
+                    GetChannelIds();
+                    
+                    foreach (string sChannel in lChannelIds)
+                    {
+                        URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
+                        ChannelID = sChannel;
+                        SaveChannelByXML(); 
+                    }
                     // Update last time invoke parameter only on Feeder Type                    
                     string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID , "NOW", Duration, Language);
 
@@ -122,8 +131,10 @@ namespace YesEpgFeeder
                 {
                     if (lChannelIds == null || lChannelIds.Count == 0)
                     {
-                        SaveChannelByXML();
+                        // get list of all channels 
+                        GetChannelIds();                       
                     }
+
                     foreach (string sChannel in lChannelIds)
                     {
                         URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
@@ -137,6 +148,20 @@ namespace YesEpgFeeder
                 Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", GroupID, ex.Message), LogFileName);
             }
             return true;
+        }
+
+        private void GetChannelIds()
+        {
+            DataTable dt = ApiDAL.Get_EPGChannel(ParentGroupID);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                string channal = string.Empty;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    channal = ODBCWrapper.Utils.GetSafeStr(dr, "CHANNEL_ID");
+                    lChannelIds.Add(channal);
+                }
+            }
         }
 
         private void SaveChannelByXML()
@@ -504,14 +529,23 @@ namespace YesEpgFeeder
             XmlDocument xmlDoc;
             try
             {
-                GetYestUrl();
+/*
+                 sXml = string.Empty;
+
+                StreamReader streamReader = new StreamReader("c:\\yesText.txt");
+                sXml = streamReader.ReadToEnd();
+                streamReader.Close();
+                */
+
+
+              GetYestUrl();
 
                 Logger.Logger.Log("getXmlTVChannel", string.Format("GetYestUrl:{0}", URL), LogFileName);
 
                 string sXml = TVinciShared.WS_Utils.SendXMLHttpReq(URL, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, "GET");
 
             //    sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
-                
+              
                 xmlDoc = new XmlDocument();
                 Encoding encoding = Encoding.UTF8;
 
@@ -640,7 +674,7 @@ namespace YesEpgFeeder
                                 if (XmlRefName.ToLower() == "flags")
                                 {
                                     XmlNode flags = multinode;
-                                    string flag = TVinciShared.XmlUtils.GetNodeValue(ref flags, "flags");
+                                    string flag = multinode.InnerXml; //TVinciShared.XmlUtils.GetNodeValue(ref flags, "flags");
                                     if (flag.Equals("fls"))
                                     {
                                         FieldEntityMapping[i].Value.Add("True");
