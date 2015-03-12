@@ -271,6 +271,14 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_view_lc.Initialize("Default Waiver Period", "adm_table_header_nbg", "FormInput", "WAIVER_PERIOD", false);        
         theRecord.AddRecord(dr_view_lc);
 
+        DataRecordCheckBoxField dr_dtt_regionalization = new DataRecordCheckBoxField(true);
+        dr_dtt_regionalization.Initialize("Is DTT Regionalization Enabled", "adm_table_header_nbg", "FormInput", "IS_REGIONALIZATION_ENABLED", true);
+        theRecord.AddRecord(dr_dtt_regionalization);
+
+        DataRecordDropDownField dr_region = new DataRecordDropDownField("linear_channels_regions", "name", "id", "group_id", t, 60, true);
+        dr_region.Initialize("Default Region", "adm_table_header_nbg", "FormInput", "DEFAULT_REGION", false);
+        theRecord.AddRecord(dr_region);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
