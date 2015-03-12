@@ -19,6 +19,7 @@ using System.Web;
 using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using TVPApiModule.Objects.Responses;
 
 
 namespace TVPApiServices
@@ -1435,6 +1436,36 @@ namespace TVPApiServices
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get regions: if regionIds supplied by the ids, if not returns all group regions")]
+        public RegionsResponse GetRegions(InitializationObject initObj, int[] regionIds)
+        {
+            RegionsResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRegions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetRegions(regionIds);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new RegionsResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new RegionsResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
             return response;

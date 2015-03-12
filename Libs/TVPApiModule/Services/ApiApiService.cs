@@ -8,6 +8,7 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -394,5 +395,35 @@ namespace TVPApiModule.Services
             return res;
         }
         #endregion
+
+        public TVPApiModule.Objects.Responses.RegionsResponse GetRegions(int[] regionIds)
+        {
+            TVPApiModule.Objects.Responses.RegionsResponse response = null;
+
+            try
+            {
+                var result = m_Module.GetRegions(m_wsUserName, m_wsPassword, regionIds);
+                response = new TVPApiModule.Objects.Responses.RegionsResponse();
+                if (result != null && result.Regions != null)
+                {
+                    response.Regions = new List<Objects.Responses.Region>();
+                    result.Regions.ToList().ForEach(r => response.Regions.Add(new Objects.Responses.Region(r)));
+                    response.Status = new TVPApiModule.Objects.Responses.Status(result.Status.Code, result.Status.Message);
+                }
+                else
+                {
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get regions."), ex);
+                response = new TVPApiModule.Objects.Responses.RegionsResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
     }
 }
