@@ -86,10 +86,18 @@ namespace TVPApiModule.CatalogLoaders
             object result = null;
             BuildRequest();
             Log("TryExecuteGetBaseResponse:", m_oRequest);
-            m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse);
+            var res = m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse);
+            if (res == eProviderResult.Success)
             {
                 Log("Got:", m_oResponse);
                 result = Process();
+            }
+            else if (res == eProviderResult.TimeOut)
+            {
+                result = new TVPApiModule.Objects.Responses.UnifiedSearchResponse()
+                {
+                    Status = new Objects.Responses.Status((int)eStatus.Timeout, string.Empty)
+                };
             }
             return result;
         }
