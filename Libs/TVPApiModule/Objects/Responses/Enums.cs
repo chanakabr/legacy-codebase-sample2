@@ -5,9 +5,5 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public enum AssetType
-    {
-        Media = 0,
-        EPG = 1
-    }
+    
 }

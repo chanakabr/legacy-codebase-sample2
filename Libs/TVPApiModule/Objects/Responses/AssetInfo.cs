@@ -13,7 +13,7 @@ namespace TVPApiModule.Objects.Responses
         public long Id { get; set; }
 
         [JsonProperty(PropertyName = "type")]
-        public AssetType Type { get; set; }
+        public string Type { get; set; }
 
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
@@ -50,11 +50,15 @@ namespace TVPApiModule.Objects.Responses
             if (media != null)
             {
                 Id = media.m_nID;
-                Type = AssetType.Media;
                 Name = media.m_sName;
                 Description = media.m_sDescription;
                 StartDate = TimeHelper.ConvertToUnixTimestamp(media.m_dCatalogStartDate);
                 EndDate = TimeHelper.ConvertToUnixTimestamp(media.m_dEndDate);
+
+                if (media.m_oMediaType != null)
+                {
+                    Type = media.m_oMediaType.m_sTypeName;
+                }
 
                 Statistics = new Statistics()
                 {
@@ -129,7 +133,7 @@ namespace TVPApiModule.Objects.Responses
         public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg)
         {
             Id = epg.EPG_ID;
-            Type = AssetType.EPG;
+            Type = "EPG";
             Name = epg.NAME;
             Description = epg.DESCRIPTION;
             //StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.START_DATE));

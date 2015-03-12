@@ -22,20 +22,20 @@ namespace TVPApiModule.CatalogLoaders
         public List<KeyValue> AndList { get; set; }
         public List<KeyValue> OrList { get; set; }
         public bool Exact { get; set; }
-        public UnifiedQueryType SearchType { get; set; }
+        public List<string> AssetTypes { get; set; }
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }
         public OrderDir OrderDir { get; set; }
         public string OrderValue { get; set; }
 
-        public APIUnifiedSearchLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex, 
-            bool exact, List<KeyValue> orList, List<KeyValue> andList, UnifiedQueryType searchType)
+        public APIUnifiedSearchLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex,
+            bool exact, List<KeyValue> orList, List<KeyValue> andList, List<string> assetTypes)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             Platform = platform.ToString();
             Exact = exact;
             OrList = orList;
             AndList = andList;
-            SearchType = searchType;
+            AssetTypes = assetTypes;
         }
 
         protected override void BuildSpecificRequest()
@@ -45,7 +45,7 @@ namespace TVPApiModule.CatalogLoaders
                 andList = AndList,
                 orList = OrList,
                 isExact = Exact,
-                queryType = SearchType,
+                assetTypes = AssetTypes,
                 order = new OrderObj()
                 {
                     m_eOrderBy = OrderBy,
@@ -71,7 +71,7 @@ namespace TVPApiModule.CatalogLoaders
             // al = AndList
             // ol = OrList
             
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}_e={4}_ob={5}_od={6}", GroupID, PageSize, PageIndex, SearchType, Exact, OrderBy, OrderDir);
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}_e={4}_ob={5}_od={6}", GroupID, PageSize, PageIndex, AssetTypes, Exact, OrderBy, OrderDir);
             if (!string.IsNullOrEmpty(OrderValue))
                 key.AppendFormat("_ov={0}", OrderValue);
             if (AndList != null && AndList.Count > 0)

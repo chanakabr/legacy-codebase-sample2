@@ -3160,7 +3160,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse UnifiedSearch(InitializationObject initObj, int pageSize, int pageIndex,
-            bool exact, List<KeyValue> orList, List<KeyValue> andList, UnifiedQueryType searchType, 
+            bool exact, List<KeyValue> orList, List<KeyValue> andList, List<string> assetTypes, 
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
@@ -3171,7 +3171,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, searchType)
+                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, assetTypes)
                     {
                         OrderBy = orderBy,
                         OrderDir = orderDir,
