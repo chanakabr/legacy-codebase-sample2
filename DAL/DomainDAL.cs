@@ -557,8 +557,8 @@ namespace DAL
         }
 
 
-        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime,
-                                            ref string sName, ref string sDbDescription, ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid)
+        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription, 
+            ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid, ref int regionId)
         {
             bool res = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -567,7 +567,7 @@ namespace DAL
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT name,description,id,is_active,status,CoGuid FROM DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery += "SELECT name,description,id,is_active,status,CoGuid,Region_ID FROM DOMAINS WITH (NOLOCK) WHERE ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", sName);
@@ -584,6 +584,7 @@ namespace DAL
                         nDbIsActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "is_active", 0);
                         nDbStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "status", 0);
                         sCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CoGuid", 0);
+                        regionId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "Region_ID", 0);
 
                         res = true;
                     }
@@ -820,20 +821,20 @@ namespace DAL
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat)
+            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
         {
             int nGroupConcurrentMaxLimit = 0;
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId);
         }
 
 
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus)
+            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId)
         {
 
             bool res = false;
@@ -879,7 +880,8 @@ namespace DAL
                 if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
                 {
                     suspendStatus = (DomainSuspentionStatus)suspendStatInt;
-                }               
+                }
+                regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
                 res = true;
             }
             return res;

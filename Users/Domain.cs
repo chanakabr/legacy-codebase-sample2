@@ -181,10 +181,11 @@ namespace Users
             int nDomainID = -1;
             int nIsActive = 0;
             int nStatus = 0;
+            int regionId = 0;
 
             Domain domainDbObj = this;
 
-            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
+            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);
 
             m_sName = sName;
             m_sDescription = sDescription;
@@ -193,6 +194,7 @@ namespace Users
             m_nStatus = nStatus;
             m_sCoGuid = sCoGuid;
             m_nGroupID = nGroupID;
+            m_nRegion = regionId;
 
             m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
 
@@ -1520,11 +1522,12 @@ namespace Users
             string sCoGuid = string.Empty;
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
+            int regionId = 0;
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat, ref regionId);
 
             if (res)
             {
@@ -1547,6 +1550,7 @@ namespace Users
                     m_minPeriodId = nDeviceMinPeriodId;
                     m_minUserPeriodId = nUserMinPeriodId;
                     m_sCoGuid = sCoGuid;
+                    m_nRegion = regionId;
                     m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
 
                     if (eSuspendStat == DomainSuspentionStatus.Suspended)
