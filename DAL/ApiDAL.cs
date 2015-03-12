@@ -1417,6 +1417,20 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return  ds.Tables[0];
             return null;
-        }        
+        }
+
+        public static DataTable Get_Regions(int groupId, List<int> regionIds)
+        {
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Regions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@RegionIDs", regionIds, "id");
+            sp.AddParameter("@GroupID", groupId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }
