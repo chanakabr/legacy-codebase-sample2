@@ -699,8 +699,19 @@ namespace Tvinci.Core.DAL
             return returnedDataTable;
         }
 
-        public static DataTable GetChannelByChannelId(int nChannelId)
+
+        public static DataSet GetChannelDetails(List<int> nChannelId)
         {
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@ChannelsID", nChannelId, "Id");
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
+
+        public static DataTable GetChannelByChannelId(int nChannelId)
+        {   
             DataTable returnedDataTable = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
