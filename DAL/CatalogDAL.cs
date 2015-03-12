@@ -2419,5 +2419,41 @@ namespace Tvinci.Core.DAL
 
             return lServices;
         }
+
+        /// <summary>
+        /// For a given group, gets the media types mappings of Id to name and vice versa
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="idToName"></param>
+        /// <param name="nameToId"></param>
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId)
+        {
+            idToName = new Dictionary<int, string>();
+            nameToId = new Dictionary<string, int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypes");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupId", groupId);
+
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable mediaTypes = dataSet.Tables[0];
+
+                if (mediaTypes != null && mediaTypes.Rows != null && mediaTypes.Rows.Count > 0)
+                {
+                    foreach (DataRow mediaType in mediaTypes.Rows)
+                    {
+                        int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
+                        string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
+
+                        idToName.Add(id, name);
+                        nameToId.Add(name, id);
+                    }
+                }
+            }
+        }
     }
 }

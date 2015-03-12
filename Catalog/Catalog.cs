@@ -752,8 +752,6 @@ namespace Catalog
                 definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
             }
 
-            definitions.mediaTypes = "0";
-
             definitions.order = new OrderObj();
             definitions.order.m_eOrderDir = order.m_eOrderDir;
             definitions.order.m_eOrderBy = order.m_eOrderBy;
@@ -772,12 +770,59 @@ namespace Catalog
             definitions.groupId = request.m_nGroupID;
             definitions.isExact = request.isExact;
             definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
-            definitions.queryType = request.queryType;
+
+            // Special case - if no type was specified or "All" is contained, search all types
+            if (request.assetTypes.Count == 0 ||
+                request.assetTypes.Contains("All"))
+            {
+                definitions.shouldSearchEpg = true;
+                definitions.mediaTypes = GetMediaTypes(request.m_nGroupID, null);
+            }
+            else
+            {
+                definitions.mediaTypes = GetMediaTypes(request.m_nGroupID, request.assetTypes);
+            }
+
+            if (request.assetTypes.Contains("EPG"))
+            {
+                definitions.shouldSearchEpg = true;
+            }
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        /// <summary>
+        /// Gets media types relevant for unified search query
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="assetTypes"></param>
+        /// <returns></returns>
+        private static List<int> GetMediaTypes(int groupId, List<string> assetTypes)
+        {
+            List<int> mediaTypes = new List<int>();
+
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(groupId);
+
+            // If null list was sent - get them all
+            if (assetTypes == null)
+            {
+                mediaTypes = group.GetMediaTypes();
+            }
+            else
+            {
+                // Else we need only to get the Ids of specific media types
+                List<string> mediaTypesNames = new List<string>(assetTypes);
+                mediaTypesNames.Remove("EPG");
+                mediaTypesNames.Remove("All");
+
+                mediaTypes = group.GetMediaTypeIdsByNames(mediaTypesNames);
+            }
+
+            return (mediaTypes);
         }
 
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
@@ -1513,6 +1558,7 @@ namespace Catalog
         private static string GetPermittedWatchRules(int nGroupId, DataTable extractedPermittedWatchRulesDT)
         {
             DataTable permittedWathRulesDt = null;
+
             if (extractedPermittedWatchRulesDT == null)
             {
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
@@ -1520,7 +1566,10 @@ namespace Catalog
                 permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
             }
             else
+            {
                 permittedWathRulesDt = extractedPermittedWatchRulesDT;
+            }
+
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {

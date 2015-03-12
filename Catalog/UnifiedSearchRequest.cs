@@ -30,7 +30,7 @@ namespace Catalog
         public List<KeyValue> orList;
 
         [DataMember]
-        public UnifiedQueryType queryType;
+        public List<string> assetTypes;
 
         #endregion
 
@@ -53,12 +53,12 @@ namespace Catalog
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         public UnifiedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
-            bool isExact, OrderObj order, string searchValue, List<KeyValue> ands, List<KeyValue> ors, UnifiedQueryType type)
+            bool isExact, OrderObj order, string searchValue, List<KeyValue> ands, List<KeyValue> ors, List<string> types)
                 : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             this.isExact = isExact;
             this.order = order;
-            this.queryType = type;
+            this.assetTypes = types;
             this.andList = ands;
             this.orList = ors;
         }

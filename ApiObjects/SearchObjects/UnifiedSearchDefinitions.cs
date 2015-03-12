@@ -35,7 +35,6 @@ namespace ApiObjects.SearchObjects
 
         public string name;
         public string description;
-        public string mediaTypes;
         public string permittedWatchRules
         {
             get;
@@ -74,9 +73,10 @@ namespace ApiObjects.SearchObjects
         public int userTypeID;
 
         public int[] deviceRuleId;
-        public int[] mediaFileTypes;
+        //public int[] mediaFileTypes;
 
-        public UnifiedQueryType queryType;
+        public List<int> mediaTypes;
+        public bool shouldSearchEpg;
 
         public List<string> extraReturnFields;
 
@@ -93,7 +93,8 @@ namespace ApiObjects.SearchObjects
             isDescending = false;
             isExact = false;
 
-            mediaTypes = string.Empty;
+            mediaTypes = new List<int>();
+            shouldSearchEpg = false;
 
             isExact = false;
             name = string.Empty;
@@ -107,23 +108,12 @@ namespace ApiObjects.SearchObjects
             shouldUseStartDate = true;
 
             deviceRuleId = null;
-            mediaFileTypes = null;
 
             order = new OrderObj();
-
-            // By default search on both EPG and MEDIA
-            queryType = UnifiedQueryType.All;
 
             extraReturnFields = new List<string>();
         }
 
         #endregion
-    }
-
-    public enum UnifiedQueryType
-    {
-        All,
-        Media,
-        EPG
     }
 }

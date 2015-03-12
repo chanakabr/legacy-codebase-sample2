@@ -930,7 +930,7 @@ namespace Catalog
 
                 //string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, unifiedSearchDefinitions.m_oLangauge);
 
-                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions.queryType, parentGroupId);
+                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
                 string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref httpStatus, string.Empty, string.Empty, requestBody, true);

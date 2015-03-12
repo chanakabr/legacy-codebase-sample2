@@ -49,7 +49,16 @@ namespace GroupsCacheManager
         protected Dictionary<int, LanguageObj> m_dLangauges;
         [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
-        
+
+        /// <summary>
+        /// Dictionary that maps media type Id to its name
+        /// </summary>
+        protected Dictionary<int, string> mediaTypesIdToName;
+
+        /// <summary>
+        /// Dictionary that maps media type name to its id
+        /// </summary>
+        protected Dictionary<string, int> mediaTypesNameToId;
 
         #endregion
 
@@ -74,6 +83,8 @@ namespace GroupsCacheManager
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
             this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
+            this.mediaTypesIdToName = new Dictionary<int, string>();
+            this.mediaTypesNameToId = new Dictionary<string, int>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -636,6 +647,80 @@ namespace GroupsCacheManager
 
 
 
+        #endregion
+
+        #region Media Types
+
+        /// <summary>
+        /// Gets list of all media types Ids in this group
+        /// </summary>
+        /// <returns></returns>
+        public List<int> GetMediaTypes()
+        {
+            // Initialize dictionaries if not initialized yet
+            if (this.mediaTypesNameToId.Count == 0 ||
+                this.mediaTypesIdToName.Count == 0)
+            {
+                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
+            }
+
+            // Convert dictionary to list of ints
+            return (this.mediaTypesIdToName.Keys.ToList());
+        }
+
+        /// <summary>
+        /// Reverse lookup of Id by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public int GetMediaTypeIdByName(string name)
+        {
+            int id = 0;
+
+            // Initialize dictionaries if not initialized yet
+            if (this.mediaTypesNameToId.Count == 0 ||
+                this.mediaTypesIdToName.Count == 0)
+            {
+                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
+            }
+
+            // Simple lookup in dictionary
+            this.mediaTypesNameToId.TryGetValue(name, out id);
+
+            return (id);
+        }
+
+        /// <summary>
+        /// Reverse lookup of several Ids by names
+        /// </summary>
+        /// <param name="names"></param>
+        /// <returns></returns>
+        public List<int> GetMediaTypeIdsByNames(List<string> names)
+        {
+            List<int> ids = new List<int>();
+
+            // Initialize dictionaries if not initialized yet
+            if (this.mediaTypesNameToId.Count == 0 ||
+                this.mediaTypesIdToName.Count == 0)
+            {
+                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
+            }
+
+            // Lookup each name in dictionary and add to list
+            foreach (var name in names)
+            {
+                int id;
+
+                this.mediaTypesNameToId.TryGetValue(name, out id);
+
+                if (id != 0)
+                {
+                    ids.Add(id);
+                }
+            }
+
+            return (ids);
+        }
         #endregion
 
     }
