@@ -365,6 +365,37 @@ namespace ElasticSearchFeeder.IndexBuilders
                         }
                         #endregion
 
+                        #region - get regions of media
+
+                        // Only if regionalization is enabled
+                        if (oGroup.isRegionalizationEnabled)
+                        {
+                            // Regions table should be 6h on stored procedure
+                            if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
+                            {
+                                foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
+                                {
+                                    int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
+                                    int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
+
+                                    // Accumulate region ids in list
+                                    medias[mediaId].regions.Add(regionId);
+                                }
+                            }
+
+                            // If no regions were found for this media - use 0, that indicates that the media is region-less
+                            foreach (Media media in medias.Values)
+                            {
+                                if (media.regions.Count == 0)
+                                {
+                                    media.regions.Add(0);
+                                }
+                            }
+                        }
+                    
+
+                        #endregion
+
                         #region - get all media tags
                         if (ds.Tables[2].Columns != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
                         {
