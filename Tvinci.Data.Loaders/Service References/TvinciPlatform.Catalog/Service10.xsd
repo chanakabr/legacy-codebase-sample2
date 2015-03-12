@@ -1340,10 +1340,10 @@
       <xs:extension base="tns:BaseRequest">
         <xs:sequence>
           <xs:element minOccurs="0" name="andList" nillable="true" type="tns:ArrayOfKeyValue" />
+          <xs:element xmlns:q53="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="assetTypes" nillable="true" type="q53:ArrayOfstring" />
           <xs:element minOccurs="0" name="isExact" type="xs:boolean" />
           <xs:element minOccurs="0" name="orList" nillable="true" type="tns:ArrayOfKeyValue" />
-          <xs:element xmlns:q53="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" nillable="true" type="q53:OrderObj" />
-          <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="queryType" type="q54:UnifiedQueryType" />
+          <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" nillable="true" type="q54:OrderObj" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

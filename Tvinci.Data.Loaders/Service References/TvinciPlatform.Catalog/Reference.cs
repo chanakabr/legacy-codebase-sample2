@@ -2688,6 +2688,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> andListField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<string> assetTypesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool isExactField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2695,9 +2698,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedQueryType queryTypeField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> andList {
@@ -2708,6 +2708,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.andListField, value) != true)) {
                     this.andListField = value;
                     this.RaisePropertyChanged("andList");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<string> assetTypes {
+            get {
+                return this.assetTypesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.assetTypesField, value) != true)) {
+                    this.assetTypesField = value;
+                    this.RaisePropertyChanged("assetTypes");
                 }
             }
         }
@@ -2747,19 +2760,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.orderField, value) != true)) {
                     this.orderField = value;
                     this.RaisePropertyChanged("order");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedQueryType queryType {
-            get {
-                return this.queryTypeField;
-            }
-            set {
-                if ((this.queryTypeField.Equals(value) != true)) {
-                    this.queryTypeField = value;
-                    this.RaisePropertyChanged("queryType");
                 }
             }
         }
@@ -3609,20 +3609,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ASC = 1,
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedQueryType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
-    public enum UnifiedQueryType : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        All = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Media = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        EPG = 2,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
