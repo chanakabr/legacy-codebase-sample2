@@ -23,7 +23,10 @@ namespace ElasticSearch.Common
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
             sRecord.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, \"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", \"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", \"description\": \"{16}\", \"cache_date\": \"{17}\", ",
-                            oMedia.m_nMediaID, oMedia.m_nGroupID, oMedia.m_nMediaTypeID, oMedia.m_nWPTypeID, oMedia.m_nIsActive, oMedia.m_nDeviceRuleId, oMedia.m_nLikeCounter, oMedia.m_nViews, oMedia.m_dRating, oMedia.m_nVotes, oMedia.m_sStartDate, oMedia.m_sEndDate, oMedia.m_sFinalEndDate, oMedia.m_sCreateDate, oMedia.m_sUpdateDate, Common.Utils.EscapeValues(ref oMedia.m_sName), Common.Utils.EscapeValues(ref oMedia.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+                            oMedia.m_nMediaID, oMedia.m_nGroupID, oMedia.m_nMediaTypeID, oMedia.m_nWPTypeID, oMedia.m_nIsActive, oMedia.m_nDeviceRuleId, oMedia.m_nLikeCounter, 
+                            oMedia.m_nViews, oMedia.m_dRating, oMedia.m_nVotes, oMedia.m_sStartDate, oMedia.m_sEndDate, oMedia.m_sFinalEndDate, oMedia.m_sCreateDate, oMedia.m_sUpdateDate,
+                            Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sName), Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sDescription), 
+                            DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
 
             #region add media file types
 
@@ -91,7 +94,7 @@ namespace ElasticSearch.Common
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
-                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", sMetaName.ToLower(), Common.Utils.EscapeValues(ref sMetaValue)));
+                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", sMetaName.ToLower(), Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue)));
                         }
                     }
                 }
@@ -120,7 +123,7 @@ namespace ElasticSearch.Common
                     foreach (var tagID in oMedia.m_dTagValues[sTagName].Keys)
                     {
                         string sTagVal = oMedia.m_dTagValues[sTagName][tagID];
-                        string sEscapedTagVal = Common.Utils.EscapeValues(ref sTagVal);
+                        string sEscapedTagVal = Common.Utils.ReplaceDocumentReservedCharacters(ref sTagVal);
 
                         if (!string.IsNullOrEmpty(sEscapedTagVal))
                             lTagValues.Add(string.Concat("\"", sEscapedTagVal, "\""));
@@ -279,7 +282,7 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingProperty() { name = "is_active", analyzed = false, type = eESFieldType.INTEGER });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "start_date", analyzed = false, type = eESFieldType.DATE });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "end_date", analyzed = false, type = eESFieldType.DATE });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "date_routing", analyzed = false, type = eESFieldType.DATE });
+            mappingObj.AddProperty(new BasicMappingProperty() { name = "date_routing", analyzed = false, type = eESFieldType.STRING });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name.analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = "whitespace", index_analyzer = "whitespace" });
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
@@ -328,8 +331,11 @@ namespace ElasticSearch.Common
             string name = oEpg.Name;
             string description = oEpg.Description;
 
-            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": \"{6}\", \"name.analyzed\": \"{6}\", \"description\": \"{7}\", \"description.analyzed\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\",",
-                oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.EscapeValues(ref name), Common.Utils.EscapeValues(ref description), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), oEpg.StartDate.ToString("yyyyMMdd000000"));
+            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": " +
+                "\"{6}\", \"name.analyzed\": \"{6}\", \"description\": \"{7}\", \"description.analyzed\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\",",
+                oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
+                Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description), 
+                /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"));
 
             #region add metas
             sRecord.Append(" \"metas\": {");
@@ -350,7 +356,7 @@ namespace ElasticSearch.Common
                                 if (!string.IsNullOrEmpty(lMetaValues[i]))
                                 {
                                     sTrimed = lMetaValues[i].Trim();
-                                    lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.EscapeValues(ref sTrimed));
+                                    lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(ref sTrimed));
                                 }
                             }
 
@@ -385,7 +391,7 @@ namespace ElasticSearch.Common
                                 if (!string.IsNullOrEmpty(lTagValues[i]))
                                 {
                                     sTrimed = lTagValues[i].Trim();
-                                    lTagValues[i] = string.Format("\"{0}\"", Common.Utils.EscapeValues(ref sTrimed));
+                                    lTagValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(ref sTrimed));
                                 }
                             }
 

@@ -95,6 +95,7 @@ namespace ApiObjects
         public string RecordingID;
         public bool IsAssetProtected;
         public string ChannelName;
+        public string RecordSource;
     }
 
     [Serializable]

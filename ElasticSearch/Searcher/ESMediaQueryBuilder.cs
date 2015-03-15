@@ -34,7 +34,7 @@ namespace ElasticSearch.Searcher
         {
             oSearchObject = searchObject;
             m_nGroupID = nGroupID;
-            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"name\"", "\"cache_date\"" };
+            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
 
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
 

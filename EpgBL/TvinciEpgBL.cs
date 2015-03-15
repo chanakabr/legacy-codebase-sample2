@@ -57,9 +57,11 @@ namespace EpgBL
             return bRes;
         }
 
-        //test this
-        public override bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null)
-        {    
+
+        public override bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
+        {
+            epgID = 0;
+
             bool bRes = false;
             try
             {
@@ -67,15 +69,26 @@ namespace EpgBL
                     return false;
 
                 for (int i = 0; i < 3 && !bRes; i++)
-                {  
-                    bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(sNewID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
-                                            m_oEpgCouchbase.InsertProgram(sNewID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));                                     
+                {
+                    ulong nNewID = newEpgItem.EpgID;
+
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.SetProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.SetProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    if (bRes)
+                    {
+                        epgID = nNewID;
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("InsertEpg", string.Format("Failed insert to CB id={0}", nNewID), "InsertCBEpg");
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("InsertEpg", string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
-                   sNewID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
             }
             return bRes;
         }
@@ -128,6 +141,19 @@ namespace EpgBL
             }
 
         }
+
+        public override void RemoveGroupPrograms(List<int> lprogramIDs)
+        {
+            List<string> lIdsStrings = lprogramIDs.ConvertAll<string>(x => x.ToString());
+            List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
+
+            foreach (EpgCB epg in lResCB)
+            {
+                epg.Status = 2;
+                UpdateEpg(epg);
+            }
+        }
+    
 
         public override void RemoveGroupPrograms(List<DateTime> lDates, int channelID)
         {
@@ -481,6 +507,19 @@ namespace EpgBL
                 lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
             }
             return lRes;
+        }
+
+        public override List<EpgCB> GetEpgs(List<string> lIds)
+        {
+            try
+            {
+                List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIds);
+                return lResCB;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)

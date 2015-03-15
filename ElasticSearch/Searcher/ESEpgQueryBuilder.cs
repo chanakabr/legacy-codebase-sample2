@@ -78,11 +78,19 @@ namespace ElasticSearch.Searcher
                 {
                     if (!m_oEpgSearchObj.m_bExact)
                     {
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
+                        wildCard = new ESWildcard()
+                        {
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
+                            Value = string.Format("*{0}*", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                        };
                     }
                     else
                     {
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
+                        wildCard = new ESWildcard()
+                        {
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
+                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                        };
                     }
                     textBooleanQueryOR.AddChild(wildCard, CutWith.OR);
                 }
@@ -94,7 +102,11 @@ namespace ElasticSearch.Searcher
                     foreach (SearchValue kvp in m_oEpgSearchObj.m_lSearchAnd)
                     {
 
-                        wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
+                        wildCard = new ESWildcard()
+                        {
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
+                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                        };
 
                         textBooleanQueryAnd.AddChild(wildCard, CutWith.AND);
                     }
@@ -109,6 +121,16 @@ namespace ElasticSearch.Searcher
 
                 filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
                 filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
+
+
+                if (!string.IsNullOrEmpty(m_oEpgSearchObj.m_sOrderBy))
+                {
+                    filteredQuery.ESSort.Add(new ESOrderObj()
+                    {
+                        m_eOrderDir = OrderDir.ASC,
+                        m_sOrderValue = m_oEpgSearchObj.m_sOrderBy
+                    });
+                }
 
                 res.Add(filteredQuery.ToString());
             }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CachingProvider;
 using TVinciShared;
 
@@ -85,7 +87,32 @@ namespace TvinciCache
             }
             else
             {
-                return default(T); 
+                return default(T);
+            }
+        }
+
+        /// <summary>
+        /// Tried to get a value from the cache, and tells wether succeeded or failed
+        /// </summary>
+        /// <typeparam name="T">The type of the value that we get</typeparam>
+        /// <param name="p_sKey"></param>
+        /// <param name="p_tValue"></param>
+        /// <returns>Wether the key exists in the cache or not</returns>
+        public bool TryGet<T>(string p_sKey, out T p_tValue)
+        {
+            BaseModuleCache oInnerResult = cache.Get(p_sKey);
+            p_tValue = default(T);
+
+            if (oInnerResult != null && oInnerResult.result != null)
+            {
+                // cast the result from the inner cache
+                p_tValue = (T)oInnerResult.result;
+
+                return (true);
+            }
+            else
+            {
+                return (false);    
             }
         }
 
@@ -98,7 +125,7 @@ namespace TvinciCache
 
         public IDictionary<string, object> GetValues(List<string> keys)
         {
-            if (keys == null || keys.Count ==0)
+            if (keys == null || keys.Count == 0)
                 return null;
 
             return cache.GetValues(keys);

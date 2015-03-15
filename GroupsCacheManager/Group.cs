@@ -38,7 +38,8 @@ namespace GroupsCacheManager
         public List<string> m_sPermittedWatchRules { get; set; }
         [JsonProperty("m_nSubGroup")]
         public List<int> m_nSubGroup { get; set; }
-
+        [JsonProperty]
+        public List<int> m_lServiceObject { get; set; }
 
         [JsonProperty("m_oOperatorChannelIDs")]
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
@@ -48,6 +49,8 @@ namespace GroupsCacheManager
         protected Dictionary<int, LanguageObj> m_dLangauges;
         [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
+        
+
         #endregion
 
         #region CTOR
@@ -69,6 +72,7 @@ namespace GroupsCacheManager
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
+            this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
         }
 
@@ -532,6 +536,106 @@ namespace GroupsCacheManager
         {
             return m_oDefaultLanguage;
         }
+        #endregion
+
+        #region Services
+       
+        public bool AddServices(List<int> services)
+        {
+            bool bAdd = false;
+            if (services != null && services.Count > 0)
+            {
+                try
+                {
+                    if (m_lServiceObject == null)
+                    {
+                        m_lServiceObject = new List<int>();
+                    }
+                    
+                    foreach (int newItem in services)
+                    {
+                        if (!m_lServiceObject.Contains(newItem))
+                        {
+                            m_lServiceObject.Add(newItem);
+                            bAdd = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(string.Format("failed to add Service . groupID={0};", this.m_nParentGroupID));
+                }
+            }
+
+            return bAdd;
+        }
+
+        public int GetServices(int nServiceID)
+        {
+            int res = 0;
+
+            if (m_lServiceObject != null && m_lServiceObject.Contains(nServiceID))
+            {
+                res = nServiceID;             
+            }
+
+            return res;
+        }
+
+        public List<int> GetServices()
+        {
+            return this.m_lServiceObject;
+        }
+
+        public bool RemoveServices(List<int> servicesID)
+        {
+            bool bRemove = false;
+            try
+            {
+                if (m_lServiceObject != null)
+                {
+                    foreach (int removeItem in servicesID)
+                    {
+                        if (m_lServiceObject.Contains(removeItem))
+                        {
+                            m_lServiceObject.Remove(removeItem);
+                            bRemove = true;
+                        }
+                    }                    
+                }
+                return bRemove;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateServices(List<int> services)
+        {
+            try
+            {
+                //foreach (int item in m_lServiceObject)
+                //{
+                //    foreach (int updateItem in services)
+                //    {
+                //        if (item.ID == updateItem.ID)
+                //        {
+                //            item.Name = updateItem.Name;
+                //        }
+                //    }
+                //}
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+
+
+
         #endregion
 
     }

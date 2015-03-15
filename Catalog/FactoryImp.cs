@@ -22,7 +22,7 @@ namespace Catalog
             //internal logic on which Type to return
             if (m_oBaseRequest is ChannelRequestMultiFiltering)
             {
-                return new ChannelRequestMultiFiltering();
+                return new ChannelRequestMultiFiltering((ChannelRequestMultiFiltering)this.m_oBaseRequest);
             }
             if (m_oBaseRequest is ChannelRequest)
             {
@@ -154,7 +154,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is ChannelViewsRequest)
             {
-                return new ChannelViewsRequest();
+                return (ChannelViewsRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is BuzzMeterRequest)
             {

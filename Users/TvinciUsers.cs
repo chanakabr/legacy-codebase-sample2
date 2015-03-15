@@ -40,7 +40,7 @@ namespace Users
                 int nSiteGuid = u.InitializeByUsername(sUsername, m_nGroupID);
                 UserResponseObject resp = new UserResponseObject();
                 if (nSiteGuid < 1 || u.m_oBasicData.m_sUserName.Length == 0)
-                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);
+                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);                
                 else
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
@@ -67,7 +67,7 @@ namespace Users
                 u.InitializeByFacebook(sFacebookID, m_nGroupID);
                 UserResponseObject resp = new UserResponseObject();
                 if (u.m_oBasicData.m_sUserName == "")
-                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);
+                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);                
                 else
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
@@ -96,21 +96,19 @@ namespace Users
                 return UserActivationState.Activated;
             }
 
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);       
 
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
 
             return activStatus;
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);         
 
             int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);          
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);          
 
             return activStatus;
         }
@@ -158,6 +156,10 @@ namespace Users
                             ret = ResponseStatus.UserDoesNotExist;
                             break;
 
+                        //case UserActivationState.UserSuspended:
+                        //    ret = ResponseStatus.UserSuspended;
+                        //    break;
+
                         case UserActivationState.NotActivated:
                             o.m_user = new User(nGroupID, nUserID);
                             ret = ResponseStatus.UserNotActivated;
@@ -171,7 +173,8 @@ namespace Users
                         case UserActivationState.UserRemovedFromDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             ret = ResponseStatus.UserNotIndDomain;
-                            break;   
+                            break; 
+  
                         case UserActivationState.UserWIthNoDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);
@@ -181,7 +184,7 @@ namespace Users
                     }                    
                 }
 
-                if (nUserStatus != UserActivationState.UserWIthNoDomain)
+                if (nUserStatus != UserActivationState.UserWIthNoDomain && nUserStatus != UserActivationState.UserSuspended)
                 {
                     o.m_RespStatus = ret;
                     return o;
@@ -228,6 +231,9 @@ namespace Users
                         case UserActivationState.UserDoesNotExist:
                             ret = ResponseStatus.UserDoesNotExist;
                             break;
+                        //case UserActivationState.UserSuspended:
+                        //    ret = ResponseStatus.UserSuspended;
+                        //    break;
                         case UserActivationState.NotActivated:
                             o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotActivated;
@@ -249,7 +255,7 @@ namespace Users
                     }
                 }
 
-                if (nUserStatus != UserActivationState.UserWIthNoDomain)
+                if (nUserStatus != UserActivationState.UserWIthNoDomain && nUserStatus != UserActivationState.UserSuspended)
                 {
                     o.m_RespStatus = ret;
                     return o;
@@ -733,9 +739,13 @@ namespace Users
                 }
                 UserResponseObject resp = new UserResponseObject();
                 if (u.m_oBasicData.m_sUserName == "")
+                {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, u);
+                }                
                 else
+                {
                     resp.Initialize(ResponseStatus.OK, u);
+                }
                 return resp;
             }
             catch(Exception ex)
@@ -1036,10 +1046,19 @@ namespace Users
                     UserDynamicData d = new UserDynamicData();
                     d.Initialize(sDynamicDataXML);
                     u.Update(b, d, m_nGroupID);
-                    resp.Initialize(ResponseStatus.OK, u);
+                    if (u.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    {
+                        resp.Initialize(ResponseStatus.UserSuspended, u);
+                    }
+                    else
+                    {
+                        resp.Initialize(ResponseStatus.OK, u);
+                    }
                 }
                 else
+                {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, null);
+                }
                 return resp;
             }
             catch
@@ -1059,7 +1078,7 @@ namespace Users
                 
                 bool isSubscribeNewsLetter = false;
                 bool isUnSubscribeNewsLeter = false;
-
+             
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, null);
@@ -1117,7 +1136,14 @@ namespace Users
                     }
                 }
 
-                resp.Initialize(ResponseStatus.OK, u);
+                if (u.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                {
+                    resp.Initialize(ResponseStatus.UserSuspended, u);                   
+                }
+                else
+                {
+                    resp.Initialize(ResponseStatus.OK, u);
+                }
             }
             catch
             {

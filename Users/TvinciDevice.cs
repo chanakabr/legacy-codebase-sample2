@@ -47,7 +47,6 @@ namespace Users
                 {
                     result = device.Initialize(nID);
                 }
-
             }
             ret.m_oDevice = device;
             if (!result)
@@ -68,8 +67,6 @@ namespace Users
                 {
                     ret.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
                 }
-
-
             }
             return ret;
         }

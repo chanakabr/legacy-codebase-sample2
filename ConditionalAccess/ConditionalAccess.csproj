@@ -52,6 +52,15 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -79,51 +88,53 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
-    <Compile Include="BaseConditionalAccess.cs" />
-    <Compile Include="BaseNPVRCommand.cs" />
-    <Compile Include="BillingResponse.cs" />
+    <Compile Include="Implementations\BaseConditionalAccess.cs" />
+    <Compile Include="Commands\BaseNPVRCommand.cs" />
+    <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
-    <Compile Include="CancelDeleteResponse.cs" />
-    <Compile Include="CancelNPVRCommand.cs" />
-    <Compile Include="CancelSeriesNPVRCommand.cs" />
-    <Compile Include="CinepolisConditionalAccess.cs" />
+    <Compile Include="Response\CancelDeleteResponse.cs" />
+    <Compile Include="Commands\CancelNPVRCommand.cs" />
+    <Compile Include="Commands\CancelSeriesNPVRCommand.cs" />
+    <Compile Include="Implementations\CinepolisConditionalAccess.cs" />
     <Compile Include="ConditionalAccessCache.cs" />
-    <Compile Include="DeleteNPVRCommand.cs" />
-    <Compile Include="DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="Commands\DeleteNPVRCommand.cs" />
+    <Compile Include="Commands\DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="Response\DomainServicesResponse.cs" />
+    <Compile Include="Response\EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LicensedLinkNPVRCommand.cs" />
-    <Compile Include="LicensedLinkNPVRResponse.cs" />
-    <Compile Include="LicensedLinkResponse.cs" />
-    <Compile Include="ProtectionResponse.cs" />
-    <Compile Include="ProtectNPVRCommand.cs" />
-    <Compile Include="QuotaResponse.cs" />
+    <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
+    <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
+    <Compile Include="Response\LicensedLinkResponse.cs" />
+    <Compile Include="Response\ProtectionResponse.cs" />
+    <Compile Include="Commands\ProtectNPVRCommand.cs" />
+    <Compile Include="Response\QuotaResponse.cs" />
     <Compile Include="NPVRResponse.cs" />
     <Compile Include="PermittedCollectionContainer.cs" />
-    <Compile Include="RecordNPVRCommand.cs" />
-    <Compile Include="RecordResponse.cs" />
-    <Compile Include="RecordSeriesByNameNPVRCommand.cs" />
-    <Compile Include="RecordSeriesByProgramIdNPVRCommand.cs" />
-    <Compile Include="RetrieveQuotaNPVRCommand.cs" />
+    <Compile Include="Commands\RecordNPVRCommand.cs" />
+    <Compile Include="Response\RecordResponse.cs" />
+    <Compile Include="Commands\RecordSeriesByNameNPVRCommand.cs" />
+    <Compile Include="Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="UserBillingTransactionResponse.cs" />
+    <Compile Include="Response\UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
-    <Compile Include="EutelsatConditionalAccess.cs" />
-    <Compile Include="ElisaConditionalAccess.cs" />
+    <Compile Include="Implementations\EutelsatConditionalAccess.cs" />
+    <Compile Include="Implementations\ElisaConditionalAccess.cs" />
     <Compile Include="enums.cs" />
-    <Compile Include="FilmoConditionalAccess.cs" />
+    <Compile Include="Implementations\FilmoConditionalAccess.cs" />
     <Compile Include="InAppReceipt.cs" />
     <Compile Include="ItemPriceContainer.cs" />
     <Compile Include="LicenseContainer.cs" />
     <Compile Include="PermittedMediaContainer.cs" />
     <Compile Include="PermittedSubscriptionContainer.cs" />
-    <Compile Include="PrePaidResponse.cs" />
+    <Compile Include="Response\PrePaidResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -136,10 +147,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SocialInviteCampaignImpl.cs" />
-    <Compile Include="TvinciConditionalAccess.cs" />
+    <Compile Include="Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="UserPrePaidContainer.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="VodafoneConditionalAccess.cs" />
+    <Compile Include="Implementations\VodafoneConditionalAccess.cs" />
     <Compile Include="VoucherCampaignImpl.cs" />
     <Compile Include="Web References\NotificationService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -323,7 +334,13 @@
     <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\DeviceResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\DLMResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\Domain.datasource">
@@ -346,6 +363,12 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\TvinciDomains\ResponseDLMStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\StatusObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -358,7 +381,25 @@
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciUsers\KeyValuePair.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\ResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserBasicData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserGroupRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserItemList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciUsers\UserState.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UserType.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
   </ItemGroup>
@@ -396,10 +437,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/TVMBilling/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Billing_B/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/TVMBilling/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Billing_B/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -423,10 +464,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciPricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="https://platform-us.tvinci.com/users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciUsers\</RelPath>
-      <UpdateFromURL>https://platform-us.tvinci.com/users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -561,7 +602,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CDNTokenizers\CDNTokenizers\CDNTokenizers.csproj">
+    <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
     </ProjectReference>
@@ -593,6 +634,10 @@
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
       <Name>GoogleAPI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{e56da89e-efe0-4077-ab1b-fe00389d5a02}</Project>
       <Name>LLNWMediaVault</Name>
@@ -616,6 +661,10 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>

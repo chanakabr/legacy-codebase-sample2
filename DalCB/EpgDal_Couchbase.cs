@@ -211,25 +211,42 @@ namespace DalCB
             return oRes;
         }
 
-        public List<EpgCB> GetProgram(List<string> lIds)
+        public List<EpgCB> GetProgram(List<string> p_lstIds)
         {
-            List<EpgCB> oRes = new List<EpgCB>();
+            List<EpgCB> lstResultEpgs = new List<EpgCB>();
+
             try
             {
-                if (lIds != null && lIds.Count > 0)
+                if (p_lstIds != null && p_lstIds.Count > 0)
                 {
-                    IDictionary<string, object> dItems = m_oClient.Get(lIds);
-                    if (dItems != null && dItems.Count > 0)
+                    IDictionary<string, object> dicItems = m_oClient.Get(p_lstIds);
+
+                    if (dicItems != null && dicItems.Count > 0)
                     {
-                        EpgCB tempEpg;
-                        foreach (KeyValuePair<string, object> item in dItems)
+                        // Run on original list of Ids, to maintain their order
+                        foreach (var sId in p_lstIds)
                         {
-                            if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                            // Make sure the Id was returned from CB
+                            if (dicItems.ContainsKey(sId))
                             {
-                                tempEpg = JsonConvert.DeserializeObject<EpgCB>(item.Value.ToString());
-                                if (tempEpg != null)
+                                object oValue = dicItems[sId];
+
+                                // If the value that CB returned is valid
+                                if (oValue != null && oValue is string)
                                 {
-                                    oRes.Add(tempEpg);
+                                    string sValue = Convert.ToString(oValue);
+
+                                    if (!string.IsNullOrEmpty(sValue))
+                                    {
+                                        // Deserialize string from CB to an EpgCB object
+                                        EpgCB oTempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                        // If it was successful, add to list
+                                        if (oTempEpg != null)
+                                        {
+                                            lstResultEpgs.Add(oTempEpg);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -239,11 +256,11 @@ namespace DalCB
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("IDs: ");
-                if (lIds != null && lIds.Count > 0)
+                if (p_lstIds != null && p_lstIds.Count > 0)
                 {
-                    for (int i = 0; i < lIds.Count; i++)
+                    for (int i = 0; i < p_lstIds.Count; i++)
                     {
-                        sb.Append(String.Concat(lIds[i], ";"));
+                        sb.Append(String.Concat(p_lstIds[i], ";"));
                     }
                 }
                 else
@@ -254,7 +271,7 @@ namespace DalCB
                 Logger.Logger.Log("Exception", string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), GetLogFileName());
             }
 
-            return oRes;
+            return lstResultEpgs;
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)
@@ -427,6 +444,66 @@ namespace DalCB
 
 
 
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, dtExpiresAt.Value) :
+                                                   m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas, dtExpiresAt.Value) :
+                                                   m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
     }
    
 }

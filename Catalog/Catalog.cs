@@ -90,7 +90,8 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(mediaRequest.m_nGroupID);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(mediaRequest.m_nGroupID);
                 List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
                 //complete media id details 
@@ -156,9 +157,10 @@ namespace Catalog
                 bool bUseStartDate = true;
                 int nLanguage = 0;
 
+                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+
                 if (mediaRequest.m_oFilter != null)
                 {
-                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(mediaRequest.m_oFilter.m_bUseFinalDate);
                     bOnlyActiveMedia = mediaRequest.m_oFilter.m_bOnlyActiveMedia;
                     bUseStartDate = mediaRequest.m_oFilter.m_bUseStartDate;
                     nLanguage = mediaRequest.m_oFilter.m_nLanguage;
@@ -284,70 +286,75 @@ namespace Catalog
             try
             {
                 result = true;
-                Metas oMeta = new Metas();
                 List<Metas> lMetas = new List<Metas>();
-                string sFieldName;
-                string sFieldVal;
-                string sName;
-                for (int i = 1; i < 20; i++)
+
+                if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
                 {
-                    sFieldName = "META" + i.ToString() + "_STR_NAME";
-                    sFieldVal = "META" + i.ToString() + "_STR";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                    Metas oMeta = new Metas();
+                    string sFieldName;
+                    string sFieldVal;
+                    string sName;
+                    for (int i = 1; i < 20; i++)
                     {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
+                        sFieldName = "META" + i.ToString() + "_STR_NAME";
+                        sFieldVal = "META" + i.ToString() + "_STR";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                         {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
                             {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
                             }
                         }
+                        oMeta = new Metas();
                     }
-                    oMeta = new Metas();
+
+                    for (int i = 1; i < 11; i++)
+                    {
+                        sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
+                        sFieldVal = "META" + i.ToString() + "_DOUBLE";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        {
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
+                            {
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
+                            }
+                        }
+                        oMeta = new Metas();
+                    }
+
+                    for (int i = 1; i < 11; i++)
+                    {
+                        sFieldName = "META" + i.ToString() + "_BOOL_NAME";
+                        sFieldVal = "META" + i.ToString() + "_BOOL";
+                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        {
+                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
+                            if (!string.IsNullOrEmpty(sName))
+                            {
+                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
+                                {
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
+                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
+                                    lMetas.Add(oMeta);
+                                }
+                            }
+                        }
+                        oMeta = new Metas();
+                    }
                 }
 
-                for (int i = 1; i < 11; i++)
-                {
-                    sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
-                    sFieldVal = "META" + i.ToString() + "_DOUBLE";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
-                    {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
-                        {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                            {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
-                            }
-                        }
-                    }
-                    oMeta = new Metas();
-                }
-
-                for (int i = 1; i < 11; i++)
-                {
-                    sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                    sFieldVal = "META" + i.ToString() + "_BOOL";
-                    if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
-                    {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                        if (!string.IsNullOrEmpty(sName))
-                        {
-                            if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                            {
-                                oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                lMetas.Add(oMeta);
-                            }
-                        }
-                    }
-                    oMeta = new Metas();
-                }
                 return lMetas;
             }
             catch (Exception ex)
@@ -542,8 +549,9 @@ namespace Catalog
                 if (searcher != null)
                 {
                     isLucene = searcher is LuceneWrapper;
-                    GroupManager groupManager = new GroupManager();
-                    int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
+                    GroupManager groupManager = new GroupManager();                    
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                     Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                     if (groupInCache != null)
@@ -715,9 +723,10 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.GetParentGroup(request.m_nGroupID);
             Group group = groupManager.GetGroup(nParentGroupID);
 
             if (group != null)
@@ -835,6 +844,7 @@ namespace Catalog
                 {
                     oSearchOrderObj.m_bIsSlidingWindowField = oOrderObj.m_bIsSlidingWindowField;
                     oSearchOrderObj.lu_min_period_id = oOrderObj.lu_min_period_id;
+
                     switch (oOrderObj.m_eOrderDir)
                     {
                         case ApiObjects.SearchObjects.OrderDir.ASC:
@@ -952,7 +962,10 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
+                
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
+
                 List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
                 DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage, lSubGroupTree);
 
@@ -1141,8 +1154,13 @@ namespace Catalog
         {
             int opID = 0;
             bool isMaster = false;
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+
             if (nDomainID < 1)
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+            {
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
+            }
+             
             if (nDomainID > 0)
             {
                 switch (eNPVR)
@@ -1435,7 +1453,11 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(nGroupId);
+                
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
+
+
                 Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
@@ -1461,7 +1483,11 @@ namespace Catalog
             if (lIds != null && lIds.Count > 0)
             {
                 GroupManager groupManager = new GroupManager();
-                int nParentGroupID = CatalogCache.GetParentGroup(nGroupId);
+                
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
+
+
                 Group group = groupManager.GetGroup(nParentGroupID);
 
                 if (group != null)
@@ -1497,7 +1523,10 @@ namespace Catalog
         {
 
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.GetParentGroup(nGroupID);
+            
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
+
             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
             DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
@@ -1544,9 +1573,11 @@ namespace Catalog
             int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
             int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
 
-            if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
+            if ((nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0) ||
+                nEndIndex > pRequest.m_lProgramsIds.Count)
+            {
                 nEndIndex = pRequest.m_lProgramsIds.Count();
-
+            }
 
 
             //generate a list with the relevant EPG IDs (according to page size and page index)
@@ -2340,7 +2371,12 @@ namespace Catalog
                         // we have operator id
                         res = true;
                         GroupManager groupManager = new GroupManager();
-                        int nParentGroupID = CatalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
+                        
+                        CatalogCache catalogCache = CatalogCache.Instance();
+                        int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
+
+
+
                         List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(nParentGroupID, operatorID);
                         List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(nParentGroupID);
 
@@ -2584,7 +2620,11 @@ namespace Catalog
         {
             List<FileMedia> res = null;
             GroupManager groupManager = new GroupManager();
-            int nParentGroupID = CatalogCache.GetParentGroup(groupID);
+            
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(groupID);
+
+
             List<int> groupTreeVals = groupManager.GetSubGroup(nParentGroupID);
 
             DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs, mediaFileCoGuid);
@@ -2787,22 +2827,133 @@ namespace Catalog
             return string.IsNullOrEmpty(siteGuid) || !Int32.TryParse(siteGuid, out nSiteGuid) || nSiteGuid == 0;
         }
 
-        internal static bool GetMediaMarkHitInitialData(string userIP, int mediaID, int mediaFileID, ref int countryID,
+        internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
         {
             bool res = false;
-            long ipVal = ParseIPOutOfString(userIP);
-            if (ipVal > 0)
+            bool bIP = false;
+            bool bMedia = false;
+            long ipVal = 0;
+
+            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
-                if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID,
-                    ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
-                {
-                    res = true;
-                }
+                ipVal = ParseIPOutOfString(userIP);
+                return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
+                    ref formatID, ref mediaTypeID, ref billingTypeID);
             }
 
+            #region  try get values from catalog cache
+
+            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
+            if (cacheTime == 0)
+            {
+                cacheTime = 120d;
+            }
+
+            CatalogCache catalogCache = CatalogCache.Instance();
+            string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
+            object oCountryID = catalogCache.Get(ipKey);
+            if (oCountryID != null)
+            {
+                countryID = (int)oCountryID;
+                bIP = true;
+            }
+
+            string m_mf_Key = string.Format("{0}_media_{1}_mediaFile_{2}", eWSModules.CATALOG, mediaID, mediaFileID);
+            List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
+            if (lMedia != null && lMedia.Count > 0)
+            {
+                InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, lMedia);
+                bMedia = true;
+            }
+            #endregion
+
+            if (bIP && bMedia) // both values in cache 
+            {
+                res = true;
+            }
+            else // not found in cache 
+            {
+                if (!bIP && !bMedia)
+                {
+                    ipVal = ParseIPOutOfString(userIP);
+                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                    {
+                        catalogCache.Set(ipKey, countryID, cacheTime);
+                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                        res = true;
+                    }
+                }
+                else
+                {
+                    if (!bIP)
+                    {
+                        ipVal = ParseIPOutOfString(userIP);
+                        if (ipVal > 0)
+                        {
+                            CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                            catalogCache.Set(ipKey, countryID, cacheTime);
+                            res = true;
+                        }
+                    }
+                    if (!bMedia)
+                    {
+                        res = false;
+                        if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                        {
+                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                            catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            
             return res;
         }
+
+        private static void InitMediaMarkHitDataFromCache(ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, List<KeyValuePair<string, int>> lMedia)
+        {
+            foreach (KeyValuePair<string, int> item in lMedia)
+            {
+                switch (item.Key)
+                {
+                    case "ownerGroupID":
+                        ownerGroupID = item.Value;
+                        break;
+                    case "cdnID":
+                        cdnID = item.Value;
+                        break;
+                    case "qualityID":
+                        qualityID = item.Value;
+                        break;
+                    case "formatID":
+                        formatID = item.Value;
+                        break;
+                    case "mediaTypeID":
+                        mediaTypeID = item.Value;
+                        break;
+                    case "billingTypeID":
+                        billingTypeID = item.Value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private static void InitMediaMarkHitDataToCache(int ownerGroupID, int cdnID, int qualityID, int formatID, int mediaTypeID, int billingTypeID, ref List<KeyValuePair<string, int>> lMedia)
+        {
+            lMedia = new List<KeyValuePair<string, int>>();
+            lMedia.Add(new KeyValuePair<string, int>("ownerGroupID", ownerGroupID));
+            lMedia.Add(new KeyValuePair<string, int>("cdnID", cdnID));
+            lMedia.Add(new KeyValuePair<string, int>("qualityID", qualityID));
+            lMedia.Add(new KeyValuePair<string, int>("formatID", formatID));
+            lMedia.Add(new KeyValuePair<string, int>("mediaTypeID", mediaTypeID));
+            lMedia.Add(new KeyValuePair<string, int>("billingTypeID", billingTypeID));          
+        }
+        
 
 
         private static long ParseIPOutOfString(string userIP)
@@ -2824,8 +2975,11 @@ namespace Catalog
         }
 
         internal static bool InsertStatisticsRequestToES(int groupID, int mediaID, int mediaTypeID, string action, int playTime)
-        {
-            int parentGroupID = CatalogCache.GetParentGroup(groupID);
+        {            
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupID = catalogCache.GetParentGroup(groupID);
+
+
             MediaView view = new MediaView() { GroupID = parentGroupID, MediaID = mediaID, Location = playTime, MediaType = mediaTypeID.ToString(), Action = action, Date = DateTime.UtcNow };
 
             bool bRes = false;
@@ -3275,8 +3429,6 @@ namespace Catalog
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
-            string wsUsername = string.Empty;
-            string wsPassword = string.Empty;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
             string url = Utils.GetWSURL("users_ws");
             bool res = false;
@@ -3284,7 +3436,7 @@ namespace Catalog
             {
                 if (url.Length > 0)
                     u.Url = url;
-                ws_users.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
+                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid);
                 if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;

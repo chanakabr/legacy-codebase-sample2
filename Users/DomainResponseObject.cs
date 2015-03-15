@@ -22,4 +22,26 @@ namespace Users
             m_oDomainResponseStatus = oDomainResponseStatus;
         }
     }
+
+    public class Status
+    {
+        public Code m_SuccessCode;
+
+        public Status()
+        {
+            m_SuccessCode = Code.Success;
+        }
+
+        public Status(bool succeeded)
+        {
+            if (succeeded)
+            {
+                m_SuccessCode = Code.Success;
+            }
+            else
+            {
+                m_SuccessCode = Code.Failure;
+            }
+        }
+    }
 }

@@ -7,6 +7,7 @@ using System.Threading;
 using CachingProvider;
 using DAL;
 using Enyim.Caching.Memcached;
+using ApiObjects;
 
 namespace GroupsCacheManager
 {
@@ -131,48 +132,48 @@ namespace GroupsCacheManager
                 else
                 {
                     bool bInsert = false;
-                    VersionModuleCache versionModule;
-                    for (int i = 0; i < 3 && !bInsert; i++)
+                    bool createdNew = false;
+                    var mutexSecurity = Utils.CreateMutex();
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
                     {
-                        versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                        try
+                        {
+                            mutex.WaitOne(-1);
+                            // try to get GRoup from CB 
+                            VersionModuleCache versionModule;
+                            versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
 
-                        if (versionModule != null && versionModule.result != null)
-                        {
-                            group = baseModule.result as Group;
-                        }
-                        else
-                        {
-                            bool createdNew = false;
-                            var mutexSecurity = Utils.CreateMutex();
-                            using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
+                            if (versionModule != null && versionModule.result != null)
                             {
-                                try
+                                group = baseModule.result as Group;
+                            }
+
+                            else
+                            {
+                                Group tempGroup = Utils.BuildGroup(nGroupID, true);
+                                for (int i = 0; i < 3 && !bInsert; i++)
                                 {
-                                    mutex.WaitOne(-1);
-
-                                    Group tempGroup = Utils.BuildGroup(nGroupID, true);
-
                                     //try insert to Cache                                     
-                                    versionModule.result = tempGroup;                                    
+                                    versionModule.result = tempGroup;
                                     bInsert = this.CacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
                                     if (bInsert)
                                     {
                                         group = tempGroup;
                                     }
                                 }
-
-                                catch (Exception ex)
-                                {
-                                    Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
-                                }
-                                finally
-                                {
-                                    mutex.ReleaseMutex();
-                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                        }
+                        finally
+                        {
+                            mutex.ReleaseMutex();
                         }
                     }
                 }
+                
                 return group;
             }
             catch (Exception ex)
@@ -558,5 +559,105 @@ namespace GroupsCacheManager
                 return false;
             }
         }
+        
+        internal bool AddServices(int nGroupID, List<int> services)
+        {
+            try
+            {
+                bool bAdd = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);               
+                if (vModule != null && vModule.result != null)
+                {
+                    group = vModule.result as Group;                
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bAdd; i++)
+                    {
+                        //try update to CB
+                        if (group.AddServices(services))
+                        {
+                            vModule.result = group;
+                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bAdd;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("AddServices", string.Format("failed to AddServices to IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        internal bool DeleteServices(int nGroupID, List<int> services)
+        {
+            try
+            {
+                bool bDelete = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+                if (vModule != null && vModule.result != null)
+                { 
+                    group = vModule.result as Group;
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bDelete; i++)
+                    {                       
+                        //try update to CB
+                        if (group.RemoveServices(services))
+                        {
+                            vModule.result = group;
+                            bDelete = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bDelete;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("DeleteServices", string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+        internal bool UpdateServices(int nGroupID, List<int> services)
+        {
+            try
+            {
+                bool bUpdate = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+
+                if (vModule != null && vModule.result != null)
+                {
+                    group = vModule.result as Group;
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bUpdate; i++)
+                    {
+                        //try update to CB
+                        if (group.UpdateServices(services))
+                        {
+                            vModule.result = group;
+                            bUpdate = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                        }
+                    }
+                }
+
+                return bUpdate;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UpdateServices", string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
+
     }
 }

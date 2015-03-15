@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Users.Cache;
+using ApiObjects;
+using ApiObjects.Response;
 
 namespace Users
 {
@@ -45,7 +48,7 @@ namespace Users
             }
 
             //Init The Domain
-            domain = DomainInitializer(m_nGroupID, nDomainID);
+            domain = DomainInitializer(m_nGroupID, nDomainID, false);
             oDomainResponseObject = new DomainResponseObject() { m_oDomain = domain };
 
             if (domain != null && domain.m_DomainStatus == DomainStatus.OK)
@@ -70,6 +73,10 @@ namespace Users
                     oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
                 }
             }
+            else if (domain != null && domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+            }
             else
             {
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
@@ -82,7 +89,7 @@ namespace Users
         {
             DomainResponseObject res = null;
 
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
             if (domain != null)
             {
                 domain.m_sName = sDomainName;
@@ -108,11 +115,11 @@ namespace Users
 
         public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
         {
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache 
 
             DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
-            domain = DomainInitializer(m_nGroupID, nDomainID);
+            domain = DomainInitializer(m_nGroupID, nDomainID, true); // Build the domain after the Reset and insert it to cache
 
             return new DomainResponseObject(domain, eDomainResponseStatus);
         }
@@ -125,7 +132,7 @@ namespace Users
                 if (nDomainID < 1)
                     return DomainResponseStatus.DomainNotExists;
 
-                Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+                Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
 
                 if (domain == null)
                     return DomainResponseStatus.DomainNotExists;
@@ -159,17 +166,22 @@ namespace Users
                 return oDomainResponseObject;
             }
 
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, false);
             if (domain == null)
             {
                 oDomainResponseObject.m_oDomain = null;
+            }
+            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+                oDomainResponseObject.m_oDomain = domain;
             }
             else
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                bool res  = device.Initialize(sUDID, sDeviceName);
-                
+                bool res = device.Initialize(sUDID, sDeviceName);
+
                 oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
@@ -191,7 +203,7 @@ namespace Users
             }
 
             //Init The Domain
-            domain = DomainInitializer(nGroupID, nDomainID);
+            domain = DomainInitializer(nGroupID, nDomainID, false);
 
             //Add new User to Domain
             UserDomainType userType = bIsMaster ? UserDomainType.Master : UserDomainType.Regular;
@@ -200,7 +212,6 @@ namespace Users
 
             return oDomainResponseObject;
         }
-
 
         public virtual DomainResponseObject RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserGUID)
         {
@@ -212,16 +223,14 @@ namespace Users
             }
 
             //Init the Domain
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, false);
 
             if (domain == null)
             {
                 return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
             }
 
-
             //Delete the User from Domain
-
             DomainResponseStatus eDomainResponseStatus = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserGUID);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
@@ -230,18 +239,26 @@ namespace Users
 
         public virtual Domain GetDomainInfo(int nDomainID, int nGroupID)
         {
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, true);
 
             return domain;
         }
 
         public virtual DomainResponseObject ChangeDeviceDomainStatus(int nDomainID, string sDeviceUDID, bool bIsEnable)
         {
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
 
             DomainResponseObject oDomainResponseObject;
+            DomainResponseStatus eDomainResponseStatus;
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                eDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+            }
+            else
+            {
+                eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
+            }
 
-            DomainResponseStatus eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
             return oDomainResponseObject;
@@ -249,7 +266,7 @@ namespace Users
 
         public virtual DomainResponseObject RemoveDeviceFromDomain(int nDomainID, string sDeviceUDID)
         {
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
             DomainResponseObject oDomainResponseObject;
 
             DomainResponseStatus eDomainResponseStatus = domain.RemoveDeviceFromDomain(sDeviceUDID);
@@ -267,7 +284,13 @@ namespace Users
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
             }
 
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, false);
+
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainSuspended);
+                return oDomainResponseObject;
+            }
 
             Device device = new Device(sDeviceUdid, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
@@ -310,11 +333,17 @@ namespace Users
                 return resp;
             }
 
+            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            {
+                resp.m_oDomain = null;
+                resp.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
+                return resp;
+            }
+
             // Check if such device exists
             Device device = new Device(m_nGroupID);
             bInit = device.Initialize(sUDID);
             int nDeviceID = int.Parse(device.m_id);
-
 
             int nDomainDeviceID = 0;
             int nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
@@ -342,6 +371,10 @@ namespace Users
                 return resp;
             }
 
+            // insert the new domain to cache 
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            bool bInsert = oDomainCache.InsertDomain(domain);
+
             int nActivationStatus = DomainDal.GetDomainDeviceActivateStatus(m_nGroupID, nDeviceID);
 
             resp.m_oDomain = nActivationStatus == 1 ? domain : null;
@@ -352,23 +385,43 @@ namespace Users
 
         public virtual List<string> GetDomainUserList(int nDomainID, int nGroupID)
         {
-            return Domain.GetFullUserList(nDomainID, nGroupID);
+            List<string> luser = new List<string>();
+            List<int> ltempUsers = new List<int>();
+            Domain domain = null;
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            domain = oDomainCache.GetDomain(nDomainID, nGroupID);
+            bool bUsers = UsersFullListFromDomain(nDomainID, domain, ltempUsers);
+
+            if (bUsers && ltempUsers != null && ltempUsers.Count > 0)
+            {
+                luser = ltempUsers.ConvertAll<string>(x => x.ToString());
+                return luser;
+            }
+            return new List<string>(0);
         }
 
         public virtual List<Domain> GetDeviceDomains(string sUDID)
         {
-            List<Domain> retVal = null;
-            int deviceID = Device.GetDeviceIDByUDID(sUDID, m_nGroupID);
-            if (deviceID > 0)
+            try
             {
-                retVal = Domain.GetDeviceDomains(deviceID, m_nGroupID);
+                List<Domain> retVal = null;
+                int deviceID = Device.GetDeviceIDByUDID(sUDID, m_nGroupID);
+                if (deviceID > 0)
+                {
+                    retVal = Domain.GetDeviceDomains(deviceID, m_nGroupID);
+                }
+                return retVal;
             }
-            return retVal;
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetDeviceDomains", string.Format("Failed ex={0}, sUDID={1}", ex.Message, sUDID), "BaseDomain");
+                return null;
+            }
         }
 
         public virtual DeviceResponseObject RegisterDeviceToDomainWithPIN(int nGroupID, string sPIN, int nDomainID, string sDeviceName)
         {
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, false);
 
             DeviceResponseStatus eRetVal = DeviceResponseStatus.UnKnown;
             Device device = domain.RegisterDeviceToDomainWithPIN(nGroupID, sPIN, nDomainID, sDeviceName, ref eRetVal);
@@ -393,7 +446,7 @@ namespace Users
                 return oDomainResponseObject;
             }
 
-            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            Domain domain = DomainInitializer(nGroupID, nDomainID, true);
 
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
@@ -414,8 +467,11 @@ namespace Users
 
         public virtual bool SetDomainRestriction(int nDomainID, DomainRestriction rest)
         {
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
-
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                return false;
+            }
             domain.m_DomainRestriction = rest;
             bool res = domain.Update();
 
@@ -424,11 +480,10 @@ namespace Users
 
         public virtual List<HomeNetwork> GetDomainHomeNetworks(long lDomainID)
         {
-            return Utils.GetHomeNetworksOfDomain(lDomainID, m_nGroupID);
+            return Utils.GetHomeNetworksOfDomain(lDomainID, m_nGroupID, true);
         }
 
-        public virtual NetworkResponseObject AddHomeNetworkToDomain(long lDomainID, string sNetworkID,
-            string sNetworkName, string sNetworkDesc)
+        public virtual NetworkResponseObject AddHomeNetworkToDomain(long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc)
         {
             NetworkResponseObject res = new NetworkResponseObject(false, NetworkResponseStatus.Error);
             List<HomeNetwork> lstOfHomeNetworks = null;
@@ -491,6 +546,10 @@ namespace Users
             }
             else
             {
+                // remove domain from cache 
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain((int)lDomainID);
+
                 res.eReason = NetworkResponseStatus.OK;
                 res.bSuccess = true;
             }
@@ -498,8 +557,7 @@ namespace Users
             return res;
         }
 
-        public virtual NetworkResponseObject UpdateDomainHomeNetwork(long lDomainID, string sNetworkID,
-            string sNetworkName, string sNetworkDesc, bool bIsActive)
+        public virtual NetworkResponseObject UpdateDomainHomeNetwork(long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive)
         {
             NetworkResponseObject res = null;
             HomeNetwork candidate = null;
@@ -513,10 +571,16 @@ namespace Users
             {
                 return res;
             }
-            return UpdateDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
+            res = UpdateDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
-        }
 
+            if (res != null && res.bSuccess && res.eReason == NetworkResponseStatus.OK)
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain((int)lDomainID);
+            }
+            return res;
+        }
 
         public virtual NetworkResponseObject RemoveDomainHomeNetwork(long lDomainID, string sNetworkID)
         {
@@ -533,15 +597,20 @@ namespace Users
                 return res;
             }
 
-            return RemoveDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
-                candidate, existingNetwork, dtLastDeactivationDate, ref res);
+            res = RemoveDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency, candidate, existingNetwork, dtLastDeactivationDate, ref res);
+            if (res != null && res.bSuccess && res.eReason == NetworkResponseStatus.OK)
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain((int)lDomainID);
+            }
+            return res;
         }
 
         public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
             int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
-           
+
             Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
@@ -613,11 +682,11 @@ namespace Users
                             break;
                         }
                     case ValidationType.Frequency:
-                        {                           
+                        {
                             break;
                         }
                     default:
-                        {                         
+                        {
                             break;
                         }
                 }
@@ -626,26 +695,112 @@ namespace Users
             return res;
         }
 
-
-        private Domain GetDomainForValidation(long lSiteGuid, long lDomainID)
+        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID)
         {
-            Domain res = null;
-            if (lDomainID > 0)
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+            DomainsCache oDomainCache = DomainsCache.Instance();
+
+            // validate domain
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
-                res = DomainInitializer(m_nGroupID, (int)lDomainID);
-            }
-            if (res == null && lSiteGuid > 0)
-            {
-                bool tempIsMaster = false;
-                int tempOperatorID = 0;
-                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster);
-                if (domainID < 1 || domainID == (int)lDomainID)
-                    return null;
-                res = DomainInitializer(m_nGroupID, domainID);
+                result.Code = (int)eResponseStatus.Error;
+                result.Message = "Domain doesn't exist";
+                return result;
             }
 
-            return res;
+            // validate domain is not suspended
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                result.Code = (int)eResponseStatus.DomainAlreadySuspended;
+                result.Message = "Domain already suspended";
+                return result;
+            }
+
+            // suspend domain
+            bool SuspendSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.Suspended);
+
+            // remove from cache
+            if (SuspendSucceed)
+                oDomainCache.RemoveDomain(nDomainID);
+
+            // update result
+            if (SuspendSucceed)
+            {
+                result.Code = (int)eResponseStatus.OK;
+            }
+            else
+            {
+                result.Code = (int)eResponseStatus.Error;
+                result.Message = "Failed to suspend domain";
+            }
+
+            return result;
         }
+
+        public virtual ApiObjects.Response.Status ResumeDomain(int nDomainID)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+            DomainsCache oDomainCache = DomainsCache.Instance();
+
+            // validate domain
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            {
+                result.Code = (int)eResponseStatus.Error;
+                result.Message = "Domain doesn't exist";
+                return result;
+            }
+
+            // validate domain is not active
+            if (domain.m_DomainStatus == DomainStatus.OK)
+            {
+                result.Code = (int)eResponseStatus.DomainAlreadyActive;
+                result.Message = "Domain already active";
+                return result;
+            }
+
+            // resume domain
+            bool ResumeSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.OK);
+
+            // remove from cache
+            if (ResumeSucceed)
+                oDomainCache.RemoveDomain(nDomainID);
+
+            // update result
+            if (ResumeSucceed)
+                result.Code = (int)eResponseStatus.OK;
+            else
+            {
+                result.Code = (int)eResponseStatus.Error;
+                result.Message = "Failed to suspend domain";
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Protected abstract
+
+        protected abstract NetworkResponseObject RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
+            int numOfActiveNetworks, int frequency, HomeNetwork candidate,
+            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
+
+        protected abstract NetworkResponseObject UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
+            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
+
+        /*
+         * 07/04/2014
+         * Initializing a domain in Eutelsat is different than in other customers.
+         * 
+         */
+        // protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
+        protected abstract Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true);
+
+        #endregion
+
+        #region Protected implemented
 
         // return True if device recognize in Domain false another case (assumption : user is valid !)
         protected bool IsDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, Domain userDomain)
@@ -735,27 +890,6 @@ namespace Users
 
             return isDeviceRecognized;
         }
-        #endregion
-
-        #region Protected abstract
-
-        protected abstract NetworkResponseObject RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
-            int numOfActiveNetworks, int frequency, HomeNetwork candidate,
-            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
-
-        protected abstract NetworkResponseObject UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
-            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
-
-        /*
-         * 07/04/2014
-         * Initializing a domain in Eutelsat is different than in other customers.
-         * 
-         */
-        protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
-
-        #endregion
-
-        #region Protected implemented
 
         protected string GetLogFilename()
         {
@@ -764,7 +898,6 @@ namespace Users
 
         protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
         {
-
             User masterUser = new User(nGroupID, nUserID);
 
             UserResponseObject resp = new UserResponseObject();
@@ -788,7 +921,6 @@ namespace Users
 
             resp.Initialize(ResponseStatus.OK, masterUser);
             return resp;
-
         }
 
         protected bool IsSatisfiesFrequencyConstraint(DateTime dtLastDeactivationDate, int frequency)
@@ -882,7 +1014,6 @@ namespace Users
                         numOfActiveNetworks++;
                     lst.Add(hn);
                 }
-
             }
             else
             {
@@ -894,6 +1025,30 @@ namespace Users
         #endregion
 
         #region Private methods
+
+        private Domain GetDomainForValidation(long lSiteGuid, long lDomainID)
+        {
+            DomainsCache oDomainCache = DomainsCache.Instance();
+            Domain res = null;
+            if (lDomainID > 0)
+            {
+                res = oDomainCache.GetDomain((int)lDomainID, m_nGroupID);
+            }
+
+            if (res == null && lSiteGuid > 0)
+            {
+                bool tempIsMaster = false;
+                int tempOperatorID = 0;
+                DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
+                if (domainID < 1 || domainID == (int)lDomainID)
+                    return null;
+                res = oDomainCache.GetDomain(domainID, m_nGroupID);
+            }
+
+            return res;
+        }
+
         private bool UpdateRemoveHomeNetworkCommon(long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive,
             out NetworkResponseObject res, ref HomeNetwork nullifiedCandidate, ref HomeNetwork nullifiedExistingNetwork,
             ref int numOfAllowedNetworks, ref int numOfActiveNetworks, ref int frequency, ref DateTime dtLastDeactivationDate)
@@ -939,7 +1094,129 @@ namespace Users
             return retVal;
         }
 
-        #endregion
 
+        private static bool UsersFullListFromDomain(int nDomainID, Domain oDomain, List<int> users)
+        {
+            try
+            {
+                if (oDomain != null && oDomain.m_nDomainID == nDomainID)
+                {
+                    foreach (int pendingUser in oDomain.m_PendingUsersIDs)
+                    {
+                        users.Add(pendingUser * (-1));
+                    }
+                    users.AddRange(oDomain.m_UsersIDs);
+
+                    return true;
+                }
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UsersFullListFromDomain", string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), "BaseDomain");
+                return false;
+            }
+        }
+
+
+        #endregion
+        public ApiObjects.Response.Status RemoveDLM(int nDlmID)
+        {
+            ApiObjects.Response.Status resp = new ApiObjects.Response.Status();
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                bool bRes = oDomainCache.RemoveDLM(nDlmID);
+                if (bRes)
+                    resp.Code = (int)eResponseStatus.OK;
+                else
+                    resp.Code = (int)eResponseStatus.DlmNotExist;
+
+                return resp;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RemoveDLM", string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), "BaseDomain");
+                resp.Code = (int)eResponseStatus.InternalError;
+                return resp;
+            }
+
+        }
+
+        public ChangeDLMObj ChangeDLM(int domainID, int dlmID, int nGroupID)
+        {
+            ChangeDLMObj oChangeDLMObj = new ChangeDLMObj();
+            try
+            {
+                LimitationsManager oLimitationsManager = null;
+                // get Domain (with it current DLM) by domain ID 
+                DomainsCache oDomainsCache = DomainsCache.Instance();
+                Domain domain = oDomainsCache.GetDomain(domainID, nGroupID);
+                if (domain != null)
+                {
+                    if (domain.m_nLimit == dlmID) // noo need to change anything
+                    {
+                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                    }
+                    else
+                    {
+                        // get the new DLM from cache 
+                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager, Utils.FICTIVE_DATE);
+                        if (!bDLM || oLimitationsManager == null)
+                        {
+                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                        }
+                        else // start compare between two DLMs
+                        {
+                            bool bSuccess = domain.CompareDLM(oLimitationsManager, ref oChangeDLMObj);
+                        }
+                    }
+                    oDomainsCache.RemoveDomain(domainID);
+                }
+                else
+                {
+                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                }
+
+                return oChangeDLMObj;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ChangeDLM", string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), "BaseDomain");
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                return oChangeDLMObj;
+            }
+        }
+
+        public DLMResponse GetDLM(int nDlmID, int nGroupID)
+        {
+            DLMResponse oDLMResponse = new DLMResponse();
+            try
+            {
+                LimitationsManager dlmObj;
+                DomainsCache oDomainsCache = DomainsCache.Instance();
+                // get the DLM from cache 
+                bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj, Utils.FICTIVE_DATE);
+                if (bDLM && dlmObj != null)
+                {
+                    oDLMResponse.dlm = dlmObj;
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                }
+
+                else
+                {
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                }
+
+                return oDLMResponse;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetDLM", string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), "BaseDomain");
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                return oDLMResponse;
+            }
+        }
     }
 }

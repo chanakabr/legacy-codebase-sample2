@@ -380,7 +380,7 @@ namespace DAL
 
         public static DataSet Get_SubscriptionsData(int nGroupID, List<long> lstSubscriptions)
         {
-            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsData");
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsDataWithServices");
             sp.SetConnectionKey("PRICING_CONNECTION");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddIDListParameter("@Subscriptions", lstSubscriptions, "ID");
@@ -556,6 +556,27 @@ namespace DAL
             }
 
             return res;
+        }
+
+        
+        public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
+        {
+            DataTable subscriptionsServices = null;
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsServices");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter<long>("@Subscriptions", subscriptionsIDs, "IDList");
+            
+
+            DataSet spResult = sp.ExecuteDataSet();
+
+            // If stored procedure was succesful, get the first one
+            if (spResult != null && spResult.Tables.Count == 1)
+            {
+                subscriptionsServices = spResult.Tables[0];
+            }
+
+            return subscriptionsServices;
         }
 
     }

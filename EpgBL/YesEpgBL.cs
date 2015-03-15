@@ -81,6 +81,12 @@ namespace EpgBL
             return res;
         }
 
+        public override List<EpgCB> GetEpgs(List<string> lIds)
+        {
+            return null;
+        }
+
+
         public override ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs)
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
@@ -136,8 +142,9 @@ namespace EpgBL
             return false;
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null)
+        public override bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
         {
+            epgID = 0;
             return false;
         }
 
@@ -151,6 +158,10 @@ namespace EpgBL
         }
 
         public override void RemoveGroupPrograms(List<DateTime> lDates, int channelID)
+        {
+        }
+
+        public override void RemoveGroupPrograms(List<int> lprogramIDs)
         {
         }
 

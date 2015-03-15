@@ -52,6 +52,15 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -105,6 +114,11 @@
   <ItemGroup>
     <Compile Include="BaseDevice.cs" />
     <Compile Include="BaseDomain.cs" />
+    <Compile Include="Cache\DomainsCache.cs" />
+    <Compile Include="ChangeDLMObj.cs" />
+    <Compile Include="DeviceFamilyLimitations.cs" />
+    <Compile Include="DLMResponse.cs" />
+    <Compile Include="DomainInfo.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />
@@ -112,6 +126,10 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="FlowManager.cs" />
+    <Compile Include="KalturaBaseUsers.cs" />
+    <Compile Include="KalturaSSOUsers.cs" />
+    <Compile Include="KalturaUsers.cs" />
     <Compile Include="LimitationsManager.cs" />
     <Compile Include="MailFactory.cs" />
     <Compile Include="HomeNetwork.cs" />
@@ -133,6 +151,7 @@
     <Compile Include="Encrypters\SHA256Encrypter.cs" />
     <Compile Include="Encrypters\SHA384Encrypter.cs" />
     <Compile Include="SSOKdgImplementation.cs" />
+    <Compile Include="SSOMCImplementation.cs" />
     <Compile Include="SSOOAuthImplementation.cs" />
     <Compile Include="ISSOProvider.cs" />
     <Compile Include="SSOOSamlImplementation.cs" />
@@ -189,6 +208,10 @@
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -363,6 +386,7 @@
   <ItemGroup>
     <None Include="Web References\OrcaProxy\service.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

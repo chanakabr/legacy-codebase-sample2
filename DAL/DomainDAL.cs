@@ -152,7 +152,6 @@ namespace DAL
         {
             bool res = false;
 
-
             ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
             spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
             spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
@@ -170,16 +169,12 @@ namespace DAL
                     nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
                 }
             }
-
             res = true;
-
-
             return res;
         }
 
         public static int InsertDeviceToDomain(int nDeviceID, int nDomainID, int nGroupID, int nIsActive, int nStatus, string sActivationToken = "")
         {
-
             ODBCWrapper.StoredProcedure spInsertDeviceToDomain = new ODBCWrapper.StoredProcedure(SP_INSERT_DEVICE_TO_DOMAIN);
             spInsertDeviceToDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -191,7 +186,6 @@ namespace DAL
             spInsertDeviceToDomain.AddParameter("@activationToken", sActivationToken);
 
             return spInsertDeviceToDomain.ExecuteReturnValue<int>();
-
         }
 
         public static bool UpdateDomainsDevicesStatus(int nDomainsDevicesID, int nIsActive, int nStatus)
@@ -206,6 +200,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+
         public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string deviceUdid, ref int isActive, ref int nDeviceID)
         {
             return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
@@ -215,12 +210,10 @@ namespace DAL
         {
             int nDomainID = 0;
 
-
             ODBCWrapper.StoredProcedure spGetDeviceDomainData = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_DOMAIN_DATA);
             spGetDeviceDomainData.SetConnectionKey("USERS_CONNECTION_STRING");
             spGetDeviceDomainData.AddParameter("@groupID", nGroupID);
             spGetDeviceDomainData.AddParameter("@deviceID", sDeviceUdid);
-
             DataSet ds = spGetDeviceDomainData.ExecuteDataSet();
 
             if (ds != null && ds.Tables[0].DefaultView.Count > 0)
@@ -233,11 +226,8 @@ namespace DAL
                     nIsActive = int.Parse(ds.Tables[0].DefaultView[0].Row["is_active"].ToString());
                     nStatus = int.Parse(ds.Tables[0].DefaultView[0].Row["status"].ToString());
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[0].Row, "device_id");
-
                 }
             }
-
-
             return nDomainID;
         }
 
@@ -387,12 +377,9 @@ namespace DAL
 
                     dTypedUsers[nUserId] = nUserType;
                 }
-
             }
 
             return dTypedUsers;
-
-
         }
 
         public static List<int> GetOperatorUsers(int nOperatorID, List<int> nUserIDs)
@@ -512,6 +499,7 @@ namespace DAL
                     defaultConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "CONCURRENT_MAX_LIMIT");
                     defaultGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
                     defaultDeviceFreqLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "freq_period_id");
+                    npvrQuotaInMins = ODBCWrapper.Utils.GetIntSafeVal(dr, "npvr_quota_in_seconds");
                 }
             }
 
@@ -622,8 +610,6 @@ namespace DAL
 
         public static bool ResetDomain(int nDomainID, int nGroupID, int nFrequencyType = 0)
         {
-
-
             ODBCWrapper.StoredProcedure spResetDomainFrequency = new ODBCWrapper.StoredProcedure(SP_RESET_DOMAIN_FREQUENCY);
             spResetDomainFrequency.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -641,9 +627,6 @@ namespace DAL
             }
 
             return dtResult.DefaultView.Count > 0;
-
-
-
         }
 
         public static bool SetDomainFlag(int domainId, int val, DateTime dt, int deviceFlag = 1)
@@ -693,41 +676,28 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery += " select dd.domain_id from domains_devices dd WITH (nolock), domains d WITH (nolock) where d.id = dd.domain_id and dd.status = 1 and d.is_Active = 1 and d.status = 1 and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dd.device_id", "=", deviceID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("d.group_id", "=", groupID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dd.group_id", "=", groupID);
-                if (selectQuery.Execute("query", true) != null)
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDeviceDomains");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@DeviceID", deviceID);
+                DataTable dtResult = sp.Execute();
+                if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                 {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
+                    foreach (DataRow dr in dtResult.Rows)
                     {
-                        for (int i = 0; i < count; i++)
-                        {
-                            int domainID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["domain_id"].ToString());
-
-                            if (domainIDs == null)
-                            {
-                                domainIDs = new List<int>();
-                            }
-
-                            domainIDs.Add(domainID);
-                        }
+                         int domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "domain_id");
+                         if (domainIDs == null)
+                         {
+                             domainIDs = new List<int>();
+                         }
+                         domainIDs.Add(domainID);
                     }
-                }
-
-                selectQuery.Finish();
-                selectQuery = null;
+                }        
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
-
 
             return domainIDs;
         }
@@ -779,52 +749,10 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
-        //public static List<string[]> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)
-        //{
-        //    List<string[]> dbDeviceFamilies = new List<string[]>();
-
-        //    ODBCWrapper.StoredProcedure spGetDeviceFamiliesLimits = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_FAMILIES_LIMITS);
-        //    spGetDeviceFamiliesLimits.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-        //    spGetDeviceFamiliesLimits.AddParameter("@groupID", nGroupID);
-        //    spGetDeviceFamiliesLimits.AddParameter("@domainLimitID", nDomainLimitID);
-        //    DataSet ds = spGetDeviceFamiliesLimits.ExecuteDataSet();
-
-        //    if (ds == null || ds.Tables == null || ds.Tables.Count == 0 || ds.Tables[0].DefaultView.Count == 0)
-        //    {
-        //        return dbDeviceFamilies;
-        //    }
-
-        //    int nCount = ds.Tables[0].DefaultView.Count;
-
-        //    for (int i = 0; i < nCount; i++)
-        //    {
-        //        DataRow dr = ds.Tables[0].DefaultView[i].Row;
-
-        //        if (dr == null)
-        //        {
-        //            break;
-        //        }
-
-        //        string sFamilyID = dr["ID"].ToString();
-        //        string sFamilyLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_LIMIT"]);
-        //        string sFamilyConcurrentLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_CONCURRENT_LIMIT"]);
-        //        string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dr["NAME"]);
-        //        string[] dbDeviceContainer = new string[] { sFamilyID, sFamilyLimit, sFamilyConcurrentLimit, sFamilyName };
-        //        dbDeviceFamilies.Add(dbDeviceContainer);
-        //    }
-
-
-
-        //    return dbDeviceFamilies;
-
-        //}
-
+               
         public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0)
         {
             bool res = false;
-
 
             ODBCWrapper.StoredProcedure spUpdateDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_DOMAIN_DATA);
             spUpdateDomain.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -837,9 +765,6 @@ namespace DAL
 
             int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
             res = rowCount > 0;
-
-
-
             return res;
         }
 
@@ -895,28 +820,26 @@ namespace DAL
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction)
+            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat)
         {
             int nGroupConcurrentMaxLimit = 0;
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat);
         }
 
 
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit)
+            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus)
         {
 
             bool res = false;
 
-
             ODBCWrapper.StoredProcedure spGetDomainSettings = new ODBCWrapper.StoredProcedure(SP_GET_DOMAIN_SETTINGS);
             spGetDomainSettings.SetConnectionKey("USERS_CONNECTION_STRING");
-
             spGetDomainSettings.AddParameter("@domainID", nDomainID);
             spGetDomainSettings.AddNullableParameter<long?>("@groupID", nGroupID);
             DataSet ds = spGetDomainSettings.ExecuteDataSet();
@@ -952,11 +875,13 @@ namespace DAL
                 dUserFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
                 nDomainRestriction = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
                 nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
-
+                int suspendStatInt  = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
+                if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
+                {
+                    suspendStatus = (DomainSuspentionStatus)suspendStatInt;
+                }               
                 res = true;
-
             }
-
             return res;
         }
 
@@ -1062,12 +987,9 @@ namespace DAL
             return res;
         }
 
-
-
         public static int GetDomainIDByCoGuid(string coGuid)
         {
             int nDomainID = 0;
-
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1090,7 +1012,6 @@ namespace DAL
             {
                 HandleException(ex);
             }
-
             return nDomainID;
         }
 
@@ -1198,11 +1119,9 @@ namespace DAL
             return nActivationStatus;
         }
 
-        public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster)
+        public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStat)
         {
-
-            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster);
-
+            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster,ref eSuspendStat);
         }
 
         public static List<int> GetDomainIDsByEmail(int nGroupID, string sEmail)
@@ -1641,7 +1560,7 @@ namespace DAL
             return null;
         }
 
-        public static long Get_DomainDataBySiteGuid(int nGroupID, long lSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster)
+        public static long Get_DomainDataBySiteGuid(int nGroupID, long lSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eDomainSuspendStatus)
         {
             long res = 0;
             StoredProcedure sp = new StoredProcedure("Get_DomainDataBySiteGuid");
@@ -1658,6 +1577,11 @@ namespace DAL
                     res = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["domain_id"]);
                     nOperatorID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["operator_id"]);
                     bIsDomainMaster = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_master"]) == 1;
+                    int domainSusStat = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["IS_SUSPENDED"]);
+                    if (Enum.IsDefined(typeof(DomainSuspentionStatus), domainSusStat))
+                    {
+                        eDomainSuspendStatus = (DomainSuspentionStatus)domainSusStat;
+                    }  
                 }
             }
 
@@ -1697,9 +1621,7 @@ namespace DAL
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["device_id"]);
                 }
             }
-
             return res;
-
         }
 
         public static List<string[]> Get_DeviceFamiliesLimits(int nGroupID, int nDomainLimitID, ref Dictionary<int, int> concurrenyOverride, ref Dictionary<int, int> quantityOverride)
@@ -1749,8 +1671,6 @@ namespace DAL
                             }
                         } // end for
                     }
-
-
                 }
                 else
                 {
@@ -1807,7 +1727,133 @@ namespace DAL
             }
 
             return res;
+        }
 
+        public static bool UpdateDomainsDevicesStatus(int m_nDomainID, int m_nGroupID, string sUDID, int nIsActive, int nStatus)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DomainsDevicesStatusByParams");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@DomainID", m_nDomainID);
+            sp.AddParameter("@GroupID", m_nGroupID);
+            sp.AddParameter("@UDID", sUDID);
+            sp.AddParameter("@IsActive", nIsActive);
+            sp.AddParameter("@Status", nStatus);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool ChangeSuspendDomainStatus(int nDomainID, int nGroupID, DomainSuspentionStatus nStatus)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DomainSuspendStatus");
+            sp.AddParameter("@domainID", nDomainID);
+            sp.AddParameter("@groupID", nGroupID);
+            sp.AddParameter("@IsSuspended", nStatus);           
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static int Get_DomainLimitID(int nGroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DomainLimitID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static DataSet Get_GroupLimitsAndDeviceFamilies(int nGroupID, int nDomainLimitID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_GroupLimitsAndDeviceFamilies");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DomainLimitID", nDomainLimitID);
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
+
+        public static List<string> SetUsersStatus(List<int> users, int nUserToDelete, int status, int isActive, int domainID)
+        {
+            List<string> usersChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetUsersStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nUserToDelete);
+            sp.AddParameter("@status", status);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@usersID", users, "Id");            
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    usersChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "user_id"));
+                }
+            }
+            return usersChange; 
+        }
+
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)            
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);            
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            if (status != null)
+                sp.AddParameter("@status", status);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesChange;
+        }
+
+        public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatusNotInList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@dominID", domainID);
+            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            if (status != null)
+                sp.AddParameter("@status", status);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesChange;
+        }
+
+        public static bool ChangeDomainDLM(int domainID, int domianLimitID)
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("ChangeDomainDLM");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@domainID", domainID);
+            sp.AddParameter("@domianLimitID", domianLimitID);
+
+            return sp.ExecuteReturnValue<bool>();
         }
     }
 }

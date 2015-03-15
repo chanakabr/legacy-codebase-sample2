@@ -91,7 +91,7 @@ namespace Catalog
                 response.m_sStatus = "INVALID_PARAMS";
             }
             //non-anonymous user
-            else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid))          
+            else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))          
             {
                 pos = Catalog.GetLastPosition(request.data.m_sNpvrID, nSiteGuid);
             }

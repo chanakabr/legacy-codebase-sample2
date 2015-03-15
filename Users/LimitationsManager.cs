@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,7 +11,8 @@ namespace Users
      * Device limitation manager for Domain obj and DeviceContainer obj.
      * 
      * 
-     */ 
+     */
+    [JsonObject(Id = "LimitationsManager")]
     public class LimitationsManager
     {
 
@@ -72,6 +74,8 @@ namespace Users
             }
         }
 
+
+
         public DateTime NextActionFreqDate
         {
             get
@@ -84,6 +88,23 @@ namespace Users
             }
         }
 
+        [JsonProperty]
+        public List<DeviceFamilyLimitations> lDeviceFamilyLimitations { get; set; }
+
+        public int domianLimitID { get; set; }
+
+        public string DomainLimitName { get; set; }
+
+        public int npvrQuotaInSecs { get; set; }
+
+        public int nUserLimit { get; set; }
+
+        public int UserFrequency { get; set; }
+
+        public string UserFrequencyDescrition { get; set; }
+
+        public string FrequencyDescrition { get; set; }
+        
         public void SetConcurrency(int nConcurrencyDomainLevel, int nConcurrencyGroupLevel)
         {
             this.concurrency = nConcurrencyDomainLevel > 0 ? nConcurrencyDomainLevel : nConcurrencyGroupLevel;
@@ -134,6 +155,8 @@ namespace Users
             this.frequency = 0;
             this.nextActionFreqDate = Utils.FICTIVE_DATE;
         }
+
+
 
     }
 }

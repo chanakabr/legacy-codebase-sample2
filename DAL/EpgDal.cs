@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using ODBCWrapper;
+using ApiObjects.Epg;
 
 namespace Tvinci.Core.DAL
 {
@@ -230,12 +231,13 @@ namespace Tvinci.Core.DAL
 
 
         /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
-        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID)
+        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID, int channelID= 0)
         {
             StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@SubGroupTree", lSubTree, "Id");
             sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@channelID", channelID);
 
             DataSet ds = sp.ExecuteDataSet();
             return ds;
@@ -282,9 +284,9 @@ namespace Tvinci.Core.DAL
 
         // get all channels by group id from DB
         //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' - the DB ID and the channel name.
-        public static Dictionary<string, KeyValuePair<int, string>> GetAllEpgChannelsDic(int nGroupID)
+        public static Dictionary<string, List<EpgChannelObj>> GetAllEpgChannelsDic(int nGroupID)
         {
-            Dictionary<string, KeyValuePair<int, string>> result = new Dictionary<string, KeyValuePair<int, string>>();
+            Dictionary<string, List<EpgChannelObj>> result = new Dictionary<string, List<EpgChannelObj>>();
             try
             {
                 DataTable dt = GetAllEpgChannelsList(nGroupID);
@@ -295,10 +297,16 @@ namespace Tvinci.Core.DAL
                         string channelId = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
                         string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
                         int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        KeyValuePair<int, string> kvp = new KeyValuePair<int, string>(nID, name);
+                        int nChannelType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_channel_type");
+                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, name, nChannelType);
+
                         if (!result.ContainsKey(channelId))
                         {
-                            result.Add(channelId, kvp);
+                            result.Add(channelId, new List<EpgChannelObj>() { oEpgChannelObj });
+                        }
+                        else
+                        {
+                            result[channelId].Add(oEpgChannelObj);
                         }
                     }
                 }
@@ -306,7 +314,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                return new Dictionary<string, KeyValuePair<int, string>>();
+                return new Dictionary<string, List<EpgChannelObj>>();
             }
         }
 
@@ -359,6 +367,66 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static DataTable EpgGuidExsits(List<string> keyCollection, int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("EpgGuidExsits");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<string>("@keyCollection", keyCollection, "Id");
+            sp.AddParameter("@groupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static bool UpdateEpgChannelSchedulePublishDate(List<int> epgIDs, DateTime dPublishDate)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateEpgChannelSchedulePublishDate");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");
+            sp.AddParameter("@PublishDate", dPublishDate);
+
+            bool retVal = sp.ExecuteReturnValue<bool>();
+            return retVal;
+        }
+
+        public static bool UpdateEpgChannelSchedule(DataTable dtEPG)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateEpgChannelSchedule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddDataTableParameter("@dt", dtEPG);
+
+            bool retVal = sp.ExecuteReturnValue<bool>();
+            return retVal;
+        }
+
+        public static bool DeleteEpgProgramDetails(List<int> epgIDs, int nGroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("DeleteEpgProgramDetails");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");
+            sp.AddParameter("@groupID", nGroupID);
+
+            bool retVal = sp.ExecuteReturnValue<bool>();
+            return retVal;
+        }
+
+        public static DataTable DeleteEpgs(int channelID, int groupID, DateTime dPublishDate, List<DateTime> deletedDays)
+        {
+            StoredProcedure sp = new StoredProcedure("DeleteEpgs");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            sp.AddParameter("@channelID", channelID);
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@dPublishDate", dPublishDate);
+            sp.AddIDListParameter<DateTime>("@deletedDays", deletedDays, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
 
     }
 }

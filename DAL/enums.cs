@@ -16,7 +16,14 @@ namespace DAL
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserWIthNoDomain = 4
+        UserWIthNoDomain = 4,
+        UserDomainSuspended = 5
+    }
+
+    public enum DomainSuspentionStatus
+    {
+        OK = 0,
+        Suspended = 1
     }
     
 }

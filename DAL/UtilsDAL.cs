@@ -51,7 +51,7 @@ namespace DAL
             return ret;
         }
 
-        public static int GetModuleImplID(int nGroupID, int moduleID)
+        public static int GetModuleImplID(int nGroupID, int moduleID, string connectionKey = "")
         {
             int nImplID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -62,6 +62,8 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", moduleID);
+                selectQuery.SetConnectionKey(connectionKey);
+
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -80,6 +82,52 @@ namespace DAL
             }
 
             return nImplID;
+        }
+
+        public static string GetModuleImplName(int nGroupID, int moduleID, int operatorId = -1)
+        {
+            string moduleName = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            try
+            {
+                if (operatorId == -1)
+                {
+                    // regular user
+                    selectQuery += "SELECT module_name FROM groups_modules_implementations with (nolock) WHERE is_active=1 AND status=1 AND ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                    selectQuery += " AND ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", moduleID);
+                }
+                else
+                {
+                    // SSO user
+
+                    // change to main DB
+                    selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                    selectQuery += "SELECT * FROM groups_operators with (nolock) WHERE STATUS=1 AND IS_ACTIVE=1 AND ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                    selectQuery += " AND ";
+                    // if operator ID is 0 - take the default operator
+                    if (operatorId != 0)
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", operatorId);
+                    else
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_default", "=", 1);
+                }
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("query");
+                    if (dt.DefaultView.Count > 0)
+                        moduleName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "module_name", 0);
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                    selectQuery.Finish();
+            }
+
+            return moduleName;
         }
 
         public static DataRow GetEncrypterData(int nGroupID)
@@ -527,7 +575,7 @@ namespace DAL
                 }
 
                 int nCount = ds.Tables[0].DefaultView.Count;
-                
+
                 if (nCount > 0)
                 {
                     nOperatorID = int.Parse(ds.Tables[0].DefaultView[0].Row["ID"].ToString());

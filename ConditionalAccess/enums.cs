@@ -19,7 +19,8 @@ namespace ConditionalAccess
         GeoCommerceBlocked = 8,
         EntitledToPreviewModule = 9,
         FirstDeviceLimitation =10,
-        CollectionPurchased
+        CollectionPurchased = 11,
+        UserSuspended
     }
 
     public enum BillingItemsType
@@ -41,11 +42,13 @@ namespace ConditionalAccess
         Ideal = 5,
         Incaso = 6,
         Gift = 7,
-        ChangeSubscription = 8, 
         Visa = 20,
         MasterCard = 21,
         InApp = 200,
-        M1 = 60
+        M1 = 60,
+        ChangeSubscription = 8,
+        // PS takes care of billing in the payment day. We still don't know the method
+        Offline = 50
     }
 
     public enum BillingAction
@@ -91,7 +94,8 @@ namespace ConditionalAccess
         UnKnownUser = 4,
         UnKnownPPVModule = 5,
         UnKnownPPModule = 6,
-        NoCredit = 7
+        NoCredit = 7,
+        UserSuspended = 8
     }
 
     public enum CampaignActionResult
@@ -121,7 +125,8 @@ namespace ConditionalAccess
        Adyen = 10,
        Dummy = 11,      
        Cinepolis = 17,
-       M1 = 100
+       M1 = 100,
+       Offline = 50
     }
 
     public enum CinepolisConfirmationStatus : byte
@@ -146,7 +151,8 @@ namespace ConditionalAccess
         OldSubNotRenewable = 4,
         NewSubNotRenewable = 5,
         UserHadNewSub = 6,
-        Error = 7
+        Error = 7,
+        UserSuspended = 8,
     }
     
     [Serializable]
@@ -178,7 +184,9 @@ namespace ConditionalAccess
         Concurrency = 6,
         MediaConcurrency = 7,
         InvalidBaseLink = 8,
-        InvalidFileData = 9
+        InvalidFileData = 9,
+        UserSuspended = 10,
+        ServiceNotAllowed = 11
     }
 
     public enum eUrlType
@@ -196,6 +204,21 @@ namespace ConditionalAccess
         InvalidUser = 4,
         InvalidAssetID = 5,
         AssetAlreadyScheduled = 6,
-        AssetAlreadyCanceled = 7
+        AssetAlreadyCanceled = 7,
+        AssetDoesNotExist = 8,
+        AssetAlreadyRecorded = 9,
+        QuotaExceeded = 10,
+        Suspended = 11,
+        ServiceNotAllowed = 12
     }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
+    }
+
 }

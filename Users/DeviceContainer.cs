@@ -1,20 +1,33 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
 namespace Users
-{
+{   
+    [Serializable]
+    [JsonObject(Id = "DeviceContainer")]
     public class DeviceContainer
     {
+        [XmlIgnore]
+        [JsonProperty()]
         private List<Device> m_DeviceInstances;
+        [JsonProperty()]
         public string m_deviceFamilyName;
+        [JsonProperty()]
         public int m_deviceFamilyID;
+       
+
+        [JsonIgnore]
         public int m_deviceLimit;
+        
+        [JsonIgnore]
         public int m_deviceConcurrentLimit;
 
         [XmlIgnore]
+        [JsonIgnore]
         public LimitationsManager m_oLimitationsManager;
 
         public DeviceContainer()
@@ -44,6 +57,7 @@ namespace Users
             m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, 0);
         }
 
+        [JsonIgnore]
         public List<Device> DeviceInstances
         {
             get

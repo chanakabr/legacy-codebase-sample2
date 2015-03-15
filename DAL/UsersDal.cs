@@ -369,7 +369,6 @@ namespace DAL
                         nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -384,7 +383,6 @@ namespace DAL
             }
 
             return nUserID;
-
         }
 
         public static int GetUserIDByFacebookID(string sFacebookID, int nGroupID)
@@ -426,12 +424,12 @@ namespace DAL
         {
             int nOperatorID = 0;
             bool bIsDomainMaster = false;
-
-            int nDomainID = GetUserDomainID(sSiteGUID, ref nOperatorID, ref bIsDomainMaster);
+            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+            int nDomainID = GetUserDomainID(sSiteGUID, ref nOperatorID, ref bIsDomainMaster, ref eSuspendStat);
             return nDomainID;
         }
 
-        public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster)
+        public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStatus)
         {
             int nDomainID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -440,23 +438,23 @@ namespace DAL
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
+                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID, D.IS_SUSPENDED FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", sSiteGUID);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int count = selectQuery.Table("query").DefaultView.Count;
                     if (count > 0)
                     {
-                        nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["domain_id"].ToString());
+                        nDomainID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "domain_id", 0);
+                        
+                        nOperatorID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "operator_id", 0);
 
-                        if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString()))
-                        {
-                            nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString());
-                        }
+                        bIsDomainMaster = (ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "is_master", 0) == "1");                        
 
-                        if (selectQuery.Table("query").DefaultView[0].Row["is_master"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["is_master"] != null)
+                        int suspendInt = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "IS_SUSPENDED", 0);
+                        if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendInt))
                         {
-                            bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["is_master"].ToString() == "1");
+                            eSuspendStatus = (DomainSuspentionStatus)suspendInt;
                         }
                     }
                 }
@@ -477,7 +475,6 @@ namespace DAL
         public static List<int> GetUserDomainIDs(int nGroupID, int nUserID)
         {
             List<int> lDomainIDs = null;
-
 
             ODBCWrapper.StoredProcedure spGetUserDomains = new ODBCWrapper.StoredProcedure(SP_GET_USER_DOMAINS);
             spGetUserDomains.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -502,9 +499,7 @@ namespace DAL
                     lDomainIDs.Add(tempDomainID);
                 }
             }
-
             return lDomainIDs;
-
         }
 
         public static int GetAllowedLogins(int nGroupID)
@@ -1156,119 +1151,134 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static DALUserActivationState GetUserActivationState(int nParentGroupID, string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, List<int> lGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
             DALUserActivationState res = DALUserActivationState.Error;
 
             try
             {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@UserName", sUserName);
+                sp.AddParameter("@Id", nUserID);
+                sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");                
+                sp.AddParameter("@ActivationMustHours", nActivationMustHours);
+                int nSPReault = sp.ExecuteReturnValue<int>();
+                if (Enum.IsDefined(typeof(DALUserActivationState), nSPReault))
+                {
+                    res = (DALUserActivationState)nSPReault;
+                }
+
+           
+                #region OldCode
                 // CHECK ACTIVATION STATUS IN USERS
 
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery.SetCachedSec(0);
-                selectQuery += "SELECT GETDATE() AS DNOW, ID,CREATE_DATE, ACTIVATE_STATUS, USERNAME FROM USERS WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+                //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                //selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                //selectQuery.SetCachedSec(0);
+                //selectQuery += "SELECT GETDATE() AS DNOW, ID,CREATE_DATE, ACTIVATE_STATUS, USERNAME FROM USERS WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
 
-                if (!string.IsNullOrEmpty(sUserName))
-                {
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
-                }
-                else
-                {
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
-                }
+                //if (!string.IsNullOrEmpty(sUserName))
+                //{
+                //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                //}
+                //else
+                //{
+                //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                //}
 
-                selectQuery += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
+                //selectQuery += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
 
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
-                        sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "USERNAME", 0);
+                //if (selectQuery.Execute("query", true) != null)
+                //{
+                //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                //    if (nCount > 0)
+                //    {
+                //        nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+                //        sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "USERNAME", 0);
 
-                        nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
-                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
-                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0);
+                //        nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
+                //        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
+                //        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0);
 
-                        bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+                //        bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
-                    }
-                    else
-                    {
+                //        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
+                //    }
+                //    else
+                //    {
 
-                        res = DALUserActivationState.UserDoesNotExist;
-                    }
-                }
+                //        res = DALUserActivationState.UserDoesNotExist;
+                //    }
+                //}
 
-                selectQuery.Finish();
-                selectQuery = null;
+                //selectQuery.Finish();
+                //selectQuery = null;
 
-                if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
-                {
-                    return res;
-                }
-                else
-                {
-                    res = DALUserActivationState.Activated;
-                }
+                //if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
+                //{
+                //    return res;
+                //}
+                //else
+                //{
+                //    res = DALUserActivationState.Activated;
+                //}
 
-                // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
-                //
-                // CHECK ACTIVATION STATUS IN USERS
+                //// If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
+                ////
+                //// CHECK ACTIVATION STATUS IN USERS
 
-                ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery1.SetCachedSec(0);
+                //ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+                //selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
+                //selectQuery1.SetCachedSec(0);
 
-                selectQuery1 += "SELECT TOP 1 GETDATE() AS DNOW, ID, IS_MASTER, CREATE_DATE, IS_ACTIVE, STATUS FROM USERS_DOMAINS WITH (NOLOCK) WHERE ";
-                selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
-                selectQuery1 += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                selectQuery1 += " ORDER BY CREATE_DATE DESC";
+                //selectQuery1 += "SELECT TOP 1 GETDATE() AS DNOW, ID, IS_MASTER, CREATE_DATE, IS_ACTIVE, STATUS FROM USERS_DOMAINS WITH (NOLOCK) WHERE ";
+                //selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
+                //selectQuery1 += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
+                ////selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                //selectQuery1 += " ORDER BY CREATE_DATE DESC";
 
-                if (selectQuery1.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
+                //if (selectQuery1.Execute("query", true) != null)
+                //{
+                //    Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
+                //    if (nCount > 0)
+                //    {
 
-                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0);
-                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0);
-                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0);
+                //        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0);
+                //        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0);
+                //        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0);
 
-                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0);
-                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0);
+                //        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0);
+                //        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0);
 
-                        bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
+                //        bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
 
-                        if (nStatus != 2)
-                        {
-                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster;
-                        }
-                        else
-                        {
-                            res = DALUserActivationState.UserRemovedFromDomain;
-                        }
+                //        if (nStatus != 2)
+                //        {
+                //            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster;
+                //        }
+                //        else
+                //        {
+                //            res = DALUserActivationState.UserRemovedFromDomain;
+                //        }
 
-                    }
-                    else //user does not have a Domain
-                    {
+                //    }
+                //    else //user does not have a Domain
+                //    {
 
-                        res = DALUserActivationState.UserWIthNoDomain;
-                    }
-                }
+                //        res = DALUserActivationState.UserWIthNoDomain;
+                //    }
+                //}
 
-                selectQuery1.Finish();
-                selectQuery1 = null;
+                //selectQuery1.Finish();
+                //selectQuery1 = null;
+
+                #endregion
 
             }
             catch (Exception ex)
             {
-                HandleException(ex);
-                res = DALUserActivationState.Error; // (-2);
+                HandleException(ex);              
             }
 
             return res;
@@ -1708,7 +1718,6 @@ namespace DAL
             return retOperatorId;
         }
 
-
         public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
         {   
             try
@@ -1730,6 +1739,32 @@ namespace DAL
             {
                 return null;
             }
-        }       
+        }
+
+        public static int Update_UserDynamicData(int nUserID, int nGroupID, string xmlTypeValue)
+        {
+            int rows = 0;
+
+            if (string.IsNullOrEmpty(xmlTypeValue))
+            {
+                return rows;
+            }
+
+            try
+            {
+                StoredProcedure spUpdateUserDynamicData = new StoredProcedure("Update_UserDynamicData");
+                
+                spUpdateUserDynamicData.AddParameter("@doc", xmlTypeValue);
+                spUpdateUserDynamicData.AddParameter("@group_id", nGroupID);
+                spUpdateUserDynamicData.AddParameter("@site_guid", nUserID);
+
+                rows = spUpdateUserDynamicData.ExecuteReturnValue<int>();
+            }
+            catch
+            {
+            }
+
+            return rows;
+        }
     } 
 }

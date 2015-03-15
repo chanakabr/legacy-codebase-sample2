@@ -277,7 +277,7 @@ namespace Catalog
             }
             int nCountryID = 0;
 
-            if (!Catalog.GetMediaMarkHitInitialData(m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+            if (!Catalog.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
                 ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
             {
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
@@ -286,17 +286,7 @@ namespace Catalog
             bool isTerminateRequest = false;
             if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
-                {
-                    isTerminateRequest = true;
-                    if (mediaMarkAction == MediaPlayActions.FIRST_PLAY)
-                    {
-                        Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
-                            m_nGroupID, nMediaTypeID, nPlayTime, true, m_oMediaPlayRequestData.m_sSiteGuid,
-                            m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
-                    }
-                }
-                else
+                if (!Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
                 {
                     bool isError = false;
                     bool isConcurrent = false;
@@ -344,7 +334,7 @@ namespace Catalog
                     if (IsFirstPlay(nActionID))
                     {
                         Task.Factory.StartNew(() => WriteFirstPlay(m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
-                            m_nGroupID, nMediaTypeID, nPlayTime, false, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
+                            m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
                 else
@@ -357,12 +347,8 @@ namespace Catalog
         }
 
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
-            bool isAnonymousUser, string siteGuid, string udid, int platform, int countryID)
+            string siteGuid, string udid, int platform, int countryID)
         {
-            if (isAnonymousUser)
-            {
-                CatalogDAL.Insert_NewPlayCycleKey(groupID, mediaID, mediaFileID, siteGuid, platform, udid, countryID, string.Empty);
-            }
             ApiDAL.Update_MediaViews(mediaID, mediaFileID);
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
             {

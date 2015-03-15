@@ -10,12 +10,14 @@ namespace ConditionalAccess
         public string mainUrl;
         public string altUrl;
         public string status;
+        public ApiObjects.Response.Status Status { get; set; }
 
         public LicensedLinkResponse()
         {
             this.mainUrl = string.Empty;
             this.altUrl = string.Empty;
             this.status = eLicensedLinkStatus.Unknown.ToString();
+            Status = new ApiObjects.Response.Status();
         }
 
         public LicensedLinkResponse(string mainUrl, string altUrl, string status)

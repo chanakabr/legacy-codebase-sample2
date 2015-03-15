@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Users
@@ -28,8 +29,10 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,
-        InternalError = 999
+        UserWithNoDomain = 21,  
+        InternalError = 999,
+        LoginServerDown = 22,
+        UserSuspended = 23
     }
 
     public enum UserAction
@@ -45,7 +48,7 @@ namespace Users
         Activated = 1,
         SingleSignIn = 2,
         DoubleSignIn = 3,
-        LoggedOut = 4
+        LoggedOut = 4        
     }
 
     public enum UserActivationState
@@ -56,16 +59,24 @@ namespace Users
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserWIthNoDomain  = 4
+        UserWIthNoDomain  = 4,
+        UserSuspended = 5
     }
 
+    [Serializable]
     public enum DeviceState
     {
+        [EnumMember]
         UnKnown = 0,     // Initial device status
+        [EnumMember]
         Error = 1,       // Error
+        [EnumMember]
         NotExists = 2,   // Device not in devices table or is in table but status<>1
+        [EnumMember]
         Pending = 3,
+        [EnumMember]
         Activated = 4,   // Device in devices table and status=1 & active=1 (domains_devcies status not known);
+        [EnumMember]
         UnActivated = 5, // Device in devices table and status=1 but active<>1
     }
 
@@ -83,14 +94,20 @@ namespace Users
         UserNotInDomain = 9,
         DomainNotExists = 10,
         HouseholdUserFailed = 11,
-        DomainCreatedWithoutNPVRAccount = 12
+        DomainCreatedWithoutNPVRAccount = 12,
+        DomainSuspended = 13
     }
 
+    [Serializable]
     public enum DomainRestriction
     {
+        [EnumMember]
         Unrestricted = 0,
+         [EnumMember]
         UserMasterRestricted = 1,
+         [EnumMember]
         DeviceMasterRestricted = 2,
+         [EnumMember]
         DeviceUserMasterRestricted = 3
     }
 
@@ -122,7 +139,8 @@ namespace Users
         RequestFailed = 22,
         InvalidUser = 23,
         ConcurrencyLimitation = 24,
-        MediaConcurrencyLimitation = 25
+        MediaConcurrencyLimitation = 25,
+        DomainSuspended = 26
     }
 
     public enum DeviceResponseStatus
@@ -131,7 +149,8 @@ namespace Users
         Error,
         DuplicatePin,
         DeviceNotExists,
-        OK
+        OK,
+        ExceededLimit
     }
 
     public enum UserGroupRuleResponseStatus
@@ -187,4 +206,9 @@ namespace Users
         Frequency = 2
     }
 
+    public enum Code
+    {
+        Success = 0,
+        Failure = 1
+    }
 }

@@ -2223,6 +2223,49 @@ namespace Tvinci.Core.DAL
             return dmm;
         }
 
+        public static void Get_IPCountryCode(long ipVal, ref int countryID)
+        {  
+            StoredProcedure sp = new StoredProcedure("Get_IPCountryCode");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@IPVal", ipVal);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
+            {              
+                DataTable ipTable = ds.Tables[0];
+                if (ipTable != null && ipTable.Rows != null && ipTable.Rows.Count > 0)
+                {
+                    countryID = ODBCWrapper.Utils.GetIntSafeVal(ipTable.Rows[0]["COUNTRY_ID"]);
+                }
+            }
+        }
+
+        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("GetMediaPlayData");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);          
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 1)
+            {
+                res = true;
+                DataTable mpData = ds.Tables[0];
+                if (mpData != null && mpData.Rows != null && mpData.Rows.Count > 0)
+                {
+                    ownerGroupID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["group_id"]);
+                    cdnID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["streaming_suplier_id"]);
+                    qualityID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_quality_id"]);
+                    formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
+                    mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
+                    billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                }
+            }
+            return res;
+        }
 
         public static List<int> Get_LinearMediaType(int parentGroupID)
         {
@@ -2288,7 +2331,93 @@ namespace Tvinci.Core.DAL
             
             dmm.devices = oRes;
             return dmm;
-         
+        }
+
+        public static bool UpdateOrInsert_EPGDeafultsValues(Dictionary<int, List<string>> dMetasDefaults, Dictionary<int, List<string>> dTagsDefaults, int nEpgChannelID)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgChannelID",nEpgChannelID);
+            sp.AddKeyValueListParameter<int, string>("@MetasDefaults", dMetasDefaults, "key", "value");
+            sp.AddKeyValueListParameter<int, string>("@TagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdateOrInsert_EPGTagTypeWithDeafultsValues(Dictionary<int, List<string>> dTagsDefaults, int nEpgTagTypelID, int groupID, int isActive, 
+            int? orderNum, string TagName, int tagTypeFlag)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateOrInsert_EPGTagTypeWithDeafultsValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgTagTypelID", nEpgTagTypelID);
+            sp.AddParameter("@TagName", TagName);
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@orderNum", orderNum);
+            sp.AddParameter("@tagTypeFlag", tagTypeFlag);
+            sp.AddKeyValueListParameter<int, string>("@dTagsDefaults", dTagsDefaults, "key", "value");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static Dictionary<string, string> GetMinPeriods()
+        {
+            Dictionary<string, string> dicMinPeriods = new Dictionary<string,string>();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MinPeriods");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        object oId = dt.Rows[i]["ID"];
+                        object oDescription = dt.Rows[i]["Description"];
+
+                        if (oId != null && oId != DBNull.Value &&
+                            oDescription != null && oDescription != DBNull.Value)
+                        {
+                            string sId = Convert.ToString(oId);
+                            string sDescription = Convert.ToString(oDescription);
+
+                            if (!dicMinPeriods.ContainsKey(sId))
+                            {
+                                dicMinPeriods.Add(sId, sDescription);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dicMinPeriods;
+        }
+
+        public static List<int> GetGroupServices(int groupID, int? serviceID = null)
+        {
+            List<int> lServices = new List<int>();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupServices");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            if (serviceID != null)
+                sp.AddParameter("@ServiceID", serviceID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        lServices.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "SERVICE_ID"));
+                    }
+                }
+            }
+
+            return lServices;
         }
     }
 }

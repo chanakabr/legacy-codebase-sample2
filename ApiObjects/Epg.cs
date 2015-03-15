@@ -94,6 +94,103 @@ namespace ApiObjects
             Language = string.Empty;
         }
 
+        public bool Equals(EpgCB obj)
+        {
+            //Check for null and compare run-time types. 
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                if (this.EpgID != obj.EpgID || this.EpgIdentifier != obj.EpgIdentifier)
+                    return false;
+                if (this.StartDate != obj.StartDate || this.EndDate != obj.EndDate)
+                    return false;
+                if (this.ChannelID != obj.ChannelID)
+                    return false;
+                if (this.CoGuid != obj.CoGuid)
+                    return false;
+                if (this.Description != obj.Description || this.Name != obj.Name)
+                    return false;
+                if (this.PicID != obj.PicID)
+                    return false;
+                if (this.Language != obj.Language)
+                    return false;
+                if (obj.ExtraData != null && obj.ExtraData.MediaID > 0)
+                {
+                    if (obj.ExtraData.MediaID != this.ExtraData.MediaID)
+                        return false;
+                }
+
+                #region Tags
+                if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
+                {
+                    foreach (KeyValuePair<string, List<string>> thisTag in this.Tags)
+                    {
+
+                        if (!obj.Tags.ContainsKey(thisTag.Key))
+                        {
+                            return false;
+                        }
+
+                        int countObjTagValues = obj.Tags[thisTag.Key] == null ? 0 : obj.Tags[thisTag.Key].Count;
+                        int countThisTagValues = thisTag.Value == null ? 0 : thisTag.Value.Count;
+
+                        if (countObjTagValues != countThisTagValues)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            // compare the values between the lists
+                            foreach (string sTagValue in thisTag.Value)
+                            {
+                                if (!obj.Tags[thisTag.Key].Contains(sTagValue))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Metas
+                if (this.Metas != null && obj.Metas != null && this.Metas.Count == obj.Metas.Count)
+                {
+                    foreach (KeyValuePair<string, List<string>> thisMeta in this.Metas)
+                    {
+
+                        if (!obj.Metas.ContainsKey(thisMeta.Key))
+                        {
+                            return false;
+                        }
+
+                        int countObjMetaValues = obj.Metas[thisMeta.Key] == null ? 0 : obj.Metas[thisMeta.Key].Count;
+                        int countThisMetaValues = thisMeta.Value == null ? 0 : thisMeta.Value.Count;
+
+                        if (countObjMetaValues != countThisMetaValues)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            // compare the values between the lists
+                            foreach (string sMetaValue in thisMeta.Value)
+                            {
+                                if (!obj.Metas[thisMeta.Key].Contains(sMetaValue))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+            }
+            return true;
+        }
        
     }
 
