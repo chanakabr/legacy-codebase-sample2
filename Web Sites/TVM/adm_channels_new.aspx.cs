@@ -619,11 +619,11 @@ public partial class adm_channels_new : System.Web.UI.Page
         if (int.Parse(Session["channel_type"].ToString()) == 1)
         {
             //AdmCutByStr(ref theRecord);
-            DataRecordDropDownField dr_type = new DataRecordDropDownField("media_types", "NAME", "id", "", null, 60, true);
-            sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
-            dr_type.SetSelectsQuery(sQuery);
-            dr_type.Initialize("Media type", "adm_table_header_nbg", "FormInput", "MEDIA_TYPE_ID", false);
-            theRecord.AddRecord(dr_type);
+            //DataRecordDropDownField dr_type = new DataRecordDropDownField("media_types", "NAME", "id", "", null, 60, true);
+            //sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
+            //dr_type.SetSelectsQuery(sQuery);
+            //dr_type.Initialize("Media type", "adm_table_header_nbg", "FormInput", "MEDIA_TYPE_ID", false);
+            //theRecord.AddRecord(dr_type);
             AddStrFields(ref theRecord);
             AddIntFields(ref theRecord);
             AddBoolFields(ref theRecord);
@@ -678,9 +678,9 @@ public partial class adm_channels_new : System.Web.UI.Page
             if (channelMediaTypeID != 0)
             {
                 if (nStatus == 0)
-                    UpdateChannelMediaType(channelMediaTypeID, 1, groupID);
+                    UpdateChannelMediaType(channelMediaTypeID, 1, groupID, channelID);
                 else
-                    UpdateChannelMediaType(channelMediaTypeID, 0, groupID);
+                    UpdateChannelMediaType(channelMediaTypeID, 0, groupID, channelID);
             }
             else
             {
@@ -710,11 +710,19 @@ public partial class adm_channels_new : System.Web.UI.Page
     private void InsertChannelMediaType(List<int> mediaTypeIDs, int channelID, int groupID)
     {
         bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
+        if (inserted)
+        {
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+        }
     }
 
-    private void UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID)
+    private void UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID, int channelID)
     {
-        bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID);
+        bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID, channelID);
+        if (updated)
+        {
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+        }
     }
 
     public string initDualObj()
