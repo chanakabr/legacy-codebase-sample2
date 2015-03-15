@@ -22,15 +22,12 @@ namespace Catalog
         
         [DataMember]
         public OrderObj order;
-        
-        [DataMember]
-        public List<KeyValue> andList;
-        
-        [DataMember]
-        public List<KeyValue> orList;
 
         [DataMember]
         public List<string> assetTypes;
+
+        [DataMember]
+        public BooleanPhraseNode filterTree;
 
         #endregion
 
@@ -53,14 +50,15 @@ namespace Catalog
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         public UnifiedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
-            bool isExact, OrderObj order, string searchValue, List<KeyValue> ands, List<KeyValue> ors, List<string> types)
+            bool isExact, OrderObj order, string searchValue,
+            BooleanPhraseNode filterTree,
+            List<string> types)
                 : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             this.isExact = isExact;
             this.order = order;
             this.assetTypes = types;
-            this.andList = ands;
-            this.orList = ors;
+            this.filterTree = filterTree;
         }
 
         #endregion
@@ -85,8 +83,7 @@ namespace Catalog
                     throw new ArgumentNullException("request object is null or Required variables is null");
                 }
                 // Request is bad if there is no condition to query by; or the group is 0
-                else if (((request.andList == null || request.andList.Count == 0) &&
-                       (request.orList == null || request.orList.Count == 0)) ||
+                else if (filterTree == null ||
                        request.m_nGroupID == 0)
                 {
                     response.status.Code = (int)eResponseStatus.BadSearchRequest;
@@ -135,7 +132,6 @@ namespace Catalog
             }
 
             return (BaseResponse)response;
-
         }
 
         #endregion

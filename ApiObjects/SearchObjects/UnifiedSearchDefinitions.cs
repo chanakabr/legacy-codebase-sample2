@@ -11,7 +11,6 @@ namespace ApiObjects.SearchObjects
     {
         #region Data Members
 
-        public bool shouldSearchAnd;
         public bool isDescending;
         public string orderBy;
 
@@ -33,26 +32,26 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseFinalEndDate;
         public bool shouldUseStartDate;
 
-        public string name;
-        public string description;
         public string permittedWatchRules
         {
             get;
             set;
         }
 
-        public List<SearchValue> andList;
-        public List<SearchValue> orList;
-        public List<SearchValue> filterTagsAndMetas
-        {
-            get;
-            set;
-        }
-        public CutWith filterTagsAndMetasCutWith
-        {
-            get;
-            set;
-        }
+        //public List<SearchValue> andList;
+        //public List<SearchValue> orList;
+        //public List<SearchValue> filterTagsAndMetas
+        //{
+        //    get;
+        //    set;
+        //}
+        //public CutWith filterTagsAndMetasCutWith
+        //{
+        //    get;
+        //    set;
+        //}
+
+        public BooleanPhraseNode filterPhrase;
 
         public int groupId
         {
@@ -73,7 +72,6 @@ namespace ApiObjects.SearchObjects
         public int userTypeID;
 
         public int[] deviceRuleId;
-        //public int[] mediaFileTypes;
 
         public List<int> mediaTypes;
         public bool shouldSearchEpg;
@@ -89,7 +87,6 @@ namespace ApiObjects.SearchObjects
             pageIndex = 0;
             pageSize = 0;
             groupId = 0;
-            shouldSearchAnd = false;
             isDescending = false;
             isExact = false;
 
@@ -97,13 +94,13 @@ namespace ApiObjects.SearchObjects
             shouldSearchEpg = false;
 
             isExact = false;
-            name = string.Empty;
-            description = string.Empty;
 
             shouldUseFinalEndDate = false;
 
-            andList = new List<SearchValue>();
-            orList = new List<SearchValue>();
+            //andList = new List<SearchValue>();
+            //orList = new List<SearchValue>();
+
+            filterPhrase = null;
 
             shouldUseStartDate = true;
 

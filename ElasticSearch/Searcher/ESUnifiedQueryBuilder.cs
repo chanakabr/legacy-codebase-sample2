@@ -46,11 +46,11 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        public eQueryType QueryType
-        {
-            get;
-            set;
-        }
+        //public eQueryType QueryType
+        //{
+        //    get;
+        //    set;
+        //}
 
         #endregion
 
@@ -116,6 +116,28 @@ namespace ElasticSearch.Searcher
                 Value = "media"
             };
 
+            FilterCompositeType mediaFilter = new FilterCompositeType(CutWith.AND);
+            mediaFilter.AddChild(mediaPrefixTerm);
+
+            FilterCompositeType epgFilter = new FilterCompositeType(CutWith.AND);
+            epgFilter.AddChild(epgPrefixTerm);
+
+            // Filters which are relevant to both types
+            FilterCompositeType globalFilter = new FilterCompositeType(CutWith.AND);
+
+            // Or between media and epg
+            FilterCompositeType unifiedFilter = new FilterCompositeType(CutWith.OR);
+
+            if (this.SearchDefinitions.shouldSearchEpg)
+            {
+                unifiedFilter.AddChild(epgFilter);
+            }
+
+            if (this.SearchDefinitions.mediaTypes.Count > 0)
+            {
+                unifiedFilter.AddChild(mediaFilter);
+            }
+
             StringBuilder filteredQueryBuilder = new StringBuilder();
             string queryPart = string.Empty;
 
@@ -125,67 +147,26 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            ESTerms permittedWatchFilter = new ESTerms(true);
-           
-            if (!string.IsNullOrEmpty(this.SearchDefinitions.permittedWatchRules))
-            {
-                permittedWatchFilter.Key = "wp_type_id";
-                List<string> permittedValues = permittedWatchFilter.Value;
-                foreach (string value in this.SearchDefinitions.permittedWatchRules.Split(' '))
-                {
-                    if (!string.IsNullOrWhiteSpace(value))
-                    {
-                        permittedValues.Add(value);
-                    }
-                }
-            }
-
             ESTerm isActiveTerm = new ESTerm(true)
             {
                 Key = "is_active",
                 Value = "1"
             };
 
+            globalFilter.AddChild(isActiveTerm);
+
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
             // Media and EPG are connected by "OR"; inside it is connected with "AND"s
-
-            FilterCompositeType mediaDatesFilter = null;
-
-            // media ranges
-            if (SearchDefinitions.mediaTypes.Count > 0)
-            {
-                mediaDatesFilter = new FilterCompositeType(CutWith.AND);
-
-                string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
-
-                ESRange mediaStartDateRange = new ESRange(false);
-
-                if (this.SearchDefinitions.shouldUseStartDate)
-                {
-                    mediaStartDateRange.Key = "start_date";
-                    string sMin = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
-                }
-
-                ESRange mediaEndDateRange = new ESRange(false);
-                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
-
-                mediaDatesFilter.AddChild(mediaStartDateRange);
-                mediaDatesFilter.AddChild(mediaEndDateRange);
-                mediaDatesFilter.AddChild(mediaPrefixTerm);
-            }
 
             FilterCompositeType epgDatesFilter = null;
 
             // epg ranges
             if (this.SearchDefinitions.shouldSearchEpg)
             {
+                #region Epg Dates ranges
+
                 epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
                 string nowPlusWeekDateString = DateTime.UtcNow.AddDays(7).ToString("yyyyMMddHHmmss");
@@ -209,49 +190,30 @@ namespace ElasticSearch.Searcher
 
                 epgDatesFilter.AddChild(epgStartDateRange);
                 epgDatesFilter.AddChild(epgEndDateRange);
-                epgDatesFilter.AddChild(epgPrefixTerm);
+
+                epgFilter.AddChild(epgDatesFilter); 
+
+                #endregion
             }
-
-            FilterCompositeType datesFilter = null;
-
-            if (mediaDatesFilter != null || epgDatesFilter != null)
-            {
-                // connect media and epg with or
-                datesFilter = new FilterCompositeType(CutWith.OR);
-
-                if (mediaDatesFilter != null)
-                {
-                    datesFilter.AddChild(mediaDatesFilter);
-                }
-
-                if (epgDatesFilter != null)
-                {
-                    datesFilter.AddChild(epgDatesFilter);
-                }
-            }
-
-            FilterCompositeType userTypeFilterComposite = new FilterCompositeType(CutWith.AND);
-
-            userTypeFilterComposite.AddChild(mediaPrefixTerm);
-
-            ESTerms userTypeTerm = new ESTerms(true);
-            userTypeTerm.Key = "user_types";
-            userTypeTerm.Value.Add("0");
-            
-            if (this.SearchDefinitions.userTypeID > 0)
-            {
-                userTypeTerm.Value.Add(this.SearchDefinitions.userTypeID.ToString());
-            }
-
-            userTypeFilterComposite.AddChild(userTypeTerm);
-
-            FilterCompositeType mediaTypesFilterComposite = null;
 
             if (this.SearchDefinitions.mediaTypes.Count > 0)
             {
-                mediaTypesFilterComposite = new FilterCompositeType(CutWith.AND);
+                #region User Types
 
-                mediaTypesFilterComposite.AddChild(mediaPrefixTerm);
+                ESTerms userTypeTerm = new ESTerms(true);
+                userTypeTerm.Key = "user_types";
+                userTypeTerm.Value.Add("0");
+
+                if (this.SearchDefinitions.userTypeID > 0)
+                {
+                    userTypeTerm.Value.Add(this.SearchDefinitions.userTypeID.ToString());
+                }
+
+                mediaFilter.AddChild(userTypeTerm);
+
+                #endregion
+
+                #region Media Types
 
                 ESTerms mediaTypesTerms = new ESTerms(true);
 
@@ -262,75 +224,195 @@ namespace ElasticSearch.Searcher
                     mediaTypesTerms.Value.Add(mediaType.ToString());
                 }
 
-                mediaTypesFilterComposite.AddChild(mediaTypesTerms);
+                mediaFilter.AddChild(mediaTypesTerms);
+
+                #endregion
+
+                #region Watch Permissions rules
+
+                // group_id = parent groupd id
+                // permitted watch filter 
+                FilterCompositeType groupWPComposite = new FilterCompositeType(CutWith.OR);
+
+                ESTerms permittedWatchFilter = new ESTerms(true);
+
+                if (!string.IsNullOrEmpty(this.SearchDefinitions.permittedWatchRules))
+                {
+                    permittedWatchFilter.Key = "wp_type_id";
+                    List<string> permittedValues = permittedWatchFilter.Value;
+                    foreach (string value in this.SearchDefinitions.permittedWatchRules.Split(' '))
+                    {
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                            permittedValues.Add(value);
+                        }
+                    }
+                }
+
+                groupWPComposite.AddChild(groupTerm);
+                groupWPComposite.AddChild(permittedWatchFilter);
+
+                mediaFilter.AddChild(groupWPComposite);
+
+                #endregion
+
+                #region Media Dates ranges
+
+                FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+
+                string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+
+                ESRange mediaStartDateRange = new ESRange(false);
+
+                if (this.SearchDefinitions.shouldUseStartDate)
+                {
+                    mediaStartDateRange.Key = "start_date";
+                    string sMin = DateTime.MinValue.ToString("yyyyMMddHHmmss");
+                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+                }
+
+                ESRange mediaEndDateRange = new ESRange(false);
+                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+
+                mediaDatesFilter.AddChild(mediaStartDateRange);
+                mediaDatesFilter.AddChild(mediaEndDateRange);
+
+                mediaFilter.AddChild(mediaDatesFilter); 
+
+                #endregion
             }
 
-            // should be at least one of these three:
-            // group_id = parent groupd id
-            // permitted watch filter 
-            // or it is EPG
-            FilterCompositeType groupWPComposite = new FilterCompositeType(CutWith.OR);
-
-            groupWPComposite.AddChild(groupTerm);
-            groupWPComposite.AddChild(permittedWatchFilter);
-
-            if (this.SearchDefinitions.shouldSearchEpg)
-            {
-                groupWPComposite.AddChild(epgPrefixTerm);
-            }
+            #region Phrase Tree
 
             QueryFilter filterPart = new QueryFilter();
-            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
 
-            filterParent.AddChild(groupWPComposite);
-            filterParent.AddChild(isActiveTerm);
+            BooleanPhraseNode queryNode = null;
+            BooleanPhraseNode filterNode = null;
+            BooleanPhraseNode root = this.SearchDefinitions.filterPhrase;
 
-            if (datesFilter != null)
+            // Easiest case - only one node
+            if (root is BooleanLeaf)
             {
-                filterParent.AddChild(datesFilter);
-            }
+                var leaf = root as BooleanLeaf;
 
-            filterParent.AddChild(userTypeFilterComposite);
-
-            if (mediaTypesFilterComposite != null)
-            {
-                filterParent.AddChild(mediaTypesFilterComposite);
-            }
-
-            filterPart.FilterSettings = filterParent;
-
-            // Use the and/or parts.
-            // If it is exact search - no query, just use terms in filter
-            if (QueryType == eQueryType.EXACT)
-            {
-                if (this.SearchDefinitions.order.m_eOrderBy != OrderBy.RELATED)
+                // If it is contains - it is not exact and thus belongs to query
+                if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                 {
-                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
-                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
-                    FilterCompositeType generatedComposite =
-                        this.FilterMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas,
-                            (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
-
-                    filterParent.AddChild(andComposite);
-                    filterParent.AddChild(orComposite);
-                    filterParent.AddChild(generatedComposite);
+                    queryNode = leaf;
+                }
+                // Otherwise it is an exact search and belongs to a filter
+                else
+                {
+                    filterNode = leaf;
                 }
             }
-            // Not exact == boolean; Use query for and/or parts
-            else if (QueryType == eQueryType.BOOLEAN)
+            // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
+            // We do that with a DFS check of the leafs - at least one leaf that is not-exact means it is query. Otherwise it's filter
+            else if (root is BooleanPhrase)
             {
-                BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.andList, CutWith.AND);
-                BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(this.SearchDefinitions.orList, CutWith.OR);
-                BoolQuery oMultiFilterBoolQuery =
-                    this.QueryMetasAndTagsConditions(this.SearchDefinitions.filterTagsAndMetas, (CutWith)this.SearchDefinitions.filterTagsAndMetasCutWith);
+                var phraseRoot = root as BooleanPhrase;
 
-                BoolQuery oBoolQuery = new BoolQuery();
-                oBoolQuery.AddChild(oAndBoolQuery, CutWith.AND);
-                oBoolQuery.AddChild(oOrBoolQuery, CutWith.AND);
-                oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.AND);
+                List<BooleanPhraseNode> filterRoots = new List<BooleanPhraseNode>();
+                List<BooleanPhraseNode> queryRoots = new List<BooleanPhraseNode>();
 
-                queryPart = oBoolQuery.ToString();
+                // Check which of the phrase first level nodes are designed to be queries or filter.
+                // A node will be a query if one of its descendents is a not-exact search (Contains)
+                foreach (var node in phraseRoot.nodes)
+                {
+                    Stack<BooleanPhraseNode> stack = new Stack<BooleanPhraseNode>();
+                    stack.Push(node);
+
+                    bool isCurrentDone = false;
+
+                    // Go DFS with stack until we find one "contains" leaf or until
+                    while (stack.Count > 0 && !isCurrentDone)
+                    {
+                        BooleanPhraseNode current = stack.Pop();
+
+                        // If it is a leaf, check if it is a not-exact leaf or not
+                        if (current is BooleanLeaf)
+                        {
+                            // If yes, this means the root-ancestor is a query and not a filter
+                            if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains)
+                            {
+                                queryRoots.Add(node);
+
+                                isCurrentDone = true;
+                            }
+                        }
+                        else if (current is BooleanPhrase)
+                        {
+                            // If it is a boolean phrase, push all children to stack
+                            (current as BooleanPhrase).nodes.ForEach(child =>
+                                stack.Push(child));
+                        }
+                    }
+
+                    // If we didn't find any descendent that is a not exact search,
+                    // everything is exact and thus it is a filter
+                    if (!isCurrentDone)
+                    {
+                        filterRoots.Add(node);
+                    }
+                }
+
+                // If this is an OR operation and we have at least one query root - all of them shall be in query, none in filter
+                if ((phraseRoot.operand == ApiObjects.eCutType.Or) &&
+                    (queryRoots.Count > 0))
+                {
+                    queryRoots.AddRange(filterRoots);
+                    filterRoots.Clear();
+                }
+
+                if (queryRoots.Count > 0)
+                {
+                    queryNode = new BooleanPhrase(queryRoots, phraseRoot.operand);
+                }
+
+                if (filterRoots.Count > 0)
+                {
+                    filterNode = new BooleanPhrase(filterRoots, phraseRoot.operand);
+                }
             }
+
+            if (queryNode != null)
+            {
+                var queryTerm = ConvertToQuery(queryNode);
+
+                if (!queryTerm.IsEmpty())
+                {
+                    queryPart = queryTerm.ToString();
+                }
+            }
+
+            if (filterNode != null)
+            {
+                BaseFilterCompositeType filterComposite = ConvertToFilter(filterNode);
+                globalFilter.AddChild(filterComposite);
+            }
+
+            #endregion
+
+            // Eventual filter will be:
+            //
+            // AND: [
+            //          global,
+            //          unified = OR
+            //              [
+            //                  epg, 
+            //                  media
+            //              ]
+            //      ]
+            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
+
+            filterParent.AddChild(unifiedFilter);
+            filterParent.AddChild(globalFilter);
+
+            filterPart.FilterSettings = filterParent;
 
             if (PageSize <= 0)
             {
@@ -343,7 +425,8 @@ namespace ElasticSearch.Searcher
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
 
-            bool bExact = (QueryType == eQueryType.EXACT);
+            // TODO - find if the search is exact or not!
+            bool bExact = false;
 
             // If not exact, order by score, and vice versa
             string sSort = GetSort(this.SearchDefinitions.order, !bExact);
@@ -372,7 +455,7 @@ namespace ElasticSearch.Searcher
 
             return fullQuery;
         }
-
+        
         /// <summary>
         /// Builds a partial string of indexes for the URL of the ES request
         /// </summary>
@@ -405,6 +488,174 @@ namespace ElasticSearch.Searcher
         #endregion
 
         #region Protected and Private Methods
+
+        /// <summary>
+        /// Recursively convert a phrase tree into a filter composite
+        /// </summary>
+        /// <param name="filterNode"></param>
+        /// <returns></returns>
+        protected BaseFilterCompositeType ConvertToFilter(BooleanPhraseNode filterNode)
+        {
+            FilterCompositeType composite = null;
+
+            // Leaf is stop condition: Convert it to a term and send it back
+            if (filterNode is BooleanLeaf)
+            {
+                composite = new FilterCompositeType(CutWith.AND);
+                composite.AddChild(ConvertToFilter(filterNode as BooleanLeaf));
+            }
+            else if (filterNode is BooleanPhrase)
+            {
+                CutWith cut = CutWith.AND;
+
+                // Simply conversion of enums: I could use casting but I don't want to trust it. 
+                if ((filterNode as BooleanPhrase).operand == ApiObjects.eCutType.Or)
+                {
+                    cut = CutWith.OR;
+                }
+
+                composite = new FilterCompositeType(cut);
+
+                // Add every child node to the filter composite. This is recursive!
+                foreach (var childNode in (filterNode as BooleanPhrase).nodes)
+                {
+                    composite.AddChild(ConvertToFilter(childNode));
+                }
+            }
+
+            return (composite);
+        }
+
+        /// <summary>
+        /// Recursively converts a phrase tree into a Boolean query or ESTerm
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        protected static IESTerm ConvertToQuery(BooleanPhraseNode root)
+        {
+            IESTerm term = null;
+
+            // If it is a leaf, this is the stop condition: Simply convert to ESTerm
+            if (root is BooleanLeaf)
+            {
+                BooleanLeaf leaf = root as BooleanLeaf;
+                string field = string.Format("{0}.analyzed", leaf.field);
+
+                term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                {
+                    Field = field,
+                    eOperator = CutWith.OR,
+                    Query = leaf.value.ToString().ToLower()
+                };
+            }
+            // If it is a phrase, join all children in a bool query with the corresponding operand
+            else if (root is BooleanPhrase)
+            {
+                term = new BoolQuery();
+                CutWith cut = CutWith.AND;
+
+                // Simply conversion of enums: I could use casting but I don't want to trust it. 
+                if ((root as BooleanPhrase).operand == ApiObjects.eCutType.Or)
+                {
+                    cut = CutWith.OR;
+                }
+
+                // Add every child node to the boolean query. This is recursive!
+                foreach (var childNode in (root as BooleanPhrase).nodes)
+                {
+                    (term as BoolQuery).AddChild(
+                        ConvertToQuery(childNode),
+                        cut);
+                }
+            }
+
+            return (term);
+        }
+
+        /// <summary>
+        /// Converts a leaf to an ESTerm or ESRange, according to its operator
+        /// </summary>
+        /// <param name="leaf"></param>
+        /// <returns></returns>
+        protected IESTerm ConvertToFilter(BooleanLeaf leaf)
+        {
+            IESTerm term = null;
+
+            bool isNumeric = leaf.type == typeof(int) || leaf.type == typeof(long);
+
+            if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+            {
+                term = new ESTerm(isNumeric)
+                {
+                    Key = leaf.field,
+                    Value = leaf.value.ToString()
+                };
+
+            }
+            else
+            {
+                term = new ESRange(isNumeric)
+                {
+                    Key = leaf.field
+                };
+
+                eRangeComp rangeComparison = eRangeComp.GTE;
+
+                switch (leaf.operand)
+                {
+                    case ApiObjects.ComparisonOperator.GTE:
+                    {
+                        rangeComparison = eRangeComp.GTE;
+                        break;
+                    }
+                    case ApiObjects.ComparisonOperator.GT:
+                    {
+                        rangeComparison = eRangeComp.GT;
+                        break;
+                    }
+                    case ApiObjects.ComparisonOperator.LTE:
+                    {
+                        rangeComparison = eRangeComp.LTE;
+                        break;
+                    }
+                    case ApiObjects.ComparisonOperator.LT:
+                    {
+                        rangeComparison = eRangeComp.LT;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+
+                (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, leaf.value.ToString()));
+            }
+
+            return (term);
+        }
+
+        /// <summary>
+        /// Creates an ES query string for a leaf in a boolean tree
+        /// </summary>
+        /// <param name="leaf"></param>
+        /// <returns></returns>
+        protected static string ConvertToQueryString(BooleanLeaf leaf)
+        {
+            BoolQuery boolQuery = new BoolQuery();
+            bool isNumeric =
+                leaf.type == typeof(int) || leaf.type == typeof(long);
+
+            boolQuery.AddChild(
+                new ESTerm(isNumeric)
+                {
+                    Key = leaf.field,
+                    Value = leaf.value.ToString().ToLower()
+                },
+                CutWith.AND);
+
+            return boolQuery.ToString();
+        }
 
         /// <summary>
         /// Returns the sort string for the query
@@ -451,94 +702,6 @@ namespace ElasticSearch.Searcher
             sSort.Append(" ]");
 
             return sSort.ToString();
-        }
-
-        protected FilterCompositeType FilterMetasAndTagsConditions(List<SearchValue> searchValues, CutWith cutWith)
-        {
-            if (searchValues == null)
-            {
-                return null;
-            }
-
-            FilterCompositeType parent = new FilterCompositeType(cutWith);
-
-            foreach (SearchValue searchValue in searchValues)
-            {
-                string sSearchKey = Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix);
-
-                if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.AND)
-                {
-                    FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
-                    
-                    foreach (string value in searchValue.m_lValue)
-                    {
-                        composite.AddChild(new ESTerm(false)
-                        {
-                            Key = sSearchKey,
-                            Value = value.ToLower()
-                        });
-                    }
-
-                    parent.AddChild(composite);
-                }
-                else if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.OR)
-                {
-                    FilterCompositeType composite = new FilterCompositeType(CutWith.OR);
-                    
-                    if (searchValue.m_lValue.Count > 0)
-                    {
-                        ESTerms terms = new ESTerms(false);
-                        terms.Key = sSearchKey;
-                        terms.Value.AddRange(searchValue.m_lValue.ConvertAll(val => val.ToLower()));
-                        composite.AddChild(terms);
-                    }
-
-                    parent.AddChild(composite);
-                }
-            }
-
-            return parent;
-
-        }
-
-        protected BoolQuery QueryMetasAndTagsConditions(List<SearchValue> oSearchList, CutWith oAndOrCondition)
-        {
-            BoolQuery oBoolQuery = new BoolQuery();
-
-            List<string> lMetasAndTagConditions = null;
-
-            if (oSearchList != null && oSearchList.Count > 0)
-            {
-                lMetasAndTagConditions = new List<string>();
-
-                foreach (SearchValue searchValue in oSearchList)
-                {
-                    BoolQuery oValueBoolQuery = new BoolQuery();
-                    if (!string.IsNullOrEmpty(searchValue.m_sKey))
-                    {
-                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix),
-                                                          ".analyzed");
-
-                        foreach (string sValue in searchValue.m_lValue)
-                        {
-                            if (string.IsNullOrEmpty(sValue))
-                                continue;
-
-                            ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
-                            {
-                                eOperator = CutWith.AND,
-                                Field = sSearchKey,
-                                Query = sValue
-                            };
-                            oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
-                        }
-                    }
-
-                    oBoolQuery.AddChild(oValueBoolQuery, oAndOrCondition);
-                }
-            }
-
-            return oBoolQuery;
         }
 
         #endregion

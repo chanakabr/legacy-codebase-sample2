@@ -270,4 +270,15 @@ namespace ApiObjects
         Fail = 2,
         Unkown = 3
     }
+
+    [Serializable]
+    public enum ComparisonOperator
+    {
+        Equals,
+        Contains,
+        GTE,
+        GT,
+        LTE,
+        LT
+    }
 }

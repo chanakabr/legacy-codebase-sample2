@@ -729,12 +729,43 @@ namespace Catalog
             order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
             order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
 
-            SearchValue search = new SearchValue();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-            // is it full search
-            FullSearchAddParams(request.m_nGroupID, request.andList, request.orList, ref ands, ref ors);
-            definitions.name = string.Empty;
-            definitions.description = string.Empty;
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(nParentGroupID);
+
+            if (group != null)
+            {
+                Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
+                nodes.Enqueue(request.filterTree);
+
+                // BFS
+                while (nodes.Count > 0)
+                {
+                    BooleanPhraseNode node = nodes.Dequeue();
+
+                    // If it is a leaf, just replace the field name
+                    if (node is BooleanLeaf)
+                    {
+                        BooleanLeaf leaf = node as BooleanLeaf;
+
+                        // Add prefix (meta/tag) e.g. metas.{key}
+                        string searchKey = GetFullSearchKey(leaf.field, ref group);
+                        leaf.field = searchKey;
+                    }
+                    else if (node is BooleanPhrase)
+                    {
+                        BooleanPhrase phrase = node as BooleanPhrase;
+
+                        // Run on tree - enqueue all child nodes to continue going deeper
+                        foreach (var childNode in phrase.nodes)
+                        {
+                            nodes.Enqueue(childNode);
+                        }
+                    }
+                }
+            }
 
             GetOrderValues(ref order, request.order);
 
@@ -756,20 +787,10 @@ namespace Catalog
             definitions.order.m_eOrderDir = order.m_eOrderDir;
             definitions.order.m_eOrderBy = order.m_eOrderBy;
             definitions.order.m_sOrderValue = order.m_sOrderValue;
-
-            if (ors.Count > 0)
-            {
-                definitions.orList = ors;
-            }
-
-            if (ands.Count > 0)
-            {
-                definitions.andList = ands;
-            }
-
             definitions.groupId = request.m_nGroupID;
             definitions.isExact = request.isExact;
             definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
+            definitions.filterPhrase = request.filterTree;
 
             // Special case - if no type was specified or "All" is contained, search all types
             if (request.assetTypes.Count == 0 ||

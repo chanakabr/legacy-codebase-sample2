@@ -920,15 +920,11 @@ namespace Catalog
                 parentGroupId = unifiedSearchDefinitions.groupId;
             }
 
-            queryParser.QueryType = (unifiedSearchDefinitions.isExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
-
             string requestBody = queryParser.BuildSearchQueryString();
 
             if (!string.IsNullOrEmpty(requestBody))
             {
                 int httpStatus = 0;
-
-                //string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, unifiedSearchDefinitions.m_oLangauge);
 
                 string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
                 string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);

@@ -658,7 +658,9 @@ namespace GroupsCacheManager
         public List<int> GetMediaTypes()
         {
             // Initialize dictionaries if not initialized yet
-            if (this.mediaTypesNameToId.Count == 0 ||
+            if (this.mediaTypesNameToId == null ||
+                this.mediaTypesIdToName == null ||
+                this.mediaTypesNameToId.Count == 0 ||
                 this.mediaTypesIdToName.Count == 0)
             {
                 CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
@@ -678,7 +680,9 @@ namespace GroupsCacheManager
             int id = 0;
 
             // Initialize dictionaries if not initialized yet
-            if (this.mediaTypesNameToId.Count == 0 ||
+            if (this.mediaTypesNameToId == null ||
+                this.mediaTypesIdToName == null ||
+                this.mediaTypesNameToId.Count == 0 ||
                 this.mediaTypesIdToName.Count == 0)
             {
                 CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
@@ -700,7 +704,9 @@ namespace GroupsCacheManager
             List<int> ids = new List<int>();
 
             // Initialize dictionaries if not initialized yet
-            if (this.mediaTypesNameToId.Count == 0 ||
+            if (this.mediaTypesNameToId == null ||
+                this.mediaTypesIdToName == null || 
+                this.mediaTypesNameToId.Count == 0 ||
                 this.mediaTypesIdToName.Count == 0)
             {
                 CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
