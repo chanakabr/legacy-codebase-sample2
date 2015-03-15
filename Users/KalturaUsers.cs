@@ -540,5 +540,73 @@ namespace Users
         }
 
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList) { }
+
+        public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList) { return new UserResponseObject(); }
+
+        internal override void MidGetUserData(ref UserResponseObject userResponse, string siteGuid)
+        {
+            try
+            {
+                Int32 userId = int.Parse(siteGuid);
+                User user = new User();
+
+                user.Initialize(userId, GroupId);
+
+                if (newsLetterImpl != null)
+                {
+                    if (user.m_oDynamicData != null && user.m_oDynamicData.GetDynamicData() != null)
+                    {
+                        foreach (UserDynamicDataContainer udc in user.m_oDynamicData.GetDynamicData())
+                        {
+                            if (udc.m_sDataType.ToLower().Equals("newsletter"))
+                                udc.m_sValue = newsLetterImpl.IsUserSubscribed(user).ToString().ToLower();
+                        }
+                    }
+                }
+
+                if (user.m_oBasicData.m_sUserName == "")
+                    userResponse.Initialize(ResponseStatus.UserDoesNotExist, user);
+                else
+                    userResponse.Initialize(ResponseStatus.OK, user);
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder(String.Concat("Exception at GetUserData. Site Guid: ", siteGuid));
+                sb.Append(String.Concat(" G ID: ", GroupId));
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                throw;
+            }
+        }
+
+        public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList) { }
+
+        public override List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList) { return new List<UserResponseObject>(); }
+
+        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList)
+        {
+            try
+            {
+                for (int i = 0; i < siteGuids.Count; i++)
+                {
+                    try
+                    {
+                        UserResponseObject temp = FlowManager.GetUserData(this, siteGuids[i], keyValueList);
+                        if (temp != null)
+                            userResponses.Add(temp);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList) { }
     }
 }

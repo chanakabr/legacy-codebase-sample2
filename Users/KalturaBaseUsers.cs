@@ -93,6 +93,16 @@ namespace Users
         internal abstract int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
         public abstract void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList);
 
+        // get user data
+        public abstract UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList);
+        internal abstract void MidGetUserData(ref UserResponseObject userResponse, string sSiteGUID);
+        public abstract void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList);
+
+        // get users data
+        public abstract List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
+        internal abstract void MidGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
+        public abstract void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
+
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
 

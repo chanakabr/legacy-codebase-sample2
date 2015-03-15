@@ -3185,7 +3185,7 @@ namespace Catalog
             bool bMedia = false;
             long ipVal = 0;
 
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CTALOG_HIT_CACHE"))
+            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
                 ipVal = ParseIPOutOfString(userIP);
                 return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
