@@ -793,18 +793,18 @@ namespace Catalog
             definitions.filterPhrase = request.filterTree;
 
             // Special case - if no type was specified or "All" is contained, search all types
-            if (request.assetTypes.Count == 0 ||
-                request.assetTypes.Contains("All"))
+            if (request.assetTypes == null || request.assetTypes.Count == 0)
             {
                 definitions.shouldSearchEpg = true;
                 definitions.mediaTypes = GetMediaTypes(request.m_nGroupID, null);
             }
             else
             {
-                definitions.mediaTypes = GetMediaTypes(request.m_nGroupID, request.assetTypes);
+                definitions.mediaTypes = new List<int>(request.assetTypes);
             }
 
-            if (request.assetTypes.Contains("EPG"))
+            // 0 - hard coded for EPG
+            if (request.assetTypes.Contains(0))
             {
                 definitions.shouldSearchEpg = true;
             }

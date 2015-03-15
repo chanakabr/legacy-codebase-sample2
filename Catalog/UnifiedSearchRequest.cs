@@ -24,7 +24,7 @@ namespace Catalog
         public OrderObj order;
 
         [DataMember]
-        public List<string> assetTypes;
+        public List<int> assetTypes;
 
         [DataMember]
         public BooleanPhraseNode filterTree;
@@ -52,7 +52,7 @@ namespace Catalog
         public UnifiedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
             bool isExact, OrderObj order, string searchValue,
             BooleanPhraseNode filterTree,
-            List<string> types)
+            List<int> types)
                 : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             this.isExact = isExact;

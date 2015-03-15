@@ -12,11 +12,8 @@ namespace ApiObjects.SearchObjects
     [DataContract]
     public abstract class BooleanPhraseNode
     {
-
         public BooleanPhraseNode()
         {
         }
-
-        public abstract string ToQuery();
     }
 }

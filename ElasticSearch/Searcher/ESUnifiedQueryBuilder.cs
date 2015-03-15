@@ -590,7 +590,15 @@ namespace ElasticSearch.Searcher
                     Key = leaf.field,
                     Value = leaf.value.ToString()
                 };
-
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
+            {
+                term = new ESTerm(isNumeric)
+                {
+                    Key = leaf.field,
+                    Value = leaf.value.ToString(),
+                    bNot = true
+                };
             }
             else
             {
@@ -603,22 +611,22 @@ namespace ElasticSearch.Searcher
 
                 switch (leaf.operand)
                 {
-                    case ApiObjects.ComparisonOperator.GTE:
+                    case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                     {
                         rangeComparison = eRangeComp.GTE;
                         break;
                     }
-                    case ApiObjects.ComparisonOperator.GT:
+                    case ApiObjects.ComparisonOperator.GreaterThan:
                     {
                         rangeComparison = eRangeComp.GT;
                         break;
                     }
-                    case ApiObjects.ComparisonOperator.LTE:
+                    case ApiObjects.ComparisonOperator.LessThanOrEqual:
                     {
                         rangeComparison = eRangeComp.LTE;
                         break;
                     }
-                    case ApiObjects.ComparisonOperator.LT:
+                    case ApiObjects.ComparisonOperator.LessThan:
                     {
                         rangeComparison = eRangeComp.LT;
                         break;
@@ -633,28 +641,6 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
-        }
-
-        /// <summary>
-        /// Creates an ES query string for a leaf in a boolean tree
-        /// </summary>
-        /// <param name="leaf"></param>
-        /// <returns></returns>
-        protected static string ConvertToQueryString(BooleanLeaf leaf)
-        {
-            BoolQuery boolQuery = new BoolQuery();
-            bool isNumeric =
-                leaf.type == typeof(int) || leaf.type == typeof(long);
-
-            boolQuery.AddChild(
-                new ESTerm(isNumeric)
-                {
-                    Key = leaf.field,
-                    Value = leaf.value.ToString().ToLower()
-                },
-                CutWith.AND);
-
-            return boolQuery.ToString();
         }
 
         /// <summary>

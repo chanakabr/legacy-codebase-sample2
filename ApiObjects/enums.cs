@@ -275,10 +275,11 @@ namespace ApiObjects
     public enum ComparisonOperator
     {
         Equals,
+        NotEquals,
         Contains,
-        GTE,
-        GT,
-        LTE,
-        LT
+        GreaterThanOrEqual,
+        GreaterThan,
+        LessThanOrEqual,
+        LessThan
     }
 }

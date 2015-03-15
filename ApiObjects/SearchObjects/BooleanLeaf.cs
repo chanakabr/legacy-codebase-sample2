@@ -59,13 +59,5 @@ namespace ApiObjects.SearchObjects
 
         #endregion
 
-        #region Methods
-
-        public override string ToQuery()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
     }
 }
