@@ -27,7 +27,10 @@ namespace Catalog
         public List<int> assetTypes;
 
         [DataMember]
-        public BooleanPhraseNode filterTree;
+        internal BooleanPhraseNode filterTree;
+
+        [DataMember]
+        public string filterQuery;
 
         #endregion
 
