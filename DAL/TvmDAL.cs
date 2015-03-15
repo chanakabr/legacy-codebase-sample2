@@ -449,15 +449,16 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-               
 
-        public static bool UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID)
+
+        public static bool UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID, int channelID)
         {
             StoredProcedure sp = new StoredProcedure("UpdateChannelMediaType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Status", status);
             sp.AddParameter("@channelMediaTypeID", channelMediaTypeID);
+            sp.AddParameter("@channelID", channelID);
 
             return sp.ExecuteReturnValue<bool>();
         }

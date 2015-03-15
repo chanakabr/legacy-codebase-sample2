@@ -204,8 +204,6 @@ namespace GroupsCacheManager
 
             Channel oChannel = new Channel();
             int mediaType;
-            //DataTable channelData = Tvinci.Core.DAL.CatalogDAL.GetChannelByChannelId(nChannelId);
-
             DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -238,7 +236,14 @@ namespace GroupsCacheManager
                     }
                     if (oChannel.m_nMediaType.Count == 0)
                     {
-                        oChannel.m_nMediaType.Add(mediaType);
+                        if (mediaType != -1)
+                        {
+                            oChannel.m_nMediaType.Add(mediaType);
+                        }
+                        else
+                        {
+                            oChannel.m_nMediaType.Add(0);
+                        }
                     }
 
                     oChannel.m_nParentGroupID = group.m_nParentGroupID;
@@ -346,7 +351,7 @@ namespace GroupsCacheManager
             _logger.Info("Getting channels for subscription");
 
             DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(lChannelIds);
-            if (ds != null && ds.Tables!= null && ds.Tables.Count > 0)//channelsData != null && channelsData.Rows != null)
+            if (ds != null && ds.Tables!= null && ds.Tables.Count > 0)
             {
                 DataTable channelsData = ds.Tables[0];
                 if (channelsData.Rows!= null && channelsData.Rows.Count > 0)
@@ -382,10 +387,15 @@ namespace GroupsCacheManager
                         }
                         if (oChannel.m_nMediaType.Count == 0)
                         {
-                            oChannel.m_nMediaType.Add(mediaType);
+                            if (mediaType != -1)
+                            {
+                                oChannel.m_nMediaType.Add(mediaType);
+                            }
+                            else
+                            {
+                                oChannel.m_nMediaType.Add(0);
+                            }
                         }
-
-
 
                         oChannel.m_nParentGroupID = group.m_nParentGroupID;
                         oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
