@@ -149,7 +149,8 @@ namespace Users
         Error,
         DuplicatePin,
         DeviceNotExists,
-        OK
+        OK,
+        ExceededLimit
     }
 
     public enum UserGroupRuleResponseStatus

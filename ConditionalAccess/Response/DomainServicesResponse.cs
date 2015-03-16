@@ -12,12 +12,6 @@ namespace ConditionalAccess.Response
 
         public List<ConditionalAccess.TvinciPricing.ServiceObject> Services { get; set; }
 
-        public DomainServicesResponse(ApiObjects.Response.Status status, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
-        {
-            Status = status;
-            Services = services;
-        }
-
         public DomainServicesResponse(int code, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
         {
             Status = new ApiObjects.Response.Status(code);
@@ -27,6 +21,13 @@ namespace ConditionalAccess.Response
         public DomainServicesResponse()
         {
             Status = new ApiObjects.Response.Status();
+            Services = new List<TvinciPricing.ServiceObject>();
+        }
+
+        public DomainServicesResponse(int code)
+        {
+            Status = new ApiObjects.Response.Status(code);
+            Services = new List<TvinciPricing.ServiceObject>();
         }
     }
 }
