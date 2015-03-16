@@ -11509,7 +11509,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        private bool IsItemPurchased(MediaFileItemPricesContainer price)
+        internal bool IsItemPurchased(MediaFileItemPricesContainer price)
         {
             bool res = false;
             PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
@@ -11543,7 +11543,7 @@ namespace ConditionalAccess
             return basicLink != null && mediaFileID > 0 && !string.IsNullOrEmpty(siteGuid) && Int32.TryParse(siteGuid, out temp) && temp > 0;
         }
 
-        private bool IsFreeItem(MediaFileItemPricesContainer container)
+        internal bool IsFreeItem(MediaFileItemPricesContainer container)
         {
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
         }
