@@ -79,6 +79,7 @@ namespace EpgFeeder
             {
                // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO
 
+                //TO DO - no more delete !!!! only at the end of the proccess
                 //Delete dates per channel id
                 DeleteAllPrograms();
 
