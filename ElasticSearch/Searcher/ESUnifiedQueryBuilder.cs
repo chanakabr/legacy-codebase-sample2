@@ -65,7 +65,7 @@ namespace ElasticSearch.Searcher
                 this.ReturnFields.Add("\"epg_id\"");
             }
             
-            if (definitions.mediaTypes.Count > 0)
+            if (definitions.shouldSearchMedia)
             {
                 this.ReturnFields.Add("\"media_id\"");
             }
@@ -92,6 +92,20 @@ namespace ElasticSearch.Searcher
         /// <returns></returns>
         public virtual string BuildSearchQueryString()
         {
+            // This is a query-filter.
+            // First comes query
+            // Then comes filter
+            // Query is for non-exact phrases
+            // Filter is for exact phrases
+
+            // filtered query :
+            //  {
+            //      { 
+            //          query : {},
+            //          filter : {}
+            //      }
+            // }
+
             string fullQuery = string.Empty;
 
             if (this.SearchDefinitions == null)
@@ -111,6 +125,17 @@ namespace ElasticSearch.Searcher
                 Value = "media"
             };
 
+            // Eventual filter will be:
+            //
+            // AND: [
+            //          global,
+            //          unified = OR
+            //              [
+            //                  epg, 
+            //                  media
+            //              ]
+            //      ]
+
             FilterCompositeType mediaFilter = new FilterCompositeType(CutWith.AND);
             mediaFilter.AddChild(mediaPrefixTerm);
 
@@ -128,7 +153,7 @@ namespace ElasticSearch.Searcher
                 unifiedFilter.AddChild(epgFilter);
             }
 
-            if (this.SearchDefinitions.mediaTypes.Count > 0)
+            if (this.SearchDefinitions.shouldSearchMedia)
             {
                 unifiedFilter.AddChild(mediaFilter);
             }
@@ -153,7 +178,6 @@ namespace ElasticSearch.Searcher
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
-            // Media and EPG are connected by "OR"; inside it is connected with "AND"s
 
             FilterCompositeType epgDatesFilter = null;
 
@@ -164,34 +188,44 @@ namespace ElasticSearch.Searcher
 
                 epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
-                string nowPlusWeekDateString = DateTime.UtcNow.AddDays(7).ToString("yyyyMMddHHmmss");
-                string nowMinusWeekDateString = DateTime.UtcNow.AddDays(-7).ToString("yyyyMMddHHmmss");
+                string nowPlusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowMinusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
-                ESRange epgStartDateRange = new ESRange(false)
+                if (this.SearchDefinitions.defaultStartDate)
                 {
-                    Key = "start_date"
-                };
+                    ESRange epgStartDateRange = new ESRange(false)
+                    {
+                        Key = "start_date"
+                    };
 
-                epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
 
-                ESRange epgEndDateRange = new ESRange(false)
+                    epgDatesFilter.AddChild(epgStartDateRange);
+                }
+
+                if (this.SearchDefinitions.defaultEndDate)
                 {
-                    Key = "end_date"
-                };
+                    ESRange epgEndDateRange = new ESRange(false)
+                    {
+                        Key = "end_date"
+                    };
 
-                epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
 
-                epgDatesFilter.AddChild(epgStartDateRange);
-                epgDatesFilter.AddChild(epgEndDateRange);
+                    epgDatesFilter.AddChild(epgEndDateRange);
+                }
 
-                epgFilter.AddChild(epgDatesFilter); 
-
+                if (!epgDatesFilter.IsEmpty())
+                {
+                    epgFilter.AddChild(epgDatesFilter);
+                }
                 #endregion
             }
 
-            if (this.SearchDefinitions.mediaTypes.Count > 0)
+            // Media specific filters - user types, media types etc.
+            if (this.SearchDefinitions.shouldSearchMedia)
             {
                 #region User Types
 
@@ -280,136 +314,149 @@ namespace ElasticSearch.Searcher
                 string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
 
-                ESRange mediaStartDateRange = new ESRange(false);
-
-                if (this.SearchDefinitions.shouldUseStartDate)
+                if (this.SearchDefinitions.defaultStartDate)
                 {
-                    mediaStartDateRange.Key = "start_date";
-                    string sMin = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+                    ESRange mediaStartDateRange = new ESRange(false);
+
+                    if (this.SearchDefinitions.shouldUseStartDate)
+                    {
+                        mediaStartDateRange.Key = "start_date";
+                        string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
+                        mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
+                        mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+                    }
+
+                    mediaDatesFilter.AddChild(mediaStartDateRange);
                 }
 
-                ESRange mediaEndDateRange = new ESRange(false);
-                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+                if (this.SearchDefinitions.defaultEndDate)
+                {
+                    ESRange mediaEndDateRange = new ESRange(false);
+                    mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
 
-                mediaDatesFilter.AddChild(mediaStartDateRange);
-                mediaDatesFilter.AddChild(mediaEndDateRange);
+                    mediaDatesFilter.AddChild(mediaEndDateRange);
+                }
 
-                mediaFilter.AddChild(mediaDatesFilter); 
+                if (!mediaDatesFilter.IsEmpty())
+                {
+                    mediaFilter.AddChild(mediaDatesFilter);
+                }
 
                 #endregion
             }
 
-            #region Phrase Tree
-
             QueryFilter filterPart = new QueryFilter();
 
-            BooleanPhraseNode queryNode = null;
-            BooleanPhraseNode filterNode = null;
-            BooleanPhraseNode root = this.SearchDefinitions.filterPhrase;
+            #region Phrase Tree
 
-            // Easiest case - only one node
-            if (root is BooleanLeaf)
+            if (this.SearchDefinitions.filterPhrase != null)
             {
-                var leaf = root as BooleanLeaf;
+                BooleanPhraseNode queryNode = null;
+                BooleanPhraseNode filterNode = null;
+                BooleanPhraseNode root = this.SearchDefinitions.filterPhrase;
 
-                // If it is contains - it is not exact and thus belongs to query
-                if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
+                // Easiest case - only one node
+                if (root is BooleanLeaf)
                 {
-                    queryNode = leaf;
-                }
-                // Otherwise it is an exact search and belongs to a filter
-                else
-                {
-                    filterNode = leaf;
-                }
-            }
-            // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
-            // We do that with a DFS check of the leafs - at least one leaf that is not-exact means it is query. Otherwise it's filter
-            else if (root is BooleanPhrase)
-            {
-                var phraseRoot = root as BooleanPhrase;
+                    var leaf = root as BooleanLeaf;
 
-                List<BooleanPhraseNode> filterRoots = new List<BooleanPhraseNode>();
-                List<BooleanPhraseNode> queryRoots = new List<BooleanPhraseNode>();
-
-                // Check which of the phrase first level nodes are designed to be queries or filter.
-                // A node will be a query if one of its descendents is a not-exact search (Contains)
-                foreach (var node in phraseRoot.nodes)
-                {
-                    Stack<BooleanPhraseNode> stack = new Stack<BooleanPhraseNode>();
-                    stack.Push(node);
-
-                    bool isCurrentDone = false;
-
-                    // Go DFS with stack until we find one "contains" leaf or until
-                    while (stack.Count > 0 && !isCurrentDone)
+                    // If it is contains - it is not exact and thus belongs to query
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                     {
-                        BooleanPhraseNode current = stack.Pop();
+                        queryNode = leaf;
+                    }
+                    // Otherwise it is an exact search and belongs to a filter
+                    else
+                    {
+                        filterNode = leaf;
+                    }
+                }
+                // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
+                // We do that with a DFS check of the leafs - at least one leaf that is not-exact means it is query. Otherwise it's filter
+                else if (root is BooleanPhrase)
+                {
+                    var phraseRoot = root as BooleanPhrase;
 
-                        // If it is a leaf, check if it is a not-exact leaf or not
-                        if (current is BooleanLeaf)
+                    List<BooleanPhraseNode> filterRoots = new List<BooleanPhraseNode>();
+                    List<BooleanPhraseNode> queryRoots = new List<BooleanPhraseNode>();
+
+                    // Check which of the phrase first level nodes are designed to be queries or filter.
+                    // A node will be a query if one of its descendents is a not-exact search (Contains)
+                    foreach (var node in phraseRoot.nodes)
+                    {
+                        Stack<BooleanPhraseNode> stack = new Stack<BooleanPhraseNode>();
+                        stack.Push(node);
+
+                        bool isCurrentDone = false;
+
+                        // Go DFS with stack until we find one "contains" leaf or until no more nodes are left
+                        while (stack.Count > 0 && !isCurrentDone)
                         {
-                            // If yes, this means the root-ancestor is a query and not a filter
-                            if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains)
-                            {
-                                queryRoots.Add(node);
+                            BooleanPhraseNode current = stack.Pop();
 
-                                isCurrentDone = true;
+                            // If it is a leaf, check if it is a not-exact leaf or not
+                            if (current is BooleanLeaf)
+                            {
+                                // If yes, this means the root-ancestor is a query and not a filter
+                                if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains)
+                                {
+                                    queryRoots.Add(node);
+
+                                    isCurrentDone = true;
+                                }
+                            }
+                            else if (current is BooleanPhrase)
+                            {
+                                // If it is a boolean phrase, push all children to stack
+                                (current as BooleanPhrase).nodes.ForEach(child =>
+                                    stack.Push(child));
                             }
                         }
-                        else if (current is BooleanPhrase)
+
+                        // If we didn't find any descendent that is a not exact search,
+                        // everything is exact and thus it is a filter
+                        if (!isCurrentDone)
                         {
-                            // If it is a boolean phrase, push all children to stack
-                            (current as BooleanPhrase).nodes.ForEach(child =>
-                                stack.Push(child));
+                            filterRoots.Add(node);
                         }
                     }
 
-                    // If we didn't find any descendent that is a not exact search,
-                    // everything is exact and thus it is a filter
-                    if (!isCurrentDone)
+                    // If this is an OR operation and we have at least one query root - all of them shall be in query, none in filter
+                    if ((phraseRoot.operand == ApiObjects.eCutType.Or) &&
+                        (queryRoots.Count > 0))
                     {
-                        filterRoots.Add(node);
+                        queryRoots.AddRange(filterRoots);
+                        filterRoots.Clear();
+                    }
+
+                    if (queryRoots.Count > 0)
+                    {
+                        queryNode = new BooleanPhrase(queryRoots, phraseRoot.operand);
+                    }
+
+                    if (filterRoots.Count > 0)
+                    {
+                        filterNode = new BooleanPhrase(filterRoots, phraseRoot.operand);
                     }
                 }
 
-                // If this is an OR operation and we have at least one query root - all of them shall be in query, none in filter
-                if ((phraseRoot.operand == ApiObjects.eCutType.Or) &&
-                    (queryRoots.Count > 0))
+                if (queryNode != null)
                 {
-                    queryRoots.AddRange(filterRoots);
-                    filterRoots.Clear();
+                    var queryTerm = ConvertToQuery(queryNode);
+
+                    if (!queryTerm.IsEmpty())
+                    {
+                        queryPart = queryTerm.ToString();
+                    }
                 }
 
-                if (queryRoots.Count > 0)
+                if (filterNode != null)
                 {
-                    queryNode = new BooleanPhrase(queryRoots, phraseRoot.operand);
+                    BaseFilterCompositeType filterComposite = ConvertToFilter(filterNode);
+                    globalFilter.AddChild(filterComposite);
                 }
-
-                if (filterRoots.Count > 0)
-                {
-                    filterNode = new BooleanPhrase(filterRoots, phraseRoot.operand);
-                }
-            }
-
-            if (queryNode != null)
-            {
-                var queryTerm = ConvertToQuery(queryNode);
-
-                if (!queryTerm.IsEmpty())
-                {
-                    queryPart = queryTerm.ToString();
-                }
-            }
-
-            if (filterNode != null)
-            {
-                BaseFilterCompositeType filterComposite = ConvertToFilter(filterNode);
-                globalFilter.AddChild(filterComposite);
             }
 
             #endregion
@@ -485,7 +532,7 @@ namespace ElasticSearch.Searcher
 
             if (definitions.shouldSearchEpg)
             {
-                if (definitions.mediaTypes.Count > 0)
+                if (definitions.shouldSearchMedia)
                 {
                     indexes = string.Format("{0},{0}_epg", groupId);
                 }

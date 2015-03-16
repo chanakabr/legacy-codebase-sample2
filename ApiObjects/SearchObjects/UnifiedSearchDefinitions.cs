@@ -14,8 +14,6 @@ namespace ApiObjects.SearchObjects
         public bool isDescending;
         public string orderBy;
 
-        public bool isExact;
-
         public int pageIndex
         {
             get;
@@ -38,7 +36,19 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        /// <summary>
+        /// The important part - the tree of filter conditions, connected with Ands/Ors.
+        /// </summary>
         public BooleanPhraseNode filterPhrase;
+
+        /// <summary>
+        /// Whether or not use the default start date range filter or not
+        /// </summary>
+        public bool defaultStartDate;
+        /// <summary>
+        /// Whether or not use the default end date range filter or not
+        /// </summary>
+        public bool defaultEndDate;
 
         public int groupId
         {
@@ -56,14 +66,35 @@ namespace ApiObjects.SearchObjects
             get;
             set;
         }
+        
         public int userTypeID;
 
         public int[] deviceRuleId;
 
+        /// <summary>
+        /// In case search is on medias, list of media types IDs to search for (Episode, movie etc.)
+        /// </summary>
         public List<int> mediaTypes;
+
+        /// <summary>
+        /// Are EPGs relevant to this search or not
+        /// </summary>
         public bool shouldSearchEpg;
 
+        /// <summary>
+        /// Are media relevant to this search or not
+        /// </summary>
+        public bool shouldSearchMedia;
+
+        /// <summary>
+        /// Fields that will show in the result in addition to the basic, default return fields
+        /// </summary>
         public List<string> extraReturnFields;
+
+        /// <summary>
+        /// How many days forward and backward do we search for EPGs
+        /// </summary>
+        public double epgDaysOffest;
 
         #endregion
 
@@ -74,27 +105,21 @@ namespace ApiObjects.SearchObjects
             pageIndex = 0;
             pageSize = 0;
             groupId = 0;
+            epgDaysOffest = 0;
+
             isDescending = false;
-            isExact = false;
-
-            mediaTypes = new List<int>();
             shouldSearchEpg = false;
-
-            isExact = false;
-
             shouldUseFinalEndDate = false;
-
-            //andList = new List<SearchValue>();
-            //orList = new List<SearchValue>();
+            shouldUseStartDate = true;
+            defaultEndDate = true;
+            defaultStartDate = true;
 
             filterPhrase = null;
-
-            shouldUseStartDate = true;
-
             deviceRuleId = null;
 
             order = new OrderObj();
 
+            mediaTypes = new List<int>();
             extraReturnFields = new List<string>();
         }
 
