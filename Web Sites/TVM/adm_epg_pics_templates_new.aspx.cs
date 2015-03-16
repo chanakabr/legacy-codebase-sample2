@@ -17,9 +17,7 @@ public partial class adm_epg_pics_templates_new : System.Web.UI.Page
         else if (LoginManager.IsPagePermitted("adm_epg_pics_templates.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
         else if (LoginManager.IsActionPermittedOnPage("adm_epg_pics_templates.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT) == false)
-            LoginManager.LogoutFromSite("login.html");
-        //else if (PageUtils.IsTvinciUser() == false)
-        //LoginManager.LogoutFromSite("login.html");
+            LoginManager.LogoutFromSite("login.html");      
 
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
@@ -96,6 +94,11 @@ public partial class adm_epg_pics_templates_new : System.Web.UI.Page
         DataRecordShortIntField dr_height = new DataRecordShortIntField(true, 4, 4);
         dr_height.Initialize("Height", "adm_table_header_nbg", "FormInput", "Height", true);
         theRecord.AddRecord(dr_height);
+
+        DataRecordDropDownField dr_ratios = new DataRecordDropDownField("lu_groups_ratios", "ratio", "id", "", null, 60, false);
+        dr_ratios.Initialize("Ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", true);
+        dr_ratios.SetSelectsQuery("select lur.ratio as 'txt', lur.id from  lu_pics_epg_ratios lur, groups g where g.id = " + LoginManager.GetLoginGroupID() + " and lur.id = g.ratio_id" + " UNION select lur.ratio as 'txt', lur.id from lu_pics_ratios lur, group_ratios gr where gr.group_id = " + LoginManager.GetLoginGroupID() + " and gr.ratio_id = lur.id and gr.status = 1");
+        theRecord.AddRecord(dr_ratios);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
