@@ -18,6 +18,8 @@ namespace ElasticSearchFeeder
         DateTime dStartDate, dEndDate;
         ElasticSearchAbstract oESFeed;
         eESFeederType eFeederType;
+
+        List<int> epgChannelIDsToDelete;
         #endregion
 
         public ElasticSearchFeeder(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
@@ -50,6 +52,10 @@ namespace ElasticSearchFeeder
                         oESFeed.Implementer = new BaseESMedia(nGroupID, sQueueName, bRebuildIndex, dStartDate, dEndDate) { bSwitchIndex = this.bSwitchIndex };
                         oESFeed.Start();
                         break;
+                    case "epg_delete_channels":
+                        oESFeed.Implementer = new ESDeleteEPGChannelsImplementor(epgChannelIDsToDelete, nGroupID, sQueueName, bRebuildIndex);
+                        oESFeed.Start();
+                        break;
                     default:
                         Logger.Logger.Log("Error", "Unknown type in elastic search feeder", "ElasticSearchFeeder");
                         break;
@@ -57,7 +63,7 @@ namespace ElasticSearchFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", nGroupID, ex.Message), "ElasticSearchFeeder");
+                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1} st:{2}", nGroupID, ex.Message, ex.StackTrace), "ElasticSearchFeeder");
             }
 
             return true;
@@ -104,12 +110,38 @@ namespace ElasticSearchFeeder
                         dStartDate = dTempDate.AddDays(nOffset * -1);
                         dEndDate = dTempDate.AddDays(nOffset);
                     }
+
+                    if (sType == "epg_delete_channels")
+                    {
+                        eFeederType = eESFeederType.EPG;
+                        epgChannelIDsToDelete = new List<int>();
+                        if (items.Length == 4)
+                        {
+                            string epgChannelsAsStr = items[3];
+                            if (!string.IsNullOrEmpty(epgChannelsAsStr))
+                            {
+                                string[] channels = epgChannelsAsStr.Split(';');
+                                if (channels != null && channels.Length > 0)
+                                {
+                                    for (int i = 0; i < channels.Length; i++)
+                                    {
+                                        int epgChannelID = 0;
+                                        if (Int32.TryParse(channels[i], out epgChannelID))
+                                        {
+                                            epgChannelIDsToDelete.Add(epgChannelID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
                 }
                 Logger.Logger.Log("Params", nGroupID.ToString() + " " + sType + " " + sQueueName, "ESFeeder");
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Error while parsing init parameters. params={0}. Ex={1}", m_sParameters, ex.Message), "ElasticSearchFeeder");
+                Logger.Logger.Log("Error", string.Format("Error while parsing init parameters. params={0}. Ex={1} ST: {2}", m_sParameters, ex.Message, ex.StackTrace), "ElasticSearchFeeder");
                 throw new ArgumentException("Invalid arguments passed to Elasticsearch feeder");
             }
         }

@@ -185,6 +185,11 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
+        DataRecordDropDownField dr_epg_channel_type = new DataRecordDropDownField("lu_epg_channel_type", "DESCRIPTION", "id", "", null, 60, true);
+        dr_epg_channel_type.SetNoSelectStr("---");
+        dr_epg_channel_type.Initialize("Channel Type", "adm_table_header_nbg", "FormInput", "epg_channel_type", false);
+        theRecord.AddRecord(dr_epg_channel_type);
+
         string sTable = theRecord.GetTableHTML("adm_epg_channels_new.aspx?submited=1");
 
         return sTable;

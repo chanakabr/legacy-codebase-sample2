@@ -13,6 +13,7 @@ using ApiObjects;
 using Catalog.Cache;
 using TvinciImporter;
 using ApiObjects.Epg;
+using GroupsCacheManager;
 
 namespace EpgFeeder
 {

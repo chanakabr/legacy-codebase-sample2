@@ -58,20 +58,7 @@ namespace EpgFeeder
 
                 if (oEPGFeed != null)
                 {
-                    Dictionary<DateTime, List<int>> datesWithChannelIds = oEPGFeed.SaveChannel();
-
-                    if (!string.IsNullOrEmpty(sGroupID))
-                    {
-                        DataTable dataParentGroupId = EpgDal.GetParentGroupIdByGroupId(int.Parse(sGroupID));
-                        if (dataParentGroupId != null)
-                        {
-                            foreach (DataRow row in dataParentGroupId.Rows)
-                            {
-                                int nGroupIdFromDB = ODBCWrapper.Utils.GetIntSafeVal(row, "PARENT_GROUP_ID");
-                                oEPGFeed.Implementer.m_ParentGroupId = EPGLogic.GetParentGroupId(nGroupIdFromDB, sGroupID).ToString();
-                            }
-                        }
-                    }                
+                    Dictionary<DateTime, List<int>> datesWithChannelIds = oEPGFeed.SaveChannel();   
                 }
             }
             catch (Exception ex)

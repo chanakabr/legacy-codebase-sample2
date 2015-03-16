@@ -75,6 +75,12 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         dr_Name.Initialize("Meta name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_Name);
 
+        DataRecordShortTextField dr_Default_Value = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_Default_Value.Initialize("Default Value", "adm_table_header_nbg", "FormInput", "default_value", false);
+        theRecord.AddRecord(dr_Default_Value);
+        
+
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
@@ -95,13 +101,16 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         dr_order_num.SetValue("1");
         theRecord.AddRecord(dr_order_num);
 
-
-
-
         //is_searchable true/ false
         DataRecordCheckBoxField dr_Searchable = new DataRecordCheckBoxField(true);
         dr_Searchable.Initialize("is searchable", "adm_table_header_nbg", "FormInput", "is_searchable", false);
         theRecord.AddRecord(dr_Searchable);
+
+        DataRecordDropDownField dr_meta_flag = new DataRecordDropDownField("lu_tag_type_flag", "DESCRIPTION", "id", "", null, 60, true);
+        dr_meta_flag.SetNoSelectStr("---");
+        dr_meta_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "meta_type_flag", false);        
+        theRecord.AddRecord(dr_meta_flag);
+
 
         string sTable = theRecord.GetTableHTML("adm_epg_metas_new.aspx?submited=1");
 

@@ -222,7 +222,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
             dr_alt_stram_suplier.SetDefault(0);
             theRecord.AddRecord(dr_alt_stram_suplier);
 
-            DataRecordShortTextField dr_alt_streaming_code = new DataRecordShortTextField("ltr", true, 60, 128);
+            DataRecordLongTextField dr_alt_streaming_code = new DataRecordLongTextField("ltr", true, 60, 3);
             dr_alt_streaming_code.Initialize("BackUp CDN Code", "adm_table_header_nbg", "FormInput", "alt_STREAMING_CODE", true);
             theRecord.AddRecord(dr_alt_streaming_code);
 

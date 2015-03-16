@@ -315,6 +315,12 @@ public partial class adm_channels_new : System.Web.UI.Page
         d.AcceptChanges();
 
         tmpRow = d.NewRow();
+        tmpRow["ID"] = -80;
+        tmpRow["txt"] = "Votes";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
         tmpRow["ID"] = -7;
         tmpRow["txt"] = "Views";
         d.Rows.InsertAt(tmpRow, 0);

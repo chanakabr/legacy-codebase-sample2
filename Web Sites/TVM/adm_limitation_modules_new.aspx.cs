@@ -62,6 +62,24 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
                                 UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
 
+                                // delete from cache this DLM object    
+                                DomainsWS.module p = new DomainsWS.module();
+                                string sIP = "1.1.1.1";
+                                string sWSUserName = "";
+                                string sWSPass = "";
+                                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                                string sWSURL = GetWSURL("domains_ws");
+                                if (sWSURL != "")
+                                    p.Url = sWSURL;
+                                try
+                                {
+                                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                }
                             }
                         }
                         finally
@@ -123,6 +141,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
 
         }
+    }
+
+    static public string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     private void UpdateDeviceFamilies(int groupID, int limitID,
@@ -201,7 +224,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_limit_type);
 
         DataRecordShortIntField dr_limit_val = new DataRecordShortIntField(true, 9, 9);
-        dr_limit_val.Initialize("Value [0 for unlimited (concurrency only)]", "adm_table_header_nbg", "FormInput", "Value", true);
+        dr_limit_val.Initialize("Value [0 for unlimited]", "adm_table_header_nbg", "FormInput", "Value", true);
         theRecord.AddRecord(dr_limit_val);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
@@ -382,6 +405,32 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         Session["device_families"] = umObjList;
                         break;
                     }
+            }
+
+            if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
+            {
+                int limitID = 0;
+                int.TryParse(Session["limit_id"].ToString(), out limitID);
+
+                // delete from cache this DLM object    
+                DomainsWS.module p = new DomainsWS.module();
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = GetWSURL("domains_ws");
+                if (sWSURL != "")
+                    p.Url = sWSURL;
+                try
+                {
+                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                }
             }
         }
         return retVal;

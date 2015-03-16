@@ -437,7 +437,8 @@ namespace EpgFeeder
                 //BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
 
                 Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), LogFileName);
-               
+
+                newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
                 newEpgItem.Description = string.Format("{0} {1}", syp, syp_chi);
                 newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);

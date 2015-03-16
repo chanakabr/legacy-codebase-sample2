@@ -12,16 +12,18 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;
 using EpgBL;
+using GroupsCacheManager;
+using TurnerEpgFeeder;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 
-namespace GracenoteFeeder
+namespace TurnerFeeder
 {    
     public static class Utils
     {     
         public static readonly int MaxDescriptionSize = 1024;
         public static readonly int MaxNameSize =255;
-        
+
 
         /*Build the FieldTypeEntity Mapping for each Tag / Meta with it's xml mapping */
         public static List<FieldTypeEntity> GetMappingFields(int nGroupID)
@@ -87,7 +89,7 @@ namespace GracenoteFeeder
 
         }
 
-        internal static bool DeleteEPGDocFromES(int parentGroupID, int channelID, List<DateTime> lDates)
+        public static bool DeleteEPGDocFromES(int parentGroupID, int channelID, List<DateTime> lDates)
         {
             bool resDelete = false;
             try
@@ -103,104 +105,6 @@ namespace GracenoteFeeder
             {
                 Logger.Logger.Log("DeleteDocFromES", string.Format("channelID = {0},ex = {1}", channelID, ex.Message), "EpgFeeder");
                 return false;
-            }
-        }
-
-        /*Build query by channelId and spesipic dates*/
-        private static string BuildDeleteQuery(int channelID, List<DateTime> lDates)
-        {
-            string sQuery = string.Empty;
-
-            ESTerm epgChannelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelID.ToString() };
-
-            BoolQuery oBoolQuery = new BoolQuery();
-
-
-            BoolQuery oBoolQueryDates = new BoolQuery();
-            foreach (DateTime date in lDates)
-            {
-                string sMaxtDate = date.AddDays(1).AddMilliseconds(-1).ToString("yyyyMMddHHmmss");
-
-                ESRange startDateRange = new ESRange(false);
-
-                startDateRange.Key = "start_date";
-                string sMin = date.ToString("yyyyMMddHHmmss");
-                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMaxtDate));
-
-                oBoolQueryDates.AddChild(startDateRange, ApiObjects.SearchObjects.CutWith.OR);
-            }
-
-            oBoolQuery.AddChild(epgChannelTerm, ApiObjects.SearchObjects.CutWith.AND); // channel must be equel to channelID
-            oBoolQuery.AddChild(oBoolQueryDates, ApiObjects.SearchObjects.CutWith.AND);// and start date must be in lDates list (with or between dates)
-
-            sQuery = oBoolQuery.ToString();
-
-
-            return sQuery;
-
-        }
-
-
-        private static void DeleteScheduleProgramByDate(int channelID, DateTime date)
-        {
-            DateTime fromDate = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
-            DateTime toDate = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", fromDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "<=", toDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
-
-                updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
-
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), "GraceNoteFeeder");
-            }
-            catch (Exception ex)
-            {
-                //ProcessError = true;
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "GraceNoteFeeder");
-            }
-        }
-
-        // initialize each item with all external_ref  
-        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
-        {
-            foreach (DataRow dr in dataTable.Rows)
-            {
-                FieldTypeEntity item = new FieldTypeEntity();
-                item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
-                item.FieldType = fieldTypes;
-
-                if (fieldTypes != enums.FieldTypes.Basic)
-                {
-                    foreach (var x in dataTableRef.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID))
-                    {
-
-                        if (item.XmlReffName == null)
-                        {
-                            item.XmlReffName = new List<string>();
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                        else
-                        {
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                    }
-                }
-
-                AllFieldTypeMapping.Add(item);
             }
         }
         
@@ -234,16 +138,18 @@ namespace GracenoteFeeder
         }
         
         /*create EpgCB object by all the values from XML*/
-        public static EpgCB generateEPGCB(string epg_url, string description, string name, int channelID, string EPGGuid, DateTime dProgStartDate, 
+        public static EpgCBTurner generateEPGCB(string epg_url, string description, string name, string subtitle, int channelID, string EPGGuid, DateTime dProgStartDate, 
             DateTime dProgEndDate, XmlNode progItem, int groupID, int parentGroupID, List<FieldTypeEntity> lFieldTypeEntity)
         {
-            EpgCB newEpgItem = new EpgCB();
+            EpgCBTurner newEpgItem = new EpgCBTurner();
+            
             try
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), "GraceNoteFeeder");
+                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), "TurnerEpgFeeder");
 
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0}", name);
+                newEpgItem.Subtitle = string.Format("{0}", subtitle);
                 newEpgItem.Description = string.Format("{0} ", description);
                 newEpgItem.GroupID = groupID;
                 newEpgItem.ParentGroupID = parentGroupID;
@@ -256,6 +162,7 @@ namespace GracenoteFeeder
                 newEpgItem.Status = 1;
                 
                 newEpgItem.Metas = Utils.GetEpgProgramMetas(lFieldTypeEntity);
+                
                 // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
                 newEpgItem.Tags = Utils.GetEpgProgramTags(lFieldTypeEntity);
 
@@ -278,60 +185,12 @@ namespace GracenoteFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), "GraceNoteFeeder");
+                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), "TurnerEpgFeeder");
             }
+
             return newEpgItem;
         }
-             
-
-        private static Dictionary<string, List<string>> GetEpgProgramMetas(List<FieldTypeEntity> FieldEntityMapping)
-        {
-            Dictionary<string, List<string>> dMetas = new Dictionary<string, List<string>>();
-
-            var MetaFieldEntity = from item in FieldEntityMapping
-                                  where item.FieldType == enums.FieldTypes.Meta && item.XmlReffName.Capacity > 0 && item.Value != null && item.Value.Count > 0
-                                  select item;
-
-            foreach (var item in MetaFieldEntity)
-            {
-                foreach (var value in item.Value)
-                {
-                    if (dMetas.ContainsKey(item.Name))
-                    {
-                        dMetas[item.Name].AddRange(item.Value);
-                    }
-                    else
-                    {
-                        dMetas.Add(item.Name, item.Value);
-                    }
-                }
-            }
-            return dMetas;
-        }
-
-        private static Dictionary<string, List<string>> GetEpgProgramTags(List<FieldTypeEntity> FieldEntityMapping)
-        {
-            Dictionary<string, List<string>> dTags = new Dictionary<string, List<string>>();
-            var TagFieldEntity = from item in FieldEntityMapping
-                                 where item.FieldType == enums.FieldTypes.Tag && item.XmlReffName.Capacity > 0 && item.Value != null && item.Value.Count > 0
-                                 select item;
-
-
-            foreach (var item in TagFieldEntity)
-            {
-                if (dTags.ContainsKey(item.Name))
-                {
-                    dTags[item.Name].AddRange(item.Value);
-                }
-                else
-                {
-                    dTags.Add(item.Name, item.Value);
-                }
-
-            }
-            return dTags;
-        }
-        
+                     
         public static void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
        ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
         {
@@ -401,44 +260,6 @@ namespace GracenoteFeeder
             }
         }
 
-        private static void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
-          int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
-        {
-            DataRow row = dtEPGExtra.NewRow();
-            if (bIsMeta)
-            {
-                row["value"] = sValue;
-                row["epg_meta_id"] = nID;
-            }
-            else
-            {
-                row["epg_tag_id"] = nID;
-            }
-
-            row["program_id"] = nProgID;
-            row["group_id"] = nGroupID;
-            row["status"] = nStatus;
-            row["updater_id"] = nUpdaterID;
-            row["create_date"] = dCreateTime;
-            row["update_date"] = dUpdateTime;
-            dtEPGExtra.Rows.Add(row);
-        }
-
-
-        private static void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus,
-           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
-        {
-            DataRow row = dtEPGTagValue.NewRow();
-            row["value"] = sValue;
-            row["epg_tag_type_id"] = nTagTypeID;
-            row["group_id"] = nGroupID;
-            row["status"] = nStatus;
-            row["updater_id"] = nUpdaterID;
-            row["create_date"] = dCreateTime;
-            row["update_date"] = dUpdateTime;
-            dtEPGTagValue.Rows.Add(row);
-        }
-
         public static void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
         {
             List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
@@ -462,7 +283,6 @@ namespace GracenoteFeeder
                 metaField = null;
             }
         }
-
 
         //insert new tag values and update the tag value ID in tagValueWithID
         public static void InsertNewTagValues(Dictionary<string, EpgCB> epgDic, DataTable dtEpgTagsValues, ref DataTable dtEpgTags,
@@ -760,66 +580,358 @@ namespace GracenoteFeeder
 
 
         // request gracenote api and get xml as a response
-        public static string getXmlFromGracenote(string postData, string method, string uri)// 251545958-935BCC7F5502DCD265D67EBF29B2EB2B
+        //public static string getXmlFromGracenote(string postData, string method, string uri)// 251545958-935BCC7F5502DCD265D67EBF29B2EB2B
+        //{
+        //    try
+        //    {
+        //        var request = (HttpWebRequest)WebRequest.Create(uri);//"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update");
+        //        GetProxyConfig(request);
+
+        //        if (method == "POST")
+        //        {
+        //            var data = Encoding.ASCII.GetBytes(postData);
+        //            request.Method = "POST";
+
+        //            request.ContentLength = data.Length;
+        //            using (var stream = request.GetRequestStream())
+        //            {
+        //                stream.Write(data, 0, data.Length);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            request.Method = "GET";
+        //        }
+        //        request.ContentType = "application/x-www-form-urlencoded";
+
+
+        //        var response = (HttpWebResponse)request.GetResponse();
+        //        var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+
+        //        return responseString.ToString();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}, uri={1}", ex.Message, uri), "GracenoteFeeder");
+        //        return string.Empty;
+        //    }
+        //}
+
+        public static void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues)
         {
             try
             {
-                var request = (HttpWebRequest)WebRequest.Create(uri);//"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update");
+                DataTable dtEpgMetas = Utils.InitEPGProgramMetaDataTable();
+                DataTable dtEpgTags = Utils.InitEPGProgramTagsDataTable();
+                DataTable dtEpgTagsValues = Utils.InitEPG_Tags_Values();
 
-                if (method == "POST")
+                int nUpdaterID = 0;
+                if (nUpdaterID == 0)
+                    nUpdaterID = 700;
+                string sConn = "MAIN_CONNECTION_STRING";
+
+                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Meta).ToList();
+                List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag).ToList();
+
+                Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
+                //return relevant tag value ID, if they exist in the DB
+                Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = Utils.getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);
+
+                // insert all epg to DB (epg_channels_schedule)
+                InsertEPG_Channels_sched(ref epgDic);
+
+                // Tags and Mates
+                foreach (EpgCB epg in epgDic.Values)
                 {
-                    var data = Encoding.ASCII.GetBytes(postData);
-                    request.Method = "POST";
-
-                    GetProxyConfig(request);
-
-                    request.ContentLength = data.Length;
-                    using (var stream = request.GetRequestStream())
+                    if (epg != null)
                     {
-                        stream.Write(data, 0, data.Length);
+                        //update Metas
+                        Utils.UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
+                        //update Tags                    
+                        Utils.UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID);
                     }
+                }
+
+                Utils.InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, nGroupID, nUpdaterID);
+
+                Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
+                Utils.InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
+            }
+            catch (Exception exc)
+            {
+                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
+                return;
+            }
+        }
+
+
+
+        //private static void GetProxyConfig(HttpWebRequest request)
+        //{
+        //    try
+        //    {
+        //        // add proxy configuration - for KDG internat connection
+        //        WebProxy myProxy = new WebProxy();
+        //        string proxyAddress = TVinciShared.WS_Utils.GetTcmConfigValue("proxyAddressKDG");
+        //        string username = TVinciShared.WS_Utils.GetTcmConfigValue("proxyUsernameKDG");
+        //        string password = TVinciShared.WS_Utils.GetTcmConfigValue("proxyPasswordKDG");
+        //        if (!string.IsNullOrEmpty(proxyAddress))
+        //        {
+        //            myProxy.Address = new Uri(proxyAddress);
+        //            myProxy.Credentials = new NetworkCredential(username, password);
+        //            request.Proxy = myProxy;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
+        //    }
+        //}
+
+                
+        private static void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
+          int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
+        {
+            DataRow row = dtEPGExtra.NewRow();
+            if (bIsMeta)
+            {
+                row["value"] = sValue;
+                row["epg_meta_id"] = nID;
+            }
+            else
+            {
+                row["epg_tag_id"] = nID;
+            }
+
+            row["program_id"] = nProgID;
+            row["group_id"] = nGroupID;
+            row["status"] = nStatus;
+            row["updater_id"] = nUpdaterID;
+            row["create_date"] = dCreateTime;
+            row["update_date"] = dUpdateTime;
+            dtEPGExtra.Rows.Add(row);
+        }
+
+
+        private static void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus,
+           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
+        {
+            DataRow row = dtEPGTagValue.NewRow();
+            row["value"] = sValue;
+            row["epg_tag_type_id"] = nTagTypeID;
+            row["group_id"] = nGroupID;
+            row["status"] = nStatus;
+            row["updater_id"] = nUpdaterID;
+            row["create_date"] = dCreateTime;
+            row["update_date"] = dUpdateTime;
+            dtEPGTagValue.Rows.Add(row);
+        }
+
+                /*Build query by channelId and spesipic dates*/
+        private static string BuildDeleteQuery(int channelID, List<DateTime> lDates)
+        {
+            string sQuery = string.Empty;
+
+            ESTerm epgChannelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelID.ToString() };
+
+            BoolQuery oBoolQuery = new BoolQuery();
+
+
+            BoolQuery oBoolQueryDates = new BoolQuery();
+            foreach (DateTime date in lDates)
+            {
+                string sMaxtDate = date.AddDays(1).AddMilliseconds(-1).ToString("yyyyMMddHHmmss");
+
+                ESRange startDateRange = new ESRange(false);
+
+                startDateRange.Key = "start_date";
+                string sMin = date.ToString("yyyyMMddHHmmss");
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMaxtDate));
+
+                oBoolQueryDates.AddChild(startDateRange, ApiObjects.SearchObjects.CutWith.OR);
+            }
+
+            oBoolQuery.AddChild(epgChannelTerm, ApiObjects.SearchObjects.CutWith.AND); // channel must be equel to channelID
+            oBoolQuery.AddChild(oBoolQueryDates, ApiObjects.SearchObjects.CutWith.AND);// and start date must be in lDates list (with or between dates)
+
+            sQuery = oBoolQuery.ToString();
+
+
+            return sQuery;
+
+        }
+
+
+        private static void DeleteScheduleProgramByDate(int channelID, DateTime date)
+        {
+            DateTime fromDate = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
+            DateTime toDate = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", fromDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "<=", toDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
+
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), "TurnerEpgFeeder");
+            }
+            catch (Exception ex)
+            {
+                //ProcessError = true;
+                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "TurnerEpgFeeder");
+            }
+        }
+
+        // initialize each item with all external_ref  
+        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
+        {
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                FieldTypeEntity item = new FieldTypeEntity();
+                item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                item.FieldType = fieldTypes;
+
+                if (fieldTypes != enums.FieldTypes.Basic)
+                {
+                    foreach (var x in dataTableRef.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID))
+                    {
+
+                        if (item.XmlReffName == null)
+                        {
+                            item.XmlReffName = new List<string>();
+                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                        }
+                        else
+                        {
+                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
+                        }
+                    }
+                }
+
+                AllFieldTypeMapping.Add(item);
+            }
+        }
+
+        private static Dictionary<string, List<string>> GetEpgProgramMetas(List<FieldTypeEntity> FieldEntityMapping)
+        {
+            Dictionary<string, List<string>> dMetas = new Dictionary<string, List<string>>();
+
+            var MetaFieldEntity = from item in FieldEntityMapping
+                                  where item.FieldType == enums.FieldTypes.Meta && item.XmlReffName.Capacity > 0 && item.Value != null && item.Value.Count > 0
+                                  select item;
+
+            foreach (var item in MetaFieldEntity)
+            {
+                foreach (var value in item.Value)
+                {
+                    if (dMetas.ContainsKey(item.Name))
+                    {
+                        dMetas[item.Name].AddRange(item.Value);
+                    }
+                    else
+                    {
+                        dMetas.Add(item.Name, item.Value);
+                    }
+                }
+            }
+            return dMetas;
+        }
+
+        private static Dictionary<string, List<string>> GetEpgProgramTags(List<FieldTypeEntity> FieldEntityMapping)
+        {
+            Dictionary<string, List<string>> dTags = new Dictionary<string, List<string>>();
+            var TagFieldEntity = from item in FieldEntityMapping
+                                 where item.FieldType == enums.FieldTypes.Tag && item.XmlReffName.Capacity > 0 && item.Value != null && item.Value.Count > 0
+                                 select item;
+
+
+            foreach (var item in TagFieldEntity)
+            {
+                if (dTags.ContainsKey(item.Name))
+                {
+                    dTags[item.Name].AddRange(item.Value);
                 }
                 else
                 {
-                    request.Method = "GET";
+                    dTags.Add(item.Name, item.Value);
                 }
-                request.ContentType = "application/x-www-form-urlencoded";
 
-
-                var response = (HttpWebResponse)request.GetResponse();
-                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
-
-                return responseString.ToString();
             }
-            catch (Exception ex)
+            return dTags;
+        }
+
+        private static void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic)
+        {
+            EpgCB epg;
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+
+            DataTable dtEPG = Utils.InitEPGDataTable();
+            Utils.FillEPGDataTable(epgDic, ref dtEPG);
+            
+            string sConn = "MAIN_CONNECTION_STRING";
+            Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
+
+            //get back the IDs list of the EPGs          
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
+            
+            if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
             {
-                Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}, uri={1}", ex.Message, uri), "GracenoteFeeder");
-                return string.Empty;
+                for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
+                {
+                    DataRow row = dtEpgIDGUID.Rows[i];
+                    if (row != null)
+                    {
+                        string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
+                        ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
+                        {
+                            epgDic[sGuid].EpgID = nEPG_ID; //update the EPGCB with the ID
+                        }
+                    }
+                }
             }
         }
 
-        private static void GetProxyConfig(HttpWebRequest request)
+        public static Dictionary<int, string> GetGroupEpgChannels(int nGroupID)
         {
+            Dictionary<int, string> dEpgChannels = new Dictionary<int, string>();
+
             try
             {
-                // add proxy configuration - for KDG internat connection
-                WebProxy myProxy = new WebProxy();
-                string proxyAddress = TVinciShared.WS_Utils.GetTcmConfigValue("proxyAddressKDG");
-                string username = TVinciShared.WS_Utils.GetTcmConfigValue("proxyUsernameKDG");
-                string password = TVinciShared.WS_Utils.GetTcmConfigValue("proxyPasswordKDG");
-                if (!string.IsNullOrEmpty(proxyAddress))
+                DataTable dt = EpgDal.GetAllEpgChannelsList(nGroupID);
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    myProxy.Address = new Uri(proxyAddress);
-                    myProxy.Credentials = new NetworkCredential(username, password);
-                    request.Proxy = myProxy;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        int nChannelID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        string sName = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
+
+                        dEpgChannels[nChannelID] = sName;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
+                Logger.Logger.Log("GetAllChannels", string.Format("faild to get channels for group:{0}, ex:{1}", nGroupID, ex.Message), "TurnerEpgFeeder");
+                return new Dictionary<int, string>();
             }
-        }
 
+            return dEpgChannels;
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_sSignString = catalogSignString,
                     m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                     m_nPageIndex = 0,
-                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
+                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                 });
 
                 if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
@@ -52,9 +52,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource",
-                    string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow,
-                        CollectorType, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
                 return null;
             }
         }
@@ -66,6 +64,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 Dictionary<int, BaseCrowdsourceItem> normalizedDictionary = null;
 
                 string catalogSignString = Guid.NewGuid().ToString();
+                long epochDateTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 // Get channel info
                 ChannelObjResponse channelObjResponse = (ChannelObjResponse)CatalogClient.GetResponse(new ChannelObjRequest()
@@ -108,12 +107,12 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         normalizedDictionary = new Dictionary<int, BaseCrowdsourceItem>();
                         foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                         {
-
                             if (mediaInfo.Value.m_lObj[0] != null)
                             {
                                 SlidingWindowItem croudsourceItem = new SlidingWindowItem
                                 {
                                     Action = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy,
+                                    ActionDescription = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy.ToString(),
                                     MediaId = item.Id,
                                     MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
                                     MediaImage =
@@ -123,10 +122,12 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                                 Size = pic.m_sSize,
                                                 URL = pic.m_sURL
                                             }).ToArray(),
-                                    TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    TimeStamp = epochDateTime,
                                     Order = item.Order,
-
+                                    Period = channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id,
+                                    PeriodDescription = GetMinPeriodDescription(channelObjResponse.ChannelObj.m_OrderObject.lu_min_period_id)
                                 };
+
                                 switch (croudsourceItem.Action)
                                 {
                                     case OrderBy.VIEWS:
@@ -153,10 +154,31 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
 
                 Logger.Logger.Log("Crowdsource",
-                    string.Format("{0}:{1} - Error normalizing singular item. mediaId {2} - Exception: \n {3}",
-                        DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing.log");
+                    string.Format("Collector:{0} - Error normalizing singular item. mediaId {1} - Exception: \n {2}", CollectorType, item.Id, ex.Message), "Crowdsourcing");
                 return null;
             }
+        }
+
+
+        private static string GetMinPeriodDescription(int id)
+        {
+            string res = null;
+            Dictionary<string, string> minPeriods;
+            if (CachingManager.CachingManager.Exist("MinPeriods"))
+            {
+                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string,string>;
+            }
+            else
+            {
+                minPeriods = CatalogDAL.GetMinPeriods();
+                if (minPeriods != null)
+                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            }
+
+            if (minPeriods != null)
+                minPeriods.TryGetValue(id.ToString(), out res);
+
+            return res;
         }
     }
 }

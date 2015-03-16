@@ -4,7 +4,7 @@
 
     void Application_Start(object sender, EventArgs e)
     {
-        //ODBCWrapper.SelectCacher.StartObj();
+        TVinciShared.WS_Utils.InitTcmConfig();
     }
 
     void Application_End(object sender, EventArgs e)

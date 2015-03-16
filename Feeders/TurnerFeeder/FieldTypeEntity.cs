@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using EnumProject;
 
-namespace GracenoteFeeder
+namespace TurnerEpgFeeder
 {
     public class FieldTypeEntity
     {
@@ -15,4 +12,3 @@ namespace GracenoteFeeder
         public List<string> Value = new List<string>();
     }
 }
-   

@@ -419,7 +419,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
-
+        
 
         // get default value from configuration for waiver_period by group id
 
@@ -460,8 +460,12 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_waiver_period.Initialize("Waiver Period", "adm_table_header_nbg", "FormInput", "waiver_period", false);
         //dr_waiver_period.SetDefaultVal(nWaiverPeriod.ToString());// ("20160");
         theRecord.AddRecord(dr_waiver_period);
-                    
 
+
+        DataRecordCheckBoxField dr_OfflinePlayback = new DataRecordCheckBoxField(true);
+        dr_OfflinePlayback.Initialize("Offline Playback", "adm_table_header_nbg", "FormInput", "offline_playback", false);
+
+        theRecord.AddRecord(dr_OfflinePlayback);
         string sTable = theRecord.GetTableHTML("adm_discounts_new.aspx?submited=1");
 
         return sTable;
