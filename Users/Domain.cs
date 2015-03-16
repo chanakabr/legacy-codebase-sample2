@@ -73,6 +73,7 @@ namespace Users
         //List of device brands
         [JsonProperty()]
         public List<DeviceContainer> m_deviceFamilies;
+        
         [JsonProperty()]
         public DomainStatus m_DomainStatus;
 
@@ -82,20 +83,23 @@ namespace Users
         public DateTime m_NextUserActionFreq;
 
         // Domain's Operator ID
-
         public int m_nSSOOperatorID;
+        
         [JsonProperty()]
         public DomainRestriction m_DomainRestriction;
 
-        protected int m_deviceLimitationModule;
-
+        [JsonProperty()]
         protected int m_totalNumOfDevices;
 
+        [JsonProperty()]
         protected int m_totalNumOfUsers;
 
+        [JsonProperty()]
         protected int m_minPeriodId;
 
+        [JsonProperty()]
         protected int m_minUserPeriodId;
+        
         [JsonProperty()]
         public List<HomeNetwork> m_homeNetworks;
 
@@ -104,7 +108,6 @@ namespace Users
         protected LimitationsManager m_oLimitationsManager;
 
         [XmlIgnore]
-
         protected Dictionary<string, int> m_oUDIDToDeviceFamilyMapping;
 
         [XmlIgnore]
@@ -464,7 +467,6 @@ namespace Users
             {
                 this.m_DefaultUsersIDs = domain.m_DefaultUsersIDs;
                 this.m_deviceFamilies = domain.m_deviceFamilies;
-                this.m_deviceLimitationModule = domain.m_deviceLimitationModule;
                 this.m_DomainRestriction = domain.m_DomainRestriction;
                 this.m_DomainStatus = domain.m_DomainStatus;
                 this.m_frequencyFlag = domain.m_frequencyFlag;
@@ -491,8 +493,10 @@ namespace Users
                 this.m_sDescription = domain.m_sDescription;
                 this.m_sName = domain.m_sName;
                 this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
-                this.m_totalNumOfUsers = domain.m_totalNumOfUsers;
                 this.m_UsersIDs = domain.m_UsersIDs;
+                if (m_UsersIDs != null)
+                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();
+
                 return true;
             }
             catch (Exception)
@@ -1035,24 +1039,30 @@ namespace Users
                 device.m_deviceName = sDeviceName;
                 DomainResponseStatus eStatus = AddDeviceToDomain(nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
 
-                if (eStatus == DomainResponseStatus.OK)
+                switch (eStatus)
                 {
-                    device.m_state = DeviceState.Activated;
-                    eRetVal = DeviceResponseStatus.OK;
-                }
-                else if (eStatus == DomainResponseStatus.DeviceAlreadyExists)
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
-                }
-                else
-                {
-                    eRetVal = DeviceResponseStatus.DuplicatePin;
+                    case DomainResponseStatus.ExceededLimit:
+                        eRetVal = DeviceResponseStatus.ExceededLimit;
+                        break;
+
+                    case DomainResponseStatus.DeviceAlreadyExists:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
+
+                    case DomainResponseStatus.OK:
+                        device.m_state = DeviceState.Activated;
+                        eRetVal = DeviceResponseStatus.OK;
+                        break;
+
+                    default:
+                        eRetVal = DeviceResponseStatus.DuplicatePin;
+                        break;
                 }
             }
             else
             {
+                // device wasn't found
                 eRetVal = DeviceResponseStatus.DeviceNotExists;
-
                 device = new Device(m_nGroupID);
                 device.m_state = DeviceState.NotExists;
             }
@@ -1278,7 +1288,27 @@ namespace Users
                 {
                     // the device is not associated to this domain. we need to validate it is not associated to different
                     // domain in the same group
-                    if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+
+                    bool deviceAlreadyExistsInOtherDomain = false;
+                    if (String.IsNullOrEmpty(device.m_id))
+                    {
+                        // check if the device exists by UDID
+                        if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+                    else
+                    {
+                        // check if the device exists by device ID
+                        List<int> deviceDomainIds = DAL.DomainDal.GetDeviceDomains(Convert.ToInt32(device.m_id), m_nGroupID);
+                        if (deviceDomainIds != null && deviceDomainIds.Count > 0)
+                        {
+                            deviceAlreadyExistsInOtherDomain = true;
+                        }
+                    }
+
+                    if (deviceAlreadyExistsInOtherDomain)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;
@@ -1380,7 +1410,7 @@ namespace Users
         {
             if (isInitializeFamilies)
             {
-                DeviceFamiliesInitializer(m_deviceLimitationModule, m_nGroupID);
+                DeviceFamiliesInitializer(m_nLimit, m_nGroupID);
             }
 
             DataTable dt = DomainDal.Get_DomainDevices(m_nGroupID, m_nDomainID);
@@ -1504,7 +1534,6 @@ namespace Users
                 {
                     m_sName = sName;
                     m_sDescription = sDescription;
-                    m_deviceLimitationModule = nDeviceLimitationModule;
                     m_nLimit = nDeviceLimitationModule;
                     m_nDeviceLimit = nDeviceLimit;
                     m_nUserLimit = nUserLimit;
@@ -1625,9 +1654,11 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
+            
             // m_oLimitationsManager.Quantity == 0 is unlimited 
-            if ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity != 0) ||
-                (activatedDevices >= dc.m_oLimitationsManager.Quantity && dc.m_oLimitationsManager.Quantity != 0))
+            if (dc.m_oLimitationsManager.Quantity > 0 && 
+                ( (m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
+                  (activatedDevices >= dc.m_oLimitationsManager.Quantity)) )
             {
                 res = DomainResponseStatus.ExceededLimit;
             }
@@ -2231,27 +2262,38 @@ namespace Users
 
             int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
 
-            //Very Patchy - change the group check to be configurable!!
-            if (domainID != 0 && m_nGroupID != 147)
+            // If the device is already contained in any domain
+            if (domainID != 0)
             {
-                if (status == 3 && isDevActive == 3)    // Pending master approval
+                // If the device is already contained in ANOTHER domain
+                if (domainID != nDomainID)
                 {
-                    bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
-                    if (updated)
-                    {
-                        eRetVal = DomainResponseStatus.OK;
-                        bRemove = true;
-                        device.m_domainID = nDomainID;
-                        device.m_state = DeviceState.Activated;
-                        int deviceID = device.Save(1, 1, tempDeviceID);
-                        GetDeviceList();
-
-                        return eRetVal;
-                    }
+                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
+                    return eRetVal;
                 }
+                // If the device is already contained in THIS domain
+                else
+                {
+                    // Pending master approval
+                    if (status == 3 && isDevActive == 3)
+                    {
+                        bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
+                        if (updated)
+                        {
+                            eRetVal = DomainResponseStatus.OK;
+                            bRemove = true;
+                            device.m_domainID = nDomainID;
+                            device.m_state = DeviceState.Activated;
+                            int deviceID = device.Save(1, 1, tempDeviceID);
+                            GetDeviceList();
 
-                eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                return eRetVal;
+                            return eRetVal;
+                        }
+                    }
+
+                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
+                    return eRetVal;
+                }
             }
 
             DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);

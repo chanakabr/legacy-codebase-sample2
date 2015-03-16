@@ -1129,7 +1129,7 @@ namespace TvinciImporter
                 for (int j = 0; j < nCount1; j++)
                 {
                     ChannelsSchema.container theContainer = theContainers[j];
-                    string sVal = GetValMainLanguage(theContainer.value, sMainLang).Replace(",", "");
+                    string sVal = GetValMainLanguage(theContainer.value, sMainLang);
                     if (sVal == "")
                     {
                         AddError(ref sError, "tag :" + sName + " - no main language value");
@@ -1162,7 +1162,7 @@ namespace TvinciImporter
                 for (int i = 0; i < nCount; i++)
                 {
                     string sLang = selectQuery.Table("query").DefaultView[i].Row["code3"].ToString();
-                    string sVal = GetValMainLanguage(theContainer.value, sLang).Replace(",", "");
+                    string sVal = GetValMainLanguage(theContainer.value, sLang);
                     if (sVal != "")
                         metaHolder.AddLanguageString(sLang, sVal, sID, false);
                 }
@@ -3485,7 +3485,7 @@ namespace TvinciImporter
                 for (int i = 0; i < nCount; i++)
                 {
                     string sLang = selectQuery.Table("query").DefaultView[i].Row["code3"].ToString();
-                    string sVal = GetMultiLangValue(sLang, ref theContainer).Replace(",", "");
+                    string sVal = GetMultiLangValue(sLang, ref theContainer);
                     if (sVal != "")
                         metaHolder.AddLanguageString(sLang, sVal, sID, false);
                 }
@@ -3720,7 +3720,7 @@ namespace TvinciImporter
                 for (int j = 0; j < nCount1; j++)
                 {
                     XmlNode theContainer = theContainers[j];
-                    string sVal = GetMultiLangValue(sMainLang, ref theContainer).Replace(",", "");
+                    string sVal = GetMultiLangValue(sMainLang, ref theContainer);
                     if (sVal == "")
                     {
                         AddError(ref sError, "meta :" + sName + " - no main language value");

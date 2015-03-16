@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Net;
 using System.Data;
-using System.Web.Script.Serialization;
-using System.IO;
 
 namespace Users
 {
@@ -68,11 +61,11 @@ namespace Users
                     DataTable dt = selectQuery.Table("query");
                     if (dt.DefaultView.Count > 0)
                     {
-                       nTypeImp = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "Type");
-                       if (nTypeImp > 0)
-                       {
-                           UsersCache.AddItem(key, nTypeImp);
-                       }
+                        nTypeImp = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "Type");
+                        if (nTypeImp > 0)
+                        {
+                            UsersCache.AddItem(key, nTypeImp);
+                        }
                     }
                 }
                 selectQuery.Finish();
@@ -89,6 +82,9 @@ namespace Users
                     return new SSOTvinciImplementation(m_nGroupID, nSSOProvID);
                 case 4:
                     return new SSOKdgImplementation(m_nGroupID, nSSOProvID);
+                case 5:
+                    return new SSOMCImplementation(m_nGroupID, nSSOProvID);
+                
                 default:
                     break;
             }

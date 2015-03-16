@@ -1671,6 +1671,9 @@ namespace DAL
             else
                 sp.AddParameter("@DeviceName", string.Empty);
 
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+
             return sp.ExecuteReturnValue<long>();
         }
 
@@ -1751,6 +1754,30 @@ namespace DAL
             }
 
             return dlmID;
+        }
+
+        public static List<int> GetFileIdsByEpgProgramId(int epgProgramId, long groupId)
+        {
+            List<int> fileIds = new List<int>();
+
+            ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_FilesByEpgProgramId");
+            spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGet_MediaFileByID.AddParameter("@GroupId", groupId);
+            spGet_MediaFileByID.AddParameter("@ProgramId", epgProgramId);
+
+            DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                        fileIds.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                }
+            }
+
+            return fileIds;
         }
     }
 }

@@ -209,7 +209,8 @@ namespace ConditionalAccess
         AssetAlreadyRecorded = 9,
         QuotaExceeded = 10,
         Suspended = 11,
-        ServiceNotAllowed = 12
+        ServiceNotAllowed = 12,
+        NotPurchased = 13
     }
 
     public enum eService
