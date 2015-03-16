@@ -718,22 +718,13 @@ namespace Catalog
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-
-            definitions.isDescending = false;
-
-            //Build 2 CondList for search tags / metaStr / metaDobule .
-            List<SearchValue> ands = new List<SearchValue>();
-            List<SearchValue> ors = new List<SearchValue>();
-
-            OrderObj order = new OrderObj();
-            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(nParentGroupID);
+
+            #region Phrase Tree
 
             if (group != null)
             {
@@ -751,8 +742,19 @@ namespace Catalog
                         BooleanLeaf leaf = node as BooleanLeaf;
 
                         // Add prefix (meta/tag) e.g. metas.{key}
+                        // ASSUMING SEARCH KEY IS VALID!
                         string searchKey = GetFullSearchKey(leaf.field, ref group);
                         leaf.field = searchKey;
+
+                        // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                        if (searchKey.ToLower() == "start_date")
+                        {
+                            definitions.defaultStartDate = false;
+                        }
+                        else if (searchKey.ToLower() == "end_date")
+                        {
+                            definitions.defaultEndDate = false;
+                        }
                     }
                     else if (node is BooleanPhrase)
                     {
@@ -765,15 +767,13 @@ namespace Catalog
                         }
                     }
                 }
-            }
+            } 
+            #endregion
 
-            GetOrderValues(ref order, request.order);
-
-            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
-            {
-                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-            }
+            // Get days offset for EPG search from TCM
+            definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
+            
+            #region Filter & Order
 
             if (request.m_oFilter != null)
             {
@@ -783,67 +783,61 @@ namespace Catalog
                 definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
             }
 
+            OrderObj order = new OrderObj();
+            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+
+            GetOrderValues(ref order, request.order);
+
+            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+            {
+                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+            }
+
             definitions.order = new OrderObj();
             definitions.order.m_eOrderDir = order.m_eOrderDir;
             definitions.order.m_eOrderBy = order.m_eOrderBy;
             definitions.order.m_sOrderValue = order.m_sOrderValue;
             definitions.groupId = request.m_nGroupID;
-            definitions.isExact = request.isExact;
             definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
             definitions.filterPhrase = request.filterTree;
+
+            definitions.isDescending = false;
+
+            #endregion
+
+            #region Asset Types
 
             // Special case - if no type was specified or "All" is contained, search all types
             if (request.assetTypes == null || request.assetTypes.Count == 0)
             {
                 definitions.shouldSearchEpg = true;
-                definitions.mediaTypes = GetMediaTypes(request.m_nGroupID, null);
+                definitions.shouldSearchMedia = true;
             }
-            else
+            else 
             {
                 definitions.mediaTypes = new List<int>(request.assetTypes);
             }
 
             // 0 - hard coded for EPG
-            if (request.assetTypes.Contains(0))
+            if (definitions.mediaTypes.Remove(0))
             {
                 definitions.shouldSearchEpg = true;
             }
+
+            // If there are items left in media types after removing 0, we are searching for media
+            if (definitions.mediaTypes.Count > 0)
+            {
+                definitions.shouldSearchMedia = true;
+            }
+
+            #endregion
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
-        }
-
-        /// <summary>
-        /// Gets media types relevant for unified search query
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="assetTypes"></param>
-        /// <returns></returns>
-        private static List<int> GetMediaTypes(int groupId, List<string> assetTypes)
-        {
-            List<int> mediaTypes = new List<int>();
-
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(groupId);
-
-            // If null list was sent - get them all
-            if (assetTypes == null)
-            {
-                mediaTypes = group.GetMediaTypes();
-            }
-            else
-            {
-                // Else we need only to get the Ids of specific media types
-                List<string> mediaTypesNames = new List<string>(assetTypes);
-                mediaTypesNames.Remove("EPG");
-                mediaTypesNames.Remove("All");
-
-                mediaTypes = group.GetMediaTypeIdsByNames(mediaTypesNames);
-            }
-
-            return (mediaTypes);
         }
 
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
@@ -1509,7 +1503,7 @@ namespace Catalog
             searchObject.m_nPageSize = request.m_nPageSize;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
+            searchObject.m_sMediaTypes = string.Join(";",channel.m_nMediaType);
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
@@ -1866,12 +1860,12 @@ namespace Catalog
             {
                 pResponse.m_nTotalItems = lEpgProg.Count;
 
-                string epgPicBaseUrl = string.Empty;
-                string epgPicWidth = string.Empty;
-                string epgPicHeight = string.Empty;
-                Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-                GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+            //    string epgPicBaseUrl = string.Empty;
+            //    string epgPicWidth = string.Empty;
+            //    string epgPicHeight = string.Empty;
+            //    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+            //    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            //    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
             }
             foreach (int nProgram in pRequest.m_lProgramsIds)
             {
@@ -2073,22 +2067,18 @@ namespace Catalog
             List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
+
+            //    Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
+            //    string epgPicBaseUrl = string.Empty;
+            //    string epgPicWidth = string.Empty;
+            //    string epgPicHeight = string.Empty;
+            //    GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            //    bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
+            //    bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
+            //    bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+            //    string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
+            //    string dot = ".";
                 int totalItems = 0;
-                string dot = ".";
-
-                Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
-
-                string epgPicBaseUrl = string.Empty;
-                string epgPicWidth = string.Empty;
-                string epgPicHeight = string.Empty;
-                GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-
-                bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
-                bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
-                bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
-
-                string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
 
                 for (int i = 0; i < epgs.Count; i++)
@@ -2099,16 +2089,15 @@ namespace Catalog
                         continue;
                     }
 
-                    // mutate epg pic url
-                    if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
-                    {
-                        if (epgPicWidthExists && epgPicHeightExists)
-                        {
-                            epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
-                        }
-
-                        epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
-                    }
+                    //// mutate epg pic url
+                    //if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
+                    //{
+                    //    if (epgPicWidthExists && epgPicHeightExists)
+                    //    {
+                    //        epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
+                    //    }
+                    //    epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
+                    //}
 
                     if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
                     {
@@ -2857,7 +2846,6 @@ namespace Catalog
             if (!bHasTagPrefix)
             {
                 var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
 
                 foreach (var val in metas)
                 {
