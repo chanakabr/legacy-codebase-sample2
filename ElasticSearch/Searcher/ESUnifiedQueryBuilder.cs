@@ -46,11 +46,6 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        //public eQueryType QueryType
-        //{
-        //    get;
-        //    set;
-        //}
 
         #endregion
 
@@ -230,8 +225,7 @@ namespace ElasticSearch.Searcher
 
                 #region Watch Permissions rules
 
-                // group_id = parent groupd id
-                // permitted watch filter 
+                // group_id = parent groupd id OR media has permitted watch filter 
                 FilterCompositeType groupWPComposite = new FilterCompositeType(CutWith.OR);
 
                 ESTerms permittedWatchFilter = new ESTerms(true);
@@ -253,6 +247,29 @@ namespace ElasticSearch.Searcher
                 groupWPComposite.AddChild(permittedWatchFilter);
 
                 mediaFilter.AddChild(groupWPComposite);
+
+                #endregion
+
+                #region Device types
+
+                ESTerms deviceRulesTerms = new ESTerms(true)
+                {
+                    Key = "device_rule_id"
+                };
+
+                deviceRulesTerms.Value.Add("0");
+
+                if (this.SearchDefinitions.deviceRuleId != null &&
+                    this.SearchDefinitions.deviceRuleId.Length > 0)
+                {
+
+                    foreach (int deviceRuleId in this.SearchDefinitions.deviceRuleId)
+                    {
+                        deviceRulesTerms.Value.Add(deviceRuleId.ToString());
+                    }
+                }
+
+                mediaFilter.AddChild(deviceRulesTerms);
 
                 #endregion
 
@@ -540,13 +557,36 @@ namespace ElasticSearch.Searcher
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
                 string field = string.Format("{0}.analyzed", leaf.field);
+                bool isNumeric = leaf.type == typeof(int) || leaf.type == typeof(long);
 
-                term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                // "Match" when search is not exact (contains)
+                if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                 {
-                    Field = field,
-                    eOperator = CutWith.OR,
-                    Query = leaf.value.ToString().ToLower()
-                };
+                    term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                    {
+                        Field = field,
+                        eOperator = CutWith.OR,
+                        Query = leaf.value.ToString().ToLower()
+                    };
+                }
+                // "Term" when search is equals/not equals
+                else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
+                    leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
+                {
+                    bool not = leaf.operand == ApiObjects.ComparisonOperator.NotEquals;
+
+                    term = new ESTerm(isNumeric)
+                    {
+                        Key = leaf.field,
+                        Value = leaf.value.ToString().ToLower(),
+                        bNot = not
+                    };
+                }
+                // Other cases are "Range"
+                else
+                {
+                    term = ConvertToRange(leaf, isNumeric);
+                }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
             else if (root is BooleanPhrase)
@@ -588,7 +628,7 @@ namespace ElasticSearch.Searcher
                 term = new ESTerm(isNumeric)
                 {
                     Key = leaf.field,
-                    Value = leaf.value.ToString()
+                    Value = leaf.value.ToString().ToLower()
                 };
             }
             else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
@@ -596,51 +636,57 @@ namespace ElasticSearch.Searcher
                 term = new ESTerm(isNumeric)
                 {
                     Key = leaf.field,
-                    Value = leaf.value.ToString(),
+                    Value = leaf.value.ToString().ToLower(),
                     bNot = true
                 };
             }
             else
             {
-                term = new ESRange(isNumeric)
-                {
-                    Key = leaf.field
-                };
-
-                eRangeComp rangeComparison = eRangeComp.GTE;
-
-                switch (leaf.operand)
-                {
-                    case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
-                    {
-                        rangeComparison = eRangeComp.GTE;
-                        break;
-                    }
-                    case ApiObjects.ComparisonOperator.GreaterThan:
-                    {
-                        rangeComparison = eRangeComp.GT;
-                        break;
-                    }
-                    case ApiObjects.ComparisonOperator.LessThanOrEqual:
-                    {
-                        rangeComparison = eRangeComp.LTE;
-                        break;
-                    }
-                    case ApiObjects.ComparisonOperator.LessThan:
-                    {
-                        rangeComparison = eRangeComp.LT;
-                        break;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-
-                (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, leaf.value.ToString()));
+                term = ConvertToRange(leaf, isNumeric);
             }
 
             return (term);
+        }
+
+        private static IESTerm ConvertToRange(BooleanLeaf leaf, bool isNumeric)
+        {
+            var term = new ESRange(isNumeric)
+            {
+                Key = leaf.field
+            };
+
+            eRangeComp rangeComparison = eRangeComp.GTE;
+
+            switch (leaf.operand)
+            {
+                case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
+                {
+                    rangeComparison = eRangeComp.GTE;
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.GreaterThan:
+                {
+                    rangeComparison = eRangeComp.GT;
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.LessThanOrEqual:
+                {
+                    rangeComparison = eRangeComp.LTE;
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.LessThan:
+                {
+                    rangeComparison = eRangeComp.LT;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, leaf.value.ToString().ToLower()));
+            return term;
         }
 
         /// <summary>

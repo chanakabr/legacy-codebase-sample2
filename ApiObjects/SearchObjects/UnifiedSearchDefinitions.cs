@@ -38,19 +38,6 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
-        //public List<SearchValue> andList;
-        //public List<SearchValue> orList;
-        //public List<SearchValue> filterTagsAndMetas
-        //{
-        //    get;
-        //    set;
-        //}
-        //public CutWith filterTagsAndMetasCutWith
-        //{
-        //    get;
-        //    set;
-        //}
-
         public BooleanPhraseNode filterPhrase;
 
         public int groupId
