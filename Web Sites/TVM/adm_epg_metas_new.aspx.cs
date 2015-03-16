@@ -76,7 +76,7 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         theRecord.AddRecord(dr_Name);
 
         DataRecordShortTextField dr_Default_Value = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_Default_Value.Initialize("Default Value", "adm_table_header_nbg", "FormInput", "default_value", true);
+        dr_Default_Value.Initialize("Default Value", "adm_table_header_nbg", "FormInput", "default_value", false);
         theRecord.AddRecord(dr_Default_Value);
         
 
