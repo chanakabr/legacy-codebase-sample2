@@ -2685,35 +2685,22 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     public partial class UnifiedSearchRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> andListField;
+        private System.Collections.Generic.List<int> assetTypesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> assetTypesField;
+        private string filterQueryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.BooleanPhraseNode filterTreeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool isExactField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> orListField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> andList {
-            get {
-                return this.andListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.andListField, value) != true)) {
-                    this.andListField = value;
-                    this.RaisePropertyChanged("andList");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> assetTypes {
+        public System.Collections.Generic.List<int> assetTypes {
             get {
                 return this.assetTypesField;
             }
@@ -2721,6 +2708,32 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.assetTypesField, value) != true)) {
                     this.assetTypesField = value;
                     this.RaisePropertyChanged("assetTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string filterQuery {
+            get {
+                return this.filterQueryField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.filterQueryField, value) != true)) {
+                    this.filterQueryField = value;
+                    this.RaisePropertyChanged("filterQuery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.BooleanPhraseNode filterTree {
+            get {
+                return this.filterTreeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.filterTreeField, value) != true)) {
+                    this.filterTreeField = value;
+                    this.RaisePropertyChanged("filterTree");
                 }
             }
         }
@@ -2734,19 +2747,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((this.isExactField.Equals(value) != true)) {
                     this.isExactField = value;
                     this.RaisePropertyChanged("isExact");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue> orList {
-            get {
-                return this.orListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.orListField, value) != true)) {
-                    this.orListField = value;
-                    this.RaisePropertyChanged("orList");
                 }
             }
         }
@@ -3609,6 +3609,35 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ASC = 1,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BooleanPhraseNode", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    [System.SerializableAttribute()]
+    public partial class BooleanPhraseNode : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5796,6 +5825,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGDictionary> EPG_MetaField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgPicture> EPG_PICTURESField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGDictionary> EPG_TAGSField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -5928,6 +5960,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.EPG_MetaField, value) != true)) {
                     this.EPG_MetaField = value;
                     this.RaisePropertyChanged("EPG_Meta");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgPicture> EPG_PICTURES {
+            get {
+                return this.EPG_PICTURESField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.EPG_PICTURESField, value) != true)) {
+                    this.EPG_PICTURESField = value;
+                    this.RaisePropertyChanged("EPG_PICTURES");
                 }
             }
         }
@@ -6222,6 +6267,95 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         
         void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgPicture", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg")]
+    [System.SerializableAttribute()]
+    public partial class EpgPicture : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private int PicHeightk__BackingFieldField;
+        
+        private int PicWidthk__BackingFieldField;
+        
+        private string Ratiok__BackingFieldField;
+        
+        private string Urlk__BackingFieldField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<PicHeight>k__BackingField", IsRequired=true)]
+        public int PicHeightk__BackingField {
+            get {
+                return this.PicHeightk__BackingFieldField;
+            }
+            set {
+                if ((this.PicHeightk__BackingFieldField.Equals(value) != true)) {
+                    this.PicHeightk__BackingFieldField = value;
+                    this.RaisePropertyChanged("PicHeightk__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<PicWidth>k__BackingField", IsRequired=true)]
+        public int PicWidthk__BackingField {
+            get {
+                return this.PicWidthk__BackingFieldField;
+            }
+            set {
+                if ((this.PicWidthk__BackingFieldField.Equals(value) != true)) {
+                    this.PicWidthk__BackingFieldField = value;
+                    this.RaisePropertyChanged("PicWidthk__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<Ratio>k__BackingField", IsRequired=true)]
+        public string Ratiok__BackingField {
+            get {
+                return this.Ratiok__BackingFieldField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.Ratiok__BackingFieldField, value) != true)) {
+                    this.Ratiok__BackingFieldField = value;
+                    this.RaisePropertyChanged("Ratiok__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<Url>k__BackingField", IsRequired=true)]
+        public string Urlk__BackingField {
+            get {
+                return this.Urlk__BackingFieldField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.Urlk__BackingFieldField, value) != true)) {
+                    this.Urlk__BackingFieldField = value;
+                    this.RaisePropertyChanged("Urlk__BackingField");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
             if ((propertyChanged != null)) {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
@@ -7494,7 +7628,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private int m_nIsActiveField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaTypeField;
+        private System.Collections.Generic.List<int> m_nMediaTypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nParentGroupIDField;
@@ -7655,12 +7789,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaType {
+        public System.Collections.Generic.List<int> m_nMediaType {
             get {
                 return this.m_nMediaTypeField;
             }
             set {
-                if ((this.m_nMediaTypeField.Equals(value) != true)) {
+                if ((object.ReferenceEquals(this.m_nMediaTypeField, value) != true)) {
                     this.m_nMediaTypeField = value;
                     this.RaisePropertyChanged("m_nMediaType");
                 }
