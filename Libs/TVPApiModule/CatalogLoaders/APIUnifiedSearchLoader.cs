@@ -8,6 +8,7 @@ using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.CatalogLoaders
@@ -163,6 +164,23 @@ namespace TVPApiModule.CatalogLoaders
             MediaObj media = null;
             ProgramObj epg = null;
 
+            List<AssetStatsResult> mediaAssetsStats = null;
+            List<AssetStatsResult> epgAssetsStats = null;
+
+            if (With != null && With.Contains("stats"))
+            {
+                if (medias != null && medias.Count > 0)
+                {
+                    mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
+                        StatsType.MEDIA, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7)).Execute() as List<AssetStatsResult>;
+                }
+                if (epgs != null && epgs.Count > 0)
+                {
+                    epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
+                        StatsType.EPG, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7)).Execute() as List<AssetStatsResult>;
+                }
+            }
+
             foreach (var item in order)
             {
                 if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
@@ -170,7 +188,14 @@ namespace TVPApiModule.CatalogLoaders
                     media = medias.Where(m => m.m_nID == item.assetID).FirstOrDefault();
                     if (media != null)
                     {
-                        asset = new AssetInfo(media);
+                        if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
+                        {
+                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault());
+                        }
+                        else
+                        {
+                            asset = new AssetInfo(media);
+                        }
                         result.Add(asset);
                         media = null;
                     }
@@ -180,7 +205,14 @@ namespace TVPApiModule.CatalogLoaders
                     epg = epgs.Where(m => m.m_nID == item.assetID).FirstOrDefault();
                     if (epg != null)
                     {
-                        asset = new AssetInfo(epg.m_oProgram);
+                        if (epgAssetsStats != null && epgAssetsStats.Count > 0)
+                        {
+                            asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID == epg.m_nID).FirstOrDefault());
+                        }
+                        else
+                        {
+                            asset = new AssetInfo(epg.m_oProgram);
+                        }
                         result.Add(asset);
                         epg = null;
                     }
