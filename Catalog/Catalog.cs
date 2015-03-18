@@ -724,6 +724,7 @@ namespace Catalog
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(nParentGroupID);
 
+            // Add prefixes, check if non start/end date exist
             #region Phrase Tree
 
             if (group != null)
@@ -2827,32 +2828,32 @@ namespace Catalog
             return res;
         }
 
-        private static string GetFullSearchKey(string sKey, ref Group oGroup)
+        private static string GetFullSearchKey(string originalKey, ref Group group)
         {
-            bool bHasTagPrefix = false;
+            bool hasTagPrefix = false;
 
-            string searchKey = sKey;
+            string searchKey = originalKey;
 
-            foreach (var key in oGroup.m_oGroupTags.Keys)
+            foreach (string tag in group.m_oGroupTags.Values)
             {
-                if (oGroup.m_oGroupTags[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                if (tag.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
-                    searchKey = string.Concat(TAGS, ".", oGroup.m_oGroupTags[key].ToLower());
-                    bHasTagPrefix = true;
+                    searchKey = string.Concat(TAGS, ".", tag.ToLower());
+                    hasTagPrefix = true;
                     break;
                 }
             }
 
-            if (!bHasTagPrefix)
+            if (!hasTagPrefix)
             {
-                var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
-                foreach (var val in metas)
+                foreach (var meta in metas)
                 {
-                    if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                    if (meta.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        searchKey = string.Concat(METAS, ".", val.ToLower());
-                        bHasTagPrefix = true;
+                        searchKey = string.Concat(METAS, ".", meta.ToLower());
+                        hasTagPrefix = true;
                         break;
                     }
                 }

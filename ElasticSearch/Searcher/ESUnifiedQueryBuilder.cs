@@ -188,8 +188,8 @@ namespace ElasticSearch.Searcher
 
                 epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
-                string nowPlusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
-                string nowMinusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
                 if (this.SearchDefinitions.defaultStartDate)
                 {
@@ -198,8 +198,8 @@ namespace ElasticSearch.Searcher
                         Key = "start_date"
                     };
 
-                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusOffsetDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusOffsetDateString));
 
                     epgDatesFilter.AddChild(epgStartDateRange);
                 }
@@ -211,8 +211,8 @@ namespace ElasticSearch.Searcher
                         Key = "end_date"
                     };
 
-                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusOffsetDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusOffsetDateString));
 
                     epgDatesFilter.AddChild(epgEndDateRange);
                 }
