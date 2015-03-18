@@ -8,19 +8,19 @@ namespace TVPApiModule.Objects.Responses
 {
     public class Statistics
     {
+        [JsonProperty(PropertyName = "id")]
+        public int Id { get; set; }
+
         [JsonProperty(PropertyName = "likes")]
         public int Likes { get; set; }
 
         [JsonProperty(PropertyName = "views")]
         public int Views { get; set; }
 
-        [JsonProperty(PropertyName = "rating_sum")]
-        public int RatingSum { get; set; }
-
         [JsonProperty(PropertyName = "rating_count")]
         public int RatingCount { get; set; }
 
-        [JsonProperty(PropertyName = "rating_avg")]
-        public double RatingAvg { get; set; }
+        [JsonProperty(PropertyName = "rating")]
+        public double Rating { get; set; }
     }
 }

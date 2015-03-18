@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Helper;
 
 namespace TVPApiModule.Objects.Responses
@@ -39,7 +40,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "end_date")]
         public double EndDate { get; set; }
 
-        [JsonProperty(PropertyName = "statistics")]
+        [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         public Statistics Statistics { get; set; }
 
         [JsonProperty(PropertyName = "extra_params")]
@@ -58,18 +59,6 @@ namespace TVPApiModule.Objects.Responses
                 if (media.m_oMediaType != null)
                 {
                     Type = media.m_oMediaType.m_sTypeName;
-                }
-
-                Statistics = new Statistics()
-                {
-                    Likes = media.m_nLikeCounter
-                };
-                if (media.m_oRatingMedia != null)
-                {
-                    Statistics.RatingAvg = media.m_oRatingMedia.m_nRatingAvg;
-                    Statistics.RatingCount = media.m_oRatingMedia.m_nRatingCount;
-                    Statistics.RatingSum = media.m_oRatingMedia.m_nRatingSum;
-                    Statistics.Views = media.m_oRatingMedia.m_nViwes;
                 }
 
                 if (media.m_lPicture != null)
@@ -130,6 +119,22 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
+        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, AssetStatsResult stats) :
+             this (media)
+        {
+            if (stats != null)
+            {
+                Statistics = new Statistics()
+                {
+                    Likes = stats.m_nLikes,
+                    Rating = stats.m_dRate, // ???
+                    Id = stats.m_nAssetID,
+                    Views = stats.m_nViews,
+                    RatingCount = 0 // ???
+                };
+            }
+        }
+
         public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg)
         {
             Id = epg.EPG_ID;
@@ -177,8 +182,22 @@ namespace TVPApiModule.Objects.Responses
             ExtraParams.Add("EpgChannelId", epg.EPG_CHANNEL_ID);
             ExtraParams.Add("EpgIdentifier", epg.EPG_IDENTIFIER);
             ExtraParams.Add("MediaId", epg.media_id);
+        }
 
-
+        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg, AssetStatsResult stats) 
+            : this (epg)
+        {
+            if (stats != null)
+            {
+                Statistics = new Statistics()
+                {
+                    Likes = stats.m_nLikes,
+                    Rating = stats.m_dRate, // ???
+                    Id = stats.m_nAssetID,
+                    Views = stats.m_nViews,
+                    RatingCount = 0 // ???
+                };
+            }
         }
     }
 }

@@ -19,39 +19,34 @@ namespace TVPApiModule.CatalogLoaders
 
         private static ILog logger = log4net.LogManager.GetLogger(typeof(APIUnifiedSearchLoader));
 
-        public List<KeyValue> AndList { get; set; }
-        public List<KeyValue> OrList { get; set; }
-        public bool Exact { get; set; }
-        public List<string> AssetTypes { get; set; }
+        public List<int> AssetTypes { get; set; }
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }
-        public OrderDir OrderDir { get; set; }
+        public OrderObj Order { get; set; }
         public string OrderValue { get; set; }
+        public string Filter{ get; set; }
+        public string Query { get; set; }
+        public List<string> With { get; set; }
 
-        public APIUnifiedSearchLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex,
-            bool exact, List<KeyValue> orList, List<KeyValue> andList, List<string> assetTypes)
+        public APIUnifiedSearchLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
+            List<int> assetTypes, string query, string filter, List<string> with)
             : base(groupID, userIP, pageSize, pageIndex)
         {
+            //DomainId = domainId
             Platform = platform.ToString();
-            Exact = exact;
-            OrList = orList;
-            AndList = andList;
             AssetTypes = assetTypes;
+            Filter = filter;
+            //Query = query;
+            With = with;
+
         }
 
         protected override void BuildSpecificRequest()
         {
             m_oRequest = new UnifiedSearchRequest()
             {
-                andList = AndList,
-                orList = OrList,
-                isExact = Exact,
                 assetTypes = AssetTypes,
-                order = new OrderObj()
-                {
-                    m_eOrderBy = OrderBy,
-                    m_eOrderDir = OrderDir,
-                    m_sOrderValue = OrderValue
-                }
+                filterQuery = Filter,
+                order = Order
             };
         }
 
@@ -63,21 +58,17 @@ namespace TVPApiModule.CatalogLoaders
             // g = GroupId
             // ps = PageSize
             // pi = PageIndex
-            // e = Exact
             // ob = OrderBy
             // od = OrderDir
             // ov = OrderValue 
-            // st = searchType
-            // al = AndList
-            // ol = OrList
             
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}_e={4}_ob={5}_od={6}", GroupID, PageSize, PageIndex, AssetTypes, Exact, OrderBy, OrderDir);
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}", GroupID, PageSize, PageIndex, AssetTypes);
             if (!string.IsNullOrEmpty(OrderValue))
                 key.AppendFormat("_ov={0}", OrderValue);
-            if (AndList != null && AndList.Count > 0)
-                key.AppendFormat("_al={0}", string.Join(",", AndList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
-            if (OrList != null && OrList.Count > 0)
-                key.AppendFormat("_ol={0}", string.Join(",", OrList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
+            //if (AndList != null && AndList.Count > 0)
+            //    key.AppendFormat("_al={0}", string.Join(",", AndList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
+            //if (OrList != null && OrList.Count > 0)
+            //    key.AppendFormat("_ol={0}", string.Join(",", OrList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
             return key.ToString();
         }
 

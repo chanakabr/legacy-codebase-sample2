@@ -3159,9 +3159,8 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponse UnifiedSearch(InitializationObject initObj, int pageSize, int pageIndex,
-            bool exact, List<KeyValue> orList, List<KeyValue> andList, List<string> assetTypes, 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse UnifiedSearch(InitializationObject initObj, List<int> asset_types, string q, string filter, string order_by,
+            List<string> with, int page_index, int page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
@@ -3171,13 +3170,72 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), pageSize, pageIndex, exact, orList, andList, assetTypes)
+                    if (filter.Length > 500 * 1024)
                     {
-                        OrderBy = orderBy,
-                        OrderDir = orderDir,
-                        OrderValue = orderValue
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("too long filter");
+                        return response;
+                    }
 
-                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    if (page_size == 0)
+                    {
+                        page_size = 25;
+                    }
+                    else if (page_size > 50)
+                    {
+                        page_size = 50;
+                    }
+                    else if (page_size < 5)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 50");
+                        return response;
+                    }
+
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null; 
+
+                    if (!string.IsNullOrEmpty(order_by))
+                    {
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj();
+
+                        switch (order_by)
+                        {
+                            case "a_to_z":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                                order.m_eOrderDir = OrderDir.ASC;
+                                break;
+                            case "z_to_a":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "views":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "ratings":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "votes":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VOTES_COUNT;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "newest":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            default:
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
+                                return response;
+                        }
+                    }
+
+                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, page_index,
+                        asset_types, q, filter, with)
+                        {
+                            Order = order
+                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                     response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.OK, string.Empty);
                 }
                 catch (Exception ex)

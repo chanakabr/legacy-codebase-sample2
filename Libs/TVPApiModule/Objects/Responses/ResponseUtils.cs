@@ -51,6 +51,18 @@ namespace TVPApiModule.Objects.Responses
             return status;
         }
 
+        public static Status ReturnBadRequestStatus()
+        {
+            return ReturnBadRequestStatus(string.Empty);
+        }
 
+        public static Status ReturnBadRequestStatus(string message)
+        {
+            Status status = new Status();
+            status.Code = (int)eStatus.BadRequest;
+            if (!string.IsNullOrEmpty(message))
+                status.Message = message;
+            return status;
+        }
     }
 }
