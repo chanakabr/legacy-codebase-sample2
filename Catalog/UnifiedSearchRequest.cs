@@ -17,6 +17,13 @@ namespace Catalog
     [DataContract]
     public class UnifiedSearchRequest : BaseRequest, IRequestImp
     {
+        #region Private Members
+
+        private const string AND_TOKEN = "(and";
+        private const string OR_TOKEN = "(or";
+
+        #endregion
+
         #region Data Members
 
         [DataMember]
@@ -172,12 +179,12 @@ namespace Catalog
 
                 foreach (var token in tokens)
                 {
-                    if (token == "(and") // and opperand - beginning of BooleanPhrase
+                    if (token == AND_TOKEN) // and operand - beginning of BooleanPhrase
                     {
                         stack.Push(eCutType.And);
                     }
 
-                    else if (token == "(or") // or opperand - beginning of BooleanPhrase
+                    else if (token == OR_TOKEN) // or operand - beginning of BooleanPhrase
                     {
                         stack.Push(eCutType.Or);
                     }
@@ -284,70 +291,78 @@ namespace Catalog
 
             expression = expression.Trim();
 
-            Stack<char> stack = new Stack<char>();
+            char[] buffer = new char[expression.Length];
+            int lastBufferIndex = 0;
             
             bool isQuote = false;
-            bool isOpperand = false;
+            bool isOperand = false; // operand including spaces and '('
+            bool isOperandWord = false; // just operand word - no spaces or '('
+            bool isWord = false;
+
             string token = null;
 
             for (int i = 0; i < expression.Length; ++i)
             {
                 char chr = expression[i];
 
-                if (chr == '\'' && !isQuote) // beginning of quote - push 
+                if (chr == '\'' && !isQuote) // beginning of quote - add to buffer 
                 {
-                    stack.Push(chr);
+                    buffer[lastBufferIndex++] = chr;
+                    buffer[lastBufferIndex] = '\0';
                     isQuote = true;
                 }
-
-                else if (chr == '\'' && isQuote) // end of quote - pop the token and add to tokens list (without '') 
+                else if (chr == '\'' && isQuote) // end of quote - get the token from the buffer and add to tokens list (without '') 
                 {
-                    if (PopLoop("'", true, false, ref stack, ref token))
+                    if (GetTokenFromBuffer("'", true, false, ref buffer, ref token))
                     {
+                        lastBufferIndex = 0;
                         tokens.Add(token);
                         isQuote = false;
+                        isWord = false;
                     }
                     else
                     {
                         return false;
                     }
                 }
-
-                else if (chr == ' ' && isQuote) // space in a quote - push
+                else if (chr == ' ') // space in a quote - add to buffer
                 {
-                    stack.Push(chr);
-                }
-
-                else if (chr == ' ' && !isQuote) // space - do nothing
-                {
-                    continue;
-                }
-
-                else if (chr == '(') // beginning of opperand
-                {
-                    stack.Push(chr);
-                    isOpperand = true;
-                }
-
-                else if ((chr == 'd' || chr == 'r') && isOpperand)
-                {
-                    stack.Push(chr);
-
-                    if (PopLoop("(", true, true, ref stack, ref token) && (token == "(and" || token == "(or"))
+                    if (isQuote || isWord)
                     {
-                        tokens.Add(token);
-                        isOpperand = false;
+                        buffer[lastBufferIndex++] = chr;
+                        buffer[lastBufferIndex] = '\0';
+                    }
+                    else if (isOperandWord)
+                    {
+                        if (GetTokenFromBuffer("(", true, true, ref buffer, ref token) && (token == AND_TOKEN || token == OR_TOKEN))
+                        {
+                            lastBufferIndex = 0;
+                            tokens.Add(token);
+                            isOperand = false;
+                            isOperandWord = false;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                     else
                     {
-                        return false;
+                        continue;
                     }
-                }
-
-                else if (chr == ')' || chr == '~' || chr == '=') // single seperator - get the pushed token if availible and add to tokens list, add the seperator to tokens list
+                }                
+                else if (chr == '(') // beginning of operand
                 {
-                    if (PopLoop(string.Empty, false, true, ref stack, ref token))
+                    buffer[lastBufferIndex++] = chr;
+                    buffer[lastBufferIndex] = '\0';
+                    isOperand = true;
+                }
+                else if (chr == ')' || chr == '~' || chr == '=') // single seperator - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
+                {
+                    if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
+                        isWord = false;
+                        lastBufferIndex = 0;
                         if (!string.IsNullOrEmpty(token))
                         {
                             tokens.Add(token);
@@ -361,11 +376,11 @@ namespace Catalog
                         return false;
                     }
                 }
-
-                else if (chr == '>' || chr == '<' || chr == '!') // double seperator - get the pushed token if availible and add to tokens list, add the seperator to tokens list 
+                else if (chr == '>' || chr == '<' || chr == '!') // double seperator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
                 {
-                    if (PopLoop(string.Empty, false, true, ref stack, ref token))
+                    if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
+                        lastBufferIndex = 0;
                         if (!string.IsNullOrEmpty(token))
                         {
                             tokens.Add(token);
@@ -390,62 +405,55 @@ namespace Catalog
                         token = new string(chr, 1);
                         tokens.Add(token);
                     }
+                    
+                    isWord = false;
                 }
-
-                else // any other char - push
+                else // any other char - add to buffer
                 {
-                    stack.Push(chr);
+                    isWord = !isOperand; // a word which is not an operand
+                    isOperandWord = isOperand; // opperand but not space
+                    buffer[lastBufferIndex++] = chr;
+                    buffer[lastBufferIndex] = '\0';
                 }
             }
 
-            if (stack.Count == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return buffer[lastBufferIndex] == '\0';            
         }
 
-        // pops tokens from the stack:
-        // containsCondition - a string containing the chars which are the condition to stop the loop
-        // shouldVarifyCondition - true if the reason to stop the loop must be one of the chars in 'containsCondition', false if an empty stack is enough
-        // shouldAppendLast - true if the last poped char should be appended to the returned token
+        // Returns a full token from the buffer:
+        // containsCondition - a string containing chars that one of them should be at the beginning of the token 
+        // shouldVerifyCondition - true if 'containsCondition' must be checked
+        // shouldAppendFirst - true if the first char should be part of the token
 
-        private bool PopLoop(string containsCondition, bool shouldVarifyCondition, bool shouldAppendLast, ref Stack<char> stack, ref string token)
+        private bool GetTokenFromBuffer(string containsCondition, bool shouldVerifyCondition, bool shouldAppendFirst, ref char[] buffer, ref string token)
         {
             token = null;
-            if (stack.Count > 0)
+
+            if (shouldVerifyCondition && !containsCondition.Contains(buffer[0]))
             {
-                StringBuilder sbToken = new StringBuilder();
-                char popedChar = stack.Pop();
-                while (!containsCondition.Contains(popedChar) && stack.Count > 0)
-                {
-                    sbToken.Append(popedChar);
-                    popedChar = stack.Pop();
-                }
-
-                if (shouldVarifyCondition && !containsCondition.Contains(popedChar))
-                {
-                    return false;
-                }
-
-                if (shouldAppendLast)
-                {
-                    sbToken.Append(popedChar);
-                }
-
-                token = sbToken.ToString();
-                char[] charArr = token.ToCharArray();
-                Array.Reverse(charArr);
-                token = new string(charArr);
-
-                return true;
-            }
-            
-            if (shouldVarifyCondition)
                 return false;
+            }
+
+            if (buffer[0] != '\0')
+            {
+                int i = 0;
+
+                while (buffer[i] != '\0')
+                {
+                    i++;
+                }
+
+                if (shouldAppendFirst)
+                {
+                    token = new string(buffer, 0, i);
+                }
+                else
+                {
+                    token = new string(buffer, 1, i - 1);
+                }
+
+                buffer[0] = '\0';
+            }
             
             return true;
         }
