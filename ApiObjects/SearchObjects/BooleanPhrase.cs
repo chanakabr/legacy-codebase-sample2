@@ -28,6 +28,18 @@ namespace ApiObjects.SearchObjects
 
         #endregion
 
+        #region Properties
+
+        public override BooleanNodeType type
+        {
+            get
+            {
+                return BooleanNodeType.Parent;
+            }
+        }
+
+        #endregion
+
         #region Ctor
 
         /// <summary>

@@ -30,13 +30,25 @@ namespace ApiObjects.SearchObjects
         /// The type of the value
         /// </summary>
         [DataMember]
-        public Type type;
+        public Type valueType;
 
         /// <summary>
         /// Comparison operation to perform on nodes: And/Or
         /// </summary>
         [DataMember]
         public ComparisonOperator operand;
+
+        #endregion
+
+        #region Properties
+
+        public override BooleanNodeType type
+        {
+            get
+            {
+                return BooleanNodeType.Leaf;
+            }
+        }
 
         #endregion
 
@@ -53,7 +65,7 @@ namespace ApiObjects.SearchObjects
         {
             this.field = field;
             this.value = value;
-            this.type = type;
+            this.valueType = type;
             this.operand = operand;
         }
 

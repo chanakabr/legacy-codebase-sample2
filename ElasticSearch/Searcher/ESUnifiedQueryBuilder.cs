@@ -188,8 +188,8 @@ namespace ElasticSearch.Searcher
 
                 epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
-                string nowPlusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
-                string nowMinusWeekDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
                 if (this.SearchDefinitions.defaultStartDate)
                 {
@@ -198,8 +198,8 @@ namespace ElasticSearch.Searcher
                         Key = "start_date"
                     };
 
-                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusOffsetDateString));
+                    epgStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusOffsetDateString));
 
                     epgDatesFilter.AddChild(epgStartDateRange);
                 }
@@ -211,8 +211,8 @@ namespace ElasticSearch.Searcher
                         Key = "end_date"
                     };
 
-                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusWeekDateString));
-                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusWeekDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowMinusOffsetDateString));
+                    epgEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowPlusOffsetDateString));
 
                     epgDatesFilter.AddChild(epgEndDateRange);
                 }
@@ -358,7 +358,7 @@ namespace ElasticSearch.Searcher
                 BooleanPhraseNode root = this.SearchDefinitions.filterPhrase;
 
                 // Easiest case - only one node
-                if (root is BooleanLeaf)
+                if (root.type == BooleanNodeType.Leaf)
                 {
                     var leaf = root as BooleanLeaf;
 
@@ -375,7 +375,7 @@ namespace ElasticSearch.Searcher
                 }
                 // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
                 // We do that with a DFS check of the leafs - at least one leaf that is not-exact means it is query. Otherwise it's filter
-                else if (root is BooleanPhrase)
+                else if (root.type == BooleanNodeType.Parent)
                 {
                     var phraseRoot = root as BooleanPhrase;
 
@@ -397,7 +397,7 @@ namespace ElasticSearch.Searcher
                             BooleanPhraseNode current = stack.Pop();
 
                             // If it is a leaf, check if it is a not-exact leaf or not
-                            if (current is BooleanLeaf)
+                            if (current.type == BooleanNodeType.Leaf)
                             {
                                 // If yes, this means the root-ancestor is a query and not a filter
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains)
@@ -407,7 +407,7 @@ namespace ElasticSearch.Searcher
                                     isCurrentDone = true;
                                 }
                             }
-                            else if (current is BooleanPhrase)
+                            else if (current.type == BooleanNodeType.Parent)
                             {
                                 // If it is a boolean phrase, push all children to stack
                                 (current as BooleanPhrase).nodes.ForEach(child =>
@@ -563,12 +563,12 @@ namespace ElasticSearch.Searcher
             FilterCompositeType composite = null;
 
             // Leaf is stop condition: Convert it to a term and send it back
-            if (filterNode is BooleanLeaf)
+            if (filterNode.type == BooleanNodeType.Leaf)
             {
                 composite = new FilterCompositeType(CutWith.AND);
                 composite.AddChild(ConvertToFilter(filterNode as BooleanLeaf));
             }
-            else if (filterNode is BooleanPhrase)
+            else if (filterNode.type == BooleanNodeType.Parent)
             {
                 CutWith cut = CutWith.AND;
 
@@ -600,11 +600,11 @@ namespace ElasticSearch.Searcher
             IESTerm term = null;
 
             // If it is a leaf, this is the stop condition: Simply convert to ESTerm
-            if (root is BooleanLeaf)
+            if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
                 string field = string.Format("{0}.analyzed", leaf.field);
-                bool isNumeric = leaf.type == typeof(int) || leaf.type == typeof(long);
+                bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
                 // "Match" when search is not exact (contains)
                 if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
@@ -636,7 +636,7 @@ namespace ElasticSearch.Searcher
                 }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
-            else if (root is BooleanPhrase)
+            else if (root.type == BooleanNodeType.Parent)
             {
                 term = new BoolQuery();
                 CutWith cut = CutWith.AND;
@@ -647,12 +647,14 @@ namespace ElasticSearch.Searcher
                     cut = CutWith.OR;
                 }
 
+                Dictionary<string, List<BooleanLeaf>> rangesByName = new Dictionary<string, List<BooleanLeaf>>();
+
                 // Add every child node to the boolean query. This is recursive!
                 foreach (var childNode in (root as BooleanPhrase).nodes)
                 {
-                    (term as BoolQuery).AddChild(
-                        ConvertToQuery(childNode),
-                        cut);
+                    IESTerm newChild = ConvertToQuery(childNode);
+ 
+                    (term as BoolQuery).AddChild(newChild, cut);
                 }
             }
 
@@ -668,7 +670,7 @@ namespace ElasticSearch.Searcher
         {
             IESTerm term = null;
 
-            bool isNumeric = leaf.type == typeof(int) || leaf.type == typeof(long);
+            bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
             if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
             {

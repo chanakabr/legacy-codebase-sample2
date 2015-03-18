@@ -25,6 +25,7 @@ using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
 using NPVR;
+using ApiObjects.Response;
 
 namespace Catalog
 {
@@ -711,12 +712,22 @@ namespace Catalog
         }
 
         /// <summary>
-        /// For agiven request, creates the proper definitions that the wrapper will use 
+        /// For a given request, creates the proper definitions that the wrapper will use 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
+            HashSet<string> reservedFields = new HashSet<string>()
+            {
+                "name",
+                "description",
+                "like_counter",
+                "views",
+                "rating",
+                "votes"
+            };
+
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
@@ -724,6 +735,7 @@ namespace Catalog
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(nParentGroupID);
 
+            // Add prefixes, check if non start/end date exist
             #region Phrase Tree
 
             if (group != null)
@@ -737,26 +749,41 @@ namespace Catalog
                     BooleanPhraseNode node = nodes.Dequeue();
 
                     // If it is a leaf, just replace the field name
-                    if (node is BooleanLeaf)
+                    if (node.type == BooleanNodeType.Leaf)
                     {
                         BooleanLeaf leaf = node as BooleanLeaf;
 
+                        bool isTagOrMeta;
                         // Add prefix (meta/tag) e.g. metas.{key}
-                        // ASSUMING SEARCH KEY IS VALID!
-                        string searchKey = GetFullSearchKey(leaf.field, ref group);
+                        
+                        string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
                         leaf.field = searchKey;
 
-                        // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                        if (searchKey.ToLower() == "start_date")
+                        string searchKeyLowered = searchKey.ToLower();
+
+                        // If this is a tag or a meta, we can continue happily.
+                        // If not, we check if it is one of the "core" fields.
+                        // If it is not one of them, an exception will be thrown
+                        if (!isTagOrMeta)
                         {
-                            definitions.defaultStartDate = false;
-                        }
-                        else if (searchKey.ToLower() == "end_date")
-                        {
-                            definitions.defaultEndDate = false;
+                            // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                            if (searchKeyLowered == "start_date")
+                            {
+                                definitions.defaultStartDate = false;
+                            }
+                            else if (searchKeyLowered == "end_date")
+                            {
+                                definitions.defaultEndDate = false;
+                            }
+                            else if (!reservedFields.Contains(searchKeyLowered))
+                            {
+                                var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
+                                exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                                throw exception;
+                            }
                         }
                     }
-                    else if (node is BooleanPhrase)
+                    else if (node.type == BooleanNodeType.Parent)
                     {
                         BooleanPhrase phrase = node as BooleanPhrase;
 
@@ -2827,32 +2854,39 @@ namespace Catalog
             return res;
         }
 
-        private static string GetFullSearchKey(string sKey, ref Group oGroup)
+        private static string GetFullSearchKey(string originalKey, ref Group group)
         {
-            bool bHasTagPrefix = false;
+            bool isTagOrMeta;
+            return Catalog.GetFullSearchKey(originalKey, ref group, out isTagOrMeta);
+        }
 
-            string searchKey = sKey;
 
-            foreach (var key in oGroup.m_oGroupTags.Keys)
+        private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+        {
+            isTagOrMeta = false;
+
+            string searchKey = originalKey;
+
+            foreach (string tag in group.m_oGroupTags.Values)
             {
-                if (oGroup.m_oGroupTags[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
-                    searchKey = string.Concat(TAGS, ".", oGroup.m_oGroupTags[key].ToLower());
-                    bHasTagPrefix = true;
+                    searchKey = string.Concat(TAGS, ".", tag.ToLower());
+                    isTagOrMeta = true;
                     break;
                 }
             }
 
-            if (!bHasTagPrefix)
+            if (!isTagOrMeta)
             {
-                var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
-                foreach (var val in metas)
+                foreach (var meta in metas)
                 {
-                    if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        searchKey = string.Concat(METAS, ".", val.ToLower());
-                        bHasTagPrefix = true;
+                        searchKey = string.Concat(METAS, ".", meta.ToLower());
+                        isTagOrMeta = true;
                         break;
                     }
                 }
