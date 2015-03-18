@@ -2859,7 +2859,7 @@ namespace Catalog
 
             foreach (string tag in group.m_oGroupTags.Values)
             {
-                if (tag.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
                     searchKey = string.Concat(TAGS, ".", tag.ToLower());
                     isTagOrMeta = true;
@@ -2873,7 +2873,7 @@ namespace Catalog
 
                 foreach (var meta in metas)
                 {
-                    if (meta.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
                         searchKey = string.Concat(METAS, ".", meta.ToLower());
                         isTagOrMeta = true;
