@@ -738,7 +738,7 @@ namespace Catalog
                     BooleanPhraseNode node = nodes.Dequeue();
 
                     // If it is a leaf, just replace the field name
-                    if (node is BooleanLeaf)
+                    if (node.type == BooleanNodeType.Leaf)
                     {
                         BooleanLeaf leaf = node as BooleanLeaf;
 
@@ -757,7 +757,7 @@ namespace Catalog
                             definitions.defaultEndDate = false;
                         }
                     }
-                    else if (node is BooleanPhrase)
+                    else if (node.type == BooleanNodeType.Parent)
                     {
                         BooleanPhrase phrase = node as BooleanPhrase;
 

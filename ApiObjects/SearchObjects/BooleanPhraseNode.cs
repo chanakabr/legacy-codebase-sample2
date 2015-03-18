@@ -12,8 +12,19 @@ namespace ApiObjects.SearchObjects
     [DataContract]
     public abstract class BooleanPhraseNode
     {
+        public abstract BooleanNodeType type
+        {
+            get;
+        }
+
         public BooleanPhraseNode()
         {
         }
+    }
+
+    public enum BooleanNodeType
+    {
+        Leaf,
+        Parent
     }
 }
