@@ -712,12 +712,22 @@ namespace Catalog
         }
 
         /// <summary>
-        /// For agiven request, creates the proper definitions that the wrapper will use 
+        /// For a given request, creates the proper definitions that the wrapper will use 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
+            HashSet<string> reservedFields = new HashSet<string>()
+            {
+                "name",
+                "description",
+                "like_counter",
+                "views",
+                "rating",
+                "votes"
+            };
+
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
@@ -765,7 +775,7 @@ namespace Catalog
                             {
                                 definitions.defaultEndDate = false;
                             }
-                            else if (searchKeyLowered != "name" && searchKeyLowered != "description")
+                            else if (!reservedFields.Contains(searchKeyLowered))
                             {
                                 var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
                                 exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
