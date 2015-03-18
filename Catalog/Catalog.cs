@@ -25,6 +25,7 @@ using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
 using NPVR;
+using ApiObjects.Response;
 
 namespace Catalog
 {
@@ -742,19 +743,34 @@ namespace Catalog
                     {
                         BooleanLeaf leaf = node as BooleanLeaf;
 
+                        bool isTagOrMeta;
                         // Add prefix (meta/tag) e.g. metas.{key}
-                        // ASSUMING SEARCH KEY IS VALID!
-                        string searchKey = GetFullSearchKey(leaf.field, ref group);
+                        
+                        string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
                         leaf.field = searchKey;
 
-                        // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                        if (searchKey.ToLower() == "start_date")
+                        string searchKeyLowered = searchKey.ToLower();
+
+                        // If this is a tag or a meta, we can continue happily.
+                        // If not, we check if it is one of the "core" fields.
+                        // If it is not one of them, an exception will be thrown
+                        if (!isTagOrMeta)
                         {
-                            definitions.defaultStartDate = false;
-                        }
-                        else if (searchKey.ToLower() == "end_date")
-                        {
-                            definitions.defaultEndDate = false;
+                            // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                            if (searchKeyLowered == "start_date")
+                            {
+                                definitions.defaultStartDate = false;
+                            }
+                            else if (searchKeyLowered == "end_date")
+                            {
+                                definitions.defaultEndDate = false;
+                            }
+                            else if (searchKeyLowered != "name" && searchKeyLowered != "description")
+                            {
+                                var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
+                                exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                                throw exception;
+                            }
                         }
                     }
                     else if (node.type == BooleanNodeType.Parent)
@@ -2830,7 +2846,14 @@ namespace Catalog
 
         private static string GetFullSearchKey(string originalKey, ref Group group)
         {
-            bool hasTagPrefix = false;
+            bool isTagOrMeta;
+            return Catalog.GetFullSearchKey(originalKey, ref group, out isTagOrMeta);
+        }
+
+
+        private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+        {
+            isTagOrMeta = false;
 
             string searchKey = originalKey;
 
@@ -2839,12 +2862,12 @@ namespace Catalog
                 if (tag.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
                     searchKey = string.Concat(TAGS, ".", tag.ToLower());
-                    hasTagPrefix = true;
+                    isTagOrMeta = true;
                     break;
                 }
             }
 
-            if (!hasTagPrefix)
+            if (!isTagOrMeta)
             {
                 var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
@@ -2853,7 +2876,7 @@ namespace Catalog
                     if (meta.Replace(' ', '_').Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
                         searchKey = string.Concat(METAS, ".", meta.ToLower());
-                        hasTagPrefix = true;
+                        isTagOrMeta = true;
                         break;
                     }
                 }

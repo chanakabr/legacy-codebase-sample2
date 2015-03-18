@@ -94,8 +94,7 @@ namespace Catalog
                 }
 
                 // Request is bad if there is no condition to query by; or the group is 0
-                else if (filterTree == null ||
-                       request.m_nGroupID == 0)
+                if (filterTree == null || request.m_nGroupID == 0)
                 {
                     response.status.Code = (int)eResponseStatus.BadSearchRequest;
                     response.status.Message = "Invalid request parameters";
@@ -133,6 +132,19 @@ namespace Catalog
                     {
                         response.status.Code = (int)eResponseStatus.Error;
                         response.status.Message = "Got error with Elasticsearch";
+                    }
+                }
+                if (ex is ArgumentException)
+                {
+                    if (ex.Data.Contains("StatusCode"))
+                    {
+                        response.status.Code = (int)ex.Data["StatusCode"];
+                        response.status.Message = ex.Message;
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Search failed";
                     }
                 }
                 else
