@@ -59,7 +59,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             }
             else
             {
-                retVal = new List<BaseObject>();
+                retVal = new List<EPGChannelProgrammeObject>();
             }
             return retVal;
 
