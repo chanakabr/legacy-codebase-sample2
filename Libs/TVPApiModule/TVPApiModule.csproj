@@ -192,7 +192,6 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
-    <Compile Include="Objects\Responses\AdProvider.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
@@ -202,7 +201,7 @@
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
     <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
-    <Compile Include="Objects\Responses\Picture.cs" />
+    <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />
     <Compile Include="Objects\Responses\ServiceObject.cs" />
     <Compile Include="Objects\Responses\ServicesResponse.cs" />

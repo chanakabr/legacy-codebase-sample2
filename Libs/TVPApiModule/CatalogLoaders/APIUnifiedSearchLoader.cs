@@ -23,7 +23,6 @@ namespace TVPApiModule.CatalogLoaders
         public List<int> AssetTypes { get; set; }
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }
         public OrderObj Order { get; set; }
-        public string OrderValue { get; set; }
         public string Filter{ get; set; }
         public string Query { get; set; }
         public List<string> With { get; set; }
@@ -36,7 +35,7 @@ namespace TVPApiModule.CatalogLoaders
             Platform = platform.ToString();
             AssetTypes = assetTypes;
             Filter = filter;
-            //Query = query;
+            Query = query;
             With = with;
 
         }
@@ -47,7 +46,8 @@ namespace TVPApiModule.CatalogLoaders
             {
                 assetTypes = AssetTypes,
                 filterQuery = Filter,
-                order = Order
+                order = Order,
+                nameAndDescription = Query
             };
         }
 
@@ -62,14 +62,23 @@ namespace TVPApiModule.CatalogLoaders
             // ob = OrderBy
             // od = OrderDir
             // ov = OrderValue 
+            // at = AssetTypes
+            // q = query
+            //f = filter
             
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_st={3}", GroupID, PageSize, PageIndex, AssetTypes);
-            if (!string.IsNullOrEmpty(OrderValue))
-                key.AppendFormat("_ov={0}", OrderValue);
-            //if (AndList != null && AndList.Count > 0)
-            //    key.AppendFormat("_al={0}", string.Join(",", AndList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
-            //if (OrList != null && OrList.Count > 0)
-            //    key.AppendFormat("_ol={0}", string.Join(",", OrList.Select(val => string.Format("{0}:{1}", val.m_sKey, val.m_sValue)).ToArray()));
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}", GroupID, PageSize, PageIndex);
+            if (Order != null)
+            {
+                key.AppendFormat("_ob={0}_od={1}", Order.m_eOrderBy, Order.m_eOrderDir);
+                if (!string.IsNullOrEmpty(Order.m_sOrderValue))
+                    key.AppendFormat("_ov={0}", Order.m_sOrderValue);
+            }
+            if (AssetTypes != null && AssetTypes.Count > 0)
+                key.AppendFormat("_at={0}", string.Join(",", AssetTypes.Select(at => at.ToString()).ToArray()));
+            if (!string.IsNullOrEmpty(Query))
+                key.AppendFormat("_q={0}", Query);
+            if (!string.IsNullOrEmpty(Filter))
+                key.AppendFormat("_f={0}", Filter);
             return key.ToString();
         }
 
@@ -172,12 +181,12 @@ namespace TVPApiModule.CatalogLoaders
                 if (medias != null && medias.Count > 0)
                 {
                     mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
-                        StatsType.MEDIA, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7)).Execute() as List<AssetStatsResult>;
+                        StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                 }
                 if (epgs != null && epgs.Count > 0)
                 {
                     epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
-                        StatsType.EPG, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7)).Execute() as List<AssetStatsResult>;
+                        StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                 }
             }
 
@@ -185,7 +194,7 @@ namespace TVPApiModule.CatalogLoaders
             {
                 if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
                 {
-                    media = medias.Where(m => m.m_nID == item.assetID).FirstOrDefault();
+                    media = medias.Where(m =>  m != null && m.m_nID == item.assetID).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
@@ -202,7 +211,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
                 else if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
                 {
-                    epg = epgs.Where(m => m.m_nID == item.assetID).FirstOrDefault();
+                    epg = epgs.Where(p => p!= null && p.m_nID == item.assetID).FirstOrDefault();
                     if (epg != null)
                     {
                         if (epgAssetsStats != null && epgAssetsStats.Count > 0)
@@ -259,7 +268,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (medias != null && medias.Count > 0)
                     {
-                        Log("Storing Medias in Cache", medias);
+                        //Log("Storing Medias in Cache", medias);
 
                         baseObjects = new List<BaseObject>();
                         medias.ForEach(m => baseObjects.Add(m));
@@ -269,7 +278,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (epgs != null && epgs.Count > 0)
                     {
-                        Log("Storing EPGs in Cache", epgs);
+                        //Log("Storing EPGs in Cache", epgs);
 
                         baseObjects = new List<BaseObject>();
                         epgs.ForEach(p => baseObjects.Add(p));

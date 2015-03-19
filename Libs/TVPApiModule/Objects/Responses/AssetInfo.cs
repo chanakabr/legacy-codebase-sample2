@@ -22,11 +22,11 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
-        [JsonProperty(PropertyName = "pictures")]
-        public List<Picture> Pictures { get; set; }
+        [JsonProperty(PropertyName = "images")]
+        public List<Image> Images { get; set; }
 
-        //[JsonProperty(PropertyName = "files")]
-        //public List<File> Files { get; set; }
+        [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
+        public List<File> Files { get; set; }
 
         [JsonProperty(PropertyName = "metas")]
         public Dictionary<string, string> Metas { get; set; }
@@ -63,23 +63,23 @@ namespace TVPApiModule.Objects.Responses
 
                 if (media.m_lPicture != null)
                 {
-                    Pictures = new List<Picture>();
+                    Images = new List<Image>();
                     foreach (var mediaPicture in media.m_lPicture)
                     {
-                        Picture picture = new Picture(mediaPicture);
-                        Pictures.Add(picture);
+                        Image picture = new Image(mediaPicture);
+                        Images.Add(picture);
                     }
                 }
 
-                //if (media.m_lFiles != null)
-                //{
-                //    Files = new List<File>();
-                //    foreach (var mediaFile in media.m_lFiles)
-                //    {
-                //        File file = new File(mediaFile);
-                //        Files.Add(file);
-                //    }
-                //}
+                if (media.m_lFiles != null)
+                {
+                    Files = new List<File>();
+                    foreach (var mediaFile in media.m_lFiles)
+                    {
+                        File file = new File(mediaFile);
+                        Files.Add(file);
+                    }
+                }
 
                 if (media.m_lMetas != null)
                 {
@@ -99,23 +99,23 @@ namespace TVPApiModule.Objects.Responses
                     }
                 }
 
-                ExtraParams = new Dictionary<string, string>();
+                //ExtraParams = new Dictionary<string, string>();
 
-                ExtraParams.Add("StartDate", media.m_dStartDate.ToString());
-                ExtraParams.Add("FinalDate", media.m_dFinalDate.ToString());
-                ExtraParams.Add("ExternalIds", media.m_ExternalIDs);
-                ExtraParams.Add("LastWatchedDevice", media.m_sLastWatchedDevice);
+                //ExtraParams.Add("StartDate", media.m_dStartDate.ToString());
+                //ExtraParams.Add("FinalDate", media.m_dFinalDate.ToString());
+                //ExtraParams.Add("ExternalIds", media.m_ExternalIDs);
+                //ExtraParams.Add("LastWatchedDevice", media.m_sLastWatchedDevice);
 
-                if (media.m_oMediaType != null)
-                {
-                    ExtraParams.Add("MediaTypeId", media.m_oMediaType.m_nTypeID.ToString());
-                    ExtraParams.Add("MediaTypeName", media.m_oMediaType.m_sTypeName.ToString());
-                }
+                //if (media.m_oMediaType != null)
+                //{
+                //    ExtraParams.Add("MediaTypeId", media.m_oMediaType.m_nTypeID.ToString());
+                //    ExtraParams.Add("MediaTypeName", media.m_oMediaType.m_sTypeName.ToString());
+                //}
 
-                if (media.m_dLastWatchedDate != null)
-                {
-                    ExtraParams.Add("LastWatchedDate", media.m_dLastWatchedDate.ToString());
-                }
+                //if (media.m_dLastWatchedDate != null)
+                //{
+                //    ExtraParams.Add("LastWatchedDate", media.m_dLastWatchedDate.ToString());
+                //}
             }
         }
 
@@ -127,10 +127,10 @@ namespace TVPApiModule.Objects.Responses
                 Statistics = new Statistics()
                 {
                     Likes = stats.m_nLikes,
-                    Rating = stats.m_dRate, // ???
+                    Rating = stats.m_dRate, 
                     Id = stats.m_nAssetID,
                     Views = stats.m_nViews,
-                    RatingCount = 0 // ???
+                    RatingCount = stats.m_nVotes
                 };
             }
         }
@@ -141,13 +141,8 @@ namespace TVPApiModule.Objects.Responses
             Type = "EPG";
             Name = epg.NAME;
             Description = epg.DESCRIPTION;
-            //StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.START_DATE));
-            //EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.Parse(epg.END_DATE));
-
-            Statistics = new Statistics()
-            {
-                Likes = epg.LIKE_COUNTER
-            };
+            StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.START_DATE, "dd/MM/yyyy HH:mm:ss", null));
+            EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.END_DATE, "dd/MM/yyyy HH:mm:ss", null));
 
             if (epg.EPG_Meta != null)
             {
@@ -179,9 +174,9 @@ namespace TVPApiModule.Objects.Responses
 
             ExtraParams = new Dictionary<string, string>();
 
-            ExtraParams.Add("EpgChannelId", epg.EPG_CHANNEL_ID);
-            ExtraParams.Add("EpgIdentifier", epg.EPG_IDENTIFIER);
-            ExtraParams.Add("MediaId", epg.media_id);
+            ExtraParams.Add("epg_channel_id ", epg.EPG_CHANNEL_ID);
+            ExtraParams.Add("epg_id", epg.EPG_IDENTIFIER);
+            //ExtraParams.Add("MediaId", epg.media_id);
         }
 
         public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg, AssetStatsResult stats) 
@@ -192,10 +187,10 @@ namespace TVPApiModule.Objects.Responses
                 Statistics = new Statistics()
                 {
                     Likes = stats.m_nLikes,
-                    Rating = stats.m_dRate, // ???
+                    Rating = stats.m_dRate, 
                     Id = stats.m_nAssetID,
                     Views = stats.m_nViews,
-                    RatingCount = 0 // ???
+                    RatingCount = stats.m_nVotes
                 };
             }
         }
