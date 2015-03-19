@@ -396,16 +396,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Picture" nillable="true" type="tns:Picture" />
-  <xs:complexType name="ProgramObj">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseObject">
-        <xs:sequence>
-          <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q15:EPGChannelProgrammeObject" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="MediaFileObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">
@@ -449,6 +439,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AdProvider" nillable="true" type="tns:AdProvider" />
+  <xs:complexType name="ProgramObj">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseObject">
+        <xs:sequence>
+          <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q15:EPGChannelProgrammeObject" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="MediaObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">
