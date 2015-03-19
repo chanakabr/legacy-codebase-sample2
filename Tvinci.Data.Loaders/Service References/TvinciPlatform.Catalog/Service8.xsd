@@ -178,8 +178,4 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
-  <xs:complexType name="BooleanPhraseNode">
-    <xs:sequence />
-  </xs:complexType>
-  <xs:element name="BooleanPhraseNode" nillable="true" type="tns:BooleanPhraseNode" />
 </xs:schema>

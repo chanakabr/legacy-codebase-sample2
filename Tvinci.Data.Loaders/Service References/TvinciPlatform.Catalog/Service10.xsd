@@ -1341,9 +1341,8 @@
         <xs:sequence>
           <xs:element xmlns:q53="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="assetTypes" nillable="true" type="q53:ArrayOfint" />
           <xs:element minOccurs="0" name="filterQuery" nillable="true" type="xs:string" />
-          <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="filterTree" nillable="true" type="q54:BooleanPhraseNode" />
-          <xs:element minOccurs="0" name="isExact" type="xs:boolean" />
-          <xs:element xmlns:q55="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" nillable="true" type="q55:OrderObj" />
+          <xs:element minOccurs="0" name="nameAndDescription" nillable="true" type="xs:string" />
+          <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" nillable="true" type="q54:OrderObj" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -1353,8 +1352,8 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q56="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="epgIds" nillable="true" type="q56:ArrayOflong" />
-          <xs:element xmlns:q57="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="mediaIds" nillable="true" type="q57:ArrayOflong" />
+          <xs:element xmlns:q55="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="epgIds" nillable="true" type="q55:ArrayOflong" />
+          <xs:element xmlns:q56="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="mediaIds" nillable="true" type="q56:ArrayOflong" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -1383,7 +1382,7 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q58="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediasIds" nillable="true" type="q58:ArrayOfint" />
+          <xs:element xmlns:q57="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediasIds" nillable="true" type="q57:ArrayOfint" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

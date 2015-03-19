@@ -2691,10 +2691,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private string filterQueryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.BooleanPhraseNode filterTreeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool isExactField;
+        private string nameAndDescriptionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderField;
@@ -2726,27 +2723,14 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.BooleanPhraseNode filterTree {
+        public string nameAndDescription {
             get {
-                return this.filterTreeField;
+                return this.nameAndDescriptionField;
             }
             set {
-                if ((object.ReferenceEquals(this.filterTreeField, value) != true)) {
-                    this.filterTreeField = value;
-                    this.RaisePropertyChanged("filterTree");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool isExact {
-            get {
-                return this.isExactField;
-            }
-            set {
-                if ((this.isExactField.Equals(value) != true)) {
-                    this.isExactField = value;
-                    this.RaisePropertyChanged("isExact");
+                if ((object.ReferenceEquals(this.nameAndDescriptionField, value) != true)) {
+                    this.nameAndDescriptionField = value;
+                    this.RaisePropertyChanged("nameAndDescription");
                 }
             }
         }
@@ -3609,35 +3593,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ASC = 1,
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BooleanPhraseNode", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
-    [System.SerializableAttribute()]
-    public partial class BooleanPhraseNode : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
