@@ -832,7 +832,7 @@ namespace Catalog
             }
 
             OrderObj order = new OrderObj();
-            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
             order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
 
             GetOrderValues(ref order, request.order);

@@ -824,7 +824,7 @@ namespace ElasticSearch.Searcher
             {
                 sSort.Append(" \"_uid\": ");
             }
-            else if (order.m_eOrderBy == OrderBy.RELATED)
+            else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
                 sSort.Append(" \"_score\": ");
             }
@@ -841,7 +841,7 @@ namespace ElasticSearch.Searcher
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (shouldOrderByScore)
+            if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
                 sSort.Append(", \"_score\"");
 
             sSort.Append(" ]");
