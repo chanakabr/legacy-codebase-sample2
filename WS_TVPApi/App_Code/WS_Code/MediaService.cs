@@ -2332,9 +2332,13 @@ namespace TVPApiServices
                     switch (programIdType)
                     {
                         case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
-                            foreach (var obj in (new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<BaseObject>))
+
+                            var collection = new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<EPGChannelProgrammeObject>;
+                            foreach (var obj in collection)
                             {
-                                ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
+                                Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj programObj = new ProgramObj();
+                                programObj.m_oProgram = obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject;
+                                ret.Add(programObj);
                             }
                             break;
                         case TVPApiModule.Objects.Enums.ProgramIdType.INTERNAL:
