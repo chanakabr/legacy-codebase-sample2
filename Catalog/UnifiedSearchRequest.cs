@@ -25,21 +25,20 @@ namespace Catalog
         #endregion
 
         #region Data Members
-
-        [DataMember]
-        public bool isExact;
-        
+       
         [DataMember]
         public OrderObj order;
 
         [DataMember]
         public List<int> assetTypes;
 
-        [DataMember]
         internal BooleanPhraseNode filterTree;
 
         [DataMember]
         public string filterQuery;
+        
+        [DataMember]
+        public string nameAndDescription;
 
         #endregion
 
@@ -53,7 +52,6 @@ namespace Catalog
         /// <param name="nGroupID"></param>
         /// <param name="sSignature"></param>
         /// <param name="sSignString"></param>
-        /// <param name="isExact"></param>
         /// <param name="order"></param>
         /// <param name="searchValue"></param>
         /// <param name="ands"></param>
@@ -62,15 +60,18 @@ namespace Catalog
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         public UnifiedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
-            bool isExact, OrderObj order, string searchValue,
-            BooleanPhraseNode filterTree,
-            List<int> types)
+            OrderObj order, 
+            List<int> types,
+            string filterQuery,
+            string nameAndDescription, 
+            BooleanPhraseNode filterTree = null)
                 : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
-            this.isExact = isExact;
             this.order = order;
             this.assetTypes = types;
             this.filterTree = filterTree;
+            this.filterQuery = filterQuery;
+            this.nameAndDescription = nameAndDescription;
         }
 
         #endregion
@@ -85,7 +86,7 @@ namespace Catalog
         public BaseResponse GetResponse(BaseRequest baseRequest)
         {
             UnifiedSearchResponse response = new UnifiedSearchResponse();
-            
+
             try
             {
                 UnifiedSearchRequest request = baseRequest as UnifiedSearchRequest;
@@ -98,6 +99,24 @@ namespace Catalog
                 if (!string.IsNullOrEmpty(request.filterQuery))
                 {
                     filterTree = ParseSearchExpression(filterQuery);
+                }
+
+                // If request asks for name and description filter
+                if (!string.IsNullOrEmpty(request.nameAndDescription))
+                {
+                    List<BooleanPhraseNode> newNodes = new List<BooleanPhraseNode>();
+
+                    newNodes.Add(new BooleanLeaf("name", request.nameAndDescription, null, ComparisonOperator.Contains));
+                    newNodes.Add(new BooleanLeaf("description", request.nameAndDescription, null, ComparisonOperator.Contains));
+
+                    // If there is no filter tree from the string, create a new one containing only name and description
+                    // If there is a tree already, use it as a branch and connect it with "And" to name and description
+                    if (filterTree != null)
+                    {
+                        newNodes.Add(filterTree);
+                    }
+
+                    filterTree = new BooleanPhrase(newNodes, eCutType.And);
                 }
 
                 // Request is bad if there is no condition to query by; or the group is 0
@@ -165,6 +184,8 @@ namespace Catalog
         }
 
         #endregion
+
+        #region Parse Expression
 
         internal BooleanPhraseNode ParseSearchExpression(string expression)
         {
@@ -265,33 +286,33 @@ namespace Catalog
 
         private ComparisonOperator GetComparisonOperator(string token)
         {
-            ComparisonOperator comparisonOperator; 
+            ComparisonOperator comparisonOperator;
             switch (token)
             {
                 case "=":
-                    comparisonOperator = ComparisonOperator.Equals;
-                    break;
+                comparisonOperator = ComparisonOperator.Equals;
+                break;
                 case "!=":
-                    comparisonOperator = ComparisonOperator.NotEquals;
-                    break;
+                comparisonOperator = ComparisonOperator.NotEquals;
+                break;
                 case "<":
-                    comparisonOperator = ComparisonOperator.LessThan;
-                    break;
+                comparisonOperator = ComparisonOperator.LessThan;
+                break;
                 case ">":
-                    comparisonOperator = ComparisonOperator.GreaterThan;
-                    break;
+                comparisonOperator = ComparisonOperator.GreaterThan;
+                break;
                 case "<=":
-                    comparisonOperator = ComparisonOperator.LessThanOrEqual;
-                    break;
+                comparisonOperator = ComparisonOperator.LessThanOrEqual;
+                break;
                 case ">=":
-                    comparisonOperator = ComparisonOperator.GreaterThanOrEqual;
-                    break;
+                comparisonOperator = ComparisonOperator.GreaterThanOrEqual;
+                break;
                 case "~":
-                    comparisonOperator = ComparisonOperator.Contains;
-                    break;
+                comparisonOperator = ComparisonOperator.Contains;
+                break;
                 default:
-                    comparisonOperator = ComparisonOperator.Contains;
-                    break;
+                comparisonOperator = ComparisonOperator.Contains;
+                break;
             }
 
             return comparisonOperator;
@@ -299,13 +320,13 @@ namespace Catalog
 
         private bool GetTokensList(string expression, ref List<string> tokens)
         {
-            tokens = new List<string>();    
+            tokens = new List<string>();
 
             expression = expression.Trim();
 
             char[] buffer = new char[expression.Length];
             int lastBufferIndex = 0;
-            
+
             bool isQuote = false;
             bool isOperand = false; // operand including spaces and '('
             bool isOperandWord = false; // just operand word - no spaces or '('
@@ -362,7 +383,7 @@ namespace Catalog
                     {
                         continue;
                     }
-                }                
+                }
                 else if (chr == '(') // beginning of operand
                 {
                     buffer[lastBufferIndex++] = chr;
@@ -417,7 +438,7 @@ namespace Catalog
                         token = new string(chr, 1);
                         tokens.Add(token);
                     }
-                    
+
                     isWord = false;
                 }
                 else // any other char - add to buffer
@@ -429,7 +450,7 @@ namespace Catalog
                 }
             }
 
-            return buffer[lastBufferIndex] == '\0';            
+            return buffer[lastBufferIndex] == '\0';
         }
 
         // Returns a full token from the buffer:
@@ -466,9 +487,10 @@ namespace Catalog
 
                 buffer[0] = '\0';
             }
-            
+
             return true;
         }
-        
+
+        #endregion
     }
 }
