@@ -491,6 +491,8 @@ namespace Catalog
                     token = new string(buffer, 1, i - 1);
                 }
 
+                token = token.Trim();
+
                 buffer[0] = '\0';
             }
 
