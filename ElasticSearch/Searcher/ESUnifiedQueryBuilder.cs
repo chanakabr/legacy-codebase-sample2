@@ -10,13 +10,15 @@ namespace ElasticSearch.Searcher
     {
         #region Data Members
 
-        protected static readonly List<string> DEFAULT_RETURN_FIELDS = 
-            new List<string>(7) { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
+        protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) { 
+                "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
 
         public static readonly string AND_CONDITION = "AND";
         public static readonly string OR_CONDITION = "OR";
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
+        public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
+
         protected readonly int MAX_RESULTS;
 
         public UnifiedSearchDefinitions SearchDefinitions
@@ -188,8 +190,9 @@ namespace ElasticSearch.Searcher
 
                 epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
+                // Now +- days offset
                 string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
-                string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(-this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
                 if (this.SearchDefinitions.defaultStartDate)
                 {
@@ -606,6 +609,27 @@ namespace ElasticSearch.Searcher
                 string field = string.Format("{0}.analyzed", leaf.field);
                 bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
+                string value = string.Empty;
+
+                // First find out the value to use in the filter body 
+                if (isNumeric)
+                {
+                    value = leaf.value.ToString();
+                }
+                else if (leaf.valueType == typeof(DateTime))
+                {
+                    DateTime date = Convert.ToDateTime(leaf.value);
+
+                    if (date != null)
+                    {
+                        value = date.ToString(ES_DATE_FORMAT);
+                    }
+                }
+                else
+                {
+                    value = leaf.value.ToString().ToLower();
+                }
+
                 // "Match" when search is not exact (contains)
                 if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                 {
@@ -613,7 +637,7 @@ namespace ElasticSearch.Searcher
                     {
                         Field = field,
                         eOperator = CutWith.OR,
-                        Query = leaf.value.ToString().ToLower()
+                        Query = value
                     };
                 }
                 // "Term" when search is equals/not equals
@@ -625,14 +649,14 @@ namespace ElasticSearch.Searcher
                     term = new ESTerm(isNumeric)
                     {
                         Key = leaf.field,
-                        Value = leaf.value.ToString().ToLower(),
+                        Value = value,
                         bNot = not
                     };
                 }
                 // Other cases are "Range"
                 else
                 {
-                    term = ConvertToRange(leaf, isNumeric);
+                    term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
                 }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
@@ -647,14 +671,33 @@ namespace ElasticSearch.Searcher
                     cut = CutWith.OR;
                 }
 
-                Dictionary<string, List<BooleanLeaf>> rangesByName = new Dictionary<string, List<BooleanLeaf>>();
+                Dictionary<string, ESRange> rangesByName = new Dictionary<string, ESRange>();
 
                 // Add every child node to the boolean query. This is recursive!
                 foreach (var childNode in (root as BooleanPhrase).nodes)
                 {
                     IESTerm newChild = ConvertToQuery(childNode);
- 
-                    (term as BoolQuery).AddChild(newChild, cut);
+
+                    // If we are handling ranges, I want to merge ranges of the same field to avoid complicated queries
+                    if (newChild.eType == eTermType.RANGE)
+                    {
+                        string field = ((BooleanLeaf)childNode).field;
+
+                        if (!rangesByName.ContainsKey(field))
+                        {
+                            rangesByName.Add(field, newChild as ESRange);
+                        }
+                        else
+                        {
+                            rangesByName[field].Value.AddRange((newChild as ESRange).Value);
+                            newChild = null;
+                        }
+                    }
+
+                    if (newChild != null)
+                    {
+                        (term as BoolQuery).AddChild(newChild, cut);
+                    }   
                 }
             }
 
@@ -671,13 +714,34 @@ namespace ElasticSearch.Searcher
             IESTerm term = null;
 
             bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
+            string value = string.Empty;
 
+            // First find out the value to use in the filter body 
+            if (isNumeric)
+            {
+                value = leaf.value.ToString();
+            }
+            else if (leaf.valueType == typeof(DateTime))
+            {
+                DateTime date = Convert.ToDateTime(leaf.value);
+
+                if (date != null)
+                {
+                    value = date.ToString(ES_DATE_FORMAT);
+                }
+            }
+            else
+            {
+                value = leaf.value.ToString().ToLower();
+            }
+
+            // Create the term according to the comparison operator
             if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
             {
                 term = new ESTerm(isNumeric)
                 {
                     Key = leaf.field,
-                    Value = leaf.value.ToString().ToLower()
+                    Value = value
                 };
             }
             else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
@@ -685,28 +749,28 @@ namespace ElasticSearch.Searcher
                 term = new ESTerm(isNumeric)
                 {
                     Key = leaf.field,
-                    Value = leaf.value.ToString().ToLower(),
+                    Value = value,
                     bNot = true
                 };
             }
             else
             {
-                term = ConvertToRange(leaf, isNumeric);
+                term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
             }
 
             return (term);
         }
 
-        private static IESTerm ConvertToRange(BooleanLeaf leaf, bool isNumeric)
+        private static IESTerm ConvertToRange(string field, string value, ApiObjects.ComparisonOperator comparisonOperator, bool isNumeric)
         {
             var term = new ESRange(isNumeric)
             {
-                Key = leaf.field
+                Key = field
             };
 
             eRangeComp rangeComparison = eRangeComp.GTE;
 
-            switch (leaf.operand)
+            switch (comparisonOperator)
             {
                 case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                 {
@@ -734,7 +798,7 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, leaf.value.ToString().ToLower()));
+            (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, value));
             return term;
         }
 

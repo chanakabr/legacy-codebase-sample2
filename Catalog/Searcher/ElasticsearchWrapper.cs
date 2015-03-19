@@ -18,7 +18,7 @@ namespace Catalog
 {
     public class ElasticsearchWrapper : ISearcher
     {
-        private static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
+        public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
         public static readonly string ES_BASE_ADDRESS = Utils.GetWSURL("ES_URL");

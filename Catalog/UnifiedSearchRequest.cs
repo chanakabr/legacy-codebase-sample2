@@ -105,12 +105,18 @@ namespace Catalog
                 if (!string.IsNullOrEmpty(request.nameAndDescription))
                 {
                     List<BooleanPhraseNode> newNodes = new List<BooleanPhraseNode>();
+                    List<BooleanPhraseNode> nameAndDescriptionNodes = new List<BooleanPhraseNode>();
 
-                    newNodes.Add(new BooleanLeaf("name", request.nameAndDescription, null, ComparisonOperator.Contains));
-                    newNodes.Add(new BooleanLeaf("description", request.nameAndDescription, null, ComparisonOperator.Contains));
+                    // "name = q OR description = q"
+                    nameAndDescriptionNodes.Add(new BooleanLeaf("name", request.nameAndDescription, null, ComparisonOperator.Contains));
+                    nameAndDescriptionNodes.Add(new BooleanLeaf("description", request.nameAndDescription, null, ComparisonOperator.Contains));
+
+                    BooleanPhrase nameAndDescriptionPhrase = new BooleanPhrase(nameAndDescriptionNodes, eCutType.Or);
+
+                    newNodes.Add(nameAndDescriptionPhrase);
 
                     // If there is no filter tree from the string, create a new one containing only name and description
-                    // If there is a tree already, use it as a branch and connect it with "And" to name and description
+                    // If there is a tree already, use it as a branch and connect it with "And" to "name and description" 
                     if (filterTree != null)
                     {
                         newNodes.Add(filterTree);

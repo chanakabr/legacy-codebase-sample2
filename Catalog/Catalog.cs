@@ -718,10 +718,14 @@ namespace Catalog
         /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            HashSet<string> reservedFields = new HashSet<string>()
+            HashSet<string> reservedStringFields = new HashSet<string>()
             {
                 "name",
-                "description",
+                "description"
+            };
+
+            HashSet<string> reservedNumericFields = new HashSet<string>()
+            {
                 "like_counter",
                 "views",
                 "rating",
@@ -761,6 +765,9 @@ namespace Catalog
 
                         string searchKeyLowered = searchKey.ToLower();
 
+                        // Default - string, until proved otherwise
+                        leaf.valueType = typeof(string);
+
                         // If this is a tag or a meta, we can continue happily.
                         // If not, we check if it is one of the "core" fields.
                         // If it is not one of them, an exception will be thrown
@@ -770,12 +777,26 @@ namespace Catalog
                             if (searchKeyLowered == "start_date")
                             {
                                 definitions.defaultStartDate = false;
+                                leaf.valueType = typeof(DateTime);
+
+                                long epoch = Convert.ToInt64(leaf.value);
+
+                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
                             }
                             else if (searchKeyLowered == "end_date")
                             {
                                 definitions.defaultEndDate = false;
+                                leaf.valueType = typeof(DateTime);
+
+                                long epoch = Convert.ToInt64(leaf.value);
+
+                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
                             }
-                            else if (!reservedFields.Contains(searchKeyLowered))
+                            else if (reservedNumericFields.Contains(searchKeyLowered))
+                            {
+                                leaf.valueType = typeof(long);
+                            }
+                            else if (!reservedStringFields.Contains(searchKeyLowered))
                             {
                                 var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
                                 exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
