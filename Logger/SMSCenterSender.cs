@@ -26,24 +26,24 @@ namespace Logger
             try
             {
                
-                string sUserName = GetWSUN();
-                string sPassword = GetWSPass();
-                string[] sep = { ";" };
-                object[] sPhones = Utils.GetTcmConfigValue(AppSmsKey).Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                object[] sMails = Utils.GetTcmConfigValue("SMS_WS_MAILS").Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                if (sPhones.Length > 0)
-                {
-                    string sSMSMessage = sMessage;
-                    //if (sMessage.Length > 65)
-                    //sSMSMessage = sMessage.Substring(0, 65) + "...";
+                //string sUserName = GetWSUN();
+                //string sPassword = GetWSPass();
+                //string[] sep = { ";" };
+                //object[] sPhones = Utils.GetTcmConfigValue(AppSmsKey).Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                //object[] sMails = Utils.GetTcmConfigValue("SMS_WS_MAILS").Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                //if (sPhones.Length > 0)
+                //{
+                //    string sSMSMessage = sMessage;
+                //    //if (sMessage.Length > 65)
+                //    //sSMSMessage = sMessage.Substring(0, 65) + "...";
 
-                    il.co.smscenter.www.SendSMS sender = new il.co.smscenter.www.SendSMS();
-                    sender.Url = Utils.GetTcmConfigValue("SMS_WS_URL");
-                    il.co.smscenter.www.SendMessageReturnValues ret = sender.SendMessages(sUserName, sPassword, sSenderName,
-                        sPhones, sSMSMessage, sMails, il.co.smscenter.www.SMSOperation.Push, "", il.co.smscenter.www.DeliveryReportMask.MessageExpired, 0, 60);
-                    Logger.Log("SMS sent - returnd: " + ret.ToString(), sMessage, "SMSer");
-                    return true;
-                }
+                //    il.co.smscenter.www.SendSMS sender = new il.co.smscenter.www.SendSMS();
+                //    sender.Url = Utils.GetTcmConfigValue("SMS_WS_URL");
+                //    il.co.smscenter.www.SendMessageReturnValues ret = sender.SendMessages(sUserName, sPassword, sSenderName,
+                //        sPhones, sSMSMessage, sMails, il.co.smscenter.www.SMSOperation.Push, "", il.co.smscenter.www.DeliveryReportMask.MessageExpired, 0, 60);
+                //    Logger.Log("SMS sent - returnd: " + ret.ToString(), sMessage, "SMSer");
+                //    return true;
+                //}
                 return false;
             }
             catch (Exception ex)
