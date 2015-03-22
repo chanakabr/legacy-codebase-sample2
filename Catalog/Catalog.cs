@@ -3846,5 +3846,15 @@ namespace Catalog
             return res;
         }
 
+
+        internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)
+        {
+            string epgPicBaseUrl = string.Empty;
+            string epgPicWidth = string.Empty;
+            string epgPicHeight = string.Empty;
+            Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
+            GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+        }
     }
 }
