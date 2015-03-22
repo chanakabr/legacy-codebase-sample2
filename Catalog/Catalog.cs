@@ -438,6 +438,7 @@ namespace Catalog
                     {
                         picObj.m_sSize = Utils.GetStrSafeVal(dtPic.Rows[i], "PicSize");
                         picObj.m_sURL = Utils.GetStrSafeVal(dtPic.Rows[i], "m_sURL");
+                        picObj.ratio = Utils.GetStrSafeVal(dtPic.Rows[i], "ratio");
                         lPicObject.Add(picObj);
                         picObj = new Picture();
                     }

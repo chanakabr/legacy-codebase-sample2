@@ -13,13 +13,16 @@ namespace Catalog
         public string m_sSize;
         [DataMember]
         public string m_sURL;
+        [DataMember]
+        public string ratio;
 
         public Picture()
         { }
-        public Picture(string sSize, string sURL)
+        public Picture(string sSize, string sURL, string picRatio)
         {
             m_sSize = sSize;
             m_sURL = sURL;
+            ratio = picRatio;
         }
     }
 }
