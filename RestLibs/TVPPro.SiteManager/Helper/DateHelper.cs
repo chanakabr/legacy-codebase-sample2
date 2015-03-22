@@ -8,27 +8,27 @@ namespace TVPPro.SiteManager.Helper
 {
     public class DateHelper
     {
-        public static string FormatRemindingTime(DateTime CurrentDate, DateTime EndDate)
-        {
-            int DaysRemind = 0;
-            int HoursRemind = 0;
+        //public static string FormatRemindingTime(DateTime CurrentDate, DateTime EndDate)
+        //{
+        //    int DaysRemind = 0;
+        //    int HoursRemind = 0;
 
-            TVinci.TimePeriod.DateDiff tdiff = new TVinci.TimePeriod.DateDiff(CurrentDate, EndDate);
+        //    TVinci.TimePeriod.DateDiff tdiff = new TVinci.TimePeriod.DateDiff(CurrentDate, EndDate);
 
-            //less than 4 days taranslate days to hour and display 0 days
-            if (tdiff.ElapsedDays < 4)
-            {
-                HoursRemind = 24 * tdiff.ElapsedDays + tdiff.ElapsedHours;
-            }
-            else
-            {
-                HoursRemind = tdiff.ElapsedHours;
-                DaysRemind = tdiff.ElapsedDays;
-            }
+        //    //less than 4 days taranslate days to hour and display 0 days
+        //    if (tdiff.ElapsedDays < 4)
+        //    {
+        //        HoursRemind = 24 * tdiff.ElapsedDays + tdiff.ElapsedHours;
+        //    }
+        //    else
+        //    {
+        //        HoursRemind = tdiff.ElapsedHours;
+        //        DaysRemind = tdiff.ElapsedDays;
+        //    }
 
 
-            return BuildDateString(tdiff.ElapsedYears, tdiff.ElapsedMonths, DaysRemind, HoursRemind, tdiff.ElapsedMinutes);
-        }
+        //    return BuildDateString(tdiff.ElapsedYears, tdiff.ElapsedMonths, DaysRemind, HoursRemind, tdiff.ElapsedMinutes);
+        //}
 
 
         private static string BuildDateString(int years, int Months, int Days, int Hours, int Minutes)
