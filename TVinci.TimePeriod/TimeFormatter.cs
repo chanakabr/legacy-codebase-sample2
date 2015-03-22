@@ -18,40 +18,40 @@ namespace TVinci.TimePeriod
 	{
 
 		// ----------------------------------------------------------------------
-		public TimeFormatter() :
-			this( CultureInfo.CurrentCulture )
-		{
-		} // TimeFormatter
+        //public TimeFormatter() :
+        //    this( CultureInfo.CurrentCulture )
+        //{
+        //} // TimeFormatter
 
 		// ----------------------------------------------------------------------
-		public TimeFormatter( CultureInfo culture = null,
-			string contextSeparator = "; ", string startEndSeparator = " - ",
-			string durationSeparator = " | ",
-			string dateTimeFormat = null,
-			string shortDateFormat = null,
-			string longTimeFormat = null,
-			string shortTimeFormat = null,
-			DurationFormatType durationType = DurationFormatType.Compact,
-			bool useDurationSeconds = false,
-			bool useIsoIntervalNotation = false )
-		{
-			if ( culture == null )
-			{
-				culture = CultureInfo.CurrentCulture;
-			}
-			this.culture = culture;
-			listSeparator = culture.TextInfo.ListSeparator;
-			this.contextSeparator = contextSeparator;
-			this.startEndSeparator = startEndSeparator;
-			this.durationSeparator = durationSeparator;
-			this.dateTimeFormat = dateTimeFormat;
-			this.shortDateFormat = shortDateFormat;
-			this.longTimeFormat = longTimeFormat;
-			this.shortTimeFormat = shortTimeFormat;
-			this.durationType = durationType;
-			this.useDurationSeconds = useDurationSeconds;
-			this.useIsoIntervalNotation = useIsoIntervalNotation;
-		} // TimeFormatter
+        //public TimeFormatter( CultureInfo culture = null,
+        //    string contextSeparator = "; ", string startEndSeparator = " - ",
+        //    string durationSeparator = " | ",
+        //    string dateTimeFormat = null,
+        //    string shortDateFormat = null,
+        //    string longTimeFormat = null,
+        //    string shortTimeFormat = null,
+        //    DurationFormatType durationType = DurationFormatType.Compact,
+        //    bool useDurationSeconds = false,
+        //    bool useIsoIntervalNotation = false )
+        //{
+        //    if ( culture == null )
+        //    {
+        //        culture = CultureInfo.CurrentCulture;
+        //    }
+        //    this.culture = culture;
+        //    listSeparator = culture.TextInfo.ListSeparator;
+        //    this.contextSeparator = contextSeparator;
+        //    this.startEndSeparator = startEndSeparator;
+        //    this.durationSeparator = durationSeparator;
+        //    this.dateTimeFormat = dateTimeFormat;
+        //    this.shortDateFormat = shortDateFormat;
+        //    this.longTimeFormat = longTimeFormat;
+        //    this.shortTimeFormat = shortTimeFormat;
+        //    this.durationType = durationType;
+        //    this.useDurationSeconds = useDurationSeconds;
+        //    this.useIsoIntervalNotation = useIsoIntervalNotation;
+        //} // TimeFormatter
 
 		// ----------------------------------------------------------------------
 		public static TimeFormatter Instance

@@ -17,39 +17,39 @@ namespace TVinci.TimePeriod
 	{
 
 		// ----------------------------------------------------------------------
-		public DateDiff( DateTime date ) :
-			this( date, DateTimeFormatInfo.CurrentInfo.Calendar, DateTimeFormatInfo.CurrentInfo.FirstDayOfWeek )
-		{
-		} // DateDiff
+        //public DateDiff( DateTime date ) :
+        //    this( date, DateTimeFormatInfo.CurrentInfo.Calendar, DateTimeFormatInfo.CurrentInfo.FirstDayOfWeek )
+        //{
+        //} // DateDiff
 
 		// ----------------------------------------------------------------------
-		public DateDiff( DateTime date, Calendar calendar, DayOfWeek firstDayOfWeek,
-			YearMonth yearBaseMonth = TimeSpec.CalendarYearStartMonth ) :
-			this( date, ClockProxy.Clock.Now, calendar, firstDayOfWeek, yearBaseMonth )
-		{
-		} // DateDiff
+        //public DateDiff( DateTime date, Calendar calendar, DayOfWeek firstDayOfWeek,
+        //    YearMonth yearBaseMonth = TimeSpec.CalendarYearStartMonth ) :
+        //    this( date, ClockProxy.Clock.Now, calendar, firstDayOfWeek, yearBaseMonth )
+        //{
+        //} // DateDiff
 
 		// ----------------------------------------------------------------------
-		public DateDiff( DateTime date1, DateTime date2 ) :
-			this( date1, date2, DateTimeFormatInfo.CurrentInfo.Calendar, DateTimeFormatInfo.CurrentInfo.FirstDayOfWeek )
-		{
-		} // DateDiff
+        //public DateDiff( DateTime date1, DateTime date2 ) :
+        //    this( date1, date2, DateTimeFormatInfo.CurrentInfo.Calendar, DateTimeFormatInfo.CurrentInfo.FirstDayOfWeek )
+        //{
+        //} // DateDiff
 
 		// ----------------------------------------------------------------------
-		public DateDiff( DateTime date1, DateTime date2, Calendar calendar,
-			DayOfWeek firstDayOfWeek, YearMonth yearBaseMonth = TimeSpec.CalendarYearStartMonth )
-		{
-			if ( calendar == null )
-			{
-				throw new ArgumentNullException( "calendar" );
-			}
-			this.calendar = calendar;
-			this.yearBaseMonth = yearBaseMonth;
-			this.firstDayOfWeek = firstDayOfWeek;
-			this.date1 = date1;
-			this.date2 = date2;
-			difference = date2.Subtract( date1 );
-		} // DateDiff
+        //public DateDiff( DateTime date1, DateTime date2, Calendar calendar,
+        //    DayOfWeek firstDayOfWeek, YearMonth yearBaseMonth = TimeSpec.CalendarYearStartMonth )
+        //{
+        //    if ( calendar == null )
+        //    {
+        //        throw new ArgumentNullException( "calendar" );
+        //    }
+        //    this.calendar = calendar;
+        //    this.yearBaseMonth = yearBaseMonth;
+        //    this.firstDayOfWeek = firstDayOfWeek;
+        //    this.date1 = date1;
+        //    this.date2 = date2;
+        //    difference = date2.Subtract( date1 );
+        //} // DateDiff
 
 		// ----------------------------------------------------------------------
 		public Calendar Calendar
@@ -286,45 +286,45 @@ namespace TVinci.TimePeriod
 		} // ElapsedSeconds
 
 		// ----------------------------------------------------------------------
-		public string GetDescription( int precision = int.MaxValue, ITimeFormatter formatter = null )
-		{
-			if ( precision < 1 )
-			{
-				throw new ArgumentOutOfRangeException( "precision" );
-			}
+        //public string GetDescription( int precision = int.MaxValue, ITimeFormatter formatter = null )
+        //{
+        //    if ( precision < 1 )
+        //    {
+        //        throw new ArgumentOutOfRangeException( "precision" );
+        //    }
 
-			formatter = formatter ?? TimeFormatter.Instance;
+        //    formatter = formatter ?? TimeFormatter.Instance;
 
-			int[] elapsedItems = new int[ 6 ];
-			elapsedItems[ 0 ] = ElapsedYears;
-			elapsedItems[ 1 ] = ElapsedMonths;
-			elapsedItems[ 2 ] = ElapsedDays;
-			elapsedItems[ 3 ] = ElapsedHours;
-			elapsedItems[ 4 ] = ElapsedMinutes;
-			elapsedItems[ 5 ] = ElapsedSeconds;
+        //    int[] elapsedItems = new int[ 6 ];
+        //    elapsedItems[ 0 ] = ElapsedYears;
+        //    elapsedItems[ 1 ] = ElapsedMonths;
+        //    elapsedItems[ 2 ] = ElapsedDays;
+        //    elapsedItems[ 3 ] = ElapsedHours;
+        //    elapsedItems[ 4 ] = ElapsedMinutes;
+        //    elapsedItems[ 5 ] = ElapsedSeconds;
 
-			if ( precision <= elapsedItems.Length - 1 )
-			{
-				for ( int i = precision; i < elapsedItems.Length; i++ )
-				{
-					elapsedItems[ i ] = 0;
-				}
-			}
+        //    if ( precision <= elapsedItems.Length - 1 )
+        //    {
+        //        for ( int i = precision; i < elapsedItems.Length; i++ )
+        //        {
+        //            elapsedItems[ i ] = 0;
+        //        }
+        //    }
 
-			return formatter.GetDuration( 
-				elapsedItems[ 0 ], 
-				elapsedItems[ 1 ], 
-				elapsedItems[ 2 ],
-				elapsedItems[ 3 ], 
-				elapsedItems[ 4 ], 
-				elapsedItems[ 5 ] );
-		} // GetDescription
+        //    return formatter.GetDuration( 
+        //        elapsedItems[ 0 ], 
+        //        elapsedItems[ 1 ], 
+        //        elapsedItems[ 2 ],
+        //        elapsedItems[ 3 ], 
+        //        elapsedItems[ 4 ], 
+        //        elapsedItems[ 5 ] );
+        //} // GetDescription
 
 		// ----------------------------------------------------------------------
-		public override string ToString()
-		{
-			return GetDescription();
-		} // ToString
+        //public override string ToString()
+        //{
+        //    return GetDescription();
+        //} // ToString
 
 		// ----------------------------------------------------------------------
 		public override bool Equals( object obj )
