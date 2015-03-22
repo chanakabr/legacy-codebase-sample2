@@ -160,10 +160,6 @@
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
-      <Name>DAL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
       <Name>LLNWMediaVault</Name>
