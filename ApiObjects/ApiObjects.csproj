@@ -89,6 +89,8 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="DRM\CencRequest.cs" />
+    <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
     <Compile Include="ChangePasswordMailRequest.cs" />
     <Compile Include="CinepolisPurchaseMailRequest.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="ChannelRequestObject.cs" />
     <Compile Include="DeviceObject.cs" />
     <Compile Include="DeviceRule.cs" />
+    <Compile Include="DRM\Policy.cs" />
     <Compile Include="EmailNotificationRequest.cs" />
     <Compile Include="Epg.cs" />
     <Compile Include="EPGChannelProgrammeObject.cs" />
