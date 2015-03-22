@@ -1326,7 +1326,7 @@ namespace Catalog
             searchObject.m_nPageSize = request.m_nPageSize;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
+            searchObject.m_sMediaTypes = string.Join(";",channel.m_nMediaType);
 
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
             {
@@ -1692,12 +1692,12 @@ namespace Catalog
             {
                 pResponse.m_nTotalItems = lEpgProg.Count;
 
-                string epgPicBaseUrl = string.Empty;
-                string epgPicWidth = string.Empty;
-                string epgPicHeight = string.Empty;
-                Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-                GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+            //    string epgPicBaseUrl = string.Empty;
+            //    string epgPicWidth = string.Empty;
+            //    string epgPicHeight = string.Empty;
+            //    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+            //    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            //    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
             }
             foreach (int nProgram in pRequest.m_lProgramsIds)
             {
@@ -1901,16 +1901,16 @@ namespace Catalog
             List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
-                Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
-                string epgPicBaseUrl = string.Empty;
-                string epgPicWidth = string.Empty;
-                string epgPicHeight = string.Empty;
-                GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
-                bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
-                bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
-                string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-                string dot = ".";
+            //    Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
+            //    string epgPicBaseUrl = string.Empty;
+            //    string epgPicWidth = string.Empty;
+            //    string epgPicHeight = string.Empty;
+            //    GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            //    bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
+            //    bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
+            //    bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+            //    string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
+            //    string dot = ".";
                 int totalItems = 0;
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
                 for (int i = 0; i < epgs.Count; i++)
@@ -1921,15 +1921,15 @@ namespace Catalog
                         continue;
                     }
 
-                    // mutate epg pic url
-                    if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
-                    {
-                        if (epgPicWidthExists && epgPicHeightExists)
-                        {
-                            epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
-                        }
-                        epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
-                    }
+                    //// mutate epg pic url
+                    //if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
+                    //{
+                    //    if (epgPicWidthExists && epgPicHeightExists)
+                    //    {
+                    //        epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
+                    //    }
+                    //    epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
+                    //}
 
                     if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
                     {
@@ -2938,7 +2938,7 @@ namespace Catalog
             bool bMedia = false;
             long ipVal = 0;
 
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CTALOG_HIT_CACHE"))
+            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
                 ipVal = ParseIPOutOfString(userIP);
                 return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
@@ -3555,5 +3555,15 @@ namespace Catalog
             return res;
         }
 
+
+        internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)
+        {
+            string epgPicBaseUrl = string.Empty;
+            string epgPicWidth = string.Empty;
+            string epgPicHeight = string.Empty;
+            Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
+            GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+            MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+        }
     }
 }

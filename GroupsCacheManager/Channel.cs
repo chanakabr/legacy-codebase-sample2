@@ -26,7 +26,7 @@ namespace GroupsCacheManager
         [DataMember]
         public int m_nStatus { get; set; }
         [DataMember]
-        public int m_nMediaType { get; set; }
+        public List<int> m_nMediaType { get; set; }
         [DataMember]
         public string m_sName { get; set; }
         [DataMember]
@@ -60,7 +60,7 @@ namespace GroupsCacheManager
             m_nIsActive = 0;
             m_nStatus = 0;
             m_eCutWith = ApiObjects.SearchObjects.CutWith.OR;
-            m_nMediaType = 0;
+            m_nMediaType = new List<int>();
             m_nParentGroupID = 0;
             m_oMedias = new List<int>();
             m_sMedias = new List<string>();

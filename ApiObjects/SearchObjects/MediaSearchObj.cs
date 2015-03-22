@@ -57,7 +57,7 @@ namespace ApiObjects.SearchObjects
         
         public string m_sName;
         public string m_sDescription;
-        public string m_sMediaTypes;
+        public string m_sMediaTypes;      
         public string m_sPermittedWatchRules { get; set; }
 
         public List<SearchValue> m_dAnd;

@@ -223,11 +223,13 @@ namespace GroupsCacheManager
             #region - select channel by channelId, and the parent_group_id
 
             Channel oChannel = new Channel();
+            int mediaType;
+            DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
 
-            DataTable channelData = Tvinci.Core.DAL.CatalogDAL.GetChannelByChannelId(nChannelId);
-
-            if (channelData != null && channelData.Rows != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
+                DataTable channelData = ds.Tables[0];
+
                 if (channelData.Rows.Count > 0)
                 {
                     if (oChannel.m_lChannelTags == null)
@@ -239,9 +241,31 @@ namespace GroupsCacheManager
                     oChannel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
                     oChannel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
                     oChannel.m_nChannelID = nChannelId;
-                    oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+                    oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);                    
                     oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-                    oChannel.m_nMediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+                    mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+                    oChannel.m_nMediaType = new List<int>();
+                    if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        DataTable mediaTypeDT = ds.Tables[1];
+                        List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + nChannelId).ToList();
+                        foreach (DataRow drMediaType in drs)
+                        {
+                            oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                        }
+                    }
+                    if (oChannel.m_nMediaType.Count == 0)
+                    {
+                        if (mediaType != -1)
+                        {
+                            oChannel.m_nMediaType.Add(mediaType);
+                        }
+                        else
+                        {
+                            oChannel.m_nMediaType.Add(0);
+                        }
+                    }
+
                     oChannel.m_nParentGroupID = group.m_nParentGroupID;
                     oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
 
@@ -346,12 +370,11 @@ namespace GroupsCacheManager
 
             _logger.Info("Getting channels for subscription");
 
-
-            DataTable channelsData = Tvinci.Core.DAL.CatalogDAL.GetChanneslByChannelIds(lChannelIds);
-
-            if (channelsData != null && channelsData.Rows != null)
+            DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(lChannelIds);
+            if (ds != null && ds.Tables!= null && ds.Tables.Count > 0)
             {
-                if (channelsData.Rows.Count > 0)
+                DataTable channelsData = ds.Tables[0];
+                if (channelsData.Rows!= null && channelsData.Rows.Count > 0)
                 {
                     channels = new List<Channel>();
 
@@ -360,6 +383,7 @@ namespace GroupsCacheManager
                         _logger.Info("new channel");
 
                         Channel oChannel = new Channel();
+                        int mediaType;
                         if (oChannel.m_lChannelTags == null)
                         {
                             oChannel.m_lChannelTags = new List<SearchValue>();
@@ -370,7 +394,29 @@ namespace GroupsCacheManager
                         oChannel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
                         oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
                         oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-                        oChannel.m_nMediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+                        mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+                        oChannel.m_nMediaType = new List<int>();
+                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                        {
+                            DataTable mediaTypeDT = ds.Tables[1];
+                            List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + oChannel.m_nChannelID).ToList();
+                            foreach (DataRow drMediaType in drs)
+                            {
+                                oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                            }
+                        }
+                        if (oChannel.m_nMediaType.Count == 0)
+                        {
+                            if (mediaType != -1)
+                            {
+                                oChannel.m_nMediaType.Add(mediaType);
+                            }
+                            else
+                            {
+                                oChannel.m_nMediaType.Add(0);
+                            }
+                        }
+
                         oChannel.m_nParentGroupID = group.m_nParentGroupID;
                         oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
                         int nOrderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
