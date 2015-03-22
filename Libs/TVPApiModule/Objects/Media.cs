@@ -412,7 +412,7 @@ namespace TVPApi
                     int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
 
                     if (preProviderID != 0)
-                        file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PostProviderName"].ToString());
+                        file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PreProviderName"].ToString());
 
                     int postProviderID = Convert.ToInt32(rowFile["PostProviderID"].ToString());
 
