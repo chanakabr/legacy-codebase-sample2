@@ -144,6 +144,16 @@ namespace TVPApiModule.Objects.Responses
             StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.START_DATE, "dd/MM/yyyy HH:mm:ss", null));
             EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.END_DATE, "dd/MM/yyyy HH:mm:ss", null));
 
+            if (epg.EPG_PICTURES != null)
+            {
+                Images = new List<Image>();
+                foreach (var epgPicture in epg.EPG_PICTURES)
+                {
+                    Image picture = new Image(epgPicture);
+                    Images.Add(picture);
+                }
+            }
+
             if (epg.EPG_Meta != null)
             {
                 Metas = new Dictionary<string, string>();

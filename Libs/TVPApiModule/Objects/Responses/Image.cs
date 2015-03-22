@@ -9,7 +9,7 @@ namespace TVPApiModule.Objects.Responses
     public class Image
     {
         [JsonProperty(PropertyName = "ratio")]
-        public int Ratio { get; set; }
+        public string Ratio { get; set; }
 
         [JsonProperty(PropertyName = "width")]
         public int Width { get; set; }
@@ -25,6 +25,7 @@ namespace TVPApiModule.Objects.Responses
             if (picture != null)
             {
                 Url = picture.m_sURL;
+                Ratio = picture.ratio;
 
                 // parse from "widthXheight" format
                 string[] sizeArr = picture.m_sSize.ToLower().Split('x');
@@ -46,14 +47,14 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
-        public Image(ApiObjects.PicObject picture)
+        public Image(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgPicture picture)
         {
             if (picture != null)
             {
-                Url = picture.m_sPicURL;
-                Height = picture.m_nPicHeight;
-                Width = picture.m_nPicWidth;
-                //Ratio = 
+                Url = picture.Url;
+                Height = picture.PicHeight;
+                Width = picture.PicWidth;
+                Ratio = picture.Ratio;
             }
         }
     }
