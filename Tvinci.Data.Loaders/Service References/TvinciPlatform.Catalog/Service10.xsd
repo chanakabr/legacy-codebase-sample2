@@ -409,6 +409,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ratio" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Picture" nillable="true" type="tns:Picture" />

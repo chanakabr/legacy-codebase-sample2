@@ -8,10 +8,10 @@
   <xs:element name="ArrayOfEpgPicture" nillable="true" type="tns:ArrayOfEpgPicture" />
   <xs:complexType name="EpgPicture">
     <xs:sequence>
-      <xs:element name="_x003C_PicHeight_x003E_k__BackingField" type="xs:int" />
-      <xs:element name="_x003C_PicWidth_x003E_k__BackingField" type="xs:int" />
-      <xs:element name="_x003C_Ratio_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element name="_x003C_Url_x003E_k__BackingField" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PicHeight" type="xs:int" />
+      <xs:element minOccurs="0" name="PicWidth" type="xs:int" />
+      <xs:element minOccurs="0" name="Ratio" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="EpgPicture" nillable="true" type="tns:EpgPicture" />
