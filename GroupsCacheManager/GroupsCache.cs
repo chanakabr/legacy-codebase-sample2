@@ -568,15 +568,14 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
-
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
+                
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);               
+                if (vModule != null && vModule.result != null)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
+                    group = vModule.result as Group;                
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bAdd; i++)
                     {
-                        group = vModule.result as Group;
                         //try update to CB
                         if (group.AddServices(services))
                         {
@@ -594,33 +593,31 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-        internal bool DeleteServices(int nGroupID, List<long> services)
+        internal bool DeleteServices(int nGroupID, List<int> services)
         {
             try
             {
-                bool bAdd = false;
+                bool bDelete = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
-
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
-                {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
-                    {
-                        group = vModule.result as Group;
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+                if (vModule != null && vModule.result != null)
+                { 
+                    group = vModule.result as Group;
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bDelete; i++)
+                    {                       
                         //try update to CB
                         if (group.RemoveServices(services))
                         {
                             vModule.result = group;
-                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bDelete = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
 
-                return bAdd;
+                return bDelete;
             }
             catch (Exception ex)
             {
@@ -632,29 +629,28 @@ namespace GroupsCacheManager
         {
             try
             {
-                bool bAdd = false;
+                bool bUpdate = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
 
-                //get group by id from Cache
-                for (int i = 0; i < 3 && !bAdd; i++)
+                if (vModule != null && vModule.result != null)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null)
+                    group = vModule.result as Group;
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !bUpdate; i++)
                     {
-                        group = vModule.result as Group;
                         //try update to CB
                         if (group.UpdateServices(services))
                         {
                             vModule.result = group;
-                            bAdd = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bUpdate = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
 
-                return bAdd;
+                return bUpdate;
             }
             catch (Exception ex)
             {

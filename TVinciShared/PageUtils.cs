@@ -661,34 +661,27 @@ namespace TVinciShared
         {
             if (nParentGroupID == 0)
                 return "";
-            StringBuilder sRet = new StringBuilder();
-            sRet.Append("in (").Append(nParentGroupID);
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetCachedSec(0);
-            selectQuery += "select g.id from groups g where g.PARENT_GROUP_ID = " + nParentGroupID.ToString();
-            if (selectQuery.Execute("query", true) != null)
+            string groups = string.Empty ;
+            List<string> lGroups = new List<string>();
+            DataTable dt = DAL.TvmDAL.GetChildGroupTreeStr(nParentGroupID);
+            if (dt != null && dt.DefaultView.Count > 0)
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
+                foreach (DataRow dr in dt.Rows)
                 {
-                    for (int i = 0; i < nCount; i++)
-                    {
-                        string groupID = selectQuery.Table("query").DefaultView[i].Row["id"].ToString();
-                        if (!groupID.Equals(nParentGroupID))
-                        {
-                            if (sRet.ToString() != "in (")
-                                sRet.Append(",");
-                            sRet.Append(groupID);
-                        }
-                    }
+                    lGroups.Add(ODBCWrapper.Utils.GetSafeStr(dr["id"]));
                 }
+                if (lGroups.Count > 0)
+                {
+                    groups = string.Format(" in ( {0} ) ", string.Join(",", lGroups.ToArray()));
+                }
+                else
+                {  
+                        groups = " in (0) ";
+                }
+                
             }
-            if (sRet.ToString() == "in (")
-                sRet.Append("0)");
-            else
-                sRet.Append(")");
-            return sRet.ToString();
+            return groups;           
         }
         static public string GetConcatGroupsStrByParent(Int32 nParentGroupID)
         {
@@ -1591,5 +1584,7 @@ namespace TVinciShared
             }
             return groups;
         }
+
+       
     }
 }

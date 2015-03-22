@@ -36,7 +36,7 @@ namespace ConditionalAccess
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess oConditionalAccess, Int32 nGroupID, string sConnKey)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.CONDITIONALACCESS, nGroupID, 1);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.CONDITIONALACCESS, nGroupID, 1, sConnKey);
 
             switch (nImplID)
             {

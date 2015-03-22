@@ -30,6 +30,7 @@ namespace ConditionalAccess
             else if (licensedLinkResponse.status == "ServiceNotAllowed")
             {
                 res.status = NPVRStatus.ServiceNotAllowed.ToString();
+                res.msg = "NPVR service is not allowed";
             }
             else if (licensedLinkResponse.status == eResponseStatus.DomainSuspended.ToString())
             {

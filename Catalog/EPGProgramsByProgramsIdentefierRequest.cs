@@ -45,7 +45,7 @@ namespace Catalog
 
                  List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID,  request.pids, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
-                 {
+                 {                    
                      response.lEpgList = retList;
                      response.m_nTotalItems = retList.Count;
                  }

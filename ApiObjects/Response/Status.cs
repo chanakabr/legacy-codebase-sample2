@@ -22,6 +22,7 @@ namespace ApiObjects.Response
 
         public Status()
         {
+            this.Message = string.Empty;
         }
     }
 }

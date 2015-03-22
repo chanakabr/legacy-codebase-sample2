@@ -127,7 +127,7 @@
       <Name>ApiObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
     <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj">
@@ -155,7 +155,7 @@
       <Name>ScheduledTasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
-      <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uploader\Uploader.csproj">

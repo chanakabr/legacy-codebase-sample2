@@ -520,6 +520,7 @@ namespace ConditionalAccess
                     #endregion
                     response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
                     response.Status.Code = (int)eResponseStatus.ServiceNotAllowed;
+                    response.Status.Message = string.Format("{0} service is not allowed", eservice.ToString());
                     return response;
                 }
 
