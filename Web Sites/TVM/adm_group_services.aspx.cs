@@ -83,10 +83,9 @@ public partial class adm_group_services : System.Web.UI.Page
         insertQuery = null;
 
         if (bInsert)
-        {
-            List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);            
+        {         
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            groupManager.AddServices(nGroupID, lServices);
+            groupManager.AddServices(nGroupID, new List<int>() { nServiceID });
         }
 
     }
@@ -111,16 +110,14 @@ public partial class adm_group_services : System.Web.UI.Page
 
         if (bUpdate)
         {
-            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            long lServiceID = Convert.ToInt64(nServiceID);
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();            
             if (nStatus == 0) // unactive 
             {
-                groupManager.DeleteServices(nGroupID, new List<long>() { lServiceID });
+                groupManager.DeleteServices(nGroupID, new List<int>() { nServiceID });
             }
             else
-            {
-                List<int> lServices = GetGroupServiceByID(nServiceID, nGroupID);
-                groupManager.AddServices(nGroupID, lServices);
+            {                
+                groupManager.AddServices(nGroupID, new List<int>() { nServiceID });
             }
         }
     }
