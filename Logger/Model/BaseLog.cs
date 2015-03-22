@@ -138,26 +138,26 @@ namespace Logger
             {
                 this.Message = this.Message.PadLeft(this.Message.Length + 1, '"');
                 this.Message = this.Message.PadRight(this.Message.Length + 1, '"');
-            }                        
+            }
         }
 
         #endregion
 
         #region Public Functions
 
-        public void Debug(string sMessage, bool isFlush)
+        public void Debug(string sMessage, bool isFlush = false)
         {
             this.Severity = "DEBUG";
             HandleLog(sMessage, isFlush);
         }
 
-        public void Info(string sMessage, bool isFlush)
+        public void Info(string sMessage, bool isFlush = false)
         {
             this.Severity = "INFO";
             HandleLog(sMessage, isFlush);
         }
 
-        public void Error(string sMessage, bool isFlush)
+        public void Error(string sMessage, bool isFlush = false)
         {
             this.Severity = "ERROR";
             HandleLog(sMessage, isFlush);
@@ -208,7 +208,7 @@ namespace Logger
             log = log.PadRight(log.Length + 1, '}');
 
             return log;
-        }        
+        }
 
         #endregion
 
