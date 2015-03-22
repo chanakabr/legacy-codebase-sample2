@@ -145,19 +145,19 @@ namespace Logger
 
         #region Public Functions
 
-        public void Debug(string sMessage, bool isFlush = false)
+        public void Debug(string sMessage, bool isFlush)
         {
             this.Severity = "DEBUG";
             HandleLog(sMessage, isFlush);
         }
 
-        public void Info(string sMessage, bool isFlush = false)
+        public void Info(string sMessage, bool isFlush)
         {
             this.Severity = "INFO";
             HandleLog(sMessage, isFlush);
         }
 
-        public void Error(string sMessage, bool isFlush = false)
+        public void Error(string sMessage, bool isFlush)
         {
             this.Severity = "ERROR";
             HandleLog(sMessage, isFlush);
