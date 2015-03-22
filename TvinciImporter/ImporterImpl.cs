@@ -2973,10 +2973,17 @@ namespace TvinciImporter
                         string keySignature = "";
                         object keySignatureObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "CENC_KEY", parentGroupID);
                         if (keySignatureObj != null && keySignatureObj != DBNull.Value)
+                        {
                             keySignature = keySignatureObj.ToString();
+                        }
+                        else
+                        {
+                            AddError(ref errorMessage, string.Format("Fail OPL:{0}, co_guid:{1}, group ID: {2}. client key signature wasn't found", outputProtectionLevel, coGuid, parentGroupID));
+                            return;
+                        }
 
                         // create signature
-                        string signature = Convert.ToBase64String(Utils.Hash(string.Format("{0}{1}", keySignature, jsonData)));
+                        string signature = HttpUtility.UrlEncode(Convert.ToBase64String(Utils.Hash(string.Format("{0}{1}", keySignature, jsonData))));
 
                         // build address + signature
                         string address = String.Format("{0}?signature={1}", WS_Utils.GetTcmConfigValue("CENC_ADDRESS"), signature);
