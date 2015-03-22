@@ -68,7 +68,7 @@
         function AfterDateSelect(orderBy, pageNum, theDate) {
         }
         function GetPageTable(orderBy, pageNum) {
-            flashObj1.write("DualListPH");
+           // flashObj1.write("DualListPH");
             RS.Execute("adm_channels_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
         }
 
@@ -179,8 +179,7 @@
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
                                     </tr>
-                                <tr><td><div id="DualListPH"></div></td></tr>
-								</tr>
+                               
 							</table>
 						</td>
 					</tr>

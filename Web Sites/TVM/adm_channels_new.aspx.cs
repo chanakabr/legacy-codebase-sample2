@@ -47,6 +47,7 @@ public partial class adm_channels_new : System.Web.UI.Page
                     {
                         List<int> updatedMediaType = Session["media_type_ids"] as List<int>;
                         InsertChannelMediaType(updatedMediaType, nId, loginGroupID);
+                        Session["media_type_ids"] = null;
                     }
 
                     //Update channel at Lucene/ ES
@@ -618,12 +619,10 @@ public partial class adm_channels_new : System.Web.UI.Page
 
         if (int.Parse(Session["channel_type"].ToString()) == 1)
         {
-            //AdmCutByStr(ref theRecord);
-            //DataRecordDropDownField dr_type = new DataRecordDropDownField("media_types", "NAME", "id", "", null, 60, true);
-            //sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
-            //dr_type.SetSelectsQuery(sQuery);
-            //dr_type.Initialize("Media type", "adm_table_header_nbg", "FormInput", "MEDIA_TYPE_ID", false);
-            //theRecord.AddRecord(dr_type);
+            DataRecordBrowserField dr_media_types = new DataRecordBrowserField("OpenMediaTypeBrowser", "adm_channels_new.aspx");
+            dr_media_types.Initialize("Media Type", "adm_table_header_nbg", "FormInput", "ID", false);
+            theRecord.AddRecord(dr_media_types);
+
             AddStrFields(ref theRecord);
             AddIntFields(ref theRecord);
             AddBoolFields(ref theRecord);
