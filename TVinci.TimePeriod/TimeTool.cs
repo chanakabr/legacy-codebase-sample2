@@ -25,16 +25,16 @@ namespace TVinci.TimePeriod
 		} // GetDate
 
 		// ----------------------------------------------------------------------
-        //public static DateTime SetDate( DateTime from, DateTime to )
-        //{
-        //    return SetDate( from, to.Year, to.Month, to.Day );
-        //} // SetDate
+        public static DateTime SetDate(DateTime from, DateTime to)
+        {
+            return SetDate(from, to.Year, to.Month, to.Day);
+        } // SetDate
 
 		// ----------------------------------------------------------------------
-        //public static DateTime SetDate( DateTime from, int year, int month = 1, int day = 1 )
-        //{
-        //    return new DateTime( year, month, day, from.Hour, from.Minute, from.Second, from.Millisecond );
-        //} // SetDate
+        public static DateTime SetDate(DateTime from, int year, int month = 1, int day = 1)
+        {
+            return new DateTime(year, month, day, from.Hour, from.Minute, from.Second, from.Millisecond);
+        } // SetDate
 
 		// ----------------------------------------------------------------------
 		public static bool HasTimeOfDay( DateTime dateTime )
@@ -43,16 +43,16 @@ namespace TVinci.TimePeriod
 		} // HasTimeOfDay
 
 		// ----------------------------------------------------------------------
-        //public static DateTime SetTimeOfDay( DateTime from, DateTime to )
-        //{
-        //    return SetTimeOfDay( from, to.Hour, to.Minute, to.Second, to.Millisecond );
-        //} // SetTimeOfDay
+        public static DateTime SetTimeOfDay(DateTime from, DateTime to)
+        {
+            return SetTimeOfDay(from, to.Hour, to.Minute, to.Second, to.Millisecond);
+        } // SetTimeOfDay
 
 		// ----------------------------------------------------------------------
-        //public static DateTime SetTimeOfDay( DateTime from, int hour = 0, int minute = 0, int second = 0, int millisecond = 0 )
-        //{
-        //    return new DateTime( from.Year, from.Month, from.Day, hour, minute, second, millisecond );
-        //} // SetTimeOfDay
+        public static DateTime SetTimeOfDay(DateTime from, int hour = 0, int minute = 0, int second = 0, int millisecond = 0)
+        {
+            return new DateTime(from.Year, from.Month, from.Day, hour, minute, second, millisecond);
+        } // SetTimeOfDay
 
 		#endregion
 
