@@ -193,6 +193,9 @@ namespace Catalog
 
         #region Parse Expression
 
+        // returns tree representing the search expression 
+        // example of expression: "(and actor='brad pitt' (or genre='drama' genre='action'))"
+        // when the expression "actor='brad pitt'" represented by BooleanLeaf and the list represented by BooleanPhrase
         internal BooleanPhraseNode ParseSearchExpression(string expression)
         {
             BooleanPhraseNode phrase = null;
@@ -218,23 +221,23 @@ namespace Catalog
 
                 foreach (var token in tokens)
                 {
-                    if (token == AND_TOKEN) // and operand - beginning of BooleanPhrase
+                    if (token == AND_TOKEN) // and operand - beginning of BooleanPhrase - add to stack as enum
                     {
                         stack.Push(eCutType.And);
                     }
 
-                    else if (token == OR_TOKEN) // or operand - beginning of BooleanPhrase
+                    else if (token == OR_TOKEN) // or operand - beginning of BooleanPhrase - add to stack as enum
                     {
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("~!=<=>=".Contains(token)) // comparison operator
+                    else if ("~!=<=>=".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
                     }
 
-                    else if (token == ")") // end of BooleanPhrase
+                    else if (token == ")") // end of BooleanPhrase - build the BooleanPhrase by poping the parts from the stack and add it to the stack
                     {
                         if (stack.Count > 0)
                         {
@@ -252,15 +255,21 @@ namespace Catalog
                             {
                                 booleanPhrase.operand = (eCutType)poped;
                             }
-                            //else error
+                            else
+                            {
+                                return null;
+                            }
 
                             stack.Push(booleanPhrase);
                         }
-                        // else error
+                        else
+                        {
+                            return null;
+                        }
                     }
                     else // part of BooleanLeaf
                     {
-                        if (stack.Count > 0 && stack.Peek() is ComparisonOperator)  // end of BooleanLeaf
+                        if (stack.Count > 0 && stack.Peek() is ComparisonOperator)  // end of BooleanLeaf - build the BooleanLeaf by popping the parts from the stack and add it to the stack
                         {
                             booleanLeaf = new BooleanLeaf();
                             booleanLeaf.value = token;
@@ -269,27 +278,35 @@ namespace Catalog
                             {
                                 booleanLeaf.field = (string)stack.Pop();
                             }
-                            // else error
+                            else
+                            {
+                                return null;
+                            }
 
                             stack.Push(booleanLeaf);
                         }
-                        else // beginning of BooleanLeaf
+                        else // beginning of BooleanLeaf - add to stack
                         {
                             stack.Push(token);
                         }
                     }
                 }
 
-                if (stack.Count == 1)
+                if (stack.Count == 1) // the stack should contain only one BooleanPhraseNode representing the full tree
                 {
                     phrase = (BooleanPhraseNode)stack.Pop();
                 }
-                // else error
+                else
+                {
+                    return null;
+                }
             }
 
             return phrase;
         }
 
+
+        // parse the comparison operator
         private ComparisonOperator GetComparisonOperator(string token)
         {
             ComparisonOperator comparisonOperator;
@@ -324,6 +341,13 @@ namespace Catalog
             return comparisonOperator;
         }
 
+
+        // returns a list of tokens when each token represents one of the following:
+        //   operand - "(or" or "(and" 
+        //   quote - the search value - the expression between the '' (in the example it's 'brad pitt')
+        //   comparison operator - "<", ">", "=", "~", "<=", ">=", "!="
+        //   end of expression with operand = ")" 
+        //   word - is a tag or meta neme (in the example it's actor)
         private bool GetTokensList(string expression, ref List<string> tokens)
         {
             tokens = new List<string>();
@@ -333,10 +357,11 @@ namespace Catalog
             char[] buffer = new char[expression.Length];
             int lastBufferIndex = 0;
 
-            bool isQuote = false;
+            //for the following, true if the expression inserted to the buffer is:
+            bool isQuote = false; // between '  '
             bool isOperand = false; // operand including spaces and '('
-            bool isOperandWord = false; // just operand word - no spaces or '('
-            bool isWord = false;
+            bool isOperandWord = false; // just operand word ("and", "or") - no spaces or '(' 
+            bool isWord = false; // word (like described above)
 
             string token = null;
 
@@ -364,14 +389,14 @@ namespace Catalog
                         return false;
                     }
                 }
-                else if (chr == ' ') // space in a quote - add to buffer
+                else if (chr == ' ') // space 
                 {
-                    if (isQuote || isWord)
+                    if (isQuote || isWord) // in a quote or in a word - add to buffer
                     {
                         buffer[lastBufferIndex++] = chr;
                         buffer[lastBufferIndex] = '\0';
                     }
-                    else if (isOperandWord)
+                    else if (isOperandWord) // in operand word - meaning the end of the operand - get the operand from buffer and add to tokens list
                     {
                         if (GetTokenFromBuffer("(", true, true, ref buffer, ref token) && (token == AND_TOKEN || token == OR_TOKEN))
                         {
@@ -390,13 +415,13 @@ namespace Catalog
                         continue;
                     }
                 }
-                else if (chr == '(') // beginning of operand
+                else if (chr == '(' && !isQuote) // beginning of operand - add to buffer
                 {
                     buffer[lastBufferIndex++] = chr;
                     buffer[lastBufferIndex] = '\0';
                     isOperand = true;
                 }
-                else if (chr == ')' || chr == '~' || chr == '=') // single seperator - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
+                else if ((chr == ')' || chr == '~' || chr == '=') && !isQuote) // single comparison operator or end of expression with operand - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
@@ -415,7 +440,7 @@ namespace Catalog
                         return false;
                     }
                 }
-                else if (chr == '>' || chr == '<' || chr == '!') // double seperator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
+                else if ((chr == '>' || chr == '<' || chr == '!') && !isQuote) // double or single comparison operator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
@@ -424,22 +449,20 @@ namespace Catalog
                         {
                             tokens.Add(token);
                         }
-                        // else error ? 
-
                     }
                     else
                     {
                         return false;
                     }
 
-                    if (i + 1 < expression.Length && expression[i + 1] == '=')
+                    if (i + 1 < expression.Length && expression[i + 1] == '=') // double comparison operator - add the full operator to tokens list and skip the next char in the loop
                     {
                         token = new string(new char[2] { chr, expression[i + 1] });
                         tokens.Add(token);
 
                         i = i + 1; // skip the next char (already handled)
                     }
-                    else
+                    else // single comparison operator - add to tokens list
                     {
                         token = new string(chr, 1);
                         tokens.Add(token);
@@ -450,7 +473,7 @@ namespace Catalog
                 else // any other char - add to buffer
                 {
                     isWord = !isOperand; // a word which is not an operand
-                    isOperandWord = isOperand; // opperand but not space
+                    isOperandWord = isOperand; // operand but not space or '('
                     buffer[lastBufferIndex++] = chr;
                     buffer[lastBufferIndex] = '\0';
                 }
@@ -463,7 +486,6 @@ namespace Catalog
         // containsCondition - a string containing chars that one of them should be at the beginning of the token 
         // shouldVerifyCondition - true if 'containsCondition' must be checked
         // shouldAppendFirst - true if the first char should be part of the token
-
         private bool GetTokenFromBuffer(string containsCondition, bool shouldVerifyCondition, bool shouldAppendFirst, ref char[] buffer, ref string token)
         {
             token = null;
