@@ -100,7 +100,7 @@ namespace Catalog
                 {
                     filterTree = ParseSearchExpression(filterQuery);
                 }
-
+                
                 // If request asks for name and description filter
                 if (!string.IsNullOrEmpty(request.nameAndDescription))
                 {
@@ -151,7 +151,15 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error - GetResponse", string.Format("Exception: message = {0}, ST = {1}", ex.Message, ex.StackTrace), this.GetType().Name);
+                Logger.Logger.Log("Error - GetResponse", 
+                    string.Format("Exception: group = {0} siteGuid = {1} filterPhrase = {2} message = {3}, ST = {4}", 
+                    baseRequest.m_nGroupID, // {0}
+                    baseRequest.m_sSiteGuid, // {1}
+                    // Use filter query if this is correct type
+                    baseRequest is UnifiedSearchRequest ? (baseRequest as UnifiedSearchRequest).filterQuery : "", // {2}
+                    ex.Message, // {3}
+                    ex.StackTrace // {4}
+                    ), this.GetType().Name);
 
                 if (ex is HttpException)
                 {
@@ -166,8 +174,10 @@ namespace Catalog
                         response.status.Message = "Got error with Elasticsearch";
                     }
                 }
-                if (ex is ArgumentException)
+                else if (ex is ArgumentException)
                 {
+                    // This is a specific exception we created.
+                    // If this specific ArgumentException has StatusCode in its data, use it instead of the general code
                     if (ex.Data.Contains("StatusCode"))
                     {
                         response.status.Code = (int)ex.Data["StatusCode"];
