@@ -6934,7 +6934,10 @@ namespace ConditionalAccess
                                     ref TvinciBilling.module bm, string sBillingUsername, string sBillingPassword)
         {
             string sCustomData = string.Empty;
-            TvinciBilling.BillingResponse ret = null;
+            TvinciBilling.BillingResponse ret = new TvinciBilling.BillingResponse()
+            {
+                m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown
+            };
 
             //Create the Custom Data
             sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
@@ -6951,14 +6954,17 @@ namespace ConditionalAccess
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
                     bDummy, bIsEntitledToPreviewModule, ref bm);
             }
+
             if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
             {
                 ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
             }
+
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
             {
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
+
                 HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
                     bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
@@ -6980,7 +6986,7 @@ namespace ConditionalAccess
                         {"CustomData", sCustomData}
                     };
 
-                this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
+                var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
             }
             else
             {
