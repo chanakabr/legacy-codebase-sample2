@@ -10881,7 +10881,15 @@ namespace ConditionalAccess
             PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
 
             PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
-            bool bResult = qNotificationQueue.Enqueue(oNotification, m_nGroupID.ToString());
+
+            string routingKey = Utils.GetValueFromConfig("ProfessionalServices.routingKey");
+
+            if (string.IsNullOrEmpty(routingKey))
+            {
+                routingKey = m_nGroupID.ToString();
+            }
+
+            bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
 
             return (bResult);
         }
