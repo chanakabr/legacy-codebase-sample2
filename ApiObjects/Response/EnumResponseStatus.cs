@@ -47,6 +47,8 @@ namespace ApiObjects.Response
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,
         BadSearchRequest = 4002,
-        IndexMissing = 4003
+        IndexMissing = 4003,
+        SyntaxError = 4004,
+        InvalidSearchField = 4005
     }
 }
