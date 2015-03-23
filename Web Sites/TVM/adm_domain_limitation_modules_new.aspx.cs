@@ -6,8 +6,9 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 using DAL;
+using System.Data;
 
-public partial class adm_limitation_modules_new : System.Web.UI.Page
+public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
@@ -19,22 +20,21 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         if (!LoginManager.CheckLogin())
             Response.Redirect("login.html");
         Int32 nMenuID = 0;
-
         if (!IsPostBack)
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                int idOfOverridingRule = DBManipulator.DoTheWork();
+                int newLimitID = DBManipulator.DoTheWork();
                 if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["device_families"] != null &&
-                    Session["device_families"] is List<UMObj> && Session["parent_limit_id"] != null
-                    && Session["parent_limit_id"].ToString().Length > 0)
+                    Session["device_families"] is List<UMObj>)
                 {
                     List<UMObj> updatedDeviceFamilyObjs = Session["device_families"] as List<UMObj>;
                     List<int> updatedDeviceFamilyIDs = updatedDeviceFamilyObjs.Select(item => Int32.Parse(item.m_id)).ToList<int>();
                     int limitID = Int32.Parse(Session["limit_id"].ToString());
                     if (limitID == 0)
-                        limitID = idOfOverridingRule;
-                    int parentLimitID = Int32.Parse(Session["parent_limit_id"].ToString());
+                    {
+                        limitID = newLimitID;
+                    }
                     int groupID = LoginManager.GetLoginGroupID();
                     if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                     {
@@ -43,13 +43,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         {
                             List<int> currentDeviceFamilyIDs = null;
                             selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                            selectQuery += "select device_family_id from device_families_limitation_modules with (nolock) where is_active=1 and [status]=1";
+                            selectQuery += "select device_family_id from groups_device_families with (nolock) where is_active=1 and [status]=1";
                             selectQuery += " and ";
                             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
                             selectQuery += " and ";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_limitation_module_id", "=", limitID);
-                            //selectQuery += " and ";
-                            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
+                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module_id", "=", limitID);
                             if (selectQuery.Execute("query", true) != null)
                             {
                                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -64,6 +62,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
                                 // delete from cache this DLM object    
                                 DomainsWS.module p = new DomainsWS.module();
+
                                 string sIP = "1.1.1.1";
                                 string sWSUserName = "";
                                 string sWSPass = "";
@@ -92,26 +91,17 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         }
                     }
                 }
-                //Session["limit_id"] = null;
-                //Session["parent_limit_id"] = null;
+                Session["limit_id"] = null;
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
-
             if (Request.QueryString["limit_id"] != null &&
-                    Request.QueryString["limit_id"].ToString().Length > 0 /*&& Request.QueryString["limit_id"].ToString().Trim() != "0"*/)
+                Request.QueryString["limit_id"].ToString().Length > 0)
             {
                 Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
-                Int32 nOwnerGroupID = 0;
-                try
-                {
-                    nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("device_families_limitation_modules", "group_id", int.Parse(Session["limit_id"].ToString())).ToString());
-                }
-                catch (Exception ex)
-                {
 
-                }
+                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("groups_device_limitation_modules", "group_id", int.Parse(Session["limit_id"].ToString())).ToString());
                 Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
                 if (nLogedInGroupID != nOwnerGroupID && !PageUtils.IsTvinciUser())
                 {
@@ -121,42 +111,21 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
             else
             {
-                //if (Session["limit_id"] == null || Session["limit_id"].ToString().Length == 0)
-                //{
-                    Session["limit_id"] = 0;
-                //}
+                Session["limit_id"] = 0;
             }
 
-            if (Request.QueryString["parent_limit_id"] != null && Request.QueryString["parent_limit_id"].ToString().Length > 0)
-            {
-                Session["parent_limit_id"] = Int32.Parse(Request.QueryString["parent_limit_id"]);
-            }
-            else
-            {
-                //if (Session["parent_limit_id"] == null || Session["parent_limit_id"].ToString().Length == 0)
-                //{
-                    Session["parent_limit_id"] = 0;
-                //}
-            }
 
 
         }
     }
 
-    static public string GetWSURL(string sKey)
+    private void UpdateDeviceFamilies(int groupID, int limitID, List<int> updatedDeviceFamilyIDs, List<int> currentDeviceFamilyIDs)
     {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
-    private void UpdateDeviceFamilies(int groupID, int limitID,
-        List<int> updatedDeviceFamilyIDs, List<int> currentDeviceFamilyIDs)
-    {
-        bool temp = false;
         for (int i = 0; i < updatedDeviceFamilyIDs.Count; i++)
         {
             if (!currentDeviceFamilyIDs.Contains(updatedDeviceFamilyIDs[i]))
             {
-                temp = TvmDAL.Insert_DeviceFamilyToLimitationModule(groupID, updatedDeviceFamilyIDs[i], limitID);
+                TvmDAL.Insert_DeviceFamilyToGroup(groupID, updatedDeviceFamilyIDs[i], limitID);
             }
         }
 
@@ -164,7 +133,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             if (!updatedDeviceFamilyIDs.Contains(currentDeviceFamilyIDs[j]))
             {
-                temp = TvmDAL.Update_DeviceFamilyToLimitationID(groupID, limitID, currentDeviceFamilyIDs[j], true);
+                TvmDAL.Update_DeviceFamilyStatus(groupID, currentDeviceFamilyIDs[j], limitID, true);
             }
         }
     }
@@ -177,23 +146,61 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
     public void GetHeader()
     {
-        string sRet = PageUtils.GetPreHeader() + ": Override Limitation";
-        if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 /* && Session["limit_id"].ToString().Trim() != "0" */
-            && Session["parent_limit_id"] != null && Session["parent_limit_id"].ToString().Length > 0 &&
-            Session["parent_limit_id"].ToString().Trim() != "0")
-        {
+        string sRet = PageUtils.GetPreHeader() + ": Device Lmitation Module";
+        if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["limit_id"].ToString() != "0")
             sRet += " - Edit";
-        }
         else
-        {
             sRet += " - New";
-        }
         Response.Write(sRet);
     }
 
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
+    }
+
+    protected bool ValidateLimit()
+    {
+        bool retVal = true;
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["1_field"] != null && coll["1_val"] != null)
+        {
+            string limitStr = coll["1_val"].ToString();
+            if (!string.IsNullOrEmpty(limitStr))
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                try
+                {
+                    int limitInt = int.Parse(limitStr.Trim());
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "select max_device_limit from groups with (nolock) where ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", LoginManager.GetLoginGroupID());
+                    if (selectQuery.Execute("query", true) != null)
+                    {
+                        int count = selectQuery.Table("query").DefaultView.Count;
+                        if (count > 0)
+                        {
+                            int maxLimit = int.Parse(selectQuery.Table("query").DefaultView[0].Row["max_device_limit"].ToString());
+                            if (maxLimit < limitInt)
+                            {
+                                Session["error_msg"] = "Limit exceeds Account Max Device Limit";
+                                retVal = false;
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
+                        selectQuery = null;
+                    }
+                }
+            } // end if(coll[]..)
+
+        }
+        return retVal;
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
@@ -206,45 +213,106 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         object t = null; ;
         if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && int.Parse(Session["limit_id"].ToString()) != 0)
             t = Session["limit_id"];
-        string sBack = "adm_limitation_modules.aspx?search_save=1";
+        string sBack = "adm_domain_limitation_modules.aspx?search_save=1";
 
         int nGroupID = LoginManager.GetLoginGroupID();
-        int parentLimitModuleID = 0;
-        parentLimitModuleID = Int32.Parse(Session["parent_limit_id"].ToString());
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_device_families_limitation_modules", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_device_limitation_modules", "adm_table_pager", sBack, "", "ID", t, sBack, "");
 
         DataRecordShortTextField dr_Name = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_Name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Description", true);
+        dr_Name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_Name);
 
-        DataRecordDropDownField dr_limit_type = new DataRecordDropDownField("lu_device_limitation_modules", "Description", "ID", string.Empty, string.Empty, 60, true);
-        string sQuery = "select Description as txt,ID from lu_device_limitation_modules with (nolock) where status=1 order by id asc";
-        dr_limit_type.SetSelectsQuery(sQuery);
-        dr_limit_type.Initialize("Limit Type", "adm_table_header_nbg", "FormInput", "Type", true);
-        theRecord.AddRecord(dr_limit_type);
+        DataRecordShortIntField dr_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_limit.Initialize("Device Limit", "adm_table_header_nbg", "FormInput", "max_limit", false);
+        theRecord.AddRecord(dr_limit);
 
-        DataRecordShortIntField dr_limit_val = new DataRecordShortIntField(true, 9, 9);
-        dr_limit_val.Initialize("Value [0 for unlimited]", "adm_table_header_nbg", "FormInput", "Value", true);
-        theRecord.AddRecord(dr_limit_val);
+        DataRecordDropDownField dr_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_frequency.Initialize("Device Change Frequency", "adm_table_header_nbg", "FormInput", "freq_period_id", false);
+        theRecord.AddRecord(dr_frequency);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(nGroupID.ToString());
         theRecord.AddRecord(dr_groups);
 
-        DataRecordShortIntField dr_parent_limit_id = new DataRecordShortIntField(false, 9, 9);
-        dr_parent_limit_id.Initialize("parent_limit_module_id", "adm_table_header_nbg", "FormInput", "parent_limit_module_id", false);
-        dr_parent_limit_id.SetValue(parentLimitModuleID.ToString());
-        theRecord.AddRecord(dr_parent_limit_id);
+        DataRecordShortIntField dr_concurrent_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_concurrent_limit.Initialize("Concurrent Limit", "adm_table_header_nbg", "FormInput", "concurrent_max_limit", false);
+        theRecord.AddRecord(dr_concurrent_limit);
 
-        string sTable = theRecord.GetTableHTML("adm_limitation_modules_new.aspx?submited=1");
+        DataRecordDropDownField dr_env_type = new DataRecordDropDownField("lu_domain_environment", "Description", "ID", string.Empty, string.Empty, 60, true);
+        string sQuery = "select Description as txt,ID from lu_domain_environment with (nolock) ";
+        dr_env_type.SetSelectsQuery(sQuery);
+        dr_env_type.Initialize("Environment type", "adm_table_header_nbg", "FormInput", "environment_type", false);
+
+        dr_env_type.SetDefaultVal(getDomainEnvironment(nGroupID, t));
+        theRecord.AddRecord(dr_env_type);
+
+        DataRecordShortIntField dr_hn_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_hn_limit.Initialize("Home Network Limit", "adm_table_header_nbg", "FormInput", "Home_network_quantity", false);
+        theRecord.AddRecord(dr_hn_limit);
+
+        DataRecordDropDownField dr_hn_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_hn_frequency.Initialize("Home Network Frequency", "adm_table_header_nbg", "FormInput", "Home_network_frequency", false);
+        theRecord.AddRecord(dr_hn_frequency);
+
+        DataRecordShortIntField dr_user_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_user_limit.Initialize("User Limit", "adm_table_header_nbg", "FormInput", "user_max_limit", false);
+        theRecord.AddRecord(dr_user_limit);
+
+        DataRecordDropDownField dr_user_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_user_frequency.Initialize("User Change Frequency", "adm_table_header_nbg", "FormInput", "user_freq_period_id", false);
+        theRecord.AddRecord(dr_user_frequency);
+
+        string sTable = theRecord.GetTableHTML("adm_domain_limitation_modules_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private string getDomainEnvironment(int nGroupID, object t)
+    {
+        string sDomainEnv = string.Empty;
+        if (t != null)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            int nRowID = int.Parse(t.ToString());
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+                selectQuery += "select glimit.ID, dm.description from groups g (nolock)";
+                selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("glimit.ID", "=", nRowID);
+                selectQuery += "Inner Join lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
+            }
+
+        }
+        return sDomainEnv;
     }
 
     public string initDualObj()
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = null;
+        List<UMObj> allFamilies = null;
+        List<UMObj> limitFamilies = null;
+        List<UMObj> complementLimitFamilies = null;
         try
         {
             Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
@@ -255,38 +323,32 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             sRet += "Available Device Families";
             sRet += "~~|~~";
             sRet += "<root>";
-
-            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("CONNECTION_STRING");
-            selectQuery += "select gdf.device_family_id, ldf.Name from groups_device_families gdf with (nolock) ";
-            selectQuery += "inner join lu_DeviceFamily ldf with (nolock) on ldf.id=gdf.device_family_id ";
-            selectQuery += "where is_active=1 and [status]=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", nLogedInGroupID);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.limit_module_id", "=", Int32.Parse(Session["parent_limit_id"].ToString()));
-            List<int> limitModulesIDs = null;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
                 limitID = Int32.Parse(Session["limit_id"].ToString());
-                limitModulesIDs = BuildLimitationDeviceFamilies(limitID, nLogedInGroupID);
+                BuildLimitationDeviceFamilies(limitID, nLogedInGroupID, ref allFamilies, ref limitFamilies, ref complementLimitFamilies);
             }
 
-            if (selectQuery.Execute("query", true) != null)
+            if (allFamilies != null && allFamilies.Count > 0)
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                for (int i = 0; i < nCount; i++)
+                for (int i = 0; i < allFamilies.Count; i++)
                 {
-                    string sID = selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString();
-                    string sTitle = string.Empty;
-                    if (selectQuery.Table("query").DefaultView[i].Row["NAME"] != null &&
-                        selectQuery.Table("query").DefaultView[i].Row["NAME"] != DBNull.Value)
-                        sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                    string sDescription = string.Empty;
-                    if (limitModulesIDs == null || (limitModulesIDs != null && !limitModulesIDs.Contains(int.Parse(sID))))
+                    bool bIsOK = true;
+                    string sID = allFamilies[i].m_id;
+                    for (int j = 0; j < limitFamilies.Count; j++)
                     {
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
+                        if (limitFamilies[j].m_id.Equals(sID))
+                        {
+                            bIsOK = false;
+                            break;
+                        }
                     }
-                } // end for
+
+                    if (bIsOK)
+                    {
+                        sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(allFamilies[i].m_title, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"false\" />";
+                    }
+                } // end bigger for
 
                 if (Session["limit_id"] != null && Session["device_families"] != null)
                 {
@@ -298,7 +360,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     }
                 }
             }
-
 
             sRet += "</root>";
             return sRet;
@@ -323,13 +384,13 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("CONNECTION_STRING");
-            selectQuery += "select dflm.device_family_id, ldf.Name from device_families_limitation_modules dflm with (nolock) ";
-            selectQuery += "inner join lu_DeviceFamily ldf with (nolock) on ldf.ID=dflm.device_family_id ";
-            selectQuery += " where dflm.is_active=1 and dflm.[status]=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dflm.group_id", "=", groupID);
+            selectQuery += "select gdf.device_family_id, ludf.name from groups_device_families gdf with (nolock) ";
+            selectQuery += "inner join lu_DeviceFamily ludf with (nolock) on gdf.device_family_id=ludf.id ";
+            selectQuery += " where gdf.is_active=1 and gdf.[status]=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", groupID);
             selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dflm.device_limitation_module_id", "=", limitID);
-            selectQuery += " order by dflm.device_family_id asc";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.limit_module_id", "=", limitID);
+            selectQuery += " order by ludf.id asc";
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;
@@ -360,6 +421,72 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
 
         return res;
+    }
+
+    protected void BuildLimitationDeviceFamilies(int limitID, int groupID, ref List<UMObj> allFamiliesList,
+        ref List<UMObj> limitFamiliesList, ref List<UMObj> complementLimitFamiliesList)
+    {
+        List<int> res = new List<int>();
+        List<UMObj> lst = new List<UMObj>();
+        DataSet ds = TvmDAL.Get_DeviceFamiliesLimitationsData(groupID, limitID);
+        if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
+        {
+            DataTable allFamilies = ds.Tables[0];
+            DataTable limitFamilies = ds.Tables[1];
+            DataTable complementLimitFamilies = ds.Tables[2];
+            if (allFamilies != null && allFamilies.Rows != null && allFamilies.Rows.Count > 0)
+            {
+                allFamiliesList = new List<UMObj>(allFamilies.Rows.Count);
+                for (int i = 0; i < allFamilies.Rows.Count; i++)
+                {
+                    string sID = ODBCWrapper.Utils.GetSafeStr(allFamilies.Rows[i]["ID"]);
+                    string sTitle = ODBCWrapper.Utils.GetSafeStr(allFamilies.Rows[i]["NAME"]);
+                    allFamiliesList.Add(new UMObj(sID, sTitle, string.Empty, false, 0));
+                }
+            }
+            else
+            {
+                allFamiliesList = new List<UMObj>(0);
+            }
+
+            if (limitFamilies != null && limitFamilies.Rows != null && limitFamilies.Rows.Count > 0)
+            {
+                limitFamiliesList = new List<UMObj>(limitFamilies.Rows.Count);
+                for (int i = 0; i < limitFamilies.Rows.Count; i++)
+                {
+                    string sID = ODBCWrapper.Utils.GetSafeStr(limitFamilies.Rows[i]["DEVICE_FAMILY_ID"]);
+                    string sName = ODBCWrapper.Utils.GetSafeStr(limitFamilies.Rows[i]["NAME"]);
+                    limitFamiliesList.Add(new UMObj(sID, sName, string.Empty, false, 0));
+                }
+            }
+            else
+            {
+                limitFamiliesList = new List<UMObj>(0);
+            }
+
+            if (complementLimitFamilies != null && complementLimitFamilies.Rows != null && complementLimitFamilies.Rows.Count > 0)
+            {
+                complementLimitFamiliesList = new List<UMObj>(complementLimitFamilies.Rows.Count);
+                for (int i = 0; i < complementLimitFamilies.Rows.Count; i++)
+                {
+                    string sID = ODBCWrapper.Utils.GetSafeStr(complementLimitFamilies.Rows[i]["DEVICE_FAMILY_ID"]);
+                    string sName = ODBCWrapper.Utils.GetSafeStr(complementLimitFamilies.Rows[i]["NAME"]);
+                    complementLimitFamiliesList.Add(new UMObj(sID, sName, string.Empty, false, 0));
+                }
+            }
+            else
+            {
+                complementLimitFamiliesList = new List<UMObj>(0);
+            }
+
+            Session["device_families"] = limitFamiliesList;
+
+        }
+        else
+        {
+            Session["device_families"] = new List<UMObj>(0);
+        }
+
     }
 
     public string changeItemStatus(string sID, string sAction, string index)
@@ -407,6 +534,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     }
             }
 
+            // delete from cache this DLM object    
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
                 int limitID = 0;
@@ -432,7 +560,13 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
                 }
             }
+
         }
         return retVal;
+    }
+
+    static public string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 }

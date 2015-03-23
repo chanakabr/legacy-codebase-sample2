@@ -148,6 +148,7 @@ namespace GracenoteFeeder
                     List<ulong> ulProgram = new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();
                     Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
+                    DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
 
                     foreach (XmlNode node in xmlnodelist)
                     {
@@ -202,7 +203,7 @@ namespace GracenoteFeeder
                             if (!deletedDays.Contains(dDate))
                             {
                                 deletedDays.Add(dDate);
-                                Utils.DeleteProgramsByChannelAndDate(channelID, dDate, parentGroupID);
+                                //Utils.DeleteProgramsByChannelAndDate(channelID, dDate, parentGroupID);
                             }
                             #endregion
 
@@ -218,7 +219,16 @@ namespace GracenoteFeeder
                     }
 
                     //insert EPGs to DB in batches
-                    InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);
+                    // find the epg that need to be updated                    
+                    UpdateEpgDic(ref epgDic, groupID, dPublishDate);
+
+                    //insert EPGs to DB in batches
+                    InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping, dPublishDate);
+
+                    // Delete all EpgIdentifiers that are not needed (per channel per day)
+                    List<int> lProgramsID = DeleteEpgs(dPublishDate, channelID, groupID, deletedDays);
+                    // remove from CB all programids in the list 
+                    oEpgBL.RemoveGroupPrograms(lProgramsID);
 
                     foreach (EpgCB epg in epgDic.Values)
                     {
@@ -226,9 +236,10 @@ namespace GracenoteFeeder
 
                         #region Insert EpgProgram to CB + ES
                         ulong epgID = 0;
+
                         if (epg != null && epg.EpgID > 0)
                         {
-                            bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
+                            bool bInsert = oEpgBL.SetEpg(epg, out epgID);
                             ulProgram.Add(epg.EpgID);
 
                             if (nCount >= nCountPackage)
@@ -266,6 +277,92 @@ namespace GracenoteFeeder
             }
 
 
+        }
+
+        private List<int> DeleteEpgs(DateTime dPublishDate, int channelID, int groupID, List<DateTime> deletedDays)
+        {
+            try
+            {
+                List<int> epgIds = new List<int>();
+                //Delete all program by :  channelID , publishDate , groupID, deletedDays 
+                DataTable dt = EpgDal.DeleteEpgs(channelID, groupID, dPublishDate, deletedDays);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int epgID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                        epgIds.Add(epgID);
+                    }
+                }
+                return epgIds;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "GraceNoteFeeder");
+                return null;
+            }
+        }
+
+        // get all epgid that already exsits in DB
+        private void UpdateEpgDic(ref Dictionary<string, EpgCB> epgDic, int groupID, DateTime dPublishDate)
+        {
+            try
+            {
+                List<int> epgIdsToUpdate = new List<int>();
+                List<string> epgGuid = epgDic.Keys.ToList();
+                List<string> epgIds = new List<string>(); // list of all exsits epg programs ids 
+                DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        ulong epgID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                        string epgIDentifier = ODBCWrapper.Utils.GetSafeStr(dr, "EPG_IDENTIFIER");
+                        if (epgDic.ContainsKey(epgIDentifier))
+                        {
+                            epgDic[epgIDentifier].EpgID = epgID;
+                            epgIds.Add(epgID.ToString());
+                        }
+                    }
+                }
+
+                if (epgIds.Count > 0)
+                {
+                    // get all epg object from CB
+                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
+                    List<EpgCB> lResCB = oEpgBL.GetEpgs(epgIds);
+
+                    if (lResCB != null && lResCB.Count > 0) // start comper the objects
+                    {
+                        foreach (EpgCB cbEpg in lResCB)
+                        {
+                            if (epgDic.ContainsKey(cbEpg.EpgIdentifier))
+                            {
+                                // comper object 
+                                bool bEquals = cbEpg.Equals(epgDic[cbEpg.EpgIdentifier]);
+                                if (bEquals)
+                                {
+                                    // build list with programs ids to update there Publish Date in DB later
+                                    epgIdsToUpdate.Add(Convert.ToInt32(cbEpg.EpgID));
+
+                                    // remove the object from the dictionary
+                                    epgDic.Remove(cbEpg.EpgIdentifier);
+                                }
+                            }
+                        }
+
+                        if (epgIdsToUpdate.Count > 0)
+                        {
+                            // update the epgs with publish date 
+                            bool bUpdate = EpgDal.UpdateEpgChannelSchedulePublishDate(epgIdsToUpdate, dPublishDate);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "GraceNoteFeeder");
+            }
         }
 
         /*Get the default picture url from GraceNote API*/
@@ -371,8 +468,11 @@ namespace GracenoteFeeder
                         {
                             if (contibutorDict != null && contibutorDict.Count > 0 && contibutorDict.ContainsKey(XmlRefName.ToUpper())) // if tag exsits in contibutorDict - than add all its values
                             {
-                                bValueFromIngest = true;
-                                FieldEntityMapping[i].Value.AddRange(contibutorDict[XmlRefName.ToUpper()]);
+                                if (!string.IsNullOrEmpty(contibutorDict[XmlRefName.ToUpper()][0]))
+                                {
+                                    bValueFromIngest = true;
+                                    FieldEntityMapping[i].Value.AddRange(contibutorDict[XmlRefName.ToUpper()]);
+                                }
                             }
                             else // regular tag
                             {
@@ -418,12 +518,41 @@ namespace GracenoteFeeder
             return res;
         }
 
-        private void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic)
+        private void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate)
         {
             EpgCB epg;
             Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-
+            Dictionary<string, EpgCB> insertEpgDic = new Dictionary<string, EpgCB>();
             DataTable dtEPG = Utils.InitEPGDataTable();
+            foreach (KeyValuePair<string, EpgCB> kv in epgDic)
+            {
+                if (kv.Value != null && kv.Value.EpgID == 0)
+                {
+                    insertEpgDic.Add(kv.Key, kv.Value);
+                }
+            }
+            Utils.FillEPGDataTable(insertEpgDic, ref dtEPG, dPublishDate);
+            string sConn = "MAIN_CONNECTION_STRING";
+            Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
+
+            //get back the IDs list of the EPGs          
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(insertEpgDic.Keys.ToList());
+            if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
+            {
+                for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
+                {
+                    DataRow row = dtEpgIDGUID.Rows[i];
+                    if (row != null)
+                    {
+                        string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
+                        ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
+                            epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
+                    }
+                }
+            }
+
+          /*  DataTable dtEPG = Utils.InitEPGDataTable();
             Utils.FillEPGDataTable(epgDic, ref dtEPG);
             string sConn = "MAIN_CONNECTION_STRING";
             Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
@@ -443,10 +572,10 @@ namespace GracenoteFeeder
                             epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
                     }
                 }
-            }
+            }*/
         }
 
-        private void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
+        private void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, DateTime dPublishDate)
         {
 
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
@@ -464,7 +593,7 @@ namespace GracenoteFeeder
 
                     if (nEpgCount >= nCountPackage)
                     {
-                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues);
+                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate);
                         nEpgCount = 0;
                         foreach (string guid in epgBatch.Keys)
                         {
@@ -480,7 +609,7 @@ namespace GracenoteFeeder
 
                 if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
                 {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues);
+                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate);
                     foreach (string guid in epgBatch.Keys)
                     {
                         if (epgBatch[guid].EpgID > 0)
@@ -497,7 +626,7 @@ namespace GracenoteFeeder
             }
         }
 
-        private void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues)
+        private void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues, DateTime dPublishDate)
         {
             try
             {
@@ -517,14 +646,19 @@ namespace GracenoteFeeder
                 //return relevant tag value ID, if they exist in the DB
                 Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = Utils.getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);
 
+                //update all values that already exsits in table
+                UpdateEPG_Channels_sched(ref epgDic, dPublishDate);
                 // insert all epg to DB (epg_channels_schedule)
-                InsertEPG_Channels_sched(ref epgDic);
+                InsertEPG_Channels_sched(ref epgDic, dPublishDate);
+                List<int> epgIDs = new List<int>();
 
                 // Tags and Mates
                 foreach (EpgCB epg in epgDic.Values)
                 {
                     if (epg != null)
                     {
+                        epgIDs.Add(Convert.ToInt32(epg.EpgID));
+
                         //update Metas
                         Utils.UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
                         //update Tags                    
@@ -534,6 +668,8 @@ namespace GracenoteFeeder
 
                 Utils.InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, nGroupID, nUpdaterID);
 
+                // delete all values per tag and meta for programIDS that exsits 
+                bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, nGroupID);
                 Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
                 Utils.InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
             }
@@ -542,6 +678,39 @@ namespace GracenoteFeeder
                 Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
                 return;
             }
+        }
+
+        private void UpdateEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate)
+        {
+            EpgCB epg;
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+            Dictionary<string, EpgCB> updateEpgDic = new Dictionary<string, EpgCB>();
+
+            //get back the IDs list of the EPGs          
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
+            if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
+            {
+                for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
+                {
+                    DataRow row = dtEpgIDGUID.Rows[i];
+                    if (row != null)
+                    {
+                        string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
+                        ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
+                        {
+                            epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
+                            updateEpgDic.Add(sGuid, epgDic[sGuid]);
+                        }
+                    }
+                }
+                if (updateEpgDic != null && updateEpgDic.Count > 0)
+                {
+                    DataTable dtEPG = Utils.InitEPGDataTableWithID();
+                    Utils.FillEPGDataTable(updateEpgDic, ref dtEPG, dPublishDate);
+                    bool bUpdated = EpgDal.UpdateEpgChannelSchedule(dtEPG);
+                }
+            }            
         }
     }
 }    

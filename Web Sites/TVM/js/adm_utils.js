@@ -554,6 +554,15 @@ function OpenPicBrowser(theID , maxPics, lastPage)
 }
 
 
+function OpenMediaTypeBrowser(theID, lastPage) {   
+    theVal = window.document.getElementsByName(theID)[0].value;
+    theURL = "adm_channel_media_types_popup_selector.aspx?channel_id=" + theVal + "&lastPage=" + lastPage;
+    popUp(theURL, 'Media Type Selector');
+    
+
+}
+
+
 function OpenPicBrowserEpg(theID, maxPics, lastPage)
 {    
     theVal = window.document.getElementsByName(theID)[0].value;

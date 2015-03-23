@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_epg_pics_templates.aspx.cs" Inherits="adm_epg_pics_templates" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_domain_limitation_modules.aspx.cs" Inherits="adm_domain_limitation_modules" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -9,7 +9,7 @@
 <meta content="" name="Description" />
 <meta content="all" name="robots" />
 <meta content="1 days" name="revisit-after" />
-<meta content="Guy Barkan" name="Author" />
+<meta content="Arik Gaisler" name="Author" />
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
@@ -17,24 +17,11 @@
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script type="text/javascript">
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_epg_pics_templates.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+        RS.Execute("adm_domain_limitation_modules.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
     }
     function create_csv() {
-        RS.Execute("adm_epg_pics_templates.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+        RS.Execute("adm_domain_limitation_modules.aspx", "GetTableCSV", callback_create_csv, errorCallback);
     }
-
-    function recrop(w, h, gid, c) {
-        alert("Pic Recrop");
-        if (c == 1) {
-            sURL = "AjaxPicResize.aspx?w=" + w + "&h=" + h + "&gid=" + gid + "&c=true";
-        }
-        else {
-            sURL = "AjaxPicResize.aspx?w=" + w + "&h=" + h + "&gid=" + gid + "&c=false";
-        }
-        postFile(sURL, callback_PicResize);
-    }
-
-
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
@@ -109,6 +96,7 @@
 										</table>
 									</td>
 								</tr>
+								
 								<tr>
 									<td id="page_content">
 									    <!-- the actual content -->
@@ -126,7 +114,7 @@
 	<table>
 		<tr>
 			<td>
-				<div class="rights"> Copyright © 2009 Tvinci Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
+				<div class="rights"> Copyright � 2009 Tvinci Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
 			</td>
 		</tr>
 	</table>

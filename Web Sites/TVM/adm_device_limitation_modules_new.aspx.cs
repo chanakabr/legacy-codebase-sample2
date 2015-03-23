@@ -39,9 +39,9 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                     if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                     {
                         ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                        List<int> currentDeviceFamilyIDs = new List<int>();
                         try
                         {
-                            List<int> currentDeviceFamilyIDs = null;
                             selectQuery = new ODBCWrapper.DataSetSelectQuery();
                             selectQuery += "select device_family_id from groups_device_families with (nolock) where is_active=1 and [status]=1";
                             selectQuery += " and ";
@@ -55,11 +55,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                                 for (int i = 0; i < nCount; i++)
                                 {
                                     currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString()));
-
-                                } // end for
-
-                                UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
-
+                                }
                             }
                         }
                         finally
@@ -69,6 +65,28 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                                 selectQuery.Finish();
                                 selectQuery = null;
                             }
+                        }
+
+                        UpdateDeviceFamilies(groupID, limitID, updatedDeviceFamilyIDs, currentDeviceFamilyIDs);
+
+                        // delete from cache this DLM object    
+                        DomainsWS.module p = new DomainsWS.module();
+
+                        string sIP = "1.1.1.1";
+                        string sWSUserName = "";
+                        string sWSPass = "";
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        string sWSURL = GetWSURL("domains_ws");
+                        if (sWSURL != "")
+                            p.Url = sWSURL;
+                        try
+                        {
+                            DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
                         }
                     }
                 }
@@ -204,11 +222,11 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_Name);
 
         DataRecordShortIntField dr_limit = new DataRecordShortIntField(true, 9, 9);
-        dr_limit.Initialize("Limit", "adm_table_header_nbg", "FormInput", "max_limit", false);
+        dr_limit.Initialize("Device Limit", "adm_table_header_nbg", "FormInput", "max_limit", false);
         theRecord.AddRecord(dr_limit);
 
         DataRecordDropDownField dr_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
-        dr_frequency.Initialize("Frequency", "adm_table_header_nbg", "FormInput", "freq_period_id", false);
+        dr_frequency.Initialize("Device Change Frequency", "adm_table_header_nbg", "FormInput", "freq_period_id", false);
         theRecord.AddRecord(dr_frequency);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
@@ -235,6 +253,14 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         DataRecordDropDownField dr_hn_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
         dr_hn_frequency.Initialize("Home Network Frequency", "adm_table_header_nbg", "FormInput", "Home_network_frequency", false);
         theRecord.AddRecord(dr_hn_frequency);
+
+        DataRecordShortIntField dr_user_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_user_limit.Initialize("User Limit", "adm_table_header_nbg", "FormInput", "user_max_limit", false);
+        theRecord.AddRecord(dr_user_limit);
+
+        DataRecordDropDownField dr_user_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_user_frequency.Initialize("User Change Frequency", "adm_table_header_nbg", "FormInput", "user_freq_period_id", false);
+        theRecord.AddRecord(dr_user_frequency);
 
         string sTable = theRecord.GetTableHTML("adm_device_limitation_modules_new.aspx?submited=1");
 
@@ -506,7 +532,40 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                         break;
                     }
             }
+
+
+            int limitID = 0;
+            if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
+            {
+                int.TryParse(Session["limit_id"].ToString(), out limitID);
+
+                // delete from cache this DLM object    
+                DomainsWS.module p = new DomainsWS.module();
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = GetWSURL("domains_ws");
+                if (sWSURL != "")
+                    p.Url = sWSURL;
+
+                try
+                {
+                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
+                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                }
+            }
         }
         return retVal;
+    }
+
+    static public string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 }
