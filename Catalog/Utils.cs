@@ -485,18 +485,24 @@ namespace Catalog
                 else
                 {
                     ConcurrentBag<SearchResult> itemList = new ConcurrentBag<SearchResult>();
+                    Dictionary<int, SearchResult> dictRes = new Dictionary<int, SearchResult>();
+                    foreach (int mediaID in lMediaIDs)
+                    {
+                        dictRes.Add(mediaID, new SearchResult());
+                    }
                     Parallel.ForEach<int>(lMediaIDs, mediaID =>
                     {
 
                         SearchResult res = searcher.GetDoc(nParentGroupID, mediaID);
                         if (res != null)
                         {
-                            itemList.Add(new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate });
+                            dictRes[mediaID] = new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate };                          
                         }
                     }
                         );
-                    // tasks.Wait();
-                    lMediaRes = itemList.ToList();
+                
+                    lMediaRes = dictRes.Values.ToList();
+                 
                 }
             }
 
