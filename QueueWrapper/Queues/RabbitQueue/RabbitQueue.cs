@@ -51,17 +51,17 @@ namespace QueueWrapper
                 if (!string.IsNullOrEmpty(sDataToIndex))
                 {
                     RabbitConfigurationData configData = CreateRabbitConfigurationData();
-                    configData.RoutingKey = sRouteKey;
 
                     if (configData != null)
                     {
+                        configData.RoutingKey = sRouteKey;
+
                         bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
                     }
                 }
             }
             catch (Exception ex)
             {
-
             }
 
             return bIsEnqueueSucceeded;
@@ -163,7 +163,7 @@ namespace QueueWrapper
                     }
                 case ConfigType.ProfessionalServicesNotificationsConfig:
                     {
-                        m_sRoutingKey = "*";
+                        m_sRoutingKey = Utils.GetConfigValue("ProfessionalServices.routingKey");
                         m_sExchange = Utils.GetConfigValue("ProfessionalServices.exchange");
                         m_sQueue = ".";
                         m_sVirtualHost = Utils.GetConfigValue("ProfessionalServices.virtualHost");
@@ -181,9 +181,10 @@ namespace QueueWrapper
 
             RabbitConfigurationData configData = null;
 
-            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) && !string.IsNullOrEmpty(this.m_sPort)
-                && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) && !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost)
-                && !string.IsNullOrEmpty(this.m_sExchangeType))
+            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) && 
+                !string.IsNullOrEmpty(this.m_sPort) && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) && 
+                !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost) && 
+                !string.IsNullOrEmpty(this.m_sExchangeType))
             {
                 configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
                 if (m_bSetContentType)
