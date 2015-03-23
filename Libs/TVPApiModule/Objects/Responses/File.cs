@@ -11,8 +11,8 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
 
-        [JsonProperty(PropertyName = "format")]
-        public string Format { get; set; }
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
 
         [JsonProperty(PropertyName = "url")]
         public string Url { get; set; }
@@ -23,7 +23,7 @@ namespace TVPApiModule.Objects.Responses
             if (file != null)
             {
                 Id = file.m_nFileId;
-                Format = file.m_sFileFormat;
+                Type = file.m_sFileFormat;
                 Url = file.m_sUrl;
             }
         }

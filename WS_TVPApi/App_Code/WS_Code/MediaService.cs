@@ -3163,15 +3163,15 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponse UnifiedSearch(InitializationObject initObj, List<int> filter_types, string q, string filter, string order_by,
-            List<string> with, int page_index, int page_size)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string q, string filter, string order_by,
+            List<string> with, int page_index, int? page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
-            {
+            { 
                 try
                 {
                     if (filter.Length > 500 * 1024)
@@ -3181,7 +3181,7 @@ namespace TVPApiServices
                         return response;
                     }
 
-                    if (page_size == 0)
+                    if (page_size == null)
                     {
                         page_size = 25;
                     }
@@ -3202,7 +3202,7 @@ namespace TVPApiServices
                     {
                         order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj();
 
-                        switch (order_by)
+                        switch (order_by.ToLower())
                         {
                             case "a_to_z":
                                 order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
@@ -3228,6 +3228,10 @@ namespace TVPApiServices
                                 order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
                                 order.m_eOrderDir = OrderDir.DESC;
                                 break;
+                            case "relevancy":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
                             default:
                                 response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
                                 response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
@@ -3235,12 +3239,11 @@ namespace TVPApiServices
                         }
                     }
 
-                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, page_index,
+                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         filter_types, q, filter, with)
                         {
                             Order = order
                         }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
-                    response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.OK, string.Empty);
                 }
                 catch (Exception ex)
                 {

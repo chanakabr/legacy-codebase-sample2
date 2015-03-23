@@ -43,10 +43,10 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         public Statistics Statistics { get; set; }
 
-        [JsonProperty(PropertyName = "extra_params")]
+        [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, string> ExtraParams { get; set; }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media)
+        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, bool shouldAddFiles)
         {
             if (media != null)
             {
@@ -71,7 +71,7 @@ namespace TVPApiModule.Objects.Responses
                     }
                 }
 
-                if (media.m_lFiles != null)
+                if (shouldAddFiles && media.m_lFiles != null)
                 {
                     Files = new List<File>();
                     foreach (var mediaFile in media.m_lFiles)
@@ -99,28 +99,16 @@ namespace TVPApiModule.Objects.Responses
                     }
                 }
 
-                //ExtraParams = new Dictionary<string, string>();
+                ExtraParams = new Dictionary<string, string>();
 
-                //ExtraParams.Add("StartDate", media.m_dStartDate.ToString());
-                //ExtraParams.Add("FinalDate", media.m_dFinalDate.ToString());
-                //ExtraParams.Add("ExternalIds", media.m_ExternalIDs);
-                //ExtraParams.Add("LastWatchedDevice", media.m_sLastWatchedDevice);
-
-                //if (media.m_oMediaType != null)
-                //{
-                //    ExtraParams.Add("MediaTypeId", media.m_oMediaType.m_nTypeID.ToString());
-                //    ExtraParams.Add("MediaTypeName", media.m_oMediaType.m_sTypeName.ToString());
-                //}
-
-                //if (media.m_dLastWatchedDate != null)
-                //{
-                //    ExtraParams.Add("LastWatchedDate", media.m_dLastWatchedDate.ToString());
-                //}
+                ExtraParams.Add("start_date", TimeHelper.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
+                ExtraParams.Add("final_date", TimeHelper.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
+                ExtraParams.Add("external_ids", media.m_ExternalIDs);
             }
         }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, AssetStatsResult stats) :
-             this (media)
+        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, AssetStatsResult stats, bool shouldAddFiles) :
+            this(media, shouldAddFiles)
         {
             if (stats != null)
             {
@@ -186,7 +174,7 @@ namespace TVPApiModule.Objects.Responses
 
             ExtraParams.Add("epg_channel_id ", epg.EPG_CHANNEL_ID);
             ExtraParams.Add("epg_id", epg.EPG_IDENTIFIER);
-            //ExtraParams.Add("MediaId", epg.media_id);
+            ExtraParams.Add("related_media_id", epg.media_id);
         }
 
         public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg, AssetStatsResult stats) 

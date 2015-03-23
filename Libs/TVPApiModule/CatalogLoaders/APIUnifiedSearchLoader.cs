@@ -89,10 +89,21 @@ namespace TVPApiModule.CatalogLoaders
             BuildRequest();
             Log("TryExecuteGetBaseResponse:", m_oRequest);
             var res = m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse); // Get the assets ids + update dates from catalog
-            if (res == eProviderResult.Success)
+            if (res == eProviderResult.Success) 
             {
-                Log("Got:", m_oResponse);
-                result = Process(); // Try get assets from cache, get the missing assets from catalog
+                Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+                if (response.status.Code == (int)eStatus.OK)
+                {
+                    Log("Got:", m_oResponse);
+                    result = Process(); // Try get assets from cache, get the missing assets from catalog
+                }
+                else
+                {
+                    return new TVPApiModule.Objects.Responses.UnifiedSearchResponse()
+                    {
+                        Status = new Objects.Responses.Status(response.status.Code, response.status.Message)
+                    };
+                }
             }
             else if (res == eProviderResult.TimeOut)
             {
@@ -199,17 +210,26 @@ namespace TVPApiModule.CatalogLoaders
             List<AssetStatsResult> mediaAssetsStats = null;
             List<AssetStatsResult> epgAssetsStats = null;
 
-            if (With != null && With.Contains("stats")) // if stats are required - gets the stats from Catalog
+            bool shouldAddFiles = false;
+
+            if (With != null) 
             {
-                if (medias != null && medias.Count > 0)
+                if (With.Contains("stats")) // if stats are required - gets the stats from Catalog
                 {
-                    mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
-                        StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                    if (medias != null && medias.Count > 0)
+                    {
+                        mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
+                            StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                    }
+                    if (epgs != null && epgs.Count > 0)
+                    {
+                        epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => p.m_nID).ToList(),
+                            StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                    }
                 }
-                if (epgs != null && epgs.Count > 0)
+                if (With.Contains("files")) // if stats are required - add a flag 
                 {
-                    epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => p.m_nID).ToList(),
-                        StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                    shouldAddFiles = true;
                 }
             }
 
@@ -223,11 +243,11 @@ namespace TVPApiModule.CatalogLoaders
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
                         {
-                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault());
+                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles);
                         }
                         else
                         {
-                            asset = new AssetInfo(media);
+                            asset = new AssetInfo(media, shouldAddFiles);
                         }
                         result.Add(asset);
                         media = null;
