@@ -96,9 +96,19 @@ namespace Catalog
                     throw new ArgumentNullException("request object is null or Required variables is null");
                 }
 
+
+                BooleanPhraseNode filterTree = null;
+
                 if (!string.IsNullOrEmpty(request.filterQuery))
                 {
-                    filterTree = ParseSearchExpression(filterQuery);
+                    Status status = ParseSearchExpression(filterQuery, ref filterTree);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        return new UnifiedSearchResponse()
+                        {
+                            status = status
+                        };
+                    }
                 }
 
                 // If request asks for name and description filter
@@ -196,20 +206,27 @@ namespace Catalog
         // returns tree representing the search expression 
         // example of expression: "(and actor='brad pitt' (or genre='drama' genre='action'))"
         // when the expression "actor='brad pitt'" represented by BooleanLeaf and the list represented by BooleanPhrase
-        internal BooleanPhraseNode ParseSearchExpression(string expression)
+        internal Status ParseSearchExpression(string expression, ref BooleanPhraseNode tree)
         {
-            BooleanPhraseNode phrase = null;
+            tree = null;
 
             if (string.IsNullOrEmpty(expression))
             {
-                return null;
+                return new Status((int)eResponseStatus.OK, string.Empty);
             }
 
             List<string> tokens = null;
 
-            if (!GetTokensList(expression, ref tokens))
+            Status status = GetTokensList(expression, ref tokens);
+
+            if (status == null)
             {
-                return null;
+                return new Status((int)eResponseStatus.InternalError, string.Empty);                
+            }
+
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                return status;
             }
 
             if (tokens != null && tokens.Count > 0)
@@ -264,7 +281,7 @@ namespace Catalog
                         }
                         else
                         {
-                            return null;
+                            return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected token: {0}", token));
                         }
                     }
                     else // part of BooleanLeaf
@@ -280,7 +297,7 @@ namespace Catalog
                             }
                             else
                             {
-                                return null;
+                                return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected token: {0}", token));
                             }
 
                             stack.Push(booleanLeaf);
@@ -294,15 +311,15 @@ namespace Catalog
 
                 if (stack.Count == 1) // the stack should contain only one BooleanPhraseNode representing the full tree
                 {
-                    phrase = (BooleanPhraseNode)stack.Pop();
+                    tree = (BooleanPhraseNode)stack.Pop();
                 }
                 else
                 {
-                    return null;
+                    return new Status((int)eResponseStatus.SyntaxError, string.Format("Invalid expression structure"));
                 }
             }
 
-            return phrase;
+            return status;
         }
 
 
@@ -348,8 +365,10 @@ namespace Catalog
         //   comparison operator - "<", ">", "=", "~", "<=", ">=", "!="
         //   end of expression with operand = ")" 
         //   word - is a tag or meta neme (in the example it's actor)
-        private bool GetTokensList(string expression, ref List<string> tokens)
+        private Status GetTokensList(string expression, ref List<string> tokens)
         {
+            Status status;
+
             tokens = new List<string>();
 
             expression = expression.Trim();
@@ -386,7 +405,7 @@ namespace Catalog
                     }
                     else
                     {
-                        return false;
+                        return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
                     }
                 }
                 else if (chr == ' ') // space 
@@ -407,7 +426,7 @@ namespace Catalog
                         }
                         else
                         {
-                            return false;
+                            return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: space , on index {0}", i));
                         }
                     }
                     else
@@ -431,13 +450,17 @@ namespace Catalog
                         {
                             tokens.Add(token);
                         }
+                        else if (chr != ')') // error - comparison operator must follow word
+                        {
+                            return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
+                        }
 
                         token = new string(chr, 1);
                         tokens.Add(token);
                     }
                     else
                     {
-                        return false;
+                        return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
                     }
                 }
                 else if ((chr == '>' || chr == '<' || chr == '!') && !isQuote) // double or single comparison operator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
@@ -449,10 +472,14 @@ namespace Catalog
                         {
                             tokens.Add(token);
                         }
+                        else
+                        {
+                            return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
+                        }
                     }
                     else
                     {
-                        return false;
+                        return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
                     }
 
                     if (i + 1 < expression.Length && expression[i + 1] == '=') // double comparison operator - add the full operator to tokens list and skip the next char in the loop
@@ -479,7 +506,17 @@ namespace Catalog
                 }
             }
 
-            return buffer[lastBufferIndex] == '\0';
+            if (buffer[lastBufferIndex] == '\0')
+            {
+                status = new Status((int)eResponseStatus.OK, string.Empty);
+            }
+            else
+            {
+                status = new Status((int)eResponseStatus.SyntaxError, string.Empty);
+            }
+
+            return status;
+
         }
 
         // Returns a full token from the buffer:
