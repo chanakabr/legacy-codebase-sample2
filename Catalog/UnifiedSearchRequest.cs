@@ -96,6 +96,13 @@ namespace Catalog
                     throw new ArgumentNullException("request object is null or Required variables is null");
                 }
 
+                if (request.m_nGroupID == 0)
+                {
+                    var exception = new ArgumentException("No group Id was sent in request");
+                    exception.Data["StatusCode"] = (int)eResponseStatus.BadSearchRequest;
+
+                    throw exception;
+                }
 
                 BooleanPhraseNode filterTree = null;
 
@@ -132,11 +139,11 @@ namespace Catalog
                         newNodes.Add(filterTree);
                     }
 
-                    filterTree = new BooleanPhrase(newNodes, eCutType.And);
+                    request.filterTree = new BooleanPhrase(newNodes, eCutType.And);
                 }
 
-                // Request is bad if there is no condition to query by; or the group is 0
-                if (filterTree == null || request.m_nGroupID == 0)
+                // Request is bad if there is no condition to query by
+                if (request.filterTree == null)
                 {
                     response.status.Code = (int)eResponseStatus.BadSearchRequest;
                     response.status.Message = "Invalid request parameters";

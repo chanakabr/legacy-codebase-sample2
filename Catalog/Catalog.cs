@@ -800,7 +800,7 @@ namespace Catalog
                             else if (!reservedStringFields.Contains(searchKeyLowered))
                             {
                                 var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
-                                exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                                exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
                                 throw exception;
                             }
                         }
