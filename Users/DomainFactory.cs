@@ -182,7 +182,7 @@ namespace Users
                             oLimitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
                             int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
                             oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
-                            oLimitationsManager.FrequencyDescription = Utils.GetMinPeriodDescription(oLimitationsManager.Frequency);
+                            oLimitationsManager.FrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.Frequency);
                             oLimitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
                             oLimitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
                             oLimitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
