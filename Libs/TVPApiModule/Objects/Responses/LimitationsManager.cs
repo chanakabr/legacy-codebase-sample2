@@ -40,9 +40,6 @@ namespace TVPApiModule.Objects.Responses
 
         [JsonProperty(PropertyName = "device_frequency_description")] 
         public string DeviceFrequencyDescrition { get; set; }
-
-        [JsonProperty(PropertyName = "frequency")]
-        public int Frequency { get; set; }
        
         public LimitationsManager()
         {
@@ -71,7 +68,6 @@ namespace TVPApiModule.Objects.Responses
                 UserFrequency = limitationManager.UserFrequency;
                 UserFrequencyDescrition = limitationManager.UserFrequencyDescrition;
                 DeviceFrequencyDescrition = limitationManager.FrequencyDescription;
-                Frequency = limitationManager.Frequency;
             }
         }
     }
