@@ -2308,7 +2308,7 @@ namespace TVinciShared
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
 
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn\" onclick=\"" + m_functionName + "('" + nID.ToString() + "_val' , '" + base.getLastPageName() + "');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_mediaTypes\" onclick=\"" + m_functionName + "('" + nID.ToString() + "_val' , '" + base.getLastPageName() + "');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='" + m_sFieldType + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
