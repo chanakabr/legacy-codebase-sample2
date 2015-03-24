@@ -13,6 +13,17 @@ namespace ElasticSearch.Searcher
         protected List<IESTerm> should;
         protected List<IESTerm> mustNot;
         public eTermType eType { get; protected set; }
+        
+        public bool isNot
+        {
+            get
+            {
+                return false;
+            }
+            set
+            {
+            }
+        }
 
         public BoolQuery()
         {

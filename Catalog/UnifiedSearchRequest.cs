@@ -119,7 +119,11 @@ namespace Catalog
                 }
                 
                 // If request asks for name and description filter
-                if (!string.IsNullOrEmpty(request.nameAndDescription))
+                if (string.IsNullOrEmpty(request.nameAndDescription))
+                {
+                    request.filterTree = filterTree;
+                }
+                else
                 {
                     List<BooleanPhraseNode> newNodes = new List<BooleanPhraseNode>();
                     List<BooleanPhraseNode> nameAndDescriptionNodes = new List<BooleanPhraseNode>();
@@ -265,7 +269,7 @@ namespace Catalog
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("~!=<=>=".Contains(token)) // comparison operator - parse to enum and add to stack
+                    else if ("~!=<=>=!~".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -366,6 +370,9 @@ namespace Catalog
                 break;
                 case "~":
                 comparisonOperator = ComparisonOperator.Contains;
+                break;
+                case "!~":
+                comparisonOperator = ComparisonOperator.NotContains;
                 break;
                 default:
                 comparisonOperator = ComparisonOperator.Contains;
@@ -499,7 +506,8 @@ namespace Catalog
                         return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
                     }
 
-                    if (i + 1 < expression.Length && expression[i + 1] == '=') // double comparison operator - add the full operator to tokens list and skip the next char in the loop
+                    // double comparison operator - add the full operator to tokens list and skip the next char in the loop
+                    if (i + 1 < expression.Length && (expression[i + 1] == '=' || expression[i +1] == '~')) 
                     {
                         token = new string(new char[2] { chr, expression[i + 1] });
                         tokens.Add(token);

@@ -50,7 +50,7 @@ namespace ElasticSearch.Searcher
         public string Value { get; set; }
         public string Key { get; set; }
         public eTermType eType { get; protected set; }
-        public bool bNot { get; set; }
+        public bool isNot { get; set; }
         public float Boost { get; set; }
 
         bool m_bIsNumeric;
@@ -75,7 +75,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if (bNot)
+            if (isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"term\":{");
@@ -98,7 +98,7 @@ namespace ElasticSearch.Searcher
 
             sb.Append("}}}");
 
-            if (bNot)
+            if (isNot)
                 sb.Append("}");
 
             return sb.ToString();
@@ -145,7 +145,7 @@ namespace ElasticSearch.Searcher
         public eTermType eType { get; protected set; }
         public List<string> Value { get; protected set; }
         public string Key { get; set; }
-        public bool bNot { get; set; }
+        public bool isNot { get; set; }
 
         bool m_bIsNumeric;
 
@@ -168,7 +168,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if (bNot)
+            if (isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"terms\":{\"");
@@ -192,7 +192,7 @@ namespace ElasticSearch.Searcher
             }
             sb.Append("]}}");
 
-            if (bNot)
+            if (isNot)
                 sb.Append("}");
 
             return sb.ToString();
@@ -229,11 +229,13 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
+
         public bool isNot
         {
             get;
             set;
         }
+
         #endregion
 
         #region Public Methods
@@ -281,7 +283,7 @@ namespace ElasticSearch.Searcher
         public eTermType eType { get; protected set; }
         public List<KeyValuePair<eRangeComp, string>> Value { get; protected set; }
         public string Key { get; set; }
-        public bool bNot { get; set; }
+        public bool isNot { get; set; }
 
         bool m_bIsNumeric;
 
@@ -304,7 +306,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if (bNot)
+            if (isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"range\":{\"");
@@ -331,7 +333,7 @@ namespace ElasticSearch.Searcher
             }
             sb.Append("}}}");
 
-            if (bNot)
+            if (isNot)
                 sb.Append("}");
 
             return sb.ToString();
@@ -353,7 +355,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if(bNot)
+            if(isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"wildcard\":{");
@@ -368,7 +370,7 @@ namespace ElasticSearch.Searcher
 
             sb.Append("}}}");
 
-            if (bNot)
+            if (isNot)
                 sb.Append("}");
 
             return sb.ToString();
@@ -384,7 +386,7 @@ namespace ElasticSearch.Searcher
 
         public eTermType eType { get; protected set; }
 
-        public bool bNot { get; set; }
+        public bool isNot { get; set; }
         public string Value { get; set; }
 
         public bool IsEmpty()
@@ -399,7 +401,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if (bNot)
+            if (isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"exists\":{");
@@ -407,7 +409,7 @@ namespace ElasticSearch.Searcher
 
             sb.Append("}}");
 
-            if (bNot)
+            if (isNot)
                 sb.Append("}");
 
             return sb.ToString();

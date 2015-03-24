@@ -277,6 +277,7 @@ namespace ApiObjects
         Equals,
         NotEquals,
         Contains,
+        NotContains,
         GreaterThanOrEqual,
         GreaterThan,
         LessThanOrEqual,

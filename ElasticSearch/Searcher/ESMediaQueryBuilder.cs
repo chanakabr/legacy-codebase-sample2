@@ -96,7 +96,7 @@ namespace ElasticSearch.Searcher
             {
                 mediaTerm.Key = "media_id";
                 mediaTerm.Value = oSearchObject.m_nMediaID.ToString();
-                mediaTerm.bNot = true;
+                mediaTerm.isNot = true;
             }
 
             ESTerms userTypeTerm = new ESTerms(true);
@@ -273,7 +273,7 @@ namespace ElasticSearch.Searcher
             {
                 mediaTerm.Key = "media_id";
                 mediaTerm.Value = oSearchObject.m_nMediaID.ToString();
-                mediaTerm.bNot = true;
+                mediaTerm.isNot = true;
             }
 
             ESTerms userTypeTerm = new ESTerms(true);

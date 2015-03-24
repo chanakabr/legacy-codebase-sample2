@@ -366,7 +366,7 @@ namespace ElasticSearch.Searcher
                     var leaf = root as BooleanLeaf;
 
                     // If it is contains - it is not exact and thus belongs to query
-                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
                         queryNode = leaf;
                     }
@@ -403,7 +403,8 @@ namespace ElasticSearch.Searcher
                             if (current.type == BooleanNodeType.Leaf)
                             {
                                 // If yes, this means the root-ancestor is a query and not a filter
-                                if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains)
+                                if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)
                                 {
                                     queryRoots.Add(node);
 
@@ -631,12 +632,13 @@ namespace ElasticSearch.Searcher
                 }
 
                 // "Match" when search is not exact (contains)
-                if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
+                if (leaf.operand == ApiObjects.ComparisonOperator.Contains || 
+                    leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                 {
                     term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
                     {
                         Field = field,
-                        eOperator = CutWith.OR,
+                        eOperator = CutWith.AND,
                         Query = value
                     };
                 }
@@ -644,13 +646,10 @@ namespace ElasticSearch.Searcher
                 else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
                     leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
                 {
-                    bool not = leaf.operand == ApiObjects.ComparisonOperator.NotEquals;
-
                     term = new ESTerm(isNumeric)
                     {
                         Key = leaf.field,
-                        Value = value,
-                        bNot = not
+                        Value = value
                     };
                 }
                 // Other cases are "Range"
@@ -690,13 +689,38 @@ namespace ElasticSearch.Searcher
                         else
                         {
                             rangesByName[field].Value.AddRange((newChild as ESRange).Value);
+
+                            // Set the new child to null because the condition has been merged with an older child
                             newChild = null;
                         }
                     }
 
                     if (newChild != null)
                     {
-                        (term as BoolQuery).AddChild(newChild, cut);
+                        // If it is a "NOT" phrase (not contains or not equals)
+                        if (childNode.type == BooleanNodeType.Leaf &&
+                            (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) ||
+                            ((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)))
+                        {
+                            // If the cut is "AND", simply add the child to the "must_not" list. ES cuts "must" and "must_not" with an AND
+                            if (cut == CutWith.AND)
+                            {
+                                (term as BoolQuery).AddNot(newChild);
+                            }
+                            else
+                            {
+                                // If the cut is "OR", we need to wrap it with a boolean query, so that the "should" clause still checks each
+                                // term separately 
+                                BoolQuery booleanWrapper = new BoolQuery();
+                                booleanWrapper.AddNot(newChild);
+
+                                (term as BoolQuery).AddChild(booleanWrapper, cut);
+                            }
+                        }
+                        else
+                        {
+                            (term as BoolQuery).AddChild(newChild, cut);
+                        }
                     }   
                 }
             }
@@ -750,7 +774,7 @@ namespace ElasticSearch.Searcher
                 {
                     Key = leaf.field,
                     Value = value,
-                    bNot = true
+                    isNot = true
                 };
             }
             else
