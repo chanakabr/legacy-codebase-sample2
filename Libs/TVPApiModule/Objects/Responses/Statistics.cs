@@ -8,7 +8,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class Statistics
     {
-        [JsonProperty(PropertyName = "id")]
+        [JsonProperty(PropertyName = "asset_id")]
         public int Id { get; set; }
 
         [JsonProperty(PropertyName = "likes")]

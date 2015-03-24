@@ -195,7 +195,6 @@
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
-    <Compile Include="Objects\Responses\Enums.cs" />
     <Compile Include="Objects\Responses\File.cs" />
     <Compile Include="Objects\Responses\LicensedLink.cs" />
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />

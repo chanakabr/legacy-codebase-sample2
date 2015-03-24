@@ -8,6 +8,9 @@ namespace TVPApiModule.Objects.Responses
 {
     public class File
     {
+        [JsonProperty(PropertyName = "asset_id")]
+        public int AssetId { get; set; }
+
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
 
@@ -22,6 +25,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (file != null)
             {
+                AssetId = file.m_nMediaID;
                 Id = file.m_nFileId;
                 Type = file.m_sFileFormat;
                 Url = file.m_sUrl;
