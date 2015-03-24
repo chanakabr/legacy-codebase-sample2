@@ -269,7 +269,7 @@ namespace Catalog
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("~!=<=>=!~".Contains(token)) // comparison operator - parse to enum and add to stack
+                    else if ("!=<=>=!~".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
