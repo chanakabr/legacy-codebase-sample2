@@ -78,12 +78,12 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                                     p.Url = sWSURL;
                                 try
                                 {
-                                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, parentLimitID);
+                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", parentLimitID, resp.Code), "RemoveDLM");
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", parentLimitID, ex.Message, ex.StackTrace), "RemoveDLM");
                                 }
                             }
                             finally
@@ -432,10 +432,10 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     }
             }
 
-            if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
+            if (Session["parent_limit_id"] != null && Session["parent_limit_id"].ToString().Length > 0)
             {
                 int limitID = 0;
-                int.TryParse(Session["limit_id"].ToString(), out limitID);
+                int.TryParse(Session["parent_limit_id"].ToString(), out limitID);
 
                 // delete from cache this DLM object    
                 DomainsWS.module p = new DomainsWS.module();
