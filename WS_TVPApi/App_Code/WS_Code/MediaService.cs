@@ -3163,7 +3163,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string q, string filter, string order_by,
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by,
             List<string> with, int page_index, int? page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
@@ -3240,7 +3240,7 @@ namespace TVPApiServices
                     }
 
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                        filter_types, q, filter, with)
+                        filter_types, filter, with)
                         {
                             Order = order
                         }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;

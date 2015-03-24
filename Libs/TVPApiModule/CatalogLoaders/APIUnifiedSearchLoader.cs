@@ -29,14 +29,13 @@ namespace TVPApiModule.CatalogLoaders
         public List<string> With { get; set; }
 
         public APIUnifiedSearchLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
-            List<int> assetTypes, string query, string filter, List<string> with)
+            List<int> assetTypes, string filter, List<string> with)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             //DomainId = domainId
             Platform = platform.ToString();
             AssetTypes = assetTypes;
             Filter = filter;
-            Query = query;
             With = with;
 
         }
@@ -64,7 +63,6 @@ namespace TVPApiModule.CatalogLoaders
             // od = OrderDir
             // ov = OrderValue 
             // at = AssetTypes
-            // q = query
             //f = filter
             
             key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}", GroupID, PageSize, PageIndex);
@@ -76,8 +74,6 @@ namespace TVPApiModule.CatalogLoaders
             }
             if (AssetTypes != null && AssetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", AssetTypes.Select(at => at.ToString()).ToArray()));
-            if (!string.IsNullOrEmpty(Query))
-                key.AppendFormat("_q={0}", Query);
             if (!string.IsNullOrEmpty(Filter))
                 key.AppendFormat("_f={0}", Filter);
             return key.ToString();
