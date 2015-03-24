@@ -10878,7 +10878,9 @@ namespace ConditionalAccess
         /// <param name="p_dicData"></param>
         protected bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
         {
-            PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
+            string task = Utils.GetValueFromConfig("ProfessionalServices.task");
+
+            PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, p_dicData, p_eAction);
 
             PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
 
