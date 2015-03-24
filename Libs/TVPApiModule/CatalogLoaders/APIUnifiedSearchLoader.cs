@@ -313,7 +313,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (mediasFromCatalog != null && mediasFromCatalog.Count > 0)
                     {
-                        //Log("Storing Medias in Cache", medias);
+                        Log("Storing Medias in Cache", mediasFromCatalog);
 
                         baseObjects = new List<BaseObject>();
                         mediasFromCatalog.ForEach(m => baseObjects.Add(m));
@@ -323,7 +323,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (epgsFromCatalog != null && epgsFromCatalog.Count > 0)
                     {
-                        //Log("Storing EPGs in Cache", epgs);
+                        Log("Storing EPGs in Cache", epgsFromCatalog);
 
                         baseObjects = new List<BaseObject>();
                         epgsFromCatalog.ForEach(p => baseObjects.Add(p));

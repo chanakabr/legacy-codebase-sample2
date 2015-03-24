@@ -32,7 +32,7 @@ namespace TVPApiModule.Objects.Responses
         public Dictionary<string, string> Metas { get; set; }
 
         [JsonProperty(PropertyName = "tags")]
-        public Dictionary<string, object> Tags { get; set; }
+        public Dictionary<string, List<string>> Tags { get; set; }
 
         [JsonProperty(PropertyName = "start_date")]
         public double StartDate { get; set; }
@@ -92,7 +92,7 @@ namespace TVPApiModule.Objects.Responses
 
                 if (media.m_lTags != null)
                 {
-                    Tags = new Dictionary<string, object>();
+                    Tags = new Dictionary<string, List<string>>();
                     foreach (var mediaTag in media.m_lTags)
                     {
                         Tags.Add(mediaTag.m_oTagMeta.m_sName, mediaTag.m_lValues);
@@ -153,7 +153,7 @@ namespace TVPApiModule.Objects.Responses
 
             if (epg.EPG_TAGS != null)
             {
-                Tags = new Dictionary<string, object>();
+                Tags = new Dictionary<string, List<string>>();
                 List<string> tags;
                 foreach (var epgTag in epg.EPG_TAGS)
 	            {
