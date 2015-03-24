@@ -1447,6 +1447,7 @@ namespace Tvinci.Core.DAL
 
             Random r = new Random();
             DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
 
             //Cleaning old ones...
             int limitRetries = RETRY_LIMIT;
