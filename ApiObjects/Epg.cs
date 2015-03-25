@@ -94,6 +94,7 @@ namespace ApiObjects
             Language = string.Empty;
         }
 
+              
         public bool Equals(EpgCB obj)
         {
             //Check for null and compare run-time types. 
@@ -126,16 +127,15 @@ namespace ApiObjects
                 #region Tags
                 if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
                 {
-                    foreach (KeyValuePair<string, List<string>> thisTag in this.Tags)
+                    foreach (string objTagKey in obj.Tags.Keys)
                     {
-
-                        if (!obj.Tags.ContainsKey(thisTag.Key))
+                        if (!this.Tags.ContainsKey(objTagKey.ToLower()))
                         {
                             return false;
                         }
 
-                        int countObjTagValues = obj.Tags[thisTag.Key] == null ? 0 : obj.Tags[thisTag.Key].Count;
-                        int countThisTagValues = thisTag.Value == null ? 0 : thisTag.Value.Count;
+                        int countObjTagValues = obj.Tags[objTagKey] == null ? 0 : obj.Tags[objTagKey].Count;
+                        int countThisTagValues = this.Tags[objTagKey.ToLower()] == null ? 0 : this.Tags[objTagKey.ToLower()].Count;
 
                         if (countObjTagValues != countThisTagValues)
                         {
@@ -144,9 +144,9 @@ namespace ApiObjects
                         else
                         {
                             // compare the values between the lists
-                            foreach (string sTagValue in thisTag.Value)
+                            foreach (string sTagValue in obj.Tags[objTagKey])
                             {
-                                if (!obj.Tags[thisTag.Key].Contains(sTagValue))
+                                if (!this.Tags[objTagKey.ToLower()].Contains(sTagValue))                                
                                 {
                                     return false;
                                 }
@@ -159,16 +159,15 @@ namespace ApiObjects
                 #region Metas
                 if (this.Metas != null && obj.Metas != null && this.Metas.Count == obj.Metas.Count)
                 {
-                    foreach (KeyValuePair<string, List<string>> thisMeta in this.Metas)
+                    foreach (string objMetaKey in obj.Metas.Keys)
                     {
-
-                        if (!obj.Metas.ContainsKey(thisMeta.Key))
+                        if (!this.Metas.ContainsKey(objMetaKey.ToLower()))
                         {
                             return false;
                         }
 
-                        int countObjMetaValues = obj.Metas[thisMeta.Key] == null ? 0 : obj.Metas[thisMeta.Key].Count;
-                        int countThisMetaValues = thisMeta.Value == null ? 0 : thisMeta.Value.Count;
+                        int countObjMetaValues = obj.Metas[objMetaKey] == null ? 0 : obj.Metas[objMetaKey].Count;
+                        int countThisMetaValues = this.Metas[objMetaKey.ToLower()] == null ? 0 : this.Metas[objMetaKey.ToLower()].Count;
 
                         if (countObjMetaValues != countThisMetaValues)
                         {
@@ -177,9 +176,9 @@ namespace ApiObjects
                         else
                         {
                             // compare the values between the lists
-                            foreach (string sMetaValue in thisMeta.Value)
+                            foreach (string sMetaValue in obj.Tags[objMetaKey])
                             {
-                                if (!obj.Metas[thisMeta.Key].Contains(sMetaValue))
+                                if (!this.Tags[objMetaKey.ToLower()].Contains(sMetaValue))
                                 {
                                     return false;
                                 }
