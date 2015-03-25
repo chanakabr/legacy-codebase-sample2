@@ -33,7 +33,7 @@ namespace SocialFeedHandler
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "UpdateFriendsFeed", "social", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("users_ws");
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("social_ws");
                     if (sWSURL.Length > 0)
                         socialRef.Url = sWSURL;
 
@@ -63,7 +63,7 @@ namespace SocialFeedHandler
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "DeleteUserFeed", "social", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("users_ws");
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("social_ws");
                     if (sWSURL.Length > 0)
                         socialRef.Url = sWSURL;
 
