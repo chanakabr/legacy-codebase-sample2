@@ -57,6 +57,11 @@ namespace GroupsCacheManager
         public bool isRegionalizationEnabled;
 
         /// <summary>
+        /// Indicates if we want to use the region parameter when searching for channels
+        /// </summary>
+        public bool isRegionalizationFilteringEnabled;
+
+        /// <summary>
         /// List of regions associated with this group
         /// </summary>
         public List<Region> regions;

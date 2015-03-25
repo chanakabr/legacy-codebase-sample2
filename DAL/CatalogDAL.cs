@@ -2497,12 +2497,14 @@ namespace Tvinci.Core.DAL
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="isRegionalizationEnabled"></param>
+        /// <param name="isRegionalizationFilteringEnabled"></param>
         /// <param name="defaultRegion"></param>
         /// <returns></returns>
-        public static List<Region> GetGroupRegions(int groupId, out bool isRegionalizationEnabled, out Region defaultRegion)
+        public static List<Region> GetGroupRegions(int groupId, out bool isRegionalizationEnabled, out bool isRegionalizationFilteringEnabled, out Region defaultRegion)
         {
             List<Region> regions = new List<Region>();
             isRegionalizationEnabled = false;
+            isRegionalizationFilteringEnabled = false;
             defaultRegion = null;
 
             // Call stored procedure that checks if this group has regionalization or not
@@ -2521,6 +2523,7 @@ namespace Tvinci.Core.DAL
                     DataRow groupRow = groupTable.Rows[0];
 
                     isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
+                    isRegionalizationFilteringEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_filtering_enabled");
 
                     // If regionalization disabled - no need to continue
                     if (isRegionalizationEnabled)

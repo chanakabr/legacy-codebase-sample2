@@ -62,12 +62,16 @@ namespace GroupsCacheManager
         private static void SetRegions(Group group)
         {
             bool isRegionalizationEnabled;
+            bool isRegionalizationFilteringEnabled;
+
             Region defaultRegion;
 
-            List<Region> regions = CatalogDAL.GetGroupRegions(group.m_nParentGroupID, out isRegionalizationEnabled, out defaultRegion);
+            List<Region> regions = CatalogDAL.GetGroupRegions(group.m_nParentGroupID, 
+                out isRegionalizationEnabled, out isRegionalizationFilteringEnabled, out defaultRegion);
 
             group.regions = regions;
             group.isRegionalizationEnabled = isRegionalizationEnabled;
+            group.isRegionalizationFilteringEnabled = isRegionalizationFilteringEnabled;
             group.defaultRegion = defaultRegion;
         }
 
