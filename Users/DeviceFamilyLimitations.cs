@@ -15,16 +15,19 @@ namespace Users
         public int concurrency { get; set; }
         public int quantity { get; set; }
 
+        public int Frequency { get; set; }
+
         public DeviceFamilyLimitations()
         {
         }
 
-        public DeviceFamilyLimitations(int nDeviceFamily, int nConcurrency , int nQuantity, string sDeviceFamilyName)
+        public DeviceFamilyLimitations(int nDeviceFamily, int nConcurrency , int nQuantity, string sDeviceFamilyName, int frequency)
         {
             this.deviceFamily = nDeviceFamily;
             this.concurrency = nConcurrency;
             this.deviceFamily = nDeviceFamily;
             this.deviceFamilyName = sDeviceFamilyName;
+            this.Frequency = frequency;
         }
 
 

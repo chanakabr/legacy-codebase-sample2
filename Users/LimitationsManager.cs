@@ -103,7 +103,7 @@ namespace Users
 
         public string UserFrequencyDescrition { get; set; }
 
-        public string FrequencyDescrition { get; set; }
+        public string FrequencyDescription { get; set; }
         
         public void SetConcurrency(int nConcurrencyDomainLevel, int nConcurrencyGroupLevel)
         {
