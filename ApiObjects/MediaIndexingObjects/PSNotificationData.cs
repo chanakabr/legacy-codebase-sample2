@@ -13,6 +13,7 @@ namespace ApiObjects.MediaIndexingObjects
     {
         #region Data Members
 
+        // celery task messages data members
         public string id;
         public string task;
         public List<object> args;
@@ -25,13 +26,11 @@ namespace ApiObjects.MediaIndexingObjects
         /// <summary>
         /// The action that is being notified
         /// </summary>
-        [DataMember]
         private NotifiedAction Action;
 
         /// <summary>
         /// Json object that holds the data
         /// </summary>
-        [DataMember]
         private JObject Data;
 
         #endregion
@@ -72,19 +71,18 @@ namespace ApiObjects.MediaIndexingObjects
                 }
             }
 
-            // Put all arguments in one json object
-            jsonArgument.Add("GroupId", JToken.FromObject(this.GroupId));
-            jsonArgument.Add("Action", JToken.FromObject(this.Action));
-            jsonArgument.Add("Data", this.Data);
-            
             // Id = guid
             this.id = Guid.NewGuid().ToString();
 
             // task - from tcm
             this.task = task;
 
-            // Like we said, args will hold only one json object with everything in it
-            this.args.Add(jsonArgument);
+            // constant arguments - gruop id and action
+            this.args.Add(this.GroupId);
+            this.args.Add(this.Action);
+            
+            // dynamic data - third object in args, will be in a nested json object
+            this.args.Add(this.Data);
         } 
 
         #endregion
