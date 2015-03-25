@@ -95,7 +95,7 @@
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
+    <ProjectReference Include="..\..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
       <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
       <Name>TvinciImporter</Name>
     </ProjectReference>
