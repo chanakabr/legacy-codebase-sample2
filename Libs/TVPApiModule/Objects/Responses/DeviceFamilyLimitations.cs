@@ -20,6 +20,9 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "quantity")]
         public int Quantity { get; set; }
 
+        [JsonProperty(PropertyName = "frequency")]
+        public int Frequency { get; set; }
+
         public DeviceFamilyLimitations()
         {
         }
@@ -32,6 +35,7 @@ namespace TVPApiModule.Objects.Responses
                 DeviceFamilyName = deviceFamilyLimitations.deviceFamilyName;
                 Concurrency = deviceFamilyLimitations.concurrency;
                 Quantity = deviceFamilyLimitations.quantity;
+                Frequency = deviceFamilyLimitations.Frequency;
             }
         }
     }

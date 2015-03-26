@@ -34,6 +34,10 @@
 
     protected void Application_BeginRequest(Object sender, EventArgs e)
     {
+        //Patch for .net v4.0+
+        if (HttpContext.Current.Items.Count > 0)
+            HttpContext.Current.Items.Clear();
+        
         // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
         TVPApi.ConnectionHelper.InitServiceConfigs();
         HttpContext.Current.Items.Add("RequestStartTime", DateTime.UtcNow);
