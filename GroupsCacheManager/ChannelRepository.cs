@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using Logger;
+using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager
 {
@@ -43,12 +44,34 @@ namespace GroupsCacheManager
                 GetGroupLanguages(ref newGroup);      
                 // get all services related to group
                 GetGroupServices(ref newGroup);
+
+                SetRegions(newGroup);
             }
 
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
-      
+            
             return newGroup;
+        }
+
+        /// <summary>
+        /// Tells if regionalization is enabled for this group. 
+        /// If yes, it updates the list of regions of the group
+        /// </summary>
+        /// <param name="group"></param>
+        private static void SetRegions(Group group)
+        {
+            bool isRegionalizationEnabled;
+            bool isRegionalizationFilteringEnabled;
+
+            Region defaultRegion;
+
+            List<Region> regions = CatalogDAL.GetGroupRegions(group.m_nParentGroupID, 
+                out isRegionalizationEnabled, out defaultRegion);
+
+            group.regions = regions;
+            group.isRegionalizationEnabled = isRegionalizationEnabled;
+            group.defaultRegion = defaultRegion;
         }
 
         private static void GetGroupServices(ref Group group)

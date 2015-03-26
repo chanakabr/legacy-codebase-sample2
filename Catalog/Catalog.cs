@@ -701,6 +701,8 @@ namespace Catalog
                 searchObj.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitionsTheMediaShouldNotAppearIn;
 
                 #endregion
+
+                searchObj.regionIds = GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
             }
             catch (Exception ex)
             {
@@ -718,6 +720,87 @@ namespace Catalog
         internal static MediaSearchObj BuildSearchObject(BaseMediaSearchRequest request, List<string> jsonizedChannelsDefinitionsToSearchIn)
         {
             return BuildSearchObject(request, jsonizedChannelsDefinitionsToSearchIn, null);
+        }
+
+        /// <summary>
+        /// Returns list of regions to perform search by them.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <param name="siteGuid"></param>
+        /// <returns></returns>
+        internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
+        {
+            List<int> regionIds = new List<int>();
+
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(groupId);
+
+            // If this group has regionalization enabled at all
+            if (group.isRegionalizationEnabled)
+            {
+                // Always search for region 0 - media that is not associated to any region
+                regionIds.Add(0);
+
+                // If this is a guest user or something like this - get default region
+                if (domainId == 0)
+                {
+                    var defaultRegion =  group.GetDefaultRegion();
+
+                    if (defaultRegion != null)
+                    {
+                        regionIds.Add(defaultRegion.id);
+                    }
+                }
+                // Otherwise get the region of the requesting domain
+                else
+                {
+                    string userName = string.Empty;
+                    string password = string.Empty;
+
+                    //get username + password from wsCache
+                    Credentials credentials =
+                        TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
+
+                    if (credentials != null)
+                    {
+                        userName = credentials.m_sUsername;
+                        password = credentials.m_sPassword;
+                    }
+
+                    if (userName.Length == 0 || password.Length == 0)
+                    {
+                        throw new Exception(string.Format(
+                            "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
+                            siteGuid, groupId));
+                    }
+
+                    using (WS_Domains.module domainsWebService = new WS_Domains.module())
+                    {
+                        string url = Utils.GetWSURL("ws_domains");
+                        domainsWebService.Url = url;
+
+                        var domain = domainsWebService.GetDomainInfo(userName, password, domainId);
+
+                        // If the domain is not associated to a domain - get default region
+                        if (domain.m_nRegion == 0)
+                        {
+                            var defaultRegion = group.GetDefaultRegion();
+
+                            if (defaultRegion != null)
+                            {
+                                regionIds.Add(defaultRegion.id);
+                            }
+                        }
+                        else
+                        {
+                            regionIds.Add(domain.m_nRegion);
+                        }
+                    }
+                }
+            }
+
+            return regionIds;
         }
 
         /*Build Full search object*/
@@ -1244,17 +1327,26 @@ namespace Catalog
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = string.Join(";",channel.m_nMediaType);
+
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
+            {
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
+            }
+
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
             searchObject.m_oLangauge = oLanguage;
 
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
+
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
+            {
                 GetOrderValues(ref oSearcherOrderObj, orderObj);
+            }
             else
+            {
                 GetOrderValues(ref oSearcherOrderObj, channel.m_OrderObject);
+            }
 
             searchObject.m_oOrder = oSearcherOrderObj;
 
@@ -1263,9 +1355,13 @@ namespace Catalog
                 searchObject.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObject.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObject.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
-
             }
+
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+
+            searchObject.regionIds =
+                Catalog.GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+
             return searchObject;
         }
 
@@ -1753,11 +1849,13 @@ namespace Catalog
         }
 
         internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, ref ISearcher initializedSearcher,
+            int domainId, string siteGuid,
             ref List<List<string>> jsonizedChannelsDefinitions)
         {
             List<long> res = new List<long>();
             Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(groupID);
             MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
+                domainId, siteGuid,
                 dict, jsonizedChannelsDefinitions);
             SearchResultsObj searcherAnswer = initializedSearcher.SearchMedias(groupID, linearChannelMediaIDsRequest, 0, true, groupID);
 
@@ -2430,7 +2528,9 @@ namespace Catalog
         }
 
 
-        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
+        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, 
+            int domainId, string siteGuid,
+            Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
         {
             MediaSearchObj res = new MediaSearchObj();
             res.m_nGroupId = nGroupID;
@@ -2440,6 +2540,9 @@ namespace Catalog
             res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
             res.m_nPageIndex = 0;
             res.m_nPageSize = GetSearcherMaxResultsSize();
+
+            res.regionIds = Catalog.GetSearchRegions(nGroupID, domainId, siteGuid);
+
             return res;
         }
 

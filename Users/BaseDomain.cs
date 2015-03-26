@@ -1218,5 +1218,39 @@ namespace Users
                 return oDLMResponse;
             }
         }
+
+        public ApiObjects.Response.Status SetDomainRegion(int groupId, int domainId, string extRegionId)
+        {
+            ApiObjects.Response.Status status = null;
+            try
+            {
+                DomainsCache domainsCache = DomainsCache.Instance();
+                Domain domain = domainsCache.GetDomain(domainId, groupId);
+                if (domain == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                    return status;
+                }
+
+                if (DomainDal.UpdateDomainRegion(domainId, extRegionId))
+                {
+                    DomainsCache.Instance().RemoveDomain(domainId);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                }
+                else
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, ex = {2}", domainId, extRegionId, ex.Message), "BaseDomain");
+                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                return status;
+            }
+
+            return status;
+        }
     }
 }

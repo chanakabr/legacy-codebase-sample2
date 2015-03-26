@@ -2493,6 +2493,97 @@ namespace Tvinci.Core.DAL
             return lServices;
         }
 
+        /// <summary>
+        /// Builds the list of the regions of a given group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="isRegionalizationEnabled"></param>
+        /// <param name="defaultRegion"></param>
+        /// <returns></returns>
+        public static List<Region> GetGroupRegions(int groupId, out bool isRegionalizationEnabled, out Region defaultRegion)
+        {
+            List<Region> regions = new List<Region>();
+            isRegionalizationEnabled = false;
+            defaultRegion = null;
+
+            // Call stored procedure that checks if this group has regionalization or not
+            ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultRegion");
+            storedProcedureDefaultRegion.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedureDefaultRegion.AddParameter("@GroupID", groupId);
+
+            DataSet groupDataSet = storedProcedureDefaultRegion.ExecuteDataSet();
+
+            if (groupDataSet != null && groupDataSet.Tables != null && groupDataSet.Tables.Count == 1)
+            {
+                DataTable groupTable = groupDataSet.Tables[0];
+
+                if (groupTable != null && groupTable.Rows != null && groupTable.Rows.Count > 0 && groupTable.Rows[0] != null)
+                {
+                    DataRow groupRow = groupTable.Rows[0];
+
+                    isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
+
+                    // If regionalization disabled - no need to continue
+                    if (isRegionalizationEnabled)
+                    {
+                        int defaultRegionId = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
+
+                        ODBCWrapper.StoredProcedure storedProcedureRegions = new ODBCWrapper.StoredProcedure("Get_GroupRegions");
+                        storedProcedureRegions.SetConnectionKey("MAIN_CONNECTION_STRING");
+                        storedProcedureRegions.AddParameter("@GroupID", groupId);
+
+                        DataSet regionsDataSet = storedProcedureRegions.ExecuteDataSet();
+
+                        if (regionsDataSet != null && regionsDataSet.Tables != null && regionsDataSet.Tables.Count > 0)
+                        {
+                            DataTable regionsTable = regionsDataSet.Tables[0];
+
+                            if (regionsTable != null && regionsTable.Rows != null && regionsTable.Rows.Count > 0)
+                            {
+                                // Run on all records of regions associated with this group and create region objects and add them to list
+                                foreach (DataRow regionRow in regionsTable.Rows)
+                                {
+                                    Region currentRegion = BuildRegion(regionRow);
+
+                                    if (currentRegion != null)
+                                    {
+                                        regions.Add(currentRegion);
+
+                                        // If this is the default region, return it
+                                        if (currentRegion.id == defaultRegionId)
+                                        {
+                                            defaultRegion = currentRegion;
+
+                                            defaultRegion.isDefault = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return (regions);
+        }
+
+        /// <summary>
+        /// Builds a region object based on a data row
+        /// </summary>
+        /// <param name="regionRow"></param>
+        /// <returns></returns>
+        private static Region BuildRegion(DataRow regionRow)
+        {
+            Region region = new Region();
+
+            region.id = ODBCWrapper.Utils.ExtractInteger(regionRow, "ID");
+            region.name = ODBCWrapper.Utils.ExtractString(regionRow, "NAME");
+            region.externalId = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+            region.groupId = ODBCWrapper.Utils.ExtractInteger(regionRow, "GROUP_ID");
+
+            return (region);
+        }
+
         public static DataSet GetMediaByEpgChannelIds(int groupId, List<string> epgChannelIds)
         {
             StoredProcedure storedProcedure = new StoredProcedure("[Get_MediasByEpgIds]");

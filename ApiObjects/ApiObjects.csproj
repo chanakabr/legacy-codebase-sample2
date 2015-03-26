@@ -177,6 +177,8 @@
     <Compile Include="PurchaseWithPreviewModuleRequest.cs" />
     <Compile Include="RateMediaObject.cs" />
     <Compile Include="RateResponseObject.cs" />
+    <Compile Include="Region.cs" />
+    <Compile Include="RegionResponse.cs" />
     <Compile Include="RequestObj.cs" />
     <Compile Include="Response\EnumResponseStatus.cs" />
     <Compile Include="Scheduling.cs" />

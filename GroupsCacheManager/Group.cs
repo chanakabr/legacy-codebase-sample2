@@ -49,13 +49,29 @@ namespace GroupsCacheManager
         protected Dictionary<int, LanguageObj> m_dLangauges;
         [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
-        
+
+        /// <summary>
+        /// Indicates if this group has DTT regionalization support or not
+        /// </summary>
+        [JsonProperty("m_bIsRegionalizationEnabled")]
+        public bool isRegionalizationEnabled;
+
+        /// <summary>
+        /// List of regions associated with this group
+        /// </summary>
+        public List<Region> regions;
+
+        /// <summary>
+        /// The default region of this group (in case a domain isn't associated with any region)
+        /// </summary>
+        public Region defaultRegion;
 
         #endregion
 
         #region CTOR
         public Group()
         {
+
         }
 
         #endregion
@@ -74,6 +90,7 @@ namespace GroupsCacheManager
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
             this.m_lServiceObject = new List<int>();
             this.m_oDefaultLanguage = null;
+            this.regions = new List<Region>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -635,6 +652,30 @@ namespace GroupsCacheManager
 
 
 
+
+        #endregion
+
+        #region Regions
+
+        /// <summary>
+        /// Gets the default region of this group
+        /// </summary>
+        /// <returns></returns>
+        public Region GetDefaultRegion()
+        {
+            if (this.defaultRegion != null)
+            {
+                return (this.defaultRegion);
+            }
+            else if (this.regions == null)
+            {
+                return (null);
+            }
+            else
+            {
+                return (regions.FirstOrDefault(region => region.isDefault));
+            }
+        }
 
         #endregion
 
