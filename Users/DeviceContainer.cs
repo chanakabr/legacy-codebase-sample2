@@ -47,14 +47,14 @@ namespace Users
             return sb.ToString();
         }
 
-        public DeviceContainer(int id, string name, int limit, int nConcurrentLimit = 1)
+        public DeviceContainer(int id, string name, int limit, int nConcurrentLimit = 1, int frequency = -1)
         {
             m_deviceFamilyID = id;
             m_deviceFamilyName = name;
             m_deviceLimit = limit;
             m_deviceConcurrentLimit = nConcurrentLimit;
             m_DeviceInstances = new List<Device>();
-            m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, 0);
+            m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, frequency);
         }
 
         [JsonIgnore]

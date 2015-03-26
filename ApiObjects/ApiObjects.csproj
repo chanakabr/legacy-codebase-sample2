@@ -118,6 +118,7 @@
     <Compile Include="Epg\EpgChannelObj.cs" />
     <Compile Include="Epg\EpgLinkConstants.cs" />
     <Compile Include="Epg\EpgObject.cs" />
+    <Compile Include="Epg\Picture.cs" />
     <Compile Include="Epg\EpgTagTranslate.cs" />
     <Compile Include="Epg\FieldTypeEntity.cs" />
     <Compile Include="Epg\Meta.cs" />

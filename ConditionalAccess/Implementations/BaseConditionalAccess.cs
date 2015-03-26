@@ -6934,7 +6934,10 @@ namespace ConditionalAccess
                                     ref TvinciBilling.module bm, string sBillingUsername, string sBillingPassword)
         {
             string sCustomData = string.Empty;
-            TvinciBilling.BillingResponse ret = null;
+            TvinciBilling.BillingResponse ret = new TvinciBilling.BillingResponse()
+            {
+                m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown
+            };
 
             //Create the Custom Data
             sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
@@ -6951,14 +6954,17 @@ namespace ConditionalAccess
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
                     bDummy, bIsEntitledToPreviewModule, ref bm);
             }
+
             if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
             {
                 ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
             }
+
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
             {
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
+
                 HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
                     bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
@@ -6980,7 +6986,7 @@ namespace ConditionalAccess
                         {"CustomData", sCustomData}
                     };
 
-                this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
+                var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
             }
             else
             {
@@ -10872,10 +10878,20 @@ namespace ConditionalAccess
         /// <param name="p_dicData"></param>
         protected bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
         {
-            PSNotificationData oNotification = new PSNotificationData(m_nGroupID, p_dicData, p_eAction);
+            string task = Utils.GetValueFromConfig("ProfessionalServices.task");
+
+            PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, p_dicData, p_eAction);
 
             PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
-            bool bResult = qNotificationQueue.Enqueue(oNotification, m_nGroupID.ToString());
+
+            string routingKey = Utils.GetValueFromConfig("ProfessionalServices.routingKey");
+
+            if (string.IsNullOrEmpty(routingKey))
+            {
+                routingKey = m_nGroupID.ToString();
+            }
+
+            bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
 
             return (bResult);
         }
@@ -11509,7 +11525,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        private bool IsItemPurchased(MediaFileItemPricesContainer price)
+        internal bool IsItemPurchased(MediaFileItemPricesContainer price)
         {
             bool res = false;
             PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
@@ -11543,7 +11559,7 @@ namespace ConditionalAccess
             return basicLink != null && mediaFileID > 0 && !string.IsNullOrEmpty(siteGuid) && Int32.TryParse(siteGuid, out temp) && temp > 0;
         }
 
-        private bool IsFreeItem(MediaFileItemPricesContainer container)
+        internal bool IsFreeItem(MediaFileItemPricesContainer container)
         {
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
         }
