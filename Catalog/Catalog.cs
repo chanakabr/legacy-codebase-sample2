@@ -737,7 +737,7 @@ namespace Catalog
             Group group = groupManager.GetGroup(groupId);
 
             // If this group has regionalization enabled at all
-            if (group.isRegionalizationEnabled && group.isRegionalizationFilteringEnabled)
+            if (group.isRegionalizationEnabled)
             {
                 // Always search for region 0 - media that is not associated to any region
                 regionIds.Add(0);

@@ -67,11 +67,10 @@ namespace GroupsCacheManager
             Region defaultRegion;
 
             List<Region> regions = CatalogDAL.GetGroupRegions(group.m_nParentGroupID, 
-                out isRegionalizationEnabled, out isRegionalizationFilteringEnabled, out defaultRegion);
+                out isRegionalizationEnabled, out defaultRegion);
 
             group.regions = regions;
             group.isRegionalizationEnabled = isRegionalizationEnabled;
-            group.isRegionalizationFilteringEnabled = isRegionalizationFilteringEnabled;
             group.defaultRegion = defaultRegion;
         }
 
