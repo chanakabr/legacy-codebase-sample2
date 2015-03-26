@@ -11,9 +11,6 @@ namespace ApiObjects.SearchObjects
     {
         #region Data Members
 
-        public bool isDescending;
-        public string orderBy;
-
         public int pageIndex
         {
             get;
@@ -107,7 +104,6 @@ namespace ApiObjects.SearchObjects
             groupId = 0;
             epgDaysOffest = 0;
 
-            isDescending = false;
             shouldSearchEpg = false;
             shouldUseFinalEndDate = false;
             shouldUseStartDate = true;

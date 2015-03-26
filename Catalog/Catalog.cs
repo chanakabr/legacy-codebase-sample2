@@ -852,8 +852,6 @@ namespace Catalog
             definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
             definitions.filterPhrase = request.filterTree;
 
-            definitions.isDescending = false;
-
             #endregion
 
             #region Asset Types

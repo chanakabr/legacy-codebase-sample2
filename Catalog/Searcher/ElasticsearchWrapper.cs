@@ -879,6 +879,8 @@ namespace Catalog
             }
         }
 
+        #region Unified Search
+
         /// <summary>
         /// Performs a search on several types of assets in a single call
         /// </summary>
@@ -889,20 +891,28 @@ namespace Catalog
             SearchResultsObj searchResults = new SearchResultsObj();
 
             OrderObj order = unifiedSearchDefinitions.order;
+            ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
+            bool isOrderedByStat = false;
 
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
 
-            int nPageIndex = 0;
-            int nPageSize = 0;
+            int pageIndex = 0;
+            int pageSize = 0;
 
-            if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && 
-                order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || 
-                order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
+            if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
+                orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
+                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
             {
-                nPageIndex = unifiedSearchDefinitions.pageIndex;
-                nPageSize = unifiedSearchDefinitions.pageSize;
+                pageIndex = unifiedSearchDefinitions.pageIndex;
+                pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
                 queryParser.PageSize = 0;
+
+                // Initial sort will be by ID
+                unifiedSearchDefinitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
+
+                isOrderedByStat = true;
             }
             else
             {
@@ -951,22 +961,33 @@ namespace Catalog
                             });
                         }
 
-                        if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
-                            order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
-                            order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                        // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
+                        if (isOrderedByStat)
                         {
                             List<int> assetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
 
-                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = searchResults.m_resultIDs.ToDictionary(item => item.assetID, item => item as UnifiedSearchResult);
+                            List<int> orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
+
+                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+
+                            // Map all results in dictionary
+                            searchResults.m_resultIDs.ForEach(item =>
+                                {
+                                    if (!idToResultDictionary.ContainsKey(item.assetID))
+                                    {
+                                        idToResultDictionary.Add(item.assetID, item as UnifiedSearchResult);
+                                    }
+                                });
+
                             searchResults.m_resultIDs.Clear();
 
-                            int nValidNumberOfMediasRange = nPageSize;
+                            int validNumberOfMediasRange = pageSize;
 
-                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, pageIndex, ref validNumberOfMediasRange))
                             {
-                                if (nValidNumberOfMediasRange > 0)
+                                if (validNumberOfMediasRange > 0)
                                 {
-                                    assetIds = assetIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                    assetIds = orderedIds.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
                                 }
                             }
 
@@ -990,6 +1011,253 @@ namespace Catalog
 
             return (searchResults);
         }
+
+        /// <summary>
+        /// For a given list of asset Ids, returns a list of the same IDs, after sorting them by a specific statistics
+        /// </summary>
+        /// <param name="assetIds"></param>
+        /// <param name="groupId"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <returns></returns>
+        private List<int> SortAssetsByStats(List<int> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        {
+            List<int> sortedList = null;
+            HashSet<int> alreadyContainedIds = null;
+
+            #region Define Facet Query
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = 0,
+                PageSize = 0
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+
+            filter.AddChild(new ESTerm(true)
+            {
+                Key = "group_id",
+                Value = groupId.ToString()
+            });
+
+            #region define action filter
+
+            string actionName = string.Empty;
+
+            switch (orderBy)
+            {
+                case ApiObjects.SearchObjects.OrderBy.VIEWS:
+                {
+                    actionName = Catalog.STAT_ACTION_MEDIA_HIT;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.RATING:
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
+                {
+                    actionName = Catalog.STAT_ACTION_LIKE;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            ESTerm actionTerm = new ESTerm(false)
+            {
+                Key = "action",
+                Value = actionName
+            };
+
+            filter.AddChild(actionTerm);
+
+            #endregion
+
+            #region Define IDs filter
+
+            ESTerms idsTerm = new ESTerms(true)
+            {
+                Key = "media_id"
+            };
+
+            // Convert all Ids to strings
+            idsTerm.Value.AddRange(assetIds.Select(id => id.ToString()));
+
+            filter.AddChild(idsTerm);
+
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            IESFacet facet = null;
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
+                {
+                    Query = filteredQuery
+                };
+            }
+            else
+            {
+                facet = new ESTermsFacet("stats", "media_id", 100000)
+                {
+                    Query = filteredQuery
+                };
+            }
+
+
+            #endregion
+
+            string facetRequestBody = facet.ToString();
+
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+
+            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+
+            // Take thre stringy result, parse it and get a sorted list of the asset Ids that have statistical data in the facet
+            if (!string.IsNullOrEmpty(facetsResults))
+            {
+                sortedList = ProcessFacetResults(facetsResults, orderBy, orderDirection, ref alreadyContainedIds);
+
+                if (sortedList == null)
+                {
+                    sortedList = new List<int>();
+                }
+            }
+
+            // Add all ids that don't have stats
+            foreach (var currentId in assetIds)
+            {
+                if (!alreadyContainedIds.Contains(currentId))
+                {
+                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                    if (orderDirection == OrderDir.ASC)
+                    {
+                        sortedList.Insert(0, currentId);
+                    }
+                    else
+                    {
+                        sortedList.Add(currentId);
+                    }
+                }
+            }
+
+            return sortedList;
+        }
+
+        /// <summary>
+        /// After receiving a result from ES server, process it to create a list of Ids with the given order
+        /// </summary>
+        /// <param name="facetsResults"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <param name="alreadyContainedIds"></param>
+        /// <returns></returns>
+        private static List<int> ProcessFacetResults(string facetsResults, ApiObjects.SearchObjects.OrderBy orderBy,
+            OrderDir orderDirection, ref HashSet<int> alreadyContainedIds)
+        {
+            List<int> sortedList = new List<int>();
+            alreadyContainedIds = new HashSet<int>();
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                // Get facet results
+                Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
+                    ESTermsStatsFacet.FacetResults(ref facetsResults);
+
+                if (facetsDictionary != null && facetsDictionary.Count > 0)
+                {
+                    List<ESTermsStatsFacet.StatisticFacetResult> statResult;
+
+                    //retrieve specific facet result
+                    facetsDictionary.TryGetValue("stats", out statResult);
+
+                    if (statResult != null && statResult.Count > 0)
+                    {
+                        // sort ASCENDING - different than normal execution!
+                        statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
+
+                        foreach (var result in statResult)
+                        {
+                            int currentId;
+
+                            // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
+                            if (int.TryParse(result.term, out currentId))
+                            {
+                                if (orderDirection == OrderDir.DESC)
+                                {
+                                    sortedList.Insert(0, currentId);
+                                }
+                                else
+                                {
+                                    sortedList.Add(currentId);
+                                }
+
+                                alreadyContainedIds.Add(currentId);
+                            }
+                        }
+                    }
+                }
+            }
+            // If it is not ratings - just use count
+            else
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> facetsDictionary = ESTermsFacet.FacetResults(ref facetsResults);
+
+                if (facetsDictionary != null && facetsDictionary.Count > 0)
+                {
+                    Dictionary<string, int> statResult;
+
+                    //retrieve specific facet result
+                    facetsDictionary.TryGetValue("stats", out statResult);
+
+                    if (statResult != null && statResult.Count > 0)
+                    {
+                        // We base this section on the assumption that facets request is sorted, descending
+                        foreach (string facetKey in statResult.Keys)
+                        {
+                            int count = statResult[facetKey];
+
+                            int currentId;
+
+                            if (int.TryParse(facetKey, out currentId))
+                            {
+                                // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                                if (orderDirection == OrderDir.ASC)
+                                {
+                                    sortedList.Insert(0, currentId);
+                                }
+                                else
+                                {
+                                    sortedList.Add(currentId);
+                                }
+
+                                alreadyContainedIds.Add(currentId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return sortedList;
+        } 
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>
