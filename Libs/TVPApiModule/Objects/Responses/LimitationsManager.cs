@@ -40,7 +40,7 @@ namespace TVPApiModule.Objects.Responses
 
         [JsonProperty(PropertyName = "device_frequency_description")] 
         public string DeviceFrequencyDescrition { get; set; }
-
+       
         public LimitationsManager()
         {
             DeviceFamilyLimitations = new List<DeviceFamilyLimitations>();
@@ -67,7 +67,7 @@ namespace TVPApiModule.Objects.Responses
                 UserLimit = limitationManager.nUserLimit;
                 UserFrequency = limitationManager.UserFrequency;
                 UserFrequencyDescrition = limitationManager.UserFrequencyDescrition;
-                DeviceFrequencyDescrition = limitationManager.FrequencyDescrition;
+                DeviceFrequencyDescrition = limitationManager.FrequencyDescription;
             }
         }
     }
