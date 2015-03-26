@@ -22,6 +22,19 @@
     function create_csv() {
         RS.Execute("adm_epg_pics_templates.aspx", "GetTableCSV", callback_create_csv, errorCallback);
     }
+
+    function recrop(w, h, gid, c) {
+        alert("Pic Recrop");
+        if (c == 1) {
+            sURL = "AjaxPicResize.aspx?w=" + w + "&h=" + h + "&gid=" + gid + "&c=true";
+        }
+        else {
+            sURL = "AjaxPicResize.aspx?w=" + w + "&h=" + h + "&gid=" + gid + "&c=false";
+        }
+        postFile(sURL, callback_PicResize);
+    }
+
+
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">

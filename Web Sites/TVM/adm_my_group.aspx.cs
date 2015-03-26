@@ -250,13 +250,19 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_device_limits.Initialize("Default Device Limit", "adm_table_header_nbg", "FormInput", "max_device_limit", false);
         theRecord.AddRecord(dr_device_limits);
 
+        //MEDIA
         DataRecordDropDownField dr_ratios = new DataRecordDropDownField("lu_pics_ratios", "ratio", "id", "", "", 60, false);
-        dr_ratios.Initialize("Main Ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", false);
+        dr_ratios.Initialize("VOD Main Ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", false);        
         theRecord.AddRecord(dr_ratios);
 
         DataRecordMultiField dr_more_ratios = new DataRecordMultiField("lu_pics_ratios", "id", "id", "group_ratios", "GROUP_ID", "RATIO_ID", false, "ltr", 60, "tags");
-        dr_more_ratios.Initialize("More Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);        
+        dr_more_ratios.Initialize("More Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);
         theRecord.AddRecord(dr_more_ratios);
+
+        //EPG
+        DataRecordMultiField dr_more_ratios_epg = new DataRecordMultiField("lu_pics_epg_ratios", "id", "id", "group_epg_ratios", "GROUP_ID", "RATIO_ID", false, "ltr", 60, "tags");
+        dr_more_ratios_epg.Initialize("More EPG Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);        
+        theRecord.AddRecord(dr_more_ratios_epg);
 
         DataRecordCheckBoxField dr_use_default_info_struct = new DataRecordCheckBoxField(true);
         dr_use_default_info_struct.Initialize("Use default info struct", "adm_table_header_nbg", "FormInput", "USE_DEFAULT_INFO_STRUCT", true);
