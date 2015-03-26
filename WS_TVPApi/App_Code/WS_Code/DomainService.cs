@@ -263,9 +263,9 @@ namespace TVPApiServices
                         devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() 
                         { 
                             DomainID = domains[i].m_nDomainID, 
-                            DomainName = domains[i].m_sName, 
-                            SiteGuid = domains[i].m_masterGUIDs[0].ToString(),
-                            DefaultUser = domains[i].m_DefaultUsersIDs[0].ToString()
+                            DomainName = domains[i].m_sName,
+                            SiteGuid = domains[i].m_masterGUIDs != null && domains[i].m_masterGUIDs.Count() > 0 ? domains[i].m_masterGUIDs[0].ToString() : string.Empty,
+                            DefaultUser = domains[i].m_DefaultUsersIDs != null && domains[i].m_DefaultUsersIDs.Count() > 0 ? domains[i].m_DefaultUsersIDs[0].ToString() : string.Empty
                         };
                 }
                 catch (Exception ex)
