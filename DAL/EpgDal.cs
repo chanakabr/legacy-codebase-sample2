@@ -199,11 +199,25 @@ namespace Tvinci.Core.DAL
             StoredProcedure spGetEpgIDbyEPGIdentifier = new StoredProcedure("Get_EpgIDbyEPGIdentifier");
             spGetEpgIDbyEPGIdentifier.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEpgIDbyEPGIdentifier.AddIDListParameter<string>("@EPGIdentifiers", EPGIdentifiers, "Id");
+          
             DataSet ds = spGetEpgIDbyEPGIdentifier.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
         }
+        public static DataTable Get_EpgIDbyEPGIdentifier(List<string> EPGIdentifiers, int channelID)
+        {
+            StoredProcedure spGetEpgIDbyEPGIdentifier = new StoredProcedure("Get_EpgIDbyEPGIdentifier");
+            spGetEpgIDbyEPGIdentifier.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEpgIDbyEPGIdentifier.AddIDListParameter<string>("@EPGIdentifiers", EPGIdentifiers, "Id");
+            spGetEpgIDbyEPGIdentifier.AddParameter("@channelID", channelID);
+
+            DataSet ds = spGetEpgIDbyEPGIdentifier.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+         
 
         public static DataTable Get_EPGTagValueIDs(int nGroupID, Dictionary<int, List<string>> lTagTypeAndValues)
         {
@@ -356,12 +370,13 @@ namespace Tvinci.Core.DAL
 
 
 
-        public static DataTable EpgGuidExsits(List<string> keyCollection, int groupID)
+        public static DataTable EpgGuidExsits(List<string> keyCollection, int groupID, int channelID)
         {
             StoredProcedure sp = new StoredProcedure("EpgGuidExsits");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<string>("@keyCollection", keyCollection, "Id");
             sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@channelID", channelID);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
