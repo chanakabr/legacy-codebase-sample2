@@ -220,10 +220,10 @@ namespace GracenoteFeeder
 
                     //insert EPGs to DB in batches
                     // find the epg that need to be updated                    
-                    UpdateEpgDic(ref epgDic, groupID, dPublishDate);
+                    UpdateEpgDic(ref epgDic, groupID, dPublishDate, channelID);
 
                     //insert EPGs to DB in batches
-                    InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping, dPublishDate);
+                    InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping, dPublishDate, channelID);
 
                     // Delete all EpgIdentifiers that are not needed (per channel per day)
                     List<int> lProgramsID = DeleteEpgs(dPublishDate, channelID, groupID, deletedDays);
@@ -304,14 +304,14 @@ namespace GracenoteFeeder
         }
 
         // get all epgid that already exsits in DB
-        private void UpdateEpgDic(ref Dictionary<string, EpgCB> epgDic, int groupID, DateTime dPublishDate)
+        private void UpdateEpgDic(ref Dictionary<string, EpgCB> epgDic, int groupID, DateTime dPublishDate, int channelID)
         {
             try
             {
                 List<int> epgIdsToUpdate = new List<int>();
                 List<string> epgGuid = epgDic.Keys.ToList();
                 List<string> epgIds = new List<string>(); // list of all exsits epg programs ids 
-                DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID);
+                DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID, channelID);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -518,7 +518,7 @@ namespace GracenoteFeeder
             return res;
         }
 
-        private void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate)
+        private void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate, int channelID)
         {
             EpgCB epg;
             Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
@@ -536,7 +536,7 @@ namespace GracenoteFeeder
             Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
 
             //get back the IDs list of the EPGs          
-            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(insertEpgDic.Keys.ToList());
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(insertEpgDic.Keys.ToList(), channelID);
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
             {
                 for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
@@ -575,7 +575,7 @@ namespace GracenoteFeeder
             }*/
         }
 
-        private void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, DateTime dPublishDate)
+        private void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, DateTime dPublishDate, int channelID)
         {
 
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
@@ -593,7 +593,7 @@ namespace GracenoteFeeder
 
                     if (nEpgCount >= nCountPackage)
                     {
-                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate);
+                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate, channelID);
                         nEpgCount = 0;
                         foreach (string guid in epgBatch.Keys)
                         {
@@ -609,7 +609,7 @@ namespace GracenoteFeeder
 
                 if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
                 {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate);
+                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate, channelID);
                     foreach (string guid in epgBatch.Keys)
                     {
                         if (epgBatch[guid].EpgID > 0)
@@ -626,7 +626,7 @@ namespace GracenoteFeeder
             }
         }
 
-        private void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues, DateTime dPublishDate)
+        private void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues, DateTime dPublishDate, int channelID)
         {
             try
             {
@@ -647,9 +647,9 @@ namespace GracenoteFeeder
                 Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = Utils.getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);
 
                 //update all values that already exsits in table
-                UpdateEPG_Channels_sched(ref epgDic, dPublishDate);
+                UpdateEPG_Channels_sched(ref epgDic, dPublishDate, channelID);
                 // insert all epg to DB (epg_channels_schedule)
-                InsertEPG_Channels_sched(ref epgDic, dPublishDate);
+                InsertEPG_Channels_sched(ref epgDic, dPublishDate, channelID);
                 List<int> epgIDs = new List<int>();
 
                 // Tags and Mates
@@ -680,14 +680,14 @@ namespace GracenoteFeeder
             }
         }
 
-        private void UpdateEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate)
+        private void UpdateEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic, DateTime dPublishDate, int channelID)
         {
             EpgCB epg;
             Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
             Dictionary<string, EpgCB> updateEpgDic = new Dictionary<string, EpgCB>();
 
             //get back the IDs list of the EPGs          
-            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList(), channelID);
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
             {
                 for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)

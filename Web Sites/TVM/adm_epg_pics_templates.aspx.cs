@@ -57,9 +57,13 @@ public partial class adm_epg_pics_templates : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-
-        theTable += "select id, Name as 'Name', Description as 'Description', WIDTH as 'Widht', HEIGHT as 'Height', status from epg_pics_sizes where status<>2 and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+              
+        theTable += " select eps.id, eps.Name as 'Name', eps.Description as 'Description', eps.WIDTH as 'Widht', eps.HEIGHT as 'Height', eps.status , lur.ratio as 'Ratio' ";
+        theTable += " from  epg_pics_sizes eps ";
+        theTable += " left  join lu_pics_ratios lur ";
+        theTable += " on    lur.id = eps.ratio_id ";
+        theTable += " where eps.status<>2 and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("eps.group_id", "=", nGroupID);
         if (sOrderBy != "")
         {
             theTable += " order by ";
@@ -67,6 +71,13 @@ public partial class adm_epg_pics_templates : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
+
+        DataTableLinkColumn recropLink = new DataTableLinkColumn("javascript:recrop", "Recrop", "");
+        recropLink.AddQueryStringValue("w", "field=Width");
+        recropLink.AddQueryStringValue("h", "field=Height");
+        recropLink.AddQueryStringValue("gid", nGroupID.ToString());
+        recropLink.AddQueryStringValue("c", "field=CropID");
+        theTable.AddLinkColumn(recropLink);
         
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {

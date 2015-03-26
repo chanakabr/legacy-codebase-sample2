@@ -539,7 +539,6 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
             {
                 int limitID = 0;
                 int.TryParse(Session["limit_id"].ToString(), out limitID);
-
                 // delete from cache this DLM object    
                 DomainsWS.module p = new DomainsWS.module();
 
