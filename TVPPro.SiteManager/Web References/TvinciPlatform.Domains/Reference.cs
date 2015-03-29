@@ -109,7 +109,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost/ws_domains/module.asmx";
+            this.Url = "http://192.168.192.146/webservices/domains/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -2247,6 +2247,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private int quantityField;
         
+        private int frequencyField;
+        
         /// <remarks/>
         public int deviceFamily {
             get {
@@ -2286,6 +2288,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                 this.quantityField = value;
             }
         }
+        
+        /// <remarks/>
+        public int Frequency {
+            get {
+                return this.frequencyField;
+            }
+            set {
+                this.frequencyField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -2318,7 +2330,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private string userFrequencyDescritionField;
         
-        private string frequencyDescritionField;
+        private string frequencyDescriptionField;
         
         /// <remarks/>
         public int Concurrency {
@@ -2431,12 +2443,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public string FrequencyDescrition {
+        public string FrequencyDescription {
             get {
-                return this.frequencyDescritionField;
+                return this.frequencyDescriptionField;
             }
             set {
-                this.frequencyDescritionField = value;
+                this.frequencyDescriptionField = value;
             }
         }
     }
