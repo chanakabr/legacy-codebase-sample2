@@ -103,11 +103,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback ResumeDomainOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetDomainRegionOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost/WS_Domains/module.asmx";
+            this.Url = "http://192.168.192.146/webservices/domains/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -251,6 +253,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event ResumeDomainCompletedEventHandler ResumeDomainCompleted;
+        
+        /// <remarks/>
+        public event SetDomainRegionCompletedEventHandler SetDomainRegionCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1584,6 +1589,41 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDomainRegion", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetDomainRegion(string sWSUserName, string sWSPassword, int domainId, string extRegionId) {
+            object[] results = this.Invoke("SetDomainRegion", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        extRegionId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId) {
+            this.SetDomainRegionAsync(sWSUserName, sWSPassword, domainId, extRegionId, null);
+        }
+        
+        /// <remarks/>
+        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId, object userState) {
+            if ((this.SetDomainRegionOperationCompleted == null)) {
+                this.SetDomainRegionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainRegionOperationCompleted);
+            }
+            this.InvokeAsync("SetDomainRegion", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        extRegionId}, this.SetDomainRegionOperationCompleted, userState);
+        }
+        
+        private void OnSetDomainRegionOperationCompleted(object arg) {
+            if ((this.SetDomainRegionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDomainRegionCompleted(this, new SetDomainRegionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1688,6 +1728,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private DomainRestriction m_DomainRestrictionField;
         
         private HomeNetwork[] m_homeNetworksField;
+        
+        private int m_nRegionField;
         
         /// <remarks/>
         public string m_sName {
@@ -1916,6 +1958,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             }
             set {
                 this.m_homeNetworksField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nRegion {
+            get {
+                return this.m_nRegionField;
+            }
+            set {
+                this.m_nRegionField = value;
             }
         }
     }
@@ -3851,6 +3903,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private object[] results;
         
         internal ResumeDomainCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void SetDomainRegionCompletedEventHandler(object sender, SetDomainRegionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDomainRegionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDomainRegionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
