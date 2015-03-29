@@ -154,6 +154,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Threading.SendOrPostCallback GetEPGProgramRulesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetNpvrRulesOperationCompleted;
+        
         private System.Threading.SendOrPostCallback ChannelsContainingMediaOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetSubscriptionMediaIdsOperationCompleted;
@@ -391,6 +393,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         public event GetEPGProgramRulesCompletedEventHandler GetEPGProgramRulesCompleted;
+        
+        /// <remarks/>
+        public event GetNpvrRulesCompletedEventHandler GetNpvrRulesCompleted;
         
         /// <remarks/>
         public event ChannelsContainingMediaCompletedEventHandler ChannelsContainingMediaCompleted;
@@ -2652,6 +2657,45 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetNpvrRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GroupRule[] GetNpvrRules(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
+            object[] results = this.Invoke("GetNpvrRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        recordedProgram,
+                        siteGuid,
+                        sIP,
+                        deviceUdid});
+            return ((GroupRule[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
+            this.GetNpvrRulesAsync(sWSUserName, sWSPassword, recordedProgram, siteGuid, sIP, deviceUdid, null);
+        }
+        
+        /// <remarks/>
+        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid, object userState) {
+            if ((this.GetNpvrRulesOperationCompleted == null)) {
+                this.GetNpvrRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetNpvrRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetNpvrRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        recordedProgram,
+                        siteGuid,
+                        sIP,
+                        deviceUdid}, this.GetNpvrRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetNpvrRulesOperationCompleted(object arg) {
+            if ((this.GetNpvrRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetNpvrRulesCompleted(this, new GetNpvrRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ChannelsContainingMedia", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public int[] ChannelsContainingMedia(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID) {
             object[] results = this.Invoke("ChannelsContainingMedia", new object[] {
@@ -3187,7 +3231,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private bool isDefaultField;
         
-        private int[] linearChannelsIdsField;
+        private KeyValuePair[] linearChannelsField;
         
         private int groupIdField;
         
@@ -3232,12 +3276,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public int[] linearChannelsIds {
+        public KeyValuePair[] linearChannels {
             get {
-                return this.linearChannelsIdsField;
+                return this.linearChannelsField;
             }
             set {
-                this.linearChannelsIdsField = value;
+                this.linearChannelsField = value;
             }
         }
         
@@ -3248,6 +3292,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.groupIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
             }
         }
     }
@@ -3384,6 +3461,63 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgPicture {
+        
+        private int picWidthField;
+        
+        private int picHeightField;
+        
+        private string ratioField;
+        
+        private string urlField;
+        
+        /// <remarks/>
+        public int PicWidth {
+            get {
+                return this.picWidthField;
+            }
+            set {
+                this.picWidthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicHeight {
+            get {
+                return this.picHeightField;
+            }
+            set {
+                this.picHeightField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Ratio {
+            get {
+                return this.ratioField;
+            }
+            set {
+                this.ratioField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Url {
+            get {
+                return this.urlField;
+            }
+            set {
+                this.urlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class EPGDictionary {
         
         private string keyField;
@@ -3412,6 +3546,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordedEPGChannelProgrammeObject))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -3454,6 +3589,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private EPGDictionary[] ePG_TAGSField;
         
         private EPGDictionary[] ePG_MetaField;
+        
+        private EpgPicture[] ePG_PICTURESField;
         
         private string media_idField;
         
@@ -3640,12 +3777,79 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
+        public EpgPicture[] EPG_PICTURES {
+            get {
+                return this.ePG_PICTURESField;
+            }
+            set {
+                this.ePG_PICTURESField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string media_id {
             get {
                 return this.media_idField;
             }
             set {
                 this.media_idField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject {
+        
+        private string recordingIDField;
+        
+        private bool isAssetProtectedField;
+        
+        private string channelNameField;
+        
+        private string recordSourceField;
+        
+        /// <remarks/>
+        public string RecordingID {
+            get {
+                return this.recordingIDField;
+            }
+            set {
+                this.recordingIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsAssetProtected {
+            get {
+                return this.isAssetProtectedField;
+            }
+            set {
+                this.isAssetProtectedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ChannelName {
+            get {
+                return this.channelNameField;
+            }
+            set {
+                this.channelNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string RecordSource {
+            get {
+                return this.recordSourceField;
+            }
+            set {
+                this.recordSourceField = value;
             }
         }
     }
@@ -3826,39 +4030,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.logoutUrlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
             }
         }
     }
@@ -4444,12 +4615,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
@@ -4637,72 +4808,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sIPField;
-        
-        private string m_sDurationField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sIP {
-            get {
-                return this.m_sIPField;
-            }
-            set {
-                this.m_sIPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDuration {
-            get {
-                return this.m_sDurationField;
-            }
-            set {
-                this.m_sDurationField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
@@ -4881,6 +4986,72 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.m_sPreviewModuleEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class SendAdminTokenRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sIPField;
+        
+        private string m_sDurationField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sIP {
+            get {
+                return this.m_sIPField;
+            }
+            set {
+                this.m_sIPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDuration {
+            get {
+                return this.m_sDurationField;
+            }
+            set {
+                this.m_sDurationField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
             }
         }
     }
@@ -9705,6 +9876,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private object[] results;
         
         internal GetEPGProgramRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public GroupRule[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((GroupRule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetNpvrRulesCompletedEventHandler(object sender, GetNpvrRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetNpvrRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetNpvrRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
