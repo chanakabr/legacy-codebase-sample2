@@ -39,7 +39,7 @@ namespace TVPApiModule.Objects.Responses
 
         public static Status ReturnGeneralErrorStatus()
         {
-            return ReturnGeneralErrorStatus(null);
+            return ReturnGeneralErrorStatus(string.Empty);
         }
 
         public static Status ReturnGeneralErrorStatus(string message)
@@ -51,6 +51,18 @@ namespace TVPApiModule.Objects.Responses
             return status;
         }
 
+        public static Status ReturnBadRequestStatus()
+        {
+            return ReturnBadRequestStatus(string.Empty);
+        }
 
+        public static Status ReturnBadRequestStatus(string message)
+        {
+            Status status = new Status();
+            status.Code = (int)eStatus.BadRequest;
+            if (!string.IsNullOrEmpty(message))
+                status.Message = message;
+            return status;
+        }
     }
 }

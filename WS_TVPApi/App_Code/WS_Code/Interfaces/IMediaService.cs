@@ -270,5 +270,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by, List<string> with, int page_index, int? page_size);
     }
 }

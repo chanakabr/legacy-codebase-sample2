@@ -30,6 +30,7 @@ using TVPPro.SiteManager.Objects;
 using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
 using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj;
 using System.Data;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -2469,7 +2470,7 @@ namespace TVPApiServices
                     switch (oUnit)
                     {
                         case EPGUnit.Days:                            
-                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0).AddDays(iFromOffset).AddHours(-iUTCOffSet);
+                            DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0).AddDays(iFromOffset).AddHours(-iUTCOffSet);
                             DateTime to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0).AddDays(iToOffset).AddHours(-iUTCOffSet);
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from, to, 0, 0, initObj.Locale.LocaleLanguage);
                             break;
@@ -3165,6 +3166,105 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
 
             return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by,
+            List<string> with, int page_index, int? page_size)
+        {
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            { 
+                try
+                {
+                    if (filter.Length > 500 * 1024)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("too long filter");
+                        return response;
+                    }
+
+                    if (page_size == null)
+                    {
+                        page_size = 25;
+                    }
+                    else if (page_size > 50)
+                    {
+                        page_size = 50;
+                    }
+                    else if (page_size < 5)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 50");
+                        return response;
+                    }
+
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null; 
+
+                    if (!string.IsNullOrEmpty(order_by))
+                    {
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj();
+
+                        switch (order_by.ToLower())
+                        {
+                            case "a_to_z":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                                order.m_eOrderDir = OrderDir.ASC;
+                                break;
+                            case "z_to_a":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "views":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "ratings":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "votes":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VOTES_COUNT;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "newest":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            case "relevancy":
+                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
+                                order.m_eOrderDir = OrderDir.DESC;
+                                break;
+                            default:
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
+                                return response;
+                        }
+                    }
+
+                    response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
+                        filter_types, filter, with)
+                        {
+                            Order = order
+                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+            return response;
         }
 
     }

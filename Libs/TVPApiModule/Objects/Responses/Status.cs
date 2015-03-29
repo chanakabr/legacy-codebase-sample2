@@ -33,5 +33,7 @@ namespace TVPApiModule.Objects.Responses
         // 500000 - 599999 - TVPAPI Statuses
         BadCredentials = 500000,
         InternalConnectionIssue = 500001,
+        Timeout = 500002,
+        BadRequest = 500003
     }
 }
