@@ -194,10 +194,18 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request)
         {
-            return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage, null, request.tags_metas, request.cut_with)
+            try
             {
-                UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-            }.Execute() as List<Media>;
+                return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage, null, request.tags_metas, request.cut_with)
+                {
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+                }.Execute() as List<Media>;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
         }
 
         public List<TVPApiModule.Objects.Responses.AssetStatsResult> GetAssetsStats(GetAssetsStatsRequest request)
