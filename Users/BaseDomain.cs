@@ -160,16 +160,18 @@ namespace Users
             }
 
             Domain domain = DomainInitializer(nGroupID, nDomainID);
-            if (domain == null)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
+                Logger.Logger.Log("AddDeviceToDomain", string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID), "TvinciDomain");
                 oDomainResponseObject.m_oDomain = null;
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
             else
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                bool res  = device.Initialize(sUDID, sDeviceName);
-                
+                bool res = device.Initialize(sUDID, sDeviceName);
+
                 oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
@@ -541,7 +543,7 @@ namespace Users
             int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
-           
+
             Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
@@ -613,11 +615,11 @@ namespace Users
                             break;
                         }
                     case ValidationType.Frequency:
-                        {                           
+                        {
                             break;
                         }
                     default:
-                        {                         
+                        {
                             break;
                         }
                 }

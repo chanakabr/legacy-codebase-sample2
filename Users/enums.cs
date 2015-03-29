@@ -53,7 +53,7 @@ namespace Users
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserWIthNoDomain  = 4
+        UserWIthNoDomain = 4
     }
 
     public enum DeviceState
@@ -149,7 +149,7 @@ namespace Users
 
     public enum ItemType
     {
-        All = 0,        
+        All = 0,
         Media = 2
     }
 

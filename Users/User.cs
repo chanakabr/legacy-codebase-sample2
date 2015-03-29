@@ -18,7 +18,8 @@ namespace Users
             m_eUserState = UserState.Unknown;
         }
 
-        public User(int nGroupID, int nUserID) : this()
+        public User(int nGroupID, int nUserID)
+            : this()
         {
             Initialize(nUserID, nGroupID);
         }
@@ -40,7 +41,7 @@ namespace Users
             User user = new User(nUserID, nGroupID);
             return user;
         }
-        
+
         public static UserState DoUserAction(int siteGuid, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
         {
             UserState retVal = UserState.Unknown;
@@ -194,32 +195,32 @@ namespace Users
                     m_oBasicData.m_sUserName = oBasicData.m_sUserName;
                 }
 
-                m_oBasicData.m_sEmail                       = oBasicData.m_sEmail;
-                m_oBasicData.m_sFirstName                   = oBasicData.m_sFirstName;
-                m_oBasicData.m_sLastName                    = oBasicData.m_sLastName;
-                m_oBasicData.m_Country                      = oBasicData.m_Country;
-                m_oBasicData.m_sAddress                     = oBasicData.m_sAddress;
-                m_oBasicData.m_sCity                        = oBasicData.m_sCity;
-                m_oBasicData.m_sPhone                       = oBasicData.m_sPhone;
-                m_oBasicData.m_State                        = oBasicData.m_State;
-                m_oBasicData.m_sZip                         = oBasicData.m_sZip;
-                m_oBasicData.m_sFacebookID                  = oBasicData.m_sFacebookID;
-                m_oBasicData.m_sFacebookImage               = oBasicData.m_sFacebookImage;
-                m_oBasicData.m_bIsFacebookImagePermitted    = oBasicData.m_bIsFacebookImagePermitted;
-                m_oBasicData.m_sFacebookToken               = oBasicData.m_sFacebookToken;
-                m_oBasicData.m_UserType                     = oBasicData.m_UserType;
-                m_oDynamicData                              = oDynamicData;
+                m_oBasicData.m_sEmail = oBasicData.m_sEmail;
+                m_oBasicData.m_sFirstName = oBasicData.m_sFirstName;
+                m_oBasicData.m_sLastName = oBasicData.m_sLastName;
+                m_oBasicData.m_Country = oBasicData.m_Country;
+                m_oBasicData.m_sAddress = oBasicData.m_sAddress;
+                m_oBasicData.m_sCity = oBasicData.m_sCity;
+                m_oBasicData.m_sPhone = oBasicData.m_sPhone;
+                m_oBasicData.m_State = oBasicData.m_State;
+                m_oBasicData.m_sZip = oBasicData.m_sZip;
+                m_oBasicData.m_sFacebookID = oBasicData.m_sFacebookID;
+                m_oBasicData.m_sFacebookImage = oBasicData.m_sFacebookImage;
+                m_oBasicData.m_bIsFacebookImagePermitted = oBasicData.m_bIsFacebookImagePermitted;
+                m_oBasicData.m_sFacebookToken = oBasicData.m_sFacebookToken;
+                m_oBasicData.m_UserType = oBasicData.m_UserType;
+                m_oDynamicData = oDynamicData;
             }
-            
+
             int userID = Save(nGroupID);
             return userID;
         }
-        
+
         public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)
         {
             if (m_sSiteGUID != "")
             {
-                m_oDynamicData = oDynamicData;            
+                m_oDynamicData = oDynamicData;
                 SaveDynamicData(nGroupID);
             }
         }
@@ -333,11 +334,11 @@ namespace Users
 
             try
             {
-                res         = m_oBasicData.Initialize(nUserID, nGroupID);
-                bool res2   = m_oDynamicData.Initialize(nUserID, nGroupID);
+                res = m_oBasicData.Initialize(nUserID, nGroupID);
+                bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                 m_sSiteGUID = nUserID.ToString();
-                m_domianID  = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
 
                 if (m_domianID <= 0)
                 {
@@ -347,7 +348,7 @@ namespace Users
                 m_eUserState = GetCurrentUserState(nUserID);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID)");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
@@ -372,7 +373,7 @@ namespace Users
                 m_domianID = domainID;
                 m_isDomainMaster = isDomainMaster;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at User.Initialize(UserID, GroupID, DomainID, IsDomainMaster)");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
@@ -397,8 +398,8 @@ namespace Users
 
             string key = string.Format("users_GetGroupUserTypes_{0}_Default_1", nGroupID);
             UserType userType;
-            bool bRes = UsersCache.GetItem<UserType>(key , out userType);
-            
+            bool bRes = UsersCache.GetItem<UserType>(key, out userType);
+
             if (!bRes)
             {
                 DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
@@ -409,8 +410,8 @@ namespace Users
                     nIsDefault = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
                 }
 
-             userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
-             UsersCache.AddItem(key, userType);
+                userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+                UsersCache.AddItem(key, userType);
             }
 
             return userType;
@@ -419,7 +420,7 @@ namespace Users
         public int InitializeByFacebook(string sFacebookID, Int32 nGroupID)
         {
             Int32 nUserID = DAL.UsersDal.GetUserIDByFacebookID(sFacebookID, nGroupID);
-            
+
             bool res = Initialize(nUserID, nGroupID);
 
             return nUserID;
@@ -521,7 +522,7 @@ namespace Users
                 {
                     Logger.Logger.Log("exception", m_sSiteGUID + " : " + ex.Message, "users_notifier");
                 }
-                
+
             }
             catch
             {
@@ -530,7 +531,7 @@ namespace Users
 
             return nID;
         }
-        
+
         public bool SaveDynamicData(int nGroupID)
         {
             bool saved = false;
@@ -652,13 +653,13 @@ namespace Users
             UserState currentState = GetCurrentUserState(siteGuid);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
-            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices+"" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
+            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();
             return retVal;
         }
-        
+
         static private DateTime GetLastUserSessionDate(int nSiteGuid, string sIP, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
         {
             DateTime retVal = DateTime.MaxValue;
@@ -716,7 +717,7 @@ namespace Users
                 }
                 else
                 {
-                    string sDeviceIDToUse = device != null ? device.m_id : string.Empty; 
+                    string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
                     Int32.TryParse(retObj.m_user.m_sSiteGUID, out nSiteGuid);
                     UserState currUserState = GetCurrentUserState(nSiteGuid);
@@ -951,13 +952,32 @@ namespace Users
             return (resp.m_RespStatus == ResponseStatus.OK);
         }
 
+        public static bool IsUserValid(int nGroupID, int userGuid, ref User user)
+        {
+            //Check if UserGuid is valid
+            bool init = user.Initialize(userGuid, nGroupID);
 
-        public UserBasicData    m_oBasicData;
-        public UserDynamicData  m_oDynamicData;
-        public string           m_sSiteGUID;
-        public int              m_domianID;
-        public bool             m_isDomainMaster;
-        public UserState        m_eUserState;
-        public int              m_nSSOOperatorID;
+            UserResponseObject resp = new UserResponseObject();
+
+            if (user.m_oBasicData.m_sUserName == "")
+            {
+                resp.Initialize(ResponseStatus.UserDoesNotExist, user);
+            }
+            else
+            {
+                resp.Initialize(ResponseStatus.OK, user);
+            }
+
+            return (resp.m_RespStatus == ResponseStatus.OK);
+        }
+
+
+        public UserBasicData m_oBasicData;
+        public UserDynamicData m_oDynamicData;
+        public string m_sSiteGUID;
+        public int m_domianID;
+        public bool m_isDomainMaster;
+        public UserState m_eUserState;
+        public int m_nSSOOperatorID;
     }
 }
