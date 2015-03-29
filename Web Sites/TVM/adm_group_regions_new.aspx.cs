@@ -114,7 +114,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         {
             foreach (var id in mediaIds)
             {
-                InserteMediaRegion(id, regionId);
+                InsertMediaRegion(id, regionId);
             }
         }
     }
@@ -299,6 +299,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             Int32 status = 0;
             int mediaID = int.Parse(id);
             Int32 mediaRegionId = GetRegionMediaID(mediaID, regionId, ref status);
+            int groupId = LoginManager.GetLoginGroupID();
 
             if (mediaRegionId != 0)
             {
@@ -309,7 +310,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             }
             else
             {
-                InserteMediaRegion(mediaID, regionId);
+                InsertMediaRegion(mediaID, regionId, groupId);
             }
         }
         else
@@ -326,11 +327,12 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         return "";
     }
 
-    protected void InserteMediaRegion(Int32 mediaID, Int32 regionId)
+    protected void InsertMediaRegion(Int32 mediaID, Int32 regionId, int groupId)
     {
         bool bInsert = false;
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_regions");
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("REGION_ID", "=", regionId);
