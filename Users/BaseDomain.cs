@@ -167,9 +167,11 @@ namespace Users
             }
 
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
-            if (domain == null)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
+                Logger.Logger.Log("AddDeviceToDomain", string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID), "TvinciDomain");
                 oDomainResponseObject.m_oDomain = null;
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
             else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
