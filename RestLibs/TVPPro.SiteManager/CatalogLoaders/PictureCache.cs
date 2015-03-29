@@ -43,25 +43,24 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public object Execute()
         {
             List<BaseObject> retVal = null;
+            List<long> picIdsForCatalog = null;
 
             // Build the List of CacheKeys with DateTime.MinValue
             List<CacheKey> cacheKeys = PictureIDs.Select(picID => new CacheKey() { ID = picID, UpdateDate = DateTime.MinValue }).ToList();
 
             // Get pictures from cache
             Log("Trying to get PictureIDs", PictureIDs);
-            List<BaseObject> lPicsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, CACHE_KEY_PREFIX);
+            List<BaseObject> lPicsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, CACHE_KEY_PREFIX, out picIdsForCatalog);
             Log("Got PictureIDs", lPicsFromCache.Select(pic => pic.m_nID).ToList());
 
-            // Check Which pictures are missing in cache 
+            // Check if pictures are missing in cache 
             if (lPicsFromCache != null && lPicsFromCache.Count > 0)
             {
-                // Get list of picture ids that are not cached
-                var lPicIDsForCatalog = PictureIDs.Where(picID => !lPicsFromCache.Select(pic => pic.m_nID).Contains(picID)).ToList();
-                if (lPicIDsForCatalog.Count > 0)
+                if (picIdsForCatalog.Count > 0)
                 {
                     // Get missing pictures from Catalog
                     PicRequest thisPicturesRequest = m_oRequest as PicRequest;
-                    PicRequest newPicturesRequest = BuildMediasProtocolRequest(lPicIDsForCatalog, thisPicturesRequest.m_nGroupID, thisPicturesRequest.m_oFilter);
+                    PicRequest newPicturesRequest = BuildMediasProtocolRequest(picIdsForCatalog.Select(id => (int)id).ToList(), thisPicturesRequest.m_nGroupID, thisPicturesRequest.m_oFilter);
                     retVal = CatalogHelper.MergeObjListsByOrder(PictureIDs, lPicsFromCache, GetPicturesFromCatalog(newPicturesRequest));
                 }
                 else
