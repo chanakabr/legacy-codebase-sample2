@@ -7,6 +7,7 @@ using System.IO;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Data;
+using System.Linq;
 
 namespace TVinciShared
 {
@@ -568,6 +569,28 @@ namespace TVinciShared
 
         }
 
+        public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        {
+            bool res = false;
+            string rawStrFromConfig = GetTcmConfigValue(sKey);
+            if (rawStrFromConfig.Length > 0)
+            {
+                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
+                {
+                    List<long> listOfIDs = strArrOfIDs.Select(s =>
+                    {
+                        long l = 0;
+                        if (Int64.TryParse(s, out l))
+                            return l;
+                        return 0;
+                    }).ToList();
 
+                    res = listOfIDs.Contains(lGroupID);
+                }
+            }
+
+            return res;
+        }
     }
 }
