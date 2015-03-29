@@ -38,7 +38,7 @@ namespace RestfulTVPApi.ServiceModel
         public string order_meta_name { get; set; }
     }
 
-    [Route("/medias/auto_complete/{prefix_text}", "GET", Notes = "This method auto-completes the entered text and returns the resulting media title strings as an array")]
+    [Route("/search/{prefix_text}", "GET", Notes = "This method auto-completes the entered text and returns the resulting media title strings as an array")]
     public class GetAutoCompleteSearchListRequest : RequestBase, IReturn<List<string>>
     {
         [ApiMember(Name = "prefix_text", Description = "Prefix Text", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]

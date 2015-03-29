@@ -91,10 +91,10 @@ namespace TVPPro.SiteManager.Services
             return sRes;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid, TvinciPlatform.Social.eUserAction userAction, TvinciPlatform.Social.SocialPlatform socialPlatform, bool onlyFriends,
+        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] GetUserSocialActions(string siteGuid, TvinciPlatform.Social.eUserAction userAction, TvinciPlatform.Social.SocialPlatform socialPlatform, bool onlyFriends,
             int startIndex, int numOfItems)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] res = null;
             
             try
             {

@@ -74,8 +74,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback CancelSubscriptionOperationCompleted;
         
-        private System.Threading.SendOrPostCallback CancelSubscriptionRenewalOperationCompleted;
-        
         private System.Threading.SendOrPostCallback ChangeSubscriptionDatesOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetItemsPricesExOperationCompleted;
@@ -166,8 +164,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetItemLeftViewLifeCycleOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetEntitlementOperationCompleted;
-        
         private System.Threading.SendOrPostCallback InApp_ChargeUserForMediaFileOperationCompleted;
         
         private System.Threading.SendOrPostCallback InApp_ChargeUserForSubscriptionOperationCompleted;
@@ -177,8 +173,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private System.Threading.SendOrPostCallback Cellular_ChargeUserForMediaFileOperationCompleted;
         
         private System.Threading.SendOrPostCallback ChangeSubscriptionOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback CancelServiceNowOperationCompleted;
         
         private System.Threading.SendOrPostCallback CancelTransactionOperationCompleted;
         
@@ -291,9 +285,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public event CancelSubscriptionCompletedEventHandler CancelSubscriptionCompleted;
-        
-        /// <remarks/>
-        public event CancelSubscriptionRenewalCompletedEventHandler CancelSubscriptionRenewalCompleted;
         
         /// <remarks/>
         public event ChangeSubscriptionDatesCompletedEventHandler ChangeSubscriptionDatesCompleted;
@@ -431,9 +422,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         public event GetItemLeftViewLifeCycleCompletedEventHandler GetItemLeftViewLifeCycleCompleted;
         
         /// <remarks/>
-        public event GetEntitlementCompletedEventHandler GetEntitlementCompleted;
-        
-        /// <remarks/>
         public event InApp_ChargeUserForMediaFileCompletedEventHandler InApp_ChargeUserForMediaFileCompleted;
         
         /// <remarks/>
@@ -447,9 +435,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public event ChangeSubscriptionCompletedEventHandler ChangeSubscriptionCompleted;
-        
-        /// <remarks/>
-        public event CancelServiceNowCompletedEventHandler CancelServiceNowCompleted;
         
         /// <remarks/>
         public event CancelTransactionCompletedEventHandler CancelTransactionCompleted;
@@ -1273,41 +1258,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             if ((this.CancelSubscriptionCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.CancelSubscriptionCompleted(this, new CancelSubscriptionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelSubscriptionRenewal", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
-            object[] results = this.Invoke("CancelSubscriptionRenewal", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nDomainId,
-                        sSubscriptionCode});
-            return ((StatusObject)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
-            this.CancelSubscriptionRenewalAsync(sWSUserName, sWSPassword, nDomainId, sSubscriptionCode, null);
-        }
-        
-        /// <remarks/>
-        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, object userState) {
-            if ((this.CancelSubscriptionRenewalOperationCompleted == null)) {
-                this.CancelSubscriptionRenewalOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelSubscriptionRenewalOperationCompleted);
-            }
-            this.InvokeAsync("CancelSubscriptionRenewal", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nDomainId,
-                        sSubscriptionCode}, this.CancelSubscriptionRenewalOperationCompleted, userState);
-        }
-        
-        private void OnCancelSubscriptionRenewalOperationCompleted(object arg) {
-            if ((this.CancelSubscriptionRenewalCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.CancelSubscriptionRenewalCompleted(this, new CancelSubscriptionRenewalCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3517,49 +3467,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetEntitlement", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public EntitlementResponse GetEntitlement(string sWSUserName, string sWSPassword, string sMediaFileID, string sSiteGUID, bool bIsCoGuid, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME) {
-            object[] results = this.Invoke("GetEntitlement", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sMediaFileID,
-                        sSiteGUID,
-                        bIsCoGuid,
-                        sCOUNTRY_CODE,
-                        sLANGUAGE_CODE,
-                        sDEVICE_NAME});
-            return ((EntitlementResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetEntitlementAsync(string sWSUserName, string sWSPassword, string sMediaFileID, string sSiteGUID, bool bIsCoGuid, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME) {
-            this.GetEntitlementAsync(sWSUserName, sWSPassword, sMediaFileID, sSiteGUID, bIsCoGuid, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, null);
-        }
-        
-        /// <remarks/>
-        public void GetEntitlementAsync(string sWSUserName, string sWSPassword, string sMediaFileID, string sSiteGUID, bool bIsCoGuid, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, object userState) {
-            if ((this.GetEntitlementOperationCompleted == null)) {
-                this.GetEntitlementOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEntitlementOperationCompleted);
-            }
-            this.InvokeAsync("GetEntitlement", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sMediaFileID,
-                        sSiteGUID,
-                        bIsCoGuid,
-                        sCOUNTRY_CODE,
-                        sLANGUAGE_CODE,
-                        sDEVICE_NAME}, this.GetEntitlementOperationCompleted, userState);
-        }
-        
-        private void OnGetEntitlementOperationCompleted(object arg) {
-            if ((this.GetEntitlementCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetEntitlementCompleted(this, new GetEntitlementCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/InApp_ChargeUserForMediaFile", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse InApp_ChargeUserForMediaFile(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sProductCode, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData) {
             object[] results = this.Invoke("InApp_ChargeUserForMediaFile", new object[] {
@@ -3789,64 +3696,24 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelServiceNow", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public StatusObject CancelServiceNow(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
-            object[] results = this.Invoke("CancelServiceNow", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nDomainId,
-                        nAssetID,
-                        transactionType,
-                        bIsForce});
-            return ((StatusObject)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
-            this.CancelServiceNowAsync(sWSUserName, sWSPassword, nDomainId, nAssetID, transactionType, bIsForce, null);
-        }
-        
-        /// <remarks/>
-        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce, object userState) {
-            if ((this.CancelServiceNowOperationCompleted == null)) {
-                this.CancelServiceNowOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelServiceNowOperationCompleted);
-            }
-            this.InvokeAsync("CancelServiceNow", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nDomainId,
-                        nAssetID,
-                        transactionType,
-                        bIsForce}, this.CancelServiceNowOperationCompleted, userState);
-        }
-        
-        private void OnCancelServiceNowOperationCompleted(object arg) {
-            if ((this.CancelServiceNowCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.CancelServiceNowCompleted(this, new CancelServiceNowCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool CancelTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType, bool bIsForce) {
+        public bool CancelTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
             object[] results = this.Invoke("CancelTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGuid,
                         nAssetID,
-                        transactionType,
-                        bIsForce});
+                        transactionType});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void CancelTransactionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType, bool bIsForce) {
-            this.CancelTransactionAsync(sWSUserName, sWSPassword, sSiteGuid, nAssetID, transactionType, bIsForce, null);
+        public void CancelTransactionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
+            this.CancelTransactionAsync(sWSUserName, sWSPassword, sSiteGuid, nAssetID, transactionType, null);
         }
         
         /// <remarks/>
-        public void CancelTransactionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType, bool bIsForce, object userState) {
+        public void CancelTransactionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType, object userState) {
             if ((this.CancelTransactionOperationCompleted == null)) {
                 this.CancelTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelTransactionOperationCompleted);
             }
@@ -3855,8 +3722,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSPassword,
                         sSiteGuid,
                         nAssetID,
-                        transactionType,
-                        bIsForce}, this.CancelTransactionOperationCompleted, userState);
+                        transactionType}, this.CancelTransactionOperationCompleted, userState);
         }
         
         private void OnCancelTransactionOperationCompleted(object arg) {
@@ -4183,9 +4049,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         ChangeSubscription,
-        
-        /// <remarks/>
-        Offline,
     }
     
     /// <remarks/>
@@ -4310,8 +4173,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
@@ -4406,7 +4269,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -4415,7 +4278,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -4651,51 +4514,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class EntitlementResponse {
-        
-        private string fullLifceCycleField;
-        
-        private string viewLifceCycleField;
-        
-        private bool isOfflinePlayBackField;
-        
-        /// <remarks/>
-        public string FullLifceCycle {
-            get {
-                return this.fullLifceCycleField;
-            }
-            set {
-                this.fullLifceCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ViewLifceCycle {
-            get {
-                return this.viewLifceCycleField;
-            }
-            set {
-                this.viewLifceCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsOfflinePlayBack {
-            get {
-                return this.isOfflinePlayBackField;
-            }
-            set {
-                this.isOfflinePlayBackField = value;
             }
         }
     }
@@ -5138,9 +4956,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         NoCredit,
-        
-        /// <remarks/>
-        UserSuspended,
     }
     
     /// <remarks/>
@@ -5203,7 +5018,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingResponseStatus {
         
         /// <remarks/>
@@ -5235,9 +5050,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         UnKnownBillingProvider,
-        
-        /// <remarks/>
-        UserSuspended,
     }
     
     /// <remarks/>
@@ -5326,9 +5138,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         CollectionPurchased,
-        
-        /// <remarks/>
-        UserSuspended,
     }
     
     /// <remarks/>
@@ -5797,8 +5606,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private int m_nWaiverPeriodField;
         
-        private bool m_bIsOfflinePlayBackField;
-        
         /// <remarks/>
         public int m_nObjectID {
             get {
@@ -5956,16 +5763,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_nWaiverPeriodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsOfflinePlayBack {
-            get {
-                return this.m_bIsOfflinePlayBackField;
-            }
-            set {
-                this.m_bIsOfflinePlayBackField = value;
             }
         }
     }
@@ -6795,10 +6592,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private int[] m_lRelatedMediaFileIDsField;
         
-        private System.Nullable<System.DateTime> m_dtStartDateField;
-        
-        private System.Nullable<System.DateTime> m_dtEndDateField;
-        
         /// <remarks/>
         public string m_sPPVModuleCode {
             get {
@@ -6948,28 +6741,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_lRelatedMediaFileIDsField = value;
             }
         }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> m_dtStartDate {
-            get {
-                return this.m_dtStartDateField;
-            }
-            set {
-                this.m_dtStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> m_dtEndDate {
-            get {
-                return this.m_dtEndDateField;
-            }
-            set {
-                this.m_dtEndDateField = value;
-            }
-        }
     }
     
     /// <remarks/>
@@ -7061,70 +6832,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_nInt32Field = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class StatusObject {
-        
-        private StatusObjectCode statusField;
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public StatusObjectCode Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum StatusObjectCode {
-        
-        /// <remarks/>
-        OK,
-        
-        /// <remarks/>
-        Error,
-        
-        /// <remarks/>
-        Fail,
-        
-        /// <remarks/>
-        Unkown,
     }
     
     /// <remarks/>
@@ -8585,32 +8292,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void CancelSubscriptionRenewalCompletedEventHandler(object sender, CancelSubscriptionRenewalCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class CancelSubscriptionRenewalCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal CancelSubscriptionRenewalCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public StatusObject Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void ChangeSubscriptionDatesCompletedEventHandler(object sender, ChangeSubscriptionDatesCompletedEventArgs e);
     
     /// <remarks/>
@@ -9781,32 +9462,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetEntitlementCompletedEventHandler(object sender, GetEntitlementCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetEntitlementCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetEntitlementCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public EntitlementResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((EntitlementResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void InApp_ChargeUserForMediaFileCompletedEventHandler(object sender, InApp_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
@@ -9931,32 +9586,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((ChangeSubscriptionStatus)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void CancelServiceNowCompletedEventHandler(object sender, CancelServiceNowCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class CancelServiceNowCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal CancelServiceNowCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public StatusObject Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((StatusObject)(this.results[0]));
             }
         }
     }

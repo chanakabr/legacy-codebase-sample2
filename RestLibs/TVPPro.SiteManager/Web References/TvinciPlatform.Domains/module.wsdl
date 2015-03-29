@@ -118,7 +118,6 @@
           <s:enumeration value="DomainNotExists" />
           <s:enumeration value="HouseholdUserFailed" />
           <s:enumeration value="DomainCreatedWithoutNPVRAccount" />
-          <s:enumeration value="DomainSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="DomainRestriction">
@@ -171,7 +170,6 @@
           <s:enumeration value="InvalidUser" />
           <s:enumeration value="ConcurrencyLimitation" />
           <s:enumeration value="MediaConcurrencyLimitation" />
-          <s:enumeration value="DomainSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddDomainWithCoGuid">
@@ -777,77 +775,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="RemoveDLM">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="nDlmID" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="RemoveDLMResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="RemoveDLMResult" type="tns:ResponseDLMStatus" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:simpleType name="ResponseDLMStatus">
-        <s:restriction base="s:string">
-          <s:enumeration value="OK" />
-          <s:enumeration value="DlmNotExsit" />
-          <s:enumeration value="WrongPasswordOrUserName" />
-          <s:enumeration value="NoDlmId" />
-          <s:enumeration value="InternalError" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="SuspendDomain">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SuspendDomainResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SuspendDomainResult" type="tns:StatusObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="StatusObject">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:StatusObjectCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:simpleType name="StatusObjectCode">
-        <s:restriction base="s:string">
-          <s:enumeration value="OK" />
-          <s:enumeration value="Error" />
-          <s:enumeration value="Fail" />
-          <s:enumeration value="Unkown" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="ResumeDomain">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="ResumeDomainResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ResumeDomainResult" type="tns:StatusObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
@@ -861,8 +788,6 @@
       <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
       <s:element name="ArrayOfHomeNetwork" nillable="true" type="tns:ArrayOfHomeNetwork" />
       <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
-      <s:element name="ResponseDLMStatus" type="tns:ResponseDLMStatus" />
-      <s:element name="StatusObject" nillable="true" type="tns:StatusObject" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1056,24 +981,6 @@
   </wsdl:message>
   <wsdl:message name="ValidateLimitationNpvrSoapOut">
     <wsdl:part name="parameters" element="tns:ValidateLimitationNpvrResponse" />
-  </wsdl:message>
-  <wsdl:message name="RemoveDLMSoapIn">
-    <wsdl:part name="parameters" element="tns:RemoveDLM" />
-  </wsdl:message>
-  <wsdl:message name="RemoveDLMSoapOut">
-    <wsdl:part name="parameters" element="tns:RemoveDLMResponse" />
-  </wsdl:message>
-  <wsdl:message name="SuspendDomainSoapIn">
-    <wsdl:part name="parameters" element="tns:SuspendDomain" />
-  </wsdl:message>
-  <wsdl:message name="SuspendDomainSoapOut">
-    <wsdl:part name="parameters" element="tns:SuspendDomainResponse" />
-  </wsdl:message>
-  <wsdl:message name="ResumeDomainSoapIn">
-    <wsdl:part name="parameters" element="tns:ResumeDomain" />
-  </wsdl:message>
-  <wsdl:message name="ResumeDomainSoapOut">
-    <wsdl:part name="parameters" element="tns:ResumeDomainResponse" />
   </wsdl:message>
   <wsdl:message name="AddDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1385,30 +1292,6 @@
   <wsdl:message name="ValidateLimitationNpvrHttpPostOut">
     <wsdl:part name="Body" element="tns:ValidationResponseObject" />
   </wsdl:message>
-  <wsdl:message name="RemoveDLMHttpPostIn">
-    <wsdl:part name="sWSUsername" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nDlmID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="RemoveDLMHttpPostOut">
-    <wsdl:part name="Body" element="tns:ResponseDLMStatus" />
-  </wsdl:message>
-  <wsdl:message name="SuspendDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SuspendDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
-  </wsdl:message>
-  <wsdl:message name="ResumeDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ResumeDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusObject" />
-  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -1537,18 +1420,6 @@
     <wsdl:operation name="ValidateLimitationNpvr">
       <wsdl:input message="tns:ValidateLimitationNpvrSoapIn" />
       <wsdl:output message="tns:ValidateLimitationNpvrSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="RemoveDLM">
-      <wsdl:input message="tns:RemoveDLMSoapIn" />
-      <wsdl:output message="tns:RemoveDLMSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SuspendDomain">
-      <wsdl:input message="tns:SuspendDomainSoapIn" />
-      <wsdl:output message="tns:SuspendDomainSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ResumeDomain">
-      <wsdl:input message="tns:ResumeDomainSoapIn" />
-      <wsdl:output message="tns:ResumeDomainSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -1679,18 +1550,6 @@
     <wsdl:operation name="ValidateLimitationNpvr">
       <wsdl:input message="tns:ValidateLimitationNpvrHttpPostIn" />
       <wsdl:output message="tns:ValidateLimitationNpvrHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="RemoveDLM">
-      <wsdl:input message="tns:RemoveDLMHttpPostIn" />
-      <wsdl:output message="tns:RemoveDLMHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SuspendDomain">
-      <wsdl:input message="tns:SuspendDomainHttpPostIn" />
-      <wsdl:output message="tns:SuspendDomainHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ResumeDomain">
-      <wsdl:input message="tns:ResumeDomainHttpPostIn" />
-      <wsdl:output message="tns:ResumeDomainHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -1976,33 +1835,6 @@
     </wsdl:operation>
     <wsdl:operation name="ValidateLimitationNpvr">
       <soap:operation soapAction="http://domains.tvinci.com/ValidateLimitationNpvr" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="RemoveDLM">
-      <soap:operation soapAction="http://domains.tvinci.com/RemoveDLM" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SuspendDomain">
-      <soap:operation soapAction="http://domains.tvinci.com/SuspendDomain" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ResumeDomain">
-      <soap:operation soapAction="http://domains.tvinci.com/ResumeDomain" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2301,33 +2133,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="RemoveDLM">
-      <soap12:operation soapAction="http://domains.tvinci.com/RemoveDLM" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SuspendDomain">
-      <soap12:operation soapAction="http://domains.tvinci.com/SuspendDomain" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ResumeDomain">
-      <soap12:operation soapAction="http://domains.tvinci.com/ResumeDomain" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2619,43 +2424,16 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="RemoveDLM">
-      <http:operation location="/RemoveDLM" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SuspendDomain">
-      <http:operation location="/SuspendDomain" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ResumeDomain">
-      <http:operation location="/ResumeDomain" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap:address location="http://192.168.162.36/ws_domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap12:address location="http://192.168.162.36/ws_domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <http:address location="http://192.168.162.36/ws_domains/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

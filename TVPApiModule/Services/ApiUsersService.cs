@@ -328,13 +328,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.UserResponseObject SetUserData(string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
+        public TVPApiModule.Objects.Responses.UserResponseObject SetUserData(string sSiteGuid, TVPApiModule.Objects.Responses.UserBasicData userBasicData, TVPApiModule.Objects.Responses.UserDynamicData userDynamicData)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
             response = Execute(() =>
                 {
-                    var res = Users.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                    var res = Users.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData.ToTvmObject(), userDynamicData.ToTvmObject());
                     if (res != null)
                         response = res.ToApiObject();
 
@@ -592,7 +592,7 @@ namespace TVPApiModule.Services
                         }
                     };
 
-                    SetUserData(siteGUID, userBasicData, newDynamicData);
+                    SetUserData(siteGUID, userBasicData.ToApiObject(), newDynamicData.ToApiObject());
 
                     return 0;
                 });

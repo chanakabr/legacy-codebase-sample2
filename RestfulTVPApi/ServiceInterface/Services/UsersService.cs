@@ -16,13 +16,8 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public IUsersRepository _repository { get; set; }  //Injected by IOC
 
-        #region GET
-
-        public object Get(GetUsersDataRequest request)
-        {
-            return _repository.GetUsersData(request);
-        }
-
+        #region GET        
+        
         public object Get(GetUserPermitedSubscriptionsRequest request)
         {
             return _repository.GetUserPermitedSubscriptions(request);
@@ -232,7 +227,7 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.ChangeUserPassword(request);
         }
 
-        public object Put(RenewUserPasswordRequest request)
+        public object Post(RenewUserPasswordRequest request)
         {
             return _repository.RenewUserPassword(request);
         }
@@ -291,6 +286,16 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region POST
 
+        public object Post(GetUsersDataRequest request)
+        {
+            return _repository.GetUsersData(request);
+        }
+
+        public object Post(FBUserSigninRequest request)
+        {
+            return _repository.FBUserSignin(request);
+        }
+
         public object Post(SignUpRequest request)
         {
             return _repository.SignUp(request);
@@ -329,6 +334,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Post(DummyChargeUserForCollectionRequest request)
         {
             return _repository.DummyChargeUserForCollection(request);
+        }
+
+        public object Post(DummyChargeUserForSubscriptionRequest request)
+        {
+            return _repository.DummyChargeUserForSubscription(request);
         }
 
         public object Post(ChargeUserForCollectionRequest request)
@@ -390,10 +400,10 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.CancelSubscription(request);
         }
 
-        public object Delete(CancelSubscriptionRenewalRequest request)
+        /*public object Delete(CancelSubscriptionRenewalRequest request)
         {
             return _repository.CancelSubscriptionRenewal(request);
-        }
+        }*/
 
         public void Delete(SignOutRequest request)
         {

@@ -91,17 +91,20 @@ namespace TVPApiModule.Services
             return concatenatedRes;            
         }
 
-        public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
+        public TVPApiModule.Objects.Responses.BillingResponse DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
         {
-            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
+            TVPApiModule.Objects.Responses.BillingResponse retVal = new Objects.Responses.BillingResponse();
 
-            string concatenatedRes = Execute(() =>
+            retVal = Execute(() =>
             {
-                response = ConditionalAccess.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
-                return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
-            }) as string;
+                TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = ConditionalAccess.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                if (response != null)
+                    retVal = response.ToApiObject();
 
-            return concatenatedRes;
+                return retVal;
+            }) as TVPApiModule.Objects.Responses.BillingResponse;
+
+            return retVal;
         }
 
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
@@ -117,15 +120,17 @@ namespace TVPApiModule.Services
             return concatenatedRes;
         }
 
-        public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
+        public Status CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
         {
-            bool response = false;
+            Status response = new Status();
 
-            response = Convert.ToBoolean(Execute(() =>
+            response = Execute(() =>
                 {
-                    response = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);                    
+                    bool isCanceled = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);       
+                    response.status = isCanceled ? StatusObjectCode.OK : StatusObjectCode.Fail;
+
                     return response;
-                }));
+                }) as Status;
 
             return response;
         }        
@@ -1024,7 +1029,7 @@ namespace TVPApiModule.Services
             return permittedCollections;
         }
 
-        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
+        /*public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType, bool isForce)
         {
             bool isCancelationSucceeded = false;
 
@@ -1033,6 +1038,23 @@ namespace TVPApiModule.Services
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
                     isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType, isForce);
+                }
+
+                return isCancelationSucceeded;
+            }));
+
+            return isCancelationSucceeded;
+        }*/
+
+        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isCancelationSucceeded = false;
+
+            isCancelationSucceeded = Convert.ToBoolean(Execute(() =>
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
                 }
 
                 return isCancelationSucceeded;
@@ -1058,7 +1080,7 @@ namespace TVPApiModule.Services
             return isWaiverTransactionSucceeded;
         }
 
-        public Status CancelSubscriptionRenewal(int domain_id, string subscription_id)
+        /*public Status CancelSubscriptionRenewal(int domain_id, string subscription_id)
         {
             Status response = new Status();
 
@@ -1071,6 +1093,6 @@ namespace TVPApiModule.Services
             }) as Status;
 
             return response;
-        }
+        }*/
     }
 }

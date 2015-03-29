@@ -232,7 +232,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public bool CancelSubscription(CancelSubscriptionRequest request)
+        public Status CancelSubscription(CancelSubscriptionRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscription(request.site_guid, request.subscription_id, request.subscription_purchase_id);             
         }
@@ -311,7 +311,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<UserSocialActionObject> GetUserActions(GetUserActionsRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserActions(request.site_guid, request.user_action, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
+            throw new NotImplementedException();//return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserActions(request.site_guid, request.user_action, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
         }
 
         public List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(GetUserAllowedSocialPrivacyListRequest request)
@@ -434,9 +434,14 @@ namespace RestfulTVPApi.ServiceInterface
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserExpiredCollections(request.site_guid, request.num_of_items);
         }
 
-        public bool CancelTransaction(CancelTransactionRequest request)
+        /*public bool CancelTransaction(CancelTransactionRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type, request.is_force);
+        }*/
+
+        public bool CancelTransaction(CancelTransactionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type);
         }
 
         public bool WaiverTransaction(WaiverTransactionRequest request)
@@ -451,9 +456,21 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
 
-        public Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request)
+        /*public Status CancelSubscriptionRenewal(CancelSubscriptionRenewalRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscriptionRenewal(request.domain_id, request.subscription_id);
+        }*/
+
+
+        public FBSignIn FBUserSignin(FBUserSigninRequest request)
+        {
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserSignin(request.token, request.ip, request.device_id, request.prevent_double_logins);
+        }
+
+
+        public TVPApiModule.Objects.Responses.BillingResponse DummyChargeUserForSubscription(DummyChargeUserForSubscriptionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).DummyChargeUserForSubscription(request.price, request.currency, request.subscription_id, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.extra_parameters, request.udid);
         }
     }
 }
