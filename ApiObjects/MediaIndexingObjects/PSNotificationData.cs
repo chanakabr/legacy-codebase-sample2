@@ -79,7 +79,7 @@ namespace ApiObjects.MediaIndexingObjects
 
             // constant arguments - gruop id and action
             this.args.Add(this.GroupId);
-            this.args.Add(this.Action);
+            this.args.Add((int)this.Action);
             
             // dynamic data - third object in args, will be in a nested json object
             this.args.Add(this.Data);
