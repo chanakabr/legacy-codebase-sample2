@@ -20,7 +20,7 @@ namespace ApiObjects
         [JsonProperty()]
         public bool isDefault;
         [JsonProperty()]
-        public Dictionary<int, int> linearChannels;
+        public List<KeyValuePair> linearChannels;
         [JsonProperty()]
         public int groupId;
 
@@ -33,7 +33,7 @@ namespace ApiObjects
             name = string.Empty;
             externalId = string.Empty;
             isDefault = false;
-            linearChannels = new Dictionary<int, int>();
+            linearChannels = new List<KeyValuePair>();
         }
 
         #endregion
