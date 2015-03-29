@@ -187,7 +187,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundlesContainingMediaRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaFilesRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.PersonalLasDeviceRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaHitRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.ChannelRequest))]
@@ -232,10 +232,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramDetailsRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.ChannelObjRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.CrowdsourceRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaFilesRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundlesContainingMediaRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.DomainLastPositionRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.NPVRRetrieveRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.NPVRSeriesRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetInfoRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediasProtocolRequest))]
     public partial class BaseRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -565,38 +567,38 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BundlesContainingMediaRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaFilesRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
-    public partial class BundlesContainingMediaRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
+    public partial class MediaFilesRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
+        private System.Collections.Generic.List<string> m_lCoGuidsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundleKeyValue> m_oBundlesField;
+        private System.Collections.Generic.List<int> m_lMediaFileIDsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
+        public System.Collections.Generic.List<string> m_lCoGuids {
             get {
-                return this.m_nMediaIDField;
+                return this.m_lCoGuidsField;
             }
             set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
+                if ((object.ReferenceEquals(this.m_lCoGuidsField, value) != true)) {
+                    this.m_lCoGuidsField = value;
+                    this.RaisePropertyChanged("m_lCoGuids");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundleKeyValue> m_oBundles {
+        public System.Collections.Generic.List<int> m_lMediaFileIDs {
             get {
-                return this.m_oBundlesField;
+                return this.m_lMediaFileIDsField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_oBundlesField, value) != true)) {
-                    this.m_oBundlesField = value;
-                    this.RaisePropertyChanged("m_oBundles");
+                if ((object.ReferenceEquals(this.m_lMediaFileIDsField, value) != true)) {
+                    this.m_lMediaFileIDsField = value;
+                    this.RaisePropertyChanged("m_lMediaFileIDs");
                 }
             }
         }
@@ -2458,38 +2460,38 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaFilesRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BundlesContainingMediaRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
-    public partial class MediaFilesRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
+    public partial class BundlesContainingMediaRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> m_lCoGuidsField;
+        private int m_nMediaIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_lMediaFileIDsField;
+        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundleKeyValue> m_oBundlesField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> m_lCoGuids {
+        public int m_nMediaID {
             get {
-                return this.m_lCoGuidsField;
+                return this.m_nMediaIDField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_lCoGuidsField, value) != true)) {
-                    this.m_lCoGuidsField = value;
-                    this.RaisePropertyChanged("m_lCoGuids");
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_lMediaFileIDs {
+        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BundleKeyValue> m_oBundles {
             get {
-                return this.m_lMediaFileIDsField;
+                return this.m_oBundlesField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_lMediaFileIDsField, value) != true)) {
-                    this.m_lMediaFileIDsField = value;
-                    this.RaisePropertyChanged("m_lMediaFileIDs");
+                if ((object.ReferenceEquals(this.m_oBundlesField, value) != true)) {
+                    this.m_oBundlesField = value;
+                    this.RaisePropertyChanged("m_oBundles");
                 }
             }
         }
@@ -2694,6 +2696,116 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class UnifiedSearchRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> assetTypesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string filterQueryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string nameAndDescriptionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> assetTypes {
+            get {
+                return this.assetTypesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.assetTypesField, value) != true)) {
+                    this.assetTypesField = value;
+                    this.RaisePropertyChanged("assetTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string filterQuery {
+            get {
+                return this.filterQueryField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.filterQueryField, value) != true)) {
+                    this.filterQueryField = value;
+                    this.RaisePropertyChanged("filterQuery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string nameAndDescription {
+            get {
+                return this.nameAndDescriptionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.nameAndDescriptionField, value) != true)) {
+                    this.nameAndDescriptionField = value;
+                    this.RaisePropertyChanged("nameAndDescription");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order {
+            get {
+                return this.orderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.orderField, value) != true)) {
+                    this.orderField = value;
+                    this.RaisePropertyChanged("order");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AssetInfoRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class AssetInfoRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<long> epgIdsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<long> mediaIdsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<long> epgIds {
+            get {
+                return this.epgIdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.epgIdsField, value) != true)) {
+                    this.epgIdsField = value;
+                    this.RaisePropertyChanged("epgIds");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<long> mediaIds {
+            get {
+                return this.mediaIdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.mediaIdsField, value) != true)) {
+                    this.mediaIdsField = value;
+                    this.RaisePropertyChanged("mediaIds");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MediasProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
     public partial class MediasProtocolRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseRequest {
@@ -2713,78 +2825,6 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 }
             }
         }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BundleKeyValue", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class BundleKeyValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType m_eBundleTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nBundleCodeField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType m_eBundleType {
-            get {
-                return this.m_eBundleTypeField;
-            }
-            set {
-                if ((this.m_eBundleTypeField.Equals(value) != true)) {
-                    this.m_eBundleTypeField = value;
-                    this.RaisePropertyChanged("m_eBundleType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nBundleCode {
-            get {
-                return this.m_nBundleCodeField;
-            }
-            set {
-                if ((this.m_nBundleCodeField.Equals(value) != true)) {
-                    this.m_nBundleCodeField = value;
-                    this.RaisePropertyChanged("m_nBundleCode");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="eBundleType", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    public enum eBundleType : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SUBSCRIPTION = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        COLLECTION = 1,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -3248,6 +3288,17 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eBundleType", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    public enum eBundleType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SUBSCRIPTION = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        COLLECTION = 1,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="EpgSearchType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
     public enum EpgSearchType : int {
         
@@ -3365,6 +3416,67 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.m_sUDIDField, value) != true)) {
                     this.m_sUDIDField = value;
                     this.RaisePropertyChanged("m_sUDID");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BundleKeyValue", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class BundleKeyValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType m_eBundleTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nBundleCodeField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType m_eBundleType {
+            get {
+                return this.m_eBundleTypeField;
+            }
+            set {
+                if ((this.m_eBundleTypeField.Equals(value) != true)) {
+                    this.m_eBundleTypeField = value;
+                    this.RaisePropertyChanged("m_eBundleType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nBundleCode {
+            get {
+                return this.m_nBundleCodeField;
+            }
+            set {
+                if ((this.m_nBundleCodeField.Equals(value) != true)) {
+                    this.m_nBundleCodeField = value;
+                    this.RaisePropertyChanged("m_nBundleCode");
                 }
             }
         }
