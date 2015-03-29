@@ -56,44 +56,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         private dsCategory CategoryResponseToDsCategory(CategoryResponse categoryResponse)
         {
-            //dsCategory retVal = new dsCategory();
-            //dsCategory.CategoriesRow rootRow = retVal.Categories.NewCategoriesRow();
-            //rootRow.ID = categoryResponse.ID.ToString();
-            //rootRow.Title = "Root";
-            //foreach (channelObj rootChannel in categoryResponse.m_oChannels)
-            //{
-            //    dsCategory.ChannelsRow rootChannelRow = retVal.Channels.NewChannelsRow();
-            //    rootChannelRow.CategoryID = categoryResponse.ID.ToString();
-            //    rootChannelRow.ID = rootChannel.m_nChannelID;
-            //    rootChannelRow.Title = rootChannel.m_sTitle;
-            //    retVal.Channels.AddChannelsRow(rootChannelRow);
-            //}
-            //retVal.Categories.AddCategoriesRow(rootRow);
-            //if (categoryResponse.m_oChildCategories != null)
-            //{
-            //    foreach (CategoryResponse cat in categoryResponse.m_oChildCategories)
-            //    {
-            //        dsCategory.CategoriesRow catRow = retVal.Categories.NewCategoriesRow();
-            //        catRow.ID = cat.ID.ToString();
-            //        catRow.Title = cat.m_sTitle;
-            //        catRow.ParentCatID = cat.m_nParentCategoryID.ToString();
-            //        if (cat.m_oChannels != null)
-            //        {
-            //            foreach (channelObj catChannel in cat.m_oChannels)
-            //            {
-            //                dsCategory.ChannelsRow channelRow = retVal.Channels.NewChannelsRow();
-            //                channelRow.CategoryID = cat.ID.ToString();
-            //                channelRow.ID = catChannel.m_nChannelID;
-            //                channelRow.Title = catChannel.m_sTitle;
-            //                retVal.Channels.AddChannelsRow(channelRow);
-            //                //channelRow.NumOfItems = catChannel.media_count
-            //            }
-            //        }
-            //        retVal.Categories.AddCategoriesRow(catRow);
-            //    }
-            //}
-
-            //return retVal;
             dsCategory retVal = new dsCategory();
             MakeCategory(categoryResponse, null, retVal, PicSize);
             return retVal;

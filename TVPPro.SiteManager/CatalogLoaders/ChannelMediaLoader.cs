@@ -89,7 +89,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public override string GetLoaderCachekey()
         {
-            return string.Format("channel{0}_index{1}_size{2}", ChannelID, PageIndex, PageSize);
+            return string.Format("channel{0}_index{1}_size{2}_group{3}", ChannelID, PageIndex, PageSize, GroupID);
         }
 
         protected override void Log(string message, object obj)

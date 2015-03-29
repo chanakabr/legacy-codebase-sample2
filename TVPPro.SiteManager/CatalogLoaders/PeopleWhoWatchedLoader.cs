@@ -40,7 +40,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         }
         public override string GetLoaderCachekey()
         {
-            return string.Format("people_who_watched_mediaid{0}country{1}_index{2}_size{3}", MediaID, CountryID, PageIndex, PageSize);
+            return string.Format("people_who_watched_mediaid{0}country{1}_index{2}_size{3}_group{4}", MediaID, CountryID, PageIndex, PageSize, GroupID);
         }
 
         protected override void Log(string message, object obj)

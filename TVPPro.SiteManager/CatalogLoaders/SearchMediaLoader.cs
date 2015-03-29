@@ -144,6 +144,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             StringBuilder key = new StringBuilder();
 
+            // g = GroupId
+            // ps = PageSize
+            // pi = PageIndex
             // e = Exact
             // a = And
             // ob = OrderBy
@@ -157,7 +160,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             // t = Tags
 
 
-            key.AppendFormat("search_e={0}_a={1}_ob={2}_od={3}", Exact, And, OrderBy, OrderDir);
+            key.AppendFormat("search_g={0}_ps={1}_pi={2}_e={3}_a={4}_ob={5}_od={6}", GroupID, PageSize, PageIndex, Exact, And, OrderBy, OrderDir);
             if (!string.IsNullOrEmpty(OrderMetaMame))
                 key.AppendFormat("_om={0}", OrderMetaMame);
             if (!string.IsNullOrEmpty(Name))

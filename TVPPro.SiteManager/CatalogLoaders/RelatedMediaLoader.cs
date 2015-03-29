@@ -44,7 +44,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public override string GetLoaderCachekey()
         {
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("related_mediaid{0}_index{1}_size{2}", MediaID, PageIndex, PageSize);
+            key.AppendFormat("related_mediaid{0}_index{1}_size{2}_group{3}", MediaID, PageIndex, PageSize, GroupID);
             if (MediaTypes != null && MediaTypes.Count > 0)
                 key.AppendFormat("_mt={0}", string.Join(",", MediaTypes.Select(type => type.ToString()).ToArray()));
             return key.ToString();
