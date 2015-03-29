@@ -94,6 +94,8 @@ namespace Catalog
                         searchObj.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = null;
                     }
 
+                    searchObj.regionIds = Catalog.GetSearchRegions(this.m_nGroupID, this.domainId, this.m_sSiteGuid);
+
                     response.lResults = searcher.GetAutoCompleteList(request.m_nGroupID, searchObj, request.m_oFilter.m_nLanguage, ref nTotalItems);
                     response.m_nTotalItems = nTotalItems;
                 }

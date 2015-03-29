@@ -84,6 +84,13 @@ namespace ApiObjects
     }
 
     [Serializable]
+    public enum eCaSystem
+    {
+        OTT = 0,
+        OVP = 1,
+    }
+
+    [Serializable]
     public enum eAction
     {
         [EnumMember]

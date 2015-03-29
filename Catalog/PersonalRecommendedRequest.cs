@@ -32,7 +32,7 @@ namespace Catalog
         }
 
         public PersonalRecommendedRequest(PersonalRecommendedRequest p)
-            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString, p.m_sSiteGuid)
+            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString, p.m_sSiteGuid, p.domainId)
         {
         }
 
@@ -48,6 +48,7 @@ namespace Catalog
             oMediaRelatedRequest.m_sUserIP = request.m_sUserIP;
             oMediaRelatedRequest.m_oFilter = request.m_oFilter;
             oMediaRelatedRequest.m_sSiteGuid = request.m_sSiteGuid;
+            oMediaRelatedRequest.domainId = request.domainId;
 
             return oMediaRelatedRequest;
         }

@@ -46,9 +46,9 @@ namespace Catalog
         /// <param name="mediaIds"></param>
         /// <param name="epgIds"></param>
         public AssetInfoRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, 
-            string sSignString, string sSiteGuid,
+            string sSignString, string sSiteGuid, int domainId,
             List<long> mediaIds, List<long> epgIds)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid)
+            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, domainId)
         {
             this.mediaIds = mediaIds;
             this.epgIds = epgIds;

@@ -104,18 +104,26 @@ namespace ConditionalAccess
                             if (fileIds != null && fileIds.Count > 0)
                             {
                                 bool priceValidationPassed = false;
-                                MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIds.ToArray(), siteGuid, string.Empty, true, string.Empty, string.Empty, string.Empty, string.Empty);
-                                if (prices != null && prices.Length > 0)
+
+                                //get only files that related to ppv module
+                                List<int> files = GetFileList(fileIds, ref priceValidationPassed);
+
+                                if (!priceValidationPassed)
                                 {
-                                    foreach (var price in prices)
+                                    MediaFileItemPricesContainer[] prices = GetItemsPrices(files.ToArray(), siteGuid, string.Empty, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                                    if (prices != null && prices.Length > 0)
                                     {
-                                        if (IsFreeItem(price) || IsItemPurchased(price))
+                                        foreach (var price in prices)
                                         {
-                                            priceValidationPassed = true;
-                                            break;
+                                            if (IsFreeItem(price) || IsItemPurchased(price))
+                                            {
+                                                priceValidationPassed = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+
                                 if (priceValidationPassed)
                                 {
                                     string epgChannelID = string.Empty;
@@ -220,6 +228,46 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private List<int> GetFileList(List<int> fileIds, ref bool priceValidationPassed)
+        {
+            try
+            {
+                List<int> files = new List<int>();
+                TvinciPricing.mdoule objPricingModule = null;
+                string sPricingUsername = string.Empty;
+                string sPricingPassword = string.Empty;
+                TvinciPricing.MediaFilePPVContainer[] oModules = null;
+
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+                base.InitializePricingModule(ref objPricingModule);
+                oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, fileIds.ToArray(), string.Empty, string.Empty, string.Empty);
+                //get only files that are related to any ppvModule 
+                if (oModules == null || oModules.Count() == 0)
+                {
+                    priceValidationPassed = true;
+                }
+                // Build list of filed that related to ppv module 
+                foreach (TvinciPricing.MediaFilePPVContainer module in oModules)
+                {
+                    if (module.m_oPPVModules != null)
+                    {
+                        files.Add(module.m_nMediaFileID);
+                    }
+                }
+                if (files.Count == 0) // no file related to any ppvModule ==> can record media 
+                {
+                    priceValidationPassed = true;
+                }
+
+                return files;
+            }
+            catch (Exception ex)
+            {
+                priceValidationPassed = false;
+                return new List<int>();
+            }
         }
 
         // here asset ID will be the recording ID in ALU.
