@@ -66,14 +66,9 @@ namespace GroupsCacheManager
         public bool isRegionalizationEnabled;
 
         /// <summary>
-        /// List of regions associated with this group
-        /// </summary>
-        public List<Region> regions;
-
-        /// <summary>
         /// The default region of this group (in case a domain isn't associated with any region)
         /// </summary>
-        public Region defaultRegion;
+        public int defaultRegion;
 
         #endregion
 
@@ -101,7 +96,6 @@ namespace GroupsCacheManager
             this.m_oDefaultLanguage = null;
             this.mediaTypesIdToName = new Dictionary<int, string>();
             this.mediaTypesNameToId = new Dictionary<string, int>();
-            this.regions = new List<Region>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -743,30 +737,6 @@ namespace GroupsCacheManager
             }
 
             return (ids);
-        }
-
-        #endregion
-
-        #region Regions
-
-        /// <summary>
-        /// Gets the default region of this group
-        /// </summary>
-        /// <returns></returns>
-        public Region GetDefaultRegion()
-        {
-            if (this.defaultRegion != null)
-            {
-                return (this.defaultRegion);
-            }
-            else if (this.regions == null)
-            {
-                return (null);
-            }
-            else
-            {
-                return (regions.FirstOrDefault(region => region.isDefault));
-            }
         }
 
         #endregion

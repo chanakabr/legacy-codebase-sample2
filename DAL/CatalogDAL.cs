@@ -2536,11 +2536,10 @@ namespace Tvinci.Core.DAL
         /// <param name="isRegionalizationEnabled"></param>
         /// <param name="defaultRegion"></param>
         /// <returns></returns>
-        public static List<Region> GetGroupRegions(int groupId, out bool isRegionalizationEnabled, out Region defaultRegion)
+        public static void GetRegionalizationSettings(int groupId, out bool isRegionalizationEnabled, out int defaultRegion)
         {
-            List<Region> regions = new List<Region>();
             isRegionalizationEnabled = false;
-            defaultRegion = null;
+            defaultRegion = 0;
 
             // Call stored procedure that checks if this group has regionalization or not
             ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultRegion");
@@ -2558,49 +2557,9 @@ namespace Tvinci.Core.DAL
                     DataRow groupRow = groupTable.Rows[0];
 
                     isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
-
-                    // If regionalization disabled - no need to continue
-                    if (isRegionalizationEnabled)
-                    {
-                        int defaultRegionId = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
-
-                        ODBCWrapper.StoredProcedure storedProcedureRegions = new ODBCWrapper.StoredProcedure("Get_GroupRegions");
-                        storedProcedureRegions.SetConnectionKey("MAIN_CONNECTION_STRING");
-                        storedProcedureRegions.AddParameter("@GroupID", groupId);
-
-                        DataSet regionsDataSet = storedProcedureRegions.ExecuteDataSet();
-
-                        if (regionsDataSet != null && regionsDataSet.Tables != null && regionsDataSet.Tables.Count > 0)
-                        {
-                            DataTable regionsTable = regionsDataSet.Tables[0];
-
-                            if (regionsTable != null && regionsTable.Rows != null && regionsTable.Rows.Count > 0)
-                            {
-                                // Run on all records of regions associated with this group and create region objects and add them to list
-                                foreach (DataRow regionRow in regionsTable.Rows)
-                                {
-                                    Region currentRegion = BuildRegion(regionRow);
-
-                                    if (currentRegion != null)
-                                    {
-                                        regions.Add(currentRegion);
-
-                                        // If this is the default region, return it
-                                        if (currentRegion.id == defaultRegionId)
-                                        {
-                                            defaultRegion = currentRegion;
-
-                                            defaultRegion.isDefault = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
                 }
             }
-
-            return (regions);
         }
 
         /// <summary>
