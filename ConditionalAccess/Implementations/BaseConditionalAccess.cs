@@ -5689,7 +5689,8 @@ namespace ConditionalAccess
                                                 {"PPVModuleCode", sPPVModuleCode},
                                                 {"SiteGUID", sSiteGUID},
                                                 {"CouponCode", sCouponCode},
-                                                {"CustomData", sCustomData}
+                                                {"CustomData", sCustomData},
+                                                {"PurchaseID", lPurchaseID}
                                             };
 
                                             this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
