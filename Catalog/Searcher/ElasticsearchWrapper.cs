@@ -85,7 +85,8 @@ namespace Catalog
                             });
                         }
 
-                        if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
+                        if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
+                            oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
                             || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                         {
                             List<int> lMediaIds = oRes.m_resultIDs.Select(item => item.assetID).ToList();
@@ -95,28 +96,40 @@ namespace Catalog
                             Dictionary<int, SearchResult> dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
                             oRes.m_resultIDs.Clear();
 
-                            int nValidNumberOfMediasRange = nPageSize;
-                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lMediaIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            // check which results should be returned
+                            bool illegalRequest = false;
+                            if (nPageSize < 0 || nPageIndex < 0)
                             {
-                                if (nValidNumberOfMediasRange > 0)
+                                // illegal parameters
+                                illegalRequest = true;
+                            }
+                            else
+                            {
+                                if (nPageSize == 0 && nPageIndex == 0)
                                 {
-                                    lMediaIds = lMediaIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                    // return all results
+                                }
+                                else
+                                {
+                                    // apply paging on results 
+                                    lMediaIds = lMediaIds.Skip(nPageSize * nPageIndex).Take(nPageSize).ToList();
                                 }
                             }
 
-                            SearchResult oTemp;
-                            foreach (int mediaID in lMediaIds)
+                            if (!illegalRequest)
                             {
-                                if (dItems.TryGetValue(mediaID, out oTemp))
+                                SearchResult oTemp;
+                                foreach (int mediaID in lMediaIds)
                                 {
-                                    oRes.m_resultIDs.Add(oTemp);
+                                    if (dItems.TryGetValue(mediaID, out oTemp))
+                                    {
+                                        oRes.m_resultIDs.Add(oTemp);
+                                    }
                                 }
                             }
                         }
                     }
-
                 }
-
             }
 
             return oRes;
@@ -452,7 +465,7 @@ namespace Catalog
                     searchRes = m_oESApi.MultiSearch(sGroupAlias, ES_EPG_TYPE, queries, lRouting);
                     lDocs = DecodeEpgMultiSearchJsonObject(searchRes, ref nTotalRecords);
                 }
-                
+
                 if (lDocs != null)
                 {
                     epgResponse = new SearchResultsObj();
