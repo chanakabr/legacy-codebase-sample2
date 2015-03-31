@@ -17,7 +17,7 @@ namespace ApiObjects.DRM
         [JsonProperty("content_id")]
         public string ContentId { get; set; }
 
-        [JsonProperty("file_id")]
+        [JsonProperty("files")]
         public string FileId { get; set; }
 
         [JsonProperty("policy")]
