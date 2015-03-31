@@ -753,6 +753,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select id, name from media_tags_types where status=1 and group_id in (" + sAllGroups + ") order by id";
             selectQuery.SetCachedSec(0);
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             DataTable mediaTagsTypeIds = null;
 
             try
@@ -783,6 +784,7 @@ namespace Tvinci.Core.DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ct.channel_id", "=", channelId);
                 selectQuery += "and ct.tag_id=t.id";
                 selectQuery.SetCachedSec(0);
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 returnedDataTable = selectQuery.Execute("query", true);
             }
             catch
@@ -852,6 +854,7 @@ namespace Tvinci.Core.DAL
         {
             DataTable mediaParentGroup = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             try
             {
@@ -1275,6 +1278,7 @@ namespace Tvinci.Core.DAL
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
