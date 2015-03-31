@@ -168,7 +168,7 @@ namespace Users
             return resDomain;
         }
 
-        internal static LimitationsManager GetDLM(int nGroupID, int nDomainLimitID, DateTime dtLastActionDate)
+        internal static LimitationsManager GetDLM(int nGroupID, int nDomainLimitID)
         {
             LimitationsManager oLimitationsManager = null;
             try
@@ -199,11 +199,6 @@ namespace Users
                             oLimitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.UserFrequency);
 
                             oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);   
-
-                            if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || oLimitationsManager.Frequency == 0)
-                                oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
-                            else
-                                oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, oLimitationsManager.Frequency);                        
                         }
                     }
                     #endregion
