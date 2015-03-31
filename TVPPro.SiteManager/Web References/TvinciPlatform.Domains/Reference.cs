@@ -109,7 +109,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://192.168.192.146/webservices/domains/module.asmx";
+            this.Url = "http://localhost/ws_domains/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -1590,22 +1590,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDomainRegion", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetDomainRegion(string sWSUserName, string sWSPassword, int domainId, string extRegionId) {
+        public Status SetDomainRegion(string sWSUserName, string sWSPassword, int domainId, string extRegionId, string lookupKey) {
             object[] results = this.Invoke("SetDomainRegion", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainId,
-                        extRegionId});
+                        extRegionId,
+                        lookupKey});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId) {
-            this.SetDomainRegionAsync(sWSUserName, sWSPassword, domainId, extRegionId, null);
+        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId, string lookupKey) {
+            this.SetDomainRegionAsync(sWSUserName, sWSPassword, domainId, extRegionId, lookupKey, null);
         }
         
         /// <remarks/>
-        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId, object userState) {
+        public void SetDomainRegionAsync(string sWSUserName, string sWSPassword, int domainId, string extRegionId, string lookupKey, object userState) {
             if ((this.SetDomainRegionOperationCompleted == null)) {
                 this.SetDomainRegionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainRegionOperationCompleted);
             }
@@ -1613,7 +1614,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                         sWSUserName,
                         sWSPassword,
                         domainId,
-                        extRegionId}, this.SetDomainRegionOperationCompleted, userState);
+                        extRegionId,
+                        lookupKey}, this.SetDomainRegionOperationCompleted, userState);
         }
         
         private void OnSetDomainRegionOperationCompleted(object arg) {
