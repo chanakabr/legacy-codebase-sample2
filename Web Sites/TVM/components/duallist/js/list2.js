@@ -89,10 +89,6 @@ var List = function (listId, listTitle) {
                     $(addRemoveIcon).addClass(type);
                     addRemoveIcon.setAttribute('href', 'javascript:;');
                     listLiItem.appendChild(addRemoveIcon);
-                    //var infoIcon = document.createElement('a');
-                    //$(infoIcon).addClass('info-icon');
-                    //infoIcon.setAttribute('href', 'javascript:;');
-                    //listLiItem.appendChild(infoIcon);
                     $(listLiItem).hide();
                     if (type == 'add') {
                         $(listLiItem).show(800).effect("slide", { direction: "left" }, 800);
@@ -101,9 +97,8 @@ var List = function (listId, listTitle) {
                     }
 
                     $(listItems).prepend($(listLiItem));
-                    //new Info(items[i].Info, listLiItem);
-
-                    // adding the calendar number
+                    
+                    // adding the number
                     if (type == 'remove') {
                         new Number(items[i], listLiItem);
                     }
@@ -134,7 +129,6 @@ var List = function (listId, listTitle) {
                             direction = 'left';
                         }
                         $(liItem).hide("slide", { direction: direction }, 800, function () {
-                            //$($(liItem)[0].nextSibling).remove();
                             $(liItem).remove();
                         });
                         
