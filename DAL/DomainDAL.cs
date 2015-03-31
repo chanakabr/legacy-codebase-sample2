@@ -1858,12 +1858,23 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool UpdateDomainRegion(int domainId, string extRegionId)
+        public static bool UpdateDomainRegion(int domainId, int groupId, string extRegionId, string lookupKey)
         {
             StoredProcedure sp = new StoredProcedure("Update_DomainRegion");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", domainId);
-            sp.AddParameter("@extRegionID", extRegionId);
+            sp.AddParameter("@groupID", groupId);
+
+            if (!string.IsNullOrEmpty(extRegionId))
+            {
+                sp.AddParameter("@extRegionID", extRegionId);
+                sp.AddParameter("@lookupKey", string.Empty);
+            }
+            else 
+            {
+                sp.AddParameter("@lookupKey", lookupKey);
+                sp.AddParameter("@extRegionID", string.Empty);
+            }
 
             return sp.ExecuteReturnValue<bool>();
         }

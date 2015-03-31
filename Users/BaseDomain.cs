@@ -1221,7 +1221,7 @@ namespace Users
             }
         }
 
-        public ApiObjects.Response.Status SetDomainRegion(int groupId, int domainId, string extRegionId)
+        public ApiObjects.Response.Status SetDomainRegion(int groupId, int domainId, string extRegionId, string lookupKey)
         {
             ApiObjects.Response.Status status = null;
             try
@@ -1234,7 +1234,7 @@ namespace Users
                     return status;
                 }
 
-                if (DomainDal.UpdateDomainRegion(domainId, extRegionId))
+                if (DomainDal.UpdateDomainRegion(domainId, groupId, extRegionId, lookupKey))
                 {
                     DomainsCache.Instance().RemoveDomain(domainId);
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
@@ -1247,7 +1247,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, ex = {2}", domainId, extRegionId, ex.Message), "BaseDomain");
+                Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), "BaseDomain");
                 status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return status;
             }
