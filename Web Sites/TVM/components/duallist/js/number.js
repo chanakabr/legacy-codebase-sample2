@@ -1,7 +1,7 @@
 var Number = function (params, attachToElement) {
-    var channelNumber, channelNumberNotEmpty;
+    var channelNumber, channelNumberNotEmpty, oldChannelNumber;
     if (params.ChannelNumber) {
-        channelNumber = params.ChannelNumber || "No number";
+        oldChannelNumber = channelNumber = params.ChannelNumber || "No number";
         channelNumberNotEmpty = (params.ChannelNumber) ? true : false;
     } else {
         channelNumber = "";
@@ -60,7 +60,7 @@ var Number = function (params, attachToElement) {
         var $numberComponent = $(attachToElement);
         //$calendarComponent.on('click', '.calendar-icon', calendarIconClickedHandler);
         $numberComponent.find('input[class="channel-number"]').on('blur', inputBlurHandler);
-        //$numberComponent.find('input[data-date-verify]').on('focus', inputFocusHandler);
+        $numberComponent.find('input[class="channel-number"]').on('focus', inputFocusHandler);
     };
 
     // Handlers
@@ -82,15 +82,29 @@ var Number = function (params, attachToElement) {
     //    }
     //};
 
+    var verifyNumber = function (comp) {
+        var value = comp.value;
+        if (!isNaN(value))
+            return true;
+        else
+            return false;
+    }
+
+    var inputFocusHandler = function () {
+        oldChannelNumber = this.value;
+        //    var $this = $(this);
+        //    var $inputContainer = $this.parent('.date');
+        //    $inputContainer.find('.tooltip').addClass('hidden');
+    };
 
     var inputBlurHandler = function () {
-        var isTruthy = true;//verifyDate(this);
+        var isTruthy = verifyNumber(this);
         var $this = $(this);
         var $numberComp = $(numberComponent);
         var $inputContainer = $this.parent('.date');
         var channelNumber = $(this).val();
         if (!isTruthy) {
-            $inputContainer.find('.tooltip').removeClass('hidden');
+            this.value = oldChannelNumber;
         } else {
             var itemId = this.parentElement.getAttribute('data-id');
             changeItemNumber(itemId, channelNumber);
@@ -100,11 +114,10 @@ var Number = function (params, attachToElement) {
             params.ChannelNumber = channelNumber || "No number";
         };
 
-        //var inputFocusHandler = function () {
-        //    var $this = $(this);
-        //    var $inputContainer = $this.parent('.date');
-        //    $inputContainer.find('.tooltip').addClass('hidden');
-        //};
+        
+
+
+        
 
 
         //var verifyDate = function (dateInput) {
