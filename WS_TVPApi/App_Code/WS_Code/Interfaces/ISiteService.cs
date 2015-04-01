@@ -112,6 +112,6 @@ namespace TVPApiServices
         object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, int[] regionIds);
+        TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids);
     }
 }

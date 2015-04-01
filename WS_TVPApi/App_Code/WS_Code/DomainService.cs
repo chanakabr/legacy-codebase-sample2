@@ -835,7 +835,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set region for domain")]
-        public ClientResponseStatus SetDomainRegion(InitializationObject initObj, int domainId, string extRegionId, string lookup_key)
+        public ClientResponseStatus SetDomainRegion(InitializationObject initObj, int domain_id, string ext_region_id, string lookup_key)
         {
             ClientResponseStatus clientResponse = null;
 
@@ -845,7 +845,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRegion(domainId, extRegionId, lookup_key);
+                    clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRegion(domain_id, ext_region_id, lookup_key);
                 }
                 catch (Exception ex)
                 {
