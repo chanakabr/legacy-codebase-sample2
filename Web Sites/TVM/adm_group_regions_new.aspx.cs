@@ -71,15 +71,16 @@ public partial class adm_group_regions_new : System.Web.UI.Page
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
                     if (insertQuery.Execute())
                     {
-                        if (Session["media_ids"] != null && Session["media_ids"] is List<int>)
+                        if (Session["media_ids"] != null && Session["media_ids"] is Dictionary<int, string>)
                         {
                             
                             regionId = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("linear_channels_regions", "id", "external_id", "=", extrernalId).ToString());
-                            if (regionId != null)
+                            if (regionId != 0)
                             {
-                                List<int> mediaIds = Session["media_ids"] as List<int>;
+                                Dictionary<int, string> mediaIds = Session["media_ids"] as Dictionary<int, string>;
                                 InsertRegionMedias(mediaIds, regionId);
                             }
+                            Session["media_ids"] = null;
                         }
                     }
                     insertQuery.Finish();
@@ -105,16 +106,17 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             else
                 Session["region_id"] = 0;
         }
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
+       
     }
 
-    private void InsertRegionMedias(List<int> mediaIds, int regionId)
+    private void InsertRegionMedias(Dictionary<int, string> mediaIds, int regionId)
     {
         if (mediaIds != null)
         {
+            int groupId = LoginManager.GetLoginGroupID();
             foreach (var id in mediaIds)
             {
-                InserteMediaRegion(id, regionId);
+                InsertMediaRegion(id.Key, regionId, groupId, id.Value);
             }
         }
     }
@@ -206,18 +208,17 @@ public partial class adm_group_regions_new : System.Web.UI.Page
 
     public string initDualObj()
     {
-        string sRet = "";
-        sRet += "Linear Channels in this Region";
-        sRet += "~~|~~";
-        sRet += "All Linear Channels";
-        sRet += "~~|~~";
-        sRet += "<root>";
-
         int regionId = 0;
         if (Session["region_id"] != null && Session["region_id"].ToString() != "0")
         {
             regionId = int.Parse(Session["region_id"].ToString());
         }
+
+       
+        Dictionary<string, object> DualListPPVM = new Dictionary<string, object>();
+        DualListPPVM.Add("FirstListTitle", "Current Region Channels");
+        DualListPPVM.Add("SecondListTitle", "Available Channels");
+
         ODBCWrapper.DataSetSelectQuery channelsSelectQuery = new ODBCWrapper.DataSetSelectQuery();
         channelsSelectQuery += "select m.id, m.name from media m inner join media_types mt on m.MEDIA_TYPE_ID = mt.id and m.STATUS = 1 and mt.IS_LINEAR = 1 and ";
         channelsSelectQuery += " m.group_id " + PageUtils.GetFullChildGroupsStr(LoginManager.GetLoginGroupID(), "");
@@ -227,7 +228,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             if (regionId != 0)
             {
                 ODBCWrapper.DataSetSelectQuery regionChannelsSelectQuery = new ODBCWrapper.DataSetSelectQuery();
-                regionChannelsSelectQuery += "select id, media_id from media_regions where status = 1 and ";
+                regionChannelsSelectQuery += "select id, media_id, channel_number from media_regions where status = 1 and ";
                 regionChannelsSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("region_id", "=", regionId);
                 if (regionChannelsSelectQuery.Execute("query", true) != null)
                 {
@@ -237,29 +238,103 @@ public partial class adm_group_regions_new : System.Web.UI.Page
                 regionChannelsSelectQuery = null;
             }
             Int32 nCount = channelsSelectQuery.Table("query").DefaultView.Count;
+            object[] resultData = new object[nCount];
             for (int i = 0; i < nCount; i++)
             {
                 string sID = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "id", i);
                 string sTitle = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "name", i);
+
                 DataRow drChannel = null;
                 if (regionChannels != null)
                 {
                     drChannel = regionChannels.Select(string.Format("media_id = {0}", sID)).FirstOrDefault();
                 }
                 if (drChannel != null)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"true\" />";
+                {
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        InList = true,
+                        ChannelNumber = drChannel["channel_number"] is System.DBNull ? string.Empty : drChannel["channel_number"]
+                        
+                    };
+                    resultData[i] = data;
+                }
                 else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"false\" />";
+                {
+                    var data = new
+                   {
+                       ID = sID,
+                       Title = sTitle,
+                       InList = false,
+                       ChannelNumber = string.Empty
+                   };
+                    resultData[i] = data;
+                }
             }
+
+
+            DualListPPVM.Add("Data", resultData);
+            Logger.Logger.Log("Pricing WS", resultData.ToJSON(), "PricingWS");
+            return DualListPPVM.ToJSON();
         }
-            
-        channelsSelectQuery.Finish();
-        channelsSelectQuery = null;
+
+        return null;
+        //string sRet = "";
+        //sRet += "Linear Channels in this Region";
+        //sRet += "~~|~~";
+        //sRet += "All Linear Channels";
+        //sRet += "~~|~~";
+        //sRet += "<root>";
+
+        //int regionId = 0;
+        //if (Session["region_id"] != null && Session["region_id"].ToString() != "0")
+        //{
+        //    regionId = int.Parse(Session["region_id"].ToString());
+        //}
+        //ODBCWrapper.DataSetSelectQuery channelsSelectQuery = new ODBCWrapper.DataSetSelectQuery();
+        //channelsSelectQuery += "select m.id, m.name from media m inner join media_types mt on m.MEDIA_TYPE_ID = mt.id and m.STATUS = 1 and mt.IS_LINEAR = 1 and ";
+        //channelsSelectQuery += " m.group_id " + PageUtils.GetFullChildGroupsStr(LoginManager.GetLoginGroupID(), "");
+        //if (channelsSelectQuery.Execute("query", true) != null)
+        //{
+        //    DataTable regionChannels = null;
+        //    if (regionId != 0)
+        //    {
+        //        ODBCWrapper.DataSetSelectQuery regionChannelsSelectQuery = new ODBCWrapper.DataSetSelectQuery();
+        //        regionChannelsSelectQuery += "select id, media_id from media_regions where status = 1 and ";
+        //        regionChannelsSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("region_id", "=", regionId);
+        //        if (regionChannelsSelectQuery.Execute("query", true) != null)
+        //        {
+        //            regionChannels = regionChannelsSelectQuery.Table("query");
+        //        }
+        //        regionChannelsSelectQuery.Finish();
+        //        regionChannelsSelectQuery = null;
+        //    }
+        //    Int32 nCount = channelsSelectQuery.Table("query").DefaultView.Count;
+        //    for (int i = 0; i < nCount; i++)
+        //    {
+        //        string sID = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "id", i);
+        //        string sTitle = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "name", i);
+        //        DataRow drChannel = null;
+        //        if (regionChannels != null)
+        //        {
+        //            drChannel = regionChannels.Select(string.Format("media_id = {0}", sID)).FirstOrDefault();
+        //        }
+        //        if (drChannel != null)
+        //            sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"true\" />";
+        //        else
+        //            sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"false\" />";
+        //    }
+        //}
+
+        //channelsSelectQuery.Finish();
+        //channelsSelectQuery = null;
 
 
-        sRet += "</root>";
-        
-        return sRet;
+        //sRet += "</root>";
+
+        //return sRet;
 
     }
 
@@ -273,7 +348,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         Int32 result = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("CONNECTION_STRING");
-        selectQuery += "select id from media_regions where ";
+        selectQuery += "select id, status from media_regions where ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", mediaId);
         selectQuery += "and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("region_id", "=", regionId);
@@ -282,13 +357,40 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
             {
-                result = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                status = int.Parse(selectQuery.Table("query").DefaultView[0].Row["STATUS"].ToString());
+                result = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
+                status = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "status", 0);
             }
         }
         selectQuery.Finish();
         selectQuery = null;
         return result;
+    }
+
+    public string changeItemNumber(string id, string channelNumber)
+    {
+        int mediaID = int.Parse(id);
+        if (Session["region_id"] != null && Session["region_id"].ToString() != "0")
+        {
+            int regionId = int.Parse(Session["region_id"].ToString());
+            Int32 status = 0;
+            Int32 mediaRegionId = GetRegionMediaID(mediaID, regionId, ref status);
+            int groupId = LoginManager.GetLoginGroupID();
+
+            if (mediaRegionId != 0)
+            {
+                UpdateMediaRegions(mediaRegionId, status, mediaID, regionId, channelNumber);
+            }
+        }
+        else
+        {
+            if (Session["media_ids"] != null && Session["media_ids"] is Dictionary<int, string>)
+            {
+                Dictionary<int, string> mediaList = Session["media_ids"] as Dictionary<int, string>;
+                mediaList[mediaID] = channelNumber;
+            }
+        }
+        return "";
+
     }
 
     public string changeItemStatus(string id, string action)
@@ -299,38 +401,48 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             Int32 status = 0;
             int mediaID = int.Parse(id);
             Int32 mediaRegionId = GetRegionMediaID(mediaID, regionId, ref status);
+            int groupId = LoginManager.GetLoginGroupID();
 
             if (mediaRegionId != 0)
             {
                 if (status == 0)
-                    UpdateMediaRegions(mediaRegionId, 1, mediaID, regionId);
+                    UpdateMediaRegions(mediaRegionId, 1, mediaID, regionId, null);
                 else
-                    UpdateMediaRegions(mediaRegionId, 0, mediaID, regionId);
+                    UpdateMediaRegions(mediaRegionId, 0, mediaID, regionId, null);
             }
             else
             {
-                InserteMediaRegion(mediaID, regionId);
+                InsertMediaRegion(mediaID, regionId, groupId, string.Empty);
             }
         }
         else
         {
-            List<int> mediaList = new List<int>();
-            if (Session["media_ids"] != null && Session["media_ids"] is List<int>)
+            Dictionary<int, string> mediaList = new Dictionary<int, string>();
+            if (Session["media_ids"] != null && Session["media_ids"] is Dictionary<int, string>)
             {
-                mediaList = Session["media_ids"] as List<int>;
+                mediaList = Session["media_ids"] as Dictionary<int, string>;
             }
             int mediaID = int.Parse(id);
-            mediaList.Add(mediaID);
+            mediaList.Add(mediaID, string.Empty);
             Session["media_ids"] = mediaList;
         }
         return "";
     }
 
-    protected void InserteMediaRegion(Int32 mediaID, Int32 regionId)
+    protected void InsertMediaRegion(Int32 mediaID, Int32 regionId, int groupId, string channelNumber)
     {
         bool bInsert = false;
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_regions");
+        if (!string.IsNullOrEmpty(channelNumber))
+        {
+            int number = 0;
+            if (int.TryParse(channelNumber, out number))
+            {
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_NUMBER", "=", number);
+            }
+        }
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("REGION_ID", "=", regionId);
@@ -343,10 +455,22 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         insertQuery = null;
     }
 
-    protected void UpdateMediaRegions(Int32 id, Int32 status, int mediaId, int regionId)
+    protected void UpdateMediaRegions(Int32 id, Int32 status, int mediaId, int regionId, string channelNumber)
     {
         bool bUpdate = false;
+        
+
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_regions");
+        
+        if (!string.IsNullOrEmpty(channelNumber))
+        {
+            int number = 0;
+            if (int.TryParse(channelNumber, out number))
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_number", "=", number);        
+            }
+        }
+
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", status);
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", LoginManager.GetLoginID());
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);

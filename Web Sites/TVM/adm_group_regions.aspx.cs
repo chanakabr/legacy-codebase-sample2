@@ -78,7 +78,7 @@ public partial class adm_group_regions : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable += "select lcr.id as ID, lcr.name as Name, lcr.external_id as 'External ID', lcr.is_active, lcr.status, (case isnull(g.default_region, '') when '' then 'NO' else 'YES' end) as 'Is Default Region', ";
-        theTable += " (select	count(mr.REGION_ID) from media_regions  mr (nolock)	 where	mr.region_id = lcr.id) as 'LinearChannels'";
+        theTable += " (select	count(mr.REGION_ID) from media_regions  mr (nolock)	 where	mr.region_id = lcr.id and mr.status = 1 and is_active = 1) as 'LinearChannels'";
         theTable += " from linear_channels_regions lcr (nolock) left join groups g (nolock) on lcr.group_id = g.id and lcr.id = g.default_region	where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("lcr.group_id", "=", nGroupID);
         theTable += " and ";
