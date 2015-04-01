@@ -516,7 +516,7 @@ namespace Users
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 int nID = int.Parse(m_sSiteGUID);
-                saved = m_oDynamicData.Save(nID);                
+                saved = m_oDynamicData.Save(nID, nGroupID);
             }
 
             try

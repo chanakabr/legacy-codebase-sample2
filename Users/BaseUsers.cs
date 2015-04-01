@@ -350,7 +350,9 @@ namespace Users
             {             
                 uro.m_user.UpdateDynamicData(uro.m_user.m_oDynamicData, m_nGroupID);
             }
-            else if (newPairs.Count > 0)
+            //else 
+                
+            if (newPairs.Count > 0)
             {
                 UserDynamicData newUdd = new UserDynamicData();
                 newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + newPairs.Count];
