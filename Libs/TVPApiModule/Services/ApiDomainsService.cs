@@ -580,18 +580,18 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public ClientResponseStatus SetDomainRegion(int domainId, string extRegionId)
+        public ClientResponseStatus SetDomainRegion(int domainId, string extRegionId, string lookupKey)
         {
             ClientResponseStatus clientResponse;
 
             try
             {
-                var result = m_Module.SetDomainRegion(m_wsUserName, m_wsPassword, domainId, extRegionId);
+                var result = m_Module.SetDomainRegion(m_wsUserName, m_wsPassword, domainId, extRegionId, lookupKey);
                 clientResponse = new ClientResponseStatus(result.Code, result.Message);
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("Error while trying to get domain limitation module. domainId: {0}, extRegionId: {1}", domainId, extRegionId), ex);
+                logger.Error(string.Format("Error while trying to get domain limitation module. domainId: {0}, extRegionId: {1}, lookupKey: {2}", domainId, extRegionId, lookupKey), ex);
                 clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
