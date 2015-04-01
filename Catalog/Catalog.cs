@@ -1051,11 +1051,11 @@ namespace Catalog
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
                 {
-                    var defaultRegion =  group.GetDefaultRegion();
+                    int defaultRegion = group.defaultRegion;
 
-                    if (defaultRegion != null)
+                    if (defaultRegion != 0)
                     {
-                        regionIds.Add(defaultRegion.id);
+                        regionIds.Add(defaultRegion);
                     }
                 }
                 // Otherwise get the region of the requesting domain
@@ -1091,11 +1091,11 @@ namespace Catalog
                         // If the domain is not associated to a domain - get default region
                         if (domain.m_nRegion == 0)
                         {
-                            var defaultRegion = group.GetDefaultRegion();
+                            int defaultRegion = group.defaultRegion;
 
-                            if (defaultRegion != null)
+                            if (defaultRegion != 0)
                             {
-                                regionIds.Add(defaultRegion.id);
+                                regionIds.Add(defaultRegion);
                             }
                         }
                         else
