@@ -1164,7 +1164,7 @@ namespace Users
                     else
                     {
                         // get the new DLM from cache 
-                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager, Utils.FICTIVE_DATE);
+                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager);
                         if (!bDLM || oLimitationsManager == null)
                         {
                             oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
@@ -1199,7 +1199,7 @@ namespace Users
                 LimitationsManager dlmObj;
                 DomainsCache oDomainsCache = DomainsCache.Instance();
                 // get the DLM from cache 
-                bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj, Utils.FICTIVE_DATE);
+                bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj);
                 if (bDLM && dlmObj != null)
                 {
                     oDLMResponse.dlm = dlmObj;

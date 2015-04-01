@@ -45,7 +45,7 @@ namespace GroupsCacheManager
                 // get all services related to group
                 GetGroupServices(ref newGroup);
 
-                SetRegions(newGroup);
+                SetRegionalizationSettings(newGroup);
             }
 
             //get all PermittedWatchRules by groupID
@@ -56,20 +56,16 @@ namespace GroupsCacheManager
 
         /// <summary>
         /// Tells if regionalization is enabled for this group. 
-        /// If yes, it updates the list of regions of the group
         /// </summary>
         /// <param name="group"></param>
-        private static void SetRegions(Group group)
+        private static void SetRegionalizationSettings(Group group)
         {
             bool isRegionalizationEnabled;
-            bool isRegionalizationFilteringEnabled;
+            int defaultRegion;
 
-            Region defaultRegion;
-
-            List<Region> regions = CatalogDAL.GetGroupRegions(group.m_nParentGroupID, 
+            CatalogDAL.GetRegionalizationSettings(group.m_nParentGroupID, 
                 out isRegionalizationEnabled, out defaultRegion);
 
-            group.regions = regions;
             group.isRegionalizationEnabled = isRegionalizationEnabled;
             group.defaultRegion = defaultRegion;
         }

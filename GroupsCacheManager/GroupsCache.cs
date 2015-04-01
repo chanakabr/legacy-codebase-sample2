@@ -115,16 +115,26 @@ namespace GroupsCacheManager
             sb.Append(String.Concat(" Cache Data: ", ToString()));
             Logger.Logger.Log("CacheError", sb.ToString(), logFile);
         }
-        
+
         public Group GetGroup(int nGroupID)
         {
             Group group = null;
-            BaseModuleCache baseModule;
+            BaseModuleCache baseModule = null;
             try
-            {                
-                string sKey = string.Format("{0}{1}", sKeyCache , nGroupID);
-             
-                baseModule = this.CacheService.Get(sKey);
+            {
+                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+
+                try
+                {
+                    baseModule = this.CacheService.Get(sKey);
+                }
+                catch (ArgumentException exception)
+                {
+                    Logger.Logger.Log("GetGroup",
+                        string.Format("Group in cache was not in expected format. " +
+                        "It will be rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), "GroupsCacheManager");
+                }
+
                 if (baseModule != null && baseModule.result != null)
                 {
                     group = baseModule.result as Group;
@@ -140,8 +150,18 @@ namespace GroupsCacheManager
                         {
                             mutex.WaitOne(-1);
                             // try to get GRoup from CB 
-                            VersionModuleCache versionModule;
-                            versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                            VersionModuleCache versionModule = null;
+
+                            try
+                            {
+                                versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                            }
+                            catch (ArgumentException exception)
+                            {
+                                Logger.Logger.Log("GetGroup",
+                                    string.Format("Group in cache was not in expected format. " +
+                                    "It willbe rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), "GroupsCacheManager");
+                            }
 
                             if (versionModule != null && versionModule.result != null)
                             {
@@ -173,7 +193,7 @@ namespace GroupsCacheManager
                         }
                     }
                 }
-                
+
                 return group;
             }
             catch (Exception ex)
