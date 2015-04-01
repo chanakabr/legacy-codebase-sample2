@@ -507,6 +507,38 @@ namespace DAL
             return retVal;
         }
 
+        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, string sCoGuid = null, int? nOperatorID = null)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewDomain");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@Name", sName);
+            sp.AddParameter("@Description", sDescription);
+            sp.AddParameter("@DomainLimitID", nDomainLimitID);
+            sp.AddParameter("@DateTime", dDateTime);
+            sp.AddParameter("@CoGuid", sCoGuid);
+            sp.AddParameter("@OperatorID", nOperatorID);
+            
+            DataTable dt = sp.Execute();
+
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+               nDbDomainID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+               if (nDbDomainID == 0)
+               {
+                   return false;
+               }
+            }
+
+            return true;
+        }
+
+
         public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, string sCoGuid = null, int? nOperatorID = null)
         {
             bool bInserRes = false;
