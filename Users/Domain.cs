@@ -1473,6 +1473,7 @@ namespace Users
                 m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
                 m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
                 m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
+                m_totalNumOfUsers = m_UsersIDs.Count;
 
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
