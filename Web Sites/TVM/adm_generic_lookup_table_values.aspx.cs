@@ -82,12 +82,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         selectQuery.Finish();
         selectQuery = null;      
 
-        LblUploadStatus.Visible = true;
-        LblUploadStatus.Text = "Number of Rows : " + nRet.ToString();
-
-         Response.Write(PageUtils.GetPreHeader() + ": Batch Upload - Upload Excel File , table with " +nRet.ToString() + " rows" );
-        
-
+        Response.Write(PageUtils.GetPreHeader() + ": Batch Upload - Upload Excel File , table with " +nRet.ToString() + " rows" );
     }
 
     protected void GetMainMenu()
