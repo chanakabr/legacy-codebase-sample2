@@ -84,6 +84,13 @@ namespace ApiObjects
     }
 
     [Serializable]
+    public enum eCaSystem
+    {
+        OTT = 0,
+        OVP = 1,
+    }
+
+    [Serializable]
     public enum eAction
     {
         [EnumMember]
@@ -269,5 +276,18 @@ namespace ApiObjects
         Error = 1,
         Fail = 2,
         Unkown = 3
+    }
+
+    [Serializable]
+    public enum ComparisonOperator
+    {
+        Equals,
+        NotEquals,
+        Contains,
+        NotContains,
+        GreaterThanOrEqual,
+        GreaterThan,
+        LessThanOrEqual,
+        LessThan
     }
 }

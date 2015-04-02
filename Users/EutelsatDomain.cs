@@ -150,9 +150,10 @@ namespace Users
                 int nDomainID = -1;
                 int nIsActive = 0;
                 int nStatus = 0;
+                int regionId = 0;
 
                 bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime,
-                                                                ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
+                                                                ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);
 
                 if (resDbObj)
                 {

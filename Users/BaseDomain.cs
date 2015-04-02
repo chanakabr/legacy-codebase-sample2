@@ -167,9 +167,11 @@ namespace Users
             }
 
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
-            if (domain == null)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
+                Logger.Logger.Log("AddDeviceToDomain", string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID), "TvinciDomain");
                 oDomainResponseObject.m_oDomain = null;
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
             else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
@@ -1162,7 +1164,7 @@ namespace Users
                     else
                     {
                         // get the new DLM from cache 
-                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager, Utils.FICTIVE_DATE);
+                        bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager);
                         if (!bDLM || oLimitationsManager == null)
                         {
                             oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
@@ -1197,7 +1199,7 @@ namespace Users
                 LimitationsManager dlmObj;
                 DomainsCache oDomainsCache = DomainsCache.Instance();
                 // get the DLM from cache 
-                bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj, Utils.FICTIVE_DATE);
+                bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj);
                 if (bDLM && dlmObj != null)
                 {
                     oDLMResponse.dlm = dlmObj;
@@ -1217,6 +1219,40 @@ namespace Users
                 oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return oDLMResponse;
             }
+        }
+
+        public ApiObjects.Response.Status SetDomainRegion(int groupId, int domainId, string extRegionId, string lookupKey)
+        {
+            ApiObjects.Response.Status status = null;
+            try
+            {
+                DomainsCache domainsCache = DomainsCache.Instance();
+                Domain domain = domainsCache.GetDomain(domainId, groupId);
+                if (domain == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                    return status;
+                }
+
+                if (DomainDal.UpdateDomainRegion(domainId, groupId, extRegionId, lookupKey))
+                {
+                    DomainsCache.Instance().RemoveDomain(domainId);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                }
+                else
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), "BaseDomain");
+                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                return status;
+            }
+
+            return status;
         }
     }
 }

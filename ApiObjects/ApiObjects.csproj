@@ -89,6 +89,8 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="DRM\CencRequest.cs" />
+    <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
     <Compile Include="ChangePasswordMailRequest.cs" />
     <Compile Include="CinepolisPurchaseMailRequest.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="ChannelRequestObject.cs" />
     <Compile Include="DeviceObject.cs" />
     <Compile Include="DeviceRule.cs" />
+    <Compile Include="DRM\Policy.cs" />
     <Compile Include="EmailNotificationRequest.cs" />
     <Compile Include="Epg.cs" />
     <Compile Include="EPGChannelProgrammeObject.cs" />
@@ -177,10 +180,15 @@
     <Compile Include="PurchaseWithPreviewModuleRequest.cs" />
     <Compile Include="RateMediaObject.cs" />
     <Compile Include="RateResponseObject.cs" />
+    <Compile Include="Region.cs" />
+    <Compile Include="RegionResponse.cs" />
     <Compile Include="RequestObj.cs" />
     <Compile Include="Response\EnumResponseStatus.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
+    <Compile Include="SearchObjects\BooleanLeaf.cs" />
+    <Compile Include="SearchObjects\BooleanPhrase.cs" />
+    <Compile Include="SearchObjects\BooleanPhraseNode.cs" />
     <Compile Include="SearchObjects\ChannelContainObj.cs" />
     <Compile Include="SearchObjects\ChannelContainSearchObj.cs" />
     <Compile Include="SearchObjects\ChannelObj.cs" />
@@ -194,6 +202,8 @@
     <Compile Include="SearchObjects\MediaSearchObj.cs" />
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
+    <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />
+    <Compile Include="SearchObjects\UnifiedSearchResult.cs" />
     <Compile Include="SearchOrderByObject.cs" />
     <Compile Include="ChannelObject.cs" />
     <Compile Include="SendAdminTokenRequest.cs" />

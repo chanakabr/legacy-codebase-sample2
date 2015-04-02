@@ -232,6 +232,7 @@ namespace Catalog
         {
             throw new NotImplementedException("ValidateMediaIDsInChannels");
         }
+
         #region EPG
         public SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
@@ -276,5 +277,11 @@ namespace Catalog
         }      
 
         #endregion
+
+
+        public SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearch)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

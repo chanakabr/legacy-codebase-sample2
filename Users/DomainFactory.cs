@@ -65,8 +65,18 @@ namespace Users
             //Create new domain
             Domain domain = new Domain();
 
-            if (!User.IsUserValid(nGroupID, nMasterUserGuid))
+            // check if user is valid
+            User user = new User();
+            if (!User.IsUserValid(nGroupID, nMasterUserGuid, ref user))
             {
+                domain.m_DomainStatus = DomainStatus.Error;
+                return domain;
+            }
+
+            // check if user is not already in another domain
+            if (user.m_domianID != 0)
+            {
+                Logger.Logger.Log("Error", string.Format("User exists in other domain so it cannot be added to a new one. DomainStatus : {0} , G ID: {1} , D Name: {2} , Master: {3}, OtherDomain: {4}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid, domain.m_nDomainID), "DomainFactory");
                 domain.m_DomainStatus = DomainStatus.Error;
                 return domain;
             }
@@ -80,7 +90,7 @@ namespace Users
                 {
                     domain.m_DomainStatus = DomainStatus.DomainAlreadyExists;
 
-                    return domain;  
+                    return domain;
                 }
             }
 
@@ -90,7 +100,7 @@ namespace Users
 
             return oNewDomain;
         }
-        
+
         public static Domain CheckAddMonkey(Domain dom)
         {
             if (dom == null)
@@ -115,7 +125,7 @@ namespace Users
                 resDomain.m_DomainStatus = DomainStatus.Error;
                 return resDomain;
             }
-                
+
             User masterUser = new User(resDomain.m_nGroupID, masterUserID);
             if (masterUser == null)
             {
@@ -158,7 +168,7 @@ namespace Users
             return resDomain;
         }
 
-        internal static LimitationsManager GetDLM(int nGroupID, int nDomainLimitID, DateTime dtLastActionDate)
+        internal static LimitationsManager GetDLM(int nGroupID, int nDomainLimitID)
         {
             LimitationsManager oLimitationsManager = null;
             try
@@ -189,11 +199,6 @@ namespace Users
                             oLimitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.UserFrequency);
 
                             oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);   
-
-                            if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || oLimitationsManager.Frequency == 0)
-                                oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
-                            else
-                                oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, oLimitationsManager.Frequency);                        
                         }
                     }
                     #endregion

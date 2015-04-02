@@ -36,7 +36,7 @@ namespace Catalog
         {
         }
         public PWWAWProtocolRequest(PWWAWProtocolRequest p)
-            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString, p.m_sSiteGuid)
+            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString, p.m_sSiteGuid, p.domainId)
         {
             m_nMediaID = p.m_nMediaID;
             m_sSiteGuid = p.m_sSiteGuid;

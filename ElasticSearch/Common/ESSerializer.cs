@@ -143,6 +143,27 @@ namespace ElasticSearch.Common
 
             #endregion
 
+            #region add regions
+
+            // Add this field only if there are regions on the media object
+            if (oMedia.regions != null && oMedia.regions.Count > 0)
+            {
+                sRecord.Append(", \"regions\": [");
+
+                foreach (int regionId in oMedia.regions)
+                {
+                    sRecord.Append(regionId);
+                    sRecord.Append(',');
+                }
+
+                // Remove last ','
+                sRecord.Remove(sRecord.Length - 1, 1);
+
+                sRecord.Append("]");
+            }
+
+            #endregion
+
             sRecord.Append(" }");
 
             return sRecord.ToString();

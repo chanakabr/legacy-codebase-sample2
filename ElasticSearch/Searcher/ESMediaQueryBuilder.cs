@@ -96,7 +96,7 @@ namespace ElasticSearch.Searcher
             {
                 mediaTerm.Key = "media_id";
                 mediaTerm.Value = oSearchObject.m_nMediaID.ToString();
-                mediaTerm.bNot = true;
+                mediaTerm.isNot = true;
             }
 
             ESTerms userTypeTerm = new ESTerms(true);
@@ -273,7 +273,7 @@ namespace ElasticSearch.Searcher
             {
                 mediaTerm.Key = "media_id";
                 mediaTerm.Value = oSearchObject.m_nMediaID.ToString();
-                mediaTerm.bNot = true;
+                mediaTerm.isNot = true;
             }
 
             ESTerms userTypeTerm = new ESTerms(true);
@@ -312,6 +312,19 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            // region term 
+            if (oSearchObject.regionIds != null && oSearchObject.regionIds.Count > 0)
+            {
+                ESTerms regionsTerms = new ESTerms(true)
+                {
+                    Key = "regions"
+                };
+
+                regionsTerms.Value.AddRange(oSearchObject.regionIds.Select(region => region.ToString()));
+
+                filterParent.AddChild(regionsTerms);
+            }
+            
             FilterCompositeType oGroupWPComposite = new FilterCompositeType(CutWith.OR);
 
             oGroupWPComposite.AddChild(groupTerm);
@@ -542,6 +555,19 @@ namespace ElasticSearch.Searcher
                         mediaTypesTerms.Value.Add(mediaType.Trim());
                     }
                 }
+            }
+
+            // region term 
+            if (oSearchObject.regionIds != null && oSearchObject.regionIds.Count > 0)
+            {
+                ESTerms regionsTerms = new ESTerms(true)
+                {
+                    Key = "regions"
+                };
+
+                regionsTerms.Value.AddRange(oSearchObject.regionIds.Select(region => region.ToString()));
+
+                filterParent.AddChild(regionsTerms);
             }
 
             filterParent.AddChild(isActiveTerm);

@@ -200,7 +200,14 @@ namespace Catalog
             {
                 return (NPVRSeriesRequest)m_oBaseRequest;
             }
-
+            if (m_oBaseRequest is UnifiedSearchRequest)
+            {
+                return (UnifiedSearchRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is AssetInfoRequest)
+            {
+                return (AssetInfoRequest)m_oBaseRequest;
+            }
             return null;
         }
     }

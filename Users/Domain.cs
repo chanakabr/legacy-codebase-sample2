@@ -73,7 +73,7 @@ namespace Users
         //List of device brands
         [JsonProperty()]
         public List<DeviceContainer> m_deviceFamilies;
-        
+
         [JsonProperty()]
         public DomainStatus m_DomainStatus;
 
@@ -84,7 +84,7 @@ namespace Users
 
         // Domain's Operator ID
         public int m_nSSOOperatorID;
-        
+
         [JsonProperty()]
         public DomainRestriction m_DomainRestriction;
 
@@ -99,7 +99,7 @@ namespace Users
 
         [JsonProperty()]
         protected int m_minUserPeriodId;
-        
+
         [JsonProperty()]
         public List<HomeNetwork> m_homeNetworks;
 
@@ -114,6 +114,9 @@ namespace Users
         [JsonProperty()]
         protected Dictionary<int, DeviceContainer> m_oDeviceFamiliesMapping;
 
+        [JsonProperty()]
+        public int m_nRegion;
+        
         #endregion
 
         #region Public Methods
@@ -178,10 +181,11 @@ namespace Users
             int nDomainID = -1;
             int nIsActive = 0;
             int nStatus = 0;
+            int regionId = 0;
 
             Domain domainDbObj = this;
 
-            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
+            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);
 
             m_sName = sName;
             m_sDescription = sDescription;
@@ -190,6 +194,7 @@ namespace Users
             m_nStatus = nStatus;
             m_sCoGuid = sCoGuid;
             m_nGroupID = nGroupID;
+            m_nRegion = regionId;
 
             m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
 
@@ -250,10 +255,10 @@ namespace Users
             return this;
         }
 
-        private long InitializeDLM(long npvrQuotaInSecs, int nDomainLimitID, int nGroupID, DateTime lastDate)
+        private long InitializeDLM(long npvrQuotaInSecs, int nDomainLimitID, int nGroupID, DateTime nextAction)
         {
-            LimitationsManager oLimitationsManager = GetDLM(nDomainLimitID, nGroupID, lastDate);
-            bool bInitialize = Initialize(out npvrQuotaInSecs, oLimitationsManager);
+            LimitationsManager oLimitationsManager = GetDLM(nDomainLimitID, nGroupID);
+            bool bInitialize = Initialize(out npvrQuotaInSecs, oLimitationsManager, nextAction);
             return npvrQuotaInSecs;
         }
 
@@ -263,7 +268,7 @@ namespace Users
             npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, this.m_nGroupID, this.m_NextActionFreq);
         }
 
-        private bool Initialize(out long npvrQuotaInSecs, LimitationsManager oLimitationsManager)
+        private bool Initialize(out long npvrQuotaInSecs, LimitationsManager oLimitationsManager, DateTime nextAction)
         {
             npvrQuotaInSecs = 0;
             if (oLimitationsManager != null) // initialize all fileds 
@@ -279,7 +284,7 @@ namespace Users
                 m_oLimitationsManager.npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
                 npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
                 m_oLimitationsManager.Quantity = oLimitationsManager.Quantity;
-                m_oLimitationsManager.NextActionFreqDate = oLimitationsManager.NextActionFreqDate;
+                m_oLimitationsManager.NextActionFreqDate = nextAction;
 
                 if (m_oDeviceFamiliesMapping == null)
                 {
@@ -322,13 +327,13 @@ namespace Users
             return true;
         }
 
-        private LimitationsManager GetDLM(int nDomainLimitID, int m_nGroupID, DateTime dtLastActionDate)
+        private LimitationsManager GetDLM(int nDomainLimitID, int m_nGroupID)
         {
             LimitationsManager oLimitationsManager = null;
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bGet = oDomainCache.GetDLM(nDomainLimitID, m_nGroupID, out oLimitationsManager, dtLastActionDate);
+                bool bGet = oDomainCache.GetDLM(nDomainLimitID, m_nGroupID, out oLimitationsManager);
 
                 return oLimitationsManager;
             }
@@ -663,17 +668,14 @@ namespace Users
             int isActive = 0;
             int nDeviceID = 0;
 
-            DomainsCache oDomainCache = DomainsCache.Instance();
-            Domain domain = oDomainCache.GetDomain(m_nDomainID, m_nGroupID, false);
-
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 bRes = DomainResponseStatus.DomainSuspended;
                 return bRes;
             }
 
             // try to get device from cache 
-            bool bDeviceExist = IsDeviceExistInDomain(domain, sUDID, ref isActive, ref nDeviceID);
+            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID);
 
             //int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
             //if (nDomainDeviceID > 0)
@@ -691,6 +693,7 @@ namespace Users
                 // if the first update done successfully - remove domain from cache
                 try
                 {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(m_nDomainID);
                 }
                 catch (Exception ex)
@@ -1550,11 +1553,12 @@ namespace Users
             string sCoGuid = string.Empty;
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
+            int regionId = 0;
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat, ref regionId);
 
             if (res)
             {
@@ -1577,6 +1581,7 @@ namespace Users
                     m_minPeriodId = nDeviceMinPeriodId;
                     m_minUserPeriodId = nUserMinPeriodId;
                     m_sCoGuid = sCoGuid;
+                    m_nRegion = regionId;
                     m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
 
                     if (eSuspendStat == DomainSuspentionStatus.Suspended)
@@ -1584,13 +1589,13 @@ namespace Users
                         m_DomainStatus = DomainStatus.DomainSuspended;
                     }
 
-                    long npvrQuotaInSecs = 0;
-                    npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, dDeviceFrequencyLastAction);
-
                     if (m_minPeriodId != 0)
                     {
                         m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
                     }
+
+                    long npvrQuotaInSecs = 0;
+                    npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, m_NextActionFreq);
 
                     if (m_minUserPeriodId != 0)
                     {
@@ -1687,11 +1692,11 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
-            
+
             // m_oLimitationsManager.Quantity == 0 is unlimited 
-            if (dc.m_oLimitationsManager.Quantity > 0 && 
-                ( (m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
-                  (activatedDevices >= dc.m_oLimitationsManager.Quantity)) )
+            if (dc.m_oLimitationsManager.Quantity > 0 &&
+                ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
+                  (activatedDevices >= dc.m_oLimitationsManager.Quantity)))
             {
                 res = DomainResponseStatus.ExceededLimit;
             }

@@ -473,6 +473,15 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+        public static bool insertValueToLookupTable(DataTable dt)
+        {
+            StoredProcedure sp = new StoredProcedure("insertValueToLookupTable");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");           
+            sp.AddDataTableParameter("@dt", dt);
+            
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
     
 }

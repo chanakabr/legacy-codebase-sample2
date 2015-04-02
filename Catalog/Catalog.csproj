@@ -167,7 +167,6 @@
     <Compile Include="EpgResponse.cs" />
     <Compile Include="EpgSearchRequest.cs" />
     <Compile Include="EpgSearchResponse.cs" />
-    <Compile Include="Group.cs" />
     <Compile Include="ChannelsListRequest.cs" />
     <Compile Include="CommentsListRequest.cs" />
     <Compile Include="CommentsListResponse.cs" />
@@ -205,6 +204,8 @@
     <Compile Include="MediaResponse.cs" />
     <Compile Include="MediasProtocolRequest.cs" />
     <Compile Include="MediaUpdateDateRequest.cs" />
+    <Compile Include="AssetInfoRequest.cs" />
+    <Compile Include="AssetInfoResponse.cs" />
     <Compile Include="NPVRRetrieveRequest.cs" />
     <Compile Include="NPVRRetrieveResponse.cs" />
     <Compile Include="NPVRSeriesRequest.cs" />
@@ -230,6 +231,8 @@
     <Compile Include="BundleContainingMediaRequest.cs" />
     <Compile Include="TagMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnifiedSearchRequest.cs" />
+    <Compile Include="UnifiedSearchResponse.cs" />
     <Compile Include="UserSocialMediasRequest.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
@@ -294,7 +297,13 @@
     <None Include="Web References\Lucene_WCF\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Web References\WS_Domains\ChangeDLMObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_Domains\DeviceResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\DLMResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_Domains\Domain.datasource">
@@ -316,6 +325,9 @@
     <None Include="Web References\WS_Domains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WS_Domains\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_Domains\ValidationResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -372,10 +384,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_Domains/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/WS_Domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_Domains\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/WS_Domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -394,10 +406,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>Catalog_Lucene_WCF_Service</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/ws_users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ws_users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/ws_users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

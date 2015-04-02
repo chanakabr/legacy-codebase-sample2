@@ -171,7 +171,7 @@ namespace Users
 
     public enum ItemType
     {
-        All = 0,        
+        All = 0,
         Media = 2
     }
 

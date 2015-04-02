@@ -140,7 +140,7 @@ namespace Users.Cache
         #region Public methods
 
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
-        internal Domain GetDomain(int nDomainID, int nGroupID,  bool bInsertToCache = true)
+        internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
         {
             Domain oDomain = null;
             try
@@ -178,10 +178,10 @@ namespace Users.Cache
                 return null;
             }
         }
-        
+
 
         internal bool InsertDomain(Domain domain)
-        {   
+        {
             bool bInsert = false;
             try
             {
@@ -189,12 +189,12 @@ namespace Users.Cache
                 {
                     return false;
                 }
-                
+
                 string sKey = string.Format("{0}{1}", sDomainKeyCache, domain.m_nDomainID);
 
                 //try insert to Cache
                 for (int i = 0; i < 3 && !bInsert; i++)
-                {   
+                {
                     bInsert = this.cache.SetJson<Domain>(sKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
                 }
                 return bInsert;
@@ -212,7 +212,7 @@ namespace Users.Cache
             try
             {
                 string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
-                    
+
                 //try remove domain from cache 
                 for (int i = 0; i < 3 && !bIsRemove; i++)
                 {
@@ -232,7 +232,7 @@ namespace Users.Cache
         }
 
         #region Users
-              
+
         internal bool GetUserList(int nDomainID, int nGroupID, Domain oDomain, ref List<int> usersIDs, ref List<int> pendingUsersIDs, ref List<int> masterGUIDs, ref List<int> defaultUsersIDs)
         {
             try
@@ -255,7 +255,7 @@ namespace Users.Cache
                 return false;
             }
         }
-            
+
         private bool UsersListFromDomain(int nDomainID, Domain oDomain, List<int> usersIDs, List<int> pendingUsersIDs, List<int> masterGUIDs, List<int> defaultUsersIDs)
         {
             try
@@ -279,13 +279,13 @@ namespace Users.Cache
         }
 
         #endregion
-      
-        #endregion               
+
+        #endregion
 
         internal Dictionary<int, Domain> GetDomains(List<int> dbDomains)
-        {   
+        {
             try
-            {  
+            {
                 IDictionary<string, object> dTempRes = null;
                 List<string> sDomains = new List<string>();
                 string sKey = string.Empty;
@@ -293,15 +293,15 @@ namespace Users.Cache
                 {
                     sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
                     sDomains.Add(sKey);
-                }                
-                
+                }
+
                 dTempRes = this.cache.GetValues(sDomains);
                 if (dTempRes == null)
                     return null;
-                Dictionary<int, Domain> dRes= new Dictionary<int,Domain>();
+                Dictionary<int, Domain> dRes = new Dictionary<int, Domain>();
                 foreach (KeyValuePair<string, object> obj in dTempRes)
                 {
-                    string domainKey = obj.Key.Replace(sDomainKeyCache,"");
+                    string domainKey = obj.Key.Replace(sDomainKeyCache, "");
                     int domainID = int.Parse(domainKey);
                     Domain oDomain = JsonToObject<Domain>(obj.Value.ToString());
                     dRes.Add(domainID, oDomain);
@@ -324,7 +324,7 @@ namespace Users.Cache
         }
 
 
-        internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager, DateTime dtLastActionDate)
+        internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager)
         {
             string sKey = string.Empty;
             sKey = string.Format("{0}{1}", sDLMCache, nDomainLimitID);
@@ -336,13 +336,13 @@ namespace Users.Cache
             if (!bSuccess || oLimitationsManager == null)
             {
                 bool bInsert = false;
-                oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID, dtLastActionDate);
+                oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID);
 
-                    for (int i = 0; i < 3 && !bInsert; i++)
-                    {
-                        //try insert to Cache                                              
-                        bInsert = this.cache.SetJson<LimitationsManager>(sKey, oLimitationsManager, dCacheTT); // set this DLM object anyway
-                    }
+                for (int i = 0; i < 3 && !bInsert; i++)
+                {
+                    //try insert to Cache                                              
+                    bInsert = this.cache.SetJson<LimitationsManager>(sKey, oLimitationsManager, dCacheTT); // set this DLM object anyway
+                }
             }
             if (oLimitationsManager != null)
                 return true;

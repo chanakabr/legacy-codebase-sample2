@@ -507,6 +507,39 @@ namespace DAL
             return retVal;
         }
 
+
+        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, string sCoGuid = null, int? nOperatorID = null)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewDomain");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@Name", sName);
+            sp.AddParameter("@Description", sDescription);
+            sp.AddParameter("@DomainLimitID", nDomainLimitID);
+            sp.AddParameter("@DateTime", dDateTime);
+            sp.AddParameter("@CoGuid", sCoGuid);
+            sp.AddParameter("@OperatorID", nOperatorID);
+
+            DataTable dt = sp.Execute();
+
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                nDbDomainID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+                if (nDbDomainID == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
         public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, string sCoGuid = null, int? nOperatorID = null)
         {
             bool bInserRes = false;
@@ -557,8 +590,8 @@ namespace DAL
         }
 
 
-        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime,
-                                            ref string sName, ref string sDbDescription, ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid)
+        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription, 
+            ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid, ref int regionId)
         {
             bool res = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -567,7 +600,7 @@ namespace DAL
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT name,description,id,is_active,status,CoGuid FROM DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery += "SELECT name,description,id,is_active,status,CoGuid,Region_ID FROM DOMAINS WITH (NOLOCK) WHERE ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", sName);
@@ -584,6 +617,7 @@ namespace DAL
                         nDbIsActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "is_active", 0);
                         nDbStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "status", 0);
                         sCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CoGuid", 0);
+                        regionId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "Region_ID", 0);
 
                         res = true;
                     }
@@ -820,20 +854,20 @@ namespace DAL
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat)
+            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
         {
             int nGroupConcurrentMaxLimit = 0;
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId);
         }
 
 
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus)
+            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId)
         {
 
             bool res = false;
@@ -879,7 +913,8 @@ namespace DAL
                 if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
                 {
                     suspendStatus = (DomainSuspentionStatus)suspendStatInt;
-                }               
+                }
+                regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
                 res = true;
             }
             return res;
@@ -1852,6 +1887,27 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", domainID);
             sp.AddParameter("@domianLimitID", domianLimitID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdateDomainRegion(int domainId, int groupId, string extRegionId, string lookupKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DomainRegion");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@domainID", domainId);
+            sp.AddParameter("@groupID", groupId);
+
+            if (!string.IsNullOrEmpty(extRegionId))
+            {
+                sp.AddParameter("@extRegionID", extRegionId);
+                sp.AddParameter("@lookupKey", string.Empty);
+            }
+            else 
+            {
+                sp.AddParameter("@lookupKey", lookupKey);
+                sp.AddParameter("@extRegionID", string.Empty);
+            }
 
             return sp.ExecuteReturnValue<bool>();
         }

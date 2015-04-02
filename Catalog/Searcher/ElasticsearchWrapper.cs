@@ -18,11 +18,14 @@ namespace Catalog
 {
     public class ElasticsearchWrapper : ISearcher
     {
-        private static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
+        public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
         public static readonly string ES_BASE_ADDRESS = Utils.GetWSURL("ES_URL");
         public const int STATUS_OK = 200;
+        public const int STATUS_NOT_FOUND = 404;
+        public const int STATUS_INTERNAL_ERROR = 500;
+
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
@@ -85,7 +88,8 @@ namespace Catalog
                             });
                         }
 
-                        if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
+                        if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
+                            oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
                             || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                         {
                             List<int> lMediaIds = oRes.m_resultIDs.Select(item => item.assetID).ToList();
@@ -95,28 +99,40 @@ namespace Catalog
                             Dictionary<int, SearchResult> dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
                             oRes.m_resultIDs.Clear();
 
-                            int nValidNumberOfMediasRange = nPageSize;
-                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lMediaIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            // check which results should be returned
+                            bool illegalRequest = false;
+                            if (nPageSize < 0 || nPageIndex < 0)
                             {
-                                if (nValidNumberOfMediasRange > 0)
+                                // illegal parameters
+                                illegalRequest = true;
+                            }
+                            else
+                            {
+                                if (nPageSize == 0 && nPageIndex == 0)
                                 {
-                                    lMediaIds = lMediaIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                    // return all results
+                                }
+                                else
+                                {
+                                    // apply paging on results 
+                                    lMediaIds = lMediaIds.Skip(nPageSize * nPageIndex).Take(nPageSize).ToList();
                                 }
                             }
 
-                            SearchResult oTemp;
-                            foreach (int mediaID in lMediaIds)
+                            if (!illegalRequest)
                             {
-                                if (dItems.TryGetValue(mediaID, out oTemp))
+                                SearchResult oTemp;
+                                foreach (int mediaID in lMediaIds)
                                 {
-                                    oRes.m_resultIDs.Add(oTemp);
+                                    if (dItems.TryGetValue(mediaID, out oTemp))
+                                    {
+                                        oRes.m_resultIDs.Add(oTemp);
+                                    }
                                 }
                             }
                         }
                     }
-
                 }
-
             }
 
             return oRes;
@@ -452,7 +468,7 @@ namespace Catalog
                     searchRes = m_oESApi.MultiSearch(sGroupAlias, ES_EPG_TYPE, queries, lRouting);
                     lDocs = DecodeEpgMultiSearchJsonObject(searchRes, ref nTotalRecords);
                 }
-                
+
                 if (lDocs != null)
                 {
                     epgResponse = new SearchResultsObj();
@@ -659,31 +675,57 @@ namespace Catalog
                     totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
                     if (totalItems > 0)
                     {
-                        documents = jsonObj.SelectToken("hits.hits").Select(item => new ElasticSearchApi.ESAssetDocument()
+                        documents = new List<ElasticSearchApi.ESAssetDocument>();
+
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-                            index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
-                            //score = ((tempToken = item.SelectToken("_score")) == null ? 0.0 : (double)tempToken),
-                            type = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken),
-                            asset_id = ((tempToken = item.SelectToken("fields.media_id")) == null ? 0 : (int)tempToken),
-                            group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
-                            name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
-                            cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                            update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
-                        }).ToList();
+                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+                            AssetType assetType = UnifiedSearchResult.ParseType(typeString);
+
+                            string assetIdField = string.Empty;
+
+                            switch (assetType)
+                            {
+                                case AssetType.Media:
+                                {
+                                    assetIdField = "fields.media_id";
+                                    break;
+                                }
+                                case AssetType.Epg:
+                                {
+                                    assetIdField = "fields.epg_id";
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+
+                            documents.Add(new ElasticSearchApi.ESAssetDocument()
+                              {
+                                  id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
+                                  index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
+                                  type = typeString,
+                                  asset_id = ((tempToken = item.SelectToken(assetIdField)) == null ? 0 : (int)tempToken),
+                                  group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
+                                  name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
+                                  cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                  update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
+                              });
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "Catalog");
+                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), "Catalog");
             }
 
             return documents;
         }
-
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeEpgSearchJsonObject(string sObj, ref int totalItems)
         {
@@ -850,6 +892,385 @@ namespace Catalog
             }
         }
 
+        #region Unified Search
+
+        /// <summary>
+        /// Performs a search on several types of assets in a single call
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions)
+        {
+            SearchResultsObj searchResults = new SearchResultsObj();
+
+            OrderObj order = unifiedSearchDefinitions.order;
+            ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
+            bool isOrderedByStat = false;
+
+            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
+
+            int pageIndex = 0;
+            int pageSize = 0;
+
+            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
+            if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
+                orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
+                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+            {
+                pageIndex = unifiedSearchDefinitions.pageIndex;
+                pageSize = unifiedSearchDefinitions.pageSize;
+                queryParser.PageIndex = 0;
+                queryParser.PageSize = 0;
+
+                // Initial sort will be by ID
+                unifiedSearchDefinitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
+
+                isOrderedByStat = true;
+            }
+            else
+            {
+                queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
+                queryParser.PageSize = unifiedSearchDefinitions.pageSize;
+            }
+
+            // ES index is on parent group id
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup(unifiedSearchDefinitions.groupId);
+
+            // In case something failed here, use the group that was sent
+            if (parentGroupId == 0)
+            {
+                parentGroupId = unifiedSearchDefinitions.groupId;
+            }
+
+            string requestBody = queryParser.BuildSearchQueryString();
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                int httpStatus = 0;
+
+                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
+                string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+                if (httpStatus == STATUS_OK)
+                {
+                    int totalItems = 0;
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        searchResults.m_resultIDs = new List<SearchResult>();
+                        searchResults.n_TotalItems = totalItems;
+
+                        foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                        {
+                            searchResults.m_resultIDs.Add(new UnifiedSearchResult()
+                            {
+                                assetID = doc.asset_id,
+                                UpdateDate = doc.update_date,
+                                type = UnifiedSearchResult.ParseType(doc.type)
+                            });
+                        }
+
+                        // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
+                        if (isOrderedByStat)
+                        {
+                            List<int> assetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
+
+                            List<int> orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
+
+                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+
+                            // Map all results in dictionary
+                            searchResults.m_resultIDs.ForEach(item =>
+                                {
+                                    if (!idToResultDictionary.ContainsKey(item.assetID))
+                                    {
+                                        idToResultDictionary.Add(item.assetID, item as UnifiedSearchResult);
+                                    }
+                                });
+
+                            searchResults.m_resultIDs.Clear();
+
+                            int validNumberOfMediasRange = pageSize;
+
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, pageIndex, ref validNumberOfMediasRange))
+                            {
+                                if (validNumberOfMediasRange > 0)
+                                {
+                                    assetIds = orderedIds.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
+                                }
+                            }
+
+                            foreach (int id in assetIds)
+                            {
+                                UnifiedSearchResult tempResult;
+
+                                if (idToResultDictionary.TryGetValue(id, out tempResult))
+                                {
+                                    searchResults.m_resultIDs.Add(tempResult);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
+                {
+                    throw new System.Web.HttpException(httpStatus, queryResultString);
+                }
+            }
+
+            return (searchResults);
+        }
+
+        /// <summary>
+        /// For a given list of asset Ids, returns a list of the same IDs, after sorting them by a specific statistics
+        /// </summary>
+        /// <param name="assetIds"></param>
+        /// <param name="groupId"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <returns></returns>
+        private List<int> SortAssetsByStats(List<int> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        {
+            List<int> sortedList = null;
+            HashSet<int> alreadyContainedIds = null;
+
+            #region Define Facet Query
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = 0,
+                PageSize = 0
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+
+            filter.AddChild(new ESTerm(true)
+            {
+                Key = "group_id",
+                Value = groupId.ToString()
+            });
+
+            #region define action filter
+
+            string actionName = string.Empty;
+
+            switch (orderBy)
+            {
+                case ApiObjects.SearchObjects.OrderBy.VIEWS:
+                {
+                    actionName = Catalog.STAT_ACTION_MEDIA_HIT;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.RATING:
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
+                case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
+                {
+                    actionName = Catalog.STAT_ACTION_LIKE;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            ESTerm actionTerm = new ESTerm(false)
+            {
+                Key = "action",
+                Value = actionName
+            };
+
+            filter.AddChild(actionTerm);
+
+            #endregion
+
+            #region Define IDs filter
+
+            ESTerms idsTerm = new ESTerms(true)
+            {
+                Key = "media_id"
+            };
+
+            // Convert all Ids to strings
+            idsTerm.Value.AddRange(assetIds.Select(id => id.ToString()));
+
+            filter.AddChild(idsTerm);
+
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            IESFacet facet = null;
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
+                {
+                    Query = filteredQuery
+                };
+            }
+            else
+            {
+                facet = new ESTermsFacet("stats", "media_id", 100000)
+                {
+                    Query = filteredQuery
+                };
+            }
+
+
+            #endregion
+
+            string facetRequestBody = facet.ToString();
+
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+
+            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+
+            // Take thre stringy result, parse it and get a sorted list of the asset Ids that have statistical data in the facet
+            if (!string.IsNullOrEmpty(facetsResults))
+            {
+                sortedList = ProcessFacetResults(facetsResults, orderBy, orderDirection, ref alreadyContainedIds);
+
+                if (sortedList == null)
+                {
+                    sortedList = new List<int>();
+                }
+            }
+
+            // Add all ids that don't have stats
+            foreach (var currentId in assetIds)
+            {
+                if (!alreadyContainedIds.Contains(currentId))
+                {
+                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                    if (orderDirection == OrderDir.ASC)
+                    {
+                        sortedList.Insert(0, currentId);
+                    }
+                    else
+                    {
+                        sortedList.Add(currentId);
+                    }
+                }
+            }
+
+            return sortedList;
+        }
+
+        /// <summary>
+        /// After receiving a result from ES server, process it to create a list of Ids with the given order
+        /// </summary>
+        /// <param name="facetsResults"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <param name="alreadyContainedIds"></param>
+        /// <returns></returns>
+        private static List<int> ProcessFacetResults(string facetsResults, ApiObjects.SearchObjects.OrderBy orderBy,
+            OrderDir orderDirection, ref HashSet<int> alreadyContainedIds)
+        {
+            List<int> sortedList = new List<int>();
+            alreadyContainedIds = new HashSet<int>();
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                // Get facet results
+                Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
+                    ESTermsStatsFacet.FacetResults(ref facetsResults);
+
+                if (facetsDictionary != null && facetsDictionary.Count > 0)
+                {
+                    List<ESTermsStatsFacet.StatisticFacetResult> statResult;
+
+                    //retrieve specific facet result
+                    facetsDictionary.TryGetValue("stats", out statResult);
+
+                    if (statResult != null && statResult.Count > 0)
+                    {
+                        // sort ASCENDING - different than normal execution!
+                        statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
+
+                        foreach (var result in statResult)
+                        {
+                            int currentId;
+
+                            // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
+                            if (int.TryParse(result.term, out currentId))
+                            {
+                                if (orderDirection == OrderDir.DESC)
+                                {
+                                    sortedList.Insert(0, currentId);
+                                }
+                                else
+                                {
+                                    sortedList.Add(currentId);
+                                }
+
+                                alreadyContainedIds.Add(currentId);
+                            }
+                        }
+                    }
+                }
+            }
+            // If it is not ratings - just use count
+            else
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> facetsDictionary = ESTermsFacet.FacetResults(ref facetsResults);
+
+                if (facetsDictionary != null && facetsDictionary.Count > 0)
+                {
+                    Dictionary<string, int> statResult;
+
+                    //retrieve specific facet result
+                    facetsDictionary.TryGetValue("stats", out statResult);
+
+                    if (statResult != null && statResult.Count > 0)
+                    {
+                        // We base this section on the assumption that facets request is sorted, descending
+                        foreach (string facetKey in statResult.Keys)
+                        {
+                            int count = statResult[facetKey];
+
+                            int currentId;
+
+                            if (int.TryParse(facetKey, out currentId))
+                            {
+                                // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                                if (orderDirection == OrderDir.ASC)
+                                {
+                                    sortedList.Insert(0, currentId);
+                                }
+                                else
+                                {
+                                    sortedList.Add(currentId);
+                                }
+
+                                alreadyContainedIds.Add(currentId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return sortedList;
+        } 
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

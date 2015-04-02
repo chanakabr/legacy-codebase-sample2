@@ -338,8 +338,9 @@ namespace Users
                 bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                 m_sSiteGUID = nUserID.ToString();
-                m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
 
+                m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
+                
                 if (m_domianID <= 0)
                 {
                     m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
@@ -942,6 +943,25 @@ namespace Users
             //Check if UserGuid is valid
             User user = new User();
 
+            bool init = user.Initialize(userGuid, nGroupID);
+
+            UserResponseObject resp = new UserResponseObject();
+
+            if (user.m_oBasicData.m_sUserName == "")
+            {
+                resp.Initialize(ResponseStatus.UserDoesNotExist, user);
+            }
+            else
+            {
+                resp.Initialize(ResponseStatus.OK, user);
+            }
+
+            return (resp.m_RespStatus == ResponseStatus.OK);
+        }
+
+        public static bool IsUserValid(int nGroupID, int userGuid, ref User user)
+        {
+            //Check if UserGuid is valid
             bool init = user.Initialize(userGuid, nGroupID);
 
             UserResponseObject resp = new UserResponseObject();

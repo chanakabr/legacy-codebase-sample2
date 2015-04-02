@@ -9,22 +9,34 @@ namespace ElasticSearch.Searcher
     public class BoolQuery : IESTerm
     {
         
-        protected List<IESTerm> m_lMust;
-        protected List<IESTerm> m_lShould;
-
+        protected List<IESTerm> must;
+        protected List<IESTerm> should;
+        protected List<IESTerm> mustNot;
         public eTermType eType { get; protected set; }
+        
+        public bool isNot
+        {
+            get
+            {
+                return false;
+            }
+            set
+            {
+            }
+        }
 
         public BoolQuery()
         {
-            m_lMust = new List<IESTerm>();
-            m_lShould = new List<IESTerm>();
+            must = new List<IESTerm>();
+            should = new List<IESTerm>();
+            mustNot = new List<IESTerm>();
             eType = eTermType.BOOL_QUERY;
         }
 
 
         public bool IsEmpty()
         {
-            return m_lMust.Count == 0 && m_lShould.Count == 0;
+            return must.Count == 0 && should.Count == 0 && mustNot.Count == 0;
         }
 
         public void AddChild(IESTerm oChild, CutWith eCutWith)
@@ -34,12 +46,22 @@ namespace ElasticSearch.Searcher
 
             if (eCutWith == CutWith.AND)
             {
-                m_lMust.Add(oChild);
+                must.Add(oChild);
             }
             else if (eCutWith == CutWith.OR)
             {
-                m_lShould.Add(oChild);
+                should.Add(oChild);
             }
+        }
+
+        public void AddNot(IESTerm child)
+        {
+            if (child == null || child.IsEmpty())
+            {
+                return;
+            }
+
+            mustNot.Add(child);
         }
 
         public override string ToString()
@@ -47,56 +69,86 @@ namespace ElasticSearch.Searcher
             if (this.IsEmpty())
                 return string.Empty;
 
-            StringBuilder sResult = new StringBuilder();
+            StringBuilder queryString = new StringBuilder();
             
-            sResult.Append("{ \"bool\": {");
+            queryString.Append("{ \"bool\": {");
 
-            bool bMustClausesInserted = false;
-            if (m_lMust.Count != 0)
+            bool hasMustClause = false;
+            bool hasShouldClause = false;
+
+            if (must.Count != 0)
             {
-                sResult.Append(" \"must\": [ ");
-                List<string> sTerms = new List<string>();
+                queryString.Append(" \"must\": [ ");
+                List<string> terms = new List<string>();
 
-                foreach (IESTerm term in m_lMust)
+                foreach (IESTerm term in must)
                 {
                     if (term != null && !term.IsEmpty())
                     {
-                        bMustClausesInserted = true;
-                        sTerms.Add(term.ToString());
+                        hasMustClause = true;
+                        terms.Add(term.ToString());
                     }
                 }
 
-                if (sTerms.Count > 0)
-                    sResult.Append(sTerms.Aggregate((current, next) => current + "," + next));
+                if (terms.Count > 0)
+                {
+                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
+                }
 
-                sResult.Append("]");
+                queryString.Append("]");
             }
 
-            if (m_lShould.Count > 0)
+            if (should.Count > 0)
             {
-                if (bMustClausesInserted == true)
-                    sResult.Append(",");
+                if (hasMustClause == true)
+                    queryString.Append(",");
 
-                sResult.Append(" \"should\": [ ");
-                List<string> sTerms = new List<string>();
+                queryString.Append(" \"should\": [ ");
+                List<string> terms = new List<string>();
 
-                foreach (IESTerm term in m_lShould)
+                foreach (IESTerm term in should)
                 {
                     if (term != null && !term.IsEmpty())
                     {
-                        sTerms.Add(term.ToString());
+                        hasShouldClause = true;
+                        terms.Add(term.ToString());
                     }
                 }
 
-                if (sTerms.Count > 0)
-                    sResult.Append(sTerms.Aggregate((current, next) => current + "," + next));
+                if (terms.Count > 0)
+                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
 
-                sResult.Append("]");
+                queryString.Append("]");
             }
 
-            sResult.Append(" }}");
 
-            return sResult.ToString();
+            if (mustNot.Count > 0)
+            {
+                if (hasMustClause || hasShouldClause)
+                {
+                    queryString.Append(",");
+                }
+
+                queryString.Append(" \"must_not\": [ ");
+                List<string> terms = new List<string>();
+
+                foreach (IESTerm term in mustNot)
+                {
+                    if (term != null && !term.IsEmpty())
+                    {
+                        terms.Add(term.ToString());
+                    }
+                }
+
+                if (terms.Count > 0)
+                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
+
+                queryString.Append("]");
+            }
+
+            queryString.Append(" }}");
+
+            return queryString.ToString();
         }
     }
 

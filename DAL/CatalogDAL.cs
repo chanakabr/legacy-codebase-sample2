@@ -765,6 +765,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select id, name from media_tags_types where status=1 and group_id in (" + sAllGroups + ") order by id";
             selectQuery.SetCachedSec(0);
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             DataTable mediaTagsTypeIds = null;
 
             try
@@ -795,6 +796,7 @@ namespace Tvinci.Core.DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ct.channel_id", "=", channelId);
                 selectQuery += "and ct.tag_id=t.id";
                 selectQuery.SetCachedSec(0);
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 returnedDataTable = selectQuery.Execute("query", true);
             }
             catch
@@ -864,6 +866,7 @@ namespace Tvinci.Core.DAL
         {
             DataTable mediaParentGroup = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             try
             {
@@ -1287,6 +1290,7 @@ namespace Tvinci.Core.DAL
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -2491,6 +2495,92 @@ namespace Tvinci.Core.DAL
             }
 
             return lServices;
+        }
+
+        /// <summary>
+        /// For a given group, gets the media types mappings of Id to name and vice versa
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="idToName"></param>
+        /// <param name="nameToId"></param>
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId)
+        {
+            idToName = new Dictionary<int, string>();
+            nameToId = new Dictionary<string, int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypes");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupId", groupId);
+
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable mediaTypes = dataSet.Tables[0];
+
+                if (mediaTypes != null && mediaTypes.Rows != null && mediaTypes.Rows.Count > 0)
+                {
+                    foreach (DataRow mediaType in mediaTypes.Rows)
+                    {
+                        int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
+                        string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
+
+                        idToName.Add(id, name);
+                        nameToId.Add(name, id);
+                    }
+                }
+            }
+        }
+
+        ///
+        /// Builds the list of the regions of a given group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="isRegionalizationEnabled"></param>
+        /// <param name="defaultRegion"></param>
+        /// <returns></returns>
+        public static void GetRegionalizationSettings(int groupId, out bool isRegionalizationEnabled, out int defaultRegion)
+        {
+            isRegionalizationEnabled = false;
+            defaultRegion = 0;
+
+            // Call stored procedure that checks if this group has regionalization or not
+            ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultRegion");
+            storedProcedureDefaultRegion.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedureDefaultRegion.AddParameter("@GroupID", groupId);
+
+            DataSet groupDataSet = storedProcedureDefaultRegion.ExecuteDataSet();
+
+            if (groupDataSet != null && groupDataSet.Tables != null && groupDataSet.Tables.Count == 1)
+            {
+                DataTable groupTable = groupDataSet.Tables[0];
+
+                if (groupTable != null && groupTable.Rows != null && groupTable.Rows.Count > 0 && groupTable.Rows[0] != null)
+                {
+                    DataRow groupRow = groupTable.Rows[0];
+
+                    isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
+                    defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds a region object based on a data row
+        /// </summary>
+        /// <param name="regionRow"></param>
+        /// <returns></returns>
+        private static Region BuildRegion(DataRow regionRow)
+        {
+            Region region = new Region();
+
+            region.id = ODBCWrapper.Utils.ExtractInteger(regionRow, "ID");
+            region.name = ODBCWrapper.Utils.ExtractString(regionRow, "NAME");
+            region.externalId = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+            region.groupId = ODBCWrapper.Utils.ExtractInteger(regionRow, "GROUP_ID");
+
+            return (region);
         }
 
         public static DataSet GetMediaByEpgChannelIds(int groupId, List<string> epgChannelIds)

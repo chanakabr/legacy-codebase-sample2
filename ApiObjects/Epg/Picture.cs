@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects.Epg
 {
     [Serializable]
+    [DataContract]
     public class EpgPicture
     {
+        [DataMember]
         public Int32 PicWidth {set; get;}
+        [DataMember]
         public Int32 PicHeight { set; get; }
+        [DataMember]
         public string Ratio { set; get; }
+        [DataMember]
         public string Url { set; get; }
 
         public EpgPicture()

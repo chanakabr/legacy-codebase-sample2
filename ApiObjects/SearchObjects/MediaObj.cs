@@ -33,7 +33,7 @@ namespace ApiObjects.SearchObjects
         public Dictionary<string, Dictionary<long, string>> m_dTagValues;
         public Dictionary<string, string> m_dMeatsValues;
 
-        
+        public List<int> regions;
 
         public Media()
         {
@@ -65,7 +65,7 @@ namespace ApiObjects.SearchObjects
 
             m_dMeatsValues = new Dictionary<string, string>();
             m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
-
+            regions = new List<int>();
         }
 
         public Media Clone()
@@ -107,6 +107,8 @@ namespace ApiObjects.SearchObjects
 
                 clone.m_dTagValues[tagName] = dTag;
             }
+
+            clone.regions.AddRange(this.regions);
 
             return clone;
         }
