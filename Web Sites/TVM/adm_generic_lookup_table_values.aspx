@@ -114,7 +114,7 @@
                                             </tr>
 										    <tr>
 											    <td style=" padding-bottom:10px;">
-									                <span style="font-size:13px; font-weight:bold;line-height:28px;">Upload Excel file</span><br />
+									                <span style="font-size:13px; font-weight:bold;line-height:28px;">Upload Excel file</span><br />                                                  
 									                <asp:FileUpload id="FileUpload1" runat="server" size="60"/>
 									            </td>
                                             </tr>
@@ -125,6 +125,7 @@
                                                         CssClass="btn_upload" BorderStyle="None" />
 									            </td>
 										    </tr>
+                                            
                                             <tr>
 											    <td>
                                                     <span style="font-size:13px; font-weight:bold;line-height:28px;"> 

@@ -34,15 +34,18 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
 
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-
+        int nRet = 0;
         if (Request.QueryString["lookup_id"] != null && Request.QueryString["lookup_id"].ToString() != "")
         {
             Session["lookup_id"] = int.Parse(Request.QueryString["lookup_id"].ToString());
+           
+           
 
         }
         else
             Session["lookup_id"] = 0;
-
+        
+       
         string key = string.Format("{0}_{1}", nGroupID, Session["lookup_id"]);
         if (!ThreadDict.ContainsKey(key))
         {
@@ -60,7 +63,31 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Batch Upload - Upload Excel File");
+       
+        int nRet =  0;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select count(*) as 'rowcount' from lu_generic where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lookup_type", "=", Session["lookup_id"]);
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=",  LoginManager.GetLoginGroupID());
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+                nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["rowcount"].ToString());
+        }
+        selectQuery.Finish();
+        selectQuery = null;      
+
+        LblUploadStatus.Visible = true;
+        LblUploadStatus.Text = "Number of Rows : " + nRet.ToString();
+
+         Response.Write(PageUtils.GetPreHeader() + ": Batch Upload - Upload Excel File , table with " +nRet.ToString() + " rows" );
+        
+
     }
 
     protected void GetMainMenu()
@@ -271,6 +298,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
             return null;
         }
     }
-  
-   
+
+    
+
 }
