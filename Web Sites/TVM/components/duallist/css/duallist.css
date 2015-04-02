@@ -274,3 +274,8 @@ ul::-webkit-scrollbar-track-piece:vertical:start {
 ul::-webkit-scrollbar-track-piece:vertical:end {
     /*margin-right: -6px;*/
 }
+
+.channel-number {
+    width: 60px;
+}
+
