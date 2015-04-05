@@ -1,9 +1,8 @@
-﻿
+﻿using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using TVPApi;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
+
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -35,7 +34,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         FacebookResponseObject GetFBUserData(GetFBUserDataRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(GetDomainByCoGuidRequest requst);
+        DomainResponseObject GetDomainByCoGuid(GetDomainByCoGuidRequest requst);
 
         List<int> GetDomainIDsByOperatorCoGuid(GetDomainIDsByOperatorCoGuidRequest request);
 

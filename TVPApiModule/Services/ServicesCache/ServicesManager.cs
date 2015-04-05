@@ -106,7 +106,7 @@ namespace TVPApiModule.Services
         private BaseService GetService(int groupId, PlatformType platform, eService serviceType)
         {
             /////// Implement GetInstance Logic /////
-            string serviceTcmConfigurationKey = string.Format("{0}{1}{2}{3}{4}", groupId, SPLITTER, platform, SPLITTER, serviceType);
+            string serviceTcmConfigurationKey = string.Format("WebServices{0}{1}", SPLITTER, serviceType);
             string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}{1}{2}", serviceTcmConfigurationKey, SPLITTER, "URL"));
 
             if (!string.IsNullOrEmpty(serviceUrl) && !m_Services.ContainsKey(serviceUrl))

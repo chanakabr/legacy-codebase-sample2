@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPApi;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Context;
-using TVPPro.SiteManager.Objects;
 using RestfulTVPApi.ServiceModel;
+using RestfulTVPApi.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -21,14 +17,14 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request);
 
-        List<EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request);
+        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request);
 
         List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request);
 
         string GetEPGLicensedLink(GetEPGLicensedLinkRequest request);
 
-        List<EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request);
+        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request);
 
-        List<EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request);
+        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request);
     }
 }

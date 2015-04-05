@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using TVPApi;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;
+using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Objects.Responses.Enums;
+using RestfulTVPApi.Clients;
 
 
 namespace RestfulTVPApi.ServiceInterface
@@ -55,7 +56,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<UserItemList> GetItemFromList(GetItemFromListRequest request);
 
-        List<KeyValuePair> IsItemExistsInList(IsItemExistsInListRequest request);
+        List<RestfulTVPApi.Objects.Responses.KeyValuePair> IsItemExistsInList(IsItemExistsInListRequest request);
 
         bool RemoveItemFromList(RemoveItemFromListRequest request);
 
@@ -89,7 +90,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool SetNotificationMessageViewStatus(SetNotificationMessageViewStatusRequest request);
 
-        List<TagMetaPairArray> GetUserStatusSubscriptions(GetUserStatusSubscriptionsRequest request);
+        List<RestfulTVPApi.Objects.Responses.TagMetaPairArray> GetUserStatusSubscriptions(GetUserStatusSubscriptionsRequest request);
 
         bool CleanUserHistory(ClearUserHistoryRequest request);
 
@@ -101,7 +102,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool SetUserDynamicData(SetUserDynamicDataRequest request);
 
-        TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(SignInRequest request);
+        UsersClient.LogInResponseData SignIn(SignInRequest request);
 
         FBSignIn FBUserSignin(FBUserSigninRequest request);
 
@@ -109,7 +110,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<FriendWatchedObject> GetAllFriendsWatched(GetAllFriendsWatchedRequest request);
 
-        TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(DoUserActionRequest request);
+        DoSocialActionResponse DoUserAction(DoUserActionRequest request);
 
         List<UserSocialActionObject> GetFriendsActions(GetFriendsActionsRequest request);
 
@@ -161,7 +162,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         string ChargeUserForMediaSubscriptionUsingCC(ChargeUserForMediaSubscriptionUsingCCRequest request);
 
-        TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(SignInWithTokenRequest request);
+        UsersClient.LogInResponseData SignInWithToken(SignInWithTokenRequest request);
 
         bool CancelTransaction(CancelTransactionRequest request);
 

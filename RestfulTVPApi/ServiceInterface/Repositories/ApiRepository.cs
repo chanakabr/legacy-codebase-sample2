@@ -1,10 +1,10 @@
-﻿using RestfulTVPApi.ServiceModel;
+﻿using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Objects.Responses.Enums;
+using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using System.Configuration;
 using TVPApiModule.Helper;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
@@ -13,22 +13,22 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public bool ActivateCampaign(ActivateCampaignRequest request)
         {
-            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ActivateCampaign(request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name, request.status, request.voucher_receipents);            
+            return ClientsManager.ConditionalAccessService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).ActivateCampaign(request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name, request.status, request.voucher_receipents);            
         }
 
         public CouponData GetCouponStatus(GetCouponStatusRequest request)
         {
-            return ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetCouponStatus(request.coupon_code);
+            return ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetCouponStatus(request.coupon_code);
         }
 
         public PPVModule GetPPVModuleData(GetPPVModuleDataRequest request)
         {
-            return ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetPPVModuleData(request.ppv_code, string.Empty, string.Empty, request.InitObj.UDID);            
+            return ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetPPVModuleData(request.ppv_code, string.Empty, string.Empty, request.InitObj.UDID);            
         }
 
         public string GetIPToCountry(GetIPToCountryRequest request)
         {
-            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).IpToCountry(request.ip);            
+            return ClientsManager.UsersService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).IpToCountry(request.ip);            
         }
 
         public string GetSiteGuidFromSecured(GetSiteGuidFromSecuredRequest request)
@@ -43,22 +43,22 @@ namespace RestfulTVPApi.ServiceInterface
 
         public UserResponseObject GetUserDataByCoGuid(GetUserDataByCoGuidRequest request)
         {
-            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetUserDataByCoGuid(request.co_guid, request.operator_id);            
+            return ClientsManager.UsersService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetUserDataByCoGuid(request.co_guid, request.operator_id);            
         }
 
         public List<Country> GetCountriesList(GetCountriesListRequest request)
         {
-            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetCountriesList();
+            return ClientsManager.UsersService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetCountriesList();
         }
 
         public string GetGoogleSignature(GetGoogleSignatureRequest request)
         {
-            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetGoogleSignature(request.InitObj.SiteGuid, request.customer_id);
+            return ClientsManager.ConditionalAccessService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetGoogleSignature(request.InitObj.SiteGuid, request.customer_id);
         }
 
         public FBConnectConfig FBConfig(FBConfigRequest request)
         {
-            FacebookConfig fbConfig = ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetFBConfig("0");
+            FacebookConfig fbConfig = ClientsManager.SocialService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetFBConfig("0");
 
                 FBConnectConfig retVal = new FBConnectConfig
                 {
@@ -73,47 +73,47 @@ namespace RestfulTVPApi.ServiceInterface
 
         public FacebookResponseObject FBUserMerge(FBUserMergeRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserMerge(request.token, request.facebook_id, request.user_name, request.password);
+            return ClientsManager.SocialService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).FBUserMerge(request.token, request.facebook_id, request.user_name, request.password);
         }
 
         public FacebookResponseObject FBUserUnMerge(FBUserUnMergeRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserUnMerge(request.token, request.user_name, request.password);
+            return ClientsManager.SocialService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).FBUserUnMerge(request.token, request.user_name, request.password);
         }
 
         public FacebookResponseObject FBUserRegister(FBUserRegisterRequest request)
         {
-            var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = request.get_newsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = request.create_new_domain ? "1" : "0" } };
+            var oExtra = new List<RestfulTVPApi.Social.KeyValuePair>() { new RestfulTVPApi.Social.KeyValuePair() { key = "news", value = request.get_newsletter ? "1" : "0" }, new RestfulTVPApi.Social.KeyValuePair() { key = "domain", value = request.create_new_domain ? "1" : "0" } };
 
             //Ofir - why its was UserHostAddress in ip param?
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserRegister(request.token, "0", oExtra, SiteHelper.GetClientIP());
+            return ClientsManager.SocialService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).FBUserRegister(request.token, "0", oExtra, SiteHelper.GetClientIP());
         }
 
         public FacebookResponseObject GetFBUserData(GetFBUserDataRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetFBUserData(request.token, "0");            
+            return ClientsManager.SocialService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetFBUserData(request.token, "0");            
         }
 
         public DomainResponseObject GetDomainByCoGuid(GetDomainByCoGuidRequest request)
         {
-            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainByCoGuid(request.co_guid);
+            return ClientsManager.DomainsService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetDomainByCoGuid(request.co_guid);
         }
 
         public List<int> GetDomainIDsByOperatorCoGuid(GetDomainIDsByOperatorCoGuidRequest request)
         {
-            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainIDsByOperatorCoGuid(request.operator_co_guid);
+            return ClientsManager.DomainsService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetDomainIDsByOperatorCoGuid(request.operator_co_guid);
         }
 
         public int GetDomainIDByCoGuid(GetDomainIDByCoGuidRequest request)
         {
-            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainIDByCoGuid(request.co_guid);
+            return ClientsManager.DomainsService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetDomainIDByCoGuid(request.co_guid);
         }
 
         public DeviceRegistration RegisterDeviceByPIN(RegisterDeviceByPINRequest request)
         {
             DeviceRegistration deviceRegistration = new DeviceRegistration();
             request.InitObj.DomainID = request.domain_id;
-            DeviceResponseObject response = ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RegisterDeviceByPIN(request.device_name, request.InitObj.DomainID, request.pin);
+            DeviceResponseObject response = ClientsManager.DomainsService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).RegisterDeviceByPIN(request.device_name, request.InitObj.DomainID, request.pin);
 
             if (response != null)
             {
@@ -123,6 +123,5 @@ namespace RestfulTVPApi.ServiceInterface
 
             return deviceRegistration;
         }
-
     }
 }

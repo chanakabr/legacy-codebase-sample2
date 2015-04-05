@@ -1,12 +1,11 @@
-﻿using RestfulTVPApi.ServiceModel;
+﻿using RestfulTVPApi.Clients;
+using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
-using TVPApiModule.Manager;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
@@ -34,7 +33,7 @@ namespace RestfulTVPApi.ServiceInterface
             foreach (int subID in request.subscription_ids)
                 {
 
-                    var priceObj = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetSubscriptionData(subID.ToString(), false);
+                    var priceObj = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionData(subID.ToString(), false);
 
                     res.Add(new SubscriptionPrice
                     {
@@ -51,7 +50,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             string res = string.Empty;
 
-            res = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetSubscriptionData(request.subscription_id.ToString(), false).product_code;
+            res = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionData(request.subscription_id.ToString(), false).product_code;
             
             return res;
         }
@@ -60,11 +59,11 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Subscription> res = new List<Subscription>();
 
-            ApiPricingService _service = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform);
+            PricingClient client = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform);
 
                 foreach (int subID in request.subscription_ids)
                 {
-                    res.Add(_service.GetSubscriptionData(subID.ToString(), false));
+                    res.Add(client.GetSubscriptionData(subID.ToString(), false));
                 }
             
             return res;
@@ -72,7 +71,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(GetSubscriptionsPricesWithCouponRequest request)
         {
-            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetSubscriptionsPricesWithCoupon(request.subscription_ids, request.site_guid, request.coupon_code, request.country_code, request.language_code, request.device_name);
+            return ClientsManager.ConditionalAccessService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionsPricesWithCoupon(request.subscription_ids, request.site_guid, request.coupon_code, request.country_code, request.language_code, request.device_name);
         }
     }
 }

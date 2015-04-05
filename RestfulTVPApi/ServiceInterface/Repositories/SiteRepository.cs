@@ -7,10 +7,7 @@ using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
-using TVPApiModule.Interfaces;
-using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
-using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface

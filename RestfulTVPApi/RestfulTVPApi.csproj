@@ -85,6 +85,7 @@
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -106,6 +107,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseResponse.datasource" />
+    <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramResponse.datasource" />
+    <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaResponse.datasource" />
+    <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.Response.datasource" />
+    <Content Include="Service References\Catalog\Service.disco" />
+    <Content Include="Service References\Catalog\configuration91.svcinfo" />
+    <Content Include="Service References\Catalog\configuration.svcinfo" />
+    <Content Include="Service References\Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
     <Content Include="swagger-ui\css\hightlight.default.css" />
     <Content Include="swagger-ui\css\screen.css" />
     <Content Include="swagger-ui\images\logo_small.png" />
@@ -128,16 +140,298 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </Content>
+    <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\api.disco" />
+    <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\BillingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\InAppBillingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\module.disco" />
+    <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\BillingTransactionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\CampaignActionInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\ChangeSubscriptionStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\CollectionsPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\DomainBillingTransactionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\DomainServicesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\EntitlementResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\LicensedLinkResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\module.disco" />
+    <Content Include="Web References\Domains\ChangeDLMObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\DeviceResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\DLMResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\Domain.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\DomainResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\DomainResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\HomeNetwork.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\module.disco" />
+    <Content Include="Web References\Pricing\Campaign.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\Collection.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\CouponData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\CouponsGroup.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\CouponsStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\Currency.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\DiscountModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\MediaFilePPVContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\MediaFilePPVModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\module.disco" />
+    <Content Include="Web References\Social\DoSocialActionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\eSocialActionPrivacy.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\eSocialPrivacy.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FacebookConfig.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FacebookResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FacebookTokenResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FBSignin.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FriendWatchedObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\module.disco" />
+    <Content Include="Web References\Users\Country.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\FavoritObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\KeyValuePair.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AppHost.cs" />
+    <Compile Include="Clients\ApiClient.cs" />
+    <Compile Include="Clients\BillingClient.cs" />
+    <Compile Include="Clients\ClientsCache\BaseClient.cs" />
+    <Compile Include="Clients\ClientsCache\ClientFactory.cs" />
+    <Compile Include="Clients\ClientsCache\ClientsManager.cs" />
+    <Compile Include="Clients\NotificationsClient.cs" />
+    <Compile Include="Clients\PricingClient.cs" />
+    <Compile Include="Clients\SocialClient.cs" />
+    <Compile Include="Clients\ConditionalAccessClient.cs" />
+    <Compile Include="Clients\DomainsClient.cs" />
+    <Compile Include="Clients\UsersClient.cs" />
+    <Compile Include="Objects\Enums.cs" />
+    <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
+    <Compile Include="Objects\Responses\ActionProperties.cs" />
+    <Compile Include="Objects\Responses\AdvertisingProvider.cs" />
+    <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
+    <Compile Include="Objects\Responses\AssetStatsResult.cs" />
+    <Compile Include="Objects\Responses\BillingInfo.cs" />
+    <Compile Include="Objects\Responses\BillingResponse.cs" />
+    <Compile Include="Objects\Responses\BillingTransactionContainer.cs" />
+    <Compile Include="Objects\Responses\BillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\BundleCodeContainer.cs" />
+    <Compile Include="Objects\Responses\BuzzWeightedAverScore.cs" />
+    <Compile Include="Objects\Responses\CampaignActionInfo.cs" />
+    <Compile Include="Objects\Responses\Category.cs" />
+    <Compile Include="Objects\Responses\Channel.cs" />
+    <Compile Include="Objects\Responses\Collection.cs" />
+    <Compile Include="Objects\Responses\CollectionPricesContainer.cs" />
+    <Compile Include="Objects\Responses\Comment.cs" />
+    <Compile Include="Objects\Responses\Country.cs" />
+    <Compile Include="Objects\Responses\CouponData.cs" />
+    <Compile Include="Objects\Responses\CouponsGroup.cs" />
+    <Compile Include="Objects\Responses\Currency.cs" />
+    <Compile Include="Objects\Responses\Device.cs" />
+    <Compile Include="Objects\Responses\DeviceContainer.cs" />
+    <Compile Include="Objects\Responses\DeviceDomain.cs" />
+    <Compile Include="Objects\Responses\DeviceInfo.cs" />
+    <Compile Include="Objects\Responses\DeviceRegistration.cs" />
+    <Compile Include="Objects\Responses\DeviceResponseObject.cs" />
+    <Compile Include="Objects\Responses\DiscountModule.cs" />
+    <Compile Include="Objects\Responses\Domain.cs" />
+    <Compile Include="Objects\Responses\DomainBillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\DomainResponseObject.cs" />
+    <Compile Include="Objects\Responses\DoSocialActionResponse.cs" />
+    <Compile Include="Objects\Responses\Enums\BillingAction.cs" />
+    <Compile Include="Objects\Responses\Enums\BillingItemsType.cs" />
+    <Compile Include="Objects\Responses\Enums\BillingResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\BundleType.cs" />
+    <Compile Include="Objects\Responses\Enums\CampaignActionResult.cs" />
+    <Compile Include="Objects\Responses\Enums\ChangeSubscriptionStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\CouponsStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\CouponType.cs" />
+    <Compile Include="Objects\Responses\Enums\DeviceResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\DeviceState.cs" />
+    <Compile Include="Objects\Responses\Enums\DomainResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\DomainRestriction.cs" />
+    <Compile Include="Objects\Responses\Enums\DomainStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\eAssetType.cs" />
+    <Compile Include="Objects\Responses\Enums\eBlockType.cs" />
+    <Compile Include="Objects\Responses\Enums\eDeviceRegistrationStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\eGroupRuleType.cs" />
+    <Compile Include="Objects\Responses\Enums\eOperatorType.cs" />
+    <Compile Include="Objects\Responses\Enums\eResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\eSocialActionPrivacy.cs" />
+    <Compile Include="Objects\Responses\Enums\eSocialPrivacy.cs" />
+    <Compile Include="Objects\Responses\Enums\eUserAction.cs" />
+    <Compile Include="Objects\Responses\Enums\ItemType.cs" />
+    <Compile Include="Objects\Responses\Enums\ListType.cs" />
+    <Compile Include="Objects\Responses\Enums\MediaMarkObjectStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\NetworkResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\PaymentMethod.cs" />
+    <Compile Include="Objects\Responses\Enums\PrePaidResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\PriceReason.cs" />
+    <Compile Include="Objects\Responses\Enums\RelationTypes.cs" />
+    <Compile Include="Objects\Responses\Enums\SocialActionResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\SocialPlatform.cs" />
+    <Compile Include="Objects\Responses\Enums\StatusObjectCode.cs" />
+    <Compile Include="Objects\Responses\Enums\TransactionType.cs" />
+    <Compile Include="Objects\Responses\Enums\UserState.cs" />
+    <Compile Include="Objects\Responses\Enums\WhenAlgoType.cs" />
+    <Compile Include="Objects\Responses\EPGChannel.cs" />
+    <Compile Include="Objects\Responses\EPGChannelProgrammeObject.cs" />
+    <Compile Include="Objects\Responses\EPGDictionary.cs" />
+    <Compile Include="Objects\Responses\EPGMultiChannelProgramme.cs" />
+    <Compile Include="Objects\Responses\FacebookConfig.cs" />
+    <Compile Include="Objects\Responses\FacebookResponseObject.cs" />
+    <Compile Include="Objects\Responses\FavoriteObject.cs" />
+    <Compile Include="Objects\Responses\FBConnectObjects.cs" />
+    <Compile Include="Objects\Responses\FBInterest.cs" />
+    <Compile Include="Objects\Responses\FBInterestData.cs" />
+    <Compile Include="Objects\Responses\FBLoaction.cs" />
+    <Compile Include="Objects\Responses\FBSignIn.cs" />
+    <Compile Include="Objects\Responses\FBUser.cs" />
+    <Compile Include="Objects\Responses\FriendWatchedObject.cs" />
+    <Compile Include="Objects\Responses\GroupOperator.cs" />
+    <Compile Include="Objects\Responses\GroupRule.cs" />
+    <Compile Include="Objects\Responses\HomeNetwork.cs" />
+    <Compile Include="Objects\Responses\ItemObj.cs" />
+    <Compile Include="Objects\Responses\ItemPriceContainer.cs" />
+    <Compile Include="Objects\Responses\KeyValuePair.cs" />
+    <Compile Include="Objects\Responses\LanguageContainer.cs" />
+    <Compile Include="Objects\Responses\Media.cs" />
+    <Compile Include="Objects\Responses\MediaFileItemPricesContainer.cs" />
+    <Compile Include="Objects\Responses\MediaMarkObject.cs" />
+    <Compile Include="Objects\Responses\Menu.cs" />
+    <Compile Include="Objects\Responses\MenuItem.cs" />
+    <Compile Include="Objects\Responses\NetworkResponseObject.cs" />
+    <Compile Include="Objects\Responses\Notification.cs" />
+    <Compile Include="Objects\Responses\PageData.cs" />
+    <Compile Include="Objects\Responses\PermittedCollectionContainer.cs" />
+    <Compile Include="Objects\Responses\PermittedMediaContainer.cs" />
+    <Compile Include="Objects\Responses\PermittedPackages.cs" />
+    <Compile Include="Objects\Responses\PermittedSubscriptionContainer.cs" />
+    <Compile Include="Objects\Responses\PPVModule.cs" />
+    <Compile Include="Objects\Responses\PrePaidModule.cs" />
+    <Compile Include="Objects\Responses\PreviewModule.cs" />
+    <Compile Include="Objects\Responses\Price.cs" />
+    <Compile Include="Objects\Responses\PriceCode.cs" />
+    <Compile Include="Objects\Responses\ResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Scope.cs" />
+    <Compile Include="Objects\Responses\SocialActivityDoc.cs" />
+    <Compile Include="Objects\Responses\SocialActivityObject.cs" />
+    <Compile Include="Objects\Responses\SocialActivitySubject.cs" />
+    <Compile Include="Objects\Responses\SocialActivityVerb.cs" />
+    <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
+    <Compile Include="Objects\Responses\State.cs" />
+    <Compile Include="Objects\Responses\Status.cs" />
+    <Compile Include="Objects\Responses\Subscription.cs" />
+    <Compile Include="Objects\Responses\SubscriptionCodeContainer.cs" />
+    <Compile Include="Objects\Responses\SubscriptionPrice.cs" />
+    <Compile Include="Objects\Responses\SubscriptionsPricesContainer.cs" />
+    <Compile Include="Objects\Responses\TagMetaPairArray.cs" />
+    <Compile Include="Objects\Responses\UIData.cs" />
+    <Compile Include="Objects\Responses\UsageModule.cs" />
+    <Compile Include="Objects\Responses\User.cs" />
+    <Compile Include="Objects\Responses\UserBasicData.cs" />
+    <Compile Include="Objects\Responses\UserBillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\UserDynamicData.cs" />
+    <Compile Include="Objects\Responses\UserDynamicDataContainer.cs" />
+    <Compile Include="Objects\Responses\UserItemList.cs" />
+    <Compile Include="Objects\Responses\UserResponseObject.cs" />
+    <Compile Include="Objects\Responses\UserSocialActionObject.cs" />
+    <Compile Include="Objects\Responses\UserType.cs" />
+    <Compile Include="Objects\Responses\UserVote.cs" />
+    <Compile Include="Objects\Responses\VoucherReceipentInfo.cs" />
+    <Compile Include="Objects\Responses\WhenAlgo.cs" />
+    <Compile Include="Objects\Responses\WhenAlgoType.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="ServiceInterface\Adapters\ServiceExtensions.cs" />
     <Compile Include="ServiceInterface\Adapters\SimpleInjectorAdapter.cs" />
@@ -197,6 +491,41 @@
     <Compile Include="ServiceInterface\Interfaces\IUsersRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\UsersRepository.cs" />
     <Compile Include="ServiceModel\Exceptions\UnknownGroupException.cs" />
+    <Compile Include="Web References\Api\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Billing\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\ConditionalAccess\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Domains\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Pricing\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Social\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Users\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Configuration\Abertis\prod\MediaConfiguration.config" />
@@ -587,6 +916,244 @@
     <Content Include="Configuration\Vodafone\staging\Web\TechnicalConfiguration.config" />
     <Content Include="Configuration\Vodafone\staging\MediaConfiguration.config" />
     <None Include="Properties\PublishProfiles\TvpApiRest.pubxml" />
+    <Content Include="Service References\Catalog\Service.wsdl" />
+    <None Include="Service References\Catalog\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Catalog\Service1.wsdl" />
+    <None Include="Service References\Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Web References\Domains\module.wsdl" />
+    <Content Include="Web References\Domains\NetworkResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Domains\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\ValidationResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\module.wsdl" />
+    <Content Include="Web References\Users\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Users\ResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\State.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\User.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserBasicData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserGroupRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserItemList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserOfflineObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserState.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserType.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\module.wsdl" />
+    <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PermittedCollectionContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PermittedMediaContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PermittedSubscriptionContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PrePaidHistoryResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PrePaidPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PrePaidResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\SubscriptionsPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\UserBillingTransactionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\UserCAStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\UserPrePaidContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\module.wsdl" />
+    <Content Include="Web References\Social\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Social\SocialActivityDoc.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\SocialObjectReponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\module.wsdl" />
+    <Content Include="Web References\Pricing\PPVModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PPVModuleContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PrePaidModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PreviewModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PriceCode.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Pricing\Subscription.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\UsageModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\api.wsdl" />
+    <Content Include="Web References\Api\CategoryObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\DeviceAvailabiltyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelProgrammeObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\FileTypeContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GenericWriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupOperator.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaConcurrencyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaInfoStructObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaMarkObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MeidaMaper.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RateMediaObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Api\RegionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\Scheduling.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserIMRequestObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\module.wsdl" />
+    <Content Include="Web References\Billing\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -594,8 +1161,14 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
+      <Name>Logger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
@@ -630,6 +1203,85 @@
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Api\</RelPath>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Api_API</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Billing\</RelPath>
+      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Billing_module</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\ConditionalAccess\</RelPath>
+      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_ConditionalAccess_module</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Domains\</RelPath>
+      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Domains_module</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/ws_pricing/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Pricing\</RelPath>
+      <UpdateFromURL>http://localhost/ws_pricing/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Pricing_mdoule</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/ws_social/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Social\</RelPath>
+      <UpdateFromURL>http://localhost/ws_social/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Social_module</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Users\</RelPath>
+      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>RestfulTVPApi_Users_UsersService</CachedSettingsPropName>
+    </WebReferenceUrl>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

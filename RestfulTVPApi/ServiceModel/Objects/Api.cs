@@ -118,9 +118,9 @@ namespace RestfulTVPApi.ServiceModel
         public string sender_name { get; set; }
         [ApiMember(Name = "status", Description = "Order Direction", ParameterType = "body", DataType = SwaggerType.String, IsRequired = false)]
         [ApiAllowableValues("status", typeof(CampaignActionResult))]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status { get; set; }
+        public RestfulTVPApi.ConditionalAccess.CampaignActionResult status { get; set; }
         [ApiMember(Name = "voucher_receipents", Description = "Voucher Receipents", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucher_receipents { get; set; }
+        public RestfulTVPApi.ConditionalAccess.VoucherReceipentInfo[] voucher_receipents { get; set; }
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }

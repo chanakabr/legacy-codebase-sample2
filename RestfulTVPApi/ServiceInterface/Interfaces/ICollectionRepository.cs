@@ -1,10 +1,10 @@
-﻿using System;
+﻿using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.ServiceModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Objects;
-using RestfulTVPApi.ServiceModel;
+
 
 namespace RestfulTVPApi.ServiceInterface
 {

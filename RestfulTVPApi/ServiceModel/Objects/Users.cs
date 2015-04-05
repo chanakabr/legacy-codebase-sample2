@@ -5,9 +5,9 @@ using ServiceStack.ServiceHost;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
+using TVPPro.SiteManager.TvinciPlatform.Notification;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -111,11 +111,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "list_type", Description = "List Type", ParameterType = "path", DataType = "ListType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ListType list_type { get; set; }
+        public RestfulTVPApi.Users.ListType list_type { get; set; }
         [ApiMember(Name = "item_type", Description = "Item Type", ParameterType = "query", DataType = "ItemType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemType item_type { get; set; }
+        public RestfulTVPApi.Users.ItemType item_type { get; set; }
         [ApiMember(Name = "item_objects", Description = "Objects", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
+        public RestfulTVPApi.Users.ItemObj[] item_objects { get; set; }
     }
 
     [Route("/users/{site_guid}/lists/{list_type}/exists", "GET", Notes = "This method checks whether an item exists or does not exist in a list. It queries the list for an array of specific item. Return is an array of Booleans for each item.")]
@@ -124,11 +124,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "list_type", Description = "List Type", ParameterType = "path", DataType = "ListType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ListType list_type { get; set; }
+        public RestfulTVPApi.Users.ListType list_type { get; set; }
         [ApiMember(Name = "item_type", Description = "Item Type", ParameterType = "query", DataType = "ItemType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemType item_type { get; set; }
+        public RestfulTVPApi.Users.ItemType item_type { get; set; }
         [ApiMember(Name = "item_objects", Description = "Item objects, each objec contains item id and item order in the list.", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
+        public RestfulTVPApi.Users.ItemObj[] item_objects { get; set; }
     }
 
     [Route("/users/{site_guid}/pre_paid_balance", "GET", Summary = "Get User", Notes = "Get User")]
@@ -287,14 +287,14 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
         [ApiMember(Name = "user_actions", Description = "User Actions", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] user_actions { get; set; }
-        [ApiAllowableValues("asset_type", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eAssetType))]
+        [ApiAllowableValues("asset_type", typeof(RestfulTVPApi.Social.eAssetType))]
         [ApiMember(Name = "asset_type", Description = "Asset Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eAssetType asset_type { get; set; }
+        public RestfulTVPApi.Social.eAssetType asset_type { get; set; }
         [ApiMember(Name = "asset_id", Description = "Asset ID", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
     }
 
     [Route("/users/{site_guid}/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all the social actions carried out by the user. Note: the results are filtered according to the specified parameters.")]
@@ -302,17 +302,17 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiAllowableValues("user_action", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))]
+        [ApiAllowableValues("user_action", typeof(RestfulTVPApi.Social.eUserAction))]
         [ApiMember(Name = "user_action", Description = "User Action", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eUserAction user_action { get; set; }
-        [ApiAllowableValues("asset_type", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eAssetType))]
+        public RestfulTVPApi.Social.eUserAction user_action { get; set; }
+        [ApiAllowableValues("asset_type", typeof(RestfulTVPApi.Social.eAssetType))]
         [ApiMember(Name = "asset_type", Description = "Asset Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eAssetType asset_type { get; set; }
+        public RestfulTVPApi.Social.eAssetType asset_type { get; set; }
         [ApiMember(Name = "asset_id", Description = "Asset ID", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
     }
 
     [Route("/users/{site_guid}/social_platforms/facebook/privacy_settings", "GET", Notes = "This method returns the user’s social privacy-level options as listed/configured on the based upon the privacy configured at his the user’s social network. Note: These are the social network privacy settings, not the Tvinci privacy settings.")]
@@ -328,12 +328,12 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiAllowableValues("user_action", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))]
+        [ApiAllowableValues("user_action", typeof(RestfulTVPApi.Social.eUserAction))]
         [ApiMember(Name = "user_action", Description = "User Action", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eUserAction user_action { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        public RestfulTVPApi.Social.eUserAction user_action { get; set; }
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
     }
 
     //??? ask avi
@@ -354,12 +354,12 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiAllowableValues("user_action", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))]
+        [ApiAllowableValues("user_action", typeof(RestfulTVPApi.Social.eUserAction))]
         [ApiMember(Name = "user_action", Description = "User Action", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eUserAction user_action { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        public RestfulTVPApi.Social.eUserAction user_action { get; set; }
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
     }
 
     //Maybe POST?
@@ -449,9 +449,9 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "user_basic_data", Description = "User Basic Data", ParameterType = "body", DataType = "UserBasicData", IsRequired = true)]
-        public TVPApiModule.Objects.Responses.UserBasicData user_basic_data { get; set; }
+        public RestfulTVPApi.Objects.Responses.UserBasicData user_basic_data { get; set; }
         [ApiMember(Name = "user_dynamic_data", Description = "User Dynamic Data", ParameterType = "body", DataType = "UserDynamicData", IsRequired = true)]
-        public TVPApiModule.Objects.Responses.UserDynamicData user_dynamic_data { get; set; }
+        public RestfulTVPApi.Objects.Responses.UserDynamicData user_dynamic_data { get; set; }
     }
 
     [Route("/users/{site_guid}/dynamic_data/{key}", "PUT", Notes = "This method expects dynamic data key and data value; it sets the value to the existing key. Example: Key = birthday, Value = 03/03/2014.")]
@@ -516,11 +516,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "list_type", Description = "List Type", ParameterType = "path", DataType = "ListType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ListType list_type { get; set; }
+        public RestfulTVPApi.Users.ListType list_type { get; set; }
         [ApiMember(Name = "item_type", Description = "Item Type", ParameterType = "body", DataType = "ItemType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemType item_type { get; set; }
+        public RestfulTVPApi.Users.ItemType item_type { get; set; }
         [ApiMember(Name = "item_objects", Description = "Objects", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
+        public RestfulTVPApi.Users.ItemObj[] item_objects { get; set; }
     }
 
     [Route("/users/{site_guid}/pre_paid_balance", "PUT", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
@@ -557,15 +557,15 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiAllowableValues("user_action", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))]
+        [ApiAllowableValues("user_action", typeof(RestfulTVPApi.Social.eUserAction))]
         [ApiMember(Name = "user_action", Description = "User Action", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eUserAction user_action { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        public RestfulTVPApi.Social.eUserAction user_action { get; set; }
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
-        [ApiAllowableValues("social_action_privacy", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy))]
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
+        [ApiAllowableValues("social_action_privacy", typeof(RestfulTVPApi.Social.eSocialActionPrivacy))]
         [ApiMember(Name = "social_action_privacy", Description = "Social Action Privacy", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy social_action_privacy { get; set; }
+        public RestfulTVPApi.Social.eSocialActionPrivacy social_action_privacy { get; set; }
     }
 
     [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/internal", "PUT", Notes = "This method sets the user’s internal privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the internal site.")]
@@ -590,7 +590,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
         [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eTransactionType transaction_type { get; set; }
+        public RestfulTVPApi.ConditionalAccess.eTransactionType transaction_type { get; set; }
         [ApiMember(Name = "is_force", Description = "Cancel now or in end of period", ParameterType = "body", DataType = SwaggerType.Boolean, IsRequired = true)]
         public bool is_force { get; set; }
     }
@@ -603,7 +603,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
         [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eTransactionType transaction_type { get; set; }
+        public RestfulTVPApi.ConditionalAccess.eTransactionType transaction_type { get; set; }
     }
 
     #endregion
@@ -614,9 +614,9 @@ namespace RestfulTVPApi.ServiceModel
     public class SignUpRequest : RequestBase, IReturn<UserResponseObject>
     {
         [ApiMember(Name = "user_basic_data", Description = "User Basic Data", ParameterType = "body", DataType = "UserBasicData", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData user_basic_data { get; set; }
+        public RestfulTVPApi.Users.UserBasicData user_basic_data { get; set; }
         [ApiMember(Name = "user_dynamic_data", Description = "User Dynamic Data", ParameterType = "body", DataType = "UserDynamicData", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData user_dynamic_data { get; set; }
+        public RestfulTVPApi.Users.UserDynamicData user_dynamic_data { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
         [ApiMember(Name = "affiliate_code", Description = "Affiliate Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = false)]
@@ -629,11 +629,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "list_type", Description = "List Type", ParameterType = "path", DataType = "ListType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ListType list_type { get; set; }
+        public RestfulTVPApi.Users.ListType list_type { get; set; }
         [ApiMember(Name = "item_type", Description = "Item Type", ParameterType = "body", DataType = "ItemType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemType item_type { get; set; }
+        public RestfulTVPApi.Users.ItemType item_type { get; set; }
         [ApiMember(Name = "item_objects", Description = "Item objects, each object contains item id and item order in the list", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
+        public RestfulTVPApi.Users.ItemObj[] item_objects { get; set; }
     }
     
     [Route("/users/sign_in", "POST", Notes = "This method signs-in a user.")]
@@ -672,17 +672,17 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
-        [ApiAllowableValues("user_action", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))]
+        [ApiAllowableValues("user_action", typeof(RestfulTVPApi.Social.eUserAction))]
         [ApiMember(Name = "user_action", Description = "User Action", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eUserAction user_action { get; set; }
+        public RestfulTVPApi.Social.eUserAction user_action { get; set; }
         [ApiMember(Name = "extra_params", Description = "Extra Params", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extra_params { get; set; }
-        [ApiAllowableValues("social_platform", typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))]
+        public RestfulTVPApi.Social.KeyValuePair[] extra_params { get; set; }
+        [ApiAllowableValues("social_platform", typeof(RestfulTVPApi.Social.SocialPlatform))]
         [ApiMember(Name = "social_platform", Description = "Social Platform", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
-        [ApiAllowableValues("asset_type", typeof(TVPPro.SiteManager.TvinciPlatform.Social.eAssetType))]
+        public RestfulTVPApi.Social.SocialPlatform social_platform { get; set; }
+        [ApiAllowableValues("asset_type", typeof(RestfulTVPApi.Social.eAssetType))]
         [ApiMember(Name = "asset_type", Description = "Asset Type", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Social.eAssetType asset_type { get; set; }
+        public RestfulTVPApi.Social.eAssetType asset_type { get; set; }
         [ApiMember(Name = "asset_id", Description = "Asset ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int asset_id { get; set; }
     }
@@ -958,11 +958,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "list_type", Description = "List Type", ParameterType = "path", DataType = "ListType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ListType list_type { get; set; }
+        public RestfulTVPApi.Users.ListType list_type { get; set; }
         [ApiMember(Name = "item_type", Description = "Item Type", ParameterType = "body", DataType = "ItemType", IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemType item_type { get; set; }
+        public RestfulTVPApi.Users.ItemType item_type { get; set; }
         [ApiMember(Name = "item_objects", Description = "Item objects, each objec contains item id and item order in the list.", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
+        public RestfulTVPApi.Users.ItemObj[] item_objects { get; set; }
     }
 
     [Route("/users/{site_guid}/medias/watch_history", "DELETE", Notes = "This method clears the user watch history (in the user’s personal zone) by individual media IDs. Note: The parameter “0” erases all entries.")]
