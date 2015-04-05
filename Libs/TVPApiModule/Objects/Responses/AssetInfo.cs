@@ -35,10 +35,10 @@ namespace TVPApiModule.Objects.Responses
         public Dictionary<string, List<string>> Tags { get; set; }
 
         [JsonProperty(PropertyName = "start_date")]
-        public double StartDate { get; set; }
+        public long StartDate { get; set; }
 
         [JsonProperty(PropertyName = "end_date")]
-        public double EndDate { get; set; }
+        public long EndDate { get; set; }
 
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         public Statistics Statistics { get; set; }
@@ -53,8 +53,8 @@ namespace TVPApiModule.Objects.Responses
                 Id = media.m_nID;
                 Name = media.m_sName;
                 Description = media.m_sDescription;
-                StartDate = TimeHelper.ConvertToUnixTimestamp(media.m_dCatalogStartDate);
-                EndDate = TimeHelper.ConvertToUnixTimestamp(media.m_dEndDate);
+                StartDate = (long)TimeHelper.ConvertToUnixTimestamp(media.m_dCatalogStartDate);
+                EndDate = (long)TimeHelper.ConvertToUnixTimestamp(media.m_dEndDate);
 
                 if (media.m_oMediaType != null)
                 {
@@ -129,8 +129,8 @@ namespace TVPApiModule.Objects.Responses
             Type = 0;
             Name = epg.NAME;
             Description = epg.DESCRIPTION;
-            StartDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.START_DATE, "dd/MM/yyyy HH:mm:ss", null));
-            EndDate = TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.END_DATE, "dd/MM/yyyy HH:mm:ss", null));
+            StartDate = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.START_DATE, "dd/MM/yyyy HH:mm:ss", null));
+            EndDate = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.ParseExact(epg.END_DATE, "dd/MM/yyyy HH:mm:ss", null));
 
             if (epg.EPG_PICTURES != null)
             {
