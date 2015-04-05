@@ -298,9 +298,35 @@ namespace TVPApiModule.CatalogLoaders
                 if (providerResult == eProviderResult.Success && response != null)
                 {
                     AssetInfoResponse assetInfoResponse = (AssetInfoResponse)response;
-                    mediasFromCatalog = assetInfoResponse.mediaList;
-                    epgsFromCatalog = assetInfoResponse.epgList;
-                   
+
+                    if (assetInfoResponse.mediaList != null)
+                    {
+                        if (assetInfoResponse.mediaList.Any(m => m == null))
+                        {
+                            logger.Warn("APIUnifiedSearchLoader: Received response from Catalog with null media objects");
+                        }
+
+                        mediasFromCatalog = assetInfoResponse.mediaList.Where(m => m != null).ToList();
+                    }
+                    else
+                    {
+                        mediasFromCatalog = new List<MediaObj>();
+                    }
+
+                    if (assetInfoResponse.epgList != null)
+                    {
+                        if (assetInfoResponse.epgList.Any(m => m == null))
+                        {
+                            logger.Warn("APIUnifiedSearchLoader: Received response from Catalog with null EPG objects");
+                        }
+
+                        epgsFromCatalog = assetInfoResponse.epgList.Where(m => m != null).ToList();
+                    }
+                    else
+                    {
+                        epgsFromCatalog = new List<ProgramObj>();
+                    }
+
                     // Store in Cache the medias and epgs from Catalog
                     int duration;
                     int.TryParse(ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
@@ -412,6 +438,7 @@ namespace TVPApiModule.CatalogLoaders
         {
             StringBuilder sText = new StringBuilder();
             sText.AppendLine(message);
+
             if (obj != null)
             {
                 if (obj is List<MediaObj>)
