@@ -126,6 +126,7 @@ namespace EpgFeeder
                         newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(m_Channels.ChannelId);
                         newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(m_Channels.GroupID);
                         newEpgItem.ParentGroupID = m_Channels.ParentGroupID;
+                        //Ira ? should i take it from the xml as the external id ? 
                         Guid EPGGuid = Guid.NewGuid();
                         newEpgItem.EpgIdentifier = EPGGuid.ToString();
 
