@@ -1330,7 +1330,6 @@ namespace Tvinci.Core.DAL
                             }
                         }
                     }
-
                 }
             }
 
