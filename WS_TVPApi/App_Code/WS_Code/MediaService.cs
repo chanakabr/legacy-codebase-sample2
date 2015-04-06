@@ -636,7 +636,7 @@ namespace TVPApiServices
 
             OrcaResponse retVal = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendationsByGallery", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -1258,7 +1258,7 @@ namespace TVPApiServices
         {
             string sRet = string.Empty;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaHit", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -1286,7 +1286,7 @@ namespace TVPApiServices
         {
             MediaMarkObject mediaMark = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -2083,7 +2083,7 @@ namespace TVPApiServices
             string sResponse = string.Empty;
 
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLinkWithIP", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {

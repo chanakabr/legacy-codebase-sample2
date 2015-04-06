@@ -402,7 +402,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
         public string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExternalActionShare", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
@@ -573,7 +573,7 @@ namespace TVPApiServices
         {
             SocialActivityDoc[] response = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserUnmerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActivityFeed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
@@ -598,7 +598,7 @@ namespace TVPApiServices
         {
             FacebookTokenResponse response = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserUnmerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBTokenValidation", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try

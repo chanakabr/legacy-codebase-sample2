@@ -671,7 +671,7 @@ namespace TVPApiServices
         {
             TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -778,7 +778,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
         public void SignOut(InitializationObject initObj)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignOut", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -1173,7 +1173,7 @@ namespace TVPApiServices
         {
             Pair[] retTranslations = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetTranslations", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -1282,7 +1282,7 @@ namespace TVPApiServices
         {
             TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RecordAll", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
@@ -1309,7 +1309,7 @@ namespace TVPApiServices
         {
             TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAccountSTBs", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
