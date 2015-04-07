@@ -71,7 +71,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         }
         theTable += "select gdflm.is_active, gdflm.id, gdflm.status, gdflm.description as 'Name', gdflm.value as 'Value', ludlm.description as 'Type' from groups_device_families_limitation_modules gdflm with (nolock) ";
         theTable += "inner join lu_device_limitation_modules ludlm with (nolock) on ludlm.ID=gdflm.type where ";
-        theTable += "gdflm.status=1 and gdflm.is_active=1 and ludlm.status=1 and ";
+        theTable += "gdflm.status=1 and ludlm.status=1 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.group_id", "=", nGroupID);
         theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.parent_limit_module_id", "=", parentLimitModuleID);

@@ -49,9 +49,34 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         string key = string.Format("{0}_{1}", nGroupID, Session["lookup_id"]);
         if (!ThreadDict.ContainsKey(key))
         {
+            int nRet1 = 0;
+            string ld = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select count(*) as 'rowcount', MAX(create_date) as 'lastdate' from lu_generic where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lookup_type", "=", Session["lookup_id"]);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet1 = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "rowcount", 0); 
+                    ld = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "lastdate", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+
             FileUpload1.Visible = true;
             ButtonUpload.Visible = true;
-            LblUploadStatus.Visible = false;
+            LblUploadStatus.Visible = true;
+            LblUploadStatus.Text = string.Format("Total rows : {0}, Last update date : {1}", nRet1, ld);
         }
         else
         {
@@ -63,26 +88,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
 
     public void GetHeader()
     {
-       
-        int nRet =  0;
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select count(*) as 'rowcount' from lu_generic where ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lookup_type", "=", Session["lookup_id"]);
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=",  LoginManager.GetLoginGroupID());
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-                nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["rowcount"].ToString());
-        }
-        selectQuery.Finish();
-        selectQuery = null;      
-
-        Response.Write(PageUtils.GetPreHeader() + ": Batch Upload - Upload Excel File , table with " +nRet.ToString() + " rows" );
+        Response.Write(PageUtils.GetPreHeader() + ": Lookup table");
     }
 
     protected void GetMainMenu()
