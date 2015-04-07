@@ -278,7 +278,7 @@ public partial class adm_my_group : System.Web.UI.Page
         theRecord.AddRecord(dr_view_lc);
 
         DataRecordCheckBoxField dr_dtt_regionalization = new DataRecordCheckBoxField(true);
-        dr_dtt_regionalization.Initialize("Is DTT Regionalization Enabled", "adm_table_header_nbg", "FormInput", "IS_REGIONALIZATION_ENABLED", true);
+        dr_dtt_regionalization.Initialize("Enable region filtering", "adm_table_header_nbg", "FormInput", "IS_REGIONALIZATION_ENABLED", true);
         theRecord.AddRecord(dr_dtt_regionalization);
 
         DataRecordDropDownField dr_region = new DataRecordDropDownField("linear_channels_regions", "name", "id", "group_id", t, 60, true);
