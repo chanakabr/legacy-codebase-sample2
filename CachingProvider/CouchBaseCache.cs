@@ -235,7 +235,7 @@ namespace CachingProvider
         public override bool SetJson<T>(string sKey, T obj, double dCacheTT)
         {
             var json = ObjectToJson<T>(obj);
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, json);
+            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, json, DateTime.UtcNow.AddMinutes(dCacheTT));
         }
 
         public override bool GetJsonAsT<T>(string sKey, out T res)
