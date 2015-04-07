@@ -235,12 +235,18 @@ Perhaps there is some better XML syntax we could use for that.
 
 <!--program key values list -->
 
-<!ELEMENT metas ( keyName?, KeyValue? ) >
-<!ELEMENT keyName (#PCDATA) >
-<!ELEMENT KeyValue (#PCDATA) >
-<!ATTLIST keyName KeyValue CDATA #IMPLIED>
+<!ELEMENT metas ( MetaName?, MetaValues* ) >
+<!ELEMENT MetaName  (#PCDATA) >
+<!ELEMENT MetaValues (#PCDATA) >
+<!ATTLIST MetaValues lang CDATA #IMPLIED>
+<!ATTLIST MetaName MetaValues CDATA #IMPLIED>
 
-<!ELEMENT tags ( keyName?, KeyValue* ) >
+<!ELEMENT tags ( TagName?, TagValues* ) >
+<!ELEMENT TagName (#PCDATA) >
+<!ELEMENT TagValues (#PCDATA) >
+<!ATTLIST TagValues lang CDATA #IMPLIED>
+<!ATTLIST TagValues TagValueMain CDATA #IMPLIED>
+<!ATTLIST TagName TagValues CDATA #IMPLIED>
 
 <!-- Programme title, eg 'The Simpsons'. -->
 <!ELEMENT title (#PCDATA)>

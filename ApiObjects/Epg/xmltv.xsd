@@ -80,27 +80,54 @@
   <xs:element name="metas">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="1" ref="keyName" />
-        <xs:element minOccurs="0" maxOccurs="1" ref="KeyValue" />
+        <xs:element minOccurs="0" maxOccurs="1" ref="MetaName" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="MetaValues" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="keyName">
+  <xs:element name="MetaName">
     <xs:complexType>
       <xs:simpleContent>
         <xs:extension base="xs:string">
-          <xs:attribute name="KeyValue" type="xs:string" />
+          <xs:attribute name="MetaValues" type="xs:string" />
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="KeyValue" type="xs:string" />
+  <xs:element name="MetaValues">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="lang" type="xs:string" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="tags">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="1" ref="keyName" />
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="KeyValue" />
+        <xs:element minOccurs="0" maxOccurs="1" ref="TagName" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="TagValues" />
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TagName">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="TagValues" type="xs:string" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TagValues">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="lang" type="xs:string" />
+          <xs:attribute name="TagValueMain" type="xs:string" />
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="title">

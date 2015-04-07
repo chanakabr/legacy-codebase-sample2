@@ -1789,27 +1789,28 @@ public enum reviewType {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class metas {
     
-    private keyName keyNameField;
+    private MetaName metaNameField;
     
-    private string keyValueField;
+    private MetaValues[] metaValuesField;
     
     /// <remarks/>
-    public keyName keyName {
+    public MetaName MetaName {
         get {
-            return this.keyNameField;
+            return this.metaNameField;
         }
         set {
-            this.keyNameField = value;
+            this.metaNameField = value;
         }
     }
     
     /// <remarks/>
-    public string KeyValue {
+    [System.Xml.Serialization.XmlElementAttribute("MetaValues")]
+    public MetaValues[] MetaValues {
         get {
-            return this.keyValueField;
+            return this.metaValuesField;
         }
         set {
-            this.keyValueField = value;
+            this.metaValuesField = value;
         }
     }
 }
@@ -1821,20 +1822,56 @@ public partial class metas {
 [System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
-public partial class keyName {
+public partial class MetaName {
     
-    private string keyValueField;
+    private string metaValuesField;
     
     private string valueField;
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string KeyValue {
+    public string MetaValues {
         get {
-            return this.keyValueField;
+            return this.metaValuesField;
         }
         set {
-            this.keyValueField = value;
+            this.metaValuesField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlTextAttribute()]
+    public string Value {
+        get {
+            return this.valueField;
+        }
+        set {
+            this.valueField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
+[System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
+public partial class MetaValues {
+    
+    private string langField;
+    
+    private string valueField;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string lang {
+        get {
+            return this.langField;
+        }
+        set {
+            this.langField = value;
         }
     }
     
@@ -1859,28 +1896,113 @@ public partial class keyName {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class tags {
     
-    private keyName keyNameField;
+    private TagName tagNameField;
     
-    private string[] keyValueField;
+    private TagValues[] tagValuesField;
     
     /// <remarks/>
-    public keyName keyName {
+    public TagName TagName {
         get {
-            return this.keyNameField;
+            return this.tagNameField;
         }
         set {
-            this.keyNameField = value;
+            this.tagNameField = value;
         }
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlElementAttribute("KeyValue")]
-    public string[] KeyValue {
+    [System.Xml.Serialization.XmlElementAttribute("TagValues")]
+    public TagValues[] TagValues {
         get {
-            return this.keyValueField;
+            return this.tagValuesField;
         }
         set {
-            this.keyValueField = value;
+            this.tagValuesField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
+[System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
+public partial class TagName {
+    
+    private string tagValuesField;
+    
+    private string valueField;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string TagValues {
+        get {
+            return this.tagValuesField;
+        }
+        set {
+            this.tagValuesField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlTextAttribute()]
+    public string Value {
+        get {
+            return this.valueField;
+        }
+        set {
+            this.valueField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
+[System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
+public partial class TagValues {
+    
+    private string langField;
+    
+    private string tagValueMainField;
+    
+    private string valueField;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string lang {
+        get {
+            return this.langField;
+        }
+        set {
+            this.langField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string TagValueMain {
+        get {
+            return this.tagValueMainField;
+        }
+        set {
+            this.tagValueMainField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlTextAttribute()]
+    public string Value {
+        get {
+            return this.valueField;
+        }
+        set {
+            this.valueField = value;
         }
     }
 }
