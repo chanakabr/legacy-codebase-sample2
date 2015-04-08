@@ -27,7 +27,7 @@ namespace RestfulTVPApi.Objects.Responses
         public string value { get; set; }
     }
 
-    public class File
+    public class MediaFile
     {
         public string file_id { get; set; }
         public string url { get; set; }
@@ -82,7 +82,7 @@ namespace RestfulTVPApi.Objects.Responses
         public string file_id { get; set; }
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
-        private List<File> m_files;
+        private List<MediaFile> m_files;
         private List<TagMetaPair> m_adParams;
 
         private List<Picture> m_pictures;
@@ -134,13 +134,13 @@ namespace RestfulTVPApi.Objects.Responses
             }
         }
 
-        public List<File> files
+        public List<MediaFile> files
         {
             get
             {
                 if (m_files == null)
                 {
-                    m_files = new List<File>();
+                    m_files = new List<MediaFile>();
                 }
                 return m_files;
             }
@@ -265,10 +265,10 @@ namespace RestfulTVPApi.Objects.Responses
 
             if (mediaFiles != null && mediaFiles.Count > 0)
             {
-                File mediaFile;
+                MediaFile mediaFile;
                 foreach (FileMedia file in mediaFiles)
                 {
-                    mediaFile = new File();
+                    mediaFile = new MediaFile();
 
                     mediaFile.file_id = file.m_nFileId.ToString();
                     mediaFile.url = file.m_sUrl;
@@ -316,10 +316,10 @@ namespace RestfulTVPApi.Objects.Responses
 
             if (brandings != null && brandings.Count > 0)
             {
-                File mediaFile;
+                MediaFile mediaFile;
                 foreach (Branding branding in brandings)
                 {
-                    mediaFile = new File();
+                    mediaFile = new MediaFile();
 
                     mediaFile.file_id = branding.m_nFileId.ToString();
                     mediaFile.url = branding.m_sUrl;

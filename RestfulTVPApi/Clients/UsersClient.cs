@@ -8,7 +8,7 @@ using System.Web;
 using RestfulTVPApi.Objects.Extentions;
 using RestfulTVPApi.Users;
 using TVPPro.SiteManager.Helper;
-using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Clients.Utils;
 
 namespace RestfulTVPApi.Clients
 {

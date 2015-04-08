@@ -7,7 +7,7 @@ using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
+using RestfulTVPApi.Notification;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -239,7 +239,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/notifications", "GET", Notes = "This method gets device notifications.")]
-    public class GetDeviceNotificationsRequest : PagingRequest, IReturn<List<Notification>>
+    public class GetDeviceNotificationsRequest : PagingRequest, IReturn<List<RestfulTVPApi.Objects.Responses.Notification>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -252,7 +252,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/notifications/tags", "GET", Notes = "This method returns the tags the user is currently subscribed to for followup notifications. Related to FollowUpByTag.")]
-    public class GetUserStatusSubscriptionsRequest : RequestBase, IReturn<List<Notification>>
+    public class GetUserStatusSubscriptionsRequest : RequestBase, IReturn<List<RestfulTVPApi.Objects.Responses.Notification>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }

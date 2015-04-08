@@ -1,4 +1,4 @@
-﻿using RestfulTVPApi.Clients.ClientsCache;
+﻿using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.ConditionalAccess;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.Objects.Responses.Enums;

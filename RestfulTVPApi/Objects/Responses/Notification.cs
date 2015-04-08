@@ -1,9 +1,8 @@
-﻿using System;
+﻿using RestfulTVPApi.Notification;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
 
 namespace RestfulTVPApi.Objects.Responses
 {
@@ -22,7 +21,7 @@ namespace RestfulTVPApi.Objects.Responses
         public string app_name { get; set; }
         public long DeviceID { get; set; }
         public string udid { get; set; }   //maps as "Recipient" at the MessageBox wcf service. 
-        public NotificationRequestAction[] actions { get; set; }
+        public List<NotificationRequestAction> actions { get; set; }
         public NotificationMessageViewStatus view_status { get; set; }
         public ExtraParameters tag_notification_params { get; set; }
         public long nGroupID { get; set; }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Objects.Responses;
-using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Clients.Utils;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -12,12 +12,12 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public List<GroupOperator> GetGroupOperators(GetGroupOperatorsRequest request)
         {
-            return ClientsManager.ApiService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetGroupOperators(request.scope);            
+            return ClientsManager.ApiClient().GetGroupOperators(request.scope);            
         }
 
         public List<GroupRule> GetGroupRules(GetGroupRulesRequest request)
         {
-            return ClientsManager.ApiService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetGroupRules();
+            return ClientsManager.ApiClient().GetGroupRules();
         }
     }
 }

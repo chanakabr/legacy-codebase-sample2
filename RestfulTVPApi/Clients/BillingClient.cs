@@ -1,4 +1,4 @@
-﻿using RestfulTVPApi.Clients.ClientsCache;
+﻿using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
 using ServiceStack.Logging;
 using System;

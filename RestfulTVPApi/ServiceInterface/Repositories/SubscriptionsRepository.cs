@@ -1,5 +1,5 @@
 ﻿using RestfulTVPApi.Clients;
-using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace RestfulTVPApi.ServiceInterface
             foreach (int subID in request.subscription_ids)
                 {
 
-                    var priceObj = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionData(subID.ToString(), false);
+                    var priceObj = ClientsManager.PricingClient().GetSubscriptionData(subID.ToString(), false);
 
                     res.Add(new SubscriptionPrice
                     {
@@ -50,7 +50,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             string res = string.Empty;
 
-            res = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionData(request.subscription_id.ToString(), false).product_code;
+            res = ClientsManager.PricingClient().GetSubscriptionData(request.subscription_id.ToString(), false).product_code;
             
             return res;
         }
@@ -59,7 +59,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Subscription> res = new List<Subscription>();
 
-            PricingClient client = ClientsManager.PricingService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform);
+            PricingClient client = ClientsManager.PricingClient();
 
                 foreach (int subID in request.subscription_ids)
                 {
@@ -71,7 +71,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(GetSubscriptionsPricesWithCouponRequest request)
         {
-            return ClientsManager.ConditionalAccessService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetSubscriptionsPricesWithCoupon(request.subscription_ids, request.site_guid, request.coupon_code, request.country_code, request.language_code, request.device_name);
+            return ClientsManager.ConditionalAccessClient().GetSubscriptionsPricesWithCoupon(request.subscription_ids, request.site_guid, request.coupon_code, request.country_code, request.language_code, request.device_name);
         }
     }
 }

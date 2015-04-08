@@ -10,7 +10,7 @@ using TVPPro.SiteManager.Objects;
 using System.Linq;
 using TVPApiModule.Extentions;
 using RestfulTVPApi.ServiceModel;
-using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
 
 
@@ -46,7 +46,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<EPGChannel> GetEPGChannels(GetEPGChannelsRequest request)
         {
-            return ClientsManager.ApiService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetEPGChannel(request.pic_size);            
+            return ClientsManager.ApiClient().GetEPGChannel(request.pic_size);            
         }
 
         public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request)
@@ -105,12 +105,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request)
         {
-            return ClientsManager.ApiService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetEPGProgramRules(request.media_id, request.program_id, request.site_guid, SiteHelper.GetClientIP(), request.InitObj.UDID);
+            return ClientsManager.ApiClient().GetEPGProgramRules(request.media_id, request.program_id, request.site_guid, SiteHelper.GetClientIP(), request.InitObj.UDID);
         }
 
         public string GetEPGLicensedLink(GetEPGLicensedLinkRequest request)
         {
-            return ClientsManager.ConditionalAccessService(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform).GetEPGLicensedLink(request.site_guid, request.media_file_id, request.epg_item_id, request.start_time, request.base_link, SiteHelper.GetClientIP(), request.refferer, request.country_code, request.language_code, request.device_name, request.format_type);
+            return ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(request.site_guid, request.media_file_id, request.epg_item_id, request.start_time, request.base_link, SiteHelper.GetClientIP(), request.refferer, request.country_code, request.language_code, request.device_name, request.format_type);
         }
 
         public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request)

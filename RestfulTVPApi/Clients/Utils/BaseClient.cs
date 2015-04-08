@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace RestfulTVPApi.Clients.ClientsCache
+namespace RestfulTVPApi.Clients.Utils
 {
     public class BaseClient
     {
@@ -19,38 +19,12 @@ namespace RestfulTVPApi.Clients.ClientsCache
         public object Module { get; set; }
         public string ServiceKey { get; set; }
 
-        public string WSUserName
-        {
-            get
-            {
-                string valueReturned = string.Empty;
-                if (System.Web.HttpContext.Current.Items.Contains("m_wsUserName"))
-                {
-                    valueReturned = System.Web.HttpContext.Current.Items["m_wsUserName"].ToString();
-                }
+        public string WSUserName { get; set; }
 
-                return valueReturned;
-            }
-        }
-
-        public string WSPassword
-        {
-            get
-            {
-                string valueReturned = string.Empty;
-                if (System.Web.HttpContext.Current.Items.Contains("m_wsPassword"))
-                {
-                    valueReturned = System.Web.HttpContext.Current.Items["m_wsPassword"].ToString();
-                }
-
-                return valueReturned;
-            }
-        }
-
-        public int GroupID { get; set; }
-        public RestfulTVPApi.Objects.Enums.PlatformType Platform { get; set; }
+        public string WSPassword { get; set; }
+        
         public int FailOverCounter { get; set; }
-        public RestfulTVPApi.Objects.Enums.Client ServiceType { get; set; }
+        public RestfulTVPApi.Objects.Enums.Client ClientType { get; set; }
 
         #endregion
 
@@ -80,7 +54,7 @@ namespace RestfulTVPApi.Clients.ClientsCache
                         BaseClient restartedService = null;
                         lock (this.lockObject)
                         {
-                            restartedService = ClientsManager.Instance.RestartService(this);
+                            restartedService = ClientsManager.Instance.RestartClient(this);
                         }
 
                         if (restartedService != null)
@@ -100,7 +74,7 @@ namespace RestfulTVPApi.Clients.ClientsCache
                         // Reset Service
                         lock (this.lockObject)
                         {
-                            ClientsManager.Instance.ResetService(this);
+                            ClientsManager.Instance.ResetClient(this);
                         }
                     }
                 }

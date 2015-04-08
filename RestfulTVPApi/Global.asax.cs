@@ -15,9 +15,9 @@ namespace RestfulTVPApi
         {
             TCMClient.Settings.Instance.Init();
 
-            string catalogTcmConfigurationKey = "WebServices.CatalogService";
-            Tvinci.Data.Loaders.CatalogRequestManager.EndPointAddress = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", catalogTcmConfigurationKey, "URL"));
-            Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", catalogTcmConfigurationKey, "SignatureKey"));
+            //string catalogTcmConfigurationKey = "WebServices.CatalogService";
+            //Tvinci.Data.Loaders.CatalogRequestManager.EndPointAddress = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", catalogTcmConfigurationKey, "URL"));
+            //Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", catalogTcmConfigurationKey, "SignatureKey"));
 
             AppHost.Start();
         }

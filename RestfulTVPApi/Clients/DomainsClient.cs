@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using RestfulTVPApi.Objects.Extentions;
-using RestfulTVPApi.Clients.ClientsCache;
+using RestfulTVPApi.Clients.Utils;
 
 namespace RestfulTVPApi.Clients
 {
@@ -15,29 +15,12 @@ namespace RestfulTVPApi.Clients
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(DomainsClient));
 
-        #region Old Code - Will be removed later
-        //private TVPPro.SiteManager.TvinciPlatform.Domains.module m_Module;
-
-        //private string m_wsUserName = string.Empty;
-        //private string m_wsPassword = string.Empty;
-
-        //private int m_groupID;
-        //private PlatformType m_platform;
-        #endregion
-
         #endregion
 
         #region Ctor
 
         public DomainsClient(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)
         {
-            //m_Module = new TVPPro.SiteManager.TvinciPlatform.Domains.module();
-            //m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.URL;
-            //m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultUser;
-            //m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultPassword;
-
-            //m_groupID = groupID;
-            //m_platform = platform;
         }
 
         public DomainsClient()
@@ -56,15 +39,6 @@ namespace RestfulTVPApi.Clients
         }
 
         #endregion
-
-        //#region Public Static Functions
-
-        //public static ApiDomainsService Instance(int groupId, PlatformType platform)
-        //{
-        //    return BaseService.Instance(groupId, platform, eService.DomainsService) as ApiDomainsService;
-        //}
-
-        //#endregion
 
         public DomainResponseObject AddUserToDomain(int domainID, string masterSiteGuid, int AddedUserGuid)
         {

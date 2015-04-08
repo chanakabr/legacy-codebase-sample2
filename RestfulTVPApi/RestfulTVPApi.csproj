@@ -111,10 +111,29 @@
     <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramResponse.datasource" />
     <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaResponse.datasource" />
     <Content Include="Properties\DataSources\Tvinci.Data.Loaders.TvinciPlatform.Catalog.Response.datasource" />
+    <Content Include="Service References\Catalog\RestfulTVPApi.Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\RestfulTVPApi.Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\RestfulTVPApi.Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\RestfulTVPApi.Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <Content Include="Service References\Catalog\Service.disco" />
     <Content Include="Service References\Catalog\configuration91.svcinfo" />
     <Content Include="Service References\Catalog\configuration.svcinfo" />
     <Content Include="Service References\Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Service References\Notification\NotificationService.disco" />
+    <Content Include="Service References\Notification\configuration91.svcinfo" />
+    <Content Include="Service References\Notification\configuration.svcinfo" />
+    <Content Include="Service References\Notification\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </Content>
@@ -278,20 +297,24 @@
     <Compile Include="App_Start\AppHost.cs" />
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
-    <Compile Include="Clients\ClientsCache\BaseClient.cs" />
-    <Compile Include="Clients\ClientsCache\ClientFactory.cs" />
-    <Compile Include="Clients\ClientsCache\ClientsManager.cs" />
+    <Compile Include="Clients\Utils\BaseClient.cs" />
+    <Compile Include="Clients\CatalogClient.cs" />
+    <Compile Include="Clients\Utils\CatalogCacheManager.cs" />
+    <Compile Include="Clients\Utils\ClientFactory.cs" />
+    <Compile Include="Clients\Utils\ClientsManager.cs" />
     <Compile Include="Clients\NotificationsClient.cs" />
     <Compile Include="Clients\PricingClient.cs" />
     <Compile Include="Clients\SocialClient.cs" />
     <Compile Include="Clients\ConditionalAccessClient.cs" />
     <Compile Include="Clients\DomainsClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
+    <Compile Include="Clients\Utils\Utils.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
     <Compile Include="Objects\Responses\ActionProperties.cs" />
     <Compile Include="Objects\Responses\AdvertisingProvider.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
+    <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\AssetStatsResult.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
     <Compile Include="Objects\Responses\BillingResponse.cs" />
@@ -360,6 +383,7 @@
     <Compile Include="Objects\Responses\EPGChannelProgrammeObject.cs" />
     <Compile Include="Objects\Responses\EPGDictionary.cs" />
     <Compile Include="Objects\Responses\EPGMultiChannelProgramme.cs" />
+    <Compile Include="Objects\Responses\ExtraParameters.cs" />
     <Compile Include="Objects\Responses\FacebookConfig.cs" />
     <Compile Include="Objects\Responses\FacebookResponseObject.cs" />
     <Compile Include="Objects\Responses\FavoriteObject.cs" />
@@ -369,10 +393,12 @@
     <Compile Include="Objects\Responses\FBLoaction.cs" />
     <Compile Include="Objects\Responses\FBSignIn.cs" />
     <Compile Include="Objects\Responses\FBUser.cs" />
+    <Compile Include="Objects\Responses\File.cs" />
     <Compile Include="Objects\Responses\FriendWatchedObject.cs" />
     <Compile Include="Objects\Responses\GroupOperator.cs" />
     <Compile Include="Objects\Responses\GroupRule.cs" />
     <Compile Include="Objects\Responses\HomeNetwork.cs" />
+    <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\ItemObj.cs" />
     <Compile Include="Objects\Responses\ItemPriceContainer.cs" />
     <Compile Include="Objects\Responses\KeyValuePair.cs" />
@@ -402,11 +428,13 @@
     <Compile Include="Objects\Responses\SocialActivityVerb.cs" />
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
     <Compile Include="Objects\Responses\State.cs" />
+    <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\Subscription.cs" />
     <Compile Include="Objects\Responses\SubscriptionCodeContainer.cs" />
     <Compile Include="Objects\Responses\SubscriptionPrice.cs" />
     <Compile Include="Objects\Responses\SubscriptionsPricesContainer.cs" />
+    <Compile Include="Objects\Responses\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\Responses\TagMetaPairArray.cs" />
     <Compile Include="Objects\Responses\UIData.cs" />
     <Compile Include="Objects\Responses\UsageModule.cs" />
@@ -429,6 +457,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Service References\Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\Notification\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -916,47 +949,6 @@
     <Content Include="Configuration\Vodafone\staging\Web\TechnicalConfiguration.config" />
     <Content Include="Configuration\Vodafone\staging\MediaConfiguration.config" />
     <None Include="Properties\PublishProfiles\TvpApiRest.pubxml" />
-    <Content Include="Service References\Catalog\Service.wsdl" />
-    <None Include="Service References\Catalog\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="Service References\Catalog\Service1.wsdl" />
-    <None Include="Service References\Catalog\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service10.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service11.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service12.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service8.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service9.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Web References\Domains\module.wsdl" />
     <Content Include="Web References\Domains\NetworkResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -1154,6 +1146,66 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </Content>
+    <Content Include="Service References\Notification\NotificationService.wsdl" />
+    <Content Include="Service References\Catalog\Service.wsdl" />
+    <None Include="Service References\Catalog\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Catalog\Service1.wsdl" />
+    <None Include="Service References\Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification\NotificationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification\NotificationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification\NotificationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification\NotificationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Notification\RestfulTVPApi.Notification.NotificationMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1163,6 +1215,7 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
+    <WCFMetadataStorage Include="Service References\Notification\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">

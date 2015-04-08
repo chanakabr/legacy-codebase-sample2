@@ -17,6 +17,7 @@ using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
+using RestfulTVPApi.Clients.Utils;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -51,7 +52,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         public string MediaMark(RestfulTVPApi.ServiceModel.MediaMarkRequest request)
         {
-            return ActionHelper.MediaMark(request.InitObj, request.GroupID, request.InitObj.Platform, request.action, request.media_type, request.media_id, request.media_file_id, request.location);            
+            //return ActionHelper.MediaMark(request.InitObj, request.GroupID, request.InitObj.Platform, request.action, request.media_type, request.media_id, request.media_file_id, request.location);            
+            return ClientsManager.CatalogClient().MediaMark(request.GroupID, (RestfulTVPApi.Objects.Enums.PlatformType)request.InitObj.Platform, request.InitObj.SiteGuid, request.InitObj.UDID, 0, request.media_id, 0, request.location, string.Empty,
+                string.Empty, string.Empty, string.Empty, request.action.ToString(), 0, 0, 0);
         }
 
         public string MediaHit(RestfulTVPApi.ServiceModel.MediaHitRequest request)
