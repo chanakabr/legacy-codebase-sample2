@@ -5,9 +5,7 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.Common.Web;
 using ServiceStack.PartialResponse.ServiceModel;
 using RestfulTVPApi.ServiceModel;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Configuration;
-using TVPPro.SiteManager.Helper;
 using System;
 using TVPApiModule.Objects.Responses;
 
@@ -40,7 +38,7 @@ namespace RestfulTVPApi.ServiceInterface
             string privateKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidKey"));
             string IV = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidIV"));            
 
-            return SecurityHelper.EncryptSiteGuid(privateKey, IV, request.site_guid);
+            return Utils.EncryptSiteGuid(privateKey, IV, request.site_guid);
         }
 
         public object Get(GetSiteGuidFromSecuredRequest request)

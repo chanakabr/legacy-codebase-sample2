@@ -5,7 +5,6 @@ using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using System.Configuration;
 using TVPApiModule.Helper;
-using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -38,7 +37,7 @@ namespace RestfulTVPApi.ServiceInterface
             string privateKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidKey"));
             string IV = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidIV"));
 
-            return SecurityHelper.DecryptSiteGuid(privateKey, IV, request.encrypted_site_guid);
+            return Utils.DecryptSiteGuid(privateKey, IV, request.encrypted_site_guid);
         }
 
         public UserResponseObject GetUserDataByCoGuid(GetUserDataByCoGuidRequest request)
@@ -86,7 +85,7 @@ namespace RestfulTVPApi.ServiceInterface
             var oExtra = new List<RestfulTVPApi.Social.KeyValuePair>() { new RestfulTVPApi.Social.KeyValuePair() { key = "news", value = request.get_newsletter ? "1" : "0" }, new RestfulTVPApi.Social.KeyValuePair() { key = "domain", value = request.create_new_domain ? "1" : "0" } };
 
             //Ofir - why its was UserHostAddress in ip param?
-            return ClientsManager.SocialClient().FBUserRegister(request.token, "0", oExtra, SiteHelper.GetClientIP());
+            return ClientsManager.SocialClient().FBUserRegister(request.token, "0", oExtra, Utils.GetClientIP());
         }
 
         public FacebookResponseObject GetFBUserData(GetFBUserDataRequest request)

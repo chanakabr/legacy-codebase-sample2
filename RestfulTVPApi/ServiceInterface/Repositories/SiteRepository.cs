@@ -8,7 +8,6 @@ using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -48,7 +47,7 @@ namespace RestfulTVPApi.ServiceInterface
                 if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && request.GroupID == 109 && request.InitObj.Platform == PlatformType.iPad)
                     request.page_number = request.page_number / request.page_size;
 
-                lstMedia = PageGalleryHelper.GetGalleryItemContent(request.InitObj.Platform, request.InitObj.UDID, request.InitObj.Locale, request.page_id, request.gallery_id, request.item_id, request.pic_size, request.GroupID, request.page_size, request.page_number, null);//request.orderBy);
+                //lstMedia = PageGalleryHelper.GetGalleryItemContent(request.InitObj.Platform, request.InitObj.UDID, request.InitObj.Locale, request.page_id, request.gallery_id, request.item_id, request.pic_size, request.GroupID, request.page_size, request.page_number, null);//request.orderBy);
             
             return lstMedia;
         }

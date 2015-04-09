@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;

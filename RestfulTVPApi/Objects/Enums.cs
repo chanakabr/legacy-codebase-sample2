@@ -30,6 +30,11 @@ namespace RestfulTVPApi.Objects
             Catalog
         }
 
-
+        public enum EPGUnit
+        {
+            Days,
+            Hours,
+            Current
+        }
     }
 }

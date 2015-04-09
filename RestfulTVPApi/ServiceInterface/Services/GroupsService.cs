@@ -9,7 +9,6 @@ using RestfulTVPApi.ServiceModel;
 using System.Linq;
 using TVPApi;
 using ServiceStack;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using System;
 
 namespace RestfulTVPApi.ServiceInterface

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
-using TVPPro.SiteManager.CatalogLoaders;
-using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.Objects;
 using System.Linq;
 using TVPApiModule.Extentions;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Catalog;
 
 
 namespace RestfulTVPApi.ServiceInterface
@@ -36,10 +33,10 @@ namespace RestfulTVPApi.ServiceInterface
             startTime = DateTime.UtcNow.AddDays(-nEPGSearchOffsetDays);
             endTime = DateTime.UtcNow.AddDays(nEPGSearchOffsetDays);
 
-            retVal = new APIEPGAutoCompleteLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.search_text, startTime, endTime)
-            {
-                Culture = request.InitObj.Locale.LocaleLanguage
-            }.Execute() as List<string>;
+            //retVal = new APIEPGAutoCompleteLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.search_text, startTime, endTime)
+            //{
+            //    Culture = request.InitObj.Locale.LocaleLanguage
+            //}.Execute() as List<string>;
 
             return retVal;
         }
@@ -49,36 +46,37 @@ namespace RestfulTVPApi.ServiceInterface
             return ClientsManager.ApiClient().GetEPGChannel(request.pic_size);            
         }
 
-        public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request)
+        public List<EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request)
         {
-            return CommentHelper.GetEPGCommentsList(request.GroupID, request.InitObj.Platform, request.InitObj.Locale.LocaleLanguage, request.program_id, request.page_size, request.page_number);            
+            //return CommentHelper.GetEPGCommentsList(request.GroupID, request.InitObj.Platform, request.InitObj.Locale.LocaleLanguage, request.program_id, request.page_size, request.page_number);            
+            return null;
         }
 
         public List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request)
         {
             List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> sRet = null;
 
-            EPGLoader loader;
-                List<int> channelIDs = request.channel_ids.Select(c => int.Parse(c)).ToList();
-                switch (request.unit)
-                {
-                    case EPGUnit.Days:
-                        loader = new EPGLoader(request.GroupID, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddDays(request.from_offset).DateTime, DateTimeOffset.UtcNow.AddDays(request.to_offset).DateTime, 0, 0);
-                        break;
-                    case EPGUnit.Hours:
-                        loader = new EPGLoader(request.GroupID, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddHours(request.from_offset).DateTime, DateTimeOffset.UtcNow.AddHours(request.to_offset).DateTime, 0, 0);
-                        break;
-                    case EPGUnit.Current:
-                        loader = new EPGLoader(request.GroupID, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, request.from_offset, request.to_offset);
-                        break;
-                    default:
-                        loader = new EPGLoader(request.GroupID, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, request.from_offset, request.to_offset);
-                        break;
-                }
+            //EPGLoader loader;
+            //    List<int> channelIDs = request.channel_ids.Select(c => int.Parse(c)).ToList();
+            //    switch (request.unit)
+            //    {
+            //        case EPGUnit.Days:
+            //            loader = new EPGLoader(request.GroupID, Utils.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddDays(request.from_offset).DateTime, DateTimeOffset.UtcNow.AddDays(request.to_offset).DateTime, 0, 0);
+            //            break;
+            //        case EPGUnit.Hours:
+            //            loader = new EPGLoader(request.GroupID, Utils.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddHours(request.from_offset).DateTime, DateTimeOffset.UtcNow.AddHours(request.to_offset).DateTime, 0, 0);
+            //            break;
+            //        case EPGUnit.Current:
+            //            loader = new EPGLoader(request.GroupID, Utils.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, request.from_offset, request.to_offset);
+            //            break;
+            //        default:
+            //            loader = new EPGLoader(request.GroupID, Utils.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, request.from_offset, request.to_offset);
+            //            break;
+            //    }
 
-                loader.DeviceId = request.InitObj.UDID;
-                loader.SiteGuid = request.InitObj.SiteGuid;
-                sRet = (loader.Execute() as List<TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject>).Select(p => p.ToApiObject()).ToList();
+            //    loader.DeviceId = request.InitObj.UDID;
+            //    loader.SiteGuid = request.InitObj.SiteGuid;
+            //    sRet = (loader.Execute() as List<TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject>).Select(p => p.ToApiObject()).ToList();
             
             return sRet;
         }
@@ -95,22 +93,22 @@ namespace RestfulTVPApi.ServiceInterface
             startTime = DateTime.UtcNow.AddDays(-nEPGSearchOffsetDays);
             endTime = DateTime.UtcNow.AddDays(nEPGSearchOffsetDays);
 
-            retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.search_text, startTime, endTime)
-            {
-                Culture = request.InitObj.Locale.LocaleLanguage
-            }.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            //retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.search_text, startTime, endTime)
+            //{
+            //    Culture = request.InitObj.Locale.LocaleLanguage
+            //}.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
 
             return retVal;
         }
 
         public List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request)
         {
-            return ClientsManager.ApiClient().GetEPGProgramRules(request.media_id, request.program_id, request.site_guid, SiteHelper.GetClientIP(), request.InitObj.UDID);
+            return ClientsManager.ApiClient().GetEPGProgramRules(request.media_id, request.program_id, request.site_guid, Utils.GetClientIP(), request.InitObj.UDID);
         }
 
         public string GetEPGLicensedLink(GetEPGLicensedLinkRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(request.site_guid, request.media_file_id, request.epg_item_id, request.start_time, request.base_link, SiteHelper.GetClientIP(), request.refferer, request.country_code, request.language_code, request.device_name, request.format_type);
+            return ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(request.site_guid, request.media_file_id, request.epg_item_id, request.start_time, request.base_link, Utils.GetClientIP(), request.refferer, request.country_code, request.language_code, request.device_name, request.format_type);
         }
 
         public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request)
@@ -125,10 +123,10 @@ namespace RestfulTVPApi.ServiceInterface
             startTime = DateTime.UtcNow.AddDays(-nEPGSearchOffsetDays);
             endTime = DateTime.UtcNow.AddDays(nEPGSearchOffsetDays);
 
-            retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform.ToString(), SiteHelper.GetClientIP(), request.page_size, request.page_number, request.and_list, request.or_list, true, startTime, endTime)
-            {
-                Culture = request.InitObj.Locale.LocaleLanguage
-            }.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            //retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform.ToString(), Utils.GetClientIP(), request.page_size, request.page_number, request.and_list, request.or_list, true, startTime, endTime)
+            //{
+            //    Culture = request.InitObj.Locale.LocaleLanguage
+            //}.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
 
             return retVal;
         }
@@ -137,33 +135,33 @@ namespace RestfulTVPApi.ServiceInterface
         public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request)
         {
             List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> channelPrograms = new List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>();
-            APIEPGLoader loader;
+            //APIEPGLoader loader;
             List<int> channelIDs = new List<int>() { request.epg_channel_id };
             DateTime _offsetNow = DateTime.UtcNow.AddHours(request.utc_offset);
-            string ip = SiteHelper.GetClientIP();
-            switch (request.unit)
-            {
-                case EPGUnit.Days:
-                    DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
-                    loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(request.from_offset), to.AddDays(request.to_offset), 0, 0, request.InitObj.Locale.LocaleLanguage);
-                    break;
-                case EPGUnit.Hours:
-                    loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(request.from_offset), _offsetNow.AddHours(request.to_offset), 0, 0, request.InitObj.Locale.LocaleLanguage);
-                    break;
-                case EPGUnit.Current:
-                    loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, request.from_offset, request.to_offset, request.InitObj.Locale.LocaleLanguage);
-                    break;
-                default:
-                    loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, request.from_offset, request.to_offset, request.InitObj.Locale.LocaleLanguage);
-                    break;
-            }
+            string ip = Utils.GetClientIP();
+            //switch (request.unit)
+            //{
+            //    case EPGUnit.Days:
+            //        DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
+            //        loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(request.from_offset), to.AddDays(request.to_offset), 0, 0, request.InitObj.Locale.LocaleLanguage);
+            //        break;
+            //    case EPGUnit.Hours:
+            //        loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(request.from_offset), _offsetNow.AddHours(request.to_offset), 0, 0, request.InitObj.Locale.LocaleLanguage);
+            //        break;
+            //    case EPGUnit.Current:
+            //        loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, request.from_offset, request.to_offset, request.InitObj.Locale.LocaleLanguage);
+            //        break;
+            //    default:
+            //        loader = new APIEPGLoader(request.GroupID, request.InitObj.Platform, ip, 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, request.from_offset, request.to_offset, request.InitObj.Locale.LocaleLanguage);
+            //        break;
+            //}
 
-            loader.DeviceId = request.InitObj.UDID;
-            loader.SiteGuid = request.InitObj.SiteGuid;
+            //loader.DeviceId = request.InitObj.UDID;
+            //loader.SiteGuid = request.InitObj.SiteGuid;
 
-            channelPrograms = loader.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
-            //if (loaderRes != null && loaderRes.Count() > 0)
-            //    sRet = (loaderRes[0] as EPGMultiChannelProgrammeObject).EPGChannelProgrammeObject.ToArray();
+            //channelPrograms = loader.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            ////if (loaderRes != null && loaderRes.Count() > 0)
+            ////    sRet = (loaderRes[0] as EPGMultiChannelProgrammeObject).EPGChannelProgrammeObject.ToArray();
 
             return channelPrograms;
         }

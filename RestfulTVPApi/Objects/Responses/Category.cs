@@ -1,8 +1,8 @@
-﻿using System;
+﻿using RestfulTVPApi.Catalog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
 /// Summary description for Category
@@ -15,30 +15,34 @@ namespace RestfulTVPApi.Objects.Responses
     {
         private List<Category> m_innerCategories;
         private List<Channel> m_channels;
-        public string title { get; set; }
-        public string id { get; set; }
-        public string pic_url { get; set; }
+        public string Title { get; set; }
+        public string ID { get; set; }
+        public string PicURL { get; set; }
+        public string CoGuid { get; set; }
 
-        public Category(dsCategory.CategoriesRow catRow)
+        public Category(CategoryResponse categoryResponse, string picSize)
         {
-            title = catRow.Title;
-            id = catRow.ID;
-            if (!catRow.IsPicURLNull())
+            Title = categoryResponse.m_sTitle;
+            ID = categoryResponse.ID.ToString();
+            CoGuid = categoryResponse.m_sCoGuid;
+            if (!string.IsNullOrEmpty(picSize) && categoryResponse.m_lPics != null)
             {
-                pic_url = catRow.PicURL;
+                var pic = categoryResponse.m_lPics.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
+                PicURL = pic == null ? string.Empty : pic.m_sURL;
             }
         }
 
         public Category()
         {
-            title = string.Empty;
-            id = string.Empty;
-            pic_url = string.Empty;
+            Title = string.Empty;
+            ID = string.Empty;
+            PicURL = string.Empty;
+            CoGuid = string.Empty;
         }
 
 
 
-        public List<Channel> channels
+        public List<Channel> Channels
         {
             get
             {
@@ -50,7 +54,7 @@ namespace RestfulTVPApi.Objects.Responses
             }
         }
 
-        public List<Category> inner_categories
+        public List<Category> InnerCategories
         {
             get
             {
@@ -61,6 +65,5 @@ namespace RestfulTVPApi.Objects.Responses
                 m_innerCategories = value;
             }
         }
-
     }
 }

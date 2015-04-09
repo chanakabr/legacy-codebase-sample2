@@ -1,6 +1,5 @@
 ﻿using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Context;
@@ -8,7 +7,6 @@ using TVPApiModule.Helper;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -16,10 +14,11 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request)
         {
-            return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage,null, request.tags_metas, request.cut_with)
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+            //return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage,null, request.tags_metas, request.cut_with)
+            //    {
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;
+            return null;
         }
 
         public List<TVPApiModule.Objects.Responses.Channel> GetChannelsList(GetChannelsListRequest request)

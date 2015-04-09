@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPPro.SiteManager.DataLoaders;
-using TVPPro.SiteManager.DataEntities;
-using TVPPro.SiteManager.Helper;
 using System.Configuration;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Manager;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
+using RestfulTVPApi.Catalog;
 
 /// <summary>
 /// Summary description for Media
@@ -332,12 +327,12 @@ namespace RestfulTVPApi.Objects.Responses
             }
         }        
 
-        private void buildPictures(List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture> mediaPictures)
+        private void buildPictures(List<RestfulTVPApi.Catalog.Picture> mediaPictures)
         {
             if (mediaPictures != null)
             {
                 Picture picture;
-                foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in mediaPictures)
+                foreach (RestfulTVPApi.Catalog.Picture pic in mediaPictures)
                 {
                     picture = new Picture();
                     picture.pic_size = pic.m_sSize;

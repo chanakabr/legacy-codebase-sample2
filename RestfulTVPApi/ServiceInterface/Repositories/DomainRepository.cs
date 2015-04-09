@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.Helper;
 using TVPApiModule.Helper;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Clients;

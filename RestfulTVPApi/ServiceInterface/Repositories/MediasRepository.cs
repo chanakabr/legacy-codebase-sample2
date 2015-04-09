@@ -3,21 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
-using TVPPro.SiteManager.Helper;
 using TVPApiModule.Services;
 using TVPApiModule.Interfaces;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
-using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;
-using TVPPro.SiteManager.CatalogLoaders;
-using TVPPro.SiteManager.DataEntities;
 using RestfulTVPApi.Clients.Utils;
+using RestfulTVPApi.Catalog;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -27,10 +23,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> retMedia = null;
 
-            retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(request.media_ids, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.pic_size, request.InitObj.Locale.LocaleLanguage)
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+            //retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(request.media_ids, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.pic_size, request.InitObj.Locale.LocaleLanguage)
+            //    {
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;
             
             return retMedia;
         }
@@ -66,10 +62,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(request.media_id, request.media_types, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;            
+            //lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(request.media_id, request.media_types, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
+            //    {
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;            
 
             return lstMedia;
         }
@@ -78,10 +74,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(request.media_id, 0, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+            //lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(request.media_id, 0, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
+            //    {
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;
             
             return lstMedia;
         }
@@ -90,13 +86,13 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new APISearchMediaLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size, request.exact, request.or_list, request.and_list, new List<int>() { request.media_type })
-                {
-                    OrderBy = request.order_by,
-                    OrderDir = request.order_dir,
-                    OrderMetaMame = request.order_meta_name,
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;            
+            //lstMedia = new APISearchMediaLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size, request.exact, request.or_list, request.and_list, new List<int>() { request.media_type })
+            //    {
+            //        OrderBy = request.order_by,
+            //        OrderDir = request.order_dir,
+            //        OrderMetaMame = request.order_meta_name,
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;            
 
             return lstMedia;
         }
@@ -155,15 +151,15 @@ namespace RestfulTVPApi.ServiceInterface
         {
             bool bRet = false;
 
-            List<Media> lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 20, 0, "full")
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+            //List<Media> lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 20, 0, "full")
+            //    {
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;
 
 
-                string sMediaID = request.media_id.ToString();
+            //string sMediaID = request.media_id.ToString();
 
-                bRet = (from r in lstMedia where r.media_id.Equals(sMediaID) select true).FirstOrDefault();
+            //bRet = (from r in lstMedia where r.media_id.Equals(sMediaID) select true).FirstOrDefault();
             
             return bRet;
         }
@@ -186,23 +182,25 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<string> GetUsersLikedMedia(GetUsersLikedMediaRequest request)
         {
-            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUsersLikedMedia(request.site_guid, request.media_id, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, request.only_friends, request.page_number, request.page_size);                            
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUsersLikedMedia(request.site_guid, request.media_id, (int)SocialPlatform.FACEBOOK, request.only_friends, request.page_number, request.page_size);                            
         }
 
 
         public TVPApiModule.Objects.Responses.BuzzWeightedAverScore GetBuzzMeterData(GetBuzzMeterDataRequest request)
         {
-            return new BuzzMeterLoader(request.GroupID, request.media_id).Execute() as TVPApiModule.Objects.Responses.BuzzWeightedAverScore;
+            //return new BuzzMeterLoader(request.GroupID, request.media_id).Execute() as TVPApiModule.Objects.Responses.BuzzWeightedAverScore;
+            return null;
         }
 
         public List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request)
         {
             try
             {
-                return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage, null, request.tags_metas, request.cut_with)
-                {
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+                //return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage, null, request.tags_metas, request.cut_with)
+                //{
+                //    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+                //}.Execute() as List<Media>;
+                return null;
             }
             catch (Exception ex)
             {
@@ -217,12 +215,12 @@ namespace RestfulTVPApi.ServiceInterface
 
             try
             {
-                retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, DateTime.MinValue, DateTime.MaxValue)
-                {
-                    Platform = request.InitObj.Platform.ToString(),
-                    DeviceId = request.InitObj.UDID,
-                    SiteGuid = request.InitObj.SiteGuid
-                }.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
+                //retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, DateTime.MinValue, DateTime.MaxValue)
+                //{
+                //    Platform = request.InitObj.Platform.ToString(),
+                //    DeviceId = request.InitObj.UDID,
+                //    SiteGuid = request.InitObj.SiteGuid
+                //}.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
             }
             catch (Exception ex)
             {
@@ -239,11 +237,11 @@ namespace RestfulTVPApi.ServiceInterface
 
             try
             {
-                retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, request.start_time, request.end_time)
-                {
-                    Platform = request.InitObj.Platform.ToString(),
-                    DeviceId = request.InitObj.UDID
-                }.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
+                //retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, request.start_time, request.end_time)
+                //{
+                //    Platform = request.InitObj.Platform.ToString(),
+                //    DeviceId = request.InitObj.UDID
+                //}.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
             }
             catch (Exception ex)
             {
@@ -259,17 +257,17 @@ namespace RestfulTVPApi.ServiceInterface
 
             try
             {
-                //Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
-                BundleContainingMediaLoader loader = new BundleContainingMediaLoader()
-                {
-                    BundleID = request.bundle_id,
-                    BundleType = request.bundle_type,
-                    MediaID = request.media_id,
-                    GroupID = request.GroupID,
-                    MediaType = request.media_type,
-                };
+                ////Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
+                //BundleContainingMediaLoader loader = new BundleContainingMediaLoader()
+                //{
+                //    BundleID = request.bundle_id,
+                //    BundleType = request.bundle_type,
+                //    MediaID = request.media_id,
+                //    GroupID = request.GroupID,
+                //    MediaType = request.media_type,
+                //};
 
-                isMediaInBundle = (bool)loader.Execute();
+                //isMediaInBundle = (bool)loader.Execute();
             }
             catch (Exception ex)
             {
@@ -285,10 +283,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             try
             {
-                Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = request.order_dir, m_eOrderBy = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy)request.order_by };
-                APIBundleMediaLoader loader = new APIBundleMediaLoader(request.bundle_id, request.media_type, orderObj, request.GroupID, request.GroupID, request.InitObj.Platform, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, string.Empty, request.page_number, request.page_size, request.bundle_type);
+                OrderObj orderObj = new OrderObj() { m_eOrderDir = request.order_dir, m_eOrderBy = (RestfulTVPApi.Catalog.OrderBy)request.order_by };
+                //APIBundleMediaLoader loader = new APIBundleMediaLoader(request.bundle_id, request.media_type, orderObj, request.GroupID, request.GroupID, request.InitObj.Platform, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, string.Empty, request.page_number, request.page_size, request.bundle_type);
                 
-                lstMedia = loader.Execute() as List<Media>;                
+                //lstMedia = loader.Execute() as List<Media>;                
             }
             catch (Exception ex)
             {

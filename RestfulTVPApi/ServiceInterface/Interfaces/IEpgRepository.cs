@@ -13,7 +13,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<EPGChannel> GetEPGChannels(GetEPGChannelsRequest request);
 
-        List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request);
+        List<EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request);
 
         List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request);
 

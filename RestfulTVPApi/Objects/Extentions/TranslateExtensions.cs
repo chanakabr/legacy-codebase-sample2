@@ -527,17 +527,17 @@ namespace RestfulTVPApi.Objects.Extentions
         //    return response;
         //}
 
-        public static RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject response)
-        {
-            RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject retVal = new RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject();
+        //public static RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject response)
+        //{
+        //    RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject retVal = new RestfulTVPApi.Objects.Responses.EPGMultiChannelProgrammeObject();
 
-            retVal.epg_channel_id = response.EPG_CHANNEL_ID;
+        //    retVal.epg_channel_id = response.EPG_CHANNEL_ID;
 
-            if (response.EPGChannelProgrammeObject != null)
-                retVal.epg_channel_program_object = response.EPGChannelProgrammeObject.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
+        //    if (response.EPGChannelProgrammeObject != null)
+        //        retVal.epg_channel_program_object = response.EPGChannelProgrammeObject.Where(x => x != null).Select(x => x.ToApiObject()).ToArray();
 
-            return retVal;
-        }
+        //    return retVal;
+        //}
 
         public static RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject ToApiObject(this RestfulTVPApi.Api.EPGChannelProgrammeObject response)
         {
@@ -571,7 +571,7 @@ namespace RestfulTVPApi.Objects.Extentions
             return retVal;
         }
 
-        public static RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject ToApiObject(this Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject response)
+        public static RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject ToApiObject(this RestfulTVPApi.Catalog.EPGChannelProgrammeObject response)
         {
             RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject retVal = new RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject();
 
@@ -613,7 +613,7 @@ namespace RestfulTVPApi.Objects.Extentions
             return retVal;
         }
 
-        public static RestfulTVPApi.Objects.Responses.EPGDictionary ToApiObject(this Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGDictionary response)
+        public static RestfulTVPApi.Objects.Responses.EPGDictionary ToApiObject(this RestfulTVPApi.Catalog.EPGDictionary response)
         {
             RestfulTVPApi.Objects.Responses.EPGDictionary retVal = new RestfulTVPApi.Objects.Responses.EPGDictionary();
 
@@ -1495,7 +1495,7 @@ namespace RestfulTVPApi.Objects.Extentions
             RestfulTVPApi.Objects.Responses.Subscription retVal = new RestfulTVPApi.Objects.Responses.Subscription();
 
             if (response.m_sCodes != null)
-                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType.SUBSCRIPTION) as RestfulTVPApi.Objects.Responses.SubscriptionCodeContainer).ToArray();
+                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(RestfulTVPApi.Catalog.eBundleType.SUBSCRIPTION) as RestfulTVPApi.Objects.Responses.SubscriptionCodeContainer).ToArray();
 
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;
@@ -1559,16 +1559,16 @@ namespace RestfulTVPApi.Objects.Extentions
         //    return retVal;
         //}
 
-        public static object ToApiObject(this RestfulTVPApi.Pricing.BundleCodeContainer response, Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType type)
+        public static object ToApiObject(this RestfulTVPApi.Pricing.BundleCodeContainer response, RestfulTVPApi.Catalog.eBundleType type)
         {
             object container = null;
 
             switch (type)
             {
-                case Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType.SUBSCRIPTION:
+                case RestfulTVPApi.Catalog.eBundleType.SUBSCRIPTION:
                     container = new RestfulTVPApi.Objects.Responses.SubscriptionCodeContainer() { code = response.m_sCode, name = response.m_sName };
                     break;
-                case Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType.COLLECTION:
+                case RestfulTVPApi.Catalog.eBundleType.COLLECTION:
                     container = new RestfulTVPApi.Objects.Responses.BundleCodeContainer() { code = response.m_sCode, name = response.m_sName };
                     break;
                 default:
@@ -1967,7 +1967,7 @@ namespace RestfulTVPApi.Objects.Extentions
             RestfulTVPApi.Objects.Responses.Collection retVal = new RestfulTVPApi.Objects.Responses.Collection();
 
             if (response.m_sCodes != null)
-                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(Tvinci.Data.Loaders.TvinciPlatform.Catalog.eBundleType.COLLECTION) as RestfulTVPApi.Objects.Responses.BundleCodeContainer).ToArray();
+                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(RestfulTVPApi.Catalog.eBundleType.COLLECTION) as RestfulTVPApi.Objects.Responses.BundleCodeContainer).ToArray();
 
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;

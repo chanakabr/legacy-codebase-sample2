@@ -7,7 +7,6 @@ using System.Web;
 using RestfulTVPApi.Objects.Extentions;
 using RestfulTVPApi.Api;
 using RestfulTVPApi.Objects.Responses;
-using TVPPro.SiteManager.Helper;
 
 
 namespace RestfulTVPApi.Clients
@@ -207,7 +206,7 @@ namespace RestfulTVPApi.Clients
             res = Execute(() =>
                 {
 
-                    var response = Api.GetGroupMediaRules(WSUserName, WSPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                    var response = Api.GetGroupMediaRules(WSUserName, WSPassword, MediaId, siteGuid, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), udid);
                     if (response != null)
                         res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
 
@@ -459,7 +458,7 @@ namespace RestfulTVPApi.Clients
         //    }
         //    catch (Exception ex)
         //    {
-        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {1}, clientIP: {2}, language: {3}, duration: {4}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {1}, clientIP: {2}, language: {3}, duration: {4}", ex.Message, siteGuid, Utils.GetClientIP(), language, duration);
         //    }
         //    return res;
         //}

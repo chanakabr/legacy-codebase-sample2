@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPPro.SiteManager.Helper;
 using RestfulTVPApi.Objects.Extentions;
 
 namespace RestfulTVPApi.Clients
@@ -160,7 +159,7 @@ namespace RestfulTVPApi.Clients
 
             retVal = Execute(() =>
             {
-                var response = ConditionalAccess.GetItemsPrices(WSUserName, WSPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                var response = ConditionalAccess.GetItemsPrices(WSUserName, WSPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, RestfulTVPApi.ServiceInterface.Utils.GetClientIP());
 
                 if (response != null)
                     retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
@@ -261,7 +260,7 @@ namespace RestfulTVPApi.Clients
 
             returnObject = Execute(() =>
                 {
-                    var response = ConditionalAccess.GetSubscriptionsPrices(WSUserName, WSPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                    var response = ConditionalAccess.GetSubscriptionsPrices(WSUserName, WSPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, RestfulTVPApi.ServiceInterface.Utils.GetClientIP());
 
                     if (response != null)
                         returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
@@ -278,7 +277,7 @@ namespace RestfulTVPApi.Clients
 
         //    try
         //    {
-        //        returnObject = m_Module.GetSubscriptionsPricesByIP(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+        //        returnObject = m_Module.GetSubscriptionsPricesByIP(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, Utils.GetClientIP());
         //    }
         //    catch (Exception ex)
         //    {
@@ -315,7 +314,7 @@ namespace RestfulTVPApi.Clients
 
             RestfulTVPApi.Objects.Responses.Enums.PrePaidResponseStatus prePaidReturnObject = (RestfulTVPApi.Objects.Responses.Enums.PrePaidResponseStatus)Enum.Parse(typeof(RestfulTVPApi.Objects.Responses.Enums.PrePaidResponseStatus), Execute(() =>
             {
-                returnObject = ConditionalAccess.PP_ChargeUserForMediaFile(WSUserName, WSPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                returnObject = ConditionalAccess.PP_ChargeUserForMediaFile(WSUserName, WSPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
                 return (RestfulTVPApi.Objects.Responses.Enums.PrePaidResponseStatus)returnObject.m_oStatus;
             }).ToString());
 
@@ -328,7 +327,7 @@ namespace RestfulTVPApi.Clients
 
             returnObject = Execute(() =>
                 {
-                    returnObject = ConditionalAccess.GetLicensedLink(WSUserName, WSPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);                    
+                    returnObject = ConditionalAccess.GetLicensedLink(WSUserName, WSPassword, siteGuid, mediaFileID, baseLink, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);                    
                     return returnObject;
                 }) as string;
 
@@ -536,7 +535,7 @@ namespace RestfulTVPApi.Clients
                     {
                         logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
 
-                        var response = ConditionalAccess.GetItemsPricesWithCoupons(WSUserName, WSPassword, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                        var response = ConditionalAccess.GetItemsPricesWithCoupons(WSUserName, WSPassword, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, RestfulTVPApi.ServiceInterface.Utils.GetClientIP());
 
                         if (response != null)
                             retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
@@ -559,7 +558,7 @@ namespace RestfulTVPApi.Clients
                     {
                         logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
 
-                        var response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(WSUserName, WSPassword, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                        var response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(WSUserName, WSPassword, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, RestfulTVPApi.ServiceInterface.Utils.GetClientIP());
 
                         if (response != null)
                             retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
@@ -638,7 +637,7 @@ namespace RestfulTVPApi.Clients
                     if (!string.IsNullOrEmpty(siteGuid))
                     {
                         logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                        var res = ConditionalAccess.InApp_ChargeUserForMediaFile(WSUserName, WSPassword, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                        var res = ConditionalAccess.InApp_ChargeUserForMediaFile(WSUserName, WSPassword, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
                         if (res != null)
                             retVal = res.ToApiObject();
                     }
@@ -658,7 +657,7 @@ namespace RestfulTVPApi.Clients
                     if (!string.IsNullOrEmpty(siteGuid))
                     {
                         logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                        var res = ConditionalAccess.CC_ChargeUserForPrePaid(WSUserName, WSPassword, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                        var res = ConditionalAccess.CC_ChargeUserForPrePaid(WSUserName, WSPassword, siteGuid, price, currency, productCode, ppvModuleCode, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
                         if (res != null)
                             retVal = res.ToApiObject();
                     }
@@ -767,7 +766,7 @@ namespace RestfulTVPApi.Clients
 
             retVal = Execute(() =>
             {
-                var response = ConditionalAccess.GetCollectionsPricesWithCoupon(WSUserName, WSPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, SiteHelper.GetClientIP());
+                var response = ConditionalAccess.GetCollectionsPricesWithCoupon(WSUserName, WSPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, RestfulTVPApi.ServiceInterface.Utils.GetClientIP());
                 if (response != null)
                     retVal = response.Where(cp => cp != null).Select(collection => collection.ToApiObject()).ToList();
 

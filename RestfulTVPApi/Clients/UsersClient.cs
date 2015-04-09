@@ -7,7 +7,6 @@ using System.Linq;
 using System.Web;
 using RestfulTVPApi.Objects.Extentions;
 using RestfulTVPApi.Users;
-using TVPPro.SiteManager.Helper;
 using RestfulTVPApi.Clients.Utils;
 
 namespace RestfulTVPApi.Clients
@@ -78,7 +77,7 @@ namespace RestfulTVPApi.Clients
                 {                    
                     sDeviceID = string.Empty;
                     sUserName = HttpUtility.UrlDecode(sUserName);
-                    RestfulTVPApi.Objects.Responses.UserResponseObject response = Users.SignIn(WSUserName, WSPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
+                    RestfulTVPApi.Objects.Responses.UserResponseObject response = Users.SignIn(WSUserName, WSPassword, sUserName, sPassword, sSessionID, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
 
                     if (response != null && response.user != null)
                     {
@@ -152,7 +151,7 @@ namespace RestfulTVPApi.Clients
             Execute(() =>
                 {
                     RestfulTVPApi.Users.UserResponseObject uro = null;
-                    uro = Users.SignOut(WSUserName, WSPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                    uro = Users.SignOut(WSUserName, WSPassword, sSiteGuid, sSessionID, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), sDeviceID, bPreventDoubleLogin);
                     return uro;
                 });
         }
@@ -182,7 +181,7 @@ namespace RestfulTVPApi.Clients
 
             IsRemoved = Convert.ToBoolean(Execute(() =>
                 {
-                    Users.RemoveUserFavorit(WSUserName, WSPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                    Users.RemoveUserFavorit(WSUserName, WSPassword, RestfulTVPApi.ServiceInterface.Utils.GetClientIP(), iFavoriteID);
                     IsRemoved = true;
 
                     return IsRemoved;

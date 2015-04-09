@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Context;
 using TVPApiModule.Objects.Responses;
+using RestfulTVPApi.Catalog;
 
 namespace RestfulTVPApi.ServiceModel
 {

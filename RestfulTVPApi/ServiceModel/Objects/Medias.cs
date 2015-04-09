@@ -4,12 +4,10 @@ using System.Linq;
 using System.Web;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
+using RestfulTVPApi.Catalog;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -19,9 +17,9 @@ namespace RestfulTVPApi.ServiceModel
     public class SearchMediaByAndOrListRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "or_list", Description = "OR list", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
-        public List<KeyValue> or_list { get; set; }
+        public List<RestfulTVPApi.Catalog.KeyValue> or_list { get; set; }
         [ApiMember(Name = "and_list", Description = "AND list", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
-        public List<KeyValue> and_list { get; set; }
+        public List<RestfulTVPApi.Catalog.KeyValue> and_list { get; set; }
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_type { get; set; }
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
@@ -29,11 +27,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "exact", Description = "Exact?", ParameterType = "query", DataType = SwaggerType.Boolean, IsRequired = true)]
         public bool exact { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy))]
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(RestfulTVPApi.Catalog.OrderBy))]
+        public RestfulTVPApi.Catalog.OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order Direction", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_dir", typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir))]
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir order_dir { get; set; }
+        [ApiAllowableValues("order_dir", typeof(OrderDir))]
+        public OrderDir order_dir { get; set; }
         [ApiMember(Name = "order_meta_name", Description = "Order Meta Name", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string order_meta_name { get; set; }
     }
@@ -64,7 +62,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_id}/media_mark", "GET", Notes = "This method returns the last play-position for this specific user and media asset")]
-    public class GetMediaMarkRequest : RequestBase, IReturn<MediaMark>
+    public class GetMediaMarkRequest : RequestBase, IReturn<MediaMarkObject>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
@@ -264,9 +262,8 @@ namespace RestfulTVPApi.ServiceModel
         public int media_file_id { get; set; }
         [ApiMember(Name = "location", Description = "Playback Position", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int location { get; set; }
-        [ApiAllowableValues("action", typeof(action))]
         [ApiMember(Name = "action", Description = "Action", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public action action { get; set; }
+        public string action { get; set; }
     }
 
     [Route("/medias/{media_id}/media_hit", "POST", Notes = "This method marks the current position of the media asset being played and sends an event that the media asset is (still) being played. This is done every 30 seconds and is called the 'hit'")]

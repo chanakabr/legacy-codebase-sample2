@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
-using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -16,11 +15,11 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new APISubscriptionMediaLoader(request.subscription_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
-                {
-                    MediaTypes = new List<int>() { request.media_type },
-                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
-                }.Execute() as List<Media>;
+            //lstMedia = new APISubscriptionMediaLoader(request.subscription_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
+            //    {
+            //        MediaTypes = new List<int>() { request.media_type },
+            //        UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            //    }.Execute() as List<Media>;
 
 
             return lstMedia;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TVPApiModule.CatalogLoaders;
-using TVPPro.SiteManager.Helper;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
@@ -101,7 +100,7 @@ namespace RestfulTVPApi.ServiceInterface
         // TODO: Create a SetUserTypeByUserIDRequest object, modify the function/interface/UserService
         public eResponseStatus SetUserTypeByUserID(TVPApiModule.Objects.InitializationObject initObj, string siteGuid, int nUserTypeID)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, Utils.GetClientIP());
 
             if (groupID > 0)
             {
@@ -152,16 +151,16 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            List<Media> lstAllMedias = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 100, 0, request.pic_size).Execute() as List<Media>;
+            //List<Media> lstAllMedias = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 100, 0, request.pic_size).Execute() as List<Media>;
 
-                if (lstAllMedias != null)
-                {
-                    lstMedia = (from media in lstAllMedias
-                                where
-                                    (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
-                                    (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays <= (request.period_before + 1) * (int)request.by_period
-                                select media).ToList<Media>();
-                }
+            //    if (lstAllMedias != null)
+            //    {
+            //        lstMedia = (from media in lstAllMedias
+            //                    where
+            //                        (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
+            //                        (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays <= (request.period_before + 1) * (int)request.by_period
+            //                    select media).ToList<Media>();
+            //    }
             
             return lstMedia;
         }
@@ -170,10 +169,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
-                {
-                    //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
-                }.Execute() as List<Media>;
+            //lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
+            //    {
+            //        //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+            //    }.Execute() as List<Media>;
             
             return lstMedia;
         }
@@ -225,10 +224,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             List<Media> lstMedia = null;
 
-            lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
-                {
-                    //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
-                }.Execute() as List<Media>;
+            //lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
+            //    {
+            //        //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+            //    }.Execute() as List<Media>;
             
             return lstMedia;
         }
@@ -274,7 +273,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID, request.InitObj.Platform);
 
-            return ClientsManager.UsersClient().IsUserLoggedIn(request.site_guid, request.InitObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);            
+            return ClientsManager.UsersClient().IsUserLoggedIn(request.site_guid, request.InitObj.UDID, string.Empty, Utils.GetClientIP(), isSingleLogin);            
         }
 
         public bool SetUserDynamicData(SetUserDynamicDataRequest request)
@@ -354,12 +353,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public int AD_GetCustomDataID(AD_GetCustomDataIDRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().AD_GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type);
+            return ClientsManager.ConditionalAccessClient().AD_GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, Utils.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type);
         }
 
         public int GetCustomDataID(GetCustomDataIDRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date);            
+            return ClientsManager.ConditionalAccessClient().GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, Utils.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date);            
         }
 
         public BillingResponse InApp_ChargeUserForMediaFile(InApp_ChargeUserForMediaFileRequest request)
@@ -384,47 +383,47 @@ namespace RestfulTVPApi.ServiceInterface
 
         public int CreatePurchaseToken(CreatePurchaseTokenRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().CreatePurchaseToken(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date, request.preview_module_id);
+            return ClientsManager.ConditionalAccessClient().CreatePurchaseToken(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, Utils.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date, request.preview_module_id);
         }
 
         public string DummyChargeUserForCollection(DummyChargeUserForCollectionRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().DummyChargeUserForCollection(request.site_guid, request.collection_id, request.price, request.currency, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
+            return ClientsManager.ConditionalAccessClient().DummyChargeUserForCollection(request.site_guid, request.collection_id, request.price, request.currency, request.coupon_code, Utils.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
         }
 
         public BillingResponse ChargeUserForCollection(ChargeUserForCollectionRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().ChargeUserForCollection(request.site_guid, request.collection_code, request.price, request.currency, request.encrypted_cvv, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id);
+            return ClientsManager.ConditionalAccessClient().ChargeUserForCollection(request.site_guid, request.collection_code, request.price, request.currency, request.encrypted_cvv, request.coupon_code, Utils.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id);
         }
         
         public BillingResponse CellularChargeUserForSubscription(CellularChargeUserForSubscriptionRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().CellularChargeUserForSubscription(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
+            return ClientsManager.ConditionalAccessClient().CellularChargeUserForSubscription(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, Utils.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
         }
 
         public string ChargeUserForSubscriptionByPaymentMethod(ChargeUserForSubscriptionByPaymentMethodRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().ChargeUserForSubscriptionByPaymentMethod(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id, request.encrypted_cvv);
+            return ClientsManager.ConditionalAccessClient().ChargeUserForSubscriptionByPaymentMethod(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, Utils.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id, request.encrypted_cvv);
         }
 
         public string ChargeUserForMediaFileByPaymentMethod(ChargeUserForMediaFileByPaymentMethodRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaFileByPaymentMethod(request.price, request.currency, request.media_file_id, request.ppv_module_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.payment_method_id, request.encrypted_cvv);
+            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaFileByPaymentMethod(request.price, request.currency, request.media_file_id, request.ppv_module_code, Utils.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.payment_method_id, request.encrypted_cvv);
         }
 
         public string CellularChargeUserForMediaFile(CellularChargeUserForMediaFileRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().CellularChargeUserForMediaFileRequest(request.price, request.currency, request.media_file_id, request.ppv_module_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.coupon_code, request.language_code, request.country_code);
+            return ClientsManager.ConditionalAccessClient().CellularChargeUserForMediaFileRequest(request.price, request.currency, request.media_file_id, request.ppv_module_code, Utils.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.coupon_code, request.language_code, request.country_code);
         }
 
         public string ChargeUserForMediaFileUsingCC(ChargeUserForMediaFileUsingCCRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaFileUsingCC(request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv);
+            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaFileUsingCC(request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code, Utils.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv);
         }
 
         public string ChargeUserForMediaSubscriptionUsingCC(ChargeUserForMediaSubscriptionUsingCCRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaSubscriptionUsingCC(request.price, request.currency, request.subscription_id, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv, request.extra_parameters, request.country_code, request.language_code);
+            return ClientsManager.ConditionalAccessClient().ChargeUserForMediaSubscriptionUsingCC(request.price, request.currency, request.subscription_id, request.coupon_code, Utils.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv, request.extra_parameters, request.country_code, request.language_code);
         }
 
         public UsersClient.LogInResponseData SignInWithToken(SignInWithTokenRequest request)
@@ -473,7 +472,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public BillingResponse DummyChargeUserForSubscription(DummyChargeUserForSubscriptionRequest request)
         {
-            return ClientsManager.ConditionalAccessClient().DummyChargeUserForSubscription(request.price, request.currency, request.subscription_id, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.extra_parameters, request.udid);
+            return ClientsManager.ConditionalAccessClient().DummyChargeUserForSubscription(request.price, request.currency, request.subscription_id, request.coupon_code, Utils.GetClientIP(), request.site_guid, request.extra_parameters, request.udid);
         }
     }
 }

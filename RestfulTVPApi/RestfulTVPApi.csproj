@@ -381,6 +381,7 @@
     <Compile Include="Objects\Responses\Enums\WhenAlgoType.cs" />
     <Compile Include="Objects\Responses\EPGChannel.cs" />
     <Compile Include="Objects\Responses\EPGChannelProgrammeObject.cs" />
+    <Compile Include="Objects\Responses\EPGComment.cs" />
     <Compile Include="Objects\Responses\EPGDictionary.cs" />
     <Compile Include="Objects\Responses\EPGMultiChannelProgramme.cs" />
     <Compile Include="Objects\Responses\ExtraParameters.cs" />
@@ -1222,29 +1223,13 @@
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
-      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
-      <Name>Tvinci.Data.DataLoader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
       <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
       <Name>Tvinci.Configuration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
-      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
-      <Name>Tvinci.Data.Loaders</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
-      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
-      <Name>Tvinci.Data.TVMDataLoader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
       <Name>TVPPro.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RestLibs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
-      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
-      <Name>TVPPro.SiteManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
       <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
