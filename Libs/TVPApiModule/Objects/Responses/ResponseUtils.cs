@@ -34,6 +34,8 @@ namespace TVPApiModule.Objects.Responses
             response.Status.Code = (int)eStatus.Error;
             if (!string.IsNullOrEmpty(message))
                 response.Status.Message = message;
+            else
+                response.Status.Message = "Error";
             return response;
         }
 
@@ -48,6 +50,9 @@ namespace TVPApiModule.Objects.Responses
             status.Code = (int)eStatus.Error;
             if (!string.IsNullOrEmpty(message))
                 status.Message = message;
+            else
+                status.Message = "Error";
+
             return status;
         }
 
@@ -62,6 +67,9 @@ namespace TVPApiModule.Objects.Responses
             status.Code = (int)eStatus.BadRequest;
             if (!string.IsNullOrEmpty(message))
                 status.Message = message;
+            else
+                status.Message = "Bad Request";
+                 
             return status;
         }
     }
