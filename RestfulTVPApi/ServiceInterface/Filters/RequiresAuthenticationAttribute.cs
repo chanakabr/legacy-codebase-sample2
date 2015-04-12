@@ -24,7 +24,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             try
             {
-                IApi _3ScaleAPI = new Api(TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "3Scale", "3SCALE_PROVIDER_KEY")));
+                IApi _3ScaleAPI = new CS_threescale.Api(TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "3Scale", "3SCALE_PROVIDER_KEY")));
 
                 Hashtable parameters = new Hashtable();
 
