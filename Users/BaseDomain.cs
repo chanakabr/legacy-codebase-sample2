@@ -1230,25 +1230,25 @@ namespace Users
                 Domain domain = domainsCache.GetDomain(domainId, groupId);
                 if (domain == null)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, "Domain Not Exists");
                     return status;
                 }
 
                 if (DomainDal.UpdateDomainRegion(domainId, groupId, extRegionId, lookupKey))
                 {
                     DomainsCache.Instance().RemoveDomain(domainId);
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                 }
                 else
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
                 }
 
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), "BaseDomain");
-                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, "Internal Error");
                 return status;
             }
 
