@@ -69,7 +69,8 @@ namespace Users
                                                     m_sPhone,
                                                     m_sAffiliateCode,
                                                     m_sTwitterToken,
-                                                    m_sTwitterTokenSecret);
+                                                    m_sTwitterTokenSecret,
+                                                    m_CoGuid);
 
             return saved;
         }

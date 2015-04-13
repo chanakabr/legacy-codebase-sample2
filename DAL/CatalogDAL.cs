@@ -2424,5 +2424,19 @@ namespace Tvinci.Core.DAL
 
             return lServices;
         }
+
+        public static int DeleteAllEpgDetailsByChannelDates(DateTime fromDate, DateTime toDate, int channelID, int updateStatus, int currentStatus)
+        {
+            StoredProcedure sp = new StoredProcedure("DeleteAllEpgDetailsByChannelDates");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@From", fromDate);
+            sp.AddParameter("@To", toDate);
+            sp.AddParameter("@channelID", channelID);
+            sp.AddParameter("@updateStatus", updateStatus);
+            sp.AddParameter("@currentStatus", currentStatus);
+
+            return sp.ExecuteReturnValue<int>();    
+        
+        }
     }
 }

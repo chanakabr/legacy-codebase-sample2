@@ -3561,7 +3561,7 @@ namespace TvinciImporter
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
                         sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate,
-                        sAltCoGuid, sAltCDN, sAltCDNID, sCDNCode);
+                        sAltCoGuid, sAltCDN, sAltCDNID, sAltCDNCode);
                 }
 
 
