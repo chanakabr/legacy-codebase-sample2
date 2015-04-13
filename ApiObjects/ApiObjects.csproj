@@ -119,6 +119,7 @@
     <Compile Include="EPGChannelObject.cs" />
     <Compile Include="EpgRes.cs" />
     <Compile Include="Epg\EpgChannelObj.cs" />
+    <Compile Include="Epg\EpgDictionary.cs" />
     <Compile Include="Epg\EpgLinkConstants.cs" />
     <Compile Include="Epg\EpgObject.cs" />
     <Compile Include="Epg\Picture.cs" />

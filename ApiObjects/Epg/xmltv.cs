@@ -40,9 +40,13 @@ public partial class tv {
     
     private string generatorinfourlField;
     
-    private string parentgroupidField;
+    private int parentgroupidField;
     
-    private string groupidField;
+    private int groupidField;
+    
+    private string mainlangField;
+    
+    private int updateridField;
     
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("channel")]
@@ -134,7 +138,7 @@ public partial class tv {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute("parent-group-id")]
-    public string parentgroupid {
+    public int parentgroupid {
         get {
             return this.parentgroupidField;
         }
@@ -145,12 +149,34 @@ public partial class tv {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute("group-id")]
-    public string groupid {
+    public int groupid {
         get {
             return this.groupidField;
         }
         set {
             this.groupidField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute("main-lang")]
+    public string mainlang {
+        get {
+            return this.mainlangField;
+        }
+        set {
+            this.mainlangField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute("updater-id")]
+    public int updaterid {
+        get {
+            return this.updateridField;
+        }
+        set {
+            this.updateridField = value;
         }
     }
 }
@@ -1789,12 +1815,12 @@ public enum reviewType {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class metas {
     
-    private MetaName metaNameField;
+    private string metaNameField;
     
     private MetaValues[] metaValuesField;
     
     /// <remarks/>
-    public MetaName MetaName {
+    public string MetaName {
         get {
             return this.metaNameField;
         }
@@ -1811,42 +1837,6 @@ public partial class metas {
         }
         set {
             this.metaValuesField = value;
-        }
-    }
-}
-
-/// <remarks/>
-[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]
-[System.SerializableAttribute()]
-[System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
-[System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
-public partial class MetaName {
-    
-    private string metaValuesField;
-    
-    private string valueField;
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string MetaValues {
-        get {
-            return this.metaValuesField;
-        }
-        set {
-            this.metaValuesField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlTextAttribute()]
-    public string Value {
-        get {
-            return this.valueField;
-        }
-        set {
-            this.valueField = value;
         }
     }
 }
@@ -1896,12 +1886,12 @@ public partial class MetaValues {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class tags {
     
-    private TagName tagNameField;
+    private string tagNameField;
     
     private TagValues[] tagValuesField;
     
     /// <remarks/>
-    public TagName TagName {
+    public string TagName {
         get {
             return this.tagNameField;
         }
@@ -1918,42 +1908,6 @@ public partial class tags {
         }
         set {
             this.tagValuesField = value;
-        }
-    }
-}
-
-/// <remarks/>
-[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]
-[System.SerializableAttribute()]
-[System.Diagnostics.DebuggerStepThroughAttribute()]
-[System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
-[System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
-public partial class TagName {
-    
-    private string tagValuesField;
-    
-    private string valueField;
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string TagValues {
-        get {
-            return this.tagValuesField;
-        }
-        set {
-            this.tagValuesField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlTextAttribute()]
-    public string Value {
-        get {
-            return this.valueField;
-        }
-        set {
-            this.valueField = value;
         }
     }
 }
