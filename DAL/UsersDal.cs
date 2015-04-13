@@ -1376,7 +1376,8 @@ namespace DAL
 
 
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName,
-                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret)
+                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                        string sCoGuid = "")
         {
             try
             {
@@ -1393,6 +1394,11 @@ namespace DAL
                 if (!string.IsNullOrEmpty(sUserName))
                 {
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                }
+
+                if (!string.IsNullOrEmpty(sCoGuid))
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
@@ -1753,7 +1759,7 @@ namespace DAL
             try
             {
                 StoredProcedure spUpdateUserDynamicData = new StoredProcedure("Update_UserDynamicData");
-                
+
                 spUpdateUserDynamicData.AddParameter("@doc", xmlTypeValue);
                 spUpdateUserDynamicData.AddParameter("@group_id", nGroupID);
                 spUpdateUserDynamicData.AddParameter("@site_guid", nUserID);

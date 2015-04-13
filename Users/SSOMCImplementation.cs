@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
+using DAL;
 using Newtonsoft.Json;
 using TVinciShared;
 
@@ -256,6 +258,8 @@ namespace Users
                 UserBasicData userBasic = GetUserBasicData(dUserInfo);
                 UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
 
+                userBasic.m_UserType = GetDefaultUserType(m_nGroupID);
+
                 //Logger.Logger.Log("GetUserProfile", "New user: Basic - " + userBasic.ToJSON() + " dynamic data - " + userDynamic.ToJSON(), "Users");
 
                 string sPass = userBasic.m_sUserName.ToLower();
@@ -282,7 +286,8 @@ namespace Users
                     {
                         Utils.SetPassword(sPass, ref userBasic, m_nGroupID);
                         userBasic.Save(nUserID);
-                        userDynamic.Save(nUserID);
+                        userDynamic.Save(nUserID, m_nGroupID);
+                        //userDynamic.Save(nUserID);
 
                         userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
                     }
@@ -334,6 +339,25 @@ namespace Users
             return uo;
         }
 
+        private UserType GetDefaultUserType(int nGroupID)
+        {
+            int? nUserTypeID = null;
+            string sUserTypeDesc = string.Empty;
+            int nIsDefault = 0;
+
+            DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, 1);
+            if (dtUserData != null && dtUserData.Rows.Count > 0)
+            {
+                nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["ID"]);
+                sUserTypeDesc = ODBCWrapper.Utils.GetSafeStr(dtUserData.DefaultView[0]["description"]);
+                nIsDefault = ODBCWrapper.Utils.GetIntSafeVal(dtUserData.DefaultView[0]["is_default"]);
+            }
+
+            UserType userType = new UserType(nUserTypeID, sUserTypeDesc, Convert.ToBoolean(nIsDefault));
+
+            return userType;
+        }
+
         private UserBasicData GetUserBasicData(Dictionary<string, string> dUserData)
         {
             UserBasicData ubd = new UserBasicData();
@@ -346,7 +370,8 @@ namespace Users
 
             Utils.GetContentInfo(ref ubd.m_sFirstName, "FirstName", dUserData);
             Utils.GetContentInfo(ref ubd.m_sLastName, "LastName", dUserData);
-            Utils.GetContentInfo(ref ubd.m_sPhone, "HomePhone", dUserData);
+            //Utils.GetContentInfo(ref ubd.m_sPhone, "HomePhone", dUserData);
+            Utils.GetContentInfo(ref ubd.m_sPhone, "MobilePhone", dUserData);
 
             Utils.GetContentInfo(ref ubd.m_sCity, "City", dUserData);
             Utils.GetContentInfo(ref ubd.m_sZip, "PostalCode", dUserData);
