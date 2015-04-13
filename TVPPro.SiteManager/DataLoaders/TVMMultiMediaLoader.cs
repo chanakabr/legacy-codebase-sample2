@@ -176,10 +176,6 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             PicSize = PictureSize;
             MediaType = MediaTypeId;
-            if (string.IsNullOrEmpty(PicSize))
-            {
-                throw new Exception("PicSize must be supplied");
-            }
             MediaArrayID = MediaList;
         }
 
@@ -187,10 +183,6 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             PicSize = PictureSize;
             MediaType = MediaTypeId;
-            if (string.IsNullOrEmpty(PicSize))
-            {
-                throw new Exception("PicSize must be supplied");
-            }
             MediaArrayID = MediaList;
             TvmUser = tvmUn;
             TvmPass = tvmPass;
