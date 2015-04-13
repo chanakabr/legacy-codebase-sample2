@@ -419,7 +419,10 @@ namespace ElasticSearchFeeder.IndexBuilders
                                                 medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
                                             }
 
-                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                            {
+                                                medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            }
                                         }
                                     }
                                 }
