@@ -126,7 +126,7 @@ namespace Catalog
             }
             if (m_oBaseRequest is MediaAutoCompleteRequest)
             {
-                return (MediaAutoCompleteRequest)m_oBaseRequest;//new MediaAutoCompleteRequest();
+                return (MediaAutoCompleteRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is BundleContainingMediaRequest)
             {
