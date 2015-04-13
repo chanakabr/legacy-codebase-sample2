@@ -9835,34 +9835,8 @@ namespace ConditionalAccess
             ref int mainStreamingCoID, ref int altStreamingCoID)
         {
             bool res = false;
-            WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
-            request.m_lMediaFileIDs = new int[1] { mediaFileID };
-            request.m_nGroupID = m_nGroupID;
-            request.m_oFilter = new WS_Catalog.Filter();
-            request.m_sSiteGuid = siteGuid;
-            request.m_sUserIP = userIP;
-            request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-            request.m_lCoGuids = new string[0];
-            using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
-            {
-                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
-                WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
-
-                if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
-                {
-                    WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
-                    if (mf != null && mf.m_oFile != null)
-                    {
-                        res = true;
-                        mainUrl = mf.m_oFile.m_sUrl;
-                        altUrl = mf.m_oFile.m_sAltUrl;
-                        mainStreamingCoID = mf.m_oFile.m_nCdnID;
-                        altStreamingCoID = mf.m_oFile.m_nAltCdnID;
-                    }
-
-                }
-            }
+            
+            res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID);
 
             return res;
         }

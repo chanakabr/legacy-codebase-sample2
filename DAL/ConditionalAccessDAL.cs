@@ -1678,5 +1678,35 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+
+        public static bool GetFileUrlLinks(int mediaFileID, string siteGuid, int groupID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID, ref int altStreamingCoID)
+        {
+            bool success = false;
+
+            StoredProcedure sp = new StoredProcedure("Get_FileUrlLinks");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", mediaFileID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+
+                    mainUrl = ODBCWrapper.Utils.GetSafeStr(dr, "mainUrl");
+                    altUrl = ODBCWrapper.Utils.GetSafeStr(dr, "altUrl");
+                    mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
+                    altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
+
+                    success = true;
+                }
+            }
+
+            return success;
+        }
     }
 }
