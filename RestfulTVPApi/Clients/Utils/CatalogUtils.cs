@@ -26,23 +26,21 @@ namespace RestfulTVPApi.Clients.Utils
 
         public static bool GetBaseResponse<T>(RestfulTVPApi.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportCaching = false, string cacheKey = null) where T : BaseResponse
         {
-            bool res = false;
             response = null;
 
             BaseResponse baseResponse = client.GetResponse(request);
 
             if (baseResponse == null && !shouldSupportCaching)
             {
-                res = false;
+                return false;
             }
-
             else if (baseResponse == null) // No response from Catalog, gets medias from cache
             {
                 baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
 
                 if (baseResponse == null) // No response from Catalog and no response from cache
                 {
-                    res = false;
+                    return false;
                 }
             }
 
@@ -53,10 +51,10 @@ namespace RestfulTVPApi.Clients.Utils
                     CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
                 }
                 response = baseResponse as T;
-                res = true;
+                return true;
             }
 
-            return res;
+            return true;
         }
 
         public static List<AssetInfo> SearchAssets(RestfulTVPApi.Catalog.IserviceClient client, UnifiedSearchRequest request, string cacheKey, List<string> with)
@@ -164,8 +162,7 @@ namespace RestfulTVPApi.Clients.Utils
                 result = new List<T>();
             }
 
-            return result;
-           
+            return result;           
         }
 
         // Gets medias and epgs from cache
@@ -189,19 +186,18 @@ namespace RestfulTVPApi.Clients.Utils
                 // Separate media ids and epg ids and build the cache keys
                 foreach (var id in ids)
                 {
-                    if (id.type == AssetType.Media)
+                    key = new CacheKey(id.assetID, id.UpdateDate);
+                    switch (id.type)
                     {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
-                        mediaKeys.Add(key);
+                        case AssetType.Media:
+                            mediaKeys.Add(key);
+                            break;
+                        case AssetType.Epg:
+                            epgKeys.Add(key);
+                            break;
+                        default:
+                            throw new Exception("Unexpected AsssetType");
                     }
-
-                    else if (id.type == AssetType.Epg)
-                    {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
-                        epgKeys.Add(key);
-                    }
-
-                    else throw new Exception("Unexpected AsssetType");
                 }
 
                 // Media - Get the medias from cache, Cast the results, return false if at least one is missing
@@ -268,7 +264,9 @@ namespace RestfulTVPApi.Clients.Utils
                     if (medias != null && medias.Count > 0)
                     {
                         mediaAssetsStats = 
-                            ClientsManager.CatalogClient().GetAssetsStats(groupID, (RestfulTVPApi.Objects.Enums.PlatformType)Enum.Parse(typeof(RestfulTVPApi.Objects.Enums.PlatformType), platform), siteGuid, udid,
+                            ClientsManager.CatalogClient().GetAssetsStats(groupID, 
+                            (RestfulTVPApi.Objects.Enums.PlatformType)Enum.Parse(typeof(RestfulTVPApi.Objects.Enums.PlatformType), 
+                            platform), siteGuid, udid,
                             medias.Select(m => m.m_nID).ToList(), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MinValue), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MaxValue), StatsType.MEDIA);
                     }
                     if (epgs != null && epgs.Count > 0)
@@ -286,7 +284,6 @@ namespace RestfulTVPApi.Clients.Utils
             // Build the AssetInfo objects
             foreach (var item in orderedAssetsIds)
             {
-
                 if (item.type == AssetType.Media)
                 {
                     media = medias.Where(m => m != null && m.m_nID == item.assetID).FirstOrDefault();

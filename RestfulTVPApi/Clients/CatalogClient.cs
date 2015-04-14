@@ -105,18 +105,8 @@ namespace RestfulTVPApi.Clients
                 assetTypes = assetTypes,
             };
 
-
             // build failover cahce key
             StringBuilder key = new StringBuilder();
-
-            // g = GroupId
-            // ps = PageSize
-            // pi = PageIndex
-            // ob = OrderBy
-            // od = OrderDir
-            // ov = OrderValue 
-            // at = AssetTypes
-            //f = filter
 
             key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}", groupID, pageSize, pageIndex);
             if (order != null)
@@ -135,7 +125,9 @@ namespace RestfulTVPApi.Clients
             return result;
         }
 
-        public List<AssetStats> GetAssetsStats(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, RestfulTVPApi.Catalog.StatsType assetType)
+        public List<AssetStats> GetAssetsStats(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, 
+            string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, 
+            RestfulTVPApi.Catalog.StatsType assetType)
         {
             List<AssetStats> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
@@ -159,12 +151,16 @@ namespace RestfulTVPApi.Clients
 
             if (response != null)
             {
-                result = response.m_lAssetStat != null ? response.m_lAssetStat.Select(a => AssetStats.CreateFromObject(a)).ToList() : null;
+                result = response.m_lAssetStat != null ? 
+                    response.m_lAssetStat.Select(a => AssetStats.CreateFromObject(a)).ToList() : null;
+            }
+            else
+            {
+                throw new Exception("Failed to receive stats from catalog");
             }
 
             return result;
         }
-
 
         public string MediaMark(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
             string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)
@@ -207,6 +203,10 @@ namespace RestfulTVPApi.Clients
             if (response != null)
             {
                 res = response.m_sStatus;
+            }
+            else
+            {
+                throw new Exception("Failed to receive stats from catalog");
             }
 
             return res;
