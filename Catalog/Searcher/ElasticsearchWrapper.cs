@@ -1064,7 +1064,7 @@ namespace Catalog
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
                 {
-                    actionName = Catalog.STAT_ACTION_MEDIA_HIT;
+                    actionName = Catalog.STAT_ACTION_FIRST_PLAY;
                     break;
                 }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
