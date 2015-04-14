@@ -33,7 +33,7 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("notifications_staging_connection");
+                DBManipulator.DoTheWork("notifications_connection");
                 return;
             }
         }
