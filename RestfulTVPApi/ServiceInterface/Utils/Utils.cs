@@ -27,11 +27,11 @@ namespace RestfulTVPApi.ServiceInterface
             return origin.AddSeconds(timestamp);
         }
 
-        public static double ConvertToUnixTimestamp(DateTime date)
+        public static long ConvertToUnixTimestamp(DateTime date)
         {
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             TimeSpan diff = date.ToUniversalTime() - origin;
-            return diff.TotalSeconds;
+            return (long)diff.TotalSeconds;
         }
 
         public static string GetClientIP()

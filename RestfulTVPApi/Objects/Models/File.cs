@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace RestfulTVPApi.Objects.Responses
+namespace RestfulTVPApi.Objects.Models
 {
-    public class File
+    public class File 
     {
         [JsonProperty(PropertyName = "asset_id")]
         public int AssetId { get; set; }
@@ -22,15 +22,21 @@ namespace RestfulTVPApi.Objects.Responses
         public string Url { get; set; }
 
 
-        public File(FileMedia file)
+        public static File CreateFromObject(FileMedia obj)
         {
-            if (file != null)
+            if (obj == null)
             {
-                AssetId = file.m_nMediaID;
-                Id = file.m_nFileId;
-                Type = file.m_sFileFormat;
-                Url = file.m_sUrl;
+                return null;
             }
+
+            return new File()
+            {
+                AssetId = obj.m_nMediaID,
+                Id = obj.m_nFileId,
+                Type = obj.m_sFileFormat,
+                Url = obj.m_sUrl,
+            };
+            
         }
     }
 }

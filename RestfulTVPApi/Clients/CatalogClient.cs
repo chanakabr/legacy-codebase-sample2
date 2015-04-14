@@ -1,6 +1,6 @@
 ﻿using RestfulTVPApi.Catalog;
 using RestfulTVPApi.Clients.Utils;
-using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Objects.Models;
 using ServiceStack.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using RestfulTVPApi.Objects.Extentions;
 
 namespace RestfulTVPApi.Clients
 {
@@ -80,278 +81,6 @@ namespace RestfulTVPApi.Clients
             return retVal;
         }
 
-        private bool GetResponseWithFailOverSupport<T>(BaseRequest request, string cacheKey, out T response) where T : BaseResponse
-        {
-            bool res = false;
-            response = null;
-
-            BaseResponse baseResponse = Catalog.GetResponse(request);
-
-            if (baseResponse == null)// No response from Catalog, gets medias from cache
-            {
-                baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
-
-                if (baseResponse == null)// No response from Catalog and no response from cache
-                {
-                    res = false;
-                }
-            }
-
-            if (baseResponse != null && baseResponse is T)
-            {
-                CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
-
-                response = baseResponse as T;
-                res = true;
-            }
-
-            return res;
-        }
-
-        private void GetAssetsFromCatalog(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
-        {
-            mediasFromCatalog = null;
-            epgsFromCatalog = null;
-
-            if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
-            {
-                // Build AssetInfoRequest with the missing ids
-                AssetInfoRequest request = new AssetInfoRequest()
-                {
-                    epgIds = missingEpgIds,
-                    mediaIds = missingMediaIds,
-                    m_nGroupID = groupID,
-                    m_nPageIndex = 0,
-                    m_nPageSize = 0,
-                    m_oFilter = new Filter()
-                    {
-                        m_nLanguage = language,
-                        m_sDeviceId = udid,
-                        m_sPlatform = platform.ToString()
-                    },
-                    m_sSignature = Signature,
-                    m_sSignString = SignString,
-                    m_sSiteGuid = siteGuid,
-                };
-
-                BaseResponse response = Catalog.GetResponse(request);
-
-                if (response != null)
-                {
-                    AssetInfoResponse assetInfoResponse = (AssetInfoResponse)response;
-
-                    if (assetInfoResponse.mediaList != null)
-                    {
-                        if (assetInfoResponse.mediaList.Any(m => m == null))
-                        {
-                            logger.Warn("CatalogClient: Received response from Catalog with null media objects");
-                        }
-
-                        mediasFromCatalog = assetInfoResponse.mediaList.Where(m => m != null).ToList();
-                    }
-                    else
-                    {
-                        mediasFromCatalog = new List<MediaObj>();
-                    }
-
-                    if (assetInfoResponse.epgList != null)
-                    {
-                        if (assetInfoResponse.epgList.Any(m => m == null))
-                        {
-                            logger.Warn("CatalogClient: Received response from Catalog with null EPG objects");
-                        }
-
-                        epgsFromCatalog = assetInfoResponse.epgList.Where(m => m != null).ToList();
-                    }
-                    else
-                    {
-                        epgsFromCatalog = new List<ProgramObj>();
-                    }
-
-                    // Store in Cache the medias and epgs from Catalog
-                    
-                    List<BaseObject> baseObjects = null;
-
-                    if (mediasFromCatalog != null && mediasFromCatalog.Count > 0)
-                    {
-                        baseObjects = new List<BaseObject>();
-                        mediasFromCatalog.ForEach(m => baseObjects.Add(m));
-
-                        CatalogCacheManager.Cache.StoreObjects(baseObjects, string.Format(CACHE_KEY_FORMAT, MEDIA_CACHE_KEY_PREFIX, language), CacheDuration);
-                    }
-
-                    if (epgsFromCatalog != null && epgsFromCatalog.Count > 0)
-                    {
-                        baseObjects = new List<BaseObject>();
-                        epgsFromCatalog.ForEach(p => baseObjects.Add(p));
-
-                        CatalogCacheManager.Cache.StoreObjects(baseObjects, string.Format(CACHE_KEY_FORMAT, EPG_CACHE_KEY_PREFIX, language), CacheDuration);
-                    }
-                }
-            }
-        }
-
-        // Gets medias and epgs from cache
-        // Returns true if all assets were found in cache, false if at least one is missing or not up to date
-        private bool GetAssetsFromCache(List<UnifiedSearchResult> ids, int language, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
-        {
-            bool result = true;
-            medias = null;
-            epgs = null;
-            missingMediaIds = null;
-            missingEpgIds = null;
-
-            if (ids != null && ids.Count > 0)
-            {
-                List<BaseObject> cacheResults = null;
-
-                List<CacheKey> mediaKeys = new List<CacheKey>();
-                List<CacheKey> epgKeys = new List<CacheKey>();
-
-                CacheKey key = null;
-
-                // Separate media ids and epg ids and build the cache keys
-                foreach (var id in ids)
-                {
-                    if (id.type == AssetType.Media)
-                    {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
-                        mediaKeys.Add(key);
-                    }
-
-                    else if (id.type == AssetType.Epg)
-                    {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
-                        epgKeys.Add(key);
-                    }
-                }
-
-                // Media - Get the medias from cache, Cast the results, return false if at least one is missing
-                if (mediaKeys != null && mediaKeys.Count > 0)
-                {
-                    cacheResults = CatalogCacheManager.Cache.GetObjects(mediaKeys, string.Format(CACHE_KEY_FORMAT, MEDIA_CACHE_KEY_PREFIX, language), out missingMediaIds);
-                    if (cacheResults != null && cacheResults.Count > 0)
-                    {
-                        medias = new List<MediaObj>();
-                        foreach (var res in cacheResults)
-                        {
-                            medias.Add((MediaObj)res);
-                        }
-                    }
-
-                    if (missingMediaIds != null && missingMediaIds.Count > 0)
-                    {
-                        result = false;
-                    }
-                }
-
-                // EPG - Get the epgs from cache, Cast the results, return false if at least one is missing
-                if (epgKeys != null && epgKeys.Count > 0)
-                {
-                    cacheResults = CatalogCacheManager.Cache.GetObjects(epgKeys, string.Format(CACHE_KEY_FORMAT, EPG_CACHE_KEY_PREFIX, language), out missingEpgIds);
-                    if (cacheResults != null && cacheResults.Count > 0)
-                    {
-                        epgs = new List<ProgramObj>();
-                        foreach (var res in cacheResults)
-                        {
-                            epgs.Add((ProgramObj)res);
-                        }
-                    }
-
-                    if (missingEpgIds != null && missingEpgIds.Count > 0)
-                    {
-                        result = false;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
-        // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        private List<AssetInfo> OrderAndCompleteResults(List<UnifiedSearchResult> order, List<MediaObj> medias, List<ProgramObj> epgs, List<string> with)
-        {
-            List<AssetInfo> result = null;
-
-            if (order == null || ((medias == null || medias.Count == 0) && (epgs == null || epgs.Count == 0)))
-            {
-                return null;
-            }
-
-            result = new List<AssetInfo>();
-            AssetInfo asset = null;
-            MediaObj media = null;
-            ProgramObj epg = null;
-
-            List<RestfulTVPApi.Catalog.AssetStatsResult> mediaAssetsStats = null;
-            List<RestfulTVPApi.Catalog.AssetStatsResult> epgAssetsStats = null;
-
-            bool shouldAddFiles = false;
-
-            if (with != null)
-            {
-                if (with.Contains("stats")) // if stats are required - gets the stats from Catalog
-                {
-                    //if (medias != null && medias.Count > 0)
-                    //{
-                    //    mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
-                    //        StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<RestfulTVPApi.Objects.Responses.AssetStatsResult>;
-                    //}
-                    //if (epgs != null && epgs.Count > 0)
-                    //{
-                    //    epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => p.m_nID).ToList(),
-                    //        StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
-                    //}
-                }
-                if (with.Contains("files")) // if stats are required - add a flag 
-                {
-                    shouldAddFiles = true;
-                }
-            }
-
-            // Build the AssetInfo objects
-            foreach (var item in order)
-            {
-                if (item.type == AssetType.Media)
-                {
-                    media = medias.Where(m => m != null && m.m_nID == item.assetID).FirstOrDefault();
-                    if (media != null)
-                    {
-                        if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
-                        {
-                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles);
-                        }
-                        else
-                        {
-                            asset = new AssetInfo(media, shouldAddFiles);
-                        }
-                        result.Add(asset);
-                        media = null;
-                    }
-                }
-                else if (item.type == AssetType.Epg)
-                {
-                    epg = epgs.Where(p => p != null && p.m_nID == item.assetID).FirstOrDefault();
-                    if (epg != null)
-                    {
-                        if (epgAssetsStats != null && epgAssetsStats.Count > 0)
-                        {
-                            asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID == epg.m_nID).FirstOrDefault());
-                        }
-                        else
-                        {
-                            asset = new AssetInfo(epg.m_oProgram);
-                        }
-                        result.Add(asset);
-                        epg = null;
-                    }
-                }
-            }
-
-            return result;
-        }
-
         public List<AssetInfo> SearchAssets(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform,  string siteGuid, string udid, int language, int pageIndex, int pageSize, 
             string filter, OrderObj order, List<int> assetTypes, List<string> with)
         {
@@ -401,43 +130,43 @@ namespace RestfulTVPApi.Clients
             if (!string.IsNullOrEmpty(filter))
                 key.AppendFormat("_f={0}", filter);
 
-            UnifiedSearchResponse response;
+            result = CatalogUtils.SearchAssets(Catalog, request, key.ToString(), with);
 
-            if (GetResponseWithFailOverSupport<UnifiedSearchResponse>(request, key.ToString(), out response))
+            return result;
+        }
+
+        public List<AssetStats> GetAssetsStats(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, RestfulTVPApi.Catalog.StatsType assetType)
+        {
+            List<AssetStats> result = null;
+            AssetStatsRequest request = new AssetStatsRequest()
             {
-                List<MediaObj> medias = null;
-                List<ProgramObj> epgs = null;
-                List<long> missingMediaIds = null;
-                List<long> missingEpgIds = null;
-
-                if (!GetAssetsFromCache(response.searchResults, language, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupID,
+                m_oFilter = new Filter()
                 {
-                    List<MediaObj> mediasFromCatalog;
-                    List<ProgramObj> epgsFromCatalog;
-                    GetAssetsFromCatalog(groupID, platform, siteGuid, udid, language, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+                    m_sDeviceId = udid,
+                    m_sPlatform = platform.ToString(),
+                },
+                m_nAssetIDs = assetIds,
+                m_dStartDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(startTime),
+                m_dEndDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(endTime),
+                m_type = assetType
+            };
 
-                    // Append the medias from Catalog to the medias from cache
-                    if (medias == null && mediasFromCatalog != null)
-                    {
-                        medias = new List<MediaObj>();
-                    }
-                    medias.AddRange(mediasFromCatalog);
+            var response = Catalog.GetResponse(request) as AssetStatsResponse;
 
-                    // Append the epgs from Catalog to the epgs from cache
-                    if (epgs == null && epgsFromCatalog != null)
-                    {
-                        epgs = new List<ProgramObj>();
-                    }
-                    epgs.AddRange(epgsFromCatalog);
-                }
-
-                result = OrderAndCompleteResults(response.searchResults, medias, epgs, with); // Gets one list including both medias and epgds, ordered by Catalog order
+            if (response != null)
+            {
+                result = response.m_lAssetStat != null ? response.m_lAssetStat.Select(a => AssetStats.CreateFromObject(a)).ToList() : null;
             }
 
             return result;
         }
 
-        public string MediaMark(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform,  string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
+
+        public string MediaMark(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
             string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)
         {
             string res = null;
@@ -469,10 +198,9 @@ namespace RestfulTVPApi.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = language, 
-                    m_sPlatform = platform.ToString()
+                    m_sPlatform = platform.ToString(),
                 }
             };
-            request.m_oFilter.m_sDeviceId = udid;
 
             var response = Catalog.GetResponse(request) as MediaMarkResponse;
 

@@ -1125,7 +1125,7 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.DomainResponseStatus toApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus domainStatus)
+        public static TVPApiModule.Objects.Responses.DomainResponseStatus ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DomainStatus domainStatus)
         {
             DomainResponseStatus status = DomainResponseStatus.Error;
 

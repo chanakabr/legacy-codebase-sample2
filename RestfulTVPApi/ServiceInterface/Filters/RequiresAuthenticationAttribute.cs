@@ -22,55 +22,55 @@ namespace RestfulTVPApi.ServiceInterface
 
         public override void Execute(IHttpRequest httpReq, IHttpResponse httpRes, object reqDto)
         {
-            try
-            {
-                IApi _3ScaleAPI = new Api(TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "3Scale", "3SCALE_PROVIDER_KEY")));
+            //try
+            //{
+            //    IApi _3ScaleAPI = new Api(TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "3Scale", "3SCALE_PROVIDER_KEY")));
 
-                Hashtable parameters = new Hashtable();
+            //    Hashtable parameters = new Hashtable();
 
-                if (httpReq.Headers["X-App-Id"] == null || httpReq.Headers["X-App-Key"] == null)
-                {
-                    throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
-                }
+            //    if (httpReq.Headers["X-App-Id"] == null || httpReq.Headers["X-App-Key"] == null)
+            //    {
+            //        throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
+            //    }
 
-                parameters.Add("app_id", httpReq.Headers["X-App-Id"]);
-                parameters.Add("app_key", httpReq.Headers["X-App-Key"]);
+            //    parameters.Add("app_id", httpReq.Headers["X-App-Id"]);
+            //    parameters.Add("app_key", httpReq.Headers["X-App-Key"]);
                 
-                Hashtable usage = new Hashtable();
+            //    Hashtable usage = new Hashtable();
 
-                usage.Add(reqDto.GetType().Name, "1");
+            //    usage.Add(reqDto.GetType().Name, "1");
 
-                parameters.Add("usage", usage);
+            //    parameters.Add("usage", usage);
 
-                AuthorizeResponse resp = _3ScaleAPI.authrep(parameters);
+            //    AuthorizeResponse resp = _3ScaleAPI.authrep(parameters);
 
-                if (!resp.authorized)
-                {
-                    if (resp.reason.StartsWith("application key") && resp.reason.EndsWith("is invalid"))
-                    {
-                        throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
-                    }
-                    else
-                    {
-                        throw new HttpError(HttpStatusCode.Unauthorized, resp.reason);
-                    }
-                }
-            }
-            catch (ApiException ex)
-            {
-                if (ex.Message.Contains("application_not_found"))
-                {
-                    throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
-                }
-                if (ex.Message.Contains("metric_invalid"))
-                {
-                    // TODO: As soon as a decision will be made regarding the use of 3Scale, handle this exception. Don't forget to invclude metrics in 3Scale's manager
-                }
-                else
-                {
-                    throw ex;   
-                }
-            }
+            //    if (!resp.authorized)
+            //    {
+            //        if (resp.reason.StartsWith("application key") && resp.reason.EndsWith("is invalid"))
+            //        {
+            //            throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
+            //        }
+            //        else
+            //        {
+            //            throw new HttpError(HttpStatusCode.Unauthorized, resp.reason);
+            //        }
+            //    }
+            //}
+            //catch (ApiException ex)
+            //{
+            //    if (ex.Message.Contains("application_not_found"))
+            //    {
+            //        throw new HttpError(HttpStatusCode.Unauthorized, "Credentials not authorized");
+            //    }
+            //    if (ex.Message.Contains("metric_invalid"))
+            //    {
+            //        // TODO: As soon as a decision will be made regarding the use of 3Scale, handle this exception. Don't forget to invclude metrics in 3Scale's manager
+            //    }
+            //    else
+            //    {
+            //        throw ex;   
+            //    }
+            //}
         }
     }
 }
