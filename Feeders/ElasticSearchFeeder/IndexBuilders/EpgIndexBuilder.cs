@@ -65,7 +65,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 }
 
                 string sMapping = m_oESSerializer.CreateEpgMapping(oGroup.m_oEpgGroupSettings.m_lMetasName, oGroup.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer);
-                string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
+                string sType = (language.IsDefault) ? EPG : string.Concat(EPG, "_", language.Code);
                 bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
 
                 if (language.IsDefault && !bMappingRes)
