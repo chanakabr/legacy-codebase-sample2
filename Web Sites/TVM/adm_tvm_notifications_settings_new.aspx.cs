@@ -98,7 +98,7 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         string sBack = "adm_tvm_notifications_settings.aspx";
         
         DBRecordWebEditor theRecord = new DBRecordWebEditor("notifications_settings", "adm_table_pager", sBack, "", "ID", t, sBack, "");
-        theRecord.SetConnectionKey("notifications_staging_connection");
+        theRecord.SetConnectionKey("notifications_connection");
 
         DataRecordLongTextField dr_text = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_text.Initialize("Message Text", "adm_table_header_nbg", "FormInput", "message_text", true);
