@@ -41,21 +41,45 @@ namespace ElasticSearchFeeder.IndexBuilders
             string sGroupAlias = Utils.GetEpgGroupAliasStr(m_nGroupID);
             string sNewIndex = Utils.GetNewEpgIndexStr(m_nGroupID);
 
-            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, null, null);
+            List<string> lAnalyzers;
+            List<string> lFilters;
+            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters);
 
-            if (!bRes)
+            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, lAnalyzers, lFilters);
+
+            #region create mapping
+            foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", sNewIndex), "ElasticSearch");
-                return bRes; ;
+                string indexAnalyzer, searchAnalyzer;
+
+                if (ElasticSearchApi.AnalyzerExists(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code)))
+                {
+                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
+                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+                }
+                else
+                {
+                    indexAnalyzer = "whitespace";
+                    searchAnalyzer = "whitespace";
+                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
+                }
+
+                string sMapping = m_oESSerializer.CreateEpgMapping(oGroup.m_oEpgGroupSettings.m_lMetasName, oGroup.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer);
+                string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
+                bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
+
+                if (language.IsDefault && !bMappingRes)
+                    bRes = false;
+
+                if (!bMappingRes)
+                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type epg for language ", language.Name), "ESFeeder");
+
             }
-
-
-            string sMapping = m_oESSerializer.CreateEpgMapping(oGroup.m_oEpgGroupSettings.m_lMetasName, oGroup.m_oEpgGroupSettings.m_lTagsName);
-            bRes = m_oESApi.InsertMapping(sNewIndex, EPG, sMapping.ToString());
+            #endregion
 
             if (!bRes)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating EPG mapping for index:{0}; mapping:{1}", sNewIndex, sMapping), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", sNewIndex), "ESFeeder");
                 return bRes;
             }
 
@@ -76,7 +100,37 @@ namespace ElasticSearchFeeder.IndexBuilders
                     await Task.Factory.StartNew(() => m_oESApi.DeleteIndices(lOldIndices));
                 }
             }
+
             return bRes;
+        }
+
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters)
+        {
+            lAnalyzers = new List<string>();
+            lFilters = new List<string>();
+
+            if (lLanguages != null)
+            {
+                foreach (ApiObjects.LanguageObj language in lLanguages)
+                {
+                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
+                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
+
+                    if (string.IsNullOrEmpty(analyzer))
+                    {
+                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESFeeder");
+                    }
+                    else
+                    {
+                        lAnalyzers.Add(analyzer);
+                    }
+
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        lFilters.Add(filter);
+                    }
+                }
+            }
         }
 
         protected async Task PopulateEpgIndex(string sIndex, string sType, DateTime dDate)
