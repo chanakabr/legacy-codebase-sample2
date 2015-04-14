@@ -2462,7 +2462,7 @@ namespace ConditionalAccess
                 #endregion
 
                 // increment fail count
-                ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(nPurchaseID, true, 0);
+                ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(nPurchaseID, true, 0, "CA_CONNECTION_STRING");
 
                 // set billing response
                 res.m_oStatus = TvinciBilling.BillingResponseStatus.Fail;
