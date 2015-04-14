@@ -288,51 +288,162 @@ namespace ElasticSearch.Common
 
         public string CreateEpgMapping(List<string> lMetasNames, List<string> lTags)
         {
+            return CreateEpgMapping(lMetasNames, lTags, string.Empty, string.Empty);
+        }
+
+        public string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer)
+        {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj("epg");
 
-            ESRouting routing = new ESRouting() { path = "date_routing", required = true };
+            ESRouting routing = new ESRouting()
+            {
+                path = "date_routing",
+                required = true
+            };
             mappingObj.SetRoting(routing);
 
             #region Add basic type mappings - (e.g. epg_id, group_id, description etc)
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "epg_id", analyzed = false, type = eESFieldType.LONG });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "group_id", analyzed = false, type = eESFieldType.INTEGER });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "epg_channel_id", analyzed = false, type = eESFieldType.INTEGER });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "is_active", analyzed = false, type = eESFieldType.INTEGER });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "start_date", analyzed = false, type = eESFieldType.DATE });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "end_date", analyzed = false, type = eESFieldType.DATE });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "date_routing", analyzed = false, type = eESFieldType.STRING });
-            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
-            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "name.analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = "whitespace", index_analyzer = "whitespace" });
-            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
-            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = "description.analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = "whitespace", index_analyzer = "whitespace" });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "cache_date", analyzed = false, type = eESFieldType.DATE });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "epg_id",
+                analyzed = false,
+                type = eESFieldType.LONG
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "group_id",
+                analyzed = false,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "epg_channel_id",
+                analyzed = false,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "is_active",
+                analyzed = false,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "start_date",
+                analyzed = false,
+                type = eESFieldType.DATE
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "end_date",
+                analyzed = false,
+                type = eESFieldType.DATE
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "date_routing",
+                analyzed = false,
+                type = eESFieldType.STRING
+            });
+            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "name",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = false
+            });
+            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "name.analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = true,
+                search_analyzer = searchAnalyzer,
+                index_analyzer = indexAnalyzer
+            });
+            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "description",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = false
+            });
+            mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "description.analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = true,
+                search_analyzer = searchAnalyzer,
+                index_analyzer = indexAnalyzer
+            });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "cache_date",
+                analyzed = false,
+                type = eESFieldType.DATE
+            });
             #endregion
 
             #region Add tags mapping
-            InnerMappingProperty tags = new InnerMappingProperty() { name = "tags" };
+            InnerMappingProperty tags = new InnerMappingProperty()
+            {
+                name = "tags"
+            };
             foreach (string sTagName in lTags)
             {
                 if (!string.IsNullOrEmpty(sTagName))
                 {
-                    tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = sTagName.ToLower(), type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
-                    tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = string.Format("{0}.analyzed", sTagName.ToLower()), type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = "whitespace", index_analyzer = "whitespace" });
+                    tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                    {
+                        name = sTagName.ToLower(),
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        analyzed = false
+                    });
+                    tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                    {
+                        name = string.Format("{0}.analyzed", sTagName.ToLower()),
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        analyzed = true,
+                        search_analyzer = searchAnalyzer,
+                        index_analyzer = indexAnalyzer
+                    });
 
                 }
             }
             #endregion
 
             #region Add metas mapping
-            InnerMappingProperty metas = new InnerMappingProperty() { name = "metas" };
+            InnerMappingProperty metas = new InnerMappingProperty()
+            {
+                name = "metas"
+            };
 
             foreach (string sMetaName in lMetasNames)
             {
                 if (!string.IsNullOrEmpty(sMetaName))
                 {
-                    metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = sMetaName.ToLower(), type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
-                    metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty() { name = string.Format("{0}.analyzed", sMetaName.ToLower()), type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, index_analyzer = "whitespace", search_analyzer = "whitespace" });
+                    metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                    {
+                        name = sMetaName.ToLower(),
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        analyzed = false
+                    });
+                    metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                    {
+                        name = string.Format("{0}.analyzed", sMetaName.ToLower()),
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        analyzed = true,
+                        search_analyzer = searchAnalyzer,
+                        index_analyzer = indexAnalyzer
+                    });
                 }
             }
 
