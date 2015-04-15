@@ -124,6 +124,10 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         dr_emailTemplate.Initialize("Email Template", "adm_table_header_nbg", "FormInput", "notification_email_template", false);
         theRecord.AddRecord(dr_emailTemplate);
 
+        DataRecordShortTextField dr_dateDefaultFormat = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_dateDefaultFormat.Initialize("Date Default Format", "adm_table_header_nbg", "FormInput", "notification_date_format", false);
+        theRecord.AddRecord(dr_dateDefaultFormat);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
