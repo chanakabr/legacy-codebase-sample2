@@ -1212,7 +1212,7 @@ namespace Catalog
                             // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
                             if (int.TryParse(result.term, out currentId))
                             {
-                                if (orderDirection == OrderDir.DESC)
+                                if (orderDirection == OrderDir.ASC)
                                 {
                                     sortedList.Insert(0, currentId);
                                 }

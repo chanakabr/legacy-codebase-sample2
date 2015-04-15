@@ -459,6 +459,8 @@ namespace ElasticSearch.Searcher
                             return stats2.totalCount.CompareTo(stats1.totalCount);
                         case eCompareType.TERM:
                             return string.Compare(stats2.term, stats1.term);
+                        case eCompareType.MEAN:
+                            return stats2.mean.CompareTo(stats1.mean);
                         case eCompareType.COUNT:
                         default:
                             return stats2.count.CompareTo(stats1.count);
