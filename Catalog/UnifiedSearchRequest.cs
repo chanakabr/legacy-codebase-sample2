@@ -117,7 +117,7 @@ namespace Catalog
                         };
                     }
                 }
-                
+
                 // If request asks for name and description filter
                 if (string.IsNullOrEmpty(request.nameAndDescription))
                 {
@@ -146,34 +146,24 @@ namespace Catalog
                     request.filterTree = new BooleanPhrase(newNodes, eCutType.And);
                 }
 
-                // Request is bad if there is no condition to query by
-                if (request.filterTree == null)
+                CheckSignature(baseRequest);
+
+                int totalItems = 0;
+                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems);
+
+                response.m_nTotalItems = totalItems;
+
+                if (totalItems > 0)
                 {
-                    response.status.Code = (int)eResponseStatus.BadSearchRequest;
-                    response.status.Message = "Invalid request parameters";
+                    response.searchResults = assetsResults;
                 }
-                else
-                {
 
-                    CheckSignature(baseRequest);
-
-                    int totalItems = 0;
-                    List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems);
-
-                    response.m_nTotalItems = totalItems;
-
-                    if (totalItems > 0)
-                    {
-                        response.searchResults = assetsResults;
-                    }
-
-                    response.status.Code = (int)eResponseStatus.OK;
-                }
+                response.status.Code = (int)eResponseStatus.OK;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error - GetResponse", 
-                    string.Format("Exception: group = {0} siteGuid = {1} filterPhrase = {2} message = {3}, ST = {4}", 
+                Logger.Logger.Log("Error - GetResponse",
+                    string.Format("Exception: group = {0} siteGuid = {1} filterPhrase = {2} message = {3}, ST = {4}",
                     baseRequest.m_nGroupID, // {0}
                     baseRequest.m_sSiteGuid, // {1}
                     // Use filter query if this is correct type

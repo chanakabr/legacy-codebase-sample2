@@ -88,8 +88,7 @@ namespace TVinciShared
 
         static public string GetDateImageName()
         {
-            DateTime MyDate = DateTime.UtcNow;
-            return MyDate.ToString("ddMMyyhhmmssff");
+            return Guid.NewGuid().ToString().Replace("-", "");
         }
 
         static public string GetDateImageName(int mediaID)

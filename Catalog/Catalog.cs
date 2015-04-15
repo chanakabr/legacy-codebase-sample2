@@ -734,90 +734,94 @@ namespace Catalog
             };
 
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(nParentGroupID);
-
-            // Add prefixes, check if non start/end date exist
-            #region Phrase Tree
-
-            if (group != null)
+            if (request.filterTree != null)
             {
-                Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
-                nodes.Enqueue(request.filterTree);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-                // BFS
-                while (nodes.Count > 0)
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(nParentGroupID);
+
+                // Add prefixes, check if non start/end date exist
+                #region Phrase Tree
+
+                if (group != null)
                 {
-                    BooleanPhraseNode node = nodes.Dequeue();
+                    Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
+                    nodes.Enqueue(request.filterTree);
 
-                    // If it is a leaf, just replace the field name
-                    if (node.type == BooleanNodeType.Leaf)
+                    // BFS
+                    while (nodes.Count > 0)
                     {
-                        BooleanLeaf leaf = node as BooleanLeaf;
+                        BooleanPhraseNode node = nodes.Dequeue();
 
-                        bool isTagOrMeta;
-                        // Add prefix (meta/tag) e.g. metas.{key}
-                        
-                        string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
-                        leaf.field = searchKey;
-
-                        string searchKeyLowered = searchKey.ToLower();
-
-                        // Default - string, until proved otherwise
-                        leaf.valueType = typeof(string);
-
-                        // If this is a tag or a meta, we can continue happily.
-                        // If not, we check if it is one of the "core" fields.
-                        // If it is not one of them, an exception will be thrown
-                        if (!isTagOrMeta)
+                        // If it is a leaf, just replace the field name
+                        if (node.type == BooleanNodeType.Leaf)
                         {
-                            // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                            if (searchKeyLowered == "start_date")
-                            {
-                                definitions.defaultStartDate = false;
-                                leaf.valueType = typeof(DateTime);
+                            BooleanLeaf leaf = node as BooleanLeaf;
 
-                                long epoch = Convert.ToInt64(leaf.value);
+                            bool isTagOrMeta;
+                            // Add prefix (meta/tag) e.g. metas.{key}
 
-                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                            }
-                            else if (searchKeyLowered == "end_date")
-                            {
-                                definitions.defaultEndDate = false;
-                                leaf.valueType = typeof(DateTime);
+                            string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
+                            leaf.field = searchKey;
 
-                                long epoch = Convert.ToInt64(leaf.value);
+                            string searchKeyLowered = searchKey.ToLower();
 
-                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                            }
-                            else if (reservedNumericFields.Contains(searchKeyLowered))
+                            // Default - string, until proved otherwise
+                            leaf.valueType = typeof(string);
+
+                            // If this is a tag or a meta, we can continue happily.
+                            // If not, we check if it is one of the "core" fields.
+                            // If it is not one of them, an exception will be thrown
+                            if (!isTagOrMeta)
                             {
-                                leaf.valueType = typeof(long);
-                            }
-                            else if (!reservedStringFields.Contains(searchKeyLowered))
-                            {
-                                var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
-                                exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
-                                throw exception;
+                                // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                                if (searchKeyLowered == "start_date")
+                                {
+                                    definitions.defaultStartDate = false;
+                                    leaf.valueType = typeof(DateTime);
+
+                                    long epoch = Convert.ToInt64(leaf.value);
+
+                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                }
+                                else if (searchKeyLowered == "end_date")
+                                {
+                                    definitions.defaultEndDate = false;
+                                    leaf.valueType = typeof(DateTime);
+
+                                    long epoch = Convert.ToInt64(leaf.value);
+
+                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                }
+                                else if (reservedNumericFields.Contains(searchKeyLowered))
+                                {
+                                    leaf.valueType = typeof(long);
+                                }
+                                else if (!reservedStringFields.Contains(searchKeyLowered))
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
+                                    throw exception;
+                                }
                             }
                         }
-                    }
-                    else if (node.type == BooleanNodeType.Parent)
-                    {
-                        BooleanPhrase phrase = node as BooleanPhrase;
-
-                        // Run on tree - enqueue all child nodes to continue going deeper
-                        foreach (var childNode in phrase.nodes)
+                        else if (node.type == BooleanNodeType.Parent)
                         {
-                            nodes.Enqueue(childNode);
+                            BooleanPhrase phrase = node as BooleanPhrase;
+
+                            // Run on tree - enqueue all child nodes to continue going deeper
+                            foreach (var childNode in phrase.nodes)
+                            {
+                                nodes.Enqueue(childNode);
+                            }
                         }
                     }
                 }
-            } 
-            #endregion
+                #endregion
+            }
 
             // Get days offset for EPG search from TCM
             definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();

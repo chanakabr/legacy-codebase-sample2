@@ -37,6 +37,7 @@ namespace EpgBL
                 {
                     ulong nNewID = newEpgItem.EpgID;
 
+                
                     bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
                                             m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
 
@@ -120,9 +121,11 @@ namespace EpgBL
 
         public void RemoveEpg(List<ulong> lIDs)
         {
+            bool bRemove = false;
             foreach (ulong id in lIDs)
             {
-                this.RemoveEpg(id);
+                bRemove = this.RemoveEpg(id);
+                Logger.Logger.Log("delete", string.Format("remove id = {0}, success = {1}", id, bRemove), "CBDelete");
             }
         }
 
@@ -157,20 +160,35 @@ namespace EpgBL
         public override void RemoveGroupPrograms(List<DateTime> lDates, int channelID)
         {
             List<EpgCB> lExisitingPrograms = new List<EpgCB>();
+            Dictionary<ulong,EpgCB> dExisitingPrograms = new Dictionary<ulong,EpgCB>();
             foreach (DateTime date in lDates)
             {
                 List<EpgCB> lTempPrograms = new List<EpgCB>();
                 lTempPrograms = this.GetChannelPrograms(0, 0, channelID, date, date.AddDays(1));
+                Logger.Logger.Log("RemoveGroupPrograms", string.Format("Date = {0}, channelID ={1}", date, channelID), "CBDelete");
+                Logger.Logger.Log("RemoveGroupPrograms", string.Format("lTempPrograms count ={0}", lTempPrograms != null ? lTempPrograms.Count : 0), "CBDelete");
+                 
 
                 if (lTempPrograms != null && lTempPrograms.Count > 0)
                 {
                     foreach (EpgCB item in lTempPrograms)
                     {
-                        if (!lExisitingPrograms.Contains(item))
+                        Logger.Logger.Log("RemoveGroupPrograms", string.Format("item = {0}", item.EpgID), "CBDelete");
+
+                        if (!lExisitingPrograms.Exists(x => x.EpgID == item.EpgID))
+                        {
                             lExisitingPrograms.Add(item);
+                        }
+                        //if (!dExisitingPrograms.ContainsKey(item.EpgID))
+                        //{
+                        //    dExisitingPrograms.Add(item.EpgID, item);
+                        //    lExisitingPrograms.Add(item);
+                        //}
                     }
                 }
             }
+
+            Logger.Logger.Log("RemoveGroupPrograms", string.Format("lExisitingPrograms count ={0}", lExisitingPrograms != null ? lExisitingPrograms.Count : 0), "CBDelete");
 
             if (lExisitingPrograms != null && lExisitingPrograms.Count > 0)
             {
@@ -182,6 +200,7 @@ namespace EpgBL
                         lEpgIDs.Add(epg.EpgID);
                     }
                 }
+               
                 this.RemoveEpg(lEpgIDs);
             }
         }

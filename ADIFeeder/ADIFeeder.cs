@@ -288,7 +288,7 @@ namespace ADIFeeder
                 currTag.ml_handling = "unique";
 
                 List<ADIFeederXSD.feedExportMediaStructureMetaContainer> conList = new List<ADIFeederXSD.feedExportMediaStructureMetaContainer>();
-                foreach (string value in kvp.Value)
+                foreach (string value in kvp.Value.Distinct())
                 {
                     ADIFeederXSD.feedExportMediaStructureMetaContainer currCon = new ADIFeederXSD.feedExportMediaStructureMetaContainer();
                     currCon.value = new ADIFeederXSD.feedExportMediaStructureMetaContainerValue();
@@ -993,9 +993,7 @@ namespace ADIFeeder
 
         public void AddTag(string tagName, string tagValue)
         {
-
-            if (tagValue.EndsWith(";"))
-                tagValue = tagValue.Substring(0, tagValue.Length - 1);
+            tagValue = tagValue.TrimEnd(';');
 
             if (!m_tagsDict.ContainsKey(tagName))
             {
@@ -1008,6 +1006,9 @@ namespace ADIFeeder
                 catValues.Add(tagValue);
                 m_tagsDict[tagName] = catValues;
             }
+
+            m_tagsDict[tagName] = m_tagsDict[tagName].Distinct().ToList();
+
         }
 
         private void SetupAllTagsValues()
