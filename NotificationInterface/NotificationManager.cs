@@ -1531,6 +1531,9 @@ namespace NotificationInterface
             DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "startDate");
             DateTime catalogStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "catalogStartDate");
 
+            string notificationDateFormat = ODBCWrapper.Utils.GetSafeStr(dr, "notification_date_format");
+
+
             Logger.Logger.Log("CreateNotificationRequestObject",string.Format( "Start userID={0}",userID), "NotificationManager");
 
             //add is email / push / sms
@@ -1609,9 +1612,9 @@ namespace NotificationInterface
                     pull_message_text = String.Format("{0}", pull_message_text.Replace("{mediaName}", mediaName));
 
                     // replace the startDatae +catalogStartDate                   
-                    ReplaceDatesInMessageText(startDate, catalogStartDate, ref messageText);
-                    ReplaceDatesInMessageText(startDate, catalogStartDate, ref smsMessageText);
-                    ReplaceDatesInMessageText(startDate, catalogStartDate, ref pull_message_text);
+                    ReplaceDatesInMessageText(startDate, catalogStartDate, notificationDateFormat, ref messageText);
+                    ReplaceDatesInMessageText(startDate, catalogStartDate, notificationDateFormat, ref smsMessageText);
+                    ReplaceDatesInMessageText(startDate, catalogStartDate, notificationDateFormat, ref pull_message_text);
 
                     //replace FirstName + LastName
                     ReplaceFirstLastNames(groupID, userID, ref messageText, ref smsMessageText, ref pull_message_text);
@@ -1768,58 +1771,92 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                //TO DO ????
+                Logger.Logger.Log("ReplaceFirstLastNames", string.Format("failed replace names in message with groupID={0}, messageText={1}, ex={2}", groupID, messageText, ex.Message), "NotificationManager");
             }
         }
 
-        private void ReplaceDatesInMessageText(DateTime startDate, DateTime catalogStartDate, ref string messageText)
+        private void ReplaceDatesInMessageText(DateTime startDate, DateTime catalogStartDate, string notificationDateFormat, ref string messageText)
         {
             try
             {
+                int first = 0;
+                int last = 0;
+                string startDateString = string.Empty;
+                string startDateFormat = string.Empty;
+                string sStartDate = string.Empty;
+                string sCatalogStartDate = string.Empty;
+                string catalogStartDateString = string.Empty;
+                string catalogDateFormat = string.Empty;
+
                 // get start and end insex for this substring that we ae looking for
-                int first = messageText.IndexOf("{StartDate");
-                int last = messageText.IndexOf("}", first);
-                string startDateString = messageText.Substring(first, last - first+1);
-                string[] startDateSplit = startDateString.Split(',');
-                string startDateFormat = deafultDateFormat;
-
-                if (startDateSplit != null && startDateSplit.Count() == 2)
+                first = messageText.IndexOf("{StartDate");
+                if (first > 0)
                 {
-                    startDateFormat = startDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
-                }
+                    last = messageText.IndexOf("}", first);
+                    startDateString = messageText.Substring(first, last - first + 1);
+                    string[] startDateSplit = startDateString.Split(',');                    
 
+                    if (startDateSplit != null && startDateSplit.Count() == 2)
+                    {
+                        startDateFormat = startDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
+                    }
+                    if (string.IsNullOrEmpty(startDateFormat))
+                    {
+                        startDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
+                    }
+                }
+                first = 0;
+                last = 0;
                 first = messageText.IndexOf("{CatalaogStartDate");
-                last = messageText.IndexOf("}", first);
-                string catalogStartDateString = messageText.Substring(first, last - first+1);
-                string[] catalogStartDateSplit = catalogStartDateString.Split(',');
-                string catalogDateFormat = deafultDateFormat;
-                //dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
-                if (catalogStartDateSplit != null && catalogStartDateSplit.Count() == 2)
+                if (first > 0)
                 {
-                    catalogDateFormat = catalogStartDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
+                    last = messageText.IndexOf("}", first);
+                    catalogStartDateString = messageText.Substring(first, last - first + 1);
+                    string[] catalogStartDateSplit = catalogStartDateString.Split(',');
+                    
+                    if (catalogStartDateSplit != null && catalogStartDateSplit.Count() == 2)
+                    {
+                        catalogDateFormat = catalogStartDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
+                    }
+                    if (string.IsNullOrEmpty(catalogDateFormat))
+                    {
+                        catalogDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
+                    }
                 }
-
+                
                 //create the date in the right format 
-                string sStartDate;
-                string sCatalogStartDate;
-                sStartDate = Utils.ExtractDate(startDate, startDateFormat);
-                sCatalogStartDate = Utils.ExtractDate(catalogStartDate, catalogDateFormat);
-
-                if (string.IsNullOrEmpty(sStartDate))
+                try
                 {
+                    if (!string.IsNullOrEmpty(startDateString))
+                    {
+                        sStartDate = Utils.ExtractDate(startDate, startDateFormat);
+                        messageText = String.Format("{0}", messageText.Replace(startDateString, sStartDate));
+                    }
+                }
+                catch (Exception exStartDate)
+                {
+                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", startDateFormat, startDateString, exStartDate.Message), "NotificationManager");
                     sStartDate = Utils.ExtractDate(startDate, deafultDateFormat);
+                    messageText = String.Format("{0}", messageText.Replace(startDateString, sStartDate));
                 }
-                if (string.IsNullOrEmpty(sCatalogStartDate))
+                try
                 {
-                    sCatalogStartDate = Utils.ExtractDate(catalogStartDate, deafultDateFormat);
+                    if (!string.IsNullOrEmpty(catalogStartDateString))
+                    {
+                        sCatalogStartDate = Utils.ExtractDate(catalogStartDate, catalogDateFormat);
+                        messageText = String.Format("{0}", messageText.Replace(catalogStartDateString, sCatalogStartDate));
+                    }
                 }
-
-                messageText = String.Format("{0}", messageText.Replace(startDateString, sStartDate));
-                messageText = String.Format("{0}", messageText.Replace(catalogStartDateString, sCatalogStartDate));
+                catch (Exception exCatalogStartDate)
+                {
+                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", catalogDateFormat, catalogStartDateString, exCatalogStartDate.Message), "NotificationManager");
+                    sCatalogStartDate = Utils.ExtractDate(catalogStartDate, deafultDateFormat);
+                    messageText = String.Format("{0}", messageText.Replace(catalogStartDateString, sCatalogStartDate));
+                }
             }
             catch (Exception ex)
             {
-                // if faild ?????
+
             }
         }
         
