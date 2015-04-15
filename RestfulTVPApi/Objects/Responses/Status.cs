@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RestfulTVPApi.Objects.Responses
+namespace RestfulTVPApi.Objects.Response
 {
     public class Status
     {

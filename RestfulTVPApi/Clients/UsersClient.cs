@@ -8,6 +8,7 @@ using System.Web;
 using RestfulTVPApi.Objects.Extentions;
 using RestfulTVPApi.Users;
 using RestfulTVPApi.Clients.Utils;
+using RestfulTVPApi.Objects.Response;
 
 namespace RestfulTVPApi.Clients
 {

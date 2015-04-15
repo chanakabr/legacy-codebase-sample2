@@ -162,7 +162,7 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.disco" />
+    <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -312,11 +312,14 @@
     <Compile Include="Clients\Utils\Utils.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
+    <Compile Include="Objects\Models\Status.cs" />
+    <Compile Include="Objects\RequestModels\Enums.cs" />
     <Compile Include="Objects\Responses\ActionProperties.cs" />
     <Compile Include="Objects\Responses\AdvertisingProvider.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
     <Compile Include="Objects\Models\AssetInfo.cs" />
     <Compile Include="Objects\Models\AssetStats.cs" />
+    <Compile Include="Objects\Responses\BaseResponse.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
     <Compile Include="Objects\Responses\BillingResponse.cs" />
     <Compile Include="Objects\Responses\BillingTransactionContainer.cs" />
@@ -424,13 +427,13 @@
     <Compile Include="Objects\Responses\PriceCode.cs" />
     <Compile Include="Objects\Responses\ResponseStatus.cs" />
     <Compile Include="Objects\Responses\Scope.cs" />
+    <Compile Include="Objects\Responses\SearchAssetsResponse.cs" />
     <Compile Include="Objects\Responses\SocialActivityDoc.cs" />
     <Compile Include="Objects\Responses\SocialActivityObject.cs" />
     <Compile Include="Objects\Responses\SocialActivitySubject.cs" />
     <Compile Include="Objects\Responses\SocialActivityVerb.cs" />
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
     <Compile Include="Objects\Responses\State.cs" />
-    <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\Subscription.cs" />
     <Compile Include="Objects\Responses\SubscriptionCodeContainer.cs" />
@@ -1078,7 +1081,7 @@
     <Content Include="Web References\Pricing\UsageModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.wsdl" />
+    <None Include="Web References\Api\api.wsdl" />
     <Content Include="Web References\Api\CategoryObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1124,10 +1127,13 @@
     <Content Include="Web References\Api\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\Reference.map">
+    <Content Include="Web References\Api\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Api\RegionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1322,6 +1328,7 @@
       <CachedSettingsPropName>RestfulTVPApi_Users_UsersService</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

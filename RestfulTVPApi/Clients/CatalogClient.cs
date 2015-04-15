@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using RestfulTVPApi.Objects.Extentions;
+using RestfulTVPApi.Objects.Responses;
 
 namespace RestfulTVPApi.Clients
 {
@@ -81,10 +82,50 @@ namespace RestfulTVPApi.Clients
             return retVal;
         }
 
-        public List<AssetInfo> SearchAssets(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform,  string siteGuid, string udid, int language, int pageIndex, int pageSize, 
-            string filter, OrderObj order, List<int> assetTypes, List<string> with)
+        public SearchAssetsResponse SearchAssets(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, int pageIndex, int pageSize, 
+            string filter, string orderBy, List<int> assetTypes, List<string> with)
         {
-            List<AssetInfo> result = null;
+            SearchAssetsResponse result = new SearchAssetsResponse();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                switch (orderBy.ToLower())
+                {
+                    case "a_to_z":
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case "z_to_a":
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case "views":
+                        order.m_eOrderBy = OrderBy.VIEWS;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case "ratings":
+                        order.m_eOrderBy = OrderBy.RATING;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case "votes":
+                        order.m_eOrderBy = OrderBy.VOTES_COUNT;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case "newest":
+                        order.m_eOrderBy = OrderBy.CREATE_DATE;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case "relevancy":
+                        order.m_eOrderBy = OrderBy.RELATED;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    default:
+                        throw new Exception("Unknown orderBy value");
+                        
+                }
+            }
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -107,27 +148,18 @@ namespace RestfulTVPApi.Clients
 
             // build failover cahce key
             StringBuilder key = new StringBuilder();
-
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}", groupID, pageSize, pageIndex);
-            if (order != null)
-            {
-                key.AppendFormat("_ob={0}_od={1}", order.m_eOrderBy, order.m_eOrderDir);
-                if (!string.IsNullOrEmpty(order.m_sOrderValue))
-                    key.AppendFormat("_ov={0}", order.m_sOrderValue);
-            }
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
-            if (!string.IsNullOrEmpty(filter))
-                key.AppendFormat("_f={0}", filter);
 
-            result = CatalogUtils.SearchAssets(Catalog, request, key.ToString(), with);
+            result = CatalogUtils.SearchAssets(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
             return result;
         }
 
         public List<AssetStats> GetAssetsStats(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, 
-            string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, 
-            RestfulTVPApi.Catalog.StatsType assetType)
+            string siteGuid, string udid, List<int> assetIds, long startTime, long endTime,
+            RestfulTVPApi.Objects.RequestModels.Enums.StatsType assetType)
         {
             List<AssetStats> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
@@ -144,7 +176,7 @@ namespace RestfulTVPApi.Clients
                 m_nAssetIDs = assetIds,
                 m_dStartDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(startTime),
                 m_dEndDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(endTime),
-                m_type = assetType
+                m_type = RestfulTVPApi.Objects.RequestModels.Enums.ConvertStatsType(assetType)
             };
 
             var response = Catalog.GetResponse(request) as AssetStatsResponse;

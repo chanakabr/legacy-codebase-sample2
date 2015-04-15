@@ -43,8 +43,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "unit", Description = "Program ID", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        [ApiAllowableValues("unit", typeof(RestfulTVPApi.Objects.Enums.EPGUnit))]
-        public RestfulTVPApi.Objects.Enums.EPGUnit unit { get; set; }
+        [ApiAllowableValues("unit", typeof(RestfulTVPApi.Objects.RequestModels.Enums.EPGUnit))]
+        public RestfulTVPApi.Objects.RequestModels.Enums.EPGUnit unit { get; set; }
         [ApiMember(Name = "from_offset", Description = "From Offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int from_offset { get; set; }
         [ApiMember(Name = "to_offset", Description = "To Offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
@@ -115,7 +115,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Picture Size. Options: 'full' - original picture size width x height for all the rest", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "unit", Description = "Days,Hours,Current", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public RestfulTVPApi.Objects.Enums.EPGUnit unit { get; set; }
+        public RestfulTVPApi.Objects.RequestModels.Enums.EPGUnit unit { get; set; }
         [ApiMember(Name = "from_offset", Description = "From offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int from_offset { get; set; }
         [ApiMember(Name = "to_offset", Description = "To offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]

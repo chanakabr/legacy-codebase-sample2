@@ -11,6 +11,7 @@ using RestfulTVPApi.Objects.Responses.Enums;
 using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Clients;
 using RestfulTVPApi.Notification;
+using RestfulTVPApi.Objects.Response;
 
 namespace RestfulTVPApi.ServiceInterface
 {

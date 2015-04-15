@@ -170,6 +170,8 @@ namespace RestfulTVPApi.Api {
         
         private System.Threading.SendOrPostCallback GetRegionsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetGroupLanguagesOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -417,6 +419,9 @@ namespace RestfulTVPApi.Api {
         
         /// <remarks/>
         public event GetRegionsCompletedEventHandler GetRegionsCompleted;
+        
+        /// <remarks/>
+        public event GetGroupLanguagesCompletedEventHandler GetGroupLanguagesCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2945,6 +2950,37 @@ namespace RestfulTVPApi.Api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupLanguages", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public LanguageObj[] GetGroupLanguages(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetGroupLanguages", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((LanguageObj[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword) {
+            this.GetGroupLanguagesAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetGroupLanguagesOperationCompleted == null)) {
+                this.GetGroupLanguagesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupLanguagesOperationCompleted);
+            }
+            this.InvokeAsync("GetGroupLanguages", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetGroupLanguagesOperationCompleted, userState);
+        }
+        
+        private void OnGetGroupLanguagesOperationCompleted(object arg) {
+            if ((this.GetGroupLanguagesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetGroupLanguagesCompleted(this, new GetGroupLanguagesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3178,6 +3214,75 @@ namespace RestfulTVPApi.Api {
             }
             set {
                 this.m_sFileQualityField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class LanguageObj {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private string codeField;
+        
+        private string directionField;
+        
+        private bool isDefaultField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Direction {
+            get {
+                return this.directionField;
+            }
+            set {
+                this.directionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
             }
         }
     }
@@ -10093,6 +10198,32 @@ namespace RestfulTVPApi.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((RegionsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetGroupLanguagesCompletedEventHandler(object sender, GetGroupLanguagesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetGroupLanguagesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetGroupLanguagesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public LanguageObj[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((LanguageObj[])(this.results[0]));
             }
         }
     }
