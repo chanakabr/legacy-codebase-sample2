@@ -3248,7 +3248,9 @@ namespace TVPApiServices
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         filter_types, filter, with)
                         {
-                            Order = order
+                            Order = order,
+                            SiteGuid = initObj.SiteGuid,
+                            DomainId = initObj.DomainID
                         }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                 }
                 catch (Exception ex)
