@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_group_regions_new : System.Web.UI.Page
@@ -378,7 +379,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
 
             if (mediaRegionId != 0)
             {
-                UpdateMediaRegions(mediaRegionId, status, mediaID, regionId, channelNumber);
+                UpdateMediaRegions(mediaRegionId, status, mediaID, regionId, channelNumber, groupId);
             }
         }
         else
@@ -406,9 +407,9 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             if (mediaRegionId != 0)
             {
                 if (status == 0)
-                    UpdateMediaRegions(mediaRegionId, 1, mediaID, regionId, null);
+                    UpdateMediaRegions(mediaRegionId, 1, mediaID, regionId, null, groupId);
                 else
-                    UpdateMediaRegions(mediaRegionId, 0, mediaID, regionId, null);
+                    UpdateMediaRegions(mediaRegionId, 0, mediaID, regionId, null, groupId);
             }
             else
             {
@@ -453,9 +454,12 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         bInsert = insertQuery.Execute();
         insertQuery.Finish();
         insertQuery = null;
+        
+        //Update index 
+        ImporterImpl.UpdateIndex(new List<int>() { mediaID }, groupId, ApiObjects.eAction.Update);
     }
 
-    protected void UpdateMediaRegions(Int32 id, Int32 status, int mediaId, int regionId, string channelNumber)
+    protected void UpdateMediaRegions(Int32 id, Int32 status, int mediaId, int regionId, string channelNumber, int groupId)
     {
         bool bUpdate = false;
         
@@ -479,5 +483,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         bUpdate = updateQuery.Execute();
         updateQuery.Finish();
         updateQuery = null;
+
+        ImporterImpl.UpdateIndex(new List<int>() { mediaId }, groupId, ApiObjects.eAction.Update);
     }
 }
