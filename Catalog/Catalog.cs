@@ -1049,9 +1049,6 @@ namespace Catalog
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
-                // Always search for region 0 - media that is not associated to any region
-                regionIds.Add(0);
-
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
                 {
