@@ -41,9 +41,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\Couchbase-Net-Client-1.3.10\net35\Couchbase.dll</HintPath>
+    </Reference>
     <Reference Include="CS_threescale, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CS_threescale\CS_threescale.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\Couchbase-Net-Client-1.3.10\net35\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
@@ -310,8 +318,11 @@
     <Compile Include="Clients\DomainsClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
     <Compile Include="Clients\Utils\Utils.cs" />
+    <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
+    <Compile Include="Objects\Group.cs" />
     <Compile Include="Objects\Models\Status.cs" />
     <Compile Include="Objects\RequestModels\Enums.cs" />
     <Compile Include="Objects\Responses\ActionProperties.cs" />
@@ -1229,14 +1240,6 @@
     <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
-      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
-      <Name>Tvinci.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj">
-      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
-      <Name>TVPPro.Configuration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
       <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>

@@ -106,23 +106,23 @@ namespace RestfulTVPApi.ServiceInterface
         public List<string> GetAutoCompleteSearchList(GetAutoCompleteSearchListRequest request)
         {
             List<string> lstRet = null;
+            //Deprecated! 
+            //int maxItems = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
+            //string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+            //string[] arrTagNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
 
-            int maxItems = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
-            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
-            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+            //List<string> lstResponse = ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetAutoCompleteList(request.media_types != null ? request.media_types : new int[0], arrMetaNames, arrTagNames, request.prefix_text, request.InitObj.Locale.LocaleLanguage, 0, maxItems).ToList();
 
-            List<string> lstResponse = ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetAutoCompleteList(request.media_types != null ? request.media_types : new int[0], arrMetaNames, arrTagNames, request.prefix_text, request.InitObj.Locale.LocaleLanguage, 0, maxItems).ToList();
+            //if (lstResponse != null)
+            //{
+            //    lstRet = new List<String>();
 
-            if (lstResponse != null)
-            {
-                lstRet = new List<String>();
-
-                foreach (String sTitle in lstResponse)
-                {
-                    if (sTitle.ToLower().StartsWith(request.prefix_text.ToLower()))
-                        lstRet.Add(sTitle);
-                }
-            }
+            //    foreach (String sTitle in lstResponse)
+            //    {
+            //        if (sTitle.ToLower().StartsWith(request.prefix_text.ToLower()))
+            //            lstRet.Add(sTitle);
+            //    }
+            //}
 
             return lstRet;
         }

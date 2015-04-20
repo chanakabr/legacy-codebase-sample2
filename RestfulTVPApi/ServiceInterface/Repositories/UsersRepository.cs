@@ -272,7 +272,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public bool IsUserSignedIn(IsUserSignedInRequest request)
         {
-            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID, request.InitObj.Platform);
+            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID);
 
             return ClientsManager.UsersClient().IsUserLoggedIn(request.site_guid, request.InitObj.UDID, string.Empty, Utils.GetClientIP(), isSingleLogin);            
         }
@@ -291,7 +291,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public void SignOut(SignOutRequest request)
         {
-            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID, request.InitObj.Platform);
+            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID);
 
             ClientsManager.UsersClient().SignOut(request.user_name, request.InitObj.UDID, string.Empty, isSingleLogin);            
         }

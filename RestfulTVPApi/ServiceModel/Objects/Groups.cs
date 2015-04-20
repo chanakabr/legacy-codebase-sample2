@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using TVPApi;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
+using RestfulTVPApi.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceModel
 {

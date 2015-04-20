@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using TVPApi;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Context;
-using TVPApiModule.Helper;
 using RestfulTVPApi.Notification;
+using RestfulTVPApi.Objects.Responses;
+using TVPApiModule.Context;
+using RestfulTVPApi.Objects.Responses.Enums;
+using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -401,7 +400,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/password", "POST", Notes = "This method is used when the user has forgotten his/her password. A new password is emailed to the user")]
-    public class SendNewPasswordRequest : RequestBase, IReturn<Status>
+    public class SendNewPasswordRequest : RequestBase, IReturn<RestfulTVPApi.Objects.Response.Status>
     {
         [ApiMember(Name = "user_name", Description = "User name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
@@ -429,7 +428,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/subscription/{sub_id}/permitted", "GET", Summary = "Returns if the subscription is permitted to the user", Notes = "")]
-    public class IsPermittedSubscriptionRequest : RequestBase, IReturn<Status>
+    public class IsPermittedSubscriptionRequest : RequestBase, IReturn<RestfulTVPApi.Objects.Response.Status>
     {
         [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -975,7 +974,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/subscriptions/cancel", "DELETE", Notes = "This method cancels a subscription previously purchased by the user. Requires the subscription identifier and the subscription purchase identifier. Returns boolean success/fail")]
-    public class CancelSubscriptionRequest : RequestBase, IReturn<Status>
+    public class CancelSubscriptionRequest : RequestBase, IReturn<RestfulTVPApi.Objects.Response.Status>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -986,7 +985,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/subscriptions/renewal/cancel", "DELETE", Notes = "Cancel a household service subscription at the next renewal. The subscription stays valid untill the next renewal")]
-    public class CancelSubscriptionRenewalRequest : RequestBase, IReturn<Status>
+    public class CancelSubscriptionRenewalRequest : RequestBase, IReturn<RestfulTVPApi.Objects.Response.Status>
     {
         [ApiMember(Name = "domain_id", Description = "Domain id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }

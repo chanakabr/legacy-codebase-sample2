@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestfulTVPApi.Managers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,14 +12,17 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public static class Utils
     {
-        public static bool GetUseStartDateValue(int groupId, PlatformType platform)
+        public static bool GetUseStartDateValue(int groupId)
         {
-            return bool.Parse(ConfigManager.GetInstance().GetConfig(groupId, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate);
+            //return bool.Parse(ConfigManager.GetInstance().GetConfig(groupId, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate);
+            return GroupsManager.GetInstance(groupId).UseStartDate;
+            
         }
 
-        public static bool GetIsSingleLoginValue(int groupId, PlatformType platform)
+        public static bool GetIsSingleLoginValue(int groupId)
         {
-            return ConfigManager.GetInstance().GetConfig(groupId, platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+            //return ConfigManager.GetInstance().GetConfig(groupId, platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+            return GroupsManager.GetInstance(groupId).ShouldSupportSingleLogin;
         }
 
         public static DateTime ConvertFromUnixTimestamp(double timestamp)
@@ -49,7 +53,6 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
-            //if (ip.Equals("81.218.199.175")) ip = "127.0.0.1";
 
             return ip;
         }
