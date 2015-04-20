@@ -77,7 +77,8 @@ namespace Users
             if (user.m_domianID != 0)
             {
                 Logger.Logger.Log("Error", string.Format("User exists in other domain so it cannot be added to a new one. DomainStatus : {0} , G ID: {1} , D Name: {2} , Master: {3}, OtherDomain: {4}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid, domain.m_nDomainID), "DomainFactory");
-                domain.m_DomainStatus = DomainStatus.Error;
+
+                domain.m_DomainStatus = DomainStatus.UserExistsInOtherDomains;
                 return domain;
             }
 
