@@ -738,10 +738,10 @@ namespace Catalog
             if (request.filterTree != null)
             {
                 CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(nParentGroupID);
+                Group group = groupManager.GetGroup(parentGroupID);
 
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
@@ -882,6 +882,18 @@ namespace Catalog
             {
                 definitions.shouldSearchMedia = true;
             }
+
+            #endregion
+
+            #region Regions
+
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            definitions.regionIds = regionIds;
+            definitions.linearChannelMediaTypes = linearMediaTypes;
 
             #endregion
 
@@ -1047,8 +1059,8 @@ namespace Catalog
         /// <returns></returns>
         internal static void SetSearchRegions(int groupId, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
-            regionIds = new List<int>();
-            linearMediaTypes = new List<string>();
+            regionIds = null;
+            linearMediaTypes = null;
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
@@ -1056,6 +1068,9 @@ namespace Catalog
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
+                regionIds = new List<int>();
+                linearMediaTypes = new List<string>();
+
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
                 {
@@ -1112,7 +1127,6 @@ namespace Catalog
                         }
                     }
                 }
-
                 
                 // Now we need linear media types - so we filter them and not other media types
                 Dictionary<string, string> dictionary = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
