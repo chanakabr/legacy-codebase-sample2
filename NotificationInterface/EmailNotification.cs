@@ -30,7 +30,8 @@ namespace NotificationInterface
              NotificationMessageType messageType = request.MessageType;
              NotificationRequestAction[] actions = request.Actions;
              string appName = GetAppNameFromConfig(request.GroupID);
-             NotificationMessage emailMessage = new NotificationMessage(messageType, request.NotificationID, request.ID, request.UserID, NotificationMessageStatus.NotStarted, request.MessageText, request.Title, appName, string.Empty, 0, request.Actions, request.oExtraParams, request.GroupID);
+             NotificationMessage emailMessage = new NotificationMessage(messageType, request.NotificationID, request.ID, request.UserID, NotificationMessageStatus.NotStarted, request.MessageText, request.Title, appName, 
+                 string.Empty, 0, request.Actions, request.oExtraParams, request.GroupID);
              return emailMessage;
          }
 
@@ -66,7 +67,8 @@ namespace NotificationInterface
                  emailRequest.m_eMailType = WS_Api.eMailTemplateType.Notification;
                  if (userObj != null && userObj.m_user != null && userObj.m_user.m_oBasicData != null)
                  {
-                     emailRequest.m_firstName = userObj.m_user.m_oBasicData.m_sFirstName;
+                     emailRequest.m_sFirstName = userObj.m_user.m_oBasicData.m_sFirstName;
+                     emailRequest.m_sLastName = userObj.m_user.m_oBasicData.m_sLastName;
                      emailRequest.m_sSenderTo = userObj.m_user.m_oBasicData.m_sEmail; //"liat.r@tvinci.com";
                  }
 
@@ -150,7 +152,25 @@ namespace NotificationInterface
                      string mediaName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0]["mediaName"]);
                      emailRequest.m_sMediaName = mediaName;
                      emailRequest.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0]["mail_ret_add"]);
-                     emailRequest.m_startDate = ODBCWrapper.Utils.GetDateSafeVal((ds.Tables[0].Rows[0]["START_DATE"])).ToShortDateString();
+                     //
+                     DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[0].Rows[0], "START_DATE");
+                     DateTime catalogStartDate = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[0].Rows[0], "CATALOG_START_DATE");
+
+                     try
+                     {
+                         emailRequest.m_startDate = Utils.ExtractDate(startDate, message.TagNotificationParams.dateFormat);
+                     }
+                     catch (Exception ex)
+                     {
+                     }
+
+                     try
+                     {
+                         emailRequest.m_catalogStartDate = Utils.ExtractDate(catalogStartDate, message.TagNotificationParams.dateFormat);
+                     }
+                     catch (Exception ex)
+                     {
+                     }
 
                      int group_id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0]["group_id"]);
                      DataTable dtMetaNames = DAL.NotificationDal.Get_MetasByGroup(group_id);

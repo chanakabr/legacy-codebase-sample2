@@ -25,6 +25,8 @@ namespace NotificationInterface
     {
 
         private const string deafultDateFormat = "dd/MM/yyyy HH:mm:ss";
+        private const string deafultEmailDateFormat = "dd-MMM-yyyy";
+
 
         #region private Memebers
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -1605,6 +1607,7 @@ namespace NotificationInterface
                 {   
                     extraParams.templateEmail = notificationEmailTemplate;
                     extraParams.subjectEmail = notificationEmailSubject;
+                    extraParams.dateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultEmailDateFormat : notificationDateFormat;
                     // A Notification About New Media XXXX
                     string mediaName = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("media", "name", extraParams.mediaID, "MAIN_CONNECTION_STRING"));                  
                     messageText = String.Format("{0}", messageText.Replace("{mediaName}", mediaName));

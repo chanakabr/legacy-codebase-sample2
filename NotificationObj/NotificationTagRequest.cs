@@ -62,6 +62,8 @@ namespace NotificationObj
         public string templateEmail { get; set; }
         [ScriptIgnore]
         public string subjectEmail { get; set; }
+        [ScriptIgnore]
+        public string dateFormat { get; set; }
 
         public ExtraParams()
         {
