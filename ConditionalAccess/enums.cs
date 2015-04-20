@@ -45,7 +45,8 @@ namespace ConditionalAccess
         MasterCard = 21,
         InApp = 200,
         M1 = 60,
-        ChangeSubscription = 8
+        ChangeSubscription = 8,
+        Offline = 50
     }
 
     public enum BillingAction
