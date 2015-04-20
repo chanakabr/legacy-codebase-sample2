@@ -244,6 +244,9 @@ namespace Catalog
             searcherEpgSearch.m_bIsCurrent = false;
             searcherEpgSearch.m_bSearchOnlyDatesAndChannels = false;
 
+            // Get the linear channels of the current region(s)
+            Catalog.SetEpgSearchChannelsByRegions(ref searcherEpgSearch, this);
+
             return searcherEpgSearch;
         }
 

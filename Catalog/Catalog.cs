@@ -2946,8 +2946,13 @@ namespace Catalog
             res.m_nGroupId = nGroupID;
             res.m_sMediaTypes = dict[LINEAR_MEDIA_TYPES_KEY];
             res.m_sPermittedWatchRules = dict[PERMITTED_WATCH_RULES_KEY];
-            res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
-            res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+
+            if (jsonizedChannelsDefinitions != null)
+            {
+                res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
+                res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+            }
+
             res.m_nPageIndex = 0;
             res.m_nPageSize = GetSearcherMaxResultsSize();
 
@@ -3986,6 +3991,27 @@ namespace Catalog
             Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
             GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
             MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+        }
+
+        /// <summary>
+        /// Finds out the region for search, according to the domain and/or group, and gets the linear channels of those regions.
+        /// </summary>
+        /// <param name="searcherEpgSearch"></param>
+        /// <param name="epgSearchRequest"></param>
+        internal static void SetEpgSearchChannelsByRegions(ref EpgSearchObj searcherEpgSearch, EpgSearchRequest epgSearchRequest)
+        {
+            List<long> channelIds = null;
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            // Get region/regions for search
+            Catalog.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId, 
+                epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
+            channelIds = CatalogDAL.Get_EpgIdentifier_ByRegion(epgSearchRequest.m_nGroupID, regionIds);
+
+            searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
     }
 }
