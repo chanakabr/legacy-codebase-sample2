@@ -1,10 +1,10 @@
-﻿using ServiceStack.Api.Swagger;
+﻿using RestfulTVPApi.Objects.Responses;
+using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPApiModule.Objects.Responses;
 
 
 namespace RestfulTVPApi.ServiceModel

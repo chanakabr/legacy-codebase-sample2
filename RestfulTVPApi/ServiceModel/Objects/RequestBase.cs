@@ -1,6 +1,5 @@
 ﻿using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using TVPApi;
 using TVPApiModule.Objects;
 
 namespace RestfulTVPApi.ServiceModel

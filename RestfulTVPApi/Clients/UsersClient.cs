@@ -8,6 +8,8 @@ using System.Web;
 using RestfulTVPApi.Objects.Extentions;
 using RestfulTVPApi.Users;
 using RestfulTVPApi.Clients.Utils;
+using RestfulTVPApi.Objects.Response;
+using RestfulTVPApi.Managers;
 
 namespace RestfulTVPApi.Clients
 {
@@ -105,7 +107,8 @@ namespace RestfulTVPApi.Clients
             loginData = Execute(() =>
             {
                 RestfulTVPApi.Objects.Responses.UserResponseObject userResponse = null;
-                bool isSingleLogin = TVPApiModule.Manager.ConfigManager.GetInstance().GetConfig(groupId, (TVPApiModule.Context.PlatformType)platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                //bool isSingleLogin = TVPApiModule.Manager.ConfigManager.GetInstance().GetConfig(groupId, (TVPApiModule.Context.PlatformType)platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                bool isSingleLogin = GroupsManager.GetInstance(groupId).ShouldSupportSingleLogin;
                 RestfulTVPApi.Users.UserResponseObject response = Users.SignInWithToken(WSUserName, WSPassword, token, sessionId, ip, udid, isSingleLogin);//.ToApiObject();
 
                 if (response != null)
@@ -305,7 +308,8 @@ namespace RestfulTVPApi.Clients
 
             response = Execute(() =>
                 {
-                    var res = Users.GetUsersData(WSUserName, WSPassword, sSiteGuids.Split(';'));
+                    
+                    var res = Users.GetUsersData(WSUserName + "_215" , WSPassword, sSiteGuids.Split(';'));
                     if (res != null)
                         response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToList();
 

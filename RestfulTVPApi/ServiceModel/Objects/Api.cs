@@ -4,8 +4,9 @@ using System.Linq;
 using System.Web;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
+using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Objects.Responses.Enums;
+
 
 namespace RestfulTVPApi.ServiceModel
 {

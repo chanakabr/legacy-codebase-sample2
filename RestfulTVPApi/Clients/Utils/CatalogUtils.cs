@@ -16,14 +16,6 @@ namespace RestfulTVPApi.Clients.Utils
 
         private static readonly ILog logger = LogManager.GetLogger(typeof(CatalogUtils));
 
-        private static int cacheDuration;
-        private static string signString;
-        private static string signature;
-
-        public int CacheDuration { set { cacheDuration = value; } }
-        public string SignString { set { signString = value; } }
-        public string Signature { set { signature = value; } }
-
         public static bool GetBaseResponse<T>(RestfulTVPApi.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportCaching = false, string cacheKey = null) where T : BaseResponse
         {
             response = null;
@@ -57,14 +49,16 @@ namespace RestfulTVPApi.Clients.Utils
             return true;
         }
 
-        public static List<AssetInfo> SearchAssets(RestfulTVPApi.Catalog.IserviceClient client, UnifiedSearchRequest request, string cacheKey, List<string> with)
+        public static RestfulTVPApi.Objects.Responses.SearchAssetsResponse SearchAssets(RestfulTVPApi.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<string> with)
         {
-            List<AssetInfo> result = null;
+            RestfulTVPApi.Objects.Responses.SearchAssetsResponse result = new Objects.Responses.SearchAssetsResponse();
 
             UnifiedSearchResponse response;
 
-            if (CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out response, true, cacheKey))
+            if (CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out response, true, cacheKey) && response.status != null && response.status.Code == (int)RestfulTVPApi.Objects.Models.StatusCode.OK)
             {
+                result.TotalItems = response.m_nTotalItems;
+
                 List<MediaObj> medias = null;
                 List<ProgramObj> epgs = null;
                 List<long> missingMediaIds = null;
@@ -74,7 +68,7 @@ namespace RestfulTVPApi.Clients.Utils
                 {
                     List<MediaObj> mediasFromCatalog;
                     List<ProgramObj> epgsFromCatalog;
-                    GetAssetsFromCatalog(client, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+                    GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
 
                     // Append the medias from Catalog to the medias from cache
                     medias.AddRange(mediasFromCatalog);
@@ -83,13 +77,19 @@ namespace RestfulTVPApi.Clients.Utils
                     epgs.AddRange(epgsFromCatalog);
                 }
 
-                result = MargeAndCompleteResults(response.searchResults, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId); // Gets one list including both medias and epgds, ordered by Catalog order
+                result.Assets = MargeAndCompleteResults(response.searchResults, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId); // Gets one list including both medias and epgds, ordered by Catalog order
+
+                result.Status = new Objects.Models.Status((int)StatusCode.OK, "OK");
+            }
+            else
+            {
+                result.Status = RestfulTVPApi.Objects.Models.Status.CreateFromObject(response.status);
             }
 
             return result;
         }
 
-        private static void GetAssetsFromCatalog(RestfulTVPApi.Catalog.IserviceClient client, int groupID, string platform, string siteGuid, string udid, int language, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
+        private static void GetAssetsFromCatalog(RestfulTVPApi.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, int groupID, string platform, string siteGuid, string udid, int language, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
         {
             mediasFromCatalog = new List<MediaObj>();
             epgsFromCatalog = new List<ProgramObj>(); ;
@@ -125,13 +125,13 @@ namespace RestfulTVPApi.Clients.Utils
                     epgsFromCatalog = CleanNullsFromAssetsList(assetInfoResponse.epgList);
 
                     // Store in Cache the medias and epgs from Catalog
-                    StoreAssetsInCache(mediasFromCatalog, MEDIA_CACHE_KEY_PREFIX, language);
-                    StoreAssetsInCache(epgsFromCatalog, EPG_CACHE_KEY_PREFIX, language);
+                    StoreAssetsInCache(mediasFromCatalog, MEDIA_CACHE_KEY_PREFIX, language, cacheDuration);
+                    StoreAssetsInCache(epgsFromCatalog, EPG_CACHE_KEY_PREFIX, language, cacheDuration);
                 }
             }
         }
 
-        private static void StoreAssetsInCache<T>(List<T> assets, string cacheKeyPrefix, int language) where T : BaseObject
+        private static void StoreAssetsInCache<T>(List<T> assets, string cacheKeyPrefix, int language, int cacheDuration) where T : BaseObject
         {
             List<BaseObject> baseObjects = null;
 
@@ -170,8 +170,8 @@ namespace RestfulTVPApi.Clients.Utils
         private static bool GetAssetsFromCache(List<UnifiedSearchResult> ids, int language, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
         {
             bool result = true;
-            medias = null;
-            epgs = null;
+            medias = new List<MediaObj>();
+            epgs = new List<ProgramObj>();
             missingMediaIds = null;
             missingEpgIds = null;
 
@@ -211,7 +211,7 @@ namespace RestfulTVPApi.Clients.Utils
         private static bool RetriveAssetsFromCache<T>(List<CacheKey> mediaKeys, string cacheKeyPrefix, int language, out List<T> assets, out List<long> missingMediaIds) where T : BaseObject
         {
             bool result = true;
-            assets = null;
+            assets = new List<T>();
             missingMediaIds = null;
 
             if (mediaKeys != null && mediaKeys.Count > 0)
@@ -238,7 +238,8 @@ namespace RestfulTVPApi.Clients.Utils
 
         // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
         // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        private static List<AssetInfo> MargeAndCompleteResults(List<UnifiedSearchResult> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<string> with, int groupID, string platform, string siteGuid, string udid)
+        private static List<AssetInfo> MargeAndCompleteResults(List<UnifiedSearchResult> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<string> with, 
+            int groupID, string platform, string siteGuid, string udid)
         {
             List<AssetInfo> result = null;
 
@@ -263,16 +264,17 @@ namespace RestfulTVPApi.Clients.Utils
                 {
                     if (medias != null && medias.Count > 0)
                     {
-                        mediaAssetsStats = 
-                            ClientsManager.CatalogClient().GetAssetsStats(groupID, 
-                            (RestfulTVPApi.Objects.Enums.PlatformType)Enum.Parse(typeof(RestfulTVPApi.Objects.Enums.PlatformType), 
-                            platform), siteGuid, udid,
-                            medias.Select(m => m.m_nID).ToList(), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MinValue), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MaxValue), StatsType.MEDIA);
+                        mediaAssetsStats = ClientsManager.CatalogClient().
+                            GetAssetsStats(groupID, ParsePlatformType(platform), siteGuid, udid, medias.Select(m => m.m_nID).ToList(), 
+                            RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MinValue), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MaxValue),
+                            RestfulTVPApi.Objects.RequestModels.Enums.StatsType.Media);
                     }
                     if (epgs != null && epgs.Count > 0)
                     {
-                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupID, (RestfulTVPApi.Objects.Enums.PlatformType)Enum.Parse(typeof(RestfulTVPApi.Objects.Enums.PlatformType), platform), siteGuid, udid, 
-                            epgs.Select(e => e.m_nID).ToList(), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MinValue), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MaxValue), StatsType.EPG);
+                        epgAssetsStats = ClientsManager.CatalogClient().
+                            GetAssetsStats(groupID, ParsePlatformType(platform), siteGuid, udid, epgs.Select(e => e.m_nID).ToList(), 
+                            RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MinValue), RestfulTVPApi.ServiceInterface.Utils.ConvertToUnixTimestamp(DateTime.MaxValue),
+                            RestfulTVPApi.Objects.RequestModels.Enums.StatsType.Epg);
                     }
                 }
                 if (with.Contains("files")) // if stats are required - add a flag 
@@ -307,6 +309,11 @@ namespace RestfulTVPApi.Clients.Utils
             }
 
             return result;
+        }
+
+        private static Objects.Enums.PlatformType ParsePlatformType(string platform)
+        {
+            return (RestfulTVPApi.Objects.Enums.PlatformType)Enum.Parse(typeof(RestfulTVPApi.Objects.Enums.PlatformType), platform);
         }
     }
 }

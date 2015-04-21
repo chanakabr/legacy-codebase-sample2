@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestfulTVPApi.Api;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,7 +14,7 @@ namespace RestfulTVPApi.Clients.Utils
             userName = null;
             password = null;
 
-            userName = string.Format("{0}_{1}", clientType.ToString(), groupId);
+            userName = string.Format("{0}_{1}", clientType.ToString().ToLower(), groupId);
             password = "11111";
             res = true;
 
@@ -21,7 +22,21 @@ namespace RestfulTVPApi.Clients.Utils
             return res;
         }
 
+        public static int ConvertLocaleLanguageToInt(int groupId, string language)
+        {
+            int result = 0;
 
+            if (!string.IsNullOrEmpty(language))
+            {
+                LanguageObj[] groupLanguages = ClientsManager.ApiClient().GetGroupLanguages(groupId);
+                if (groupLanguages != null)
+                {
+                    var lang = groupLanguages.Where(l => l.Code == language).FirstOrDefault();
+                    result = lang != null ? lang.ID : 0;
+                }
+            }
+            return result;
+        }
 
 
     }

@@ -41,9 +41,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\Couchbase-Net-Client-1.3.10\net35\Couchbase.dll</HintPath>
+    </Reference>
     <Reference Include="CS_threescale, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CS_threescale\CS_threescale.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\Couchbase-Net-Client-1.3.10\net35\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
@@ -162,7 +170,7 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.disco" />
+    <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -310,13 +318,19 @@
     <Compile Include="Clients\DomainsClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
     <Compile Include="Clients\Utils\Utils.cs" />
+    <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
+    <Compile Include="Objects\Group.cs" />
+    <Compile Include="Objects\Models\Status.cs" />
+    <Compile Include="Objects\RequestModels\Enums.cs" />
     <Compile Include="Objects\Responses\ActionProperties.cs" />
     <Compile Include="Objects\Responses\AdvertisingProvider.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
     <Compile Include="Objects\Models\AssetInfo.cs" />
     <Compile Include="Objects\Models\AssetStats.cs" />
+    <Compile Include="Objects\Responses\BaseResponse.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
     <Compile Include="Objects\Responses\BillingResponse.cs" />
     <Compile Include="Objects\Responses\BillingTransactionContainer.cs" />
@@ -424,13 +438,13 @@
     <Compile Include="Objects\Responses\PriceCode.cs" />
     <Compile Include="Objects\Responses\ResponseStatus.cs" />
     <Compile Include="Objects\Responses\Scope.cs" />
+    <Compile Include="Objects\Responses\SearchAssetsResponse.cs" />
     <Compile Include="Objects\Responses\SocialActivityDoc.cs" />
     <Compile Include="Objects\Responses\SocialActivityObject.cs" />
     <Compile Include="Objects\Responses\SocialActivitySubject.cs" />
     <Compile Include="Objects\Responses\SocialActivityVerb.cs" />
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
     <Compile Include="Objects\Responses\State.cs" />
-    <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\Subscription.cs" />
     <Compile Include="Objects\Responses\SubscriptionCodeContainer.cs" />
@@ -1078,7 +1092,7 @@
     <Content Include="Web References\Pricing\UsageModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.wsdl" />
+    <None Include="Web References\Api\api.wsdl" />
     <Content Include="Web References\Api\CategoryObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1124,10 +1138,13 @@
     <Content Include="Web References\Api\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\Reference.map">
+    <Content Include="Web References\Api\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Api\RegionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1224,14 +1241,6 @@
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
-      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
-      <Name>Tvinci.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj">
-      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
-      <Name>TVPPro.Configuration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
       <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
       <Name>TVPApiModule</Name>
@@ -1322,6 +1331,7 @@
       <CachedSettingsPropName>RestfulTVPApi_Users_UsersService</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

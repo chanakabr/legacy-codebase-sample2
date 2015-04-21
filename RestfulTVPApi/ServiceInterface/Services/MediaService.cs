@@ -140,6 +140,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.ActionDone(request);
         }
 
+        public object Post(SearchAssetsRequest request)
+        {
+            return _repository.SearchAssets(request);
+        }
+
         #endregion
 
         #region DELETE

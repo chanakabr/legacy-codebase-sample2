@@ -21,6 +21,8 @@ using ServiceStack.Text;
 using RestfulTVPApi.ServiceModel;
 using ServiceStack.ServiceModel.Serialization;
 using System.Diagnostics;
+using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.Objects.Models;
 
 namespace RestfulTVPApi
 {
@@ -52,15 +54,15 @@ namespace RestfulTVPApi
 
                 if (ex is HttpError)
                 {
-                    httpError = new HttpError(new ResponseStatus("HttpException", ex.Message), ((HttpError)ex).StatusCode, ((HttpError)ex).StatusCode.ToString(), string.Empty);
+                    httpError = new HttpError(new ServiceStack.ServiceInterface.ServiceModel.ResponseStatus("HttpException", ex.Message), ((HttpError)ex).StatusCode, ((HttpError)ex).StatusCode.ToString(), string.Empty);
                 }
                 else if (ex is RequestBindingException)
                 {
-                    httpError = new HttpError(new ResponseStatus("RequestBindingException", ex.InnerException.InnerException.Message), HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), string.Empty);
+                    httpError = new HttpError(new ServiceStack.ServiceInterface.ServiceModel.ResponseStatus("RequestBindingException", ex.InnerException.InnerException.Message), HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), string.Empty);
                 }
                 else
                 {
-                    httpError = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    httpError = new HttpError(new ServiceStack.ServiceInterface.ServiceModel.ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
                 ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(httpRes, httpReq, httpError);
@@ -73,11 +75,11 @@ namespace RestfulTVPApi
 
                 if (ex is UnknownGroupException)
                 {
-                    httpError = new HttpError(new ResponseStatus("UnknownGroupException", "Please check X-Init-Object."), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
+                    httpError = new HttpError(new ServiceStack.ServiceInterface.ServiceModel.ResponseStatus("UnknownGroupException", "Please check X-Init-Object."), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
                 }
                 else
                 {
-                    httpError = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    httpError = new HttpError(new BaseResponse((int)StatusCode.Error, "Unexpected Error"), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
                 return httpError;

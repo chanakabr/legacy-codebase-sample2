@@ -4,10 +4,9 @@ using System.Linq;
 using System.Web;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
-using TVPApi;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Context;
 using RestfulTVPApi.Catalog;
+using RestfulTVPApi.Objects.Responses;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -323,6 +322,27 @@ namespace RestfulTVPApi.ServiceModel
         public int extra_val { get; set; }
     }
 
+    [Route("/medias/search", "POST", Notes = "Unified search API that is able to search across linear and VOD assets with a unified search criteria, order-by options and paging")]
+    public class SearchAssetsRequest : PagingRequest, IReturn<RestfulTVPApi.Objects.Responses.SearchAssetsResponse>
+    {
+        [ApiMember(Name = "filter", Description = "Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction",
+            ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string filter { get; set; }
+
+        [ApiMember(Name = "order_by", Description = "Required sort option to apply for the identified assets. If omitted – will use relevancy. Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest",
+            ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string order_by { get; set; }
+
+        [ApiMember(Name = "filter_types", Description = "List of asset types to search within", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<int> filter_types { get; set; }
+
+        [ApiMember(Name = "with", Description = "Additional data to return per asset, formatted as a comma-separated array. Possible values: stats – add the AssetStatsModel to each asset. files – add the AssetFileModel to each asset.",
+            ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<string> with { get; set; }
+
+    }
+
+   
     #endregion
 
     #region DELETE

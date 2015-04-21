@@ -8,6 +8,7 @@ using TVPApiModule.Manager;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
 using RestfulTVPApi.Catalog;
+using RestfulTVPApi.Managers;
 
 /// <summary>
 /// Summary description for Media
@@ -187,7 +188,8 @@ namespace RestfulTVPApi.Objects.Responses
             string baseUrl = ConfigurationManager.AppSettings[string.Format("{0}_BaseURL", groupID.ToString())];
             if (!string.IsNullOrEmpty(baseUrl))
             {
-                if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
+                //if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
+                if (GroupsManager.GetInstance(groupID).ShouldSupportFriendlyURL)
                 {
                     string sMediaName = media_name.Replace("/", "");
 
@@ -252,9 +254,11 @@ namespace RestfulTVPApi.Objects.Responses
         private void buildFiles(List<FileMedia> mediaFiles, List<Branding> brandings, int groupID, PlatformType platform)
         {
             // Get file formats from configuration
-            var techConfigFlashVars = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.FlashVars;
-            string fileFormat = techConfigFlashVars.FileFormat;
-            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
+            
+            // Oded - is it still relevant??
+            //var techConfigFlashVars = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.FlashVars;
+            string fileFormat = string.Empty;// techConfigFlashVars.FileFormat;
+            string subFileFormat = string.Empty; // (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
 
             file_id = "0"; // default value
 
@@ -346,7 +350,9 @@ namespace RestfulTVPApi.Objects.Responses
         {
             TagMetaPair pair;
 
-            string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
+            //string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
+
+            List<string> adMetas = GroupsManager.GetInstance(groupID).AdvertisingValuesMetas; 
 
             if (mediaMetas != null)
             {
@@ -366,7 +372,8 @@ namespace RestfulTVPApi.Objects.Responses
 
             if (mediaTags != null)
             {
-                string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+                //string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+                List<string> adTags = GroupsManager.GetInstance(groupID).AdvertisingValuesTags; 
 
                 foreach (Tags tag in mediaTags)
                 {

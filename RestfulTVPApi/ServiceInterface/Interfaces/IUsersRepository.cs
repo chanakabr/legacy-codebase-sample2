@@ -7,6 +7,7 @@ using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.Objects.Responses.Enums;
 using RestfulTVPApi.Clients;
+using RestfulTVPApi.Objects.Response;
 
 
 namespace RestfulTVPApi.ServiceInterface

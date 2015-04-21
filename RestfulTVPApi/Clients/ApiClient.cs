@@ -463,6 +463,14 @@ namespace RestfulTVPApi.Clients
         //    return res;
         //}
 
+
+        public LanguageObj[] GetGroupLanguages(int groupId)
+        {
+            string userName, password;
+            RestfulTVPApi.Clients.Utils.Utils.GetClientCredentials(ClientType, groupId, out userName, out password);
+            return Api.GetGroupLanguages(userName, password);
+        }
+
         #endregion
     }
 }

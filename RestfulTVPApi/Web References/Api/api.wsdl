@@ -2259,6 +2259,35 @@
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetGroupLanguages">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupLanguagesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupLanguagesResult" type="tns:ArrayOfLanguageObj" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfLanguageObj">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageObj" nillable="true" type="tns:LanguageObj" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LanguageObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Direction" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2277,6 +2306,7 @@
       <s:element name="Scheduling" nillable="true" type="tns:Scheduling" />
       <s:element name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
       <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
+      <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -2711,6 +2741,12 @@
   <wsdl:message name="GetRegionsSoapOut">
     <wsdl:part name="parameters" element="tns:GetRegionsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupLanguages" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupLanguagesResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -3130,6 +3166,13 @@
   <wsdl:message name="GetMediaConcurrencyRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaConcurrencyRule" />
   </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfLanguageObj" />
+  </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -3411,6 +3454,10 @@
       <wsdl:input message="tns:GetRegionsSoapIn" />
       <wsdl:output message="tns:GetRegionsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <wsdl:input message="tns:GetGroupLanguagesSoapIn" />
+      <wsdl:output message="tns:GetGroupLanguagesSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
     <wsdl:operation name="InsertEPGSchedule">
@@ -3592,6 +3639,10 @@
     <wsdl:operation name="GetMediaConcurrencyRules">
       <wsdl:input message="tns:GetMediaConcurrencyRulesHttpPostIn" />
       <wsdl:output message="tns:GetMediaConcurrencyRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <wsdl:input message="tns:GetGroupLanguagesHttpPostIn" />
+      <wsdl:output message="tns:GetGroupLanguagesHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -4219,6 +4270,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetRegions">
       <soap:operation soapAction="http://api.tvinci.com/GetRegions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupLanguages" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4859,6 +4919,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupLanguages" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
@@ -5260,6 +5329,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetMediaConcurrencyRules">
       <http:operation location="/GetMediaConcurrencyRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <http:operation location="/GetGroupLanguages" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

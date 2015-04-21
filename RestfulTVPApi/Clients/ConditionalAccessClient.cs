@@ -99,9 +99,9 @@ namespace RestfulTVPApi.Clients
             return concatenatedRes;
         }
 
-        public RestfulTVPApi.Objects.Responses.Status CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
+        public RestfulTVPApi.Objects.Response.Status CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
         {
-            RestfulTVPApi.Objects.Responses.Status response = new RestfulTVPApi.Objects.Responses.Status();
+            RestfulTVPApi.Objects.Response.Status response = new RestfulTVPApi.Objects.Response.Status();
 
             response = Execute(() =>
                 {
@@ -109,7 +109,7 @@ namespace RestfulTVPApi.Clients
                     response.status = isCanceled ? StatusObjectCode.OK : StatusObjectCode.Fail;
 
                     return response;
-                }) as RestfulTVPApi.Objects.Responses.Status;
+                }) as RestfulTVPApi.Objects.Response.Status;
 
             return response;
         }        
