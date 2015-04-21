@@ -15,16 +15,16 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request);
 
-        List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request);
+        List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request);
 
-        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request);
+        List<EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request);
 
         List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request);
 
         string GetEPGLicensedLink(GetEPGLicensedLinkRequest request);
 
-        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request);
+        List<EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request);
 
-        List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request);
+        List<EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request);
     }
 }

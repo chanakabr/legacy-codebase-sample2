@@ -42,7 +42,7 @@ namespace RestfulTVPApi.Clients.Utils
             get { return Nested.Instance; }
         }
 
-        public int FailOverLimit
+        public int MaxRetries
         {
             get { return failOverLimit; }
         }

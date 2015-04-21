@@ -221,6 +221,7 @@
     <Compile Include="Objects\Responses\Enums\TransactionType.cs" />
     <Compile Include="Objects\Responses\FBSignIn.cs" />
     <Compile Include="Objects\Responses\HomeNetwork.cs" />
+    <Compile Include="Objects\Responses\LogInResponseData.cs" />
     <Compile Include="Objects\Responses\NetworkResponseObject.cs" />
     <Compile Include="Objects\Responses\ResponseStatus.cs" />
     <Compile Include="Objects\Responses\EPGChannel.cs" />

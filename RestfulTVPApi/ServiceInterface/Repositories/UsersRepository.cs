@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TVPApiModule.CatalogLoaders;
-using TVPApiModule.Interfaces;
-using TVPApiModule.Context;
-using TVPApiModule.Helper;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.Objects.Responses.Enums;
@@ -12,6 +8,9 @@ using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Clients;
 using RestfulTVPApi.Notification;
 using RestfulTVPApi.Objects.Response;
+using RestfulTVPApi.Objects;
+using RestfulTVPApi.Managers;
+using RestfulTVPApi.ServiceInterfaces.Utils;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -99,7 +98,7 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
         // TODO: Create a SetUserTypeByUserIDRequest object, modify the function/interface/UserService
-        public eResponseStatus SetUserTypeByUserID(TVPApiModule.Objects.InitializationObject initObj, string siteGuid, int nUserTypeID)
+        public eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string siteGuid, int nUserTypeID)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, Utils.GetClientIP());
 
@@ -284,9 +283,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         public UsersClient.LogInResponseData SignIn(SignInRequest request)
         {
-            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);            
-            //return impl.SignIn(request.user_name, request.password);
-            return null;
+            bool isSingleLogin = GroupsManager.GetInstance(request.GroupID).ShouldSupportSingleLogin;
+
+            return ClientsManager.UsersClient().SignIn(request.user_name, request.password, request.InitObj.UDID, string.Empty, isSingleLogin);
         }
 
         public void SignOut(SignOutRequest request)

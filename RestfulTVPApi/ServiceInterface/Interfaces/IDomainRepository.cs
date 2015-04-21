@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-//using TVPApiModule.Objects.Responses;
-using TVPApiModule.Objects;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.Objects.Responses.Enums;

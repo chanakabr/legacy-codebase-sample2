@@ -7,12 +7,11 @@ using ServiceStack.PartialResponse.ServiceModel;
 using System.Collections.Generic;
 using RestfulTVPApi.ServiceModel;
 using System.Linq;
-using TVPApi;
 using ServiceStack;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System;
-using TVPApiModule.Objects;
+using RestfulTVPApi.Objects;
 
 namespace RestfulTVPApi.ServiceInterface
 {

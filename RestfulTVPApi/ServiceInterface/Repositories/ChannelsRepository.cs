@@ -1,12 +1,7 @@
-﻿using RestfulTVPApi.ServiceModel;
+﻿using RestfulTVPApi.Objects.Responses;
+using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
-using TVPApi;
-using TVPApiModule.CatalogLoaders;
-using TVPApiModule.Context;
-using TVPApiModule.Helper;
-using TVPApiModule.Manager;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
+
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -21,19 +16,22 @@ namespace RestfulTVPApi.ServiceInterface
             return null;
         }
 
-        public List<TVPApiModule.Objects.Responses.Channel> GetChannelsList(GetChannelsListRequest request)
+        public List<Channel> GetChannelsList(GetChannelsListRequest request)
         {
-            return ChannelHelper.GetChannelsList(request.InitObj, request.pic_size, request.GroupID, request.site_guid);
+            //return new APIChannelsListsLoader(0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize) { SiteGuid = siteGuid }.Execute() as List<Channel>;
+            return null;
         }
 
         public Category GetCategory(GetCategoryRequest request)
         {
-            return CategoryTreeHelper.GetCategoryTree(request.category_id, request.GroupID, request.InitObj.Platform);            
+            //return CategoryTreeHelper.GetCategoryTree(request.category_id, request.GroupID, request.InitObj.Platform);            
+            return null;
         }
 
         public Category GetFullCategory(GetFullCategoryRequest request)
         {
-            return CategoryTreeHelper.GetFullCategoryTree(request.category_id, request.pic_size, request.GroupID, request.InitObj.Platform);
+            //return CategoryTreeHelper.GetFullCategoryTree(request.category_id, request.pic_size, request.GroupID, request.InitObj.Platform);
+            return null;
         }
 
         public List<Media> GetOrderedChannelMultiFilter(GetOrderedChannelMultiFilterRequest request)

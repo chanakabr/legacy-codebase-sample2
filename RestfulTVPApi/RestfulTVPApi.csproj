@@ -20,6 +20,8 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -323,6 +325,7 @@
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\Extentions\TranslateExtensions.cs" />
     <Compile Include="Objects\Group.cs" />
+    <Compile Include="Objects\InitializationObject.cs" />
     <Compile Include="Objects\Models\Status.cs" />
     <Compile Include="Objects\RequestModels\Enums.cs" />
     <Compile Include="Objects\Responses\ActionProperties.cs" />
@@ -422,8 +425,6 @@
     <Compile Include="Objects\Responses\Media.cs" />
     <Compile Include="Objects\Responses\MediaFileItemPricesContainer.cs" />
     <Compile Include="Objects\Responses\MediaMarkObject.cs" />
-    <Compile Include="Objects\Responses\Menu.cs" />
-    <Compile Include="Objects\Responses\MenuItem.cs" />
     <Compile Include="Objects\Responses\NetworkResponseObject.cs" />
     <Compile Include="Objects\Responses\Notification.cs" />
     <Compile Include="Objects\Responses\PageData.cs" />
@@ -490,7 +491,6 @@
     <Compile Include="ServiceInterface\Interfaces\IApiRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\ICollectionRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IDomainRepository.cs" />
-    <Compile Include="ServiceInterface\Interfaces\ISiteRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IGroupsRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\INotificationsRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IEpgRepository.cs" />
@@ -500,7 +500,6 @@
     <Compile Include="ServiceInterface\Repositories\ApiRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\CollectionRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\DomainRepository.cs" />
-    <Compile Include="ServiceInterface\Repositories\SiteRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\GroupsRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\NotificationsRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\EpgRepository.cs" />
@@ -515,6 +514,7 @@
     <Compile Include="ServiceInterface\Services\EpgService.cs" />
     <Compile Include="ServiceInterface\Services\SubscriptionsService.cs" />
     <Compile Include="ServiceInterface\Services\InitService.cs" />
+    <Compile Include="ServiceInterface\Utils\ConnectionHelper.cs" />
     <Compile Include="ServiceInterface\Utils\Utils.cs" />
     <Compile Include="ServiceModel\Objects\Channels.cs" />
     <Compile Include="ServiceModel\Objects\Collections.cs" />
@@ -1241,10 +1241,6 @@
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
-      <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
-      <Name>TVPApiModule</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -1357,6 +1353,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using ServiceStack.ServiceHost;
 using System.Collections.Generic;
-using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {

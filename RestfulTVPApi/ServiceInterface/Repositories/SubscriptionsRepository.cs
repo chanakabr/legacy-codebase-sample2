@@ -3,9 +3,6 @@ using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
-using TVPApi;
-using TVPApiModule.CatalogLoaders;
-using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {

@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Configuration;
-using TVPApiModule.Services;
-using TVPApiModule.Manager;
-using TVPApiModule.Context;
-using TVPApiModule.Helper;
-using RestfulTVPApi.Catalog;
 using RestfulTVPApi.Managers;
+using RestfulTVPApi.Catalog;
 
 /// <summary>
 /// Summary description for Media
@@ -173,7 +169,7 @@ namespace RestfulTVPApi.Objects.Responses
 
         }
 
-        public Media(MediaObj mediaObj, string picSize, long totalItems, int groupID, PlatformType platform)//, bool withDynamic)
+        public Media(MediaObj mediaObj, string picSize, long totalItems, int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)//, bool withDynamic)
         {
             InitMediaObj(mediaObj, picSize, totalItems, groupID, platform);//, withDynamic);
         }
@@ -182,7 +178,7 @@ namespace RestfulTVPApi.Objects.Responses
 
         #region private functions
 
-        private string GetMediaWebLink(int groupID, PlatformType platform)
+        private string GetMediaWebLink(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)
         {
             string retVal = string.Empty;
             string baseUrl = ConfigurationManager.AppSettings[string.Format("{0}_BaseURL", groupID.ToString())];
@@ -207,7 +203,7 @@ namespace RestfulTVPApi.Objects.Responses
             return retVal;
         }
 
-        private void InitMediaObj(MediaObj mediaObj, string picSize, long totalItems, int groupID, PlatformType platform)//, bool withDynamic)
+        private void InitMediaObj(MediaObj mediaObj, string picSize, long totalItems, int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)//, bool withDynamic)
         {
             if (mediaObj != null)
             {
@@ -251,7 +247,7 @@ namespace RestfulTVPApi.Objects.Responses
             }
         }
 
-        private void buildFiles(List<FileMedia> mediaFiles, List<Branding> brandings, int groupID, PlatformType platform)
+        private void buildFiles(List<FileMedia> mediaFiles, List<Branding> brandings, int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)
         {
             // Get file formats from configuration
             
@@ -346,7 +342,7 @@ namespace RestfulTVPApi.Objects.Responses
             }
         }
 
-        private void BuildTagMetas(List<Metas> mediaMetas, List<Tags> mediaTags, int groupID, PlatformType platform)
+        private void BuildTagMetas(List<Metas> mediaMetas, List<Tags> mediaTags, int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform)
         {
             TagMetaPair pair;
 
@@ -415,15 +411,6 @@ namespace RestfulTVPApi.Objects.Responses
                 }
             }
         }
-
-
-        private long GetMediaMark()
-        {
-            long retVal = 0;
-            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(media_type_id));
-
-            return retVal;
-        }        
 
         #endregion
     }

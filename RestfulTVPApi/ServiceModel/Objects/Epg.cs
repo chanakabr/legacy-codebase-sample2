@@ -23,8 +23,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = "OrderBy", IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
-        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(OrderBy))]
+        public OrderBy order_by { get; set; }
     }
 
     [Route("/epg/programs/{program_id}/comments", "GET", Notes = "This method returns a list of EPG comments created by users")]
@@ -35,7 +35,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/channels/{channel_ids}", "GET", Notes = "This method returns an array of EPG channel programs, for each EPG channel entered, and which is available for the time range entered. This method is usually followed by GetEPGChannels")]
-    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject>>
+    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<List<EPGMultiChannelProgrammeObject>>
     {
         [ApiMember(Name = "channel_ids", Description = "Channels IDs", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] channel_ids { get; set; }
@@ -53,7 +53,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs", "GET", Notes = "This method searches the EPG programs by search text")]
-    public class SearchEPGProgramsRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    public class SearchEPGProgramsRequest : PagingRequest, IReturn<List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string search_text { get; set; }
@@ -87,7 +87,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs/{program_id}/rules", "GET", Notes = "This method returns an array containing the EPG program’s rules. These are the same rules as GetGroupRules.")]
-    public class GetEPGProgramRulesRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    public class GetEPGProgramRulesRequest : RequestBase, IReturn<List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "program_id", Description = "Program ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int program_id { get; set; }
@@ -98,7 +98,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs_by_and_ol_list", "GET", Notes = "Search Epg using an 'Or' list and an 'and' list. Key-Value pairs of tags and metas are expected in the lists. Between the two lists an AND logic will be implemented.")]
-    public class SearchEPGByAndOrListRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    public class SearchEPGByAndOrListRequest : PagingRequest, IReturn<List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "and_list", Description = "And key value pairs", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
         public List<KeyValue> and_list { get; set; }
@@ -107,7 +107,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/{epg_channel_id}/channels_program/from/{from_offset}/to/{to_offset}/utc_offset/{utc_offset}", "GET", Notes = "Gets an array of EPG channel programs")]
-    public class GetEPGChannelsProgramsRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    public class GetEPGChannelsProgramsRequest : RequestBase, IReturn<List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "epg_channel_id", Description = "EPG Channel Identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int epg_channel_id { get; set; }

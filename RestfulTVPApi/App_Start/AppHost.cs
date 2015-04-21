@@ -8,7 +8,6 @@ using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.ServiceInterface.ServiceModel;
 using ServiceStack.WebHost.Endpoints;
-using TVPApi;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using RestfulTVPApi.ServiceInterface;

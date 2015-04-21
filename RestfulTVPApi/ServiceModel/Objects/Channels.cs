@@ -3,7 +3,6 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using RestfulTVPApi.Catalog;
 using RestfulTVPApi.Objects.Responses;
-using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -18,11 +17,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
-        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(OrderBy))]
+        public OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order Direction", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_dir", typeof(eOrderDirection))]
-        public eOrderDirection order_dir { get; set; }
+        [ApiAllowableValues("order_dir", typeof(RestfulTVPApi.Objects.Enums.eOrderDirection))]
+        public RestfulTVPApi.Objects.Enums.eOrderDirection order_dir { get; set; }
         [ApiMember(Name = "tags_metas", Description = "Tags Metas", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
         public List<KeyValue> tags_metas { get; set; }
         [ApiMember(Name = "cut_with", Description = "Cut With", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
@@ -38,11 +37,11 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
-        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(OrderBy))]
+        public OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order Direction", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_dir", typeof(eOrderDirection))]
-        public eOrderDirection order_dir { get; set; }
+        [ApiAllowableValues("order_dir", typeof(RestfulTVPApi.Objects.Enums.eOrderDirection))]
+        public RestfulTVPApi.Objects.Enums.eOrderDirection order_dir { get; set; }
         [ApiMember(Name = "tags_metas", Description = "Tags Metas", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
         public List<KeyValue> tags_metas { get; set; }
         [ApiMember(Name = "cut_with", Description = "Cut With", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
@@ -53,7 +52,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/channels/{site_guid}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
-    public class GetChannelsListRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.Channel>>
+    public class GetChannelsListRequest : RequestBase, IReturn<List<RestfulTVPApi.Objects.Responses.Channel>>
     {
         [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }

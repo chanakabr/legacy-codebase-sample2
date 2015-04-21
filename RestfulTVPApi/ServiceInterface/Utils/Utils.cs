@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
-using TVPApiModule.Context;
-using TVPApiModule.Manager;
 
 namespace RestfulTVPApi.ServiceInterface
 {
