@@ -466,15 +466,15 @@ public partial class adm_group_regions_new : System.Web.UI.Page
 
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_regions");
         
-        if (!string.IsNullOrEmpty(channelNumber))
+        int number = 0;
+        if (int.TryParse(channelNumber, out number))
         {
-            int number = 0;
-            if (int.TryParse(channelNumber, out number))
-            {
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_number", "=", number);        
-            }
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_number", "=", number);
         }
-
+        else
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_number", "=", DBNull.Value);
+        }
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", status);
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", LoginManager.GetLoginID());
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
