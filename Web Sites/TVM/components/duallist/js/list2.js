@@ -104,6 +104,8 @@ var List = function (listId, listTitle) {
                     }
                     if (toChangeStatus) {
                         changeItemStatus(items[i].ID);
+                        items[i].ChannelNumber = "";
+
                     }
                 }
             }
