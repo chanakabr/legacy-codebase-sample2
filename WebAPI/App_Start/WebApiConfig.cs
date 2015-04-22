@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNet.WebApi.MessageHandlers.Compression;
+using Microsoft.AspNet.WebApi.MessageHandlers.Compression.Compressors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +38,8 @@ namespace WebAPI
 
             config.Filters.Add(new ValidateModelAttribute());
             config.Filters.Add(new ExceptionFilter());
+
+            GlobalConfiguration.Configuration.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));
         }
     }
 }
