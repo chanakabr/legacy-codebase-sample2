@@ -33,9 +33,6 @@ namespace WebAPI
             config.Formatters.RemoveAt(0);
             config.Formatters.Insert(0, new JilFormatter());
 
-            Mapper.CreateMap<Users.UserResponseObject, User>()
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID));
-
             config.Filters.Add(new ValidateModelAttribute());
         }
     }

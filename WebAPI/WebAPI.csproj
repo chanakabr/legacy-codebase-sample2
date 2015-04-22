@@ -147,6 +147,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
