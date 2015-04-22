@@ -95,7 +95,9 @@ namespace Users
         DomainNotExists = 10,
         HouseholdUserFailed = 11,
         DomainCreatedWithoutNPVRAccount = 12,
-        DomainSuspended = 13
+        DomainSuspended = 13,
+        NoUsersInDomain = 14,
+        UserExistsInOtherDomains = 15
     }
 
     [Serializable]

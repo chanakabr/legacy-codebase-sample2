@@ -82,6 +82,9 @@ namespace Users
                         DomainsCache oDomainCache = DomainsCache.Instance();                      
                         bool bInsertDomain = oDomainCache.InsertDomain(domain);
                         break;
+                    case DomainStatus.UserExistsInOtherDomains:
+                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);
+                        break;
                     case DomainStatus.DomainAlreadyExists:
                         oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
                         break;

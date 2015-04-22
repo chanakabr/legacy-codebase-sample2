@@ -315,6 +315,7 @@ namespace ElasticSearch.Searcher
             // region term 
             if (oSearchObject.regionIds != null && oSearchObject.regionIds.Count > 0)
             {
+
                 ESTerms regionsTerms = new ESTerms(true)
                 {
                     Key = "regions"
@@ -322,7 +323,39 @@ namespace ElasticSearch.Searcher
 
                 regionsTerms.Value.AddRange(oSearchObject.regionIds.Select(region => region.ToString()));
 
-                filterParent.AddChild(regionsTerms);
+                if (oSearchObject.linearChannelMediaTypes == null || oSearchObject.linearChannelMediaTypes.Count == 0)
+                {
+                    filterParent.AddChild(regionsTerms);
+                }
+                else
+                {
+                    FilterCompositeType regionComposite = new FilterCompositeType(CutWith.OR);
+                    FilterCompositeType emptyRegionAndComposite = new FilterCompositeType(CutWith.AND);
+
+                    ESTerm emptyRegionTerm = new ESTerm(true)
+                    {
+                        Key = "regions",
+                        Value = "0"
+                    };
+
+                    ESTerms linearMediaTypes = new ESTerms(true)
+                    {
+                        Key = "media_type_id",
+                        isNot = true
+                    };
+
+                    linearMediaTypes.Value.AddRange(oSearchObject.linearChannelMediaTypes);
+
+                    // region = 0 and it is NOT linear media
+                    emptyRegionAndComposite.AddChild(emptyRegionTerm);
+                    emptyRegionAndComposite.AddChild(linearMediaTypes);
+
+                    // It is either in the desired region or it is in region 0 and not linear media
+                    regionComposite.AddChild(regionsTerms);
+                    regionComposite.AddChild(emptyRegionAndComposite);
+
+                    filterParent.AddChild(regionComposite);
+                }
             }
             
             FilterCompositeType oGroupWPComposite = new FilterCompositeType(CutWith.OR);
@@ -560,6 +593,9 @@ namespace ElasticSearch.Searcher
             // region term 
             if (oSearchObject.regionIds != null && oSearchObject.regionIds.Count > 0)
             {
+                FilterCompositeType regionComposite = new FilterCompositeType(CutWith.OR);
+                FilterCompositeType emptyRegionAndComposite = new FilterCompositeType(CutWith.AND);
+
                 ESTerms regionsTerms = new ESTerms(true)
                 {
                     Key = "regions"
@@ -567,7 +603,29 @@ namespace ElasticSearch.Searcher
 
                 regionsTerms.Value.AddRange(oSearchObject.regionIds.Select(region => region.ToString()));
 
-                filterParent.AddChild(regionsTerms);
+                ESTerm emptyRegionTerm = new ESTerm(true)
+                {
+                    Key = "regions",
+                    Value = "0"
+                };
+
+                ESTerms linearMediaTypes = new ESTerms(true)
+                {
+                    Key = "media_type_id",
+                    isNot = true
+                };
+
+                linearMediaTypes.Value.AddRange(oSearchObject.linearChannelMediaTypes);
+
+                // region = 0 and it is NOT linear media
+                emptyRegionAndComposite.AddChild(emptyRegionTerm);
+                emptyRegionAndComposite.AddChild(linearMediaTypes);
+
+                // It is either in the desired region or it is in region 0 and not linear media
+                regionComposite.AddChild(regionsTerms);
+                regionComposite.AddChild(emptyRegionAndComposite);
+
+                filterParent.AddChild(regionComposite);
             }
 
             filterParent.AddChild(isActiveTerm);

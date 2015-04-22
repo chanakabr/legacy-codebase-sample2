@@ -1012,7 +1012,13 @@ namespace Catalog
 
                 #endregion
 
-                searchObj.regionIds = GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+                List<int> regionIds;
+                List<string> linearMediaTypes;
+
+                Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+                searchObj.regionIds = regionIds;
+                searchObj.linearChannelMediaTypes = linearMediaTypes;
             }
             catch (Exception ex)
             {
@@ -1039,9 +1045,10 @@ namespace Catalog
         /// <param name="domainId"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
+        internal static void SetSearchRegions(int groupId, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
-            List<int> regionIds = new List<int>();
+            regionIds = new List<int>();
+            linearMediaTypes = new List<string>();
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
@@ -1049,9 +1056,6 @@ namespace Catalog
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
-                // Always search for region 0 - media that is not associated to any region
-                regionIds.Add(0);
-
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
                 {
@@ -1108,9 +1112,20 @@ namespace Catalog
                         }
                     }
                 }
-            }
 
-            return regionIds;
+                
+                // Now we need linear media types - so we filter them and not other media types
+                Dictionary<string, string> dictionary = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
+
+                if (dictionary.ContainsKey(Catalog.LINEAR_MEDIA_TYPES_KEY))
+                {
+                    // Split by semicolon
+                    var mediaTypesArray = dictionary[Catalog.LINEAR_MEDIA_TYPES_KEY].Split(';');
+
+                    // Convert to list
+                    linearMediaTypes.AddRange(mediaTypesArray);
+                }
+            }
         }
 
         /*Build Full search object*/
@@ -1670,8 +1685,13 @@ namespace Catalog
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
 
-            searchObject.regionIds =
-                Catalog.GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            searchObject.regionIds = regionIds;
+            searchObject.linearChannelMediaTypes = linearMediaTypes;
 
             return searchObject;
         }
@@ -2926,12 +2946,23 @@ namespace Catalog
             res.m_nGroupId = nGroupID;
             res.m_sMediaTypes = dict[LINEAR_MEDIA_TYPES_KEY];
             res.m_sPermittedWatchRules = dict[PERMITTED_WATCH_RULES_KEY];
-            res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
-            res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+
+            if (jsonizedChannelsDefinitions != null)
+            {
+                res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
+                res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+            }
+
             res.m_nPageIndex = 0;
             res.m_nPageSize = GetSearcherMaxResultsSize();
 
-            res.regionIds = Catalog.GetSearchRegions(nGroupID, domainId, siteGuid);
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(nGroupID, domainId, siteGuid, out regionIds, out linearMediaTypes);
+
+            res.regionIds = regionIds;
+            res.linearChannelMediaTypes = linearMediaTypes;
 
             return res;
         }
@@ -3960,6 +3991,27 @@ namespace Catalog
             Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
             GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
             MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+        }
+
+        /// <summary>
+        /// Finds out the region for search, according to the domain and/or group, and gets the linear channels of those regions.
+        /// </summary>
+        /// <param name="searcherEpgSearch"></param>
+        /// <param name="epgSearchRequest"></param>
+        internal static void SetEpgSearchChannelsByRegions(ref EpgSearchObj searcherEpgSearch, EpgSearchRequest epgSearchRequest)
+        {
+            List<long> channelIds = null;
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            // Get region/regions for search
+            Catalog.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId, 
+                epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
+            channelIds = CatalogDAL.Get_EpgIdentifier_ByRegion(epgSearchRequest.m_nGroupID, regionIds);
+
+            searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
     }
 }

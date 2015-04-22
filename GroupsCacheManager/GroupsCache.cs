@@ -679,5 +679,37 @@ namespace GroupsCacheManager
             }
         }
 
+
+        internal bool UpdateRegionalizationData(bool isRegionalizationEnabled, int defaultRegion, int groupID)
+        {
+            try
+            {
+                bool isUpdated = false;
+                Group group = null;
+                VersionModuleCache vModule = null;
+                string sKey = string.Format("{0}{1}", sKeyCache, groupID);
+                vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
+
+                if (vModule != null && vModule.result != null)
+                {
+                    group = vModule.result as Group;
+                    //get group by id from Cache
+                    for (int i = 0; i < 3 && !isUpdated; i++)
+                    {
+                        group.isRegionalizationEnabled = isRegionalizationEnabled;
+                        group.defaultRegion = defaultRegion;
+                        vModule.result = group;
+                        isUpdated = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                    }
+                }
+
+                return isUpdated;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("UpdateRegionalizationData", string.Format("failed to UpdateRegionalizationData to IChach with nGroupID={0}, ex={2}", groupID, ex.Message), "GroupsCacheManager");
+                return false;
+            }
+        }
     }
 }

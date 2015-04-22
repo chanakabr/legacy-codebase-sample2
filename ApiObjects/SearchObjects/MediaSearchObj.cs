@@ -92,6 +92,8 @@ namespace ApiObjects.SearchObjects
 
         public List<int> regionIds;
 
+        public List<string> linearChannelMediaTypes;
+
         public MediaSearchObj()
         {
             m_sMediaTypes = string.Empty;
