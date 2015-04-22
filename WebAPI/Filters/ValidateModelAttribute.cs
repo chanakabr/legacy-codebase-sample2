@@ -18,10 +18,6 @@ namespace WebAPI.Filters
             if (!actionContext.ModelState.IsValid)
             {
                 actionContext.Response = new System.Net.Http.HttpResponseMessage(HttpStatusCode.BadRequest);
-
-                actionContext.Response.Content = new ObjectContent<StatusWrapper>(
-                     new StatusWrapper() { Status = new Status() { Code = (int)StatusCode.BadRequest } },
-                     new JsonMediaTypeFormatter());
             }
         }
     }

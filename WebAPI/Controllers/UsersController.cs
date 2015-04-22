@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
         [Route("{ids}"), HttpGet]
         public List<User> GetUsersData(string ids)
         {
+            throw new Exception();
             var c = new Users.UsersService();
 
             //XXX: Example of using the unmasking
