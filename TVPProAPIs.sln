@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z - Libs", "z - Libs", "{83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi", "TVPApi", "{173647D2-B5B7-46DC-80FB-0326B428418A}"
@@ -16,9 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiModule", "TVPApiModul
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
 	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
@@ -60,26 +59,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tvinci.Web.TVS.Controls", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPPro.Configuration", "..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj", "{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebAPI", "http://localhost:58434", "{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}"
-	ProjectSection(WebsiteProperties) = preProject
-		UseIISExpress = "true"
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_58434"
-		Debug.AspNetCompiler.PhysicalPath = "WebAPI\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58434\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_58434"
-		Release.AspNetCompiler.PhysicalPath = "WebAPI\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58434\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		SlnRelativePath = "WebAPI\"
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -331,28 +311,28 @@ Global
 		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}.test|Any CPU.Build.0 = Yes|Any CPU
 		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}.Yes|Any CPU.ActiveCfg = Yes|Any CPU
 		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}.Yes|Any CPU.Build.0 = Yes|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.AllClients|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.AllClients|Any CPU.Build.0 = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.debug32|Any CPU.Build.0 = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.test|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.test|Any CPU.Build.0 = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
-		{12031CDA-EDE9-4029-8DF0-76BD9876D3B8}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.test|Any CPU.Build.0 = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
-		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
+		{2DA122E7-8C17-49BC-8F28-108A4ED741E4} = {2B6AD0A5-EDED-4C75-B92E-86D0C03D2A1E}
 		{8E0EC7C1-FCB0-4C56-800D-B02784301B98} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{1418DF28-913F-4595-8839-E2C22DA1C269} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
+		{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
 		{5D400DB4-C756-4B5C-8359-FE55084043F4} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{E53BAE81-A07C-4112-A42D-4E899D6A52FC} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{48CB3B25-623B-4500-8E88-2E77A7074238} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
@@ -367,7 +347,7 @@ Global
 		{9D2ABB52-E0A0-4DFA-9E24-7E0B98D3557D} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{6409DA6B-D48D-43A2-9217-02B25D4ED5E3} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{18F39282-8646-41CC-8E56-600087A2A9AC} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
-		{2DA122E7-8C17-49BC-8F28-108A4ED741E4} = {2B6AD0A5-EDED-4C75-B92E-86D0C03D2A1E}
+		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
