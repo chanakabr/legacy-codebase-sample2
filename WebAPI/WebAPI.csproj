@@ -160,6 +160,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
+    <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Filters\BadRequestException.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
