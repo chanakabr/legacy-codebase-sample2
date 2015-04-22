@@ -7,7 +7,6 @@ using ServiceStack.PartialResponse.ServiceModel;
 using System.Collections.Generic;
 using RestfulTVPApi.ServiceModel;
 using System.Linq;
-using TVPApi;
 using ServiceStack;
 
 namespace RestfulTVPApi.ServiceInterface

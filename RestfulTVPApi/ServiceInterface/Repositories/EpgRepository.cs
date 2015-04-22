@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using TVPApiModule.CatalogLoaders;
-using TVPApiModule.Helper;
 using System.Linq;
-using TVPApiModule.Extentions;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Clients.Utils;
 using RestfulTVPApi.Objects.Responses;
@@ -52,9 +49,9 @@ namespace RestfulTVPApi.ServiceInterface
             return null;
         }
 
-        public List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request)
+        public List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request)
         {
-            List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> sRet = null;
+            List<EPGMultiChannelProgrammeObject> sRet = null;
 
             //EPGLoader loader;
             //    List<int> channelIDs = request.channel_ids.Select(c => int.Parse(c)).ToList();
@@ -81,9 +78,9 @@ namespace RestfulTVPApi.ServiceInterface
             return sRet;
         }
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request)
+        public List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request)
         {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
+            List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
 
             DateTime startTime;
             DateTime endTime;
@@ -96,7 +93,7 @@ namespace RestfulTVPApi.ServiceInterface
             //retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, Utils.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.search_text, startTime, endTime)
             //{
             //    Culture = request.InitObj.Locale.LocaleLanguage
-            //}.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            //}.Execute() as List<EPGChannelProgrammeObject>;
 
             return retVal;
         }
@@ -111,9 +108,9 @@ namespace RestfulTVPApi.ServiceInterface
             return ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(request.site_guid, request.media_file_id, request.epg_item_id, request.start_time, request.base_link, Utils.GetClientIP(), request.refferer, request.country_code, request.language_code, request.device_name, request.format_type);
         }
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request)
+        public List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request)
         {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
+            List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
 
             DateTime startTime;
             DateTime endTime;
@@ -126,15 +123,15 @@ namespace RestfulTVPApi.ServiceInterface
             //retVal = new APIEPGSearchLoader(request.GroupID, request.InitObj.Platform.ToString(), Utils.GetClientIP(), request.page_size, request.page_number, request.and_list, request.or_list, true, startTime, endTime)
             //{
             //    Culture = request.InitObj.Locale.LocaleLanguage
-            //}.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            //}.Execute() as List<EPGChannelProgrammeObject>;
 
             return retVal;
         }
 
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request)
+        public List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request)
         {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> channelPrograms = new List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>();
+            List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject> channelPrograms = new List<RestfulTVPApi.Objects.Responses.EPGChannelProgrammeObject>();
             //APIEPGLoader loader;
             List<int> channelIDs = new List<int>() { request.epg_channel_id };
             DateTime _offsetNow = DateTime.UtcNow.AddHours(request.utc_offset);
@@ -159,7 +156,7 @@ namespace RestfulTVPApi.ServiceInterface
             //loader.DeviceId = request.InitObj.UDID;
             //loader.SiteGuid = request.InitObj.SiteGuid;
 
-            //channelPrograms = loader.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+            //channelPrograms = loader.Execute() as List<EPGChannelProgrammeObject>;
             ////if (loaderRes != null && loaderRes.Count() > 0)
             ////    sRet = (loaderRes[0] as EPGMultiChannelProgrammeObject).EPGChannelProgrammeObject.ToArray();
 

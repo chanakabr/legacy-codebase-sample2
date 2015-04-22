@@ -23,7 +23,7 @@ namespace RestfulTVPApi.Clients.Utils
 
         public string WSPassword { get; set; }
         
-        public int FailOverCounter { get; set; }
+        public int TimeoutRetry { get; set; }
         public RestfulTVPApi.Objects.Enums.Client ClientType { get; set; }
 
         #endregion
@@ -42,14 +42,14 @@ namespace RestfulTVPApi.Clients.Utils
                 try
                 {
                     result = funcToExecute();
-                    FailOverCounter = 0;
+                    TimeoutRetry = 0;
                     executionLog.Info(string.Format("Function {0} execution succeeded", executionLog.Method), true);
                 }
                 catch (TimeoutException timeout) // Catches services operations exceptions
                 {
                     executionLog.Error(string.Format("Service failed to operate {0} due to error: {1}", executionLog.Method, timeout.Message), true);
-                    FailOverCounter++;
-                    if (FailOverCounter <ClientsManager.Instance.FailOverLimit)
+                    TimeoutRetry++;
+                    if (TimeoutRetry <ClientsManager.Instance.MaxRetries)
                     {
                         BaseClient restartedService = null;
                         lock (this.lockObject)

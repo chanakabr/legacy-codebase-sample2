@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TVPApiModule.Interfaces;
-using TVPApiModule.Services;
-using TVPApiModule.Helper;
 using RestfulTVPApi.ServiceModel;
 using RestfulTVPApi.Clients;
 using RestfulTVPApi.Objects.Responses;
@@ -17,9 +14,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseObject resDomain = null;
 
-            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);
-            //resDomain = impl.AddDeviceToDomain(request.device_name, request.device_brand_id);
-            
+            ClientsManager.DomainsClient().AddDeviceToDomain(request.InitObj.DomainID, request.InitObj.UDID, request.device_name, request.device_brand_id);
             
             return resDomain;
         }

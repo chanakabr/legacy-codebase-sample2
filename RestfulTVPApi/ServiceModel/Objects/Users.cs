@@ -4,9 +4,7 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using RestfulTVPApi.Notification;
 using RestfulTVPApi.Objects.Responses;
-using TVPApiModule.Context;
 using RestfulTVPApi.Objects.Responses.Enums;
-using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -51,8 +49,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "item_type", Description = "Item type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        [ApiAllowableValues("item_type", typeof(UserItemType))]
-        public UserItemType item_type { get; set; }
+        [ApiAllowableValues("item_type", typeof(RestfulTVPApi.Objects.Enums.UserItemType))]
+        public RestfulTVPApi.Objects.Enums.UserItemType item_type { get; set; }
     }    
 
     [Route("/users/{site_guid}/medias/permitted", "GET", Notes = "This method returns an array of media file items that were purchased by the user including time, date, viewing and purchase details. ")]
@@ -160,8 +158,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "period_before", Description = "The number of periods preceeding the current period", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int period_before { get; set; }
         [ApiMember(Name = "by_period", Description = "By time period", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        [ApiAllowableValues("by_period", typeof(MediaHelper.ePeriod))]
-        public MediaHelper.ePeriod by_period { get; set; }
+        [ApiAllowableValues("by_period", typeof(RestfulTVPApi.Objects.Enums.ePeriod))]
+        public RestfulTVPApi.Objects.Enums.ePeriod by_period { get; set; }
     }
 
     [Route("/users/{site_guid}/medias/social", "GET", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
@@ -636,7 +634,7 @@ namespace RestfulTVPApi.ServiceModel
     }
     
     [Route("/users/sign_in", "POST", Notes = "This method signs-in a user.")]
-    public class SignInRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
+    public class SignInRequest : RequestBase, IReturn<RestfulTVPApi.Clients.UsersClient.LogInResponseData>
     {
         [ApiMember(Name = "user_name", Description = "Username", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }
@@ -645,7 +643,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/fb/sign_in", "POST", Notes = "This method signs-in a user via FB.")]
-    public class FBUserSigninRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.FBSignIn>
+    public class FBUserSigninRequest : RequestBase, IReturn<FBSignIn>
     {
         [ApiMember(Name = "token", Description = "token", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string token { get; set; }
@@ -658,7 +656,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{token}/token_sign_in", "POST", Notes = "This method signs-in a user with a token")]
-    public class SignInWithTokenRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
+    public class SignInWithTokenRequest : RequestBase, IReturn<RestfulTVPApi.Clients.UsersClient.LogInResponseData>
     {
         [ApiMember(Name = "token", Description = "Token", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string token { get; set; }
@@ -994,7 +992,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{user_name}/session", "DELETE", Notes = "This method signs-in a user.")]
-    public class SignOutRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
+    public class SignOutRequest : RequestBase, IReturn<RestfulTVPApi.Clients.UsersClient.LogInResponseData>
     {
         [ApiMember(Name = "user_name", Description = "Username", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string user_name { get; set; }

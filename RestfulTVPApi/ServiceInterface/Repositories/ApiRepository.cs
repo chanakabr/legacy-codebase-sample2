@@ -4,7 +4,6 @@ using RestfulTVPApi.Objects.Responses.Enums;
 using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using System.Configuration;
-using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {

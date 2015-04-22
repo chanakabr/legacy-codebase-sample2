@@ -1,7 +1,6 @@
 ﻿using RestfulTVPApi.Objects.Responses;
 using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
-using TVPApi;
 
 
 namespace RestfulTVPApi.ServiceInterface

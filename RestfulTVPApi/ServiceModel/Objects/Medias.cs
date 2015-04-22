@@ -6,7 +6,7 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using RestfulTVPApi.Catalog;
 using RestfulTVPApi.Objects.Responses;
-using TVPApiModule.Context;
+using RestfulTVPApi.Objects.Responses.Enums;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -102,7 +102,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Problematic routing - cant add media id bcoz it accepts multiple files
     [Route("/medias/files/{media_file_ids}/prices", "GET", Summary = "Get AutoComplete Search List", Notes = "Get AutoComplete Search List")]
-    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer>>
+    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<List<MediaFileItemPricesContainer>>
     {
         [ApiMember(Name = "media_file_ids", Description = "Media File ID", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] media_file_ids { get; set; }
@@ -170,23 +170,23 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_id}/buzz_meter_data", "GET", Notes = "Returns aggregated statistics for a series/linear channel")]
-    public class GetBuzzMeterDataRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.BuzzWeightedAverScore>
+    public class GetBuzzMeterDataRequest : RequestBase, IReturn<BuzzWeightedAverScore>
     {
         [ApiMember(Name = "media_id", Description = "Series or Linear Channel", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string media_id { get; set; }        
     }
 
     [Route("/assets/{asset_ids}", "GET", Notes = "Gets all the statistics for a list of assets (EPG / media)")]
-    public class GetAssetsStatsRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.AssetStatsResult>>
+    public class GetAssetsStatsRequest : PagingRequest, IReturn<List<AssetStatsResult>>
     {
         [ApiMember(Name = "asset_ids", Description = "Asset ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public List<int> asset_ids { get; set; }
         [ApiMember(Name = "asset_type", Description = "Asset Type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public StatsType asset_type { get; set; }
+        public RestfulTVPApi.Objects.RequestModels.Enums.StatsType asset_type { get; set; }
     }
 
     [Route("/assets/{asset_ids}/time_period", "GET", Notes = "Gets all the statistics for a list of assets (EPG / media) in a given period of time")]
-    public class GetAssetsStatsForTimePeriodRequest : GetAssetsStatsRequest, IReturn<List<TVPApiModule.Objects.Responses.AssetStatsResult>>
+    public class GetAssetsStatsForTimePeriodRequest : GetAssetsStatsRequest, IReturn<List<AssetStatsResult>>
     {
         [ApiMember(Name = "asset_ids", Description = "Asset ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public List<int> asset_ids { get; set; }
@@ -219,7 +219,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "bundle_type", Description = "Bundle type (Collection || Subscription)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public eBundleType bundle_type { get; set; }
         [ApiMember(Name = "order_by", Description = "Order by", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        public OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order direction (asc/desc)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public OrderDir order_dir { get; set; }        
     }
@@ -294,7 +294,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - change route? Not RESTful
     [Route("/medias/{media_id}/files/{media_file_id}/charge_with_pre_paid", "POST", Notes = "This method buys pay-per-view (PPV) with prepaid. This processing is done by Tvinci not by a third party processor")]
-    public class ChargeMediaWithPrepaidRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PrePaidResponseStatus>
+    public class ChargeMediaWithPrepaidRequest : RequestBase, IReturn<PrePaidResponseStatus>
     {
         [ApiMember(Name = "media_file_id", Description = "Media File ID", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_file_id { get; set; }
@@ -315,9 +315,9 @@ namespace RestfulTVPApi.ServiceModel
         public int media_id { get; set; }
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_type { get; set; }
-        [ApiAllowableValues("action", typeof(ActionType))]
+        [ApiAllowableValues("action", typeof(RestfulTVPApi.Objects.Enums.ActionType))]
         [ApiMember(Name = "action", Description = "Action", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public ActionType action_type { get; set; }
+        public RestfulTVPApi.Objects.Enums.ActionType action_type { get; set; }
         [ApiMember(Name = "extra_val", Description = "Extra Variable", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int extra_val { get; set; }
     }

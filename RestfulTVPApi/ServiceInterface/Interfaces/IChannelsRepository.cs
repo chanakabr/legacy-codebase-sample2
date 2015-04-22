@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPApi;
-using TVPApiModule.Objects;
-using TVPApiModule.Objects.Responses;
-using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;
+using RestfulTVPApi.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -14,7 +11,7 @@ namespace RestfulTVPApi.ServiceInterface
     {
         List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request);
 
-        List<TVPApiModule.Objects.Responses.Channel> GetChannelsList(GetChannelsListRequest request);
+        List<Channel> GetChannelsList(GetChannelsListRequest request);
 
         Category GetCategory(GetCategoryRequest request);
 
