@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             string[] unmaskedIds = null;
             try
             {
-                unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).ToArray();
+                unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
             }
             catch
             {
