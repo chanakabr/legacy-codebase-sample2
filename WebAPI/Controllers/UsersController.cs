@@ -32,8 +32,11 @@ namespace WebAPI.Controllers
         public List<User> GetUsersData(string ids)
         {
             var c = new Users.UsersService();
-            var res = c.GetUsersData("users_215", "11111", ids.Split(','));
-                
+
+            //XXX: Example of using the unmasking
+            string[] unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).ToArray();
+            var res = c.GetUsersData("users_215", "11111", unmaskedIds);
+            
             List<User> dto = Mapper.Map<List<User>>(res);
 
             return dto;
