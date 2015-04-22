@@ -16,6 +16,7 @@ namespace WebAPI.Utils
     public class JilFormatter : MediaTypeFormatter
     {
         private readonly Options _jilOptions;
+
         public JilFormatter()
         {
             _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch);
@@ -24,6 +25,7 @@ namespace WebAPI.Utils
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
             SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
         }
+
         public override bool CanReadType(Type type)
         {
             if (type == null)
@@ -47,7 +49,6 @@ namespace WebAPI.Utils
             return Task.FromResult(this.DeserializeFromStream(type, readStream));
         }
 
-
         private object DeserializeFromStream(Type type, Stream readStream)
         {
             try
@@ -63,9 +64,7 @@ namespace WebAPI.Utils
             {
                 return null;
             }
-
         }
-
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {

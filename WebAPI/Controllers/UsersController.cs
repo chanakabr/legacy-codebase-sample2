@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Routing;
+using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 
@@ -34,7 +35,20 @@ namespace WebAPI.Controllers
             var c = new Users.UsersService();
 
             //XXX: Example of using the unmasking
-            string[] unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).ToArray();
+            string[] unmaskedIds = null;
+            try
+            {
+                unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).ToArray();
+            }
+            catch
+            {
+                /*
+                 * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
+                 * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
+                */
+                throw new BadRequestException();
+            }
+
             var res = c.GetUsersData("users_215", "11111", unmaskedIds);
             
             List<User> dto = Mapper.Map<List<User>>(res);

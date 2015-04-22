@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using WebAPI.App_Start;
+using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 
@@ -34,6 +35,7 @@ namespace WebAPI
             config.Formatters.Insert(0, new JilFormatter());
 
             config.Filters.Add(new ValidateModelAttribute());
+            config.Filters.Add(new ExceptionFilter());
         }
     }
 }

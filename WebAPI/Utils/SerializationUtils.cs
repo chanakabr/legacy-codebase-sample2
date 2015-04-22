@@ -8,7 +8,7 @@ namespace WebAPI.Utils
 {
     public class SerializationUtils
     {
-        //TODO: Change to TCM
+        //TODO: Change. but keep hardcoded, as TCM config may damage this.
         private const string passPhrase = "OdedIsOded";
 
         public static string MaskSensitiveObject(string originalVal)
