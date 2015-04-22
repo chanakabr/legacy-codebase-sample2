@@ -300,6 +300,82 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         }
     }
 
+
+
+    //protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
+    //{
+    //    Int32 nGroupID = LoginManager.GetLoginGroupID();
+    //    theTable += " SELECT  lug.id, lug.[key], lug.Value, lul.Name as lookupTypeName  FROM lu_generic lug  inner join lu_lookup lul  on lug.lookup_type = lul.id   where ";
+    //    theTable += ODBCWrapper.Parameter.NEW_PARAM("lug.group_id", "=", nGroupID); ;
+    //    theTable += "and ";
+    //    theTable += ODBCWrapper.Parameter.NEW_PARAM("lug.status", "=", 1);
+    //    theTable += "and ";
+    //    theTable += ODBCWrapper.Parameter.NEW_PARAM("lug.lookup_type", "=", Session["lookup_id"]);
+    //    theTable += " and ";
+    //    theTable += ODBCWrapper.Parameter.NEW_PARAM("lug.lookup_type", "=", Session["lookup_id"]);
+            
+    //}
+    //public string GetTableCSV()
+    //{
+    //    string sOldOrderBy = "";
+    //    if (Session["order_by"] != null)
+    //        sOldOrderBy = Session["order_by"].ToString();
+    //    DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+    //    FillTheTableEditor(ref theTable, sOldOrderBy);
+
+    //    string sCSVFile = theTable.OpenCSV();
+    //    return "";
+    //}
+
+
+    public void GetTableCSV(object sender, EventArgs e)
+    {
+        string sOldOrderBy = "";
+        if (Session["order_by"] != null)
+            sOldOrderBy = Session["order_by"].ToString();
+        DataTable dt;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "SELECT  lug.id, lug.[key], lug.Value, lul.Name as lookupTypeName  FROM lu_generic lug  inner join lu_lookup lul  on lug.lookup_type = lul.id   where";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lug.group_id", "=", LoginManager.GetLoginGroupID());
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lug.status", "=", 1);
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lug.lookup_type", "=", Session["lookup_id"]);
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lug.lookup_type", "=", Session["lookup_id"]);
+        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        dt = selectQuery.Execute("query", true);
+        selectQuery.Finish();
+        selectQuery = null;
+
+
+
+        string sCSVFile = openCSV(dt);
+        //   return "";
+    }
+
+    private string openCSV(DataTable dt)
+    {
+
+        GridView gv = new GridView();
+
+        gv.DataSource = dt;
+        gv.DataBind();
+        HttpContext.Current.Response.Clear();
+        HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
+        HttpContext.Current.Response.Charset = "UTF-8";
+        HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
+        System.IO.StringWriter stringWrite = new System.IO.StringWriter();
+        HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
+
+        gv.RenderControl(htmlWrite);
+        HttpContext.Current.Response.Write(stringWrite.ToString());
+        HttpContext.Current.Response.End();
+        return "";
+    }
     
 
+
+  
 }
