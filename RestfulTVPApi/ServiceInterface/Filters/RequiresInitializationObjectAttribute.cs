@@ -12,12 +12,11 @@ using CS_threescale;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
-using TVPApi;
 using RestfulTVPApi.ServiceInterface;
 using RestfulTVPApi.ServiceModel;
-using TVPApiModule.Objects;
-using TVPApiModule.Helper;
 using Newtonsoft.Json;
+using RestfulTVPApi.Objects;
+using RestfulTVPApi.ServiceInterfaces.Utils;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -40,10 +39,10 @@ namespace RestfulTVPApi.ServiceInterface
                 RequestBase BaseRequest = (RequestBase)reqDto;
 
                 string sInitObj = httpReq.Headers.GetValues("X-Init-Object").FirstOrDefault();
-                
+
                 BaseRequest.InitObj = JsonConvert.DeserializeObject<InitializationObject>(sInitObj);
                 BaseRequest.GroupID = ConnectionHelper.GetGroupID("tvpapi", reqDto.GetType().Name, BaseRequest.InitObj.ApiUser, BaseRequest.InitObj.ApiPass, Utils.GetClientIP());
-                
+
                 if (BaseRequest.GroupID <= 0)
                 {
                     throw new UnknownGroupException();
