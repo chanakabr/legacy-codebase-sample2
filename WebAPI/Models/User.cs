@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Web;
 
 namespace WebAPI.Models
@@ -15,15 +16,21 @@ namespace WebAPI.Models
         /// <summary>
         /// ID
         /// </summary>
-        [JsonProperty(PropertyName = "id")]
+        [DataMember(Name="id")]
         [Required]
         public string ID { get; set; }
 
         /// <summary>
         /// Age
         /// </summary>
-        [JsonProperty(PropertyName = "age")]        
+        [DataMember(Name = "age")]
         [Range(0, 100)]
         public int Age { get; set; }
+
+        /// <summary>
+        /// Date
+        /// </summary>
+        [DataMember(Name = "date")]
+        public DateTime Date { get; set; }
     }
 }

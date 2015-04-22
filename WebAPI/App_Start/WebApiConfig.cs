@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.Http;
 using WebAPI.App_Start;
 using WebAPI.Models;
+using WebAPI.Utils;
 
 namespace WebAPI
 {
@@ -27,6 +28,10 @@ namespace WebAPI
             {
                 
             });
+
+            //Removing Newton and adding Jil
+            config.Formatters.RemoveAt(0);
+            config.Formatters.Insert(0, new JilFormatter());
 
             Mapper.CreateMap<Users.UserResponseObject, User>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID));

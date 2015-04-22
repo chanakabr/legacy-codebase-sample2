@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         {
             var c = new Users.UsersService();
             var res = c.GetUsersData("users_215", "11111", ids.Split(','));
-
+                
             List<User> dto = Mapper.Map<List<User>>(res);
 
             return dto;
