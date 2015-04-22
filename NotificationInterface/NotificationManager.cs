@@ -1782,7 +1782,7 @@ namespace NotificationInterface
         {
             try
             {
-                int first = 0;
+                int first = -1;
                 int last = 0;
                 string startDateString = string.Empty;
                 string startDateFormat = string.Empty;
@@ -1793,7 +1793,7 @@ namespace NotificationInterface
 
                 // get start and end insex for this substring that we ae looking for
                 first = messageText.IndexOf("{StartDate");
-                if (first > 0)
+                if (first >= 0)
                 {
                     last = messageText.IndexOf("}", first);
                     startDateString = messageText.Substring(first, last - first + 1);
@@ -1808,10 +1808,10 @@ namespace NotificationInterface
                         startDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
                     }
                 }
-                first = 0;
+                first = -1;
                 last = 0;
                 first = messageText.IndexOf("{CatalaogStartDate");
-                if (first > 0)
+                if (first >= 0)
                 {
                     last = messageText.IndexOf("}", first);
                     catalogStartDateString = messageText.Substring(first, last - first + 1);
