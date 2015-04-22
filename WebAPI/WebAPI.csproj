@@ -162,7 +162,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Utils\EncryptionUtils.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
+    <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Web References\Users\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

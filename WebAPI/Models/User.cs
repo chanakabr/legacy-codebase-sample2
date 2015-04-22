@@ -21,16 +21,15 @@ namespace WebAPI.Models
         public string ID { get; set; }
 
         /// <summary>
-        /// Age
+        /// Domain ID
         /// </summary>
-        [DataMember(Name = "age")]
-        [Range(0, 100)]
-        public int Age { get; set; }
+        [DataMember(Name = "domain_id")]
+        public string DomainID { get; set; }
 
         /// <summary>
-        /// Date
+        /// First name
         /// </summary>
-        [DataMember(Name = "date")]
-        public DateTime Date { get; set; }
+        [DataMember(Name = "first_name")]
+        public string FirstName { get; set; }
     }
 }
