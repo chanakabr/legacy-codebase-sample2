@@ -17,6 +17,7 @@ namespace WebAPI.Models
         /// ID
         /// </summary>
         [DataMember(Name="id")]
+        [JsonProperty("id")]
         [Required]
         public string ID { get; set; }
 
@@ -24,12 +25,14 @@ namespace WebAPI.Models
         /// Domain ID
         /// </summary>
         [DataMember(Name = "domain_id")]
+        [JsonProperty("domain_id")]
         public string DomainID { get; set; }
 
         /// <summary>
         /// First name
         /// </summary>
         [DataMember(Name = "first_name")]
+        [JsonProperty("first_name")]
         public string FirstName { get; set; }
     }
 }

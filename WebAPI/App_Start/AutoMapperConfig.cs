@@ -14,7 +14,8 @@ namespace WebAPI.App_Start
         {
             Mapper.CreateMap<Users.UserResponseObject, User>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_sSiteGUID)))
-                .ForMember(dest => dest.DomainID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())));
+                .ForMember(dest => dest.DomainID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName));
         }
     }
 }
