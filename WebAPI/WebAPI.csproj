@@ -162,7 +162,9 @@
     <Compile Include="App_Start\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
-    <Compile Include="Filters\BadRequestException.cs" />
+    <Compile Include="Filters\Exceptions\ApiException.cs" />
+    <Compile Include="Filters\Exceptions\InternalServerErrorException.cs" />
+    <Compile Include="Filters\Exceptions\BadRequestException.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
@@ -244,7 +246,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

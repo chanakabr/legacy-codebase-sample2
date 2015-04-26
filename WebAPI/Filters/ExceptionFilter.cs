@@ -5,8 +5,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web;
+using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using WebAPI.Filters.Exceptions;
 using WebAPI.Models;
 
 namespace WebAPI.Filters
@@ -15,11 +17,10 @@ namespace WebAPI.Filters
     {
         public override void OnException(HttpActionExecutedContext context)
         {
-            StatusCode code = StatusCode.Error;
-            if (context.Exception is BadRequestException)                            
-                context.Response = new HttpResponseMessage(HttpStatusCode.BadRequest);         
-            else
-                context.Response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            //if (context.Exception is BadRequestException)
+            //    context.Response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            //else
+            //    context.Response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
         }
     }
 }

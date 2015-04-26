@@ -11,26 +11,16 @@ namespace WebAPI.Models
     [DataContract]
     public class StatusWrapper
     {
-        public StatusWrapper(int httpCode, object result = null, string msg = null)
+        public StatusWrapper(StatusCode code, object result = null, string msg = null)
         {
-            int code = 0;
-            switch (httpCode)
-            {
-                case ((int)HttpStatusCode.BadRequest):
-                    code = (int) StatusCode.BadRequest;
-                    break;
-                case ((int)HttpStatusCode.InternalServerError):
-                    code = (int) StatusCode.Error;
-                    break;
-                default:
-                    break;
-            }
+            if (code == StatusCode.OK)
+                msg = "success";
 
-            Status = new Status(code, msg);
+            Status = new Status((int)code, msg);
             Result = result;
         }
-
-        [DataMember(EmitDefaultValue = false, Name="result")]
+        
+        [DataMember(EmitDefaultValue = false, Name = "result")]
         public object Result { get; set; }
 
         [DataMember(Name = "status")]

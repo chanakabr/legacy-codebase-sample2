@@ -32,7 +32,8 @@ namespace WebAPI.Controllers
         [Route("{ids}"), HttpGet]
         public List<User> GetUsersData(string ids)
         {
-            throw new Exception();
+            //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = new StringContent("") { } });
+            //throw new InternalServerErrorException(Models.StatusCode.InternalConnectionIssue, "error mofo");
             var c = new Users.UsersService();
 
             //XXX: Example of using the unmasking
@@ -51,7 +52,7 @@ namespace WebAPI.Controllers
             }
 
             var res = c.GetUsersData("users_215", "11111", unmaskedIds);
-            
+
             List<User> dto = Mapper.Map<List<User>>(res);
 
             return dto;
