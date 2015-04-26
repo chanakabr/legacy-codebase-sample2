@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using WebAPI.Filters.Exceptions;
 using WebAPI.Models;
 
 namespace WebAPI.App_Start
@@ -16,30 +17,46 @@ namespace WebAPI.App_Start
         {
             var response = await base.SendAsync(request, cancellationToken);
 
-            return BuildApiResponse(request, response);
+            return await BuildApiResponse(request, response);
         }
 
-        private static HttpResponseMessage BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
+        private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
         {
-            object content;
-            string errorMessage = "";
+            object content = null;
+            string message = "";
+            StatusCode subCode = StatusCode.OK;
 
             if (response.TryGetContentValue(out content) && !response.IsSuccessStatusCode)
             {
+                //This is a global unintentional 500 error
+
                 HttpError error = content as HttpError;
+                subCode = StatusCode.Error;
 
                 if (error != null)
                 {
                     content = null;
-                    errorMessage = error.Message;
-
+                    message = error.ExceptionMessage;
 #if DEBUG
-                    errorMessage = string.Concat(errorMessage, error.ExceptionMessage, error.StackTrace);
+                    message = string.Concat(message, error.ExceptionMessage, error.StackTrace);
 #endif
                 }
             }
+            else if (!response.IsSuccessStatusCode)
+            {
+                message = response.ReasonPhrase;
+                string status = await response.Content.ReadAsStringAsync();
 
-            var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper((int) response.StatusCode, content, errorMessage));
+                subCode = (StatusCode)Enum.Parse(typeof(StatusCode), status);
+            }
+            else
+            {
+                message = "success";
+            }
+
+            Guid reqID = request.GetCorrelationId();
+
+            var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, content, message));
 
             foreach (var header in response.Headers)
             {
