@@ -16,8 +16,8 @@ namespace WebAPI.Models
         /// <summary>
         /// ID
         /// </summary>
-        [DataMember(Name="id")]
-        [JsonProperty("id")]     
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
         public string ID { get; set; }
 
         /// <summary>

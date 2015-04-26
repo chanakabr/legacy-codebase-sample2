@@ -29,7 +29,7 @@ namespace WebAPI
 
             Mapper.Initialize(cfg =>
             {
-                
+
             });
 
             //Removing Newton and adding Jil
@@ -38,7 +38,7 @@ namespace WebAPI
 
             config.Filters.Add(new ValidateModelAttribute());
             config.Filters.Add(new ExceptionFilter());
-            config.MessageHandlers.Add(new WrappingHandler());
+            config.MessageHandlers.Add(new WrappingHandler());            
 
             GlobalConfiguration.Configuration.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));
         }

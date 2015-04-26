@@ -22,7 +22,7 @@ namespace WebAPI.App_Start
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
         {
-            if (request.GetRouteData().Route.RouteTemplate.ToString().Contains("swagger"))
+            if (request.GetRouteData().Route.RouteTemplate.ToLower().Contains("swagger"))
                 return response;
 
             object content = null;
