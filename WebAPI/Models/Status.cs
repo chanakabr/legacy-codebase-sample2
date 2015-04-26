@@ -17,7 +17,7 @@ namespace WebAPI.Models
             Result = result;
         }
 
-        [DataMember(EmitDefaultValue = false, Name = "result")]
+        [DataMember(Name = "result")]
         public object Result { get; set; }
 
         [DataMember(Name = "status")]
@@ -27,7 +27,7 @@ namespace WebAPI.Models
     [DataContract]
     public class Status
     {
-        [DataMember(Name = "code")]        
+        [DataMember(Name = "code")]
         public int Code { get; set; }
 
         [DataMember(Name = "message")]
