@@ -64,11 +64,21 @@ namespace ElasticSearchFeeder.IndexBuilders
             foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
             {
                 string indexAnalyzer, searchAnalyzer;
+                string autocompleteIndexAnalyzer = null;
+                string autocompleteSearchAnalyzer = null;
 
-                if (ElasticSearchApi.AnalyzerExists(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code)))
+                string analyzerDefinitionName= ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+
+                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
                     indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
                     searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+
+                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
+                    {
+                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
+                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    }
                 }
                 else
                 {
@@ -77,7 +87,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                     Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
                 }
 
-                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer);
+                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
 
