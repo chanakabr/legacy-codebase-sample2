@@ -11,15 +11,12 @@ namespace WebAPI.Models
     [DataContract]
     public class StatusWrapper
     {
-        public StatusWrapper(StatusCode code, object result = null, string msg = null)
+        public StatusWrapper(StatusCode code, Guid reqID, object result = null, string msg = null)
         {
-            if (code == StatusCode.OK)
-                msg = "success";
-
-            Status = new Status((int)code, msg);
+            Status = new Status((int)code, msg, reqID);
             Result = result;
         }
-        
+
         [DataMember(EmitDefaultValue = false, Name = "result")]
         public object Result { get; set; }
 
@@ -30,16 +27,20 @@ namespace WebAPI.Models
     [DataContract]
     public class Status
     {
-        [DataMember(Name = "code")]
+        [DataMember(Name = "code")]        
         public int Code { get; set; }
 
         [DataMember(Name = "message")]
         public string Message { get; set; }
 
-        public Status(int code, string message)
+        [DataMember(Name = "request_id")]
+        public string RequestID { get; set; }
+
+        public Status(int code, string message, Guid reqID)
         {
             Code = code;
             Message = message;
+            RequestID = reqID.ToString();
         }
 
         public Status()
