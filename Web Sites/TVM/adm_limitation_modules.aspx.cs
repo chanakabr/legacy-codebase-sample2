@@ -63,18 +63,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        //theTable += "select a.is_active,a.id as id,a.NAME as 'Name', a.max_limit as 'Limit',  q1.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status, a.Home_network_quantity as 'Home networks limit', q2.DESCRIPTION as 'Home network frequency', env.description as 'Environment Type'";
-        //theTable += "from groups_device_limitation_modules a with (nolock) ";
-        //theTable += "left join (select lmp1.ID, lmp1.description from lu_min_periods lmp1 with (nolock)) q1 on q1.ID=a.freq_period_id ";
-        //theTable += "left join (select lmp2.ID, lmp2.description from lu_min_periods lmp2 with (nolock)) q2 on q2.ID=a.Home_Network_Frequency ";
-        //theTable += "left join lu_domain_environment env with (nolock) on env.ID = a.environment_type where ";
-        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
-        //theTable += "and (";
-        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 1);
-        //theTable += "or ";
-        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 4);
-        //theTable += ")";
+        Int32 nGroupID = LoginManager.GetLoginGroupID();     
         int parentLimitModuleID = 0;
         if (Session["limit_module_id"] != null && Session["limit_module_id"].ToString().Length > 0)
         {
@@ -82,7 +71,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         }
         theTable += "select gdflm.is_active, gdflm.id, gdflm.status, gdflm.description as 'Name', gdflm.value as 'Value', ludlm.description as 'Type' from groups_device_families_limitation_modules gdflm with (nolock) ";
         theTable += "inner join lu_device_limitation_modules ludlm with (nolock) on ludlm.ID=gdflm.type where ";
-        theTable += "gdflm.status=1 and gdflm.is_active=1 and ludlm.status=1 and ";
+        theTable += "gdflm.status=1 and ludlm.status=1 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.group_id", "=", nGroupID);
         theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.parent_limit_module_id", "=", parentLimitModuleID);

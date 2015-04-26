@@ -33,7 +33,7 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("notifications_staging_connection");
+                DBManipulator.DoTheWork("notifications_connection");
                 return;
             }
         }
@@ -98,7 +98,7 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         string sBack = "adm_tvm_notifications_settings.aspx";
         
         DBRecordWebEditor theRecord = new DBRecordWebEditor("notifications_settings", "adm_table_pager", sBack, "", "ID", t, sBack, "");
-        theRecord.SetConnectionKey("notifications_staging_connection");
+        theRecord.SetConnectionKey("notifications_connection");
 
         DataRecordLongTextField dr_text = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_text.Initialize("Message Text", "adm_table_header_nbg", "FormInput", "message_text", true);
@@ -123,6 +123,10 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         DataRecordShortTextField dr_emailTemplate = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_emailTemplate.Initialize("Email Template", "adm_table_header_nbg", "FormInput", "notification_email_template", false);
         theRecord.AddRecord(dr_emailTemplate);
+
+        DataRecordShortTextField dr_dateDefaultFormat = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_dateDefaultFormat.Initialize("Date Default Format", "adm_table_header_nbg", "FormInput", "notification_date_format", false);
+        theRecord.AddRecord(dr_dateDefaultFormat);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);

@@ -119,26 +119,18 @@ namespace YesEpgFeeder
 
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", fromDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "<=", toDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
+                // addition - change to status 2 the tags and metas 
+                int updateStatus = 2;
+                int currentStatus = 1;
 
-                updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
-
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), "YesEpgFeeder");
+                int recordUpdates = CatalogDAL.DeleteAllEpgDetailsByChannelDates(fromDate, toDate, channelID, updateStatus, currentStatus);
+                             
+                Logger.Logger.Log("DeleteScheduleProgramByDate",
+                    string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2} recordUpdates ={3}", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss"), recordUpdates), "YesEpgFeeder");
+                
             }
             catch (Exception ex)
-            {
-                //ProcessError = true;
+            {                
                 Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "YesEpgFeeder");
             }
         }

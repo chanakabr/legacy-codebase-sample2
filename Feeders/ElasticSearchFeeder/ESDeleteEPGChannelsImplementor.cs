@@ -30,7 +30,7 @@ namespace ElasticSearchFeeder
                 ElasticSearchApi es = new ElasticSearchApi();
                 string query = string.Empty;
                 BoolQuery boolQuery = new BoolQuery();
-                ESTerms epgChannelIDsTerms = new ESTerms(true) { bNot = false, Key = "epg_channel_id" };
+                ESTerms epgChannelIDsTerms = new ESTerms(true) { isNot = false, Key = "epg_channel_id" };
                 epgChannelIDsTerms.Value.AddRange(epgChannelIDsToDelete.Select((item) => item.ToString()));
                 boolQuery.AddChild(epgChannelIDsTerms, ApiObjects.SearchObjects.CutWith.AND);
                 query = boolQuery.ToString();

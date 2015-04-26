@@ -733,6 +733,7 @@ A.tags_selected:hover { color: #FFFFFF; font-weight: bold; text-decoration: unde
 a.btn { display:block; text-align:center; background:url(../images/but.png) no-repeat; width:115px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 a.btn:hover { background-position: left -22px; text-decoration:none;}
 
+
 input.btn_upload { display:block; text-align:center; background:url(../images/but_upload.png) no-repeat; width:112px; height:22px; font-size: 13px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 input.btn_upload:hover { background-position: 0 -22px; text-decoration:none;}
 
@@ -750,6 +751,9 @@ a.btn_m_channel:hover { background-position: left -22px; text-decoration:none;}
 
 a.btn_browse { display:block; text-align:center; background:url(../images/but_browse.png) no-repeat; width:110px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 a.btn_browse:hover { background-position: left -22px; text-decoration:none;}
+
+a.btn_mediaTypes { display:block; text-align:center; background:url(../images/but_media_types.png) no-repeat; width:110px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
+a.btn_mediaTypes:hover { background-position: left -22px; text-decoration:none;}
 
 a.btn2 { margin-left: 15px; display:block; text-align:center; background:url(../images/but_search.png) no-repeat; width:110px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 a.btn2:hover { background-position: left -22px; text-decoration:none;}

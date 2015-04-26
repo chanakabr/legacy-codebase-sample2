@@ -460,7 +460,8 @@ function submitASPForm(sNewFormAction) {
 
 function popUp(URL , WiNname) 
 {
-    theWin = window.open(URL, WiNname , "toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=0,width=700,height=525,left = 290,top = 249.5");
+    // WiNname
+    var theWin = window.open(URL, WiNname, "toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=0,width=700,height=525,left = 290,top = 249.5");
     if (theWin == null)
     {
         alert("המערכת זיהתה חסימה של PopUp Blocker. אנא נטרלו את פעולתם על האתר לעבודה תקינה.");
@@ -557,7 +558,7 @@ function OpenPicBrowser(theID , maxPics, lastPage)
 function OpenMediaTypeBrowser(theID, lastPage) {   
     theVal = window.document.getElementsByName(theID)[0].value;
     theURL = "adm_channel_media_types_popup_selector.aspx?channel_id=" + theVal + "&lastPage=" + lastPage;
-    popUp(theURL, 'Media Type Selector');
+    popUp(theURL, 'MediaTypeSelector');
     
 
 }

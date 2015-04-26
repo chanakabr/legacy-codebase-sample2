@@ -438,7 +438,11 @@ public partial class adm_utils : System.Web.UI.Page
             {
                 eAction = eAction.Update;
             }
-
+            DomainsWS.module p;
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
+            string sWSURL;
             switch (sTable.ToLower())
             {
                 case "media":
@@ -446,6 +450,52 @@ public partial class adm_utils : System.Web.UI.Page
                     break;
                 case "channels":
                     result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+                    break;
+                case "groups_device_families_limitation_modules":
+                    //get parent_limit_module_id ==> than remove it
+                    if (eAction == eAction.Delete)
+                    {
+                        object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", nId);
+                        if (oDlmID != null)
+                        {
+                            int dlmID = int.Parse(oDlmID.ToString());
+                            p = new DomainsWS.module();
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                            sWSURL = GetWSURL("domains_ws");
+
+                            if (sWSURL != "")
+                                p.Url = sWSURL;
+                            try
+                            {
+                                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, dlmID);
+                                Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code), "RemoveDLM");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), "RemoveDLM");
+                            }
+                        }
+                    }
+                    break;
+                case "groups_device_limitation_modules":             
+                    // delete from cache this DLM object    
+                    if (eAction == eAction.Delete)
+                    {
+                        p = new DomainsWS.module();
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        sWSURL = GetWSURL("domains_ws");
+                        if (sWSURL != "")
+                            p.Url = sWSURL;
+                        try
+                        {
+                            DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, nId);
+                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", nId, resp.Code), "RemoveDLM");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", nId, ex.Message, ex.StackTrace), "RemoveDLM");
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -486,6 +536,11 @@ public partial class adm_utils : System.Web.UI.Page
             }
             return sRet;
         }
+    }
+
+    private string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     public string GetCollectionFill(string sMiddleTable, string sCollTable, string sTextField, string sStart , string sCollCss , string sExtraQuery , string sCurrentSelect , string sHeader , string sConnKey)
