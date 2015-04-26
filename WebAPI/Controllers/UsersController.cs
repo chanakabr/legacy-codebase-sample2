@@ -32,7 +32,6 @@ namespace WebAPI.Controllers
         [Route("{ids}"), HttpGet]
         public List<User> GetUsersData(string ids)
         {
-            throw new BadRequestException(Models.StatusCode.InternalConnectionIssue, "bla");
             var c = new Users.UsersService();
 
             //XXX: Example of using the unmasking

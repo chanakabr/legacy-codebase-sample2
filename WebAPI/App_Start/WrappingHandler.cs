@@ -22,6 +22,9 @@ namespace WebAPI.App_Start
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
         {
+            if (request.GetRouteData().Route.RouteTemplate.ToString().Contains("swagger"))
+                return response;
+
             object content = null;
             string message = "";
             StatusCode subCode = StatusCode.OK;
@@ -50,9 +53,7 @@ namespace WebAPI.App_Start
                 subCode = (StatusCode)Enum.Parse(typeof(StatusCode), status);
             }
             else
-            {
                 message = "success";
-            }
 
             Guid reqID = request.GetCorrelationId();
 
