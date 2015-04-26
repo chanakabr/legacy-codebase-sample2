@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatalogLoaders\APIAutocompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
