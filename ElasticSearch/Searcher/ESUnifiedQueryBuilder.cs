@@ -366,7 +366,8 @@ namespace ElasticSearch.Searcher
                     var leaf = root as BooleanLeaf;
 
                     // If it is contains - it is not exact and thus belongs to query
-                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains || 
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                     {
                         queryNode = leaf;
                     }
@@ -404,7 +405,8 @@ namespace ElasticSearch.Searcher
                             {
                                 // If yes, this means the root-ancestor is a query and not a filter
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith)
                                 {
                                     queryRoots.Add(node);
 
@@ -607,7 +609,6 @@ namespace ElasticSearch.Searcher
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
-                string field = string.Format("{0}.analyzed", leaf.field);
                 bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
                 string value = string.Empty;
@@ -633,8 +634,20 @@ namespace ElasticSearch.Searcher
 
                 // "Match" when search is not exact (contains)
                 if (leaf.operand == ApiObjects.ComparisonOperator.Contains || 
-                    leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
+                    leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                 {
+                    string field = string.Empty;
+
+                    if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                    {
+                        field = string.Format("{0}.autocomplete", leaf.field);
+                    }
+                    else
+                    {
+                        field = string.Format("{0}.analyzed", leaf.field);
+                    }
+
                     term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
                     {
                         Field = field,
