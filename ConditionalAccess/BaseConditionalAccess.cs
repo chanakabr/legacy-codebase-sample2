@@ -1353,11 +1353,11 @@ namespace ConditionalAccess
                                             // Then try with iOS 7
                                             else if (InAppRes.m_oInAppReceipt.iOSVersion == "7")
                                             {
-                                                if (InAppRes.m_oInAppReceipt.latest_receipt_info != null)
+                                                if (InAppRes.m_oInAppReceipt.latest_receipt_info != null && InAppRes.m_oInAppReceipt.latest_receipt_info.Length > 0)
                                                 {
                                                     double startMS = 0;
                                                     double endMS = 0;
-                                                    
+
                                                     // Run on all latest receipts and find the one that matches the date and the product id
                                                     foreach (var lastReceipt in InAppRes.m_oInAppReceipt.latest_receipt_info)
                                                     {
@@ -1383,6 +1383,73 @@ namespace ConditionalAccess
                                                         endDate = dt1970.AddMilliseconds(endMS);
                                                     }
                                                 }
+
+                                                // If we don't have a start or end date, check receipt
+                                                if (startDate == DateTime.MinValue ||
+                                                    endDate == DateTime.MinValue)
+                                                {
+                                                    if (InAppRes.m_oInAppReceipt.receipt != null)
+                                                    {
+                                                        double startMS = double.Parse(InAppRes.m_oInAppReceipt.receipt.purchase_date_ms);
+                                                        double endMS = double.Parse(InAppRes.m_oInAppReceipt.receipt.expires_date_ms);
+
+                                                        // If we found a receipt with the matching product code and good purchase date
+                                                        if (startMS > 0 && endMS > 0)
+                                                        {
+                                                            startDate = dt1970.AddMilliseconds(startMS);
+                                                            endDate = dt1970.AddMilliseconds(endMS);
+                                                        }
+                                                    }
+                                                }
+
+                                                // If we don't have a start or end date, check in_app
+                                                if (startDate == DateTime.MinValue ||
+                                                    endDate == DateTime.MinValue)
+                                                {
+                                                    if (InAppRes.m_oInAppReceipt.in_app != null &&  InAppRes.m_oInAppReceipt.in_app.Length > 0)
+                                                    {
+                                                        double startMS = 0;
+                                                        double endMS = 0;
+
+                                                        // Run on all latest receipts and find the one that matches the date and the product id
+                                                        foreach (var lastReceipt in InAppRes.m_oInAppReceipt.in_app)
+                                                        {
+                                                            // If the product code matches
+                                                            if (lastReceipt.product_id == sProductCode)
+                                                            {
+                                                                // Find the maximum start date
+                                                                double currentStartMS = double.Parse(lastReceipt.purchase_date_ms);
+                                                                double currentEndMS;
+
+                                                                if (currentStartMS > startMS)
+                                                                {
+                                                                    startMS = currentStartMS;
+
+                                                                    // End date is optional here, so try parse it
+                                                                    if (!string.IsNullOrEmpty(lastReceipt.expires_date_ms) && 
+                                                                        double.TryParse(lastReceipt.expires_date_ms, out currentEndMS))
+                                                                    {
+                                                                        endMS = currentEndMS;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // If we found a receipt with the matching product code and good purchase date
+                                                        if (startMS > 0)
+                                                        {
+                                                            startDate = dt1970.AddMilliseconds(startMS);
+                                                            endDate = dt1970.AddMilliseconds(endMS);
+                                                        }
+
+                                                        // If we don't have an end date
+                                                        if (endDate == DateTime.MinValue || endDate == dt1970)
+                                                        {
+                                                            // Make it available for 100 years
+                                                            endDate = startDate.AddYears(100);
+                                                        }
+                                                    }
+                                                }
                                             }
 
                                             // If we don't have a start or end date
@@ -1390,6 +1457,9 @@ namespace ConditionalAccess
                                                 endDate == DateTime.MinValue)
                                             {
                                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "Something went wrong with start and end date";
+
+                                                startDate = dt1970;
+                                                endDate = dt1970;
                                             }
 
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate.AddHours(6));
