@@ -1445,8 +1445,17 @@ namespace ConditionalAccess
                                                         // If we don't have an end date
                                                         if (endDate == DateTime.MinValue || endDate == dt1970)
                                                         {
-                                                            // Make it available for 100 years
-                                                            endDate = startDate.AddYears(100);
+                                                            if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                            {
+                                                                // Set end date according to subscription's usage module full life cycle
+                                                                // This data is in MINUTES
+                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                            }
+                                                            else
+                                                            {
+                                                                endDate = dt1970;
+                                                            }
                                                         }
                                                     }
                                                 }
