@@ -847,43 +847,46 @@ namespace ElasticSearch.Searcher
         /// <returns></returns>
         protected string GetSort(OrderObj order, bool shouldOrderByScore)
         {
-            StringBuilder sSort = new StringBuilder();
-            sSort.Append(" \"sort\": [{");
+            StringBuilder sortBuilder = new StringBuilder();
+            sortBuilder.Append(" \"sort\": [{");
 
             if (order.m_eOrderBy == OrderBy.META)
             {
                 string sAnalyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
-                sSort.AppendFormat("\"{0}\": ", sAnalyzedMeta);
+                sortBuilder.AppendFormat("\"{0}\": ", sAnalyzedMeta);
                 ReturnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
-
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_uid\": ");
+                sortBuilder.Append(" \"_uid\": ");
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
-                sSort.Append(" \"_score\": ");
+                sortBuilder.Append(" \"_score\": ");
             }
             else
             {
-                sSort.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
+                sortBuilder.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
             }
 
-            if (sSort.Length > 0)
+            if (sortBuilder.Length > 0)
             {
-                sSort.Append(" {");
-                sSort.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
-                sSort.Append("}}");
+                sortBuilder.Append(" {");
+                sortBuilder.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
+                sortBuilder.Append("}}");
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
             if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
-                sSort.Append(", \"_score\"");
+            {
+                sortBuilder.Append(", \"_score\"");
+            }
 
-            sSort.Append(" ]");
+            sortBuilder.Append(", \"_uid\"");
 
-            return sSort.ToString();
+            sortBuilder.Append(" ]");
+
+            return sortBuilder.ToString();
         }
 
         #endregion
