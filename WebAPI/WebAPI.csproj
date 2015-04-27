@@ -66,6 +66,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="Sigil">
       <HintPath>..\packages\Sigil.4.4.0\lib\net45\Sigil.dll</HintPath>
     </Reference>
@@ -568,6 +571,7 @@
     <Compile Include="Clients\Utils\CatalogCacheManager.cs" />
     <Compile Include="Clients\Utils\CatalogUtils.cs" />
     <Compile Include="Controllers\CatalogController.cs" />
+    <Compile Include="Controllers\ApiAuthorize.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Filters\Exceptions\ApiException.cs" />
     <Compile Include="Filters\Exceptions\BadRequestException.cs" />
@@ -586,12 +590,14 @@
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\SearchAssets.cs" />
     <Compile Include="Models\Language.cs" />
+    <Compile Include="Helpers\KS.cs" />
     <Compile Include="Models\AssetInfo.cs" />
     <Compile Include="Models\AssetStats.cs" />
     <Compile Include="Models\BuzzScore.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Image.cs" />
     <Compile Include="Models\Status.cs" />
+    <Compile Include="Models\SignIn.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
