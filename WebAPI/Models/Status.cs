@@ -17,7 +17,7 @@ namespace WebAPI.Models
             Result = result;
         }
 
-        [DataMember(EmitDefaultValue = false, Name = "result")]
+        [DataMember(Name = "result")]
         public object Result { get; set; }
 
         [DataMember(Name = "status")]
@@ -27,7 +27,7 @@ namespace WebAPI.Models
     [DataContract]
     public class Status
     {
-        [DataMember(Name = "code")]        
+        [DataMember(Name = "code")]
         public int Code { get; set; }
 
         [DataMember(Name = "message")]
@@ -57,6 +57,7 @@ namespace WebAPI.Models
         BadCredentials = 500000,
         InternalConnectionIssue = 500001,
         Timeout = 500002,
-        BadRequest = 500003
+        BadRequest = 500003,
+        Forbidden = 500004
     }
 }

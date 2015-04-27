@@ -16,7 +16,7 @@ namespace WebAPI.Utils
         private static readonly byte[] initVectorBytes = Encoding.ASCII.GetBytes("tu89geji340t89u2");
 
         // This constant is used to determine the keysize of the encryption algorithm.
-        private const int keysize = 256;
+        private const int keysize = 128;
 
         public static string Encrypt(string plainText, string passPhrase)
         {
@@ -27,6 +27,7 @@ namespace WebAPI.Utils
                 using (RijndaelManaged symmetricKey = new RijndaelManaged())
                 {
                     symmetricKey.Mode = CipherMode.CBC;
+                    symmetricKey.Padding = PaddingMode.Zeros;
                     using (ICryptoTransform encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes))
                     {
                         using (MemoryStream memoryStream = new MemoryStream())
@@ -69,6 +70,7 @@ namespace WebAPI.Utils
                 using (RijndaelManaged symmetricKey = new RijndaelManaged())
                 {
                     symmetricKey.Mode = CipherMode.CBC;
+                    symmetricKey.Padding = PaddingMode.Zeros;
                     using (ICryptoTransform decryptor = symmetricKey.CreateDecryptor(keyBytes, initVectorBytes))
                     {
                         using (MemoryStream memoryStream = new MemoryStream(cipherTextBytes))
