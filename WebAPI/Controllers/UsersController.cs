@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Routing;
 using WebAPI.Filters;
+using WebAPI.Helpers;
 using WebAPI.Models;
 using WebAPI.Utils;
 
@@ -30,6 +32,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
+        [ApiAuthorize(Role = ApiAuthorizeAttribute.eRole.Admin)]
         public List<User> GetUsersData(string ids)
         {
             var c = new Users.UsersService();
@@ -81,6 +84,18 @@ namespace WebAPI.Controllers
         public void Delete(int id)
         {
 
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request">Credentials</param>
+        /// <param name="group_id">Group ID</param>
+        [Route("sign_in"), HttpPost]
+        public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
+        {
+            //TODO: do the sign in
+
+            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.Admin).ToString();
         }
     }
 }

@@ -31,10 +31,14 @@ namespace WebAPI.App_Start
 
             if (response.TryGetContentValue(out content) && !response.IsSuccessStatusCode)
             {
-                //This is a global unintentional 500 error
+                //This is a global unintentional error
 
                 HttpError error = content as HttpError;
-                subCode = StatusCode.Error;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    subCode = StatusCode.Forbidden;
+                else
+                    subCode = StatusCode.Error;
 
                 if (error != null)
                 {
@@ -56,7 +60,6 @@ namespace WebAPI.App_Start
                 message = "success";
 
             Guid reqID = request.GetCorrelationId();
-
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, content, message));
 
             foreach (var header in response.Headers)
