@@ -3213,7 +3213,15 @@ namespace TVPApiServices
 
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
 
-                    if (!string.IsNullOrEmpty(order_by))
+                    if (string.IsNullOrEmpty(order_by))
+                    {
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                        {
+                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NONE,
+                            m_eOrderDir = OrderDir.DESC
+                        };
+                    }
+                    else
                     {
                         order = CreateOrderObject(order_by);
 
@@ -3320,7 +3328,15 @@ namespace TVPApiServices
                     // Translate order by string to order object
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
 
-                    if (!string.IsNullOrEmpty(order_by))
+                    if (string.IsNullOrEmpty(order_by))
+                    {
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                        {
+                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE,
+                            m_eOrderDir = OrderDir.DESC
+                        };
+                    }
+                    else
                     {
                         order = CreateOrderObject(order_by);
 
