@@ -11,6 +11,7 @@ using System.Reflection;
 using NotificationObj;
 using System.Linq;
 using System.Threading;
+using System.Text.RegularExpressions;
 //using CouchbaseManager;
 //using Couchbase;
 //using NotificationBL;
@@ -1609,10 +1610,10 @@ namespace NotificationInterface
                     extraParams.subjectEmail = notificationEmailSubject;
                     extraParams.dateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultEmailDateFormat : notificationDateFormat;
                     // A Notification About New Media XXXX
-                    string mediaName = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("media", "name", extraParams.mediaID, "MAIN_CONNECTION_STRING"));                  
-                    messageText = String.Format("{0}", messageText.Replace("{mediaName}", mediaName));
-                    smsMessageText = String.Format("{0}", smsMessageText.Replace("{mediaName}", mediaName));
-                    pull_message_text = String.Format("{0}", pull_message_text.Replace("{mediaName}", mediaName));
+                    string mediaName = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("media", "name", extraParams.mediaID, "MAIN_CONNECTION_STRING"));
+                    ReplaceText(ref messageText, "{mediaName}", mediaName);
+                    ReplaceText(ref smsMessageText, "{mediaName}", mediaName);
+                    ReplaceText(ref pull_message_text, "{mediaName}", mediaName);
 
                     // replace the startDatae +catalogStartDate                   
                     ReplaceDatesInMessageText(startDate, catalogStartDate, notificationDateFormat, ref messageText);
@@ -1657,88 +1658,15 @@ namespace NotificationInterface
                             metaTagList.Add(metaTag);
                         }
                         metaTag =   string.Join(",", metaTagList.ToArray());
-                        messageText = String.Format("{0} ", messageText.Replace("{MetaTag}", metaTag));
-                        smsMessageText = String.Format("{0}", smsMessageText.Replace("{MetaTag}", metaTag));
-                        pull_message_text = String.Format("{0}", pull_message_text.Replace("{MetaTag}", metaTag));
+
+                        ReplaceText(ref messageText, "{MetaTag}", metaTag);
+                        ReplaceText(ref smsMessageText, "{MetaTag}", metaTag);
+                        ReplaceText(ref pull_message_text, "{MetaTag}", metaTag);
 
                         NotificationRequest request = new NotificationRequest(requestID, notificationID, status, groupID, userID, createdDate, requestType, messageType, messageText, smsMessageText, pull_message_text, title, actions, eTriggerType, oSendVia, extraParams);
                         Logger.Logger.Log("CreateNotificationRequestObject", string.Format("End userID={0}", userID), "NotificationManager");
                         return request; 
-                    }                    
-                    
-                     #region old code
-                    /*if (extraParams.TagDict != null && extraParams.TagDict.Count() > 0)
-                    {
-                        bool bUserMustBeNotify = false;
-                        foreach (KeyValuePair<string, List<int>> dicItem in extraParams.TagDict)
-                        {
-                            DataRow[] result = dt.Select("tag_type_id = " + dicItem.Key);
-
-                            //get all tag values that user sign in to 
-                            List<DataRow> drTagsPerUser = dtTagsPerUSer.Select("user_id = " + userID + " and TagType = " + dicItem.Key).ToList<DataRow>();
-
-                            bool bUserNotify = false;
-
-                            //if user subscribe to this tag - continue
-                            if (drTagsPerUser != null && drTagsPerUser.Count() > 0)
-                            {
-                                string tag_type_name = string.Empty;
-                                string tag_value = string.Empty;
-
-                                List<string> tagValues = new List<string>();
-
-                                foreach (DataRow row in result)
-                                {
-                                    tag_type_name = row["tag_type_name"].ToString();
-                                    int tag_value_id = ODBCWrapper.Utils.GetIntSafeVal(row["tag_id"]);
-                                    //find values 
-
-                                    bool valueFound = false;
-
-                                    foreach (DataRow item in drTagsPerUser)
-                                    {
-                                        string userTagValue = item.Field<string>("TagValue");
-
-                                        if (ODBCWrapper.Utils.GetLongSafeVal(userTagValue) == tag_value_id)
-                                        {
-                                            valueFound = true;
-                                            bUserNotify = true;
-                                        }
-                                        if (string.IsNullOrEmpty(userTagValue))
-                                        {
-                                            bUserNotify = true;
-                                        }
-                                        if (bUserNotify && !bUserMustBeNotify) // user should get a notification after the message text is ready
-                                            bUserMustBeNotify = true;
-                                    }
-
-                                    // We can see if we found any at all through.
-                                    if (valueFound && ( dicItem.Value == null || dicItem.Value.Contains(tag_value_id)))
-                                        tagValues.Add(ODBCWrapper.Utils.GetSafeStr(row["value"]));
-                                }
-
-                                if (tag_type_name != string.Empty && bUserNotify)
-                                {
-                                    tag_value = string.Join(",", tagValues);
-                                    string followUp = tag_type_name;
-                                    if (tag_value != string.Empty)
-                                    {
-                                        followUp = String.Format("{0} ,{1} : {2}", followUp , "Values", tag_value);
-                                    }
-
-                                    messageText = String.Format("{0} ", messageText.Replace("{MetaTag}", followUp));
-                                    smsMessageText = String.Format("{0}", smsMessageText.Replace("{MetaTag}", followUp));
-                                    pull_message_text = String.Format("{0}", pull_message_text.Replace("{MetaTag}", followUp));
-                                }
-                            }
-                        }
-                        if (bUserMustBeNotify)
-                        {
-                            NotificationRequest request = new NotificationRequest(requestID, notificationID, status, groupID, userID, createdDate, requestType, messageType, messageText,smsMessageText,pull_message_text ,title, actions,eTriggerType, oSendVia, extraParams);
-                            return request;
-                        }
-                    }*/
-                    #endregion
+                    }
                 }
             }
             #endregion
@@ -1750,7 +1678,12 @@ namespace NotificationInterface
             return null;
         }
 
-        private static void ReplaceFirstLastNames(long groupID, long userID, ref string messageText, ref string smsMessageText, ref string pull_message_text)
+        private void ReplaceText(ref string messageText, string matchString, string replaceWithString)
+        {
+            messageText = String.Format("{0}", messageText.Replace(matchString, replaceWithString));
+        }
+
+        private void ReplaceFirstLastNames(long groupID, long userID, ref string messageText, ref string smsMessageText, ref string pull_message_text)
         {
             try
             {
@@ -1767,9 +1700,9 @@ namespace NotificationInterface
 
                 if (userObj != null && userObj.m_user != null && userObj.m_user.m_oBasicData != null)
                 {
-                    messageText = String.Format("{0}", messageText.Replace("{FirstName}", userObj.m_user.m_oBasicData.m_sFirstName).Replace("{LastName}", userObj.m_user.m_oBasicData.m_sLastName));
-                    smsMessageText = String.Format("{0}", smsMessageText.Replace("{FirstName}", userObj.m_user.m_oBasicData.m_sFirstName).Replace("{LastName}", userObj.m_user.m_oBasicData.m_sLastName));
-                    pull_message_text = String.Format("{0}", pull_message_text.Replace("{FirstName}", userObj.m_user.m_oBasicData.m_sFirstName).Replace("{LastName}", userObj.m_user.m_oBasicData.m_sLastName));
+                    ReplaceName(ref messageText, userObj.m_user.m_oBasicData);
+                    ReplaceName(ref smsMessageText, userObj.m_user.m_oBasicData);
+                    ReplaceName(ref pull_message_text, userObj.m_user.m_oBasicData);
                 }
             }
             catch (Exception ex)
@@ -1778,88 +1711,64 @@ namespace NotificationInterface
             }
         }
 
+        private void ReplaceName(ref string messageText, WS_Users.UserBasicData user)
+        {
+            ReplaceText(ref messageText, "{FirstName}", user.m_sFirstName);
+            ReplaceText(ref messageText, "{LastName}", user.m_sLastName);           
+        }
+
         private void ReplaceDatesInMessageText(DateTime startDate, DateTime catalogStartDate, string notificationDateFormat, ref string messageText)
         {
             try
             {
-                int first = -1;
-                int last = 0;
-                string startDateString = string.Empty;
-                string startDateFormat = string.Empty;
-                string sStartDate = string.Empty;
-                string sCatalogStartDate = string.Empty;
-                string catalogStartDateString = string.Empty;
-                string catalogDateFormat = string.Empty;
-
                 // get start and end insex for this substring that we ae looking for
-                first = messageText.IndexOf("{StartDate");
-                if (first >= 0)
-                {
-                    last = messageText.IndexOf("}", first);
-                    startDateString = messageText.Substring(first, last - first + 1);
-                    string[] startDateSplit = startDateString.Split(',');                    
+                MatchCollection mcStartDate = Regex.Matches(messageText, "{StartDate");
+                ReplaceDates(startDate, notificationDateFormat, ref messageText, mcStartDate);
 
-                    if (startDateSplit != null && startDateSplit.Count() == 2)
-                    {
-                        startDateFormat = startDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
-                    }
-                    if (string.IsNullOrEmpty(startDateFormat))
-                    {
-                        startDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
-                    }
-                }
-                first = -1;
-                last = 0;
-                first = messageText.IndexOf("{CatalaogStartDate");
-                if (first >= 0)
-                {
-                    last = messageText.IndexOf("}", first);
-                    catalogStartDateString = messageText.Substring(first, last - first + 1);
-                    string[] catalogStartDateSplit = catalogStartDateString.Split(',');
-                    
-                    if (catalogStartDateSplit != null && catalogStartDateSplit.Count() == 2)
-                    {
-                        catalogDateFormat = catalogStartDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
-                    }
-                    if (string.IsNullOrEmpty(catalogDateFormat))
-                    {
-                        catalogDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
-                    }
-                }
-                
-                //create the date in the right format 
-                try
-                {
-                    if (!string.IsNullOrEmpty(startDateString))
-                    {
-                        sStartDate = Utils.ExtractDate(startDate, startDateFormat);
-                        messageText = String.Format("{0}", messageText.Replace(startDateString, sStartDate));
-                    }
-                }
-                catch (Exception exStartDate)
-                {
-                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", startDateFormat, startDateString, exStartDate.Message), "NotificationManager");
-                    sStartDate = Utils.ExtractDate(startDate, deafultDateFormat);
-                    messageText = String.Format("{0}", messageText.Replace(startDateString, sStartDate));
-                }
-                try
-                {
-                    if (!string.IsNullOrEmpty(catalogStartDateString))
-                    {
-                        sCatalogStartDate = Utils.ExtractDate(catalogStartDate, catalogDateFormat);
-                        messageText = String.Format("{0}", messageText.Replace(catalogStartDateString, sCatalogStartDate));
-                    }
-                }
-                catch (Exception exCatalogStartDate)
-                {
-                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", catalogDateFormat, catalogStartDateString, exCatalogStartDate.Message), "NotificationManager");
-                    sCatalogStartDate = Utils.ExtractDate(catalogStartDate, deafultDateFormat);
-                    messageText = String.Format("{0}", messageText.Replace(catalogStartDateString, sCatalogStartDate));
-                }
+                MatchCollection mcCatalogStartDate = Regex.Matches(messageText, "{CatalaogStartDate");
+                ReplaceDates(startDate, notificationDateFormat, ref messageText, mcCatalogStartDate);               
             }
             catch (Exception ex)
             {
 
+            }
+        }
+
+        private static void ReplaceDates(DateTime startDate, string notificationDateFormat, ref string messageText, MatchCollection mcStartDate)
+        {
+            int last = 0;
+            string dateString = string.Empty;
+            string startDateFormat = string.Empty;
+            string sStartDate = string.Empty;
+
+            foreach (Match mc in mcStartDate)
+            {
+                last = messageText.IndexOf("}", mc.Index);
+                dateString = messageText.Substring(mc.Index, last - mc.Index + 1);
+                string[] startDateSplit = dateString.Split(',');
+                if (startDateSplit != null && startDateSplit.Count() == 2)
+                {
+                    startDateFormat = startDateSplit[1].TrimEnd().TrimStart().Replace("}", "");
+                }
+                if (string.IsNullOrEmpty(startDateFormat))
+                {
+                    startDateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultDateFormat : notificationDateFormat;
+                }
+                //create the date in the right format 
+                try
+                {
+                    if (!string.IsNullOrEmpty(dateString))
+                    {
+                        sStartDate = Utils.ExtractDate(startDate, startDateFormat);
+                        messageText = String.Format("{0}", messageText.Replace(dateString, sStartDate));
+                    }
+                }
+                catch (Exception exStartDate)
+                {
+                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", startDateFormat, dateString, exStartDate.Message), "NotificationManager");
+                    sStartDate = Utils.ExtractDate(startDate, deafultDateFormat);
+                    messageText = String.Format("{0}", messageText.Replace(dateString, sStartDate));
+                }
             }
         }
         
