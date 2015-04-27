@@ -10,8 +10,8 @@ namespace WebAPI.Filters
 {
     public class InternalServerErrorException : ApiException
     {
-        public InternalServerErrorException() : base(HttpStatusCode.InternalServerError, Models.StatusCode.Error, "error") { }
+        public InternalServerErrorException() : base(HttpStatusCode.InternalServerError, (int)Models.StatusCode.Error, "error") { }
 
-        public InternalServerErrorException(StatusCode code, string msg) : base(HttpStatusCode.InternalServerError, code, msg) { }
+        public InternalServerErrorException(int code, string msg) : base(HttpStatusCode.InternalServerError, code, msg) { }
     }
 }

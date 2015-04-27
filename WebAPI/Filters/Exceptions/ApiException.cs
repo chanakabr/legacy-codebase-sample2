@@ -13,7 +13,7 @@ namespace WebAPI.Filters.Exceptions
     {
         public StatusCode Code { get; set; }
 
-        protected ApiException(HttpStatusCode httpCode, StatusCode code, string msg)
+        protected ApiException(HttpStatusCode httpCode, int code, string msg)
             : base(new HttpResponseMessage() { ReasonPhrase = msg, StatusCode = httpCode, Content = new StringContent(code.ToString()) })
         {
 

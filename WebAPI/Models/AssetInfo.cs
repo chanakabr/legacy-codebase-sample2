@@ -7,6 +7,28 @@ using System.Web;
 
 namespace WebAPI.Models
 {
+    public class AssetInfoWrapper
+    {
+        /// <summary>
+        /// Assets
+        /// </summary>
+        [DataMember(Name = "assets")]
+        [JsonProperty(PropertyName = "assets")]
+        public List<AssetInfo> Assets { get; set; }
+
+        /// <summary>
+        /// Total items
+        /// </summary>
+        [DataMember(Name = "total_items")]
+        [JsonProperty(PropertyName = "total_items")]
+        public int TotalItems { get; set; }
+
+        public AssetInfoWrapper()
+        {
+            Assets = new List<AssetInfo>();
+        }
+    }
+
     public class AssetInfo
     {
         /// <summary>

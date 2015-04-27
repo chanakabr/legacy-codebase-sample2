@@ -5,7 +5,7 @@ using System.ServiceModel;
 using System.Web;
 using WebAPI.Users;
 
-namespace WebAPI.Clients
+namespace WebAPI.Clients.Utils
 {
     public class ClientFactory
     {
