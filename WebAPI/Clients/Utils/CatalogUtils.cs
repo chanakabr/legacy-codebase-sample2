@@ -57,33 +57,45 @@ namespace WebAPI.Clients.Utils
 
             UnifiedSearchResponse response;
 
-            if (CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out response, true, cacheKey) && response.status != null && response.status.Code == (int)WebAPI.Models.StatusCode.OK)
+            try
             {
-                result.TotalItems = response.m_nTotalItems;
-
-                List<MediaObj> medias = null;
-                List<ProgramObj> epgs = null;
-                List<long> missingMediaIds = null;
-                List<long> missingEpgIds = null;
-
-                if (!GetAssetsFromCache(response.searchResults, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                if (GetBaseResponse<UnifiedSearchResponse>(client, request, out response, true, cacheKey) && response.status != null && response.status.Code == (int)WebAPI.Models.StatusCode.OK)
                 {
-                    List<MediaObj> mediasFromCatalog;
-                    List<ProgramObj> epgsFromCatalog;
-                    GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+                    result.TotalItems = response.m_nTotalItems;
 
-                    // Append the medias from Catalog to the medias from cache
-                    medias.AddRange(mediasFromCatalog);
+                    List<MediaObj> medias = null;
+                    List<ProgramObj> epgs = null;
+                    List<long> missingMediaIds = null;
+                    List<long> missingEpgIds = null;
 
-                    // Append the epgs from Catalog to the epgs from cache
-                    epgs.AddRange(epgsFromCatalog);
+                    if (!GetAssetsFromCache(response.searchResults, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                    {
+                        List<MediaObj> mediasFromCatalog;
+                        List<ProgramObj> epgsFromCatalog;
+                        GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+
+                        // Append the medias from Catalog to the medias from cache
+                        medias.AddRange(mediasFromCatalog);
+
+                        // Append the epgs from Catalog to the epgs from cache
+                        epgs.AddRange(epgsFromCatalog);
+                    }
+
+                    result.Assets = MargeAndCompleteResults(response.searchResults, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId); // Gets one list including both medias and epgds, ordered by Catalog order
+                }
+                else
+                {
+                    throw new ClientException(response.status.Code, response.status.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw ex;
                 }
 
-                result.Assets = MargeAndCompleteResults(response.searchResults, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId); // Gets one list including both medias and epgds, ordered by Catalog order
-            }
-            else
-            {
-                throw new ClientException(response.status.Code, response.status.Message);
+                throw new ClientException((int)StatusCode.InternalConnectionIssue);
             }
 
             return result;

@@ -131,7 +131,6 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    //m_sPlatform = platform.ToString(),
                     m_sDeviceId = udid,
                     m_nLanguage = language,
                 },

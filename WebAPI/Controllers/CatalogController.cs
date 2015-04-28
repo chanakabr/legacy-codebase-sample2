@@ -36,7 +36,8 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
+                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
                 {
                     throw new BadRequestException(ex.Code, ex.Message);
                 }
