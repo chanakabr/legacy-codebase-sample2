@@ -133,6 +133,13 @@
 									               
                                                 </td>
 										    </tr>
+
+                                            <tr>
+											    <td class="style1">
+									               <asp:Button ID="Button2" runat="server" onclick="ExportExcel" 
+                                                        CssClass="btn_export_excel" BorderStyle="None" Visible="true"/>
+									            </td>
+										    </tr>
 									    </table>
                                     </td>
 								</tr>
