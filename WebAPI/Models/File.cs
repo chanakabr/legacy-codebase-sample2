@@ -10,28 +10,28 @@ namespace WebAPI.Models
     public class File
     {
         /// <summary>
-        /// Asset ID
+        /// Unique identifier for the asset
         /// </summary>
         [DataMember(Name = "asset_id")]
         [JsonProperty(PropertyName = "asset_id")]
         public int AssetId { get; set; }
 
         /// <summary>
-        /// ID
+        /// File unique identifier
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
 
         /// <summary>
-        /// Type
+        /// Types of devide types as defined in the system
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         public string Type { get; set; }
 
         /// <summary>
-        /// URL
+        /// URL of the media file to be played
         /// </summary>
         [DataMember(Name = "url")]
         [JsonProperty(PropertyName = "url")]

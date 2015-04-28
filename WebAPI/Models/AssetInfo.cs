@@ -32,35 +32,36 @@ namespace WebAPI.Models
     public class AssetInfo
     {
         /// <summary>
-        /// ID
+        /// Unique identifier for the asset
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         public long Id { get; set; }
 
         /// <summary>
-        /// Type
+        /// Identifies the asset type (EPG, Movie, TV Series, etc). 
+        /// Possible values: 0 – EPG linear programs, or any asset type ID according to the asset types IDs defined in the system.
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         public int Type { get; set; }
 
         /// <summary>
-        /// Name
+        /// Asset name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Description
+        /// Asset description
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
         /// <summary>
-        /// Images
+        /// Collection of images details that can be used to represent this asset
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
@@ -74,42 +75,44 @@ namespace WebAPI.Models
         public List<File> Files { get; set; }
 
         /// <summary>
-        /// Metas
+        /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
         [DataMember(Name = "metas")]
         [JsonProperty(PropertyName = "metas")]
         public Dictionary<string, string> Metas { get; set; }
 
         /// <summary>
-        /// Tags
+        /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
         /// </summary>
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         public Dictionary<string, List<string>> Tags { get; set; }
 
         /// <summary>
-        /// Start date
+        /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
         /// </summary>
         [DataMember(Name = "start_date")]
         [JsonProperty(PropertyName = "start_date")]
         public long StartDate { get; set; }
 
         /// <summary>
-        /// End date
+        /// Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time & date
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty(PropertyName = "end_date")]
         public long EndDate { get; set; }
 
         /// <summary>
-        /// Asset statistics
+        /// Collection of add-on statistical information for the media. See AssetStats model for more information
         /// </summary>
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         public AssetStats Statistics { get; set; }
 
         /// <summary>
-        /// Extra parameters
+        /// A collection of additional key value pairs that are available per asset type. Possible keys: 
+        /// For 0 (EPG linear programs): epg_channel_id - The EPG channel ID, epg_id - The EPG identifier, related_media_id - The linear media ID.
+        /// For other : start_date, final_date, external_ids
         /// </summary>
         [DataMember(Name = "extra_params", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]

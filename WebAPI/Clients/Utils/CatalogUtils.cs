@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Catalog;
-using WebAPI.Filters;
+using WebAPI.Clients.Exceptions;
 using WebAPI.Models;
 using WebAPI.Utils;
 
@@ -51,7 +51,7 @@ namespace WebAPI.Clients.Utils
             return true;
         }
 
-        public static AssetInfoWrapper SearchAssets(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<string> with)
+        public static AssetInfoWrapper SearchAssets(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<With> with)
         {
             AssetInfoWrapper result = new AssetInfoWrapper();
 
@@ -83,7 +83,7 @@ namespace WebAPI.Clients.Utils
             }
             else
             {
-                throw new InternalServerErrorException(response.status.Code, response.status.Message);
+                throw new ClientException(response.status.Code, response.status.Message);
             }
 
             return result;
@@ -238,7 +238,7 @@ namespace WebAPI.Clients.Utils
 
         // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
         // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        private static List<AssetInfo> MargeAndCompleteResults(List<UnifiedSearchResult> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<string> with, 
+        private static List<AssetInfo> MargeAndCompleteResults(List<UnifiedSearchResult> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<With> with, 
             int groupID, string platform, string siteGuid, string udid)
         {
             List<AssetInfo> results = new List<AssetInfo>();
@@ -258,7 +258,7 @@ namespace WebAPI.Clients.Utils
 
             if (with != null)
             {
-                if (with.Contains("stats")) // if stats are required - gets the stats from Catalog
+                if (with.Contains(With.stats)) // if stats are required - gets the stats from Catalog
                 {
                     if (medias != null && medias.Count > 0)
                     {
@@ -275,7 +275,7 @@ namespace WebAPI.Clients.Utils
                             Mapper.Map<WebAPI.Catalog.StatsType>(WebAPI.Models.AssetType.Epg));
                     }
                 }
-                if (with.Contains("files")) // if files are required - parses the files
+                if (with.Contains(With.files)) // if files are required - parses the files
                 {
                     for (int i = 0; i < medias.Count; i++)
                     {

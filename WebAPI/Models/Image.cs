@@ -10,28 +10,28 @@ namespace WebAPI.Models
     public class Image
     {
         /// <summary>
-        /// Ratio
+        /// Image aspect ratio
         /// </summary>
         [DataMember(Name = "ratio")]
         [JsonProperty(PropertyName = "ratio")]
         public string Ratio { get; set; }
 
         /// <summary>
-        /// Width
+        /// Image width
         /// </summary>
         [DataMember(Name = "width")]
         [JsonProperty(PropertyName = "width")]
         public int Width { get; set; }
 
         /// <summary>
-        /// Height
+        /// Image height
         /// </summary>
         [DataMember(Name = "height")]
         [JsonProperty(PropertyName = "height")]
         public int Height { get; set; }
 
         /// <summary>
-        /// URL
+        /// Image URL
         /// </summary>
         [DataMember(Name = "url")]
         [JsonProperty(PropertyName = "url")]

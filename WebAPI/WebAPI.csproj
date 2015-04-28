@@ -550,6 +550,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\Mapping\ApiMappings.cs" />
+    <Compile Include="Clients\Exceptions\ClientException.cs" />
     <Compile Include="Filters\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
@@ -599,6 +600,7 @@
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\SignIn.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\With.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

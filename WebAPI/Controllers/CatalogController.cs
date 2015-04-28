@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using WebAPI.Clients.Exceptions;
 using WebAPI.Clients.Utils;
+using WebAPI.Filters;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -13,7 +15,7 @@ namespace WebAPI.Controllers
     public class CatalogController : ApiController
     {
         /// <summary>
-        /// Create new user
+        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content
         /// </summary>
         /// <param name="search_assets"></param>
         /// <remarks></remarks>
@@ -23,14 +25,26 @@ namespace WebAPI.Controllers
         [Route("search"), HttpPost]
         public AssetInfoWrapper Post([FromBody]SearchAssets search_assets)
         {
-            int groupId = 215;            
+            AssetInfoWrapper response = null;
+            //TODO: remove later
+            int groupId = 215;
 
+            try
+            {
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
+                search_assets.PageIndex, search_assets.PageSize, search_assets.Filter, search_assets.OrderBy, search_assets.FilterTypes, search_assets.With);
+            }
+            catch (ClientException ex)
+            {
+                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
+                {
+                    throw new BadRequestException(ex.Code, ex.Message);
+                }
 
+                throw new InternalServerErrorException(ex.Code, ex.Message);
+            }
 
-            var res = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
-                search_assets.page_index, search_assets.page_size, search_assets.filter, search_assets.order_by, search_assets.filter_types, search_assets.with);
-
-            return res;
+            return response;
         }
     }
 }
