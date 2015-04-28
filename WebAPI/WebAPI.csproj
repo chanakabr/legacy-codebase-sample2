@@ -44,16 +44,23 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="Couchbase">
+      <HintPath>..\..\tvincicommon\External\Couchbase.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching">
+      <HintPath>..\..\tvincicommon\External\Enyim.Caching.dll</HintPath>
+    </Reference>
     <Reference Include="Jil">
       <HintPath>..\packages\Jil.2.9.0\lib\net45\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression">
+    <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.2.2\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -65,20 +72,23 @@
     <Reference Include="Sigil">
       <HintPath>..\packages\Sigil.4.4.0\lib\net45\Sigil.dll</HintPath>
     </Reference>
-    <Reference Include="Swashbuckle.Core">
-      <HintPath>..\packages\Swashbuckle.Core.5.1.4\lib\net40\Swashbuckle.Core.dll</HintPath>
+    <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Swashbuckle.Core.5.1.5\lib\net40\Swashbuckle.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Extensions">
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Extensions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http.Primitives">
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Primitives.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Runtime.Serialization" />
@@ -110,8 +120,9 @@
     <Reference Include="TCMClient">
       <HintPath>..\..\tvincicommon\External\TCMClient.dll</HintPath>
     </Reference>
-    <Reference Include="WebActivatorEx">
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
       <HintPath>..\packages\WebActivatorEx.2.0.6\lib\net40\WebActivatorEx.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +148,7 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.disco" />
+    <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -413,7 +424,7 @@
     <Content Include="Web References\Pricing\UsageModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.wsdl" />
+    <None Include="Web References\Api\api.wsdl" />
     <Content Include="Web References\Api\CategoryObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -459,10 +470,13 @@
     <Content Include="Web References\Api\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\Reference.map">
+    <Content Include="Web References\Api\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Api\RegionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -535,22 +549,28 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Start\AutoMapperConfig.cs" />
+    <Compile Include="Clients\Mapping\ApiMappings.cs" />
+    <Compile Include="Filters\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Clients\ApiClient.cs" />
-    <Compile Include="Clients\BaseClient.cs" />
+    <Compile Include="Clients\Mapping\CatalogMappings.cs" />
+    <Compile Include="Clients\Mapping\UsersMappings.cs" />
+    <Compile Include="Clients\Utils\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
     <Compile Include="Clients\CatalogClient.cs" />
-    <Compile Include="Clients\ClientFactory.cs" />
-    <Compile Include="Clients\ClientsManager.cs" />
-    <Compile Include="Clients\ClientType.cs" />
+    <Compile Include="Clients\Utils\ClientFactory.cs" />
+    <Compile Include="Clients\Utils\ClientsManager.cs" />
+    <Compile Include="Clients\Utils\ClientType.cs" />
     <Compile Include="Clients\ConditionalAccessClient.cs" />
     <Compile Include="Clients\DomainsClient.cs" />
     <Compile Include="Clients\NotificationsClient.cs" />
     <Compile Include="Clients\PricingClient.cs" />
     <Compile Include="Clients\SocialClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
+    <Compile Include="Clients\Utils\CatalogCacheManager.cs" />
+    <Compile Include="Clients\Utils\CatalogUtils.cs" />
+    <Compile Include="Controllers\CatalogController.cs" />
     <Compile Include="Controllers\ApiAuthorize.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Filters\Exceptions\ApiException.cs" />
@@ -562,6 +582,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="Managers\Models\Credentials.cs" />
+    <Compile Include="Managers\Models\Group.cs" />
+    <Compile Include="Managers\GroupsManager.cs" />
+    <Compile Include="Models\AssetType.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\SearchAssets.cs" />
+    <Compile Include="Models\Language.cs" />
     <Compile Include="Helpers\KS.cs" />
     <Compile Include="Models\AssetInfo.cs" />
     <Compile Include="Models\AssetStats.cs" />
@@ -646,10 +674,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Api\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -759,6 +787,11 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

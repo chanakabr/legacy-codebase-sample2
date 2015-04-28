@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.Clients
+namespace WebAPI.Clients.Utils
 {
     public class BaseClient
     {
@@ -16,7 +16,6 @@ namespace WebAPI.Clients
         #region Properties
 
         public object Module { get; set; }
-        public string ServiceKey { get; set; }
 
         public string WSUserName { get; set; }
 

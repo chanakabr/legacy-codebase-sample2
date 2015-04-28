@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.Clients
+namespace WebAPI.Clients.Utils
 {
     public class ClientsManager
     {
@@ -104,12 +104,7 @@ namespace WebAPI.Clients
                 {
                     ((CatalogClient)client).SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "SignatureKey"));
                 }
-                else
-                {
-                    client.WSUserName = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "USER"));
-                    client.WSPassword = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "PASSWORD"));
-                }
-
+                
                 clients.TryAdd(clientType, client);
             }
 
@@ -117,30 +112,5 @@ namespace WebAPI.Clients
         }
 
         #endregion
-
-        public BaseClient ResetClient(BaseClient client)
-        {
-            BaseClient removedClient = null;
-
-            if (client != null && !string.IsNullOrEmpty(client.ServiceKey))
-            {
-                clients.TryRemove(client.ClientType, out removedClient);
-            }
-
-            return removedClient;
-        }
-
-        public BaseClient RestartClient(BaseClient client)
-        {
-            BaseClient removedClient = ResetClient(client);
-            BaseClient insertedClient = null;
-
-            if (removedClient != null)
-            {
-                insertedClient = GetClient(client.ClientType);
-            }
-
-            return insertedClient;
-        }
     }
 }

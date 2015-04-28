@@ -1,9 +1,15 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using WebAPI.Catalog;
+using WebAPI.Clients.Utils;
+using WebAPI.Filters;
+using WebAPI.Models;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -12,7 +18,7 @@ namespace WebAPI.Clients
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
-        
+
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -57,119 +63,133 @@ namespace WebAPI.Clients
             return retVal;
         }
 
-        //public SearchAssetsResponse SearchAssets(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, int pageIndex, int pageSize, 
-        //    string filter, string orderBy, List<int> assetTypes, List<string> with)
-        //{
-        //    SearchAssetsResponse result = new SearchAssetsResponse();
+        public AssetInfoWrapper SearchAssets(int groupID, string siteGuid, string udid, int language, int pageIndex, int? pageSize,
+            string filter, Order? orderBy, List<int> assetTypes, List<string> with)
+        {
+            AssetInfoWrapper result = new AssetInfoWrapper();
 
-        //    // Create catalog order object
-        //    OrderObj order = new OrderObj();
-        //    if (!string.IsNullOrEmpty(orderBy))
-        //    {
-        //        switch (orderBy.ToLower())
-        //        {
-        //            case "a_to_z":
-        //                order.m_eOrderBy = OrderBy.NAME;
-        //                order.m_eOrderDir = OrderDir.ASC;
-        //                break;
-        //            case "z_to_a":
-        //                order.m_eOrderBy = OrderBy.NAME;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            case "views":
-        //                order.m_eOrderBy = OrderBy.VIEWS;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            case "ratings":
-        //                order.m_eOrderBy = OrderBy.RATING;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            case "votes":
-        //                order.m_eOrderBy = OrderBy.VOTES_COUNT;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            case "newest":
-        //                order.m_eOrderBy = OrderBy.CREATE_DATE;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            case "relevancy":
-        //                order.m_eOrderBy = OrderBy.RELATED;
-        //                order.m_eOrderDir = OrderDir.DESC;
-        //                break;
-        //            default:
-        //                throw new Exception("Unknown orderBy value");
-                        
-        //        }
-        //    }
+            if (filter.Length > 500 * 1024)
+            {
+                throw new BadRequestException((int)StatusCode.BadRequest, "too long filter");
+            }
 
-        //    // build request
-        //    UnifiedSearchRequest request = new UnifiedSearchRequest()
-        //    {
-        //        m_sSignature = Signature,
-        //        m_sSignString = SignString,
-        //        m_oFilter = new Filter() 
-        //        { 
-        //            m_sPlatform = platform.ToString(),
-        //            m_sDeviceId = udid,
-        //            m_nLanguage = language,
-        //        },
-        //        m_nGroupID = groupID,
-        //        m_nPageIndex = pageIndex,
-        //        m_nPageSize = pageSize,
-        //        filterQuery = filter,
-        //        order = order,
-        //        assetTypes = assetTypes,
-        //    };
+            if (pageSize == null)
+            {
+                pageSize = 25;
+            }
+            else if (pageSize > 50)
+            {
+                pageSize = 50;
+            }
+            else if (pageSize < 5)
+            {
+                throw new BadRequestException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
+            }
 
-        //    // build failover cahce key
-        //    StringBuilder key = new StringBuilder();
-        //    key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
-        //    if (assetTypes != null && assetTypes.Count > 0)
-        //        key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+            // Create catalog order object
+            OrderObj order = new OrderObj();
 
-        //    result = CatalogUtils.SearchAssets(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            switch (orderBy)
+            {
+                case Order.a_to_z:
+                    order.m_eOrderBy = OrderBy.NAME;
+                    order.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case Order.z_to_a:
+                    order.m_eOrderBy = OrderBy.NAME;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Order.views:
+                    order.m_eOrderBy = OrderBy.VIEWS;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Order.ratings:
+                    order.m_eOrderBy = OrderBy.RATING;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Order.votes:
+                    order.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Order.newest:
+                    order.m_eOrderBy = OrderBy.CREATE_DATE;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case null:    
+                case Order.relevancy:
+                    order.m_eOrderBy = OrderBy.RELATED;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                default:
+                    throw new BadRequestException((int)StatusCode.BadRequest, "Unknown orderBy value");
+            }
 
-        //    return result;
-        //}
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    //m_sPlatform = platform.ToString(),
+                    m_sDeviceId = udid,
+                    m_nLanguage = language,
+                },
+                m_nGroupID = groupID,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                filterQuery = filter,
+                order = order,
+                assetTypes = assetTypes,
+            };
 
-        //public List<AssetStats> GetAssetsStats(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, 
-        //    string siteGuid, string udid, List<int> assetIds, long startTime, long endTime,
-        //    RestfulTVPApi.Objects.RequestModels.Enums.StatsType assetType)
-        //{
-        //    List<AssetStats> result = null;
-        //    AssetStatsRequest request = new AssetStatsRequest()
-        //    {
-        //        m_sSignature = Signature,
-        //        m_sSignString = SignString,
-        //        m_sSiteGuid = siteGuid,
-        //        m_nGroupID = groupID,
-        //        m_oFilter = new Filter()
-        //        {
-        //            m_sDeviceId = udid,
-        //            m_sPlatform = platform.ToString(),
-        //        },
-        //        m_nAssetIDs = assetIds,
-        //        m_dStartDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(startTime),
-        //        m_dEndDate = RestfulTVPApi.ServiceInterface.Utils.ConvertFromUnixTimestamp(endTime),
-        //        m_type = RestfulTVPApi.Objects.RequestModels.Enums.ConvertStatsType(assetType)
-        //    };
+            // build failover cahce key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            if (assetTypes != null && assetTypes.Count > 0)
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-        //    var response = Catalog.GetResponse(request) as AssetStatsResponse;
+            result = CatalogUtils.SearchAssets(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
-        //    if (response != null)
-        //    {
-        //        result = response.m_lAssetStat != null ? 
-        //            response.m_lAssetStat.Select(a => AssetStats.CreateFromObject(a)).ToList() : null;
-        //    }
-        //    else
-        //    {
-        //        throw new Exception("Failed to receive stats from catalog");
-        //    }
+            return result;
+        }
 
-        //    return result;
-        //}
+        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
+        {
+            List<AssetStats> result = null;
+            AssetStatsRequest request = new AssetStatsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupID,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    //m_sPlatform = platform.ToString(),
+                },
+                m_nAssetIDs = assetIds,
+                m_dStartDate = SerializationUtils.ConvertFromUnixTimestamp(startTime),
+                m_dEndDate = SerializationUtils.ConvertFromUnixTimestamp(endTime),
+                m_type = Mapper.Map<WebAPI.Catalog.StatsType>(assetType)
+            };
 
-        //public string MediaMark(int groupID, RestfulTVPApi.Objects.Enums.PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
+            var response = Catalog.GetResponse(request) as AssetStatsResponse;
+
+            if (response != null)
+            {
+                result = response.m_lAssetStat != null ?
+                    Mapper.Map<List<AssetStats>>(response.m_lAssetStat) : null;
+            }
+            else
+            {
+                throw new InternalServerErrorException((int)StatusCode.Error, "Failed to receive stats from catalog");
+            }
+
+            return result;
+        }
+
+        //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)
         //{
         //    string res = null;
@@ -200,7 +220,7 @@ namespace WebAPI.Clients
         //        m_oFilter = new Filter()
         //        {
         //            m_sDeviceId = udid,
-        //            m_nLanguage = language, 
+        //            m_nLanguage = language,
         //            m_sPlatform = platform.ToString(),
         //        }
         //    };
