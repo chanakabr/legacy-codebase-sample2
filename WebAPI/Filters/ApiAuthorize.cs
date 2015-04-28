@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Web;
 using System.Web.Http.Controllers;
+using WebAPI.Managers.Models;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -15,11 +16,13 @@ namespace WebAPI.Controllers
         [Flags]
         public enum eRole { Admin, User }
         public eRole Role { get; set; }
+        private KS ks;
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
+            string ksVal = HttpContext.Current.Request.QueryString["ks"];
             //TODO: Change from checking emptiness to real KS structure / expiration
-            if (string.IsNullOrEmpty(HttpContext.Current.Request.QueryString["ks"]))
+            if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).isValid)
             {
                 HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Unauthorized);
                 actionContext.Response = res;
@@ -34,7 +37,7 @@ namespace WebAPI.Controllers
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
             eRole role;
-            //TODO: when KS is completed, change this to extract from the KS object
+            //TODO: use the private KS above. when KS is completed, change this to extract from the KS object
             if (!Enum.TryParse(HttpContext.Current.Request.QueryString["ks"], false, out role) || ((Role & role) != role))
             {
                 return false;

@@ -11,7 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Routing;
 using WebAPI.Filters;
-using WebAPI.Helpers;
+using WebAPI.Managers.Models;
 using WebAPI.Models;
 using WebAPI.Utils;
 

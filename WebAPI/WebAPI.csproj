@@ -592,7 +592,7 @@
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\SearchAssets.cs" />
     <Compile Include="Models\Language.cs" />
-    <Compile Include="Helpers\KS.cs" />
+    <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\AssetInfo.cs" />
     <Compile Include="Models\AssetStats.cs" />
     <Compile Include="Models\BuzzScore.cs" />
@@ -669,6 +669,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
