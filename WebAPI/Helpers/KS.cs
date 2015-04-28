@@ -9,7 +9,7 @@ namespace WebAPI.Helpers
 {
     public class KS
     {
-        public enum eUserType { Admin = 0, User = 2 }
+        public enum eUserType { USER = 0, ADMIN = 2 }
         public KS(string adminSecret, string groupID, string userID, int expiration, eUserType userType)
         {
             string ksFormat = "_u={0}&_e={1}&_t={2}&Privileges={3}";

@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
         {
             //TODO: do the sign in
 
-            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.Admin).ToString();
+            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).ToString();
         }
     }
 }

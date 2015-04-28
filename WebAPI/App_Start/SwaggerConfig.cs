@@ -26,7 +26,7 @@ namespace WebAPI
                         // the docs is taken as the default. If your API supports multiple schemes and you want to be explicit
                         // about them, you can use the "Schemes" option as shown below.
                         //
-                        //c.Schemes(new[] { "http", "https" });
+                        c.Schemes(new[] { "http", "https" });
 
                         // Use "SingleApiVersion" to describe a single version API. Swagger 2.0 includes an "Info" object to
                         // hold additional metadata for an API. Version and title are required but you can also provide
@@ -57,10 +57,11 @@ namespace WebAPI
                         //c.BasicAuth("basic")
                         //    .Description("Basic HTTP Authentication");
                         //
-                        c.ApiKey("apiKey")
+                        c.ApiKey("ks")
                             .Description("API Key Authentication")
-                            .Name("apiKey")
+                            .Name("ks")
                             .In("header");
+                        
                         //
                         //c.OAuth2("oauth2")
                         //    .Description("OAuth2 Implicit Grant")
