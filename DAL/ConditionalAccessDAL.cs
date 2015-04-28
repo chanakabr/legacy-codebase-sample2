@@ -1708,5 +1708,31 @@ namespace DAL
 
             return success;
         }
+
+        /// <summary>
+        /// For a given co guid, find the corresponding media file Id. Returns true if found, false if not
+        /// </summary>
+        /// <param name="coGuid"></param>
+        /// <param name="groupID"></param>
+        /// <param name="mediaFileID"></param>
+        /// <returns></returns>
+        public static bool Get_MediaFileIDByCoGuid(string coGuid, int groupID, ref int mediaFileID)
+        {
+            bool success = false;
+
+            StoredProcedure sp = new StoredProcedure("Get_MediaFileIDByCoGuid");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@CoGuid", coGuid);
+            sp.AddParameter("@GroupID", groupID);
+
+            mediaFileID = Convert.ToInt32(sp.ExecuteReturnValue());
+
+            if (mediaFileID > 0)
+            {
+                success = true;
+            }
+
+            return success;
+        }
     }
 }
