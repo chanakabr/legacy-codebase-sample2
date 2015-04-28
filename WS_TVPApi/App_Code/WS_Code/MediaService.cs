@@ -3299,6 +3299,10 @@ namespace TVPApiServices
                 order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
                 order.m_eOrderDir = OrderDir.DESC;
                 break;
+                case "likes":
+                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.LIKE_COUNTER;
+                order.m_eOrderDir = OrderDir.DESC;
+                break;
                 default:
                 order = null;
                 break;
