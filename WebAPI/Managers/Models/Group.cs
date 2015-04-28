@@ -9,6 +9,9 @@ namespace WebAPI.Managers.Models
 {
     public class Group
     {
+        [JsonProperty(PropertyName = "secret")]
+        public string Secret { get; set; }
+
         [JsonProperty(PropertyName = "api_credentials")]
         public Credentials ApiCredentials { get; set; }
 
