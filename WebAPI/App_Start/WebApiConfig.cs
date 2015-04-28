@@ -37,7 +37,7 @@ namespace WebAPI
             config.Formatters.Insert(0, new JilFormatter());
 
             config.Filters.Add(new ValidateModelAttribute());
-            config.Filters.Add(new ExceptionFilter());
+            //config.Filters.Add(new ExceptionFilter());
             config.MessageHandlers.Add(new WrappingHandler());            
 
             GlobalConfiguration.Configuration.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));

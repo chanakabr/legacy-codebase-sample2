@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content
         /// </summary>
-        /// <param name="search_assets"></param>
+        /// <param name="search_assets">The search asset request parameter</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>

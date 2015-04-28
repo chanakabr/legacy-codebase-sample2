@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Newtonsoft.Json;
+using Swashbuckle.Swagger.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
-        [ApiAuthorize(Role = ApiAuthorizeAttribute.eRole.Admin)]
+        [ApiAuthorize(Role = ApiAuthorizeAttribute.eRole.Admin | ApiAuthorizeAttribute.eRole.User)]
         public List<User> GetUsersData(string ids)
         {
             var c = new Users.UsersService();
@@ -68,6 +69,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route(""), HttpPost]
+        [Authorize()]
         public bool Post([FromBody]User user)
         {
 

@@ -37,6 +37,8 @@ namespace WebAPI.App_Start
 
                 if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                     subCode = StatusCode.Forbidden;
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    subCode = StatusCode.Unauthorized;
                 else
                     subCode = StatusCode.Error;
 

@@ -18,13 +18,15 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name = "username")]
         [JsonProperty("username")]
+        [Required]
         public string Username { get; set; }
 
         /// <summary>
         /// Password
-        /// </summary>
-        [DataMember(Name = "password")]
+        /// </summary>        
+        [DataMember(Name = "password")]        
         [JsonProperty("password")]
+        [Required]
         public string Password { get; set; }
     }
 }

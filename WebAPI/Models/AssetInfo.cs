@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 
 namespace WebAPI.Models
-{
+{    
     public class AssetInfoWrapper
     {
         /// <summary>
