@@ -6,8 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using WebAPI.Catalog;
+using WebAPI.Clients.Exceptions;
 using WebAPI.Clients.Utils;
-using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 
@@ -64,13 +64,13 @@ namespace WebAPI.Clients
         }
 
         public AssetInfoWrapper SearchAssets(int groupID, string siteGuid, string udid, int language, int pageIndex, int? pageSize,
-            string filter, Order? orderBy, List<int> assetTypes, List<string> with)
+            string filter, Order? orderBy, List<int> assetTypes, List<With> with)
         {
             AssetInfoWrapper result = new AssetInfoWrapper();
 
             if (filter.Length > 500 * 1024)
             {
-                throw new BadRequestException((int)StatusCode.BadRequest, "too long filter");
+                throw new ClientException((int)StatusCode.BadRequest, "too long filter");
             }
 
             if (pageSize == null)
@@ -83,7 +83,7 @@ namespace WebAPI.Clients
             }
             else if (pageSize < 5)
             {
-                throw new BadRequestException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new ClientException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
             // Create catalog order object
@@ -121,7 +121,7 @@ namespace WebAPI.Clients
                     order.m_eOrderDir = OrderDir.DESC;
                     break;
                 default:
-                    throw new BadRequestException((int)StatusCode.BadRequest, "Unknown orderBy value");
+                    throw new ClientException((int)StatusCode.BadRequest, "Unknown orderBy value");
             }
 
             // build request
@@ -183,7 +183,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                throw new InternalServerErrorException((int)StatusCode.Error, "Failed to receive stats from catalog");
+                throw new ClientException((int)StatusCode.Error, "Failed to receive stats from catalog");
             }
 
             return result;

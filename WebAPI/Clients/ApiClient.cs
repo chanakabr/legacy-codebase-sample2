@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Api;
+using WebAPI.Clients.Exceptions;
 using WebAPI.Clients.Utils;
-using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             }
             catch (Exception)
             {
-                throw new InternalServerErrorException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
+                throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
                 
             }
         }

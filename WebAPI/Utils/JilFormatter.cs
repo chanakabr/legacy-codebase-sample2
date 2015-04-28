@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using WebAPI.Filters;
+using WebAPI.Models;
 
 namespace WebAPI.Utils
 {
@@ -62,7 +64,7 @@ namespace WebAPI.Utils
             }
             catch
             {
-                return null;
+                throw new BadRequestException((int)StatusCode.BadRequest, "One or more parameters have invalid structure");
             }
         }
 
