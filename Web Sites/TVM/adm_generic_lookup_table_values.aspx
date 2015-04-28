@@ -135,12 +135,6 @@
 									           
 										    </tr>
                                             <tr>
-                                                   <td class="style1">
-									               <asp:Button ID="Button1" runat="server" onclick="GetTableCSV" 
-                                                        CssClass="btn_generate" BorderStyle="None" />
-
-                                            </tr>
-                                            <tr>
 											    <td>
                                                     <span style="font-size:13px; font-weight:bold;line-height:28px;"> 
                                                         <asp:Label ID="LblUploadStatus" runat="server" Visible="true"></asp:Label></span><br />
