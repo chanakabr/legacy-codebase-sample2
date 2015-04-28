@@ -58,6 +58,7 @@ namespace WebAPI.Models
         InternalConnectionIssue = 500001,
         Timeout = 500002,
         BadRequest = 500003,
-        Forbidden = 500004
+        Forbidden = 500004,
+        Unauthorized = 500005
     }
 }
