@@ -327,6 +327,26 @@ namespace TVinciShared
             if (coll[nCounter.ToString() + "_directory"] != null)
                 sDirectory = coll[nCounter.ToString() + "_directory"].ToString();
 
+            string ratioIndex = string.Empty;
+            if (coll[nCounter.ToString() + "_ratioIndex"] != null)
+            {
+                ratioIndex = coll[nCounter.ToString() + "_ratioIndex"].ToString();
+            }
+            Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
+            string selectedRatioVal = string.Empty;
+
+          
+            if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
+            {
+                selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
+                Logger.Logger.Log("Selected Ratio Found", "Selected Ratio is :" + selectedRatioVal, "Ratio");
+            }
+            else
+            {
+                Logger.Logger.Log("Selected Ratio Not Found", "ratio index is :" + ratioIndex, "Ratio");
+            }
+
+
             #endregion
 
             //check if the file is an image file
@@ -343,7 +363,7 @@ namespace TVinciShared
                     bValid = true;
 
                     string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-
+                   
                     //use the rabbit Queue
                     if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
                     {
@@ -352,7 +372,10 @@ namespace TVinciShared
 
                         List<string> lSizes = new List<string>();
                         lSizes.Add("full");
-
+                        if (coll["4_val"] == "on")
+                        {
+                            lSizes.Add("tn");
+                        }
                         sUploadedFile = theFile.FileName;
                         sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);     //get the file extension from the file                   
 
@@ -364,9 +387,35 @@ namespace TVinciShared
                             if (coll[nCounter.ToString() + "_picDim_width_" + count.ToString()] != null &&
                                 coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].Trim().ToString() != "")
                             {
+                                bool isResize = true;
+                                string sRatio = string.Empty;
                                 string sWidth = coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].ToString();
                                 string sHeight = coll[nCounter.ToString() + "_picDim_height_" + count.ToString()].ToString();
-                                lSizes.Add(sWidth + "X" + sHeight);
+                                string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + count.ToString()].ToString();
+
+                                if (coll[nCounter.ToString() + "_picDim_ratio_" + count.ToString()] != null &&
+                                coll[nCounter.ToString() + "_picDim_ratio_" + count.ToString()].Trim().ToString() != "")
+                                {
+                                    sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + count.ToString()].ToString();
+                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                    if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
+                                    {
+                                        Logger.Logger.Log("Ratio un-matched", selectedRatioVal, "Ratio");
+                                        isResize = false;
+                                    }
+                                    else
+                                    {
+                                        Logger.Logger.Log("Ratio matched", "for: " + sDirectory + "/" + sPicName + sEndName, "Ratio");
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("Ratio not found", "for: " + sDirectory + "/" + sPicName + sEndName, "Ratio");
+                                }
+                                if (isResize)
+                                {
+                                    lSizes.Add(sWidth + "X" + sHeight);
+                                }
                                 count++;
                             }
                             else
@@ -407,11 +456,19 @@ namespace TVinciShared
                             sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
 
 
-                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                        bool bExists = System.IO.File.Exists(sTmpImage);
+                        string sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                        bool bExists = System.IO.File.Exists(sFullImage);
 
-                        theFile.SaveAs(sTmpImage);
-                        UploadPicToGroup(nGroupID, sTmpImage);
+                        theFile.SaveAs(sFullImage);
+                        UploadPicToGroup(nGroupID, sFullImage);
+
+                        //add a "tn" size upload to pictre size at FTP 
+                        if (coll["4_val"] == "on" && !string.IsNullOrEmpty(sPicBaseName))
+                        {
+                            string sTNImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt;
+                            ImageUtils.ResizeImageAndSave(sFullImage, sTNImage, 90, 65, true, true);
+                            UploadPicToGroup(nGroupID, sTNImage);
+                        }
 
                         #region Upload different sizes
                         int nI = 0;
@@ -421,14 +478,38 @@ namespace TVinciShared
                             if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
                                 coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
                             {
+                                bool isResize = true;
+                                string sRatio = string.Empty;
                                 string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
                                 string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                                 string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                                 string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
-                                string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                                string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                                if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
+                                coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
+                                {
+                                    sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
+                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                    if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
+                                    {
+                                        Logger.Logger.Log("Ratio un-matched", sTmpImage, "Ratio");
+                                        isResize = false;
+                                    }
+                                    else
+                                    {
+                                        Logger.Logger.Log("Ratio matched", sTmpImage, "Ratio");
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("Ratio not found", sTmpImage, "Ratio");
+                                }
+                                if (isResize)
+                                {
+                                    ImageUtils.ResizeImageAndSave(sFullImage, sTmpImage, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
 
-                                ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
-                                UploadPicToGroup(nGroupID, sTmpImage);
+                                    UploadPicToGroup(nGroupID, sTmpImage);
+                                }
                                 nI++;
                             }
                             else

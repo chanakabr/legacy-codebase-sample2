@@ -556,7 +556,7 @@ namespace TVinciShared
         static public void AddCutCroptDimentionsEpg(ref DataRecordUploadField dr_upload)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select eps.width, eps.height from EPG_pics_sizes eps where eps.status=1 and ";
+            selectQuery += "select eps.width, eps.height , eps.TO_CROP, eps.ratio_id  from EPG_pics_sizes eps where eps.status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("eps.GROUP_ID", "=", LoginManager.GetLoginGroupID());
             //dr_upload.AddPicDimension(90, 65, "tn", true);
             if (selectQuery.Execute("query", true) != null)
@@ -565,9 +565,14 @@ namespace TVinciShared
                 for (int i = 0; i < nCount; i++)
                 {
                     Int32 nWidth = int.Parse(selectQuery.Table("query").DefaultView[i].Row["width"].ToString());
-                    Int32 nHeight = int.Parse(selectQuery.Table("query").DefaultView[i].Row["height"].ToString());               
-                    string sNameEnd = nWidth.ToString() + "X" + nHeight.ToString();                  
-                    dr_upload.AddPicDimension(nWidth, nHeight, sNameEnd, false);
+                    Int32 nHeight = int.Parse(selectQuery.Table("query").DefaultView[i].Row["height"].ToString());
+                    Int32 nCrop = int.Parse(selectQuery.Table("query").DefaultView[i].Row["TO_CROP"].ToString());
+                    string sRatio = selectQuery.Table("query").DefaultView[i].Row["ratio_id"].ToString();
+                    string sNameEnd = nWidth.ToString() + "X" + nHeight.ToString();
+                    bool bCrop = true;
+                    if (nCrop == 0)
+                        bCrop = false;
+                    dr_upload.AddPicDimension(nWidth, nHeight, sNameEnd, bCrop, sRatio);
                 }
             }
             selectQuery.Finish();
