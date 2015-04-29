@@ -1313,6 +1313,9 @@ namespace ConditionalAccess
 
                                             DateTime dt1970 = new DateTime(1970, 1, 1);
 
+                                            // by default add 6 hours to end date, so that renewer scheduler will work appropiately 
+                                            bool shouldAddTimeToEndDate = true;
+
                                             insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
@@ -1478,6 +1481,8 @@ namespace ConditionalAccess
                                                                 // Set end date according to subscription's usage module full life cycle
                                                                 // This data is in MINUTES
                                                                 endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                shouldAddTimeToEndDate = false;
                                                             }
                                                             else
                                                             {
@@ -1496,6 +1501,11 @@ namespace ConditionalAccess
 
                                                 startDate = dt1970;
                                                 endDate = dt1970;
+                                            }
+
+                                            if (shouldAddTimeToEndDate)
+                                            {
+                                                endDate = endDate.AddHours(6);
                                             }
 
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate.AddHours(6));
