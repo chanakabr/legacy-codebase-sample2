@@ -14,7 +14,7 @@ namespace WebAPI
             var thisAssembly = typeof(SwaggerConfig).Assembly;
 
             GlobalConfiguration.Configuration
-                .EnableSwagger(c =>
+                .EnableSwagger("docs/{apiVersion}/swagger", c =>
                     {
                         // By default, the service root url is inferred from the request used to access the docs.
                         // However, there may be situations (e.g. proxy and load-balanced environments) where this does not
@@ -201,7 +201,7 @@ namespace WebAPI
                         // in your project as an "Embedded Resource", and then the resource's "Logical Name" is passed to
                         // the method as shown below.
                         //
-                        //c.CustomAsset("index", containingAssembly, "YourWebApiProject.SwaggerExtensions.index.html");
+                        //c.CustomAsset("index", , "WebAPI.SwaggerExtensions.index.html");
 
                         // If your API has multiple versions and you've applied the MultipleApiVersions setting
                         // as described above, you can also enable a select box in the swagger-ui, that displays
@@ -219,7 +219,7 @@ namespace WebAPI
 
         public static string GetXmlCommentsPath()
         {
-            return System.String.Format(@"{0}\bin\WebApiSwagger.XML", System.AppDomain.CurrentDomain.BaseDirectory);
+            return System.String.Format(@"{0}\WebApiSwagger.XML", System.AppDomain.CurrentDomain.BaseDirectory);
         }
     }
 }
