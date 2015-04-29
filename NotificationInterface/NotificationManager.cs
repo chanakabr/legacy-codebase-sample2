@@ -1721,12 +1721,11 @@ namespace NotificationInterface
         {
             try
             {
-                // get start and end insex for this substring that we ae looking for
-                MatchCollection mcStartDate = Regex.Matches(messageText, "{StartDate");
-                ReplaceDates(startDate, notificationDateFormat, ref messageText, mcStartDate);
-
-                MatchCollection mcCatalogStartDate = Regex.Matches(messageText, "{CatalaogStartDate");
-                ReplaceDates(startDate, notificationDateFormat, ref messageText, mcCatalogStartDate);               
+                // get start and end insex for this substring that we ae looking for  
+                string matchText = "{StartDate";
+                ReplaceDates(startDate, notificationDateFormat, matchText, ref messageText);
+                matchText = "{CatalaogStartDate";
+                ReplaceDates(startDate, notificationDateFormat, matchText, ref messageText);               
             }
             catch (Exception ex)
             {
@@ -1734,14 +1733,15 @@ namespace NotificationInterface
             }
         }
 
-        private static void ReplaceDates(DateTime startDate, string notificationDateFormat, ref string messageText, MatchCollection mcStartDate)
+        private static void ReplaceDates(DateTime startDate, string notificationDateFormat, string matchText, ref string messageText)
         {
             int last = 0;
             string dateString = string.Empty;
             string startDateFormat = string.Empty;
             string sStartDate = string.Empty;
 
-            foreach (Match mc in mcStartDate)
+            Match mc = Regex.Match(messageText, matchText);
+            while (mc != null && mc.Index >=0 && mc.Success)
             {
                 last = messageText.IndexOf("}", mc.Index);
                 dateString = messageText.Substring(mc.Index, last - mc.Index + 1);
@@ -1769,6 +1769,8 @@ namespace NotificationInterface
                     sStartDate = Utils.ExtractDate(startDate, deafultDateFormat);
                     messageText = String.Format("{0}", messageText.Replace(dateString, sStartDate));
                 }
+
+                mc = Regex.Match(messageText, matchText);
             }
         }
         
