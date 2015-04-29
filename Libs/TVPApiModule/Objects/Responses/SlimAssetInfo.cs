@@ -50,6 +50,30 @@ namespace TVPApiModule.Objects.Responses
         #region Ctor
 
         /// <summary>
+        /// Freely built slim asset info object
+        /// </summary>
+        public SlimAssetInfo()
+        {
+        }
+
+        /// <summary>
+        /// Build slim asset info with specific values
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="images"></param>
+        public SlimAssetInfo(long id, int type, string name, string description, List<Image> images)
+        {
+            this.Id = id;
+            this.Type = type;
+            this.Name = name;
+            this.Description = description;
+            this.Images = images;
+        }
+
+        /// <summary>
         /// Create a slim asset info object that represents a media. Images are optional
         /// </summary>
         /// <param name="media"></param>
