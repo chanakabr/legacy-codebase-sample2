@@ -188,7 +188,7 @@ namespace TVinciShared
         static System.Drawing.Image FixedSize(System.Drawing.Image imgPhoto, int Width, int Height)
         {
             Bitmap bmPhoto = new Bitmap(Width, Height,
-                              PixelFormat.Format24bppRgb);
+                              PixelFormat.Format32bppArgb);
             bmPhoto.SetResolution(imgPhoto.HorizontalResolution, imgPhoto.VerticalResolution);
             Graphics grPhoto = Graphics.FromImage(bmPhoto);
             grPhoto.Clear(Color.Transparent);
@@ -201,7 +201,7 @@ namespace TVinciShared
 
         static System.Drawing.Image Crop(System.Drawing.Image imgPhoto, int nCorpWidth, int nCorpHeight, Int32 nOrigWidth, Int32 nOrigHeight)
         {
-            Bitmap bmPhoto = new Bitmap(nCorpWidth, nCorpHeight, PixelFormat.Format24bppRgb);
+            Bitmap bmPhoto = new Bitmap(nCorpWidth, nCorpHeight, PixelFormat.Format32bppArgb);
             bmPhoto.SetResolution(imgPhoto.HorizontalResolution, imgPhoto.VerticalResolution);
 
             Graphics grPhoto = Graphics.FromImage(bmPhoto);
