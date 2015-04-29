@@ -2857,26 +2857,37 @@ namespace ConditionalAccess
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
             bool res = false;
-            WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
-            request.m_lMediaFileIDs = new int[0];
-            request.m_nGroupID = groupID;
-            request.m_oFilter = new WS_Catalog.Filter();
-            request.m_sSiteGuid = siteGuid;
-            request.m_sUserIP = string.Empty;
-            request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-            request.m_lCoGuids = new string[1] { coGuid };
-            using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
+
+            // True - use DAL, with "our" slim stored procedure; false - use Catalog, with its full stored procedure
+            bool shouldUseDalOrCatalog = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldGetMediaFileDetailsDirectly");
+
+            if (shouldUseDalOrCatalog)
             {
-                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(GetWSURL("WS_Catalog"));
-                WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
-                if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
+                res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID, ref mediaFileID);
+            }
+            else
+            {
+                WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
+                request.m_lMediaFileIDs = new int[0];
+                request.m_nGroupID = groupID;
+                request.m_oFilter = new WS_Catalog.Filter();
+                request.m_sSiteGuid = siteGuid;
+                request.m_sUserIP = string.Empty;
+                request.m_sSignString = Guid.NewGuid().ToString();
+                request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
+                request.m_lCoGuids = new string[1] { coGuid };
+                using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
                 {
-                    WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
-                    if (mf != null && mf.m_oFile != null)
+                    catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(GetWSURL("WS_Catalog"));
+                    WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
+                    if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
                     {
-                        res = true;
-                        mediaFileID = mf.m_oFile.m_nFileId;
+                        WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
+                        if (mf != null && mf.m_oFile != null)
+                        {
+                            res = true;
+                            mediaFileID = mf.m_oFile.m_nFileId;
+                        }
                     }
                 }
             }
