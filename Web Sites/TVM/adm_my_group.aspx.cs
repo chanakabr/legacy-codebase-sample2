@@ -29,7 +29,12 @@ public partial class adm_my_group : System.Web.UI.Page
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
                 DBManipulator.DoTheWork();
+                Int32 nGroupID = LoginManager.GetLoginGroupID();
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                groupManager.UpdateRegionalization(nGroupID);
+            }
         }
     }
 

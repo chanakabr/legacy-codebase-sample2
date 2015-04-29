@@ -213,13 +213,35 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
         dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_description);
 
-        DataRecordUploadField dr_upload = new DataRecordUploadField(60, "pics", true, "5");
+        DataRecordUploadField dr_upload = new DataRecordUploadField(60, "EPG_pics", true, "3");// "3" is related to the index of ratio component
         if (Session["pic_id"] != null && Session["pic_id"].ToString() != "" && int.Parse(Session["pic_id"].ToString()) != 0)
             dr_upload.Initialize("The pic", "adm_table_header_nbg", "FormInput", "BASE_URL", false);
         else
             dr_upload.Initialize("The pic", "adm_table_header_nbg", "FormInput", "BASE_URL", true);
         PageUtils.AddCutCroptDimentionsEpg(ref dr_upload);
         theRecord.AddRecord(dr_upload);
+
+
+        DataRecordRadioField dr_pic_ratio = new DataRecordRadioField("groups_ratios", "ratio", "id", "", null);
+        string picQuery = "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_epg_ratios lur where g.ratio_id = lur.id and g.id = " + 
+                            LoginManager.GetLoginGroupID().ToString() + 
+                            " UNION " +
+                            "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_epg_ratios gr, lu_pics_epg_ratios lur where gr.ratio_id = lur.id and gr.group_id = " + 
+                            LoginManager.GetLoginGroupID().ToString();
+
+        dr_pic_ratio.SetSelectsQuery(picQuery);
+        dr_pic_ratio.Initialize("Pic Ratio", "adm_table_header_nbg", "FormInput", "", false);
+        dr_pic_ratio.SetDefault(0);
+        theRecord.AddRecord(dr_pic_ratio);
+
+        // checkBox for thumbnail pic size 
+        DataRecordCheckBoxField dr_thumbnail = new DataRecordCheckBoxField(true);
+        dr_thumbnail.Initialize("Thumbnail ", "adm_table_header_nbg", "FormInput", "", false);
+        theRecord.AddRecord(dr_thumbnail);
+
+
+
+
         
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
