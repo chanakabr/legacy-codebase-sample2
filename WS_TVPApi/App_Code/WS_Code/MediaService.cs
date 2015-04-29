@@ -3363,7 +3363,7 @@ namespace TVPApiServices
                         DomainId = initObj.DomainID
                     }.Execute();
 
-                    if (response is AutocompleteResponse)
+                    if (executedRespone is AutocompleteResponse)
                     {
                         response = executedRespone as AutocompleteResponse;
                     }
