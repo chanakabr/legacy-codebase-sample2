@@ -116,7 +116,9 @@ namespace Users
             {
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, operatorId);
 
-                if (!String.IsNullOrEmpty(moduleName))
+                if (String.IsNullOrEmpty(moduleName))
+                    user = new KalturaUsers(nGroupID);
+                else
                 {
                     // load user assembly
                     string usersAssemblyLocation = Utils.GetWSURL("USERS_ASSEMBLY_LOCATION");
