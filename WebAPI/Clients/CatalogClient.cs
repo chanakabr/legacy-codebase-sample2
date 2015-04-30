@@ -68,7 +68,7 @@ namespace WebAPI.Clients
         {
             AssetInfoWrapper result = new AssetInfoWrapper();
 
-            if (filter.Length > 500 * 1024)
+            if (!string.IsNullOrEmpty(filter) && filter.Length > 500 * 1024)
             {
                 throw new ClientException((int)StatusCode.BadRequest, "too long filter");
             }
