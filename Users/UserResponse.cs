@@ -1,0 +1,27 @@
+﻿using ApiObjects.Response;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Users
+{
+    public class UserResponse
+    {
+        public ApiObjects.Response.Status resp { get; set; }
+        public UserResponseObject user { get; set; }
+
+        public UserResponse()
+        {
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            user = new UserResponseObject();
+        }
+
+        public UserResponse(ApiObjects.Response.Status resp, UserResponseObject user)
+        {
+            this.resp = resp;
+            this.user = user;
+        }
+
+    }
+}

@@ -33,6 +33,10 @@ namespace ApiObjects.Response
         // User Section 2000 - 2999
         UserNotExists = 2000,
         UserSuspended = 2001,
+        GenerateNewLoginPIN = 2002, 
+        PinNotExists = 2003,
+        PinExpired = 2004,
+        ValidPin = 2005,
 
         // CAS Section 3000 - 3999
 

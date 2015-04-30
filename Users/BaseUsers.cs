@@ -7,11 +7,14 @@ using DAL;
 using Logger;
 using ApiObjects;
 using ApiObjects.Statistics;
+using ApiObjects.Response;
 
 namespace Users
 {
     public abstract class BaseUsers
     {
+        public const int PIN_NUMBER_OF_DIGITS = 10;
+
         protected BaseUsers() { }
         protected BaseUsers(Int32 nGroupID)
         {
@@ -94,19 +97,19 @@ namespace Users
             try
             {
                 bool bRes = false;
-               ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
-                  string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+                string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
 
-                  if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-                  {
-                      Guid guid = Guid.NewGuid();
+                if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+                {
+                    Guid guid = Guid.NewGuid();
 
-                      bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
+                    bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
-                      if (!bRes)
-                          Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
-                  }
+                    if (!bRes)
+                        Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
+                }
 
                 return bRes;
             }
@@ -309,7 +312,7 @@ namespace Users
                 uro = GetUserData(sSiteGUID);
             }
 
-            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null 
+            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null
                 || uro.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                 return false;
 
@@ -337,7 +340,7 @@ namespace Users
                     }
                 }
                 if (!exists)
-                {                    
+                {
                     UserDynamicDataContainer ud = new UserDynamicDataContainer();
                     ud.m_sDataType = pair.key;
                     ud.m_sValue = pair.value;
@@ -346,7 +349,7 @@ namespace Users
             }
 
             if (hasChanged && newPairs.Count == 0)
-            {             
+            {
                 uro.m_user.UpdateDynamicData(uro.m_user.m_oDynamicData, m_nGroupID);
             }
 
@@ -364,42 +367,42 @@ namespace Users
                 for (int j = 0; j < newPairs.Count; j++)//add the new pairs
                 {
                     newUdd.m_sUserData[j + preLength] = newPairs[j];
-                }                   
-    
+                }
+
                 uro.m_user.UpdateDynamicData(newUdd, m_nGroupID);
             }
 
-           #region Old Code
-         //for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
-         //   {
-         //       if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == sType)
-         //       {
-         //           index = i;
-         //           break;
-         //       }
-         //   }
+            #region Old Code
+            //for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+            //   {
+            //       if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == sType)
+            //       {
+            //           index = i;
+            //           break;
+            //       }
+            //   }
 
-         //   if (index != -1)
-         //   {
-         //       uro.m_user.m_oDynamicData.m_sUserData[index].m_sValue = sValue;
-         //       uro.m_user.Update(uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData, m_nGroupID);
-         //   }
-         //   else
-         //   {
-         //       UserDynamicData newUdd = new UserDynamicData();
-         //       newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + 1];
-         //       for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
-         //       {
-         //           newUdd.m_sUserData[i] = uro.m_user.m_oDynamicData.m_sUserData[i];
-         //       }
+            //   if (index != -1)
+            //   {
+            //       uro.m_user.m_oDynamicData.m_sUserData[index].m_sValue = sValue;
+            //       uro.m_user.Update(uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData, m_nGroupID);
+            //   }
+            //   else
+            //   {
+            //       UserDynamicData newUdd = new UserDynamicData();
+            //       newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + 1];
+            //       for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+            //       {
+            //           newUdd.m_sUserData[i] = uro.m_user.m_oDynamicData.m_sUserData[i];
+            //       }
 
-         //       UserDynamicDataContainer ud = new UserDynamicDataContainer();
-         //       ud.m_sDataType = sType;
-         //       ud.m_sValue = sValue;
-         //       newUdd.m_sUserData[uro.m_user.m_oDynamicData.m_sUserData.Length] = ud;
+            //       UserDynamicDataContainer ud = new UserDynamicDataContainer();
+            //       ud.m_sDataType = sType;
+            //       ud.m_sValue = sValue;
+            //       newUdd.m_sUserData[uro.m_user.m_oDynamicData.m_sUserData.Length] = ud;
 
-         //       uro.m_user.Update(uro.m_user.m_oBasicData, newUdd, m_nGroupID); 
-	#endregion
+            //       uro.m_user.Update(uro.m_user.m_oBasicData, newUdd, m_nGroupID); 
+            #endregion
 
             return true;
         }
@@ -415,7 +418,7 @@ namespace Users
                 {
                     int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserType["id"]);
                     string sUserTypeDesc = ODBCWrapper.Utils.GetSafeStr(drUserType["description"]);
-                    bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(drUserType,"is_default"));
+                    bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(drUserType, "is_default"));
                     UserType userType = new UserType(nUserTypeID, sUserTypeDesc, isDefault);
                     userTypesList.Add(userType);
                 }
@@ -445,7 +448,7 @@ namespace Users
         {
             if (!m_bIsActivationNeeded.HasValue)
             {
-                m_bIsActivationNeeded = UsersDal.GetIsActivationNeeded(m_nGroupID);               
+                m_bIsActivationNeeded = UsersDal.GetIsActivationNeeded(m_nGroupID);
             }
 
             return (m_bIsActivationNeeded.HasValue ? m_bIsActivationNeeded.Value : true);
@@ -643,8 +646,8 @@ namespace Users
                 List<ApiObjects.KeyValuePair> itemsExists = new List<ApiObjects.KeyValuePair>();
                 if (userItemList == null || userItemList.itemObj == null || userItemList.itemObj.Count == 0 || nGroupID == 0 || string.IsNullOrEmpty(userItemList.siteGuid))
                     return null;
-                List<int> lItems = new List<int>();                
-                
+                List<int> lItems = new List<int>();
+
                 foreach (ItemObj itemObj in userItemList.itemObj)
                 {
                     lItems.Add(itemObj.item);
@@ -696,6 +699,126 @@ namespace Users
             }
 
             return nUserTypeID;
+        }
+
+        public virtual PinCodeResponse GenerateLoginPIN(string siteGuid, int groupID)
+        {
+            PinCodeResponse response = new PinCodeResponse();
+            try
+            {
+                // check that user exsits 
+                UserResponseObject user = GetUserData(siteGuid);
+                if (user != null && user.m_user != null && user.m_RespStatus == ResponseStatus.OK)
+                {
+                    //if so always generated pincode for him 
+
+                    string pinCode = GenerateNewPIN(groupID);
+
+                    DateTime expired_date = DateTime.UtcNow;
+                    DataTable dt = DAL.UsersDal.GenerateLoginPIN(siteGuid, pinCode, groupID, expired_date);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        DataRow dr = dt.Rows[0];
+                        response.pinCode = ODBCWrapper.Utils.GetSafeStr(dr, "pinCode");
+                        response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+                        response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
+
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.GenerateNewLoginPIN, "new login pin generate for user");
+                    }
+                }
+                else
+                {
+                    response = new PinCodeResponse();
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExists, "UserNotExists");
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new PinCodeResponse();
+                Logger.Logger.Log("GenerateLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), "Users");
+            }
+            return response;
+        }
+
+
+
+
+        private static IEnumerable<int> Digits(bool first)
+        {
+            int firstNumber = first ? 1 : 0;
+            Random random = new Random();
+            while (true)
+                yield return random.Next(firstNumber, 10);
+        }
+        static string AddUniqueCode(int length)
+        {
+            while (true)
+            {
+                string firstChar = string.Join(null, Digits(true).Take(1)); //The PIN should not begin with “0” 
+                string code = string.Join(null, Digits(false).Take(length - 1));
+                code = string.Concat(firstChar, code);                      
+                return code;
+            }
+        }
+        private string GenerateNewPIN(int groupID)
+        {
+            string sNewPIN = string.Empty;
+
+            bool codeExsits = true;
+
+            while (codeExsits)
+            {
+                // Create new PIN               
+                try
+                {
+                    int length = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_NUMBER_OF_DIGITS"));
+                    if (length == 0)
+                    {
+                        length = PIN_NUMBER_OF_DIGITS; //default number of digits
+                    }
+
+                    //The generated PIN should always be 10 digits (number only)
+                    sNewPIN = AddUniqueCode(length);
+                    //The PIN should be unique - if exsits create NEW one
+                    codeExsits = UsersDal.PinCodeExsits(groupID, sNewPIN);
+                }
+                finally
+                {
+                }
+            }
+            return sNewPIN;
+        }
+
+        public UserResponse SignInWithPIN(int groupID, string PIN)
+        {
+            UserResponse response = new UserResponse();
+            try
+            {
+                //Try to get users by PIN from DB 
+                DataRow dr = UsersDal.GetUserByPIN(groupID, PIN);
+                if (dr != null)
+                {
+                    int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
+                    DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+                    if (DateTime.UtcNow >= expiredDate) // pincode is expired
+                    {
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired at " + expiredDate.ToString());
+                    }
+                    else
+                    {
+                       response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
+                       response.user = new UserResponseObject();
+                       response.user.m_user = new User(groupID, userId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new UserResponse();
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
+                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
+            }
+            return response;
         }
     }
 }
