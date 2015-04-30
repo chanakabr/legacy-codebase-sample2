@@ -14,7 +14,7 @@ namespace WebAPI
             var thisAssembly = typeof(SwaggerConfig).Assembly;
 
             GlobalConfiguration.Configuration
-                .EnableSwagger(c =>
+                .EnableSwagger("docs/{apiVersion}/swagger", c =>
                     {
                         // By default, the service root url is inferred from the request used to access the docs.
                         // However, there may be situations (e.g. proxy and load-balanced environments) where this does not
@@ -32,7 +32,7 @@ namespace WebAPI
                         // hold additional metadata for an API. Version and title are required but you can also provide
                         // additional fields by chaining methods off SingleApiVersion.
                         //
-                        c.SingleApiVersion("v1", "Kaltura OTT API").Description("This OTT API Service...").TermsOfService("This is the terms of service");
+                        c.SingleApiVersion("v1", "").Description("This OTT API Service...").TermsOfService("This is the terms of service");
 
                         // If your API has multiple versions, use "MultipleApiVersions" instead of "SingleApiVersion".
                         // In this case, you must provide a lambda that tells Swashbuckle which actions should be
@@ -61,7 +61,7 @@ namespace WebAPI
                             .Description("API Key Authentication")
                             .Name("ks")
                             .In("header");
-                        
+
                         //
                         //c.OAuth2("oauth2")
                         //    .Description("OAuth2 Implicit Grant")
@@ -169,7 +169,7 @@ namespace WebAPI
                         // The file must be included in your project as an "Embedded Resource", and then the resource's
                         // "Logical Name" is passed to the method as shown below.
                         //
-                        //c.InjectStylesheet(containingAssembly, "Swashbuckle.Dummy.SwaggerExtensions.testStyles1.css");
+                        c.InjectStylesheet(thisAssembly, "WebAPI.Resource.screen.css");
 
                         // Use the "InjectJavaScript" option to invoke one or more custom JavaScripts after the swagger-ui
                         // has loaded. The file must be included in your project as an "Embedded Resource", and then the resource's
@@ -201,7 +201,7 @@ namespace WebAPI
                         // in your project as an "Embedded Resource", and then the resource's "Logical Name" is passed to
                         // the method as shown below.
                         //
-                        //c.CustomAsset("index", containingAssembly, "YourWebApiProject.SwaggerExtensions.index.html");
+                        c.CustomAsset("index", thisAssembly, "WebAPI.Resource.index.html");
 
                         // If your API has multiple versions and you've applied the MultipleApiVersions setting
                         // as described above, you can also enable a select box in the swagger-ui, that displays
@@ -219,7 +219,7 @@ namespace WebAPI
 
         public static string GetXmlCommentsPath()
         {
-            return System.String.Format(@"{0}\bin\WebApiSwagger.XML", System.AppDomain.CurrentDomain.BaseDirectory);
+            return System.String.Format(@"{0}\WebApiSwagger.XML", System.AppDomain.CurrentDomain.BaseDirectory);
         }
     }
 }

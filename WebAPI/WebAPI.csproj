@@ -31,7 +31,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\WebApiSwagger.XML</DocumentationFile>
+    <DocumentationFile>WebApiSwagger.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -129,6 +129,10 @@
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="post.sh" />
+    <Resource Include="WebApiSwagger.XML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -140,6 +144,10 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <EmbeddedResource Include="Resource\index.html" />
+    <EmbeddedResource Include="Resource\screen.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Service References\Notifications\configuration91.svcinfo" />
     <Content Include="Service References\Notifications\configuration.svcinfo" />
@@ -671,7 +679,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Resource\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
