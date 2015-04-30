@@ -18,19 +18,24 @@ namespace WebAPI.Controllers
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content
         /// </summary>
         /// <param name="search_assets">The search asset request parameter</param>
+        /// <param name="group_id">Group Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper Post([FromBody]SearchAssets search_assets)
+        public AssetInfoWrapper Post([FromUri] string group_id, [FromBody]SearchAssets search_assets)
         {
             AssetInfoWrapper response = null;
-            //TODO: remove later
-            int groupId = 215;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+            }
 
             try
             {
+                
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
                 search_assets.PageIndex, search_assets.PageSize, search_assets.Filter, search_assets.OrderBy, search_assets.FilterTypes, search_assets.With);
             }

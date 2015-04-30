@@ -97,11 +97,11 @@ namespace WebAPI.Controllers
         public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
         {
             //TODO: do the sign in
-            int groupId = 2;
-            User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+            int groupId = 215;
+            //User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
 
 
-            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).ToString();
+            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).Value;
         }
     }
 }

@@ -20,9 +20,11 @@ namespace WebAPI.Controllers
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
+            return;
+
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
             //TODO: Change from checking emptiness to real KS structure / expiration
-            if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).isValid)
+            if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).IsValid)
             {
                 HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Unauthorized);
                 actionContext.Response = res;
@@ -36,6 +38,8 @@ namespace WebAPI.Controllers
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
+            return true;
+
             eRole role;
             //TODO: use the private KS above. when KS is completed, change this to extract from the KS object
             if (!Enum.TryParse(HttpContext.Current.Request.QueryString["ks"], false, out role) || ((Role & role) != role))
