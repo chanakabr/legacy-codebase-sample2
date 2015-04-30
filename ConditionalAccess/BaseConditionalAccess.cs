@@ -1367,9 +1367,12 @@ namespace ConditionalAccess
                                                         // If the product code matches
                                                         if (lastReceipt.product_id == sProductCode)
                                                         {
+                                                            double currentStartMS;
+                                                            double currentEndMS;
+
                                                             // Find the maximum start date
-                                                            double currentStartMS = double.Parse(lastReceipt.purchase_date_ms);
-                                                            double currentEndMS = double.Parse(lastReceipt.expires_date_ms);
+                                                            double.TryParse(lastReceipt.purchase_date_ms, out currentStartMS);
+                                                            double.TryParse(lastReceipt.expires_date_ms, out currentEndMS);
 
                                                             if (currentStartMS > startMS)
                                                             {
@@ -1380,33 +1383,68 @@ namespace ConditionalAccess
                                                     }
 
                                                     // If we found a receipt with the matching product code and good purchase date
-                                                    if (startMS > 0 && endMS > 0)
+                                                    if (startMS > 0)
                                                     {
                                                         startDate = dt1970.AddMilliseconds(startMS);
-                                                        endDate = dt1970.AddMilliseconds(endMS);
+
+                                                        if (endMS > 0)
+                                                        {
+                                                            endDate = dt1970.AddMilliseconds(endMS);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                            {
+                                                                // Set end date according to subscription's usage module full life cycle
+                                                                // This data is in MINUTES
+                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                shouldAddTimeToEndDate = false;
+                                                            }
+                                                        }
                                                     }
                                                 }
 
                                                 // If we don't have a start or end date, check receipt
-                                                if (startDate == DateTime.MinValue ||
+                                                if (startDate == DateTime.MinValue &&
                                                     endDate == DateTime.MinValue)
                                                 {
                                                     if (InAppRes.m_oInAppReceipt.receipt != null)
                                                     {
-                                                        double startMS = double.Parse(InAppRes.m_oInAppReceipt.receipt.purchase_date_ms);
-                                                        double endMS = double.Parse(InAppRes.m_oInAppReceipt.receipt.expires_date_ms);
+                                                        double startMS;
+                                                        double endMS;
+
+                                                        double.TryParse(InAppRes.m_oInAppReceipt.receipt.purchase_date_ms, out startMS);
+                                                        double.TryParse(InAppRes.m_oInAppReceipt.receipt.expires_date_ms, out endMS);
 
                                                         // If we found a receipt with the matching product code and good purchase date
-                                                        if (startMS > 0 && endMS > 0)
+                                                        if (startMS > 0)
                                                         {
                                                             startDate = dt1970.AddMilliseconds(startMS);
-                                                            endDate = dt1970.AddMilliseconds(endMS);
+
+                                                            if (endMS > 0)
+                                                            {
+                                                                endDate = dt1970.AddMilliseconds(endMS);
+                                                            }
+                                                            else
+                                                            {
+                                                                if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                    theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                                {
+                                                                    // Set end date according to subscription's usage module full life cycle
+                                                                    // This data is in MINUTES
+                                                                    endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                    shouldAddTimeToEndDate = false;
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
 
                                                 // If we don't have a start or end date, check in_app
-                                                if (startDate == DateTime.MinValue ||
+                                                if (startDate == DateTime.MinValue &&
                                                     endDate == DateTime.MinValue)
                                                 {
                                                     if (InAppRes.m_oInAppReceipt.in_app != null &&  InAppRes.m_oInAppReceipt.in_app.Length > 0)
