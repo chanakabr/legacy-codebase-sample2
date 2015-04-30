@@ -413,6 +413,8 @@ namespace ElasticSearch.Common
                 });
             }
 
+            mappingObj.AddProperty(nameProperty);
+
             mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
             {
                 name = "description",
