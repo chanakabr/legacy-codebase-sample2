@@ -221,7 +221,16 @@ namespace ApiObjects
     {
         MEDIA = 0,
         NPVR = 1,
-        ALL = 2
+        ALL = 2,
+        UNKNOWN = 3
+    }
+
+
+
+    public enum eAssetFilterTypes
+    {
+        EPG = 0,
+        NPVR = 1
     }
 
     [Serializable]
@@ -289,5 +298,13 @@ namespace ApiObjects
         GreaterThan,
         LessThanOrEqual,
         LessThan
+    }
+
+    [Serializable]
+    public enum eWatchStatus
+    {
+        Started,
+        Finished,
+        All
     }
 }

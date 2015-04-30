@@ -15,7 +15,7 @@ namespace Catalog
     /**************************************************************************
     * Get Personal Last Device
     * Get SiteGuid + MediaID
-    * and return  : the last devicename + date 
+    * and return  : the last device name + date 
     * ************************************************************************/
     [DataContract]
     public class PersonalLasDeviceRequest : BaseRequest, IRequestImp
@@ -49,7 +49,7 @@ namespace Catalog
 
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
                 if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                    throw new Exception("Signatures doesn't match");
                
                 List<UserMediaMark> lastMediaMarksList = CatalogDAL.Get_PersonalLastDevice(request.m_nMediaIDs, request.m_sSiteGuid);
                 int startIndex = -1;

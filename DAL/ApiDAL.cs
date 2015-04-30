@@ -42,8 +42,8 @@ namespace DAL
             if (ds != null)
                 return ds;
             return null;
-          
-           
+
+
         }
 
 
@@ -528,18 +528,18 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");            
+            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
 
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
-            
+
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;
             ret.nMediaID = nMediaID;
             ret.sSiteGUID = sSiteGUID;
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);         
+            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
 
             var data = m_oClient.Get<string>(docKey);
             bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
@@ -607,7 +607,7 @@ namespace DAL
                         }
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -776,7 +776,7 @@ namespace DAL
 
         }
 
- 
+
 
         public static DataTable Get_DeviceMediaRules(int nMediaID, int nGroupID, string deviceUdid)
         {
@@ -802,7 +802,7 @@ namespace DAL
             object retLastFourDigits = spLastTransactionFourDigits.ExecuteReturnValue();
 
             return retLastFourDigits;
-        }   
+        }
 
         public static DataTable Get_LastBillingTransactionToUser(int nGroupID, string sSiteGUID, int? nBillingProvider)
         {
@@ -960,7 +960,7 @@ namespace DAL
             return returnedDataTable;
         }
 
-       
+
 
         public static List<int> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
         {
@@ -969,7 +969,10 @@ namespace DAL
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
+            var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
+                                            .StartKey(new object[] { nSiteGuid, 0 , DateTime.MinValue})
+                                            .EndKey(new object[] { nSiteGuid, 100, DateTime.MaxValue });
+
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
             List<int> retList = new List<int>();
@@ -1024,7 +1027,10 @@ namespace DAL
 
                 if (lMediaIDs.Count == 0)
                 {
-                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
+                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
+                                            .StartKey(new object[] { nSiteGuid, 0, DateTime.MinValue })
+                                            .EndKey(new object[] { nSiteGuid, 100, DateTime.MaxValue });
+
                     List<MediaMarkLog> sortedMediaMarksList = res.ToList();
 
                     if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
@@ -1051,7 +1057,7 @@ namespace DAL
                 return false;
             }
         }
- 
+
 
         public static bool Is_MediaExistsToUserType(int nMediaID, int nUserTypeID)
         {
@@ -1098,7 +1104,7 @@ namespace DAL
 
             return res;
         }
-        
+
 
 
         public static void Update_Last4Digits(long lID, string sLast4Digits)
@@ -1241,7 +1247,7 @@ namespace DAL
 
         }
 
-        public static bool Update_BillingTransactionStatus(long lBillingTransactionID, bool bIsActivate, ref long lBillingProviderTransactionID, ref long lPurchaseID)       
+        public static bool Update_BillingTransactionStatus(long lBillingTransactionID, bool bIsActivate, ref long lBillingProviderTransactionID, ref long lPurchaseID)
         {
             bool res = false;
             int nNewStatusToWrite = bIsActivate ? 0 : 1;
@@ -1407,7 +1413,7 @@ namespace DAL
 
         public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
         {
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileTypeDescription");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@MediaFileID", nMediaFileID);
@@ -1415,7 +1421,7 @@ namespace DAL
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                return  ds.Tables[0];
+                return ds.Tables[0];
             return null;
         }
 

@@ -148,6 +148,8 @@
     <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="BundleMediaRequest.cs" />
     <Compile Include="ContainingMediaResponse.cs" />
+    <Compile Include="WatchHistoryResponse.cs" />
+    <Compile Include="WatchHistoryRequest.cs" />
     <Compile Include="CrowdsourceRequest.cs" />
     <Compile Include="CrowdsourceResponse.cs" />
     <Compile Include="Crowdsourcing.cs" />

@@ -90,6 +90,7 @@ namespace Catalog
             int nPlayTime = 30;
             int nMediaDuration = 0;
             DateTime dNow = DateTime.UtcNow;
+            int fileDuration = 0;
 
             string sSessionID = string.Empty;
 
@@ -108,7 +109,7 @@ namespace Catalog
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
 
-                   
+
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             int nSiteGuid;
@@ -124,10 +125,10 @@ namespace Catalog
             {
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, 0, 
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, MediaPlayResponse.HIT.ToString(), 0,
                         oMediaHitRequest.m_oMediaPlayRequestData.m_sNpvrID, ApiObjects.ePlayType.NPVR);
                 }
-                
+
                 oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             }
             return oMediaHitResponse;
@@ -165,6 +166,8 @@ namespace Catalog
             int nSwhoosh = 0;
             int nCountryID = 0;
             int nSiteGuid;
+            int fileDuration = 0;
+
             MediaPlayActions action;
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
@@ -177,17 +180,17 @@ namespace Catalog
             {
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
-           
-           
+
+
 
             if (!Catalog.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
-                ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID))
+                ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID, ref fileDuration))
             {
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
 
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);            
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
             //non-anonymous user
             if (nSiteGuid != 0)
@@ -199,7 +202,7 @@ namespace Catalog
 
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID,fileDuration,action.ToString());
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)

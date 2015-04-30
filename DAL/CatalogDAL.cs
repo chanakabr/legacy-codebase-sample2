@@ -10,6 +10,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using DAL;
 using ApiObjects.Epg;
+using ApiObjects.SearchObjects;
 
 namespace Tvinci.Core.DAL
 {
@@ -548,7 +549,7 @@ namespace Tvinci.Core.DAL
             spInsertNewPlayerError.ExecuteNonQuery();
         }
 
-        public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID, int nGroupID, int nLoactionSec)
+        public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID, int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
@@ -566,7 +567,10 @@ namespace Tvinci.Core.DAL
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
                     CreatedAt = DateTime.UtcNow,
-                    playType = ePlayType.MEDIA.ToString()
+                    playType = ePlayType.MEDIA.ToString(),
+                    FileDuration = fileDuration,
+                    AssetAction = action,
+                    MediaTypeId = mediaTypeId
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
@@ -611,7 +615,9 @@ namespace Tvinci.Core.DAL
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
                     CreatedAt = DateTime.UtcNow,
-                    playType = ePlayType.MEDIA.ToString()
+                    playType = ePlayType.MEDIA.ToString(),
+                    FileDuration = fileDuration,
+                    AssetAction = action
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -712,7 +718,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable GetChannelByChannelId(int nChannelId)
-        {   
+        {
             DataTable returnedDataTable = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
@@ -1504,31 +1510,114 @@ namespace Tvinci.Core.DAL
             Dictionary<int, int> dictMediaUsersCount = new Dictionary<int, int>(); // key: media id , value: users count
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias").Keys(usersList);
 
-            int nUserID = 0;
-            int nMediaIDKey = 0;
+            var lastWatchViews = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                                           .StartKey(new object[] { usersList, 0, DateTime.MinValue })
+                                            .EndKey(new object[] { usersList, 100, DateTime.MaxValue });
 
-            foreach (var row in res)
+            UserWatchHistory watchHistory = new UserWatchHistory();
+            foreach (var view in lastWatchViews)
             {
-                string sKey = row.ViewKey[0].ToString();        // user
-                string sValue = row.Info["value"].ToString();   // media
+                string viewValue = view.Info["value"].ToString();
+                watchHistory = JsonConvert.DeserializeObject<UserWatchHistory>(viewValue);
 
-                int.TryParse(sKey, out nUserID);
-                int.TryParse(sValue, out nMediaIDKey);
 
-                if (!dictMediaUsersCount.ContainsKey(nMediaIDKey))
-                {
-                    dictMediaUsersCount.Add(nMediaIDKey, 1);
-                }
+                if (!dictMediaUsersCount.ContainsKey(watchHistory.MediaId))
+                    dictMediaUsersCount.Add(watchHistory.MediaId, 1);
                 else
-                {
-                    dictMediaUsersCount[nMediaIDKey]++;
-                }
+                    dictMediaUsersCount[watchHistory.MediaId]++;
             }
 
             return dictMediaUsersCount;
         }
+
+        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, eWatchStatus filterStatus, int numOfDays, int page_index, int page_size, OrderDir orderDir)
+        {
+            List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+            // build date filter
+            DateTime date = DateTime.Now.AddDays(-numOfDays);
+
+            // build status filter
+            float minStartedWatching = 0;
+            float maxStartedWatching = 0;
+            switch (filterStatus)
+            {
+                case eWatchStatus.Started:
+                    minStartedWatching = 0.01f;
+                    maxStartedWatching = 99.9f;
+                    break;
+                case eWatchStatus.Finished:
+                    minStartedWatching = 100;
+                    maxStartedWatching = 100;
+                    break;
+                case eWatchStatus.All:
+                    minStartedWatching = 0;
+                    maxStartedWatching = 100;
+                    break;
+                default:
+                    break;
+            }
+
+            // get views
+            try
+            {
+                var lastWatchViews = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                                              .StartKey(new object[] { siteGuid, minStartedWatching, date })
+                                              .EndKey(new object[] { siteGuid, maxStartedWatching, DateTime.Now.AddDays(1) });
+
+                // create user watch list
+                List<UserWatchHistory> unFilteredresult = new  List<UserWatchHistory>();
+                foreach (var view in lastWatchViews)
+                    unFilteredresult.Add(JsonConvert.DeserializeObject<UserWatchHistory>(view.Info["value"].ToString()));
+
+
+                // filter asset types
+
+                unFilteredresult = unFilteredresult.Where( x => assetTypes.Contains(x.MediaTypeId)).ToList();
+                        //bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
+
+                foreach (var filterType in assetTypes)
+	            {
+                    bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
+
+		            if (filterType == (int)eAssetFilterTypes.NPVR)
+                    {
+                    }
+                    else
+                    {
+                        unFilteredresult = unFilteredresult.AddRange( x => assetTypes.SelectMany(y=>y == x
+                        bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
+                    }
+	            }
+                usersWatchHistory.RemoveAll(x=>x.MediaTypeId 
+
+
+
+                // direction
+                switch (orderDir)
+                {
+                    case OrderDir.ASC:
+                        usersWatchHistory = usersWatchHistory.OrderBy(x => x.LastWatch).ToList();
+                        break;
+                    case OrderDir.DESC:
+                    case OrderDir.NONE:
+                    default:
+                        usersWatchHistory = usersWatchHistory.OrderByDescending(x => x.LastWatch).ToList();
+                        break;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                // NO LOG IN THIS DAMN CLASS!!!!!!!
+                throw ex;
+            }
+
+        }
+
 
         public static List<UserMediaMark> GetMediaMarksLastDateByUsers(List<int> usersList)
         {
@@ -1723,8 +1812,8 @@ namespace Tvinci.Core.DAL
                             {
                                 baseUrl = String.Concat(baseUrl, '/');
                             }
-                            width = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i],"WIDTH");
-                            height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i],"HEIGHT");
+                            width = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "WIDTH");
+                            height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "HEIGHT");
                             ration = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "ratio");
 
                             EpgPicture picture = new EpgPicture();
@@ -1944,7 +2033,7 @@ namespace Tvinci.Core.DAL
 
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
-            ref int billingTypeID)
+            ref int billingTypeID, ref int fileDuration)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_MediaMarkHitInitialData");
@@ -1972,6 +2061,7 @@ namespace Tvinci.Core.DAL
                     formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
                     mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
                     billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                    fileDuration = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_duration"]);
                 }
             }
 
@@ -2167,7 +2257,7 @@ namespace Tvinci.Core.DAL
 
 
 
-        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec)
+        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
@@ -2188,12 +2278,15 @@ namespace Tvinci.Core.DAL
                     UserID = nSiteUserGuid,
                     CreatedAt = DateTime.UtcNow,
                     playType = ApiObjects.ePlayType.NPVR.ToString(),
-                    NpvrID = sNpvrID
+                    NpvrID = sNpvrID,
+                    AssetAction = action,
+                    FileDuration = fileDuration,
+                    MediaTypeId = -1
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
 
-                //Create new if doesnt exist
+                //Create new if doesn't exist
                 if (data.Result == null)
                 {
                     mm.devices = new List<UserMediaMark>();
@@ -2235,8 +2328,9 @@ namespace Tvinci.Core.DAL
                     UserID = nSiteUserGuid,
                     CreatedAt = DateTime.UtcNow,
                     playType = ePlayType.NPVR.ToString(),
-                    NpvrID = sNpvrID
-
+                    NpvrID = sNpvrID,
+                    AssetAction = action,
+                    FileDuration = fileDuration
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -2603,7 +2697,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@updateStatus", updateStatus);
             sp.AddParameter("@currentStatus", currentStatus);
 
-            return sp.ExecuteReturnValue<int>();    
+            return sp.ExecuteReturnValue<int>();
         }
 
         /// <summary>

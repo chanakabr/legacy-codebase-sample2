@@ -21,13 +21,24 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("ts")]
         public DateTime CreatedAt { get; set; }
 
-        /*VersionAdded  - Joker*/
+        // VersionAdded  - Joker 
 
         [JsonProperty("NpvrID", Required = Required.Default)]
         public string NpvrID { get; set; }
 
         [JsonProperty("playType", Required = Required.Default)]
         public string playType { get; set; }
+
+        // duration and action added - Maverick
+
+        [JsonProperty("duration")]
+        public int FileDuration { get; set; }
+
+        [JsonProperty("action")]
+        public string AssetAction { get; set; }
+
+        [JsonProperty("mediaTypeId")]
+        public int MediaTypeId { get; set; }
 
         public UserMediaMark()
         {
@@ -54,6 +65,6 @@ namespace ApiObjects.MediaMarks
             }
         }
     }
-        
+
 }
 
