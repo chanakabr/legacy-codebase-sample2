@@ -35,7 +35,13 @@ namespace TVPApiModule.Objects.Responses
 
         #region Ctors
 
-        public AutocompleteResponse(UnifiedSearchResponse unifiedSearchResponse = null)
+        public AutocompleteResponse()
+            : this(null)
+        {
+
+        }
+
+        public AutocompleteResponse(UnifiedSearchResponse unifiedSearchResponse)
         {
             if (unifiedSearchResponse != null)
             {
