@@ -6,18 +6,18 @@ using System.Text;
 
 namespace Users
 {
-    public class UserResponse
+    public class SignInResponse
     {
         public ApiObjects.Response.Status resp { get; set; }
         public UserResponseObject user { get; set; }
 
-        public UserResponse()
+        public SignInResponse()
         {
             resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
             user = new UserResponseObject();
         }
 
-        public UserResponse(ApiObjects.Response.Status resp, UserResponseObject user)
+        public SignInResponse(ApiObjects.Response.Status resp, UserResponseObject user)
         {
             this.resp = resp;
             this.user = user;

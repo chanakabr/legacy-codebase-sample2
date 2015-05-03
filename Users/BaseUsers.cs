@@ -789,9 +789,9 @@ namespace Users
             return sNewPIN;
         }
 
-        public UserResponse SignInWithPIN(int groupID, string PIN)
+        public SignInResponse SignInWithPIN(int groupID, string PIN)
         {
-            UserResponse response = new UserResponse();
+            SignInResponse response = new SignInResponse();
             try
             {
                 //Try to get users by PIN from DB 
@@ -806,19 +806,28 @@ namespace Users
                     }
                     else
                     {
-                       response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
-                       response.user = new UserResponseObject();
-                       response.user.m_user = new User(groupID, userId);
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
+                        response.user = new UserResponseObject();
+                        response.user.m_user = new User(groupID, userId);
                     }
+                }
+                else
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NoValidPin, "NoValidPin");
                 }
             }
             catch (Exception ex)
             {
-                response = new UserResponse();
+                response = new SignInResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
                 Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
             }
             return response;
+        }
+
+        public void ExpirePIN(int groupID, string PIN)
+        {
+            bool expirePIN = UsersDal.ExpirePIN(groupID, PIN);
         }
     }
 }

@@ -37,6 +37,8 @@ namespace ApiObjects.Response
         PinNotExists = 2003,
         PinExpired = 2004,
         ValidPin = 2005,
+        NoValidPin = 2006,
+
 
         // CAS Section 3000 - 3999
 

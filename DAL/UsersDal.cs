@@ -1830,5 +1830,21 @@ namespace DAL
                 return null;
             }
         }
+
+        public static bool ExpirePIN(int groupID, string PIN)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("ExpirePIN");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@PIN", PIN);
+                bool res = sp.ExecuteReturnValue<bool>();
+                return res;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     } 
 }
