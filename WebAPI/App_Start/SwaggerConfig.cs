@@ -219,7 +219,7 @@ namespace WebAPI
 
         public static string GetXmlCommentsPath()
         {
-            return System.String.Format(@"{0}\WebApiSwagger.XML", System.AppDomain.CurrentDomain.BaseDirectory);
+            return System.String.Format(@"{0}\bin\WebAPIComments.XML", System.AppDomain.CurrentDomain.BaseDirectory);
         }
     }
 }
