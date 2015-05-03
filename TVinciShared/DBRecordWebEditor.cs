@@ -1538,6 +1538,7 @@ namespace TVinciShared
             sTmp += "</tr>";
             return sTmp;
         }
+
     }
 
     public class DataRecordShortDoubleField : DataRecordShortIntField
