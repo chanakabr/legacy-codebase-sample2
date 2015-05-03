@@ -8,6 +8,8 @@ namespace TVPApiModule.Objects.Responses
 {
     public class AutocompleteResponse
     {
+        #region Properties
+
         [JsonProperty(PropertyName = "assets")]
         public List<SlimAssetInfo> Assets
         {
@@ -28,5 +30,26 @@ namespace TVPApiModule.Objects.Responses
             get;
             set;
         }
+
+        #endregion
+
+        #region Ctors
+
+        public AutocompleteResponse(UnifiedSearchResponse unifiedSearchResponse = null)
+        {
+            if (unifiedSearchResponse != null)
+            {
+                this.Status = unifiedSearchResponse.Status;
+                this.TotalItems = unifiedSearchResponse.TotalItems;
+
+                if (unifiedSearchResponse.Assets != null)
+                {
+                    this.Assets = unifiedSearchResponse.Assets.Select(asset =>
+                            new SlimAssetInfo(asset.Id, asset.Type, asset.Name, asset.Description, asset.Images)).ToList();
+                }
+            }
+        }
+
+        #endregion
     }
 }

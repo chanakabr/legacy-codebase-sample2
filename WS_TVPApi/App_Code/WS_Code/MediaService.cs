@@ -3299,6 +3299,10 @@ namespace TVPApiServices
                 order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
                 order.m_eOrderDir = OrderDir.DESC;
                 break;
+                case "likes":
+                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.LIKE_COUNTER;
+                order.m_eOrderDir = OrderDir.DESC;
+                break;
                 default:
                 order = null;
                 break;
@@ -3351,13 +3355,22 @@ namespace TVPApiServices
                     // Create our own filter - only search in title
                     string filter = string.Format("(and name^'{0}')", query);
 
-                    response = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
+                    object executedRespone = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
                         filter_types, filter, with)
                     {
                         Order = order,
                         SiteGuid = initObj.SiteGuid,
                         DomainId = initObj.DomainID
-                    }.Execute() as TVPApiModule.Objects.Responses.AutocompleteResponse;
+                    }.Execute();
+
+                    if (executedRespone is AutocompleteResponse)
+                    {
+                        response = executedRespone as AutocompleteResponse;
+                    }
+                    else if (executedRespone is TVPApiModule.Objects.Responses.UnifiedSearchResponse)
+                    {
+                        response = new AutocompleteResponse(executedRespone as TVPApiModule.Objects.Responses.UnifiedSearchResponse);
+                    }
                 }
                 catch (Exception ex)
                 {
