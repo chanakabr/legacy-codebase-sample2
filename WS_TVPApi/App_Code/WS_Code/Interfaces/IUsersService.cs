@@ -65,6 +65,11 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
 
         [OperationContract]
-        UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value);
+        TVPApiModule.Objects.UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj);
+        [OperationContract]
+        TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, string sessionID,  bool bPreventDoubleLogins, TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] keyValueList);
     }
 }
