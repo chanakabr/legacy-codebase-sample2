@@ -9,6 +9,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -889,6 +890,41 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : SignInWithToken, Error Message: {0}, Parameters : ws User name : {1}, ws Password: {2}, token: {3}", ex.Message, m_wsUserName, m_wsPassword, sToken);
             }
             return loginData;
-        }       
+        }
+
+
+        public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.PinCodeResponse response = null;
+            try
+            {
+                var result = m_Module.GenerateLoginPIN(m_wsUserName, m_wsPassword, siteGuid);
+                response = new TVPApiModule.Objects.Responses.PinCodeResponse(result);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get regions."), ex);
+                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(string PIN, string sessionID, string deviceID, bool isDoubleLogin, KeyValuePair[] keyValueList)
+        {
+            TVPApiModule.Objects.Responses.SignInResponse response = null;
+            try
+            {
+                var result = m_Module.SignInWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, isDoubleLogin, keyValueList);
+                response = new TVPApiModule.Objects.Responses.SignInResponse(result);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get regions."), ex);
+                response = new TVPApiModule.Objects.Responses.SignInResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+            return response;
+        }
     }
 }

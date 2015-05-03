@@ -202,12 +202,14 @@
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
     <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
+    <Compile Include="Objects\Responses\PinCodeResponse.cs" />
     <Compile Include="Objects\Responses\Region.cs" />
     <Compile Include="Objects\Responses\RegionsResponse.cs" />
     <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />
     <Compile Include="Objects\Responses\ServiceObject.cs" />
     <Compile Include="Objects\Responses\ServicesResponse.cs" />
+    <Compile Include="Objects\Responses\SignInResponse.cs" />
     <Compile Include="Objects\Responses\SlimAssetInfo.cs" />
     <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />

@@ -16,6 +16,7 @@ using TVPPro.SiteManager.TvinciPlatform.Billing;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using System.Web;
 using TVPApiModule.Interfaces;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -557,9 +558,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
-        public UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value)
+        public TVPApiModule.Objects.UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value)
         {
-            UserResponse retVal = null;
+            TVPApiModule.Objects.UserResponse retVal = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserDynamicData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -583,6 +584,66 @@ namespace TVPApiServices
             return retVal; 
         }
 
+        [WebMethod(EnableSession = true, Description = "GenerateLoginPIN")]
+        public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.PinCodeResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateLoginPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GenerateLoginPIN(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.PinCodeResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
         #endregion
+
+
+        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, string sessionID,  bool preventDoubleLogins, KeyValuePair[] keyValueList)
+        {
+            TVPApiModule.Objects.Responses.SignInResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignInWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, sessionID, initObj.UDID, preventDoubleLogins, keyValueList);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.SignInResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.SignInResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
     }
 }
