@@ -54,11 +54,6 @@ namespace WebAPI.Managers.Models
             get { return expiration; }
         }
 
-        public string Privilege
-        {
-            get { return privilege; }
-        }
-
         private KS()
         {
         }
