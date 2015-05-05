@@ -14,6 +14,9 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "position")]
         public int Position { get; set; }
 
+        [JsonProperty(PropertyName = "duration")]
+        public int Duration { get; set; }
+
         [JsonProperty(PropertyName = "watched_date")]
         public long LastWatched { get; set; }
 

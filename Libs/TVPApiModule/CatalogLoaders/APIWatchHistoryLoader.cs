@@ -250,7 +250,8 @@ namespace TVPApiModule.CatalogLoaders
                         Asset = new AssetInfo(npvr),
                         LastWatched = item.LastWatch,
                         Position = item.Location,
-                        IsFinishedWatching = item.IsFinishedWatching
+                        IsFinishedWatching = item.IsFinishedWatching,
+                        Duration = item.Duration
                     });
                 }
                 else
@@ -267,7 +268,8 @@ namespace TVPApiModule.CatalogLoaders
                                 Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles),
                                 LastWatched = item.LastWatch,
                                 Position = item.Location,
-                                IsFinishedWatching = item.IsFinishedWatching
+                                IsFinishedWatching = item.IsFinishedWatching,
+                                Duration = item.Duration
                             };
                         }
                         else
@@ -278,7 +280,8 @@ namespace TVPApiModule.CatalogLoaders
                                 Asset = new AssetInfo(media, shouldAddFiles),
                                 LastWatched = item.LastWatch,
                                 Position = item.Location,
-                                IsFinishedWatching = item.IsFinishedWatching
+                                IsFinishedWatching = item.IsFinishedWatching,
+                                Duration = item.Duration
                             };
                         }
 
