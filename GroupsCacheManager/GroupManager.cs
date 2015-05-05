@@ -354,5 +354,25 @@ namespace GroupsCacheManager
             }
         }
         #endregion
+
+        public bool UpdateRegionalization(int groupID)
+        {
+            bool isUpdated = false;
+            try
+            {
+                bool isRegionalizationEnabled;
+                int defaultRegion;
+
+                CatalogDAL.GetRegionalizationSettings(groupID, out isRegionalizationEnabled, out defaultRegion);
+
+                isUpdated = cache.UpdateRegionalizationData(isRegionalizationEnabled, defaultRegion, groupID);
+                
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return isUpdated;
+        }
     }
 }

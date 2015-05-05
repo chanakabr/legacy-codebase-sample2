@@ -93,6 +93,16 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public double epgDaysOffest;
 
+        /// <summary>
+        /// Which regions should the linear media belong to
+        /// </summary>
+        public List<int> regionIds;
+
+        /// <summary>
+        /// List of Ids of linear channel media types
+        /// </summary>
+        public List<string> linearChannelMediaTypes;
+
         #endregion
 
         #region Ctor

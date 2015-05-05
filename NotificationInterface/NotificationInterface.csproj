@@ -143,9 +143,6 @@
     <None Include="Web References\WS_Api\EPGChannelProgrammeObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\WS_Api\EPGMultiChannelProgrammeObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\WS_Api\FileTypeContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -159,6 +156,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_Api\GroupRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Api\MediaConcurrencyRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_Api\MediaInfoStructObject.datasource">
@@ -176,6 +176,12 @@
     <None Include="Web References\WS_Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WS_Api\RegionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Api\Scheduling.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_Api\TagResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>

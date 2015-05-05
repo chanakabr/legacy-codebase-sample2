@@ -47,8 +47,8 @@ namespace ConditionalAccess
         InApp = 200,
         M1 = 60,
         ChangeSubscription = 8,
-        // PS takes care of billing in the payment day. We still don't know the method
         Offline = 50
+        // PS takes care of billing in the payment day. We still don't know the method
     }
 
     public enum BillingAction

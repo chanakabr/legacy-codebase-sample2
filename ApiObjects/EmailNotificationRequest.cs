@@ -10,17 +10,15 @@ namespace ApiObjects
         public string m_sTagToFollow;
         public string m_sMediaName;     
         public string m_mediaPicURL;
-        public string m_firstName;
         public string m_mediaType;
         public string m_content;
         public string m_mediaId;
-       // public string m_seriesName;//SERIESNAME
         public List<TagPair> m_tagList;
-
-        public string m_startDate;
+        
         public string m_runTime;
         public string m_userFollowTags;
-        
+        public string m_catalogStartDate;
+        public string m_startDate;       
 
 
         public override List<MCGlobalMergeVars> getRequestMergeObj()
@@ -42,8 +40,13 @@ namespace ApiObjects
 
                         MCGlobalMergeVars firstNameVar = new MCGlobalMergeVars();
                         firstNameVar.name = "FIRSTNAME";
-                        firstNameVar.content = this.m_firstName;
+                        firstNameVar.content = this.m_sFirstName;
                         retVal.Add(firstNameVar);
+
+                        MCGlobalMergeVars lastNameVar = new MCGlobalMergeVars();
+                        lastNameVar.name = "LASTNAME";
+                        lastNameVar.content = this.m_sLastName;
+                        retVal.Add(lastNameVar);
 
                         MCGlobalMergeVars mediaPicURL = new MCGlobalMergeVars();
                         mediaPicURL.name = "MEDIAPIC";
@@ -77,6 +80,11 @@ namespace ApiObjects
                         startDateVar.name = "STARTDATE";
                         startDateVar.content = this.m_startDate;
                         retVal.Add(startDateVar);
+
+                        MCGlobalMergeVars catalogStartDateVar = new MCGlobalMergeVars();
+                        catalogStartDateVar.name = "CATALOGSTARTDATE";
+                        catalogStartDateVar.content = this.m_catalogStartDate;
+                        retVal.Add(catalogStartDateVar);
                            
 
                         MCGlobalMergeVars userFollowVar = new MCGlobalMergeVars();

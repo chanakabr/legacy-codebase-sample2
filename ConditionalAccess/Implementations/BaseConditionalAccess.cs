@@ -1222,13 +1222,6 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
-                    {
-                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
-                        InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
-                        InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
-                        WriteToUserLog(sSiteGUID, "while trying to purchase subscription(InApp): error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                    }
                     else
                     {
                         PriceReason theReason = PriceReason.UnKnown;
@@ -1313,6 +1306,9 @@ namespace ConditionalAccess
 
                                             DateTime dt1970 = new DateTime(1970, 1, 1);
 
+                                            // by default add 6 hours to end date, so that renewer scheduler will work appropiately 
+                                            bool shouldAddTimeToEndDate = true;
+
                                             insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
@@ -1380,7 +1376,7 @@ namespace ConditionalAccess
                                             // Then try with iOS 7
                                             else if (InAppRes.m_oInAppReceipt.iOSVersion == "7")
                                             {
-                                                if (InAppRes.m_oInAppReceipt.latest_receipt_info != null)
+                                                if (InAppRes.m_oInAppReceipt.latest_receipt_info != null && InAppRes.m_oInAppReceipt.latest_receipt_info.Length > 0)
                                                 {
                                                     double startMS = 0;
                                                     double endMS = 0;
@@ -1391,9 +1387,12 @@ namespace ConditionalAccess
                                                         // If the product code matches
                                                         if (lastReceipt.product_id == sProductCode)
                                                         {
+                                                            double currentStartMS;
+                                                            double currentEndMS;
+
                                                             // Find the maximum start date
-                                                            double currentStartMS = double.Parse(lastReceipt.purchase_date_ms);
-                                                            double currentEndMS = double.Parse(lastReceipt.expires_date_ms);
+                                                            double.TryParse(lastReceipt.purchase_date_ms, out currentStartMS);
+                                                            double.TryParse(lastReceipt.expires_date_ms, out currentEndMS);
 
                                                             if (currentStartMS > startMS)
                                                             {
@@ -1404,10 +1403,123 @@ namespace ConditionalAccess
                                                     }
 
                                                     // If we found a receipt with the matching product code and good purchase date
-                                                    if (startMS > 0 && endMS > 0)
+                                                    if (startMS > 0)
                                                     {
                                                         startDate = dt1970.AddMilliseconds(startMS);
-                                                        endDate = dt1970.AddMilliseconds(endMS);
+
+                                                        if (endMS > 0)
+                                                        {
+                                                            endDate = dt1970.AddMilliseconds(endMS);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                            {
+                                                                // Set end date according to subscription's usage module full life cycle
+                                                                // This data is in MINUTES
+                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                shouldAddTimeToEndDate = false;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // If we don't have a start or end date, check receipt
+                                                if (startDate == DateTime.MinValue &&
+                                                    endDate == DateTime.MinValue)
+                                                {
+                                                    if (InAppRes.m_oInAppReceipt.receipt != null)
+                                                    {
+                                                        double startMS;
+                                                        double endMS;
+
+                                                        double.TryParse(InAppRes.m_oInAppReceipt.receipt.purchase_date_ms, out startMS);
+                                                        double.TryParse(InAppRes.m_oInAppReceipt.receipt.expires_date_ms, out endMS);
+
+                                                        // If we found a receipt with the matching product code and good purchase date
+                                                        if (startMS > 0)
+                                                        {
+                                                            startDate = dt1970.AddMilliseconds(startMS);
+
+                                                            if (endMS > 0)
+                                                            {
+                                                                endDate = dt1970.AddMilliseconds(endMS);
+                                                            }
+                                                            else
+                                                            {
+                                                                if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                    theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                                {
+                                                                    // Set end date according to subscription's usage module full life cycle
+                                                                    // This data is in MINUTES
+                                                                    endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                    shouldAddTimeToEndDate = false;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // If we don't have a start or end date, check in_app
+                                                if (startDate == DateTime.MinValue &&
+                                                    endDate == DateTime.MinValue)
+                                                {
+                                                    if (InAppRes.m_oInAppReceipt.in_app != null && InAppRes.m_oInAppReceipt.in_app.Length > 0)
+                                                    {
+                                                        double startMS = 0;
+                                                        double endMS = 0;
+
+                                                        // Run on all latest receipts and find the one that matches the date and the product id
+                                                        foreach (var lastReceipt in InAppRes.m_oInAppReceipt.in_app)
+                                                        {
+                                                            // If the product code matches
+                                                            if (lastReceipt.product_id == sProductCode)
+                                                            {
+                                                                // Find the maximum start date
+                                                                double currentStartMS = double.Parse(lastReceipt.purchase_date_ms);
+                                                                double currentEndMS;
+
+                                                                if (currentStartMS > startMS)
+                                                                {
+                                                                    startMS = currentStartMS;
+
+                                                                    // End date is optional here, so try parse it
+                                                                    if (!string.IsNullOrEmpty(lastReceipt.expires_date_ms) &&
+                                                                        double.TryParse(lastReceipt.expires_date_ms, out currentEndMS))
+                                                                    {
+                                                                        endMS = currentEndMS;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // If we found a receipt with the matching product code and good purchase date
+                                                        if (startMS > 0)
+                                                        {
+                                                            startDate = dt1970.AddMilliseconds(startMS);
+                                                            endDate = dt1970.AddMilliseconds(endMS);
+                                                        }
+
+                                                        // If we don't have an end date
+                                                        if (endDate == DateTime.MinValue || endDate == dt1970)
+                                                        {
+                                                            if (theSub != null && theSub.m_oSubscriptionUsageModule != null &&
+                                                                theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle > 0)
+                                                            {
+                                                                // Set end date according to subscription's usage module full life cycle
+                                                                // This data is in MINUTES
+                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                                                                shouldAddTimeToEndDate = false;
+                                                            }
+                                                            else
+                                                            {
+                                                                endDate = dt1970;
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1417,9 +1529,17 @@ namespace ConditionalAccess
                                                 endDate == DateTime.MinValue)
                                             {
                                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "Something went wrong with start and end date";
+
+                                                startDate = dt1970;
+                                                endDate = dt1970;
                                             }
 
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate.AddHours(6));
+                                            if (shouldAddTimeToEndDate)
+                                            {
+                                                endDate = endDate.AddHours(6);
+                                            }
+
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                                             insertQuery.Execute();
 
@@ -11106,31 +11226,42 @@ namespace ConditionalAccess
             ref int mainStreamingCoID, ref int altStreamingCoID, ref int nMediaID)
         {
             bool res = false;
-            WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
-            request.m_lMediaFileIDs = new int[1] { mediaFileID };
-            request.m_nGroupID = m_nGroupID;
-            request.m_oFilter = new WS_Catalog.Filter();
-            request.m_sSiteGuid = siteGuid;
-            request.m_sUserIP = userIP;
-            request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-            request.m_lCoGuids = new string[0];
-            using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
-            {
-                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
-                WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
 
-                if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
+            // True - use DAL, with "our" slim stored procedure; false - use Catalog, with its full stored procedure
+            bool shouldUseDalOrCatalog = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldGetMediaFileDetailsDirectly");
+
+            if (shouldUseDalOrCatalog)
+            {
+                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID);
+            }
+            else
+            {
+                WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
+                request.m_lMediaFileIDs = new int[1] { mediaFileID };
+                request.m_nGroupID = m_nGroupID;
+                request.m_oFilter = new WS_Catalog.Filter();
+                request.m_sSiteGuid = siteGuid;
+                request.m_sUserIP = userIP;
+                request.m_sSignString = Guid.NewGuid().ToString();
+                request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
+                request.m_lCoGuids = new string[0];
+                using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
                 {
-                    WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
-                    if (mf != null && mf.m_oFile != null)
+                    catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
+                    WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
+
+                    if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
                     {
-                        res = true;
-                        mainUrl = mf.m_oFile.m_sUrl;
-                        altUrl = mf.m_oFile.m_sAltUrl;
-                        mainStreamingCoID = mf.m_oFile.m_nCdnID;
-                        altStreamingCoID = mf.m_oFile.m_nAltCdnID;
-                        nMediaID = mf.m_oFile.m_nMediaID;
+                        WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
+                        if (mf != null && mf.m_oFile != null)
+                        {
+                            res = true;
+                            mainUrl = mf.m_oFile.m_sUrl;
+                            altUrl = mf.m_oFile.m_sAltUrl;
+                            mainStreamingCoID = mf.m_oFile.m_nCdnID;
+                            altStreamingCoID = mf.m_oFile.m_nAltCdnID;
+                        }
+
                     }
 
                 }

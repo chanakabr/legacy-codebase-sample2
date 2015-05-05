@@ -18,6 +18,7 @@ namespace ApiObjects
         public string m_sInvoiceNum;
         public string m_sExternalTransationNum;
         public string m_sAddress;
+        public string m_sUserEmail;
 
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
@@ -74,6 +75,11 @@ namespace ApiObjects
             addressNumMergeVar.name = "ADDRESS";
             addressNumMergeVar.content = this.m_sAddress;
             retVal.Add(addressNumMergeVar);
+
+            MCGlobalMergeVars userEmailMergeVar = new MCGlobalMergeVars();
+            userEmailMergeVar.name = "USEREMAIL";
+            userEmailMergeVar.content = this.m_sUserEmail;
+            retVal.Add(userEmailMergeVar);
 
             return retVal;
         }

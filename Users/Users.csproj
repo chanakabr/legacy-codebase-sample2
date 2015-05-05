@@ -140,6 +140,7 @@
     <Compile Include="NetworkResponseObject.cs" />
     <Compile Include="OAuthUtil.cs" />
     <Compile Include="OSamlUtils.cs" />
+    <Compile Include="PinCodeResponse.cs" />
     <Compile Include="Saml\LoginSamlA.cs" />
     <Compile Include="Saml\SAML.cs" />
     <Compile Include="Saml\SamlConfig.cs" />
@@ -183,6 +184,7 @@
     <Compile Include="UserGroupRuleResponse.cs" />
     <Compile Include="UserItemList.cs" />
     <Compile Include="UserOfflineObject.cs" />
+    <Compile Include="SignInResponse.cs" />
     <Compile Include="UsersCache.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />

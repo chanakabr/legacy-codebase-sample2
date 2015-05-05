@@ -2591,5 +2591,56 @@ namespace Tvinci.Core.DAL
 
             return storedProcedure.ExecuteDataSet();
         }
+
+        public static int DeleteAllEpgDetailsByChannelDates(DateTime fromDate, DateTime toDate, int channelID, int updateStatus, int currentStatus)
+        {
+            StoredProcedure sp = new StoredProcedure("DeleteAllEpgDetailsByChannelDates");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@From", fromDate);
+            sp.AddParameter("@To", toDate);
+            sp.AddParameter("@channelID", channelID);
+            sp.AddParameter("@updateStatus", updateStatus);
+            sp.AddParameter("@currentStatus", currentStatus);
+
+            return sp.ExecuteReturnValue<int>();    
+        }
+
+        /// <summary>
+        /// For a given group and regions, get all linear channels EPG_IDENTIFIER that match them
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="regionIds"></param>
+        /// <returns></returns>
+        public static List<long> Get_EpgIdentifier_ByRegion(int groupId, List<int> regionIds)
+        {
+            List<long> epgIdentifiers = new List<long>();
+
+            // SP does a join between media and media_regions, 
+            // thus finding the ID of the channels from 'media' table,
+            // while also filtering by REGION_ID from 'media_regions' table
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EpgIdentifier_ByRegion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@RegionID", regionIds, "id");
+            sp.AddParameter("@GroupID", groupId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            // Simple null checks
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 &&
+                ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                // Extract all long values from the data tables only column
+                foreach (DataRow dr in dt.Rows)
+                {
+                    epgIdentifiers.Add(
+                        ODBCWrapper.Utils.ExtractValue<long>(dr, "ID"));
+                }
+            }
+
+            return epgIdentifiers;
+        }
     }
 }

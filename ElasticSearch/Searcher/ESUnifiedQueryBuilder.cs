@@ -348,6 +348,49 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                #region Regions
+
+                // region term 
+                if (SearchDefinitions.regionIds != null && SearchDefinitions.regionIds.Count > 0)
+                {
+                    FilterCompositeType regionComposite = new FilterCompositeType(CutWith.OR);
+                    FilterCompositeType emptyRegionAndComposite = new FilterCompositeType(CutWith.AND);
+
+                    ESTerms regionsTerms = new ESTerms(true)
+                    {
+                        Key = "regions"
+                    };
+
+                    regionsTerms.Value.AddRange(SearchDefinitions.regionIds.Select(region => region.ToString()));
+
+                    ESTerm emptyRegionTerm = new ESTerm(true)
+                    {
+                        Key = "regions",
+                        Value = "0"
+                    };
+
+                    ESTerms linearMediaTypes = new ESTerms(true)
+                    {
+                        Key = "media_type_id",
+                        isNot = true
+                    };
+
+                    linearMediaTypes.Value.AddRange(SearchDefinitions.linearChannelMediaTypes);
+
+                    // region = 0 and it is NOT linear media
+                    emptyRegionAndComposite.AddChild(emptyRegionTerm);
+                    emptyRegionAndComposite.AddChild(linearMediaTypes);
+
+                    // It is either in the desired region or it is in region 0 and not linear media
+                    regionComposite.AddChild(regionsTerms);
+                    regionComposite.AddChild(emptyRegionAndComposite);
+
+                    mediaFilter.AddChild(regionComposite);
+                }
+
+                #endregion
+
             }
 
             QueryFilter filterPart = new QueryFilter();
@@ -366,7 +409,8 @@ namespace ElasticSearch.Searcher
                     var leaf = root as BooleanLeaf;
 
                     // If it is contains - it is not exact and thus belongs to query
-                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains || 
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                     {
                         queryNode = leaf;
                     }
@@ -404,7 +448,8 @@ namespace ElasticSearch.Searcher
                             {
                                 // If yes, this means the root-ancestor is a query and not a filter
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith)
                                 {
                                     queryRoots.Add(node);
 
@@ -607,7 +652,6 @@ namespace ElasticSearch.Searcher
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
-                string field = string.Format("{0}.analyzed", leaf.field);
                 bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
                 string value = string.Empty;
@@ -633,8 +677,20 @@ namespace ElasticSearch.Searcher
 
                 // "Match" when search is not exact (contains)
                 if (leaf.operand == ApiObjects.ComparisonOperator.Contains || 
-                    leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
+                    leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                 {
+                    string field = string.Empty;
+
+                    if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                    {
+                        field = string.Format("{0}.autocomplete", leaf.field);
+                    }
+                    else
+                    {
+                        field = string.Format("{0}.analyzed", leaf.field);
+                    }
+
                     term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
                     {
                         Field = field,
@@ -834,43 +890,46 @@ namespace ElasticSearch.Searcher
         /// <returns></returns>
         protected string GetSort(OrderObj order, bool shouldOrderByScore)
         {
-            StringBuilder sSort = new StringBuilder();
-            sSort.Append(" \"sort\": [{");
+            StringBuilder sortBuilder = new StringBuilder();
+            sortBuilder.Append(" \"sort\": [{");
 
             if (order.m_eOrderBy == OrderBy.META)
             {
                 string sAnalyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
-                sSort.AppendFormat("\"{0}\": ", sAnalyzedMeta);
+                sortBuilder.AppendFormat("\"{0}\": ", sAnalyzedMeta);
                 ReturnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
-
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_uid\": ");
+                sortBuilder.Append(" \"_uid\": ");
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
-                sSort.Append(" \"_score\": ");
+                sortBuilder.Append(" \"_score\": ");
             }
             else
             {
-                sSort.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
+                sortBuilder.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
             }
 
-            if (sSort.Length > 0)
+            if (sortBuilder.Length > 0)
             {
-                sSort.Append(" {");
-                sSort.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
-                sSort.Append("}}");
+                sortBuilder.Append(" {");
+                sortBuilder.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
+                sortBuilder.Append("}}");
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
             if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
-                sSort.Append(", \"_score\"");
+            {
+                sortBuilder.Append(", \"_score\"");
+            }
 
-            sSort.Append(" ]");
+            sortBuilder.Append(", \"_uid\"");
 
-            return sSort.ToString();
+            sortBuilder.Append(" ]");
+
+            return sortBuilder.ToString();
         }
 
         #endregion

@@ -1376,7 +1376,8 @@ namespace DAL
 
 
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName,
-                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret)
+                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                        string sCoGuid = "")
         {
             try
             {
@@ -1393,6 +1394,11 @@ namespace DAL
                 if (!string.IsNullOrEmpty(sUserName))
                 {
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                }
+
+                if (!string.IsNullOrEmpty(sCoGuid))
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
@@ -1753,7 +1759,7 @@ namespace DAL
             try
             {
                 StoredProcedure spUpdateUserDynamicData = new StoredProcedure("Update_UserDynamicData");
-                
+
                 spUpdateUserDynamicData.AddParameter("@doc", xmlTypeValue);
                 spUpdateUserDynamicData.AddParameter("@group_id", nGroupID);
                 spUpdateUserDynamicData.AddParameter("@site_guid", nUserID);
@@ -1765,6 +1771,80 @@ namespace DAL
             }
 
             return rows;
+        }
+
+        public static DataTable GenerateLoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GenerateLoginPIN");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@siteGuid", siteGuid);
+                sp.AddParameter("@pinCode", pinCode);
+                sp.AddParameter("@expired_date", expired_date);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return ds.Tables[0];
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool PinCodeExsits(int groupID, string newPIN)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("PinCodeExsits");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@newPIN", newPIN);
+                bool res = sp.ExecuteReturnValue<bool>();
+                return res;
+            }
+            catch 
+            {
+                return false;
+            }
+        }
+
+        public static DataRow GetUserByPIN(int groupID, string pinCode)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetUserByPIN");
+                sp.AddParameter("@groupID", groupID);                
+                sp.AddParameter("@pinCode", pinCode);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    return ds.Tables[0].Rows[0];
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool ExpirePIN(int groupID, string PIN)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("ExpirePIN");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@PIN", PIN);
+                bool res = sp.ExecuteReturnValue<bool>();
+                return res;
+            }
+            catch
+            {
+                return false;
+            }
         }
     } 
 }

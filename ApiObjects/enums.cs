@@ -288,6 +288,7 @@ namespace ApiObjects
         GreaterThanOrEqual,
         GreaterThan,
         LessThanOrEqual,
-        LessThan
+        LessThan,
+        WordStartsWith
     }
 }

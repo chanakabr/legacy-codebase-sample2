@@ -484,7 +484,8 @@ namespace ODBCWrapper
             foreach (string item in m_Parameters.Keys)
             {
                 Type type = m_Parameters[item].GetType();
-                if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName)
+                if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
+                    || type.FullName == typeof(System.DateTime).FullName )
                 {
                     command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }

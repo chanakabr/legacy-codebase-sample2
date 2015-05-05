@@ -734,90 +734,94 @@ namespace Catalog
             };
 
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(nParentGroupID);
-
-            // Add prefixes, check if non start/end date exist
-            #region Phrase Tree
-
-            if (group != null)
+            if (request.filterTree != null)
             {
-                Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
-                nodes.Enqueue(request.filterTree);
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-                // BFS
-                while (nodes.Count > 0)
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(parentGroupID);
+
+                // Add prefixes, check if non start/end date exist
+                #region Phrase Tree
+
+                if (group != null)
                 {
-                    BooleanPhraseNode node = nodes.Dequeue();
+                    Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
+                    nodes.Enqueue(request.filterTree);
 
-                    // If it is a leaf, just replace the field name
-                    if (node.type == BooleanNodeType.Leaf)
+                    // BFS
+                    while (nodes.Count > 0)
                     {
-                        BooleanLeaf leaf = node as BooleanLeaf;
+                        BooleanPhraseNode node = nodes.Dequeue();
 
-                        bool isTagOrMeta;
-                        // Add prefix (meta/tag) e.g. metas.{key}
-                        
-                        string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
-                        leaf.field = searchKey;
-
-                        string searchKeyLowered = searchKey.ToLower();
-
-                        // Default - string, until proved otherwise
-                        leaf.valueType = typeof(string);
-
-                        // If this is a tag or a meta, we can continue happily.
-                        // If not, we check if it is one of the "core" fields.
-                        // If it is not one of them, an exception will be thrown
-                        if (!isTagOrMeta)
+                        // If it is a leaf, just replace the field name
+                        if (node.type == BooleanNodeType.Leaf)
                         {
-                            // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                            if (searchKeyLowered == "start_date")
-                            {
-                                definitions.defaultStartDate = false;
-                                leaf.valueType = typeof(DateTime);
+                            BooleanLeaf leaf = node as BooleanLeaf;
 
-                                long epoch = Convert.ToInt64(leaf.value);
+                            bool isTagOrMeta;
+                            // Add prefix (meta/tag) e.g. metas.{key}
 
-                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                            }
-                            else if (searchKeyLowered == "end_date")
-                            {
-                                definitions.defaultEndDate = false;
-                                leaf.valueType = typeof(DateTime);
+                            string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
+                            leaf.field = searchKey;
 
-                                long epoch = Convert.ToInt64(leaf.value);
+                            string searchKeyLowered = searchKey.ToLower();
 
-                                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                            }
-                            else if (reservedNumericFields.Contains(searchKeyLowered))
+                            // Default - string, until proved otherwise
+                            leaf.valueType = typeof(string);
+
+                            // If this is a tag or a meta, we can continue happily.
+                            // If not, we check if it is one of the "core" fields.
+                            // If it is not one of them, an exception will be thrown
+                            if (!isTagOrMeta)
                             {
-                                leaf.valueType = typeof(long);
-                            }
-                            else if (!reservedStringFields.Contains(searchKeyLowered))
-                            {
-                                var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
-                                exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
-                                throw exception;
+                                // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                                if (searchKeyLowered == "start_date")
+                                {
+                                    definitions.defaultStartDate = false;
+                                    leaf.valueType = typeof(DateTime);
+
+                                    long epoch = Convert.ToInt64(leaf.value);
+
+                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                }
+                                else if (searchKeyLowered == "end_date")
+                                {
+                                    definitions.defaultEndDate = false;
+                                    leaf.valueType = typeof(DateTime);
+
+                                    long epoch = Convert.ToInt64(leaf.value);
+
+                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                }
+                                else if (reservedNumericFields.Contains(searchKeyLowered))
+                                {
+                                    leaf.valueType = typeof(long);
+                                }
+                                else if (!reservedStringFields.Contains(searchKeyLowered))
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
+                                    throw exception;
+                                }
                             }
                         }
-                    }
-                    else if (node.type == BooleanNodeType.Parent)
-                    {
-                        BooleanPhrase phrase = node as BooleanPhrase;
-
-                        // Run on tree - enqueue all child nodes to continue going deeper
-                        foreach (var childNode in phrase.nodes)
+                        else if (node.type == BooleanNodeType.Parent)
                         {
-                            nodes.Enqueue(childNode);
+                            BooleanPhrase phrase = node as BooleanPhrase;
+
+                            // Run on tree - enqueue all child nodes to continue going deeper
+                            foreach (var childNode in phrase.nodes)
+                            {
+                                nodes.Enqueue(childNode);
+                            }
                         }
                     }
                 }
-            } 
-            #endregion
+                #endregion
+            }
 
             // Get days offset for EPG search from TCM
             definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
@@ -878,6 +882,18 @@ namespace Catalog
             {
                 definitions.shouldSearchMedia = true;
             }
+
+            #endregion
+
+            #region Regions
+
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            definitions.regionIds = regionIds;
+            definitions.linearChannelMediaTypes = linearMediaTypes;
 
             #endregion
 
@@ -1008,7 +1024,13 @@ namespace Catalog
 
                 #endregion
 
-                searchObj.regionIds = GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+                List<int> regionIds;
+                List<string> linearMediaTypes;
+
+                Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+                searchObj.regionIds = regionIds;
+                searchObj.linearChannelMediaTypes = linearMediaTypes;
             }
             catch (Exception ex)
             {
@@ -1035,9 +1057,10 @@ namespace Catalog
         /// <param name="domainId"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<int> GetSearchRegions(int groupId, int domainId, string siteGuid)
+        internal static void SetSearchRegions(int groupId, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
-            List<int> regionIds = new List<int>();
+            regionIds = null;
+            linearMediaTypes = null;
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
@@ -1045,8 +1068,8 @@ namespace Catalog
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
-                // Always search for region 0 - media that is not associated to any region
-                regionIds.Add(0);
+                regionIds = new List<int>();
+                linearMediaTypes = new List<string>();
 
                 // If this is a guest user or something like this - get default region
                 if (domainId == 0)
@@ -1104,9 +1127,19 @@ namespace Catalog
                         }
                     }
                 }
-            }
+                
+                // Now we need linear media types - so we filter them and not other media types
+                Dictionary<string, string> dictionary = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
 
-            return regionIds;
+                if (dictionary.ContainsKey(Catalog.LINEAR_MEDIA_TYPES_KEY))
+                {
+                    // Split by semicolon
+                    var mediaTypesArray = dictionary[Catalog.LINEAR_MEDIA_TYPES_KEY].Split(';');
+
+                    // Convert to list
+                    linearMediaTypes.AddRange(mediaTypesArray);
+                }
+            }
         }
 
         /*Build Full search object*/
@@ -1666,8 +1699,13 @@ namespace Catalog
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
 
-            searchObject.regionIds =
-                Catalog.GetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid);
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            searchObject.regionIds = regionIds;
+            searchObject.linearChannelMediaTypes = linearMediaTypes;
 
             return searchObject;
         }
@@ -2922,12 +2960,23 @@ namespace Catalog
             res.m_nGroupId = nGroupID;
             res.m_sMediaTypes = dict[LINEAR_MEDIA_TYPES_KEY];
             res.m_sPermittedWatchRules = dict[PERMITTED_WATCH_RULES_KEY];
-            res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
-            res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+
+            if (jsonizedChannelsDefinitions != null)
+            {
+                res.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
+                res.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
+            }
+
             res.m_nPageIndex = 0;
             res.m_nPageSize = GetSearcherMaxResultsSize();
 
-            res.regionIds = Catalog.GetSearchRegions(nGroupID, domainId, siteGuid);
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            Catalog.SetSearchRegions(nGroupID, domainId, siteGuid, out regionIds, out linearMediaTypes);
+
+            res.regionIds = regionIds;
+            res.linearChannelMediaTypes = linearMediaTypes;
 
             return res;
         }
@@ -3956,6 +4005,27 @@ namespace Catalog
             Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
             GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
             MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+        }
+
+        /// <summary>
+        /// Finds out the region for search, according to the domain and/or group, and gets the linear channels of those regions.
+        /// </summary>
+        /// <param name="searcherEpgSearch"></param>
+        /// <param name="epgSearchRequest"></param>
+        internal static void SetEpgSearchChannelsByRegions(ref EpgSearchObj searcherEpgSearch, EpgSearchRequest epgSearchRequest)
+        {
+            List<long> channelIds = null;
+            List<int> regionIds;
+            List<string> linearMediaTypes;
+
+            // Get region/regions for search
+            Catalog.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId, 
+                epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
+
+            // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
+            channelIds = CatalogDAL.Get_EpgIdentifier_ByRegion(epgSearchRequest.m_nGroupID, regionIds);
+
+            searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace NotificationObj
         public NotificationTriggerType TriggerType { get; set; }
         public string mediaPicURL { get; set; }
         public string EmailTemplate { get; set; }
+        public string DateFormat { get; set; }
         public SendVia sendVia { get; set; }
         public ExtraParams oExtraParams { get; set; }
 

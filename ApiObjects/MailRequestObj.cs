@@ -19,6 +19,7 @@ namespace ApiObjects
         public string m_emailKey;
         
         
+        
         public eMailTemplateType m_eMailType;
 
         public virtual MCObjByTemplate parseRequestToTemplate()
