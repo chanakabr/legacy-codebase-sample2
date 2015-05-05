@@ -11,11 +11,14 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "asset")]
         public AssetInfo Asset { get; set; }
 
-        [JsonProperty(PropertyName = "location")]
-        public int Location { get; set; }
+        [JsonProperty(PropertyName = "position")]
+        public int Position { get; set; }
 
-        [JsonProperty(PropertyName = "created_at")]
-        public long CreatedAt { get; set; }
+        [JsonProperty(PropertyName = "watched_date")]
+        public long LastWatched { get; set; }
+
+        [JsonProperty(PropertyName = "finished_watching")]
+        public bool IsFinishedWatching { get; set; }
     }
 
     public class WatchHistory

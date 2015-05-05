@@ -245,7 +245,13 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     // add NPVR item
                     NpvrRecordAsset npvr = new NpvrRecordAsset() { Id = item.AssetId, Type = item.AssetTypeId };
-                    result.Add(new WatchHistoryAsset() { Asset = new AssetInfo(npvr), CreatedAt = item.LastWatch, Location = item.Location });
+                    result.Add(new WatchHistoryAsset()
+                    {
+                        Asset = new AssetInfo(npvr),
+                        LastWatched = item.LastWatch,
+                        Position = item.Location,
+                        IsFinishedWatching = item.IsFinishedWatching
+                    });
                 }
                 else
                 {
@@ -254,9 +260,23 @@ namespace TVPApiModule.CatalogLoaders
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
-                            asset = new WatchHistoryAsset() { Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles) };
+                            asset = new WatchHistoryAsset()
+                            {
+                                Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles),
+                                LastWatched = item.LastWatch,
+                                Position = item.Location,
+                                IsFinishedWatching = item.IsFinishedWatching
+                            };
                         else
-                            asset = new WatchHistoryAsset() { Asset = new AssetInfo(media, shouldAddFiles) };
+                        {
+                            asset = new WatchHistoryAsset()
+                            {
+                                Asset = new AssetInfo(media, shouldAddFiles),
+                                LastWatched = item.LastWatch,
+                                Position = item.Location,
+                                IsFinishedWatching = item.IsFinishedWatching
+                            };
+                        }
 
                         result.Add(asset);
                         media = null;
