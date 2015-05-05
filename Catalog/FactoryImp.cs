@@ -208,6 +208,11 @@ namespace Catalog
             {
                 return (AssetInfoRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is WatchHistoryRequest)
+            {
+                return (WatchHistoryRequest)m_oBaseRequest;
+            }
+
             return null;
         }
     }

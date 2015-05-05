@@ -121,7 +121,7 @@ namespace Catalog
         /// <param name="filter"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex, 
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex,
              ref int totalItems, int groupId, Filter filter, string siteGuid)
         {
             List<MediaObj> mediaObjects = new List<MediaObj>();
@@ -603,7 +603,7 @@ namespace Catalog
                 if (searcher != null)
                 {
                     isLucene = searcher is LuceneWrapper;
-                    GroupManager groupManager = new GroupManager();                    
+                    GroupManager groupManager = new GroupManager();
                     CatalogCache catalogCache = CatalogCache.Instance();
                     int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
                     Group groupInCache = groupManager.GetGroup(nParentGroupID);
@@ -825,7 +825,7 @@ namespace Catalog
 
             // Get days offset for EPG search from TCM
             definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
-            
+
             #region Filter & Order
 
             if (request.m_oFilter != null)
@@ -866,7 +866,7 @@ namespace Catalog
                 definitions.shouldSearchEpg = true;
                 definitions.shouldSearchMedia = true;
             }
-            else 
+            else
             {
                 definitions.mediaTypes = new List<int>(request.assetTypes);
             }
@@ -1127,7 +1127,7 @@ namespace Catalog
                         }
                     }
                 }
-                
+
                 // Now we need linear media types - so we filter them and not other media types
                 Dictionary<string, string> dictionary = Catalog.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
 
@@ -1143,7 +1143,7 @@ namespace Catalog
         }
 
         /*Build Full search object*/
-        static internal void FullSearchAddParams(int groupId, List<KeyValue> originalAnds, List<KeyValue> originalOrs, 
+        static internal void FullSearchAddParams(int groupId, List<KeyValue> originalAnds, List<KeyValue> originalOrs,
             ref List<SearchValue> resultAnds, ref List<SearchValue> resultOrs)
         {
             CatalogCache catalogCache = CatalogCache.Instance();
@@ -1385,7 +1385,7 @@ namespace Catalog
                 }
 
                 GroupManager groupManager = new GroupManager();
-                
+
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
 
@@ -1573,7 +1573,7 @@ namespace Catalog
         }
 
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0, string sNpvrID = default(string), ePlayType eNPVR = ePlayType.MEDIA)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, string sNpvrID = default(string), ePlayType eNPVR = ePlayType.MEDIA)
         {
             int opID = 0;
             bool isMaster = false;
@@ -1583,16 +1583,16 @@ namespace Catalog
             {
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
-             
+
             if (nDomainID > 0)
             {
                 switch (eNPVR)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime, duration, assetAction, mediaTypeId);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sNpvrID, nGroupID, nPlayTime);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sNpvrID, nGroupID, nPlayTime, duration, assetAction);
                         break;
                     default:
                         break;
@@ -1666,7 +1666,7 @@ namespace Catalog
             searchObject.m_nPageSize = request.m_nPageSize;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = string.Join(";",channel.m_nMediaType);
+            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType);
 
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
             {
@@ -1898,7 +1898,7 @@ namespace Catalog
             {
 
                 GroupManager groupManager = new GroupManager();
-                
+
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
 
@@ -1928,7 +1928,7 @@ namespace Catalog
             if (lIds != null && lIds.Count > 0)
             {
                 GroupManager groupManager = new GroupManager();
-                
+
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
 
@@ -1968,7 +1968,7 @@ namespace Catalog
         {
 
             GroupManager groupManager = new GroupManager();
-            
+
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
 
@@ -2041,12 +2041,12 @@ namespace Catalog
             {
                 pResponse.m_nTotalItems = lEpgProg.Count;
 
-            //    string epgPicBaseUrl = string.Empty;
-            //    string epgPicWidth = string.Empty;
-            //    string epgPicHeight = string.Empty;
-            //    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-            //    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-            //    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+                //    string epgPicBaseUrl = string.Empty;
+                //    string epgPicWidth = string.Empty;
+                //    string epgPicHeight = string.Empty;
+                //    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
+                //    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                //    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
             }
             foreach (int nProgram in pRequest.m_lProgramsIds)
             {
@@ -2251,16 +2251,16 @@ namespace Catalog
             if (epgs != null && epgs.Count > 0)
             {
 
-            //    Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
-            //    string epgPicBaseUrl = string.Empty;
-            //    string epgPicWidth = string.Empty;
-            //    string epgPicHeight = string.Empty;
-            //    GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-            //    bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
-            //    bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
-            //    bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
-            //    string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-            //    string dot = ".";
+                //    Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
+                //    string epgPicBaseUrl = string.Empty;
+                //    string epgPicWidth = string.Empty;
+                //    string epgPicHeight = string.Empty;
+                //    GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
+                //    bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
+                //    bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
+                //    bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
+                //    string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
+                //    string dot = ".";
                 int totalItems = 0;
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
 
@@ -2893,7 +2893,7 @@ namespace Catalog
                         // we have operator id
                         res = true;
                         GroupManager groupManager = new GroupManager();
-                        
+
                         CatalogCache catalogCache = CatalogCache.Instance();
                         int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
 
@@ -2952,7 +2952,7 @@ namespace Catalog
         }
 
 
-        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID, 
+        internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID,
             int domainId, string siteGuid,
             Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
         {
@@ -3164,7 +3164,7 @@ namespace Catalog
         {
             List<FileMedia> res = null;
             GroupManager groupManager = new GroupManager();
-            
+
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(groupID);
 
@@ -3372,7 +3372,7 @@ namespace Catalog
         }
 
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
-            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
             bool res = false;
             bool bIP = false;
@@ -3383,7 +3383,7 @@ namespace Catalog
             {
                 ipVal = ParseIPOutOfString(userIP);
                 return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
-                    ref formatID, ref mediaTypeID, ref billingTypeID);
+                    ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
             #region  try get values from catalog cache
@@ -3407,7 +3407,7 @@ namespace Catalog
             List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
             if (lMedia != null && lMedia.Count > 0)
             {
-                InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, lMedia);
+                InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration, lMedia);
                 bMedia = true;
             }
             #endregion
@@ -3421,10 +3421,10 @@ namespace Catalog
                 if (!bIP && !bMedia)
                 {
                     ipVal = ParseIPOutOfString(userIP);
-                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref  fileDuration))
                     {
                         catalogCache.Set(ipKey, countryID, cacheTime);
-                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
                         catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                         res = true;
                     }
@@ -3446,18 +3446,18 @@ namespace Catalog
                         res = false;
                         if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
                         {
-                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, ref lMedia);
+                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
                             catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                             res = true;
                         }
                     }
                 }
             }
-            
+
             return res;
         }
 
-        private static void InitMediaMarkHitDataFromCache(ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, List<KeyValuePair<string, int>> lMedia)
+        private static void InitMediaMarkHitDataFromCache(ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, List<KeyValuePair<string, int>> lMedia)
         {
             foreach (KeyValuePair<string, int> item in lMedia)
             {
@@ -3481,13 +3481,17 @@ namespace Catalog
                     case "billingTypeID":
                         billingTypeID = item.Value;
                         break;
+                    case "fileDuration":
+                        fileDuration = item.Value;
+                        break;
+
                     default:
                         break;
                 }
             }
         }
 
-        private static void InitMediaMarkHitDataToCache(int ownerGroupID, int cdnID, int qualityID, int formatID, int mediaTypeID, int billingTypeID, ref List<KeyValuePair<string, int>> lMedia)
+        private static void InitMediaMarkHitDataToCache(int ownerGroupID, int cdnID, int qualityID, int formatID, int mediaTypeID, int billingTypeID, int fileDuration, ref List<KeyValuePair<string, int>> lMedia)
         {
             lMedia = new List<KeyValuePair<string, int>>();
             lMedia.Add(new KeyValuePair<string, int>("ownerGroupID", ownerGroupID));
@@ -3495,9 +3499,10 @@ namespace Catalog
             lMedia.Add(new KeyValuePair<string, int>("qualityID", qualityID));
             lMedia.Add(new KeyValuePair<string, int>("formatID", formatID));
             lMedia.Add(new KeyValuePair<string, int>("mediaTypeID", mediaTypeID));
-            lMedia.Add(new KeyValuePair<string, int>("billingTypeID", billingTypeID));          
+            lMedia.Add(new KeyValuePair<string, int>("billingTypeID", billingTypeID));
+            lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
-        
+
 
 
         private static long ParseIPOutOfString(string userIP)
@@ -3519,7 +3524,7 @@ namespace Catalog
         }
 
         internal static bool InsertStatisticsRequestToES(int groupID, int mediaID, int mediaTypeID, string action, int playTime)
-        {            
+        {
             CatalogCache catalogCache = CatalogCache.Instance();
             int parentGroupID = catalogCache.GetParentGroup(groupID);
 
@@ -3780,7 +3785,7 @@ namespace Catalog
 
             // get last position from domain by media_id - from DAL 
             DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, usersKey, domain_id);
-          
+
             if (MediaMark == null || MediaMark.devices == null)
             {
                 res.m_sStatus = "NO DATA";
@@ -3790,10 +3795,10 @@ namespace Catalog
             UserMediaMark umm = new UserMediaMark();
             List<UserMediaMark> lumm = new List<UserMediaMark>();
             LastPosition ulp = null;
-       
+
             // get the user_id first 
 
-            lumm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != user_id ).ToList();
+            lumm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != user_id).ToList();
             foreach (UserMediaMark item in lumm)
             {
                 if (lDeafultUsers.Contains(item.UserID))
@@ -4002,7 +4007,7 @@ namespace Catalog
             string epgPicBaseUrl = string.Empty;
             string epgPicWidth = string.Empty;
             string epgPicHeight = string.Empty;
-            Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);            
+            Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(groupID);
             GetEpgPicUrlData(retList, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
             MutateFullEpgPicURL(retList, epgPicBaseUrl, epgPicWidth, epgPicHeight);
         }
@@ -4019,7 +4024,7 @@ namespace Catalog
             List<string> linearMediaTypes;
 
             // Get region/regions for search
-            Catalog.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId, 
+            Catalog.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId,
                 epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
