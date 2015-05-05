@@ -243,7 +243,7 @@ namespace TVPApiModule.CatalogLoaders
             {
                 if (item.AssetTypeId == (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR)
                 {
-                    // add NPVR item
+                    // build NPVR assets objects
                     NpvrRecordAsset npvr = new NpvrRecordAsset() { Id = item.AssetId, Type = item.AssetTypeId };
                     result.Add(new WatchHistoryAsset()
                     {
@@ -255,11 +255,13 @@ namespace TVPApiModule.CatalogLoaders
                 }
                 else
                 {
-                    // add media item
+                    // build medias assets objects
                     media = mediasInfo.Where(m => m != null && m.m_nID == item.AssetId).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
+                        {
+                            // with stats
                             asset = new WatchHistoryAsset()
                             {
                                 Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles),
@@ -267,8 +269,10 @@ namespace TVPApiModule.CatalogLoaders
                                 Position = item.Location,
                                 IsFinishedWatching = item.IsFinishedWatching
                             };
+                        }
                         else
                         {
+                            // without stats
                             asset = new WatchHistoryAsset()
                             {
                                 Asset = new AssetInfo(media, shouldAddFiles),
