@@ -1552,13 +1552,13 @@ namespace Tvinci.Core.DAL
                     // filter status 
                     switch (filterStatus)
                     {
-                        case eWatchStatus.Started:
+                        case eWatchStatus.Progress:
 
                             unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) < finishedPercent);
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
                             break;
 
-                        case eWatchStatus.Finished:
+                        case eWatchStatus.Done:
                             unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) >= finishedPercent);
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
                             break;

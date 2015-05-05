@@ -307,10 +307,10 @@ namespace ApiObjects
     public enum eWatchStatus
     {
         [EnumMember]
-        Started,
+        Progress,
 
         [EnumMember]
-        Finished,
+        Done,
 
         [EnumMember]
         All
