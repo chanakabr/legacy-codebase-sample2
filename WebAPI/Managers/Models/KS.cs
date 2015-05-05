@@ -12,6 +12,7 @@ namespace WebAPI.Managers.Models
     public class KS
     {
         private const int BLOCK_SIZE = 16;
+        private const int SHA1_SIZE = 20;
         private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}";
 
         private bool isValid;
@@ -19,7 +20,7 @@ namespace WebAPI.Managers.Models
         private int groupId;
         private int userId;
         private eUserType userType;
-        private long expiration;
+        private DateTime expiration;
         private string privilege;
 
         public enum eUserType { USER = 0, ADMIN = 2 }
@@ -49,7 +50,7 @@ namespace WebAPI.Managers.Models
             get { return privilege; }
         }
 
-        public long Expiration
+        public DateTime Expiration
         {
             get { return expiration; }
         }
@@ -60,10 +61,10 @@ namespace WebAPI.Managers.Models
 
         public KS(string adminSecret, string groupID, string userID, int expiration, eUserType userType)
         {
-            int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
+            int relativeExpiration = -2020752561;// (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
             string ks = string.Format(KS_FORMAT, "all=*", (int)userType, relativeExpiration, userID);
-            byte[] ksBytes = Encoding.UTF8.GetBytes(ks);
+            byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = createRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
@@ -78,7 +79,7 @@ namespace WebAPI.Managers.Models
             string prefix = string.Format("v2|{0}|", groupID);
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
-            Array.Copy(Encoding.UTF8.GetBytes(prefix), 0, output, 0, prefix.Length);
+            Array.Copy(Encoding.ASCII.GetBytes(prefix), 0, output, 0, prefix.Length);
             Array.Copy(encryptedFields, 0, output, prefix.Length, encryptedFields.Length);
 
             StringBuilder encodedKs = new StringBuilder(System.Convert.ToBase64String(output));
@@ -104,9 +105,9 @@ namespace WebAPI.Managers.Models
             sb = sb.Replace("_", "/");
             byte[] encryptedData = System.Convert.FromBase64String(sb.ToString());
 
-            string value = System.Text.Encoding.UTF8.GetString(encryptedData);
+            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
 
-            string[] ksParts = value.Split('|');
+            string[] ksParts = encryptedDataStr.Split('|');
 
             if (ksParts.Length != 3 || ksParts[0] != "v2")
             {
@@ -126,11 +127,36 @@ namespace WebAPI.Managers.Models
             string adminSecret = group.AdminSecret;
 
             // decrypt fields
-            byte[] encryptedFieldsBytes = Encoding.UTF8.GetBytes(ksParts[2]);
-            byte[] fieldsBytes = aesDecrypt(adminSecret, encryptedFieldsBytes);
+            int fieldsWithRandomIndex = encryptedDataStr.LastIndexOf('|') + 1;
+            byte[] fieldsWithHashBytes = aesDecrypt(adminSecret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
+
+            // Trim Right 0
+            bool isFound = false;
+            fieldsWithHashBytes = fieldsWithHashBytes.Reverse().SkipWhile(x =>
+            {
+                if (isFound) 
+                    return false;
+                if (x == 0)
+                    return true;
+                else
+                {
+                    isFound = true;
+                    return false;
+                }
+            }).Reverse().ToArray();
+
+
+            // check hash
+            byte[] hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
+            byte[] fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
+
+            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(hashSHA1(fieldsWithRandom)))
+            {
+                return null;
+            }
 
             //parse fields
-            string[] fields = System.Text.Encoding.UTF8.GetString(fieldsBytes).Split("&_".ToCharArray());
+            string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length != 4)
             {
@@ -153,9 +179,9 @@ namespace WebAPI.Managers.Models
                         ks.userType = (eUserType)Enum.Parse(typeof(eUserType), pair[1]);
                         break;
                     case "e":
-                        int expiration;
-                        int.TryParse(pair[1], out expiration);
-                        ks.expiration = expiration;
+                        long expiration;
+                        long.TryParse(pair[1], out expiration);
+                        ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
                         break;
                     case "u":
                         int user;
@@ -168,7 +194,10 @@ namespace WebAPI.Managers.Models
                 }
             }
 
-            ks.isValid = true;
+            if (ks.expiration > DateTime.UtcNow)
+            {
+                ks.isValid = true;
+            }
 
             return ks;
         }
@@ -184,11 +213,11 @@ namespace WebAPI.Managers.Models
             byte[] ivBytes = new byte[BLOCK_SIZE];
 
             // Text
-            int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+            //int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
+            //byte[] textAsBytes = new byte[textSize];
+            //Array.Copy(text, 0, textAsBytes, 0, text.Length);
 
-            // Encrypt
+            // Decrypt
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
@@ -202,7 +231,7 @@ namespace WebAPI.Managers.Models
                 {
                     using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
                     {
-                        cst.Write(textAsBytes, 0, textSize);
+                        cst.Write(text, 0, text.Length);
                         return ms.ToArray();
                     }
                 }
@@ -264,8 +293,9 @@ namespace WebAPI.Managers.Models
 
         private byte[] createRandomByteArray(int size)
         {
-            byte[] b = new byte[size];
-            new Random().NextBytes(b);
+            byte[] b = new byte[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
+            //byte[] b = new byte[size];
+           // new Random().NextBytes(b);
             return b;
         }
     }

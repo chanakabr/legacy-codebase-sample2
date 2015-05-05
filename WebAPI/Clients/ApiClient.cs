@@ -27,19 +27,23 @@ namespace WebAPI.Clients
             }
         }
 
-
-        public LanguageObj[] GetGroupLanguages(int groupId)
+        public LanguageObj[] GetGroupLanguages(string username, string password)
         {
-            Group group = GroupsManager.GetGroup(groupId);
             try
             {
-                return Api.GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                return Api.GetGroupLanguages(username, password);
             }
             catch (Exception)
             {
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
-                
+
             }
+        }
+
+        public LanguageObj[] GetGroupLanguages(int groupId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+            return GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
         }
     }
 }

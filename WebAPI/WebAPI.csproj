@@ -27,7 +27,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -142,7 +142,7 @@
     </None>
     <EmbeddedResource Include="Resource\index.html" />
     <EmbeddedResource Include="Resource\screen.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
     <Content Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Service References\Notifications\configuration91.svcinfo" />
@@ -518,7 +518,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Users\module.disco" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web References\Users\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>

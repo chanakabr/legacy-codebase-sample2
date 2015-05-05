@@ -8,6 +8,7 @@ using WebAPI.Clients;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
 using AutoMapper;
+using Couchbase.Extensions;
 
 namespace WebAPI.Managers
 {
@@ -25,7 +26,7 @@ namespace WebAPI.Managers
 
             if (!groupsInstances.ContainsKey(groupId))
             {
-                if (syncLock.TryEnterWriteLock(1000))
+                if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
@@ -50,7 +51,7 @@ namespace WebAPI.Managers
             }
 
             // If item already exist
-            if (syncLock.TryEnterReadLock(1000))
+            if (syncLock.TryEnterReadLock(10000))
             {
                 try
                 {
@@ -72,9 +73,10 @@ namespace WebAPI.Managers
         {
             Group result = null;
 
-            result = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).Get<Group>(string.Format(GROUP_KEY_FORMAT, groupId));
-
-            var languages = ClientsManager.ApiClient().GetGroupLanguages(groupId);
+            result = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(GROUP_KEY_FORMAT, groupId));            
+           
+            //TODO: catch exceptions? null?
+            var languages = ClientsManager.ApiClient().GetGroupLanguages(result.ApiCredentials.Username, result.ApiCredentials.Password);
             if (languages != null)
             {
                 result.Languages = Mapper.Map<List<Language>>(languages);

@@ -6,8 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Web;
 using System.Web.Http.Controllers;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
+using Couchbase.Extensions;
 
 namespace WebAPI.Controllers
 {
@@ -20,6 +22,9 @@ namespace WebAPI.Controllers
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
+            var a= CouchbaseManager.GetInstance(CouchbaseBucket.Groups).StoreJson(Enyim.Caching.Memcached.StoreMode.Set, "oded", new Group() { AdminSecret = "fasdfasdfasdf" });
+            var gro = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>("oded");
+
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
             //TODO: Change from checking emptiness to real KS structure / expiration
             if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).IsValid)

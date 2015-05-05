@@ -73,8 +73,8 @@ namespace WebAPI.Managers
             {
                 case CouchbaseBucket.Default:
                 case CouchbaseBucket.Groups:
-                    var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
-                    oRes = new CouchbaseClient(socialBucketSection);
+                    var grpupsBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
+                    oRes = new CouchbaseClient(grpupsBucketSection);
                     break;
             }
 

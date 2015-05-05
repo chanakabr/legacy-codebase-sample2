@@ -6,6 +6,7 @@ using System.Web;
 
 namespace WebAPI.Managers.Models
 {
+    [Serializable]
     public class Credentials
     {
         [JsonProperty(PropertyName = "username")]
