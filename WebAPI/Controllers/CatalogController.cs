@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using WebAPI.Clients.Exceptions;
 using WebAPI.Clients.Utils;
 using WebAPI.Filters;
@@ -14,6 +15,13 @@ namespace WebAPI.Controllers
     [RoutePrefix("catalog")]
     public class CatalogController : ApiController
     {
+        [Route("search"), HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets)
+        {
+            return PostSearch(group_id, search_assets);
+        }
+
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content
         /// </summary>
@@ -24,7 +32,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper Post([FromUri] string group_id, [FromBody]SearchAssets search_assets)
+        public AssetInfoWrapper PostSearch(string group_id, SearchAssets search_assets)
         {
             AssetInfoWrapper response = null;
             int groupId;
