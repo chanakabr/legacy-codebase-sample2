@@ -971,7 +971,7 @@ namespace TVPApiServices
                         SiteGuid = initObj.SiteGuid,
                         Culture = initObj.Locale.LocaleLanguage,
                         DomainId = initObj.DomainID,
-                        
+
                     }.Execute() as List<BaseObject>;
                     if (programsList != null)
                         programs = programsList.Select(p => ((ProgramObj)p).m_oProgram).ToList();
@@ -2469,7 +2469,7 @@ namespace TVPApiServices
                     DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
-                        case EPGUnit.Days:                            
+                        case EPGUnit.Days:
                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0).AddDays(iFromOffset).AddHours(-iUTCOffSet);
                             DateTime to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0).AddDays(iToOffset).AddHours(-iUTCOffSet);
                             loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from, to, 0, 0, initObj.Locale.LocaleLanguage);
@@ -3107,7 +3107,7 @@ namespace TVPApiServices
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;
-            
+
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -3177,7 +3177,7 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
-            { 
+            {
                 try
                 {
                     if (filter.Length > 500 * 1024)
@@ -3202,7 +3202,7 @@ namespace TVPApiServices
                         return response;
                     }
 
-                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null; 
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
 
                     if (!string.IsNullOrEmpty(order_by))
                     {
@@ -3269,5 +3269,77 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Retrieve the recently watched media of a user")]
+        public WatchHistory WatchHistory(InitializationObject initObj, List<int> filter_types, eWatchStatus filter_status,
+                                                                                 int? days, List<string> with, int? page_index, int page_size)
+        {
+            WatchHistory response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "WatchHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    // give default values
+                    if (filter_status == null)
+                        filter_status = eWatchStatus.All;
+
+                    // days - default value 7
+                    if (days == null)
+                        days = 7;
+
+                    // page index - default value 0
+                    if (page_index == null)
+                        page_index = 0;
+
+                    // page size - 5 <= size <= 50
+                    if (page_size == null)
+                        page_size = 25;
+                    else
+                    {
+                        if (page_size > 50)
+                            page_size = 50;
+                        else
+                        {
+                            if (page_size < 5)
+                            {
+                                response = new WatchHistory();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 50");
+                                return response;
+                            }
+                        }
+                    }
+
+                    // fire request
+                    response = new APIWatchHistoryLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, (int)page_index,
+                        filter_types, filter_status, with, (int)days, OrderDir.DESC)
+                    {
+                        SiteGuid = initObj.SiteGuid,
+                        DomainId = initObj.DomainID
+                    }.Execute() as WatchHistory;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new WatchHistory();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new WatchHistory();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            if (response == null)
+            {
+                response = new WatchHistory();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+            }
+
+            return response;
+        }
     }
 }

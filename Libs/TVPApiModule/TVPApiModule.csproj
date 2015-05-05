@@ -118,6 +118,7 @@
     <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIUnifiedSearchLoader.cs" />
     <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIWatchHistoryLoader.cs" />
     <Compile Include="Configuration\ApiOrcaRecommendationsConfiguration.cs" />
     <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
     <Compile Include="Configuration\ApiSiteConfiguration.cs" />
@@ -193,6 +194,8 @@
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
+    <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
+    <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
     <Compile Include="Objects\Responses\File.cs" />

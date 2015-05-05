@@ -46,7 +46,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, string> ExtraParams { get; set; }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, bool shouldAddFiles)
+        public AssetInfo(MediaObj media, bool shouldAddFiles)
         {
             if (media != null)
             {
@@ -107,7 +107,7 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, AssetStatsResult stats, bool shouldAddFiles) :
+        public AssetInfo(MediaObj media, AssetStatsResult stats, bool shouldAddFiles) :
             this(media, shouldAddFiles)
         {
             if (stats != null)
@@ -123,7 +123,7 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg)
+        public AssetInfo(EPGChannelProgrammeObject epg)
         {
             Id = epg.EPG_ID;
             Type = 0;
@@ -177,7 +177,7 @@ namespace TVPApiModule.Objects.Responses
             ExtraParams.Add("related_media_id", epg.media_id);
         }
 
-        public AssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg, AssetStatsResult stats) 
+        public AssetInfo(EPGChannelProgrammeObject epg, AssetStatsResult stats) 
             : this (epg)
         {
             if (stats != null)
@@ -191,6 +191,12 @@ namespace TVPApiModule.Objects.Responses
                     RatingCount = stats.m_nVotes
                 };
             }
+        }
+
+        public AssetInfo(NpvrRecordAsset npvr)
+        {
+            Id = npvr.Id;
+            Type = npvr.Type;
         }
     }
 }
