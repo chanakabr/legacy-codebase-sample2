@@ -29,7 +29,12 @@ public partial class adm_my_group : System.Web.UI.Page
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
                 DBManipulator.DoTheWork();
+                Int32 nGroupID = LoginManager.GetLoginGroupID();
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                groupManager.UpdateRegionalization(nGroupID);
+            }
         }
     }
 
@@ -278,7 +283,7 @@ public partial class adm_my_group : System.Web.UI.Page
         theRecord.AddRecord(dr_view_lc);
 
         DataRecordCheckBoxField dr_dtt_regionalization = new DataRecordCheckBoxField(true);
-        dr_dtt_regionalization.Initialize("Is DTT Regionalization Enabled", "adm_table_header_nbg", "FormInput", "IS_REGIONALIZATION_ENABLED", true);
+        dr_dtt_regionalization.Initialize("Enable region filtering", "adm_table_header_nbg", "FormInput", "IS_REGIONALIZATION_ENABLED", false);
         theRecord.AddRecord(dr_dtt_regionalization);
 
         DataRecordDropDownField dr_region = new DataRecordDropDownField("linear_channels_regions", "name", "id", "group_id", t, 60, true);

@@ -737,6 +737,8 @@ a.btn:hover { background-position: left -22px; text-decoration:none;}
 input.btn_upload { display:block; text-align:center; background:url(../images/but_upload.png) no-repeat; width:112px; height:22px; font-size: 13px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 input.btn_upload:hover { background-position: 0 -22px; text-decoration:none;}
 
+input.btn_export_excel { display:block; text-align:center; background:url(../images/icon_export_normal.gif) no-repeat; width:112px; height:22px; font-size: 13px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
+
 input.btn_generate { display:block; text-align:center; background:url(../images/but_generate.png) no-repeat; width:105px; height:22px; font-size: 13px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
 input.btn_generate:hover { background-position: 0 -22px; text-decoration:none;}
 

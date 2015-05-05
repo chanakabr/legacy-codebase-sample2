@@ -72,7 +72,6 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
             selectQuery.Finish();
             selectQuery = null;
 
-
             FileUpload1.Visible = true;
             ButtonUpload.Visible = true;
             LblUploadStatus.Visible = true;
@@ -297,6 +296,113 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         {
             Logger.Logger.Log("GetExcelWorkSheet Error - Lookup Table", "Error opening Excel file " + ex.Message, "LookupTable");
             return null;
+        }
+    }
+
+    private string openCSV(DataTable dt)
+    {
+
+        GridView gv = new GridView();
+
+        gv.DataSource = dt;
+        gv.DataBind();
+        HttpContext.Current.Response.Clear();
+        HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
+        HttpContext.Current.Response.Charset = "UTF-8";
+        HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
+        System.IO.StringWriter stringWrite = new System.IO.StringWriter();
+        HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
+
+        gv.RenderControl(htmlWrite);
+        HttpContext.Current.Response.Write(stringWrite.ToString());
+        HttpContext.Current.Response.End();
+        return "";
+    }
+    
+    protected void ExportExcel(object sender, EventArgs e)
+    {
+        Int32 nGroupID = LoginManager.GetLoginGroupID();
+
+        if (Session["lookup_id"] != null && Session["lookup_id"].ToString() != "")
+        {
+            try
+            {
+                DataTable resultTable = new DataTable();
+
+                //Create "Basic" Column for every single value
+                DataColumn keyBasic = new DataColumn();
+                keyBasic.DataType = System.Type.GetType("System.String");
+                keyBasic.ColumnName = "Key";
+                resultTable.Columns.Add(keyBasic);
+
+                DataColumn valBasic = new DataColumn();
+                valBasic.DataType = System.Type.GetType("System.String");
+                valBasic.ColumnName = "Value";
+                resultTable.Columns.Add(valBasic);
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select [key], [value] from lu_generic where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lookup_type", "=", Session["lookup_id"]);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+                selectQuery += " order by id ";
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
+                    for (int i = 0; i < nCount1; i++ )
+                    {
+                        string key = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "key", i);
+                        string val = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "value", i);
+
+                        DataRow row = resultTable.NewRow();
+                        row[0] = key;
+                        row[1] = val;
+                        resultTable.Rows.Add(row);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                string style = @"<style> td { mso-number-format:\@; text-align:left; } </style> ";
+
+                GridView gv = new GridView();
+
+                gv.DataSource = resultTable;
+                gv.DataBind();
+
+                Int32 nCount = gv.HeaderRow.Cells.Count;
+                string color = string.Empty;
+
+                HttpContext.Current.Response.Clear();
+                HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
+                HttpContext.Current.Response.Charset = "UTF-16";
+                HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
+
+                System.IO.StringWriter stringWrite = new System.IO.StringWriter();
+                HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
+
+                gv.RenderControl(htmlWrite);
+                HttpContext.Current.Response.Write(style);
+                HttpContext.Current.Response.Write(stringWrite.ToString());
+                HttpContext.Current.Response.End();
+
+                
+            }
+            catch (Exception ex)
+            {
+                LblUploadStatus.ForeColor = System.Drawing.Color.Red;
+                LblUploadStatus.Text = "Failed To Export Data";
+                LblUploadStatus.Visible = true;
+            }
+        }
+        else
+        {
+            LblUploadStatus.ForeColor = System.Drawing.Color.Red;
+            LblUploadStatus.Text = "No File To Upload";
+            LblUploadStatus.Visible = true;
         }
     }
 

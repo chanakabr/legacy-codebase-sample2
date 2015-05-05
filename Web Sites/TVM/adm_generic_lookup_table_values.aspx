@@ -23,6 +23,11 @@
         RS.Execute("adm_generic_lookup_table_values.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
     }
 
+
+    function create_csv() {
+        RS.Execute("adm_generic_lookup_table_values.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+    }
+
 </script>
     <style type="text/css">
         .style1
@@ -117,21 +122,31 @@
 									                <span style="font-size:13px; font-weight:bold;line-height:28px;">Upload Excel file</span><br />                                                  
 									                <asp:FileUpload id="FileUpload1" runat="server" size="60"/>
 									            </td>
+
+
                                             </tr>
                                            
                                             <tr>
 											    <td class="style1">
 									               <asp:Button ID="ButtonUpload" runat="server" onclick="UploadExcel" 
                                                         CssClass="btn_upload" BorderStyle="None" />
-									            </td>
+									            
+                                              
+									           
 										    </tr>
-                                            
                                             <tr>
 											    <td>
                                                     <span style="font-size:13px; font-weight:bold;line-height:28px;"> 
                                                         <asp:Label ID="LblUploadStatus" runat="server" Visible="true"></asp:Label></span><br />
 									               
                                                 </td>
+										    </tr>
+
+                                            <tr>
+											    <td class="style1">
+									               <asp:Button ID="Button2" runat="server" onclick="ExportExcel" 
+                                                        CssClass="btn_export_excel" BorderStyle="None" Visible="true"/>
+									            </td>
 										    </tr>
 									    </table>
                                     </td>

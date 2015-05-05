@@ -64,11 +64,21 @@ namespace ElasticSearchFeeder.IndexBuilders
             foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
             {
                 string indexAnalyzer, searchAnalyzer;
+                string autocompleteIndexAnalyzer = null;
+                string autocompleteSearchAnalyzer = null;
 
-                if (ElasticSearchApi.AnalyzerExists(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code)))
+                string analyzerDefinitionName= ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+
+                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
                     indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
                     searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+
+                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
+                    {
+                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
+                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    }
                 }
                 else
                 {
@@ -77,7 +87,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                     Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
                 }
 
-                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer);
+                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
 
@@ -367,32 +377,28 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                         #region - get regions of media
 
-                        // Only if regionalization is enabled
-                        if (oGroup.isRegionalizationEnabled)
+                        // Regions table should be 6h on stored procedure
+                        if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
                         {
-                            // Regions table should be 6h on stored procedure
-                            if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
+                            foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
                             {
-                                foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
-                                {
-                                    int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
-                                    int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
+                                int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
+                                int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
 
-                                    // Accumulate region ids in list
-                                    medias[mediaId].regions.Add(regionId);
-                                }
-                            }
-
-                            // If no regions were found for this media - use 0, that indicates that the media is region-less
-                            foreach (Media media in medias.Values)
-                            {
-                                if (media.regions.Count == 0)
-                                {
-                                    media.regions.Add(0);
-                                }
+                                // Accumulate region ids in list
+                                medias[mediaId].regions.Add(regionId);
                             }
                         }
-                    
+
+                        // If no regions were found for this media - use 0, that indicates that the media is region-less
+                        foreach (Media media in medias.Values)
+                        {
+                            if (media.regions.Count == 0)
+                            {
+                                media.regions.Add(0);
+                            }
+                        }
+
 
                         #endregion
 
@@ -419,7 +425,10 @@ namespace ElasticSearchFeeder.IndexBuilders
                                                 medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
                                             }
 
-                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                            {
+                                                medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            }
                                         }
                                     }
                                 }
@@ -544,7 +553,6 @@ namespace ElasticSearchFeeder.IndexBuilders
                     }
 
                 }
-
             }
             catch (Exception ex)
             {
@@ -560,7 +568,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
+            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
             searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
