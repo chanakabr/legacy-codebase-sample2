@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="ArrayOfEpgResultsObj">
     <xs:sequence>
@@ -16,6 +16,19 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="EpgResultsObj" nillable="true" type="tns:EpgResultsObj" />
+  <xs:complexType name="ArrayOfSearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
+  <xs:complexType name="SearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="assetID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
   <xs:complexType name="OrderObj">
     <xs:sequence>
       <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
@@ -151,13 +164,6 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="UnifiedSearchResult" nillable="true" type="tns:UnifiedSearchResult" />
-  <xs:complexType name="SearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="assetID" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
   <xs:simpleType name="AssetType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Unknown">
@@ -172,10 +178,4 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="AssetType" nillable="true" type="tns:AssetType" />
-  <xs:complexType name="ArrayOfSearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
 </xs:schema>

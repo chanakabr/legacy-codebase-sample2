@@ -12,6 +12,7 @@
       <xs:element minOccurs="0" name="AssetTypeId" type="xs:int" />
       <xs:element minOccurs="0" name="AssetUpdatedDate" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Duration" type="xs:int" />
+      <xs:element minOccurs="0" name="IsFinishedWatching" type="xs:boolean" />
       <xs:element minOccurs="0" name="LastWatch" type="xs:long" />
       <xs:element minOccurs="0" name="Location" type="xs:int" />
       <xs:element minOccurs="0" name="UserID" type="xs:int" />

@@ -17,11 +17,19 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="RealTimeViewsItem" nillable="true" type="tns:RealTimeViewsItem" />
-  <xs:complexType name="SlidingWindowItem">
+  <xs:complexType name="OrcaItem">
     <xs:complexContent mixed="false">
       <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q2:BaseCrowdsourceItem">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
+  <xs:complexType name="SlidingWindowItem">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q3:BaseCrowdsourceItem">
         <xs:sequence>
-          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q3:OrderBy" />
+          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q4:OrderBy" />
           <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
           <xs:element minOccurs="0" name="Period" type="xs:int" />
@@ -32,12 +40,4 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="SlidingWindowItem" nillable="true" type="tns:SlidingWindowItem" />
-  <xs:complexType name="OrcaItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q4:BaseCrowdsourceItem">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
 </xs:schema>
