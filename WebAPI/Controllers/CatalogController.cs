@@ -35,7 +35,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
                 search_assets.PageIndex, search_assets.PageSize, search_assets.Filter, search_assets.OrderBy, search_assets.FilterTypes, search_assets.With);
             }

@@ -20,8 +20,6 @@ namespace WebAPI.Controllers
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            return;
-
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
             //TODO: Change from checking emptiness to real KS structure / expiration
             if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).IsValid)
@@ -32,6 +30,8 @@ namespace WebAPI.Controllers
                 res.ReasonPhrase = "Unauthorized";
                 return;
             }
+
+            actionContext.Request.Properties.Add("KS", ks);
 
             base.OnAuthorization(actionContext);
         }

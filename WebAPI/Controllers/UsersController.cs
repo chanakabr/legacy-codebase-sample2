@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
             //User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
 
 
-            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).Value;
+            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).ToString();
         }
     }
 }
