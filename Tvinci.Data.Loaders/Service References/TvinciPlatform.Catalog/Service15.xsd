@@ -156,8 +156,8 @@
   <xs:element name="RecordedSeriesObject" nillable="true" type="tns:RecordedSeriesObject" />
   <xs:simpleType name="eWatchStatus">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="Started" />
-      <xs:enumeration value="Finished" />
+      <xs:enumeration value="Progress" />
+      <xs:enumeration value="Done" />
       <xs:enumeration value="All" />
     </xs:restriction>
   </xs:simpleType>

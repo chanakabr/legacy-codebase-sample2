@@ -3688,10 +3688,10 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     public enum eWatchStatus : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Started = 0,
+        Progress = 0,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Finished = 1,
+        Done = 1,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         All = 2,
