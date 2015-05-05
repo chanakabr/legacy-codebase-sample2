@@ -1538,7 +1538,7 @@ namespace Tvinci.Core.DAL
 
             // build date filter
             long minFilterdate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-numOfDays));
-            long maxFilterDate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow); ;
+            long maxFilterDate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow); 
 
             try
             {
@@ -1555,13 +1555,25 @@ namespace Tvinci.Core.DAL
                         case eWatchStatus.Started:
 
                             unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) < finishedPercent);
+                            unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
                             break;
 
                         case eWatchStatus.Finished:
                             unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) >= finishedPercent);
+                            unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
                             break;
 
                         case eWatchStatus.All:
+
+                            foreach (var item in unFilteredresult)
+                            {
+                                if ((item.Location / item.Duration * 100) >= finishedPercent)
+                                    item.IsFinishedWatching = true;
+                                else
+                                    item.IsFinishedWatching = false;
+                            }
+                            break;
+
                         default:
                             break;
                     }

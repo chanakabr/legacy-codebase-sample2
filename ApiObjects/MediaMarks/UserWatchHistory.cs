@@ -26,7 +26,8 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("assetTypeId")]
         public int AssetTypeId { get; set; }
 
-        [JsonProperty("update_date")]
         public DateTime AssetUpdatedDate { get; set; }
+
+        public bool IsFinishedWatching { get; set; }
     }
 }

@@ -60,6 +60,7 @@ namespace Catalog
                 response.result = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, FilterStatus, NumOfDays, OrderDir, m_nPageIndex, m_nPageSize, FINISHED_PERCENT_THRESHOLD, out totalItems);
                 response.m_nTotalItems = totalItems;
                 response.status.Code = (int)eResponseStatus.OK;
+                response.status.Message = eResponseStatus.OK.ToString();
 
                 // get last updated date of media (exclude NPVR)
                 if (response != null && response.result != null && response.result.Count() > 0)
