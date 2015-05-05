@@ -1538,7 +1538,7 @@ namespace Tvinci.Core.DAL
 
             // build date filter
             long minFilterdate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-numOfDays));
-            long maxFilterDate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow); 
+            long maxFilterDate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             try
             {
@@ -1579,7 +1579,8 @@ namespace Tvinci.Core.DAL
                     }
 
                     // filter asset types
-                    unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+                    if (assetTypes != null && assetTypes.Count > 0)
+                        unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
 
                     // order list
                     switch (orderDir)
