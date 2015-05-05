@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using ApiObjects.MediaMarks;
 
 namespace Catalog
 {
@@ -13,18 +14,15 @@ namespace Catalog
     [DataContract]
     public class WatchHistoryResponse : BaseResponse
     {
-        /// <summary>
-        /// List of unified search results: id, type, update date
-        /// </summary>
         [DataMember]
-        public List<UnifiedSearchResult> searchResults;
+        public List<UserWatchHistory> result;
 
         [DataMember]
         public ApiObjects.Response.Status status;
 
         public WatchHistoryResponse()
         {
-            searchResults = new List<UnifiedSearchResult>();
+            result = new List<UserWatchHistory>();
             status = new ApiObjects.Response.Status();
         }
     }

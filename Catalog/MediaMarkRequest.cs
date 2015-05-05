@@ -163,14 +163,14 @@ namespace Catalog
                     {
                         nPlay = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                           fileDuration, mediaMarkAction.ToString(), nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                           fileDuration, mediaMarkAction.ToString(), (int)eAssetFilterTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         break;
                     }
                 case MediaPlayActions.STOP:
                     {
                         nStop = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                            fileDuration, mediaMarkAction.ToString(), 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                            fileDuration, mediaMarkAction.ToString(), (int)eAssetFilterTypes.NPVR, 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         break;
                     }
                 case MediaPlayActions.PAUSE:
@@ -179,14 +179,14 @@ namespace Catalog
                         if (!string.IsNullOrEmpty(this.m_oMediaPlayRequestData.m_sNpvrID))
                         {
                             Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                                fileDuration, mediaMarkAction.ToString(), 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                                fileDuration, mediaMarkAction.ToString(), (int)eAssetFilterTypes.NPVR, 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         }
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         nFinish = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)eAssetFilterTypes.NPVR, 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         break;
                     }
                 case MediaPlayActions.FULL_SCREEN:
@@ -212,7 +212,7 @@ namespace Catalog
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(),
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)eAssetFilterTypes.NPVR,
                             nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         break;
                     }
@@ -227,7 +227,7 @@ namespace Catalog
                     {
                         nSwoosh = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(),
-                            0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                           (int)eAssetFilterTypes.NPVR, 0, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
                         break;
                     }
             }
@@ -293,7 +293,7 @@ namespace Catalog
                     bool isError = false;
                     bool isConcurrent = false;
                     HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration);
+                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
@@ -364,7 +364,7 @@ namespace Catalog
         }
 
         private void HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
-                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration)
+                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration, ref int mediaTypeId)
         {
             if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
             {
@@ -405,7 +405,7 @@ namespace Catalog
                 case MediaPlayActions.STOP:
                     {
                         nStop = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString());
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId);
                         break;
                     }
                 case MediaPlayActions.PAUSE:
@@ -413,14 +413,14 @@ namespace Catalog
                         nPause = 1;
                         if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
                         {
-                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString());
+                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId);
                         }
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         nFinish = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString());
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId);
                         break;
                     }
                 case MediaPlayActions.FULL_SCREEN:
@@ -475,7 +475,7 @@ namespace Catalog
                 case MediaPlayActions.SWOOSH:
                     {
                         nSwoosh = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString());
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId);
                         break;
                     }
             }

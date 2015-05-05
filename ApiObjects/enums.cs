@@ -86,8 +86,11 @@ namespace ApiObjects
     [Serializable]
     public enum eCaSystem
     {
+        [EnumMember]
         OTT = 0,
-        OVP = 1,
+
+        [EnumMember]
+        OVP = 1
     }
 
     [Serializable]
@@ -303,8 +306,13 @@ namespace ApiObjects
     [Serializable]
     public enum eWatchStatus
     {
+        [EnumMember]
         Started,
+
+        [EnumMember]
         Finished,
+
+        [EnumMember]
         All
     }
 }

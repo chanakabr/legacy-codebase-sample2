@@ -554,6 +554,7 @@ namespace Tvinci.Core.DAL
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
+            DateTime currentDate = DateTime.UtcNow;
 
             while (limitRetries >= 0)
             {
@@ -566,16 +567,17 @@ namespace Tvinci.Core.DAL
                     UDID = sUDID,
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                     playType = ePlayType.MEDIA.ToString(),
                     FileDuration = fileDuration,
                     AssetAction = action,
-                    MediaTypeId = mediaTypeId
+                    AssetTypeId = mediaTypeId
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
 
-                //Create new if doesnt exist
+                //Create new if doesn't exist
                 if (data.Result == null)
                 {
                     mm.devices = new List<UserMediaMark>();
@@ -614,10 +616,12 @@ namespace Tvinci.Core.DAL
                     UDID = sUDID,
                     MediaID = nMediaID,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                     playType = ePlayType.MEDIA.ToString(),
                     FileDuration = fileDuration,
-                    AssetAction = action
+                    AssetAction = action,
+                    AssetTypeId = mediaTypeId
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -1511,111 +1515,90 @@ namespace Tvinci.Core.DAL
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            var lastWatchViews = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_watch_history")
-                                           .StartKey(new object[] { usersList, 0, DateTime.MinValue })
-                                            .EndKey(new object[] { usersList, 100, DateTime.MaxValue });
+            List<UserWatchHistory> lastWatchViews = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                                           .StartKey(new object[] { usersList, 0 })
+                                            .EndKey(new object[] { usersList, string.Empty }).ToList();
 
-            UserWatchHistory watchHistory = new UserWatchHistory();
             foreach (var view in lastWatchViews)
             {
-                string viewValue = view.Info["value"].ToString();
-                watchHistory = JsonConvert.DeserializeObject<UserWatchHistory>(viewValue);
-
-
-                if (!dictMediaUsersCount.ContainsKey(watchHistory.MediaId))
-                    dictMediaUsersCount.Add(watchHistory.MediaId, 1);
+                if (!dictMediaUsersCount.ContainsKey(view.AssetId))
+                    dictMediaUsersCount.Add(view.AssetId, 1);
                 else
-                    dictMediaUsersCount[watchHistory.MediaId]++;
+                    dictMediaUsersCount[view.AssetId]++;
             }
 
             return dictMediaUsersCount;
         }
 
-        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, eWatchStatus filterStatus, int numOfDays, int page_index, int page_size, OrderDir orderDir)
+        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            totalItems = 0;
 
             // build date filter
-            DateTime date = DateTime.Now.AddDays(-numOfDays);
+            long minFilterdate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-numOfDays));
+            long maxFilterDate = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow); ;
 
-            // build status filter
-            float minStartedWatching = 0;
-            float maxStartedWatching = 0;
-            switch (filterStatus)
-            {
-                case eWatchStatus.Started:
-                    minStartedWatching = 0.01f;
-                    maxStartedWatching = 99.9f;
-                    break;
-                case eWatchStatus.Finished:
-                    minStartedWatching = 100;
-                    maxStartedWatching = 100;
-                    break;
-                case eWatchStatus.All:
-                    minStartedWatching = 0;
-                    maxStartedWatching = 100;
-                    break;
-                default:
-                    break;
-            }
-
-            // get views
             try
             {
-                var lastWatchViews = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_watch_history")
-                                              .StartKey(new object[] { siteGuid, minStartedWatching, date })
-                                              .EndKey(new object[] { siteGuid, maxStartedWatching, DateTime.Now.AddDays(1) });
+                // get views
+                List<UserWatchHistory> unFilteredresult = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                                              .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
+                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).ToList();
 
-                // create user watch list
-                List<UserWatchHistory> unFilteredresult = new  List<UserWatchHistory>();
-                foreach (var view in lastWatchViews)
-                    unFilteredresult.Add(JsonConvert.DeserializeObject<UserWatchHistory>(view.Info["value"].ToString()));
-
-
-                // filter asset types
-
-                unFilteredresult = unFilteredresult.Where( x => assetTypes.Contains(x.MediaTypeId)).ToList();
-                        //bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
-
-                foreach (var filterType in assetTypes)
-	            {
-                    bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
-
-		            if (filterType == (int)eAssetFilterTypes.NPVR)
-                    {
-                    }
-                    else
-                    {
-                        unFilteredresult = unFilteredresult.AddRange( x => assetTypes.SelectMany(y=>y == x
-                        bool hasMatch = myStrings.Any(x => parameters.Any(y => y.source == x));
-                    }
-	            }
-                usersWatchHistory.RemoveAll(x=>x.MediaTypeId 
-
-
-
-                // direction
-                switch (orderDir)
+                if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
-                    case OrderDir.ASC:
-                        usersWatchHistory = usersWatchHistory.OrderBy(x => x.LastWatch).ToList();
-                        break;
-                    case OrderDir.DESC:
-                    case OrderDir.NONE:
-                    default:
-                        usersWatchHistory = usersWatchHistory.OrderByDescending(x => x.LastWatch).ToList();
-                        break;
+                    // filter status 
+                    switch (filterStatus)
+                    {
+                        case eWatchStatus.Started:
+
+                            unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) < finishedPercent);
+                            break;
+
+                        case eWatchStatus.Finished:
+                            unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) >= finishedPercent);
+                            break;
+
+                        case eWatchStatus.All:
+                        default:
+                            break;
+                    }
+
+                    // filter asset types
+                    unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+
+                    // order list
+                    switch (orderDir)
+                    {
+                        case OrderDir.ASC:
+
+                            unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
+                            break;
+
+                        case OrderDir.DESC:
+                        case OrderDir.NONE:
+                        default:
+
+                            unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
+                            break;
+                    }
+
+                    // update total items
+                    totalItems = unFilteredresult.Count;
+
+                    // page index 
+                    usersWatchHistory = unFilteredresult.Skip(pageSize * pageIndex).Take(pageSize).ToList();
                 }
-
-
             }
             catch (Exception ex)
             {
-                // NO LOG IN THIS DAMN CLASS!!!!!!!
+                // ASK IRA. NO LOG IN THIS DAMN CLASS !!!
                 throw ex;
             }
 
+            return usersWatchHistory;
         }
 
 
@@ -2263,6 +2246,8 @@ namespace Tvinci.Core.DAL
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
+            DateTime currentDate = DateTime.UtcNow;
+
             #region add data to domain
             while (limitRetries >= 0)
             {
@@ -2276,12 +2261,13 @@ namespace Tvinci.Core.DAL
                     UDID = sUDID,
                     MediaID = 0,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                     playType = ApiObjects.ePlayType.NPVR.ToString(),
                     NpvrID = sNpvrID,
                     AssetAction = action,
                     FileDuration = fileDuration,
-                    MediaTypeId = -1
+                    AssetTypeId = (int)eAssetFilterTypes.NPVR
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
@@ -2326,11 +2312,13 @@ namespace Tvinci.Core.DAL
                     UDID = sUDID,
                     MediaID = 0,
                     UserID = nSiteUserGuid,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                     playType = ePlayType.NPVR.ToString(),
                     NpvrID = sNpvrID,
                     AssetAction = action,
-                    FileDuration = fileDuration
+                    FileDuration = fileDuration,
+                    AssetTypeId = (int)eAssetFilterTypes.NPVR
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();

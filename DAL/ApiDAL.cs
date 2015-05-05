@@ -970,8 +970,8 @@ namespace DAL
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0 , DateTime.MinValue})
-                                            .EndKey(new object[] { nSiteGuid, 100, DateTime.MaxValue });
+                                            .StartKey(new object[] { nSiteGuid, 0 })
+                                            .EndKey(new object[] { nSiteGuid, string.Empty });
 
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
@@ -1028,8 +1028,8 @@ namespace DAL
                 if (lMediaIDs.Count == 0)
                 {
                     var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0, DateTime.MinValue })
-                                            .EndKey(new object[] { nSiteGuid, 100, DateTime.MaxValue });
+                                            .StartKey(new object[] { nSiteGuid, 0 })
+                                            .EndKey(new object[] { nSiteGuid, string.Empty });
 
                     List<MediaMarkLog> sortedMediaMarksList = res.ToList();
 

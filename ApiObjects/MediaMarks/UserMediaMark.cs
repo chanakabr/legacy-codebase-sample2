@@ -29,7 +29,7 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("playType", Required = Required.Default)]
         public string playType { get; set; }
 
-        // duration and action added - Maverick
+        // duration, action, assetTypeId, ts_epoch added - Maverick
 
         [JsonProperty("duration")]
         public int FileDuration { get; set; }
@@ -37,8 +37,11 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("action")]
         public string AssetAction { get; set; }
 
-        [JsonProperty("mediaTypeId")]
-        public int MediaTypeId { get; set; }
+        [JsonProperty("assetTypeId")]
+        public int AssetTypeId { get; set; }
+
+        [JsonProperty("ts_epoch")]
+        public long CreatedAtEpoch { get; set; }
 
         public UserMediaMark()
         {

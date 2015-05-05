@@ -11,8 +11,8 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("uid")]
         public int UserID { get; set; }
 
-        [JsonProperty("mid")]
-        public int MediaId { get; set; }
+        [JsonProperty("assetId")]
+        public int AssetId { get; set; }
 
         [JsonProperty("loc")]
         public int Location { get; set; }
@@ -21,12 +21,12 @@ namespace ApiObjects.MediaMarks
         public int Duration { get; set; }
 
         [JsonProperty("ts")]
-        public DateTime LastWatch { get; set; }
+        public long LastWatch { get; set; }
 
-        [JsonProperty("pt")]
-        public ePlayType PlayType { get; set; }
+        [JsonProperty("assetTypeId")]
+        public int AssetTypeId { get; set; }
 
-        [JsonProperty("mtid")]
-        public int MediaTypeId { get; set; }
+        [JsonProperty("update_date")]
+        public DateTime AssetUpdatedDate { get; set; }
     }
 }
