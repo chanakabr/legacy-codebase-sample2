@@ -197,7 +197,7 @@ namespace Catalog
                     m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
 
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId);
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
