@@ -1554,12 +1554,12 @@ namespace Tvinci.Core.DAL
                     {
                         case eWatchStatus.Progress:
 
-                            unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) < finishedPercent);
+                            unFilteredresult.RemoveAll(x => ((float)x.Location / (float)x.Duration * 100) < finishedPercent);
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
                             break;
 
                         case eWatchStatus.Done:
-                            unFilteredresult.RemoveAll(x => (x.Location / x.Duration * 100) >= finishedPercent);
+                            unFilteredresult.RemoveAll(x => ((float)x.Location / (float)x.Duration * 100) >= finishedPercent);
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
                             break;
 
@@ -1567,7 +1567,7 @@ namespace Tvinci.Core.DAL
 
                             foreach (var item in unFilteredresult)
                             {
-                                if ((item.Location / item.Duration * 100) >= finishedPercent)
+                                if (((float)item.Location / (float)item.Duration * 100) >= finishedPercent)
                                     item.IsFinishedWatching = true;
                                 else
                                     item.IsFinishedWatching = false;
