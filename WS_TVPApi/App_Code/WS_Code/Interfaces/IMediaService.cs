@@ -13,6 +13,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Objects;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -273,6 +274,9 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by, List<string> with, int page_index, int? page_size);
+
+        [OperationContract]
+        WatchHistory WatchHistory(InitializationObject initObj, List<int> filter_types, eWatchStatus filter_status, int? days, List<string> with, int? page_index, int page_size);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.AutocompleteResponse Autocomplete(InitializationObject initObj, List<int> filter_types, string query, string order_by, List<string> with, int? page_size);
