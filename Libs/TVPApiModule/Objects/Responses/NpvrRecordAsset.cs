@@ -7,7 +7,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class NpvrRecordAsset
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public int Type { get; set; }
     }
 }

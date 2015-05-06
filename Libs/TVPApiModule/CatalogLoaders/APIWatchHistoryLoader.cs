@@ -131,7 +131,7 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     if (watchHistory.AssetTypeId != (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR)
                     {
-                        key = new CacheKey(watchHistory.AssetId, watchHistory.AssetUpdatedDate);
+                        key = new CacheKey(int.Parse(watchHistory.AssetId), watchHistory.AssetUpdatedDate);
                         mediaKeys.Add(key);
                     }
                 }
@@ -257,7 +257,7 @@ namespace TVPApiModule.CatalogLoaders
                 else
                 {
                     // build medias assets objects
-                    media = mediasInfo.Where(m => m != null && m.m_nID == item.AssetId).FirstOrDefault();
+                    media = mediasInfo.Where(m => m != null && m.m_nID == int.Parse(item.AssetId)).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)

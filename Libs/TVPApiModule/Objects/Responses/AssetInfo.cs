@@ -11,7 +11,7 @@ namespace TVPApiModule.Objects.Responses
     public class AssetInfo
     {
         [JsonProperty(PropertyName = "id")]
-        public long Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty(PropertyName = "type")]
         public int Type { get; set; }
@@ -50,7 +50,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (media != null)
             {
-                Id = media.m_nID;
+                Id = media.m_nID.ToString();
                 Name = media.m_sName;
                 Description = media.m_sDescription;
                 StartDate = (long)TimeHelper.ConvertToUnixTimestamp(media.m_dCatalogStartDate);
@@ -125,7 +125,7 @@ namespace TVPApiModule.Objects.Responses
 
         public AssetInfo(EPGChannelProgrammeObject epg)
         {
-            Id = epg.EPG_ID;
+            Id = epg.EPG_ID.ToString();
             Type = 0;
             Name = epg.NAME;
             Description = epg.DESCRIPTION;

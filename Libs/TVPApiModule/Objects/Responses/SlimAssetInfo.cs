@@ -11,7 +11,7 @@ namespace TVPApiModule.Objects.Responses
         #region Data Members
 
         [JsonProperty(PropertyName = "id")]
-        public long Id
+        public string Id
         {
             get;
             set;
@@ -64,7 +64,7 @@ namespace TVPApiModule.Objects.Responses
         /// <param name="name"></param>
         /// <param name="description"></param>
         /// <param name="images"></param>
-        public SlimAssetInfo(long id, int type, string name, string description, List<Image> images)
+        public SlimAssetInfo(string id, int type, string name, string description, List<Image> images)
         {
             this.Id = id;
             this.Type = type;
@@ -82,7 +82,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (media != null)
             {
-                Id = media.m_nID;
+                Id = media.m_nID.ToString();
                 Name = media.m_sName;
                 Description = media.m_sDescription;
 
@@ -112,7 +112,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (epg != null)
             {
-                Id = epg.EPG_ID;
+                Id = epg.EPG_ID.ToString();
                 Type = 0;
                 Name = epg.NAME;
                 Description = epg.DESCRIPTION;
