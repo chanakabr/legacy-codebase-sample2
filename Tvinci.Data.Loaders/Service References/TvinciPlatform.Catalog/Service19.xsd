@@ -8,7 +8,7 @@
   <xs:element name="ArrayOfUserWatchHistory" nillable="true" type="tns:ArrayOfUserWatchHistory" />
   <xs:complexType name="UserWatchHistory">
     <xs:sequence>
-      <xs:element minOccurs="0" name="AssetId" type="xs:int" />
+      <xs:element minOccurs="0" name="AssetId" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="AssetTypeId" type="xs:int" />
       <xs:element minOccurs="0" name="AssetUpdatedDate" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Duration" type="xs:int" />

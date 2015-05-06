@@ -8953,7 +8953,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int AssetIdField;
+        private string AssetIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int AssetTypeIdField;
@@ -8987,12 +8987,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int AssetId {
+        public string AssetId {
             get {
                 return this.AssetIdField;
             }
             set {
-                if ((this.AssetIdField.Equals(value) != true)) {
+                if ((object.ReferenceEquals(this.AssetIdField, value) != true)) {
                     this.AssetIdField = value;
                     this.RaisePropertyChanged("AssetId");
                 }
