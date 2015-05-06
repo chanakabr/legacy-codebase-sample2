@@ -14,11 +14,8 @@ namespace WebAPI.Clients
 {
     public class UsersClient : BaseClient
     {
-        //private readonly ILog logger = LogManager.GetLogger(typeof(UsersClient));
-
         public UsersClient()
         {
-            // TODO: Complete member initialization
         }
        
         protected WebAPI.Users.UsersService Users
@@ -36,7 +33,7 @@ namespace WebAPI.Clients
 
             try
             {
-                //TODO: add parameers
+                //TODO: add parameters
                 UserResponseObject response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
                 user = Mapper.Map<WebAPI.Models.User>(response);
             }

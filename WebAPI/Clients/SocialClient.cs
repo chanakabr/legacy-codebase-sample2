@@ -10,7 +10,6 @@ namespace WebAPI.Clients
     {
         public SocialClient()
         {
-            // TODO: Complete member initialization
         }
 
         protected WebAPI.Social.module Social

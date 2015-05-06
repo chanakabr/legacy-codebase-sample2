@@ -16,14 +16,15 @@ namespace WebAPI.Controllers
     public class CatalogController : ApiController
     {
         [Route("search"), HttpGet]
-        [ApiExplorerSettings(IgnoreApi = true)]
+        //[ApiExplorerSettings(IgnoreApi = true)]
         public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets)
         {
             return PostSearch(group_id, search_assets);
         }
 
         /// <summary>
-        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content
+        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
         /// <param name="search_assets">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
@@ -44,7 +45,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
-                search_assets.PageIndex, search_assets.PageSize, search_assets.Filter, search_assets.OrderBy, search_assets.FilterTypes, search_assets.With);
+                search_assets.page_index, search_assets.page_size, search_assets.filter, search_assets.order_by, search_assets.filter_types, search_assets.with);
             }
             catch (ClientException ex)
             {

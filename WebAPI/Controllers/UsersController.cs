@@ -12,6 +12,7 @@ using System.Web.Http.Description;
 using System.Web.Routing;
 using WebAPI.Clients.Utils;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
 using WebAPI.Utils;
@@ -96,12 +97,30 @@ namespace WebAPI.Controllers
         [Route("sign_in"), HttpPost]
         public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
         {
-            //TODO: do the sign in
-            int groupId = 215;
-            //User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+            //TODO: add parameters
 
+            // TODO: change to something later
+            string data = string.Empty;
 
-            return new KS("fasdfasdf", group_id, "1234", (int)843894398, KS.eUserType.USER).ToString();
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+
+            if (user == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            string adminSecret = GroupsManager.GetGroup(groupId).AdminSecret;
+            
+            //TODO: get real value
+            int expiration = 1462543601;
+
+            return new KS(adminSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         }
     }
 }

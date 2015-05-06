@@ -13,7 +13,7 @@ namespace WebAPI.Managers.Models
     {
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
-        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}";
+        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}_d{4}";
 
         private bool isValid;
         private string encryptedValue;
@@ -22,12 +22,13 @@ namespace WebAPI.Managers.Models
         private eUserType userType;
         private DateTime expiration;
         private string privilege;
+        private string data;
 
         public enum eUserType { USER = 0, ADMIN = 2 }
 
         public bool IsValid
         {
-            get { return isValid; }
+            get { return expiration > DateTime.UtcNow; }
         }
 
         public int GroupId
@@ -55,15 +56,20 @@ namespace WebAPI.Managers.Models
             get { return expiration; }
         }
 
+        public string Data
+        {
+            get { return data; }
+        }
+
         private KS()
         {
         }
 
-        public KS(string adminSecret, string groupID, string userID, int expiration, eUserType userType)
+        public KS(string adminSecret, string groupID, string userID, int expiration, eUserType userType, string data, string privilege)
         {
-            int relativeExpiration = -2020752561;// (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
+            int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
-            string ks = string.Format(KS_FORMAT, "all=*", (int)userType, relativeExpiration, userID);
+            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, data);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = createRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -91,60 +97,18 @@ namespace WebAPI.Managers.Models
             encryptedValue = encodedKs.ToString();
         }
 
-        public static KS CreateKSFromEncoded(string base64Value)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string adminSecret)
         {
-            KS ks = null;
-
-            if (string.IsNullOrEmpty(base64Value))
-            {
-                return null;
-            }
-
-            StringBuilder sb = new StringBuilder(base64Value);
-            sb = sb.Replace("-", "+");
-            sb = sb.Replace("_", "/");
-            byte[] encryptedData = System.Convert.FromBase64String(sb.ToString());
-
-            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-
-            string[] ksParts = encryptedDataStr.Split('|');
-
-            if (ksParts.Length != 3 || ksParts[0] != "v2")
-            {
-                return null;
-            }
-
-            ks = new KS();
-
-            // parse group id
-            if (!int.TryParse(ksParts[1], out ks.groupId))
-            {
-                return null;
-            }
-
-            // get group secret
-            Group group = GroupsManager.GetGroup(ks.groupId);
-            string adminSecret = group.AdminSecret;
+            KS ks = new KS();
+            ks.groupId = groupId;
 
             // decrypt fields
+            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
             int fieldsWithRandomIndex = encryptedDataStr.LastIndexOf('|') + 1;
             byte[] fieldsWithHashBytes = aesDecrypt(adminSecret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
 
-            // Trim Right 0
-            bool isFound = false;
-            fieldsWithHashBytes = fieldsWithHashBytes.Reverse().SkipWhile(x =>
-            {
-                if (isFound) 
-                    return false;
-                if (x == 0)
-                    return true;
-                else
-                {
-                    isFound = true;
-                    return false;
-                }
-            }).Reverse().ToArray();
-
+            // trim Right 0
+            fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
 
             // check hash
             byte[] hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
@@ -158,7 +122,7 @@ namespace WebAPI.Managers.Models
             //parse fields
             string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            if (fields == null || fields.Length != 4)
+            if (fields == null || fields.Length != 5)
             {
                 return null;
             }
@@ -188,18 +152,33 @@ namespace WebAPI.Managers.Models
                         int.TryParse(pair[1], out user);
                         ks.userId = user;
                         break;
+                    case "d":
+                        ks.data = pair[1];
+                        break;
                     default:
                         return null;
                         break;
                 }
             }
 
-            if (ks.expiration > DateTime.UtcNow)
-            {
-                ks.isValid = true;
-            }
-
             return ks;
+        }
+
+        private static byte[] TrimRight(byte[] arr)
+        {
+            bool isFound = false;
+            return arr.Reverse().SkipWhile(x =>
+            {
+                if (isFound)
+                    return false;
+                if (x == 0)
+                    return true;
+                else
+                {
+                    isFound = true;
+                    return false;
+                }
+            }).Reverse().ToArray();
         }
 
         private static byte[] aesDecrypt(string secretForSigning, byte[] text)

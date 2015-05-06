@@ -9,6 +9,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models;
 using AutoMapper;
 using Couchbase.Extensions;
+using WebAPI.Filters;
 
 namespace WebAPI.Managers
 {
@@ -42,6 +43,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception ex)
                     {
+                        throw new InternalServerErrorException();
                     }
                     finally
                     {
@@ -59,6 +61,7 @@ namespace WebAPI.Managers
                 }
                 catch (Exception ex)
                 {
+                    throw new InternalServerErrorException();
                 }
                 finally
                 {
@@ -71,18 +74,22 @@ namespace WebAPI.Managers
 
         private static Group createNewInstance(int groupId)
         {
-            Group result = null;
+            Group group = null;
 
-            result = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(GROUP_KEY_FORMAT, groupId));            
-           
-            //TODO: catch exceptions? null?
-            var languages = ClientsManager.ApiClient().GetGroupLanguages(result.ApiCredentials.Username, result.ApiCredentials.Password);
-            if (languages != null)
+            group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(GROUP_KEY_FORMAT, groupId));
+
+            if (group == null)
             {
-                result.Languages = Mapper.Map<List<Language>>(languages);
+                throw new Exception();
             }
 
-            return result;
+            var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            if (languages != null)
+            {
+                group.Languages = Mapper.Map<List<Language>>(languages);
+            }
+
+            return group;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
-        public List<int> FilterTypes { get; set; }
+        public List<int> filter_types { get; set; }
 
         /// <summary>
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
@@ -25,7 +25,7 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name = "filter")]
         [JsonProperty(PropertyName = "filter")]
-        public string Filter { get; set; }
+        public string filter { get; set; }
 
         /// <summary>
         /// Required sort option to apply for the identified assets. If omitted – will use relevancy.
@@ -33,7 +33,7 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
-        public Order? OrderBy { get; set; }
+        public Order? order_by { get; set; }
 
         /// <summary>
         /// Additional data to return per asset, formatted as a comma-separated array. 
@@ -41,21 +41,21 @@ namespace WebAPI.Models
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        public List<With> With { get; set; }
+        public List<With> with { get; set; }
 
         /// <summary>
         /// Page number to return. If omitted will return first page
         /// </summary>
         [DataMember(Name = "page_size")]
         [JsonProperty(PropertyName = "page_size")]
-        public int PageSize { get; set; }
+        public int? page_size { get; set; }
 
         /// <summary>
         /// Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50
         /// </summary>
         [DataMember(Name = "page_index")]
         [JsonProperty(PropertyName = "page_index")]
-        public int PageIndex { get; set; }
+        public int page_index { get; set; }
 
     }
 }

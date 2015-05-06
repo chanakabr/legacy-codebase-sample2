@@ -10,7 +10,6 @@ namespace WebAPI.Clients
     {
         public PricingClient()
         {
-            // TODO: Complete member initialization
         }
 
         protected WebAPI.Pricing.mdoule Pricing

@@ -16,7 +16,6 @@ namespace WebAPI.Clients
     {
         public ApiClient()
         {
-            // TODO: Complete member initialization
         }
 
         protected WebAPI.Api.API Api

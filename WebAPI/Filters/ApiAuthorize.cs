@@ -22,23 +22,60 @@ namespace WebAPI.Controllers
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            var a= CouchbaseManager.GetInstance(CouchbaseBucket.Groups).StoreJson(Enyim.Caching.Memcached.StoreMode.Set, "oded", new Group() { AdminSecret = "fasdfasdfasdf" });
-            var gro = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>("oded");
-
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
-            //TODO: Change from checking emptiness to real KS structure / expiration
-            if (string.IsNullOrEmpty(ksVal) || !(ks = KS.CreateKSFromEncoded(ksVal)).IsValid)
+            if (string.IsNullOrEmpty(ksVal))
             {
-                HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-                actionContext.Response = res;
-                res.Content = new StringContent(((int)StatusCode.Unauthorized).ToString());
-                res.ReasonPhrase = "Unauthorized";
+                ReturnUnauthorized(actionContext);
                 return;
             }
 
+            StringBuilder sb = new StringBuilder(ksVal);
+            sb = sb.Replace("-", "+");
+            sb = sb.Replace("_", "/");
+            byte[] encryptedData = System.Convert.FromBase64String(sb.ToString());
+
+            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+
+            string[] ksParts = encryptedDataStr.Split('|');
+
+            int groupId = 0;
+            if (ksParts.Length != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+            {
+                ReturnUnauthorized(actionContext);
+                return;
+            }
+
+            // get group secret
+            Group group = GroupsManager.GetGroup(groupId);
+            string adminSecret = group.AdminSecret;
+
+            // build KS
+            try
+            {
+                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
+            }
+            catch (Exception)
+            {
+                ReturnUnauthorized(actionContext);
+                return;
+            }
+
+            if (ks == null)
+            {
+                ReturnUnauthorized(actionContext);
+                return;
+            }
+
+            if (!ks.IsValid)
+            {
+                ReturnForbidden(actionContext);
+                return;
+            }
+            
             actionContext.Request.Properties.Add("KS", ks);
 
             base.OnAuthorization(actionContext);
+
         }
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
@@ -53,6 +90,22 @@ namespace WebAPI.Controllers
             }
 
             return true;
+        }
+
+        private void ReturnUnauthorized(HttpActionContext actionContext)
+        {
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            actionContext.Response = res;
+            res.Content = new StringContent(((int)StatusCode.Unauthorized).ToString());
+            res.ReasonPhrase = "Unauthorized";
+        }
+
+        private void ReturnForbidden(HttpActionContext actionContext)
+        {
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Forbidden);
+            actionContext.Response = res;
+            res.Content = new StringContent(((int)StatusCode.Forbidden).ToString());
+            res.ReasonPhrase = "Forbidden";
         }
     }
 }

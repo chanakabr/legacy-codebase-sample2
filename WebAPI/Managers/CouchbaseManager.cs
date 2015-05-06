@@ -6,10 +6,12 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using WebAPI.Filters;
+using WebAPI.Models;
 
 namespace WebAPI.Managers
 {
-    public enum CouchbaseBucket { Default = 0,  Groups = 1}
+    public enum CouchbaseBucket { Groups = 0}
 
     public class CouchbaseManager
     {
@@ -39,6 +41,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception ex)
                     {
+                        throw new InternalServerErrorException();
                     }
                     finally
                     {
@@ -56,6 +59,7 @@ namespace WebAPI.Managers
                 }
                 catch (Exception ex)
                 {
+                    throw new InternalServerErrorException();
                 }
                 finally
                 {
@@ -69,9 +73,9 @@ namespace WebAPI.Managers
         private static CouchbaseClient createNewInstance(CouchbaseBucket eBucket)
         {
             CouchbaseClient oRes = null;
+
             switch (eBucket)
             {
-                case CouchbaseBucket.Default:
                 case CouchbaseBucket.Groups:
                     var grpupsBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
                     oRes = new CouchbaseClient(grpupsBucketSection);
