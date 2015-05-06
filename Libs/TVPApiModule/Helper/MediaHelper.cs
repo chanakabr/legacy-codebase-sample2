@@ -933,7 +933,9 @@ namespace TVPApi
                     break;
                 case LoaderType.LastWatched:
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-                    mediaInfo = new APILastWatchedLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, Language = initObj.Locale.LocaleLanguage }.Execute();
+                    APILastWatchedLoader lastWatchedLoader = new APILastWatchedLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, Language = initObj.Locale.LocaleLanguage };
+                    mediaInfo = lastWatchedLoader.Execute();
+                    lastWatchedLoader.TryGetItemsCount(out mediaCount);
                     isPaged = true;
                     break;
                 case LoaderType.Recommended:
@@ -986,7 +988,8 @@ namespace TVPApi
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
                 {
-                    retVal.Add(new Media(row, initObj, groupID, false, mediaCount));
+                    Media media = new Media(row, initObj, groupID, false, mediaCount);
+                    retVal.Add(media);
                 }
             }
             return retVal;

@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatalogLoaders\APIAutocompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
@@ -196,6 +197,7 @@
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\WatchHistory.cs" />
+    <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
     <Compile Include="Objects\Responses\File.cs" />
@@ -203,12 +205,15 @@
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
     <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
+    <Compile Include="Objects\Responses\PinCodeResponse.cs" />
     <Compile Include="Objects\Responses\Region.cs" />
     <Compile Include="Objects\Responses\RegionsResponse.cs" />
     <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />
     <Compile Include="Objects\Responses\ServiceObject.cs" />
     <Compile Include="Objects\Responses\ServicesResponse.cs" />
+    <Compile Include="Objects\Responses\SignInResponse.cs" />
+    <Compile Include="Objects\Responses\SlimAssetInfo.cs" />
     <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\UnifiedSearchResponse.cs" />

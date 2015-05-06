@@ -504,7 +504,9 @@ namespace TVPApiServices
                 {
                     List<Media> lstMedia = GetUserSocialMedias(initObj, socialPlatform, socialAction, "full", 20, 0);
 
-                    bRet = (from r in lstMedia where r.MediaID.Equals(sMediaID) select true).FirstOrDefault();
+                    bRet = (from r in lstMedia
+                            where r.MediaID.Equals(sMediaID)
+                            select true).FirstOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -1079,7 +1081,8 @@ namespace TVPApiServices
 
                 foreach (String sTitle in lstResponse)
                 {
-                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                    if (sTitle.ToLower().StartsWith(prefixText.ToLower()))
+                        lstRet.Add(sTitle);
                 }
                 retVal = lstRet.ToArray();
             }
@@ -1105,7 +1108,8 @@ namespace TVPApiServices
 
                 foreach (String sTitle in lstResponse)
                 {
-                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                    if (sTitle.ToLower().StartsWith(prefixText.ToLower()))
+                        lstRet.Add(sTitle);
                 }
                 retVal = lstRet.ToArray();
             }
@@ -2792,7 +2796,8 @@ namespace TVPApiServices
                     DateTime _startTime, _endTime;
 
                     _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"])); ;
+                    _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    ;
 
                     retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
@@ -2968,7 +2973,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                    {
+                        m_eOrderDir = orderDir,
+                        m_eOrderBy = orderBy
+                    };
                     APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType)
                         {
                             Culture = initObj.Locale.LocaleLanguage,
@@ -3204,44 +3213,23 @@ namespace TVPApiServices
 
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
 
-                    if (!string.IsNullOrEmpty(order_by))
+                    if (string.IsNullOrEmpty(order_by))
                     {
-                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj();
-
-                        switch (order_by.ToLower())
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
-                            case "a_to_z":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
-                                order.m_eOrderDir = OrderDir.ASC;
-                                break;
-                            case "z_to_a":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            case "views":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            case "ratings":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            case "votes":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VOTES_COUNT;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            case "newest":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            case "relevancy":
-                                order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
-                                order.m_eOrderDir = OrderDir.DESC;
-                                break;
-                            default:
-                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
-                                response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
-                                return response;
+                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NONE,
+                            m_eOrderDir = OrderDir.DESC
+                        };
+                    }
+                    else
+                    {
+                        order = CreateOrderObject(order_by);
+
+                        if (order == null)
+                        {
+                            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                            response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
+                            return response;
                         }
                     }
 
@@ -3266,6 +3254,138 @@ namespace TVPApiServices
                 response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Translates the order by string to the corresponding enum
+        /// </summary>
+        /// <param name="order_by"></param>
+        /// <returns></returns>
+        private static Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj CreateOrderObject(string order_by)
+        {
+            string orderBy = order_by.ToLower();
+
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj();
+
+            switch (orderBy)
+            {
+                case "a_to_z":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                    order.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case "z_to_a":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "views":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "ratings":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "votes":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VOTES_COUNT;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "newest":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "relevancy":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case "likes":
+                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.LIKE_COUNTER;
+                    order.m_eOrderDir = OrderDir.DESC;
+                    break;
+                default:
+                    order = null;
+                    break;
+            }
+
+            return order;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Autocomplete search Media and EPG")]
+        public TVPApiModule.Objects.Responses.AutocompleteResponse Autocomplete(InitializationObject initObj, List<int> filter_types,
+            string query, string order_by, List<string> with, int? page_size)
+        {
+            TVPApiModule.Objects.Responses.AutocompleteResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "Autocomplete", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    // Page size rules - according to spec.  10>=size>=1 is valid. default is 5.
+                    if (page_size == null || page_size > 10 || page_size < 1)
+                    {
+                        page_size = 5;
+                    }
+
+                    // Translate order by string to order object
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
+
+                    if (string.IsNullOrEmpty(order_by))
+                    {
+                        order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                        {
+                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE,
+                            m_eOrderDir = OrderDir.DESC
+                        };
+                    }
+                    else
+                    {
+                        order = CreateOrderObject(order_by);
+
+                        if (order == null)
+                        {
+                            response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                            response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
+                            return response;
+                        }
+                    }
+
+                    // Create our own filter - only search in title
+                    string filter = string.Format("(and name^'{0}')", query);
+
+                    object executedRespone = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
+                        filter_types, filter, with)
+                    {
+                        Order = order,
+                        SiteGuid = initObj.SiteGuid,
+                        DomainId = initObj.DomainID
+                    }.Execute();
+
+                    if (executedRespone is AutocompleteResponse)
+                    {
+                        response = executedRespone as AutocompleteResponse;
+                    }
+                    else if (executedRespone is TVPApiModule.Objects.Responses.UnifiedSearchResponse)
+                    {
+                        response = new AutocompleteResponse(executedRespone as TVPApiModule.Objects.Responses.UnifiedSearchResponse);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
             return response;
         }
 
@@ -3341,5 +3461,6 @@ namespace TVPApiServices
 
             return response;
         }
+
     }
 }

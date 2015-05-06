@@ -15,9 +15,9 @@ namespace TVPApiModule.CatalogLoaders
 {
     public class APIUnifiedSearchLoader : CatalogRequestManager
     {
-        private const string MEDIA_CACHE_KEY_PREFIX = "media";
-        private const string EPG_CACHE_KEY_PREFIX = "epg";
-        private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
+        protected const string MEDIA_CACHE_KEY_PREFIX = "media";
+        protected const string EPG_CACHE_KEY_PREFIX = "epg";
+        protected const string CACHE_KEY_FORMAT = "{0}_lng{1}";
 
         private static ILog logger = log4net.LogManager.GetLogger(typeof(APIUnifiedSearchLoader));
 
@@ -151,31 +151,10 @@ namespace TVPApiModule.CatalogLoaders
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
 
-                List<MediaObj> medias = null;
-                List<ProgramObj> epgs = null;
-                List<long> missingMediaIds = null;
-                List<long> missingEpgIds = null;
+                List<MediaObj> medias;
+                List<ProgramObj> epgs;
 
-                if (!GetAssetsFromCache(response.searchResults, out medias, out epgs, out missingMediaIds, out missingEpgIds)) 
-                {
-                    List<MediaObj> mediasFromCatalog;
-                    List<ProgramObj> epgsFromCatalog;
-                    GetAssetsFromCatalog(missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
-                    
-                    // Append the medias from Catalog to the medias from cache
-                    if (medias == null && mediasFromCatalog != null) 
-                    {
-                        medias = new List<MediaObj>();
-                    }
-                    medias.AddRange(mediasFromCatalog);
-
-                    // Append the epgs from Catalog to the epgs from cache
-                    if (epgs == null && epgsFromCatalog != null)
-                    {
-                        epgs = new List<ProgramObj>();
-                    }
-                    epgs.AddRange(epgsFromCatalog);
-                }
+                GetAssets(cacheKey, response, out medias, out epgs);
 
                 result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
             }
@@ -187,9 +166,51 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
+        /// <summary>
+        /// Gets media and epg objects according to list of Ids from search result
+        /// </summary>
+        /// <param name="cacheKey"></param>
+        /// <param name="response"></param>
+        /// <param name="medias"></param>
+        /// <param name="epgs"></param>
+        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
+        {
+            // Insert the UnifiedSearchResponse to cache for failover support
+            CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
+
+            medias = null;
+            epgs = null;
+            List<long> missingMediaIds = null;
+            List<long> missingEpgIds = null;
+
+            if (!GetAssetsFromCache(response.searchResults, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+            {
+                List<MediaObj> mediasFromCatalog;
+                List<ProgramObj> epgsFromCatalog;
+
+                GetAssetsFromCatalog(missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+
+                // Append the medias from Catalog to the medias from cache
+                if (medias == null && mediasFromCatalog != null)
+                {
+                    medias = new List<MediaObj>();
+                }
+
+                medias.AddRange(mediasFromCatalog);
+
+                // Append the epgs from Catalog to the epgs from cache
+                if (epgs == null && epgsFromCatalog != null)
+                {
+                    epgs = new List<ProgramObj>();
+                }
+
+                epgs.AddRange(epgsFromCatalog);
+            }
+        }
+
         // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
         // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        private List<AssetInfo> OrderAndCompleteResults(List<UnifiedSearchResult> order, List<MediaObj> medias, List<ProgramObj> epgs)
+        protected List<AssetInfo> OrderAndCompleteResults(List<UnifiedSearchResult> order, List<MediaObj> medias, List<ProgramObj> epgs)
         {
             List<AssetInfo> result = null;
 
@@ -271,7 +292,7 @@ namespace TVPApiModule.CatalogLoaders
             return result; 
         }
 
-        private void GetAssetsFromCatalog(List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
+        protected void GetAssetsFromCatalog(List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
         {
             mediasFromCatalog = null;
             epgsFromCatalog = null;
@@ -359,7 +380,7 @@ namespace TVPApiModule.CatalogLoaders
 
         // Gets medias and epgs from cache
         // Returns true if all assets were found in cache, false if at least one is missing or not up to date
-        private bool GetAssetsFromCache(List<UnifiedSearchResult> ids, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
+        protected bool GetAssetsFromCache(List<UnifiedSearchResult> ids, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
         {
             bool result = true;
             medias = null;

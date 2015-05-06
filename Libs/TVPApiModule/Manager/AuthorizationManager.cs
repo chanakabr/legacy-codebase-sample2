@@ -18,14 +18,14 @@ namespace TVPApiModule.Manager
     public class AuthorizationManager
     {
         private static ILog logger = log4net.LogManager.GetLogger(typeof(AuthorizationManager));
-        
+
         private static long deviceTokenExpirationSeconds;
         private static long accessTokenExpirationSeconds;
         private static long refreshTokenExpirationSeconds;
 
         private static string _key { get; set; }
         private static string _iv { get; set; }
-         
+
         private static GenericCouchbaseClient _client;
 
         private static ReaderWriterLockSlim _lock;
@@ -145,7 +145,7 @@ namespace TVPApiModule.Manager
             return appCredentials;
         }
 
-        
+
 
         public string GenerateDeviceToken(string udid, string appId)
         {
@@ -169,7 +169,7 @@ namespace TVPApiModule.Manager
             // generate device token
             DeviceToken deviceToken = new DeviceToken(appCredentials.EncryptedAppId, udid);
             _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(deviceTokenExpirationSeconds));
-            return deviceToken.Token;        
+            return deviceToken.Token;
         }
 
         public object ExchangeDeviceToken(string udid, string appId, string appSecret, string deviceToken)
@@ -182,7 +182,7 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-             // validate app credentials
+            // validate app credentials
             AppCredentials appCredentials = Instance.GetAppCredentials(appId);
             if (appCredentials == null || DecryptData(appCredentials.EncryptedAppSecret) != appSecret)
             {
@@ -251,10 +251,18 @@ namespace TVPApiModule.Manager
             // generate new access token and refresh token pair
             apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, apiToken.UDID);
 
-            if (!_client.Cas<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(refreshTokenExpirationSeconds), casRes.DocVersion))
+
+            // Store new access + refresh tokens pair
+            if (_client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(refreshTokenExpirationSeconds)))
             {
-                // if already refreshed, return it
-                apiToken = _client.Get<APIToken>(apiTokenId);
+                // delete the old one
+                _client.Remove(apiTokenId);
+            }
+            else
+            {
+                logger.ErrorFormat("RefreshAccessToken: Failed to store new token, returning 403");
+                returnError(403);
+                return null;
             }
 
             return GetTokenResponseObject(apiToken);
@@ -271,7 +279,7 @@ namespace TVPApiModule.Manager
                 returnError(403);
                 return false;
             }
-            
+
             // access token expired 
             if (TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddSeconds(accessTokenExpirationSeconds) < DateTime.UtcNow)
             {
@@ -298,9 +306,9 @@ namespace TVPApiModule.Manager
             if (apiToken == null)
                 return null;
 
-            return new 
-            { 
-                access_token = apiToken.AccessToken, 
+            return new
+            {
+                access_token = apiToken.AccessToken,
                 refresh_token = apiToken.RefreshToken,
                 expiration_time = apiToken.CreateDate + expirationInSeconds
             };
@@ -319,8 +327,5 @@ namespace TVPApiModule.Manager
                 return null;
             return SecurityHelper.DecryptData(_key, _iv, data);
         }
-
-
-        
     }
 }
