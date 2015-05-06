@@ -56,7 +56,7 @@ namespace Tvinci.Core.DAL
 
             if (objDocument != null)
             {
-                // Desrialize to known class - for comfortable access
+                // Deserialize to known class - for comfortable access
                 MediaMarkLog mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(objDocument.ToString());
 
                 dt = mediaMarkLog.LastMark.CreatedAt;
