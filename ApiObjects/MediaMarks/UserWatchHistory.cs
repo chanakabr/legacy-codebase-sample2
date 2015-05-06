@@ -12,7 +12,7 @@ namespace ApiObjects.MediaMarks
         public int UserID { get; set; }
 
         [JsonProperty("assetId")]
-        public int AssetId { get; set; }
+        public string AssetId { get; set; }
 
         [JsonProperty("loc")]
         public int Location { get; set; }

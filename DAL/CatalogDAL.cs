@@ -1509,9 +1509,9 @@ namespace Tvinci.Core.DAL
             return domainMarks.devices;
         }
 
-        public static Dictionary<int, int> GetMediaMarkUserCount(List<int> usersList)
+        public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
         {
-            Dictionary<int, int> dictMediaUsersCount = new Dictionary<int, int>(); // key: media id , value: users count
+            Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 

@@ -65,7 +65,7 @@ namespace Catalog
                 // get last updated date of media (exclude NPVR)
                 if (response != null && response.result != null && response.result.Count() > 0)
                 {
-                    List<int> mediaIds = response.result.Where(x => x.AssetTypeId != (int)eAssetFilterTypes.NPVR).Select(item => item.AssetId).ToList();
+                    List<int> mediaIds = response.result.Where(x => x.AssetTypeId != (int)eAssetFilterTypes.NPVR).Select(item => int.Parse(item.AssetId)).ToList();
                     DataTable dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
                     if (dt != null)
                     {
@@ -74,8 +74,8 @@ namespace Catalog
                             for (int i = 0; i < dt.Rows.Count; i++)
                             {
                                 // get relevant watch history item and validate the updated asset is not NPVR (in case they have the same ID as the media asset)
-                                var historyWatchItem = response.result.Where(x => x.AssetId == Utils.GetIntSafeVal(dt.Rows[i], "ID") &&
-                                                                                  x.AssetTypeId != (int)eAssetFilterTypes.NPVR).FirstOrDefault();
+                                var historyWatchItem = response.result.Where(x => x.AssetTypeId != (int)eAssetFilterTypes.NPVR &&
+                                                                                  int.Parse(x.AssetId) == Utils.GetIntSafeVal(dt.Rows[i], "ID")).FirstOrDefault();
                                 // update date 
                                 if (historyWatchItem != null && dt.Rows[i]["UPDATE_DATE"] != null)
                                     historyWatchItem.AssetUpdatedDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
