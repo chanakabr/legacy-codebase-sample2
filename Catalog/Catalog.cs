@@ -1885,6 +1885,11 @@ namespace Catalog
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
         }
 
+        public static bool UpdateEpgIndex(List<string> epgIds, int groupID, eAction action)
+        {
+            return UpdateEpg(epgIds, groupID, eObjectType.EPG, action);
+        }
+
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
@@ -1943,6 +1948,35 @@ namespace Catalog
                     {
                         BaseQueue queue = new CatalogQueue();
                         bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eObjectType.ToString()));
+                    }
+                }
+            }
+
+            return bIsUpdateIndexSucceeded;
+        }
+
+        private static bool UpdateEpg(List<string> Ids, int groupId, eObjectType objectType, eAction action)
+        {
+            bool bIsUpdateIndexSucceeded = false;
+
+            if (Ids != null && Ids.Count > 0)
+            {
+                GroupManager groupManager = new GroupManager();
+
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int parentGroupID = catalogCache.GetParentGroup(groupId);
+
+
+                Group group = groupManager.GetGroup(parentGroupID);
+
+                if (group != null)
+                {
+                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(Ids, group.m_nParentGroupID, objectType, action);
+
+                    if (data != null)
+                    {
+                        BaseQueue queue = new CatalogQueue();
+                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
                     }
                 }
             }

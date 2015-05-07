@@ -283,6 +283,20 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static DataTable GetAllEpgChannelsList(int GroupID, List<string> channelExternalIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllEpgChannelsList");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+            sp.AddIDListParameter<string>("@channelExternalIds", channelExternalIds, "STR");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
 
         public static DataTable Get_EPGTagValueTranslateIDs(int nGroupID, DataTable tagsAndValuesTranslate)
         {
@@ -304,6 +318,43 @@ namespace Tvinci.Core.DAL
             try
             {
                 DataTable dt = GetAllEpgChannelsList(nGroupID);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string channelId = ODBCWrapper.Utils.GetSafeStr(row, "CHANNEL_ID").Replace("\r", "").Replace("\n", "");
+                        string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        int nChannelType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_channel_type");
+                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, name, nChannelType);
+
+                        if (!result.ContainsKey(channelId))
+                        {
+                            result.Add(channelId, new List<EpgChannelObj>() { oEpgChannelObj });
+                        }
+                        else
+                        {
+                            result[channelId].Add(oEpgChannelObj);
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new Dictionary<string, List<EpgChannelObj>>();
+            }
+        }
+
+
+        // get all channels by group id from DB
+        //the returned dictionary contains keys of the 'CHANNEL_ID' column, and per 'CHANNEL_ID' - the DB ID and the channel name.
+        public static Dictionary<string, List<EpgChannelObj>> GetAllEpgChannelsDic(int nGroupID, List<string> channelExternalIds)
+        {
+            Dictionary<string, List<EpgChannelObj>> result = new Dictionary<string, List<EpgChannelObj>>();
+            try
+            {
+                DataTable dt = GetAllEpgChannelsList(nGroupID, channelExternalIds);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow row in dt.Rows)

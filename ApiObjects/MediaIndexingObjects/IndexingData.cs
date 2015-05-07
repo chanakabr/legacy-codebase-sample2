@@ -21,6 +21,11 @@ namespace ApiObjects.MediaIndexingObjects
         [DataMember]
         public long Date { get; set; }
 
+
+        [DataMember]
+        public List<string> sIds { get; set; }
+       
+
         #endregion
 
         #region CTOR
@@ -35,11 +40,24 @@ namespace ApiObjects.MediaIndexingObjects
             this.ObjectType = eUpdateObj;
             this.Action = eAction;
         }
+        public IndexingData(List<string> Ids, int nGroupId, eObjectType eUpdateObj, eAction eAction)
+        {
+            this.GroupId = nGroupId;
+            this.sIds = Ids;
+            this.ObjectType = eUpdateObj;
+            this.Action = eAction;
+        }
 
         #endregion
 
         public IndexingData(List<int> lIds, int nGroupId, eObjectType eUpdateObj, eAction eAction, long date)
             : this(lIds, nGroupId, eUpdateObj, eAction)
+        {
+            this.Date = date;
+        }
+
+        public IndexingData(List<string> Ids, int nGroupId, eObjectType eUpdateObj, eAction eAction, long date)
+            : this(Ids, nGroupId, eUpdateObj, eAction)
         {
             this.Date = date;
         }

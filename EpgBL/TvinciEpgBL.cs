@@ -59,6 +59,47 @@ namespace EpgBL
             return bRes;
         }
 
+        public override bool InsertEpg(EpgCB newEpgItem, out string docID, ulong? cas = null)
+        {
+            //epgID = 0;
+            bool bRes = false;
+            docID = string.Empty;
+            try
+            {
+                if (newEpgItem == null)
+                    return false;
+
+                for (int i = 0; i < 3 && !bRes; i++)
+                {
+                    if (!string.IsNullOrEmpty(newEpgItem.Language))
+                    {
+                        docID = string.Format("epg_{0}_lang_{1}", newEpgItem.EpgID, newEpgItem.Language.ToLower());
+                    }
+                    else
+                    {
+                        docID = newEpgItem.EpgID.ToString();
+                    }
+
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.InsertProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    if (!bRes)
+                    {
+                        docID = string.Empty;
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("InsertEpg", string.Format("Failed insert to CB id={0}", docID), "InsertCBEpg");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("InsertEpg", string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), "InsertCBEpg");
+            }
+            return bRes;
+        }
 
         public override bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
         {

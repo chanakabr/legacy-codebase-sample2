@@ -141,7 +141,11 @@ namespace EpgBL
             epgID = 0;
             return false;
         }
-
+        public override bool InsertEpg(EpgCB newEpgItem, out string docID, ulong? cas = null)
+        {
+            docID = string.Empty;
+            return false;
+        }
         public override bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
         {
             epgID = 0;

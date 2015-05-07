@@ -22,7 +22,7 @@ using System.Xml.Serialization;
 [System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/xmltv")]
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
-public partial class tv {
+public partial class EpgChannels {
     
     private channel[] channelField;
     
@@ -288,11 +288,28 @@ public partial class displayname {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class icon {
     
+    private string ratioField;
+    
     private string srcField;
     
-    private string widthField;
+    private int widthField;
     
-    private string heightField;
+    private bool widthFieldSpecified;
+    
+    private int heightField;
+    
+    private bool heightFieldSpecified;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string ratio {
+        get {
+            return this.ratioField;
+        }
+        set {
+            this.ratioField = value;
+        }
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -307,7 +324,7 @@ public partial class icon {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string width {
+    public int width {
         get {
             return this.widthField;
         }
@@ -317,13 +334,35 @@ public partial class icon {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool widthSpecified {
+        get {
+            return this.widthFieldSpecified;
+        }
+        set {
+            this.widthFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string height {
+    public int height {
         get {
             return this.heightField;
         }
         set {
             this.heightField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool heightSpecified {
+        get {
+            return this.heightFieldSpecified;
+        }
+        set {
+            this.heightFieldSpecified = value;
         }
     }
 }
@@ -1815,17 +1854,17 @@ public enum reviewType {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class metas {
     
-    private string metaNameField;
+    private string metaTypeField;
     
     private MetaValues[] metaValuesField;
     
     /// <remarks/>
-    public string MetaName {
+    public string MetaType {
         get {
-            return this.metaNameField;
+            return this.metaTypeField;
         }
         set {
-            this.metaNameField = value;
+            this.metaTypeField = value;
         }
     }
     
@@ -1850,9 +1889,22 @@ public partial class metas {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class MetaValues {
     
+    private string metaValueMainField;
+    
     private string langField;
     
     private string valueField;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string MetaValueMain {
+        get {
+            return this.metaValueMainField;
+        }
+        set {
+            this.metaValueMainField = value;
+        }
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -1886,17 +1938,17 @@ public partial class MetaValues {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class tags {
     
-    private string tagNameField;
+    private string tagTypeField;
     
     private TagValues[] tagValuesField;
     
     /// <remarks/>
-    public string TagName {
+    public string TagType {
         get {
-            return this.tagNameField;
+            return this.tagTypeField;
         }
         set {
-            this.tagNameField = value;
+            this.tagTypeField = value;
         }
     }
     

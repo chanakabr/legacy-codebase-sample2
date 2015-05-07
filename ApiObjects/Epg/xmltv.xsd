@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSpy v2015 rel. 3 sp1 (x64) (http://www.altova.com) by liat (kaltura) -->
 <xs:schema xmlns="http://tempuri.org/xmltv" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/xmltv" elementFormDefault="qualified">
-	<xs:element name="tv">
+	<xs:element name="EpgChannels">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="channel" minOccurs="0" maxOccurs="unbounded"/>
@@ -83,16 +83,17 @@
 	<xs:element name="metas">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="MetaName" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="MetaType" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="MetaValues" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="MetaName" type="xs:string"/>
+	<xs:element name="MetaType" type="xs:string"/>
 	<xs:element name="MetaValues">
 		<xs:complexType>
 			<xs:simpleContent>
 				<xs:extension base="xs:string">
+					<xs:attribute name="MetaValueMain" type="xs:string"/>
 					<xs:attribute name="lang" type="xs:string"/>
 				</xs:extension>
 			</xs:simpleContent>
@@ -101,12 +102,12 @@
 	<xs:element name="tags">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="TagName" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="TagType" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="TagValues" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="TagName" type="xs:string"/>
+	<xs:element name="TagType" type="xs:string"/>
 	<xs:element name="TagValues">
 		<xs:complexType>
 			<xs:simpleContent>
@@ -234,9 +235,10 @@
 	</xs:element>
 	<xs:element name="icon">
 		<xs:complexType>
+			<xs:attribute name="ratio" type="xs:string"/>
 			<xs:attribute name="src" type="xs:string" use="required"/>
-			<xs:attribute name="width" type="xs:string"/>
-			<xs:attribute name="height" type="xs:string"/>
+			<xs:attribute name="width" type="xs:int"/>
+			<xs:attribute name="height" type="xs:int"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="value" type="xs:string"/>
