@@ -10,6 +10,7 @@ using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
 using Couchbase.Extensions;
+using WebAPI.Filters.Exceptions;
 
 namespace WebAPI.Controllers
 {
@@ -25,8 +26,7 @@ namespace WebAPI.Controllers
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
             if (string.IsNullOrEmpty(ksVal))
             {
-                ReturnUnauthorized(actionContext);
-                return;
+                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Empty KS");
             }
 
             StringBuilder sb = new StringBuilder(ksVal);
@@ -41,8 +41,7 @@ namespace WebAPI.Controllers
             int groupId = 0;
             if (ksParts.Length != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
             {
-                ReturnUnauthorized(actionContext);
-                return;
+                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
             }
 
             // get group secret
@@ -50,26 +49,11 @@ namespace WebAPI.Controllers
             string adminSecret = group.AdminSecret;
 
             // build KS
-            try
-            {
-                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
-            }
-            catch (Exception)
-            {
-                ReturnUnauthorized(actionContext);
-                return;
-            }
-
-            if (ks == null)
-            {
-                ReturnUnauthorized(actionContext);
-                return;
-            }
+            ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
 
             if (!ks.IsValid)
             {
-                ReturnForbidden(actionContext);
-                return;
+                throw new ForbiddenException((int)StatusCode.Forbidden, "KS expired");
             }
             
             actionContext.Request.Properties.Add("KS", ks);
@@ -90,22 +74,6 @@ namespace WebAPI.Controllers
             }
 
             return true;
-        }
-
-        private void ReturnUnauthorized(HttpActionContext actionContext)
-        {
-            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            actionContext.Response = res;
-            res.Content = new StringContent(((int)StatusCode.Unauthorized).ToString());
-            res.ReasonPhrase = "Unauthorized";
-        }
-
-        private void ReturnForbidden(HttpActionContext actionContext)
-        {
-            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.Forbidden);
-            actionContext.Response = res;
-            res.Content = new StringContent(((int)StatusCode.Forbidden).ToString());
-            res.ReasonPhrase = "Forbidden";
         }
     }
 }

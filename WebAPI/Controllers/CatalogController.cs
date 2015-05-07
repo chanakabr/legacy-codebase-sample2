@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
     public class CatalogController : ApiController
     {
         [Route("search"), HttpGet]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets)
         {
             return PostSearch(group_id, search_assets);

@@ -115,12 +115,12 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            string adminSecret = GroupsManager.GetGroup(groupId).AdminSecret;
+            string userSecret = GroupsManager.GetGroup(groupId).AdminSecret;
             
             //TODO: get real value
             int expiration = 1462543601;
 
-            return new KS(adminSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
+            return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         }
     }
 }

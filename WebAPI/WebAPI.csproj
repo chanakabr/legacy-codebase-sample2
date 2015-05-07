@@ -584,7 +584,9 @@
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Filters\Exceptions\ApiException.cs" />
     <Compile Include="Filters\Exceptions\BadRequestException.cs" />
+    <Compile Include="Filters\Exceptions\ForbiddenException.cs" />
     <Compile Include="Filters\Exceptions\InternalServerErrorException.cs" />
+    <Compile Include="Filters\Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\UsersController.cs" />

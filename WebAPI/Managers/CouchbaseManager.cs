@@ -15,6 +15,7 @@ namespace WebAPI.Managers
 
     public class CouchbaseManager
     {
+        private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim();
@@ -72,17 +73,27 @@ namespace WebAPI.Managers
 
         private static CouchbaseClient createNewInstance(CouchbaseBucket eBucket)
         {
-            CouchbaseClient oRes = null;
+            CouchbaseClient client = null;
 
-            switch (eBucket)
+            var urls = TCMClient.Settings.Instance.GetValue<List<string>>(String.Format(TCM_KEY_FORMAT, eBucket.ToString().ToLower(), "urls"));
+            if (urls != null)
             {
-                case CouchbaseBucket.Groups:
-                    var grpupsBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
-                    oRes = new CouchbaseClient(grpupsBucketSection);
-                    break;
+                CouchbaseClientConfiguration clientConfig = new CouchbaseClientConfiguration()
+                {
+                    Bucket = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, eBucket.ToString().ToLower(), "bucket")),
+                    Username = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, eBucket.ToString().ToLower(), "username")),
+                    Password = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, eBucket.ToString().ToLower(), "password")),
+                };
+                urls.ForEach(u => clientConfig.Urls.Add(new Uri(u)));
+                client = new CouchbaseClient(clientConfig);
+            }
+            else
+            {
+                var section = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
+                client = new CouchbaseClient(section);
             }
 
-            return oRes;
+            return client;
         }
     }
 }

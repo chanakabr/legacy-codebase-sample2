@@ -6,6 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using WebAPI.Utils;
+using WebAPI.Filters.Exceptions;
+using WebAPI.Models;
 
 namespace WebAPI.Managers.Models
 {
@@ -65,7 +67,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string adminSecret, string groupID, string userID, int expiration, eUserType userType, string data, string privilege)
+        public KS(string secret, string groupID, string userID, int expiration, eUserType userType, string data, string privilege)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -81,7 +83,7 @@ namespace WebAPI.Managers.Models
             Array.Copy(signature, 0, input, 0, signature.Length);
             Array.Copy(randWithFields, 0, input, signature.Length, randWithFields.Length);
 
-            byte[] encryptedFields = aesEncrypt(adminSecret, input);
+            byte[] encryptedFields = aesEncrypt(secret, input);
             string prefix = string.Format("v2|{0}|", groupID);
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
@@ -97,7 +99,7 @@ namespace WebAPI.Managers.Models
             encryptedValue = encodedKs.ToString();
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string adminSecret)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret)
         {
             KS ks = new KS();
             ks.groupId = groupId;
@@ -105,7 +107,7 @@ namespace WebAPI.Managers.Models
             // decrypt fields
             string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
             int fieldsWithRandomIndex = encryptedDataStr.LastIndexOf('|') + 1;
-            byte[] fieldsWithHashBytes = aesDecrypt(adminSecret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
+            byte[] fieldsWithHashBytes = aesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
 
             // trim Right 0
             fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
@@ -116,7 +118,7 @@ namespace WebAPI.Managers.Models
 
             if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(hashSHA1(fieldsWithRandom)))
             {
-                return null;
+                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
             }
 
             //parse fields
@@ -124,7 +126,7 @@ namespace WebAPI.Managers.Models
 
             if (fields == null || fields.Length != 5)
             {
-                return null;
+                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
             }
 
             ks.privilege = fields[0];
@@ -134,7 +136,7 @@ namespace WebAPI.Managers.Models
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    return null;
+                    throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
                 }
 
                 switch (pair[0])
@@ -156,8 +158,7 @@ namespace WebAPI.Managers.Models
                         ks.data = pair[1];
                         break;
                     default:
-                        return null;
-                        break;
+                        throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
                 }
             }
 
