@@ -687,5 +687,15 @@ namespace ODBCWrapper
 
             return (oResult);
         }
+
+        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+        }
+
+        public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+        }
     }
 }

@@ -86,8 +86,11 @@ namespace ApiObjects
     [Serializable]
     public enum eCaSystem
     {
+        [EnumMember]
         OTT = 0,
-        OVP = 1,
+
+        [EnumMember]
+        OVP = 1
     }
 
     [Serializable]
@@ -221,7 +224,16 @@ namespace ApiObjects
     {
         MEDIA = 0,
         NPVR = 1,
-        ALL = 2
+        ALL = 2,
+        UNKNOWN = 3
+    }
+
+
+
+    public enum eAssetFilterTypes
+    {
+        EPG = 0,
+        NPVR = 1
     }
 
     [Serializable]
@@ -290,5 +302,18 @@ namespace ApiObjects
         LessThanOrEqual,
         LessThan,
         WordStartsWith
+    }
+
+    [Serializable]
+    public enum eWatchStatus
+    {
+        [EnumMember]
+        Progress,
+
+        [EnumMember]
+        Done,
+
+        [EnumMember]
+        All
     }
 }

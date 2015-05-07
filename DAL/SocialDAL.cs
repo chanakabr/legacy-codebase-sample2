@@ -195,9 +195,9 @@ namespace DAL
             return lRes;
         }
 
-        public Dictionary<int, int> GetFriendsWatchedCount(List<int> lFriendsGuidList)
+        public Dictionary<string, int> GetFriendsWatchedCount(List<int> lFriendsGuidList)
         {
-            Dictionary<int, int> retDict = CatalogDAL.GetMediaMarkUserCount(lFriendsGuidList);
+            Dictionary<string, int> retDict = CatalogDAL.GetMediaMarkUserCount(lFriendsGuidList);
             return retDict;
         }
 
