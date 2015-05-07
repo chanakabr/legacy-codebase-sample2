@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
-        [ApiAuthorize(Role = ApiAuthorizeAttribute.eRole.Admin | ApiAuthorizeAttribute.eRole.User)]
+        [ApiAuthorize()]
         public List<User> GetUsersData(string ids)
         {
             var c = new Users.UsersService();

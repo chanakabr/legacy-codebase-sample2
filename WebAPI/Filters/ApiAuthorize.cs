@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     internal class ApiAuthorizeAttribute : System.Web.Http.AuthorizeAttribute
     {
         [Flags]
-        public enum eRole { Admin, User }
+        public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
         private KS ks;
 
