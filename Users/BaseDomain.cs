@@ -1108,9 +1108,9 @@ namespace Users
                         users.Add(pendingUser * (-1));
                     }
 
-                    foreach (int pendingUser in oDomain.m_DefaultUsersIDs)
+                    foreach (int user in oDomain.m_DefaultUsersIDs)
                     {
-                        users.Add(pendingUser);
+                        users.Add(user);
                     }
 
                     users.AddRange(oDomain.m_UsersIDs);
