@@ -1530,7 +1530,7 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
@@ -1584,6 +1584,10 @@ namespace Tvinci.Core.DAL
                     // filter asset types
                     if (assetTypes != null && assetTypes.Count > 0)
                         unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+
+                    // filter excluded asset types
+                    if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
+                        unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
 
                     // order list
                     switch (orderDir)

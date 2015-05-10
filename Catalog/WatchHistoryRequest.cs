@@ -57,7 +57,7 @@ namespace Catalog
 
                 // get results
                 int totalItems = 0;
-                response.result = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, FilterStatus, NumOfDays, OrderDir, m_nPageIndex, m_nPageSize, FINISHED_PERCENT_THRESHOLD, out totalItems);
+                response.result = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetFilterTypes.NPVR }, FilterStatus, NumOfDays, OrderDir, m_nPageIndex, m_nPageSize, FINISHED_PERCENT_THRESHOLD, out totalItems);
                 response.m_nTotalItems = totalItems;
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
