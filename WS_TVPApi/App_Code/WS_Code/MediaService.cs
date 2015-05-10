@@ -3431,6 +3431,10 @@ namespace TVPApiServices
                         }
                     }
 
+                    // remove NPVR media types
+                    if (filter_types != null)
+                        filter_types.RemoveAll(x => x == (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR);
+
                     // fire request
                     response = new APIWatchHistoryLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, (int)page_index,
                         filter_types, filter_status, with, (int)days, OrderDir.DESC)
