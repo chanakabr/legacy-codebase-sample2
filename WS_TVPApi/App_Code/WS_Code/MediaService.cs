@@ -3406,7 +3406,7 @@ namespace TVPApiServices
                         filter_status = eWatchStatus.All;
 
                     // days - default value 7
-                    if (days == null)
+                    if (days == null || days == 0)
                         days = 7;
 
                     // page index - default value 0
@@ -3430,10 +3430,6 @@ namespace TVPApiServices
                             }
                         }
                     }
-
-                    // remove NPVR media types
-                    if (filter_types != null)
-                        filter_types.RemoveAll(x => x == (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR);
 
                     // fire request
                     response = new APIWatchHistoryLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, (int)page_index,
