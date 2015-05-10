@@ -3353,7 +3353,7 @@ namespace TVPApiServices
                     }
 
                     // Create our own filter - only search in title
-                    string filter = string.Format("(and name^'{0}')", query);
+                    string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
 
                     object executedRespone = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
                         filter_types, filter, with)
