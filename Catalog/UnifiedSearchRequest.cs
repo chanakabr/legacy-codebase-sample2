@@ -416,6 +416,7 @@ namespace Catalog
                     if (GetTokenFromBuffer("'", true, false, ref buffer, ref token))
                     {
                         lastBufferIndex = 0;
+                        token = token.Replace("%27", "'");
                         tokens.Add(token);
                         isQuote = false;
                         isWord = false;
