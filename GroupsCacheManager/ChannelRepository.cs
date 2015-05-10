@@ -39,7 +39,7 @@ namespace GroupsCacheManager
             if (newGroup != null)
             {
                 GetGroupsTagsTypes(ref newGroup);
-                GetAllGroupChannels(newGroup);
+                GetAllGroupChannelIds(newGroup);
                 GetGroupLanguages(ref newGroup);      
                 // get all services related to group
                 GetGroupServices(ref newGroup);
@@ -139,8 +139,6 @@ namespace GroupsCacheManager
 
         private static void GetAllGroupChannels(Group oGroup)
         {
-            oGroup.m_oGroupChannels = new System.Collections.Concurrent.ConcurrentDictionary<int, Channel>();
-
             DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(oGroup.m_nParentGroupID, oGroup.m_nSubGroup);
             List<int> channelIDList = new List<int>();
             if (dt != null && dt.DefaultView.Count > 0)
@@ -164,7 +162,7 @@ namespace GroupsCacheManager
                              {
                                  Channel oChannel = GetChannel(channelIDList[(int)obj], oGroup);
                                  if (oChannel != null)
-                                     oGroup.m_oGroupChannels.TryAdd(oChannel.m_nChannelID, oChannel);
+                                     oGroup.SetChannel(oChannel.m_nChannelID, oChannel);
                              }
                              catch (Exception ex)
                              {
@@ -182,6 +180,30 @@ namespace GroupsCacheManager
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Gets only the Ids of the channels of the given group
+        /// </summary>
+        /// <param name="group"></param>
+        private static void GetAllGroupChannelIds(Group group)
+        {
+            DataTable groupChannels = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(group.m_nParentGroupID, group.m_nSubGroup);
+
+            if (groupChannels != null && groupChannels.DefaultView.Count > 0)
+            {
+                int channelID;
+
+                foreach (DataRow row in groupChannels.Rows)
+                {
+                    channelID = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
+
+                    if (channelID != 0)
+                    {
+                        group.channelIDs.Add(channelID);
+                    }
+                }
+            }
         }
 
         private static void SetPermittedWatchRules(ref Group newGroup)

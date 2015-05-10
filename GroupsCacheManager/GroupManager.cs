@@ -264,25 +264,17 @@ namespace GroupsCacheManager
             return DeleteOperator(nGroupID, nOperatorID);
         }
 
-        private Channel GetChannel(int nChannelId, ref Group group)
+        private Channel GetChannel(int channelId, ref Group group)
         {
             try
             {
-                Channel channel = null;
-                if (group.m_oGroupChannels.ContainsKey(nChannelId))
-                {
-                    group.m_oGroupChannels.TryGetValue(nChannelId, out channel);
-                    return channel;
-                }
-                else  //Build the Channel and update the group
-                {
-                    channel = cache.GetChannel(nChannelId, ref group);
-                    return channel;
-                }
+                Channel channel = group.TryGetChannel(channelId);
+
+                return channel;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", nChannelId, ex.Message), "GroupManager");
+                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", channelId, ex.Message), "GroupManager");
                 throw;
             }
         }
@@ -339,12 +331,12 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool InsertChannels(List<Channel> lNewCreatedChannels, int nGroupID)
+        internal bool InsertChannels(List<Channel> newChannels, Group group)
         {
             bool bInsert = false;
             try
             {
-                bInsert = cache.InsertChannels(lNewCreatedChannels, nGroupID);
+                bInsert = cache.InsertChannels(newChannels, group);
 
                 return bInsert;
             }

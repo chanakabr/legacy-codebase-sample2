@@ -68,9 +68,9 @@ namespace GroupsCacheManager
 
             try
             {
-                if (group.m_oGroupChannels.ContainsKey(nChannelId))
+                if (group.HasChannel(nChannelId))
                 {
-                    isRemovingChannelSucceded = group.m_oGroupChannels.TryRemove(nChannelId, out removedChannel);
+                    isRemovingChannelSucceded = group.RemoveChannel(nChannelId, out removedChannel);
                 }
             }
             catch

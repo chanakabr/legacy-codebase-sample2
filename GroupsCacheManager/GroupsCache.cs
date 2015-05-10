@@ -35,6 +35,7 @@ namespace GroupsCacheManager
         private readonly double dCacheTT;
         private string cacheGroupConfiguration = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
         private string keyCachePrefix = string.Empty;
+        private ICachingService channelsCache = null;
 
         private static GroupsCache instance = null;
 
@@ -51,6 +52,7 @@ namespace GroupsCacheManager
                 case "CouchBase":
                 {
                     CacheService = CouchBaseCache<Group>.GetInstance("CACHE");
+                    channelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
                     this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
                     dCacheTT = GetDocTTLSettings();     //set ttl time for document 
                     break;
@@ -110,6 +112,7 @@ namespace GroupsCacheManager
         private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
         {
             this.CacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.channelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
         }
 
         private static double GetDocTTLSettings()
@@ -335,56 +338,35 @@ namespace GroupsCacheManager
             }
         }
 
-        internal Channel GetChannel(int nChannelId, ref Group group)
+        internal Channel GetChannel(int channelId, Group group)
         {
-            bool bInsert = false;
-            VersionModuleCache versionModule = null;
+            Channel channel = null;
+
             try
             {
-                Channel channel = null;
-                string sKey = BuildGroupCacheKey(group.m_nParentGroupID);
-                //get group by id from cache
+                bool bInsert = false;
 
                 for (int i = 0; i < 3 && !bInsert; i++)
                 {
-                    versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                    string key = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
 
-                    if (versionModule != null && versionModule.result != null)
+                    var baseResult = channelsCache.GetWithVersion<Channel>(key);
+
+                    if (baseResult != null && baseResult.result != null)
                     {
-                        group.m_oGroupChannels.TryGetValue(nChannelId, out channel);
-                        if (channel != null)
-                        {
-                            return channel;
-                        }
-                        else
-                        {
-                            //Build the new Channel
-                            Group tempGroup = versionModule.result as Group;
-                            Channel tempChannel = ChannelRepository.GetChannel(nChannelId, tempGroup);
-                            if (tempChannel != null)
-                            {
-                                //try insert to CB
-                                tempGroup.m_oGroupChannels.TryAdd(nChannelId, tempChannel);
-                                versionModule.result = tempGroup;
-                                bInsert = this.CacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
-                                if (bInsert)
-                                {
-                                    group = tempGroup;
-                                }
-                            }
-                        }
+                        channel = (baseResult.result as Channel);
                     }
                 }
-                channel = null;
-                group.m_oGroupChannels.TryGetValue(nChannelId, out channel);
 
                 return channel;
+
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", nChannelId, ex.Message), "GroupsCacheManager");
-                return null;
+                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", channelId, ex.Message), "GroupsCacheManager");
             }
+
+            return channel;
         }
 
         internal bool RemoveChannel(int nGroupID, int nChannelId)
@@ -404,7 +386,7 @@ namespace GroupsCacheManager
                     if (vModule != null && vModule.result != null )
                     {
                         group = vModule.result as Group;
-                        if (group != null && group.m_oGroupChannels.ContainsKey(nChannelId))
+                        if (group != null && group.HasChannel(nChannelId))
                         {
                             bool createdNew = false;
                             var mutexSecurity = Utils.CreateMutex();
@@ -413,6 +395,7 @@ namespace GroupsCacheManager
                             {
                                 mutex.WaitOne(-1);
                                 removedChannel = Utils.RemoveChannelByChannelId(nChannelId, ref group);
+
                                 if (removedChannel != null)
                                 {
                                     //try update to cache
@@ -547,39 +530,67 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool InsertChannels(List<Channel> lNewCreatedChannels, int nGroupID)
+        internal bool InsertChannels(List<Channel> channels, Group group)
         {
-            bool bInsert = false;
+            bool inserted = true;
             try
             {
-                Group group = null;
-                VersionModuleCache vModule = null;
-                string sKey = BuildGroupCacheKey(nGroupID);
-
-                //get group by id from Cache
-
-                for (int i = 0; i < 3 && !bInsert; i++)
-                {
-                   vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                   if (vModule != null && vModule.result != null)
+               
+                foreach (Channel channel in channels)
+                {                    
+                    if (!group.HasChannel(channel.m_nChannelID))
                     {
-                        group = vModule.result as Group;
-                        //try update to CB
-                        if (group.AddChannels(nGroupID, lNewCreatedChannels))
+                        bool createdNewMutex;
+
+                        var mutexSecurity = Utils.CreateMutex();
+
+                        using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", group.m_nParentGroupID), out createdNewMutex, mutexSecurity))
                         {
-                            vModule.result = group;
-                            bInsert = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            mutex.WaitOne(-1);
+
+                            if (!group.HasChannel(channel.m_nChannelID))
+                            {
+                                group.SetChannel(channel.m_nChannelID, channel);
+                            }
+
+                            mutex.ReleaseMutex();
+                        }
+                    }
+
+                    bool currentInserted = false;
+
+                    for (int i = 0; i < 3 && !currentInserted; i++)
+                    {
+                        string key = BuildChannelCacheKey(group.m_nParentGroupID, channel.m_nChannelID);
+
+                        BaseModuleCache casResult = channelsCache.GetWithVersion<Channel>(key);
+
+                        if (casResult != null && casResult.result != null)
+                        {
+                            casResult.result = channel;
+
+                            inserted = channelsCache.Set(key, casResult);
+                        }
+                        else
+                        {
+                            inserted = channelsCache.Add(key, new BaseModuleCache(channel));
                         }
                     }
                 }
-                return bInsert;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertChannels", string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
-                return false;
+                Logger.Logger.Log("InsertChannels",
+                    string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", group.m_nParentGroupID, ex.Message), "GroupsCacheManager");
+                inserted = false;
             }
+
+            return inserted;
+        }
+
+        private static string BuildChannelCacheKey(int groupId, int channelId)
+        {
+            return string.Format("group_{0}_channel_{1}", groupId, channelId);
         }
         
         internal bool AddServices(int nGroupID, List<int> services)
