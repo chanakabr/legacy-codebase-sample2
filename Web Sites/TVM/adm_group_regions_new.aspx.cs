@@ -243,7 +243,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             for (int i = 0; i < nCount; i++)
             {
                 string sID = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "id", i);
-                string sTitle = ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "name", i);
+                string sTitle = string.Format("{0} ({1})", ODBCWrapper.Utils.GetStrSafeVal(channelsSelectQuery, "name", i), sID);
 
                 DataRow drChannel = null;
                 if (regionChannels != null)
