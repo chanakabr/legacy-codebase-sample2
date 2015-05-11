@@ -308,6 +308,9 @@ namespace ApiObjects
     public enum eWatchStatus
     {
         [EnumMember]
+        Undefined,
+
+        [EnumMember]
         Progress,
 
         [EnumMember]
