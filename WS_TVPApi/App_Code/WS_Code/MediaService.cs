@@ -3402,7 +3402,7 @@ namespace TVPApiServices
                 try
                 {
                     // give default values
-                    if (filter_status == null)
+                    if (filter_status == eWatchStatus.Undefined)
                         filter_status = eWatchStatus.All;
 
                     // days - default value 7
