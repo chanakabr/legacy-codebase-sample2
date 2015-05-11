@@ -340,33 +340,79 @@ namespace GroupsCacheManager
 
         internal Channel GetChannel(int channelId, Group group)
         {
-            Channel channel = null;
+            Channel resultChannel = null;
+            BaseModuleCache baseModule;
 
             try
             {
-                bool bInsert = false;
+                string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
 
-                for (int i = 0; i < 3 && !bInsert; i++)
+                baseModule = this.channelsCache.Get(cacheKey);
+
+                if (baseModule != null && baseModule.result != null)
                 {
-                    string key = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
+                    resultChannel = baseModule.result as Channel;
+                }
+                else
+                {
+                    bool bInsert = false;
+                    bool createdNew = false;
+                    var mutexSecurity = Utils.CreateMutex();
 
-                    var baseResult = channelsCache.GetWithVersion<Channel>(key);
-
-                    if (baseResult != null && baseResult.result != null)
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", group.m_nParentGroupID), out createdNew, mutexSecurity))
                     {
-                        channel = (baseResult.result as Channel);
+                        try
+                        {
+                            mutex.WaitOne(-1);
+
+                            // try to get channel from CB 
+                            VersionModuleCache versionModule;
+                            versionModule = (VersionModuleCache)this.channelsCache.GetWithVersion<Channel>(cacheKey);
+
+                            if (versionModule != null && versionModule.result != null)
+                            {
+                                resultChannel = baseModule.result as Channel;
+                            }
+
+                            else
+                            {
+                                Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group);
+
+                                for (int i = 0; i < 3 && !bInsert; i++)
+                                {
+                                    //try insert to cache
+                                    versionModule.result = temporaryCahnnel;
+                                    bInsert = this.CacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+
+                                    if (bInsert)
+                                    {
+                                        resultChannel = temporaryCahnnel;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("GetChannel", 
+                                string.Format("Couldn't get channel id = {0}, group = {1}, ex = {2}, ST = {3}", channelId, group.m_nParentGroupID, ex.Message, ex.StackTrace), 
+                                "GroupsCacheManager");
+                        }
+                        finally
+                        {
+                            mutex.ReleaseMutex();
+                        }
                     }
                 }
 
-                return channel;
-
+                return resultChannel;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", channelId, ex.Message), "GroupsCacheManager");
+                Logger.Logger.Log("GetChannel",
+                    string.Format("Couldn't get channel id = {0}, group = {1}, ex = {2}, ST = {3}", channelId, group.m_nParentGroupID, ex.Message, ex.StackTrace),
+                    "GroupsCacheManager");
+                return null;
             }
-
-            return channel;
         }
 
         internal bool RemoveChannel(int nGroupID, int nChannelId)
@@ -374,47 +420,22 @@ namespace GroupsCacheManager
             bool isRemovingChannelSucceded = false;
             try
             {
-                Group group = null;
-                Channel removedChannel = null;
-                VersionModuleCache vModule  = null;
+                string channelKey = BuildChannelCacheKey(nGroupID, nChannelId);
 
-                string sKey = BuildGroupCacheKey(nGroupID);
-                for (int i = 0; i < 3 && !isRemovingChannelSucceded; i++)
+                var response = channelsCache.Remove(channelKey);
+
+                if (response != null && (bool)response.result)
                 {
-                    vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
-
-                    if (vModule != null && vModule.result != null )
-                    {
-                        group = vModule.result as Group;
-                        if (group != null && group.HasChannel(nChannelId))
-                        {
-                            bool createdNew = false;
-                            var mutexSecurity = Utils.CreateMutex();
-
-                            using (Mutex mutex = new Mutex(false, string.Concat("Cache ChannelID_", nChannelId), out createdNew, mutexSecurity))
-                            {
-                                mutex.WaitOne(-1);
-                                removedChannel = Utils.RemoveChannelByChannelId(nChannelId, ref group);
-
-                                if (removedChannel != null)
-                                {
-                                    //try update to cache
-                                    vModule.result = group;
-                                    isRemovingChannelSucceded = CacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
-                                }
-                                mutex.ReleaseMutex();
-                            }
-                        }
-                    }
+                    isRemovingChannelSucceded = true;
                 }
-                
-                return isRemovingChannelSucceded;
+
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("RemoveChannel", string.Format("failed to Remove channel from group from cache GroupID={0}, ChannelID = {1}, ex={2}", nGroupID, nChannelId, ex.Message), "GroupsCacheManager");
-                return false;
             }
+
+            return isRemovingChannelSucceded;
         }
 
         internal bool RemoveGroup(int nGroupID)
@@ -535,28 +556,8 @@ namespace GroupsCacheManager
             bool inserted = true;
             try
             {
-               
                 foreach (Channel channel in channels)
                 {                    
-                    if (!group.HasChannel(channel.m_nChannelID))
-                    {
-                        bool createdNewMutex;
-
-                        var mutexSecurity = Utils.CreateMutex();
-
-                        using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", group.m_nParentGroupID), out createdNewMutex, mutexSecurity))
-                        {
-                            mutex.WaitOne(-1);
-
-                            if (!group.HasChannel(channel.m_nChannelID))
-                            {
-                                group.SetChannel(channel.m_nChannelID, channel);
-                            }
-
-                            mutex.ReleaseMutex();
-                        }
-                    }
-
                     bool currentInserted = false;
 
                     for (int i = 0; i < 3 && !currentInserted; i++)

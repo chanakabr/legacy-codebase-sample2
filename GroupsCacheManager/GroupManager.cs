@@ -5,6 +5,7 @@ using System.Text;
 using ApiObjects;
 using DAL;
 using Tvinci.Core.DAL;
+using System.Threading;
 
 namespace GroupsCacheManager
 {
@@ -264,22 +265,45 @@ namespace GroupsCacheManager
             return DeleteOperator(nGroupID, nOperatorID);
         }
 
-        private Channel GetChannel(int channelId, ref Group group)
+        public Channel GetChannel(int channelId, ref Group group)
         {
+            Channel result = null;
+
             try
             {
-                Channel channel = group.TryGetChannel(channelId);
-
-                return channel;
+                result = cache.GetChannel(channelId, group);
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", string.Format("failed GetChannel nChannelId={0}, ex={1}", channelId, ex.Message), "GroupManager");
-                throw;
+                Logger.Logger.Log("GetChannel", 
+                    string.Format("failed get channel with group ={0}, channel = {1}, ex={2}, ST={3}", group.m_nParentGroupID, channelId, ex.Message, ex.StackTrace),
+                    "GroupsCacheManager");
             }
+
+            return result;
         }
 
-       
+
+        public List<Channel> GetChannels(List<int> channelIds, int groupId)
+        {
+            List<Channel> channelsResults = null;
+
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelsResults = new List<Channel>();
+
+                Group group = this.GetGroup(groupId);
+
+                foreach (int id in channelIds)
+                {
+                    Channel currentChannel = cache.GetChannel(id, group);
+                    channelsResults.Add(currentChannel);
+                }
+            }
+
+            return channelsResults;
+        }
+
         #endregion
 
         #region Internal

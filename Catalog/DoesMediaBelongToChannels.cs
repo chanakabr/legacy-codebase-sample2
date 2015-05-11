@@ -67,7 +67,7 @@ namespace Catalog
                     Group groupInCache = groupManager.GetGroup(nParentGroupID); 
 
                     List<int> channelIds = request.m_lChannelIDs;
-                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannels(channelIds);
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
 
                     if (groupInCache != null && allChannels != null && allChannels.Count > 0)
                     {

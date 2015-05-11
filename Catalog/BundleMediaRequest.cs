@@ -74,8 +74,7 @@ namespace Catalog
                 if (groupInCache != null)
                 {
                     List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
-                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannels(channelIds);
-
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
 
                     if (channelIds != null && channelIds.Count > 0)
                     {

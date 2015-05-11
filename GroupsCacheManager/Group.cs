@@ -58,16 +58,6 @@ namespace GroupsCacheManager
         [JsonProperty("m_nChannelIds")]
         public HashSet<int> channelIDs;
 
-        /// <summary>
-        /// Channel objects of this group
-        /// </summary>
-        [JsonIgnore()]
-        protected ConcurrentDictionary<int, Channel> m_oGroupChannels
-        {
-            get;
-            set;
-        }
-
         #endregion
 
         #region CTOR
@@ -82,7 +72,6 @@ namespace GroupsCacheManager
         {
             this.m_nParentGroupID = groupID;
             this.m_oMetasValuesByGroupId = new Dictionary<int, Dictionary<string, string>>();
-            this.m_oGroupChannels = new ConcurrentDictionary<int, Channel>();
             this.m_oGroupTags = new Dictionary<int, string>();
             this.m_oEpgGroupSettings = new EpgGroupSettings();
             this.m_sPermittedWatchRules = new List<string>();
@@ -158,24 +147,6 @@ namespace GroupsCacheManager
         #endregion
 
         #region Internal
-        internal bool AddChannels(int nGroupID, List<Channel> lNewCreatedChannels)
-        {
-            try
-            {
-                foreach (Channel channel in lNewCreatedChannels)
-                {
-                    if (!m_oGroupChannels.ContainsKey(channel.m_nChannelID))
-                    {
-                        m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
-                    }
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
 
         internal string GetSubTreeGroupIds()
         {
@@ -185,8 +156,6 @@ namespace GroupsCacheManager
             }
             return string.Empty;
         }
-
-
 
         internal bool RemoveOperator(int nOperatorID)
         {
@@ -471,136 +440,10 @@ namespace GroupsCacheManager
 
         #region Channels
 
-        public List<Channel> GetChannels(List<int> channelIds)
-        {
-            List<Channel> channelsResults = null;
-
-            if (this != null && channelIds != null && channelIds.Count > 0)
-            {
-                channelsResults = new List<Channel>();
-
-                foreach (int channelID in channelIds)
-                {
-                    Channel channel;
-
-                    if (this.m_oGroupChannels.TryGetValue(channelID, out channel))
-                    {
-                        channelsResults.Add(channel);
-                    }
-                }
-
-                // Find out which Ids were not in cache
-                var channelsNotInCache = channelIds.Where(id => !channelsResults.Any(existId => existId.m_nChannelID == id));
-
-
-                if (channelsNotInCache != null)
-                {
-                    List<int> notIncludedInCache = channelsNotInCache.ToList<int>();
-
-                    if (notIncludedInCache.Count > 0)
-                    {
-                        List<Channel> createdChannels = ChannelRepository.GetChannels(notIncludedInCache, this);
-                        //add the channels from DB to cache 
-
-                        GroupManager groupManager = new GroupManager();
-                        bool bAdd = groupManager.InsertChannels(createdChannels, this);
-                        channelsResults.AddRange(createdChannels);
-
-                        foreach (Channel newChannel in createdChannels)
-                        {
-                            this.m_oGroupChannels.TryAdd(newChannel.m_nChannelID, newChannel);
-                        }
-                    }
-                }
-            }
-
-            return channelsResults;
-        }
-
-        /// <summary>
-        /// Returns a channel object by a given id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public Channel TryGetChannel(int id)
-        {
-            Channel result = null;
-
-            bool createdNew;
-            var mutexSecurity = Utils.CreateMutex();
-
-            using (Mutex mutex = new Mutex(false, string.Concat("Catalog ChannelID_", id), out createdNew, mutexSecurity))
-            {
-                try
-                {
-                    mutex.WaitOne(-1);
-
-                    // First check the inner channels dictionary.
-                    if (this.m_oGroupChannels.ContainsKey(id))
-                    {
-                        result = this.m_oGroupChannels[id];
-                    }
-                    // Then check if this Id is a valid channel Id at all
-                    else if (this.channelIDs.Contains(id))
-                    {
-                        GroupManager groupManager = new GroupManager();
-
-                        Channel channel = GroupsCache.Instance().GetChannel(id, this);
-
-                        if (channel != null)
-                        {
-                            result = channel;
-                        }
-                        else
-                        {
-                            // Build channel from DB
-                            Channel newChannel = ChannelRepository.GetChannel(id, this);
-
-                            // Add the channel from DB to cache 
-                            var list = new List<Channel>()
-                            {
-                                newChannel
-                            };
-
-                            groupManager.InsertChannels(list, this);
-
-                            this.m_oGroupChannels.TryAdd(id, newChannel);
-
-                            result = newChannel;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(string.Format("Couldn't get channel {0}, msg:{1}", id, ex.Message));
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                    _logger.Info(string.Format("{0} : {1}", "Release", string.Concat("Catalog ChannelID_", id)));
-                }
-            }
-
-            return result;
-        }
 
         public bool HasChannel(int id)
         {
-            return this.m_oGroupChannels.ContainsKey(id);
-        }
-
-        public bool SetChannel(int id, Channel channel)
-        {
-            if (channel != null)
-            {
-                this.channelIDs.Add(id);
-
-                return (this.m_oGroupChannels.TryAdd(id, channel));
-            }
-            else
-            {
-                return false;
-            }
+            return this.channelIDs.Contains(id);
         }
 
         public bool RemoveChannel(int id, out Channel channel)
@@ -617,8 +460,6 @@ namespace GroupsCacheManager
                     mutex.WaitOne(-1);
 
                     this.channelIDs.Remove(id);
-
-                    result = this.m_oGroupChannels.TryRemove(id, out channel);
                 }
                 catch (Exception ex)
                 {
@@ -632,16 +473,6 @@ namespace GroupsCacheManager
             }
 
             return (result);
-        }
-
-        public void UpdateChannelIdsList()
-        {
-            this.channelIDs = new HashSet<int>();
-
-            if (this.m_oGroupChannels != null)
-            {
-                this.channelIDs.UnionWith(this.m_oGroupChannels.Select(channel => channel.Key));
-            }
         }
 
         #endregion
