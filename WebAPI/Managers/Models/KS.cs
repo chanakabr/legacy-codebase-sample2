@@ -273,9 +273,8 @@ namespace WebAPI.Managers.Models
 
         private byte[] createRandomByteArray(int size)
         {
-            byte[] b = new byte[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
-            //byte[] b = new byte[size];
-           // new Random().NextBytes(b);
+            byte[] b = new byte[size];
+            new Random().NextBytes(b);
             return b;
         }
     }

@@ -59,6 +59,7 @@ namespace WebAPI.Models
         Timeout = 500002,
         BadRequest = 500003,
         Forbidden = 500004,
-        Unauthorized = 500005
+        Unauthorized = 500005,
+        MissingConfiguration = 500006,
     }
 }

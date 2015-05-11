@@ -15,35 +15,56 @@ namespace WebAPI.Managers
 {
     public class GroupsManager
     {
-        private const string GROUP_KEY_FORMAT = "group_{0}";
+        private static string groupKeyFormat;
+        private static int groupCacheTtlSeconds;
 
-        private static volatile Dictionary<int, Group> groupsInstances = new Dictionary<int, Group>();
-        private static object syncObj = new object();
-        private static ReaderWriterLockSlim syncLock = new ReaderWriterLockSlim();
+        private static object syncObj;
+        private static ReaderWriterLockSlim syncLock;
+
+        private static GroupsManager instance = null;
+
+        private GroupsManager()
+        {
+            try
+            {
+                groupKeyFormat = TCMClient.Settings.Instance.GetValue<string>("group_key_format");
+                groupCacheTtlSeconds = TCMClient.Settings.Instance.GetValue<int>("group_cache_ttl_seconds");
+                syncObj = new object();
+                syncLock = new ReaderWriterLockSlim();
+            }
+            catch (Exception ex)
+            {
+                throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
+            }
+        }
 
         public static Group GetGroup(int groupId)
         {
+            if (instance == null)
+                instance = new GroupsManager();
+
+            string groupKey = string.Format(groupKeyFormat, groupId);
             Group tempGroup = null;
 
-            if (!groupsInstances.ContainsKey(groupId))
+            if (HttpContext.Current.Cache.Get(groupKey) == null)
             {
                 if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
-                        if (!groupsInstances.ContainsKey(groupId))
+                        if (HttpContext.Current.Cache.Get(groupKey) == null)
                         {
                             Group group = createNewInstance(groupId);
 
                             if (group != null)
                             {
-                                groupsInstances.Add(groupId, group);
+                                HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        throw new InternalServerErrorException();
+                        throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                     }
                     finally
                     {
@@ -57,11 +78,15 @@ namespace WebAPI.Managers
             {
                 try
                 {
-                    groupsInstances.TryGetValue(groupId, out tempGroup);
+                    var res = HttpContext.Current.Cache.Get(groupKey);
+                    if (res != null && res is Group)
+                    {
+                        tempGroup = res as Group;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    throw new InternalServerErrorException();
+                    throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                 }
                 finally
                 {
@@ -76,7 +101,7 @@ namespace WebAPI.Managers
         {
             Group group = null;
 
-            group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(GROUP_KEY_FORMAT, groupId));
+            group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
 
             if (group == null)
             {

@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
 
             // get group secret
             Group group = GroupsManager.GetGroup(groupId);
-            string adminSecret = group.AdminSecret;
+            string adminSecret = group.UserSecret;
 
             // build KS
             ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);

@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            string userSecret = GroupsManager.GetGroup(groupId).AdminSecret;
+            string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
             
             //TODO: get real value
             int expiration = 1462543601;

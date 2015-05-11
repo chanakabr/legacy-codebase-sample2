@@ -11,9 +11,9 @@ namespace WebAPI.Managers.Models
     [Serializable]
     public class Group
     {
-        [DataMember(Name="admin_secret")]
-        [JsonProperty(PropertyName = "admin_secret")]
-        public string AdminSecret { get; set; }
+        [DataMember(Name="user_secret")]
+        [JsonProperty(PropertyName = "user_secret")]
+        public string UserSecret { get; set; }
 
         [JsonProperty(PropertyName = "api_credentials")]
         public Credentials ApiCredentials { get; set; }
