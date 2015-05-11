@@ -101,8 +101,8 @@ namespace TVPApiModule.Objects.Responses
 
                 ExtraParams = new Dictionary<string, string>();
 
-                ExtraParams.Add("start_date", TimeHelper.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
-                ExtraParams.Add("final_date", TimeHelper.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
+                ExtraParams.Add("sys_start_date", TimeHelper.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
+                ExtraParams.Add("sys_final_date", TimeHelper.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
                 ExtraParams.Add("external_ids", media.m_ExternalIDs);
             }
         }
