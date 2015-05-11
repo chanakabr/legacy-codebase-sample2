@@ -57,7 +57,16 @@ namespace Catalog
 
                 // get results
                 int totalItems = 0;
-                response.result = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetFilterTypes.NPVR }, FilterStatus, NumOfDays, OrderDir, m_nPageIndex, m_nPageSize, FINISHED_PERCENT_THRESHOLD, out totalItems);
+
+                // take finished percent threshold from TCM
+                int finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
+                string tempFinishedPercentThreshold = Utils.GetWSURL(string.Format("FINISHED_PERCENT_THRESHOLD_{0}", m_nGroupID));
+                if (!string.IsNullOrEmpty(tempFinishedPercentThreshold))
+                    int.TryParse(tempFinishedPercentThreshold, out finishedPercentThreshold);
+
+                response.result = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetFilterTypes.NPVR }, FilterStatus, NumOfDays,
+                    OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
+
                 response.m_nTotalItems = totalItems;
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
