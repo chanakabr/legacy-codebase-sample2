@@ -1517,7 +1517,7 @@ namespace Tvinci.Core.DAL
 
             List<UserWatchHistory> lastWatchViews = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                            .StartKey(new object[] { usersList, 0 })
-                                            .EndKey(new object[] { usersList, string.Empty }).ToList();
+                                            .EndKey(new object[] { usersList, string.Empty }).Stale(Couchbase.StaleMode.False).ToList();
 
             foreach (var view in lastWatchViews)
             {
@@ -1545,7 +1545,7 @@ namespace Tvinci.Core.DAL
                 // get views
                 List<UserWatchHistory> unFilteredresult = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                               .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
-                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).ToList();
+                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).Stale(Couchbase.StaleMode.False).ToList();
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
