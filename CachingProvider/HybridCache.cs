@@ -1,0 +1,273 @@
+﻿using Couchbase;
+using CouchbaseManager;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using TVinciShared;
+namespace CachingProvider
+{
+    public class HybridCache<T> : OutOfProcessCache
+    {
+        #region Data Members
+
+        private SingleInMemoryCache inMemoryCache;
+        private CouchBaseCache<T> couchbaseCache;
+        private double secondsInMemory;
+
+        #endregion
+
+        #region Ctor
+
+        /// <summary>
+        /// Initializes a new instance of the hybrid cache
+        /// </summary>
+        /// <param name="externalCacheName"></param>
+        private HybridCache(eCouchbaseBucket externalCacheName, string internalCacheName)
+        {
+            this.inMemoryCache = new SingleInMemoryCache(externalCacheName.ToString(), 0);
+            this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
+
+            this.secondsInMemory = WS_Utils.GetTcmDoubleValue("Groups_Cache_TTL");
+
+            // default value = 1 minute = 60 seconds
+            if (this.secondsInMemory == 0)
+            {
+                this.secondsInMemory = 60;
+            }
+        }
+
+        #endregion
+
+        public static HybridCache<T> GetInstance(string externalCacheName, string internalCacheName)
+        {
+            HybridCache<T> cache = null;
+            try
+            {
+                eCouchbaseBucket eCacheName;
+                if (Enum.TryParse<eCouchbaseBucket>(externalCacheName.ToUpper(), out eCacheName))
+                {
+                    cache = new HybridCache<T>(eCacheName, internalCacheName);
+                }
+                else
+                {
+                    Logger.Logger.Log("Error", string.Format("Unable to create hybrid cache. Please check that cache of type {0} exists.", externalCacheName), "CachingProvider");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error", string.Format("Unable to create hybrid cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), "CachingProvider");
+            }
+
+            return cache;
+        }
+
+        #region Override Methods
+
+        public override bool Add(string key, BaseModuleCache value, double minuteOffset)
+        {
+            bool inMemoryAdd = inMemoryCache.Add(key, value, minuteOffset);
+            bool couchBaseAdd = couchbaseCache.Add(key, value, minuteOffset);
+
+            return (inMemoryAdd && couchBaseAdd);
+        }
+
+        public override bool Set(string key, BaseModuleCache value, double minuteOffset)
+        {
+            bool inMemorySet = inMemoryCache.Set(key, value, minuteOffset);
+            bool couchBaseSet = couchbaseCache.Set(key, value, minuteOffset);
+
+            return (inMemorySet && couchBaseSet);
+        }
+
+        public override bool Add(string key, BaseModuleCache value)
+        {
+            bool inMemoryAdd = inMemoryCache.Add(key, value);
+            bool couchBaseAdd = couchbaseCache.Add(key, value);
+
+            return (inMemoryAdd && couchBaseAdd);
+        }
+
+        public override bool Set(string key, BaseModuleCache value)
+        {
+            bool inMemorySet = inMemoryCache.Add(key, value);
+            bool couchBaseSet = couchbaseCache.Add(key, value);
+
+            return (inMemorySet && couchBaseSet);
+        }
+
+        public override BaseModuleCache Get(string key)
+        {
+            BaseModuleCache result = inMemoryCache.Get(key);
+
+            // If it isn't in in-memory, get it from couchbase and put in in-memory
+            if (result == null || result.result == null)
+            {
+                result = couchbaseCache.Get(key);
+                inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+            }
+
+            return result;
+        }
+
+        public override T Get<T>(string key)
+        {
+            T result = default(T);
+
+            result = inMemoryCache.Get<T>(key);
+
+            if (result == default(T))
+            {
+                result = couchbaseCache.Get<T>(key);
+                BaseModuleCache newBaseModule = new BaseModuleCache(result);
+                inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
+            }
+
+            return result;
+        }
+
+        public override BaseModuleCache Remove(string key)
+        {
+            BaseModuleCache resultInMemory = this.inMemoryCache.Remove(key);
+            BaseModuleCache resultCouchbase = this.couchbaseCache.Remove(key);
+
+            if (resultInMemory != null && resultInMemory.result != null)
+            {
+                return resultInMemory;
+            }
+            else
+            {
+                return resultCouchbase;
+            }
+        }
+
+        public override BaseModuleCache GetWithVersion<T>(string key)
+        {
+            BaseModuleCache result = inMemoryCache.GetWithVersion<T>(key);
+
+            // If it isn't in in-memory, get it from couchbase and put in in-memory
+            if (result == null || result.result == null)
+            {
+                result = couchbaseCache.GetWithVersion<T>(key);
+                inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+            }
+
+            return result;        
+        }
+
+        public override bool AddWithVersion<T>(string key, BaseModuleCache value)
+        {
+            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value);
+            bool couchBaseAdd = couchbaseCache.AddWithVersion<T>(key, value);
+
+            return (inMemoryAdd && couchBaseAdd);
+        }
+
+        public override bool AddWithVersion<T>(string key, BaseModuleCache value, double minuteOffset)
+        {
+            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value, minuteOffset);
+            bool couchBaseAdd = couchbaseCache.AddWithVersion<T>(key, value, minuteOffset);
+
+            return (inMemoryAdd && couchBaseAdd);
+        }
+
+        public override bool SetWithVersion<T>(string key, BaseModuleCache value, double minuteOffset)
+        {
+            bool inMemorySet = inMemoryCache.SetWithVersion<T>(key, value, minuteOffset);
+            bool couchBaseSet = couchbaseCache.SetWithVersion<T>(key, value, minuteOffset);
+
+            return (inMemorySet && couchBaseSet);
+        }
+
+        public override bool SetWithVersion<T>(string key, BaseModuleCache value)
+        {
+            bool inMemorySet = inMemoryCache.SetWithVersion<T>(key, value);
+            bool couchBaseSet = couchbaseCache.SetWithVersion<T>(key, value);
+
+            return (inMemorySet && couchBaseSet);
+        }
+
+        public override IDictionary<string, object> GetValues(List<string> keys)
+        {
+            IDictionary<string, object> result = new Dictionary<string, object>();
+
+            IDictionary<string, object> dictionaryInMemory = this.inMemoryCache.GetValues(keys);
+
+            List<string> missingKeys = new List<string>();
+
+            // If we didn't get any key
+            if (dictionaryInMemory == null || dictionaryInMemory.Count == 0)
+            {
+                missingKeys = keys;
+            }
+            // If we didn't get some of the keys
+            else if (dictionaryInMemory.Count < keys.Count)
+            {
+                // Find out which of the keys didn't return from the in-memory
+                foreach (string key in keys)
+                {
+                    if (!dictionaryInMemory.ContainsKey(key))
+                    {
+                        missingKeys.Add(key);
+                    }
+                }
+            }
+
+            // If everything is in-memory, just use it
+            if (missingKeys.Count == 0)
+            {
+                result = dictionaryInMemory;
+            }
+            else
+            {
+                // If not, get missing keys from couchbase
+                IDictionary<string, object> dictionaryCouchbase = this.couchbaseCache.GetValues(missingKeys);
+
+                if (dictionaryCouchbase != null)
+                {
+                    // Put result from couchbase in result dictionary + in memory
+                    foreach (var keyValue in dictionaryCouchbase)
+                    {
+                        result.Add(keyValue);
+                        this.inMemoryCache.Add(keyValue.Key, new BaseModuleCache(keyValue.Value), this.secondsInMemory / 60);
+                    }
+                }
+
+                // Union with whatever we have in-memory
+                if (dictionaryInMemory != null)
+                {
+                    foreach (var keyValue in dictionaryInMemory)
+                    {
+                        result.Add(keyValue);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public override bool SetJson<T>(string key, T obj, double cacheTT)
+        {
+            bool inMemorySet = this.inMemoryCache.SetJson<T>(key, obj, cacheTT);
+            bool couchBaseSet = this.couchbaseCache.SetJson<T>(key, obj, cacheTT);
+
+            return inMemorySet && couchBaseSet;
+        }
+
+        public override bool GetJsonAsT<T>(string key, out T result)
+        {
+            bool success = false;
+
+            success = this.inMemoryCache.GetJsonAsT<T>(key, out result);
+
+            if (!success || result == default(T))
+            {
+                success = this.couchbaseCache.GetJsonAsT<T>(key, out result);
+            }
+
+            return success;
+        }
+
+        #endregion
+    }
+}
