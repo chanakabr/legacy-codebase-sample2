@@ -198,7 +198,16 @@ namespace EpgBL
                 UpdateEpg(epg);
             }
         }
-    
+        public override void RemoveGroupPrograms(List<string> docIds)
+        {
+            List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(docIds);
+
+            foreach (EpgCB epg in lResCB)
+            {
+                epg.Status = 2;
+                UpdateEpg(epg);
+            }
+        }
 
         public override void RemoveGroupPrograms(List<DateTime> lDates, int channelID)
         {

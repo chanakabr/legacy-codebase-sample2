@@ -494,5 +494,19 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+
+        public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int groupID, int channelID)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertNewEPGMultiPic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@epg_identifier", epgIdentifier);
+            sp.AddParameter("@pic_id", picID);
+            sp.AddParameter("@channel_id", channelID);
+            sp.AddParameter("@ratio_id", ratioID);
+            sp.AddParameter("@groupID", groupID);
+
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
     }
 }

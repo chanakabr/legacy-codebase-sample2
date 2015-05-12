@@ -169,6 +169,10 @@ namespace EpgBL
         {
         }
 
+        public override void RemoveGroupPrograms(List<string> docIds)
+        {
+        }
+
         public override EpgCB GetEpgCB(ulong nProgramID)
         {
             return null;

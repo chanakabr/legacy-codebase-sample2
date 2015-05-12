@@ -70,6 +70,9 @@ namespace ApiObjects
         [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public List<EpgPicture> pictures { get; set; }
 
+        [JsonProperty("tagsMultiLanguages")]
+        public Dictionary<string, List<EpgTagTranslate>> TagsMultiLanguages { get; set; }
+
 
 
         
@@ -101,6 +104,7 @@ namespace ApiObjects
 
             Language = string.Empty;
             pictures = new List<EpgPicture>();
+            TagsMultiLanguages = new Dictionary<string, List<EpgTagTranslate>>();
         }
 
               
@@ -218,6 +222,10 @@ namespace ApiObjects
                     }
                 }
                 
+                #endregion
+
+                #region tag multi languages
+                //TO DO : 
                 #endregion
             }
             return true;

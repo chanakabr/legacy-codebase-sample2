@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace ApiObjects.Epg
 {
+    [Serializable]
     public class EpgTagTranslate
     {
         public EpgTagTranslate()
@@ -12,24 +14,28 @@ namespace ApiObjects.Epg
         }
 
 
-        public EpgTagTranslate(int language, string value , int id)
+        public EpgTagTranslate(string language, string value, int id)
         {
-            nLanguage = language;
-            sValue = value;
-            nID = id;
+           this.language = language;
+            this.value = value;
+            this.ID = id;
         }
 
-        public EpgTagTranslate(int language, string value, string valueMain)
+        public EpgTagTranslate(string language, string value, string valueMain)
         {
-            nLanguage = language;
-            sValue = value;
-            sValueMain = valueMain;
+            this.language = language;
+            this.value = value;
+            this.valueMain = valueMain;
         }
 
-        public int nLanguage { get; set; }
-        public string sValue { get; set; }
-        public int nID {get;set;}
-        public string sValueMain { get; set; }
+        [JsonProperty("language")]
+        public string language { get; set; }
+        [JsonProperty("value")]
+        public string value { get; set; }
+        [JsonProperty("id")]
+        public int ID { get; set; }
+        [JsonProperty("valueMain")]
+        public string valueMain { get; set; }
     }
 }
 

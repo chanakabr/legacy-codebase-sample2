@@ -32,7 +32,6 @@ namespace EpgBL
 
         public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
         public abstract bool InsertEpg(EpgCB newEpgItem, out string docID, ulong? cas = null);
-        //public abstract bool InsertEpg(EpgCB newEpgItem, string sNewID, ulong? cas = null);
 
         public abstract bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 
@@ -43,5 +42,7 @@ namespace EpgBL
         public abstract void RemoveGroupPrograms(List<DateTime> lDates, int channelID);
 
         public abstract void RemoveGroupPrograms(List<int> lprogramIDs);
+
+        public abstract void RemoveGroupPrograms(List<string> docIds); 
     }
 }
