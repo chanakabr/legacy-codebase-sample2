@@ -110,6 +110,7 @@
             function StartValues()
             {
                 theIDs = window.document.getElementById("ids_place").value;
+
                 if (theIDs != "")
                     RS.Execute("adm_epg_pic_popup_selector.aspx", "GetPics", theIDs , callback_selected_pics, errorCallback);
                 <% GetNewIDFunc(); %>
