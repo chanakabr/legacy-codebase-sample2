@@ -1516,7 +1516,7 @@ namespace Tvinci.Core.DAL
 
             List<UserWatchHistory> lastWatchViews = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                            .StartKey(new object[] { usersList, 0 })
-                                            .EndKey(new object[] { usersList, string.Empty }).ToList();
+                                            .EndKey(new object[] { usersList, string.Empty }).Stale(Couchbase.StaleMode.False).ToList();
 
             foreach (var view in lastWatchViews)
             {
@@ -1529,7 +1529,7 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
@@ -1544,7 +1544,7 @@ namespace Tvinci.Core.DAL
                 // get views
                 List<UserWatchHistory> unFilteredresult = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                               .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
-                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).ToList();
+                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).Stale(Couchbase.StaleMode.False).ToList();
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -1554,14 +1554,14 @@ namespace Tvinci.Core.DAL
                         case eWatchStatus.Progress:
 
                             // remove all finished
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
+                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
                             break;
 
                         case eWatchStatus.Done:
 
                             // remove all in progress
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
+                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
                             break;
 
@@ -1583,6 +1583,10 @@ namespace Tvinci.Core.DAL
                     // filter asset types
                     if (assetTypes != null && assetTypes.Count > 0)
                         unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+
+                    // filter excluded asset types
+                    if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
+                        unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
 
                     // order list
                     switch (orderDir)
@@ -2739,6 +2743,106 @@ namespace Tvinci.Core.DAL
             }
 
             return epgIdentifiers;
+        }
+
+        public static Dictionary<int, List<EpgPicture>> GetGroupTreeMultiPicEpgUrl(int parentGroupID)
+        {
+            Dictionary<int, List<EpgPicture>> res = null;
+            
+            StoredProcedure sp = new StoredProcedure("GetGroupTreeMultiPicEpgUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable groupRatioTable = ds.Tables[0];
+                string baseUrl = string.Empty;
+                int width = 0;
+                int height = 0;
+                string ratio = string.Empty;
+
+                if (groupRatioTable != null && groupRatioTable.Rows != null && groupRatioTable.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, List<EpgPicture>>();                
+                    foreach (DataRow dr in groupRatioTable.Rows)
+                    {
+                        int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+                        if (groupID > 0)
+                        {
+                            baseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "baseURL");
+                            if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                            {
+                                baseUrl = String.Concat(baseUrl, '/');
+                            }
+                            width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
+                            height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
+                            ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+
+                            EpgPicture picture = new EpgPicture();
+                            picture.Initialize(width, height, ratio, baseUrl);
+                            if (!res.ContainsKey(groupID))
+                            {
+                                res.Add(groupID, new List<EpgPicture>() { picture });
+                            }
+                            else
+                            {
+                                res[groupID].Add(picture);
+                            }
+                        }
+                    }
+                }
+                if (ds.Tables.Count > 1)
+                {
+                    DataTable groupEpgRatioTable = ds.Tables[1];                    
+                    width = 0;
+                    height = 0;
+                    ratio = string.Empty;
+                    int ratioID = 0;
+                    if (groupEpgRatioTable != null && groupEpgRatioTable.Rows != null && groupEpgRatioTable.Rows.Count > 0)
+                    {
+                        if (res == null)
+                        {
+                            res = new Dictionary<int, List<EpgPicture>>();
+                        }
+
+                        foreach (DataRow dr in groupEpgRatioTable.Rows)
+                        {
+                            int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+                            if (groupID > 0)
+                            {                               
+                                width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
+                                height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
+                                ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                              
+                                EpgPicture picture = new EpgPicture();
+                                picture.Initialize(width, height, ratio, baseUrl);
+                                if (!res.ContainsKey(groupID))
+                                {
+                                    res.Add(groupID, new List<EpgPicture>() { picture });
+                                }
+                                else
+                                {
+                                    if (!res[groupID].Exists(x => x.Ratio == ratio && x.PicHeight == height && x.PicWidth == width))
+                                    {
+                                        res[groupID].Add(picture);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (res == null)
+                {
+                    res = new Dictionary<int, List<EpgPicture>>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, List<EpgPicture>>(0);
+            }
+
+            return res;
         }
     }
 }

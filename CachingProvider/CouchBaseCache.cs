@@ -70,7 +70,16 @@ namespace CachingProvider
         public override BaseModuleCache Get(string sKey)
         {
             BaseModuleCache baseModule = new BaseModuleCache();
-            baseModule.result = m_Client.Get(sKey);
+
+            try
+            {
+                baseModule.result = m_Client.Get(sKey);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("CouchBaseCache", string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace), "GroupsCache");
+            }
+
             return baseModule;
         }
         

@@ -11,16 +11,17 @@ namespace ApiObjects.Epg
     public class EpgPicture
     {
         [DataMember]
-        public Int32 PicWidth {set; get;}
+        public Int32 PicWidth { set; get; }
         [DataMember]
         public Int32 PicHeight { set; get; }
         [DataMember]
         public string Ratio { set; get; }
-        [DataMember]
-        public string Url { set; get; }
-        
+      
         [DataMember(IsRequired = false)]
         public int PicID { set; get; }
+
+        public string Url { set; get; }
+
 
         public EpgPicture()
         {
@@ -31,12 +32,13 @@ namespace ApiObjects.Epg
             PicID = 0;
         }
 
-        public void Initialize (Int32 picWidth , Int32 picHeight , string ratio, string url)
+        public void Initialize(Int32 picWidth, Int32 picHeight, string ratio, string url)
         {
             this.PicHeight = picHeight;
             this.PicWidth = picWidth;
             this.Ratio = ratio;
             this.Url = url;
+
         }
 
         public void Initialize(Int32 picWidth, Int32 picHeight, string ratio, string url, int picID)
@@ -44,5 +46,6 @@ namespace ApiObjects.Epg
             Initialize(picWidth, picHeight, ratio, url);
             this.PicID = picID;
         }
+
     }
 }

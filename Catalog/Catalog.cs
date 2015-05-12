@@ -2390,6 +2390,8 @@ namespace Catalog
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
                     var currentEpg = basicEpgObjects[i];
+                 
+
 
                     int tempEpgChannelID = 0;
 

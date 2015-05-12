@@ -18,7 +18,9 @@ namespace GroupsCacheManager
         private static readonly string DEFAULT_CACHE_NAME = "GroupsCache";
         protected const string GROUP_LOG_FILENAME = "Group";
         #endregion
-              
+
+        #region Data members
+
         #region InnerCache properties
         private static object locker = new object();       
         #endregion
@@ -28,13 +30,65 @@ namespace GroupsCacheManager
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
         #endregion
 
+
         private ICachingService CacheService = null;
         private readonly double dCacheTT;
         private string cacheGroupConfiguration = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
-        private string sKeyCache = string.Empty;
+        private string keyCachePrefix = string.Empty;
 
         private static GroupsCache instance = null;
-        
+
+        private string version;
+
+        #endregion
+
+        #region Ctor
+
+        private GroupsCache()
+        {
+            switch (cacheGroupConfiguration)
+            {
+                case "CouchBase":
+                {
+                    CacheService = CouchBaseCache<Group>.GetInstance("CACHE");
+                    this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
+                    dCacheTT = GetDocTTLSettings();     //set ttl time for document 
+                    break;
+                }
+                case "InnerCache":
+                {
+                    dCacheTT = GetDefaultCacheTimeInMinutes();
+                    InitializeCachingService(GetCacheName(), dCacheTT);
+                    keyCachePrefix = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
+                    break;
+                }
+            }
+
+            version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+
+        }
+
+        #endregion
+
+        #region Singleton
+
+        public static GroupsCache Instance()
+        {
+            if (instance == null)
+            {
+                lock (locker)
+                {
+                    if (instance == null)
+                    {
+                        instance = new GroupsCache();
+                    }
+                }
+            }
+
+            return instance;
+        }
+
+        #endregion
 
         private string GetCacheName()
         {
@@ -68,44 +122,7 @@ namespace GroupsCacheManager
 
             return nResult;
         }
-        
-        private GroupsCache()
-        {
-            switch (cacheGroupConfiguration)
-            {
-                case "CouchBase":
-                    {
-                        CacheService = CouchBaseCache<Group>.GetInstance("CACHE");
-                        this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
-                        dCacheTT = GetDocTTLSettings();     //set ttl time for document 
-                        break;
-                    }
-                case "InnerCache":
-                    {   
-                        dCacheTT = GetDefaultCacheTimeInMinutes();
-                        InitializeCachingService(GetCacheName(), dCacheTT);
-                        sKeyCache = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
-                        break;
-                    }
-            }
-        }
 
-        public static GroupsCache Instance()
-        {
-            if (instance == null)
-            {
-                lock (locker)
-                {
-                    if (instance == null)
-                    {
-                        instance = new GroupsCache();
-                    }
-                }
-            }
-
-            return instance;
-        }
-        
         internal void LogCachingError(string msg, string key, object obj, string methodName, string logFile)
         {
             StringBuilder sb = new StringBuilder(msg);
@@ -116,17 +133,22 @@ namespace GroupsCacheManager
             Logger.Logger.Log("CacheError", sb.ToString(), logFile);
         }
 
+        private string BuildGroupCacheKey(int nGroupID)
+        {
+            return string.Format("{0}{1}_{2}", keyCachePrefix, version, nGroupID);
+        }
+
         public Group GetGroup(int nGroupID)
         {
             Group group = null;
             BaseModuleCache baseModule = null;
             try
             {
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string cacheKey = BuildGroupCacheKey(nGroupID);
 
                 try
                 {
-                    baseModule = this.CacheService.Get(sKey);
+                    baseModule = this.CacheService.Get(cacheKey);
                 }
                 catch (ArgumentException exception)
                 {
@@ -150,11 +172,12 @@ namespace GroupsCacheManager
                         {
                             mutex.WaitOne(-1);
                             // try to get GRoup from CB 
+
                             VersionModuleCache versionModule = null;
 
                             try
                             {
-                                versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(sKey);
+                                versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<Group>(cacheKey);
                             }
                             catch (ArgumentException exception)
                             {
@@ -175,7 +198,7 @@ namespace GroupsCacheManager
                                 {
                                     //try insert to Cache                                     
                                     versionModule.result = tempGroup;
-                                    bInsert = this.CacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
+                                    bInsert = this.CacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
                                     if (bInsert)
                                     {
                                         group = tempGroup;
@@ -202,7 +225,7 @@ namespace GroupsCacheManager
                 return null;
             }
         }
-               
+
         internal bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group)
         {
             return Add(nOperatorID, subscriptionChannels, group);
@@ -246,7 +269,7 @@ namespace GroupsCacheManager
             {
                 Group group = null;
                 //get group by id from cache
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
 
                 for (int i = 0; i < 3 && !bAdd; i++)
                 {
@@ -307,7 +330,7 @@ namespace GroupsCacheManager
             try
             {
                 VersionModuleCache versionModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 //get group by id from CB               
                 for (int i = 0; i < 3 && !bUpdate; i++)
                 {
@@ -340,7 +363,7 @@ namespace GroupsCacheManager
             try
             {
                 Channel channel = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, group.m_nParentGroupID);
+                string sKey = BuildGroupCacheKey(group.m_nParentGroupID);
                 //get group by id from cache
 
                 for (int i = 0; i < 3 && !bInsert; i++)
@@ -394,7 +417,7 @@ namespace GroupsCacheManager
                 Channel removedChannel = null;
                 VersionModuleCache vModule  = null;
 
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 for (int i = 0; i < 3 && !isRemovingChannelSucceded; i++)
                 {
                     vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
@@ -440,7 +463,7 @@ namespace GroupsCacheManager
             {
                 Group group = null;
 
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
 
                 for (int i = 0; i < 3 && !isRemovingGroupSucceded; i++)
                 {
@@ -481,7 +504,7 @@ namespace GroupsCacheManager
                 bool bAdd = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 
                 //get group by id from Cache
                 for (int i = 0; i < 3 && !bAdd; i++)
@@ -516,7 +539,7 @@ namespace GroupsCacheManager
                 bool bDelete = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 
                 //get group by id from cache                
                 for (int i = 0; i < 3 && !bDelete; i++)
@@ -552,7 +575,7 @@ namespace GroupsCacheManager
             {
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
 
                 //get group by id from Cache
 
@@ -587,7 +610,7 @@ namespace GroupsCacheManager
                 bool bAdd = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 
                 vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);               
                 if (vModule != null && vModule.result != null)
@@ -620,7 +643,7 @@ namespace GroupsCacheManager
                 bool bDelete = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
                 if (vModule != null && vModule.result != null)
                 { 
@@ -652,7 +675,7 @@ namespace GroupsCacheManager
                 bool bUpdate = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, nGroupID);
+                string sKey = BuildGroupCacheKey(nGroupID);
                 vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
 
                 if (vModule != null && vModule.result != null)
@@ -687,7 +710,7 @@ namespace GroupsCacheManager
                 bool isUpdated = false;
                 Group group = null;
                 VersionModuleCache vModule = null;
-                string sKey = string.Format("{0}{1}", sKeyCache, groupID);
+                string sKey = BuildGroupCacheKey(groupID);
                 vModule = (VersionModuleCache)CacheService.GetWithVersion<Group>(sKey);
 
                 if (vModule != null && vModule.result != null)

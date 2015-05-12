@@ -66,16 +66,14 @@ namespace ApiObjects
         [JsonProperty("language")]
         public string Language { get; set; }
 
-        // PS version
+
+        // from LUNA version
         [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public List<EpgPicture> pictures { get; set; }
 
         [JsonProperty("tagsMultiLanguages")]
         public Dictionary<string, List<EpgTagTranslate>> TagsMultiLanguages { get; set; }
 
-
-
-        
         public EpgCB()
         {
             EpgID = 0;
@@ -104,6 +102,7 @@ namespace ApiObjects
 
             Language = string.Empty;
             pictures = new List<EpgPicture>();
+
             TagsMultiLanguages = new Dictionary<string, List<EpgTagTranslate>>();
         }
 
@@ -201,7 +200,6 @@ namespace ApiObjects
                 }
                 #endregion
 
-
                 #region Pictures
                 if (this.pictures != null && obj.pictures != null && this.pictures.Count == obj.pictures.Count)
                 {
@@ -221,8 +219,8 @@ namespace ApiObjects
                         }
                     }
                 }
-                
                 #endregion
+
 
                 #region tag multi languages
                 //TO DO : 
@@ -230,9 +228,7 @@ namespace ApiObjects
             }
             return true;
         }
-       
-
-       
+               
     }
 
     [Serializable]
