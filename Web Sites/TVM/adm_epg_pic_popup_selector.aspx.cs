@@ -35,10 +35,12 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
             {
                 string sIDs = Request.Form["ids_place"].ToString();
                 {
-                    EpgCB epg = new EpgCB(); 
+                    EpgCB epg = new EpgCB();
+                    epg.EpgIdentifier = Session["epgIdentifier"].ToString();
+                    epg.ChannelID = int.Parse(Session["channelID"].ToString());
+
                     CouchBaseManipulator.DoTheWork(ref epg, new Dictionary<int, string>() , new Dictionary<int, string>());
                     int nID = epg.PicID;
-              
                 Session["new_id"] = nID.ToString();
                 }
                 return;
@@ -90,6 +92,16 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
             {
                 Session["lastPage"] = null;              
             }
+            if (Request.QueryString["epgIdentifier"] != null && Request.QueryString["epgIdentifier"].ToString() != "")
+            {
+                Session["epgIdentifier"] = Request.QueryString["epgIdentifier"].ToString();
+            }
+
+            if (Request.QueryString["channelID"] != null && Request.QueryString["channelID"].ToString() != "")
+            {
+                Session["channelID"] = int.Parse(Request.QueryString["channelID"].ToString());
+            }
+
         }
     }
 
@@ -238,10 +250,6 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
         DataRecordCheckBoxField dr_thumbnail = new DataRecordCheckBoxField(true);
         dr_thumbnail.Initialize("Thumbnail ", "adm_table_header_nbg", "FormInput", "", false);
         theRecord.AddRecord(dr_thumbnail);
-
-
-
-
         
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
