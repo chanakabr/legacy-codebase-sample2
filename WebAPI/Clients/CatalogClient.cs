@@ -88,40 +88,47 @@ namespace WebAPI.Clients
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-
-            switch (orderBy)
+            if (orderBy == null)
             {
-                case Order.a_to_z:
-                    order.m_eOrderBy = OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.ASC;
-                    break;
-                case Order.z_to_a:
-                    order.m_eOrderBy = OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case Order.views:
-                    order.m_eOrderBy = OrderBy.VIEWS;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case Order.ratings:
-                    order.m_eOrderBy = OrderBy.RATING;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case Order.votes:
-                    order.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case Order.newest:
-                    order.m_eOrderBy = OrderBy.CREATE_DATE;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case null:    
-                case Order.relevancy:
-                    order.m_eOrderBy = OrderBy.RELATED;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.BadRequest, "Unknown orderBy value");
+                order.m_eOrderBy = OrderBy.RELATED;
+                order.m_eOrderDir = OrderDir.DESC;
+            }
+            else
+            {
+                switch (orderBy)
+                {
+                    case Order.a_to_z:
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case Order.z_to_a:
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.views:
+                        order.m_eOrderBy = OrderBy.VIEWS;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.ratings:
+                        order.m_eOrderBy = OrderBy.RATING;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.votes:
+                        order.m_eOrderBy = OrderBy.VOTES_COUNT;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.newest:
+                        order.m_eOrderBy = OrderBy.CREATE_DATE;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case null:
+                    case Order.relevancy:
+                        order.m_eOrderBy = OrderBy.RELATED;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.BadRequest, "Unknown order_by value");
+                }
             }
 
             // build request
@@ -148,7 +155,95 @@ namespace WebAPI.Clients
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.SearchAssets(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            result = CatalogUtils.GetAssets<AssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+
+            return result;
+        }
+
+        public SlimAssetInfoWrapper Autocomplete(int groupID, string siteGuid, string udid, int language, int? size, string query, Order? orderBy, List<int> assetTypes, List<With> with)
+        {
+            SlimAssetInfoWrapper result = new SlimAssetInfoWrapper();
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (size == null || size > 10 || size < 1)
+            {
+                size = 5;
+            }
+
+            // Create our own filter - only search in title
+            string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.CREATE_DATE;
+                order.m_eOrderDir = OrderDir.DESC;
+            }
+            else
+            {
+                switch (orderBy)
+                {
+                    case Order.a_to_z:
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case Order.z_to_a:
+                        order.m_eOrderBy = OrderBy.NAME;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.views:
+                        order.m_eOrderBy = OrderBy.VIEWS;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.ratings:
+                        order.m_eOrderBy = OrderBy.RATING;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.votes:
+                        order.m_eOrderBy = OrderBy.VOTES_COUNT;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case Order.newest:
+                        order.m_eOrderBy = OrderBy.CREATE_DATE;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case null:
+                    case Order.relevancy:
+                        order.m_eOrderBy = OrderBy.RELATED;
+                        order.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.BadRequest, "Unknown order_by value");
+                }
+            }
+
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_nLanguage = language,
+                    m_sDeviceId = udid
+                },
+                m_nGroupID = groupID,
+                m_nPageIndex = 0,
+                m_nPageSize = size.Value,
+                filterQuery = filter,
+                order = order,
+                assetTypes = assetTypes,
+            };
+
+            // build failover cahce key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Autocomplete_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, size, 0, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            if (assetTypes != null && assetTypes.Count > 0)
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+
+            result = CatalogUtils.GetAssets<SlimAssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
             return result;
         }

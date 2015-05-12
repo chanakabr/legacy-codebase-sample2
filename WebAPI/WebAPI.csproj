@@ -154,6 +154,9 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <None Include="Service References\Catalog\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -598,6 +601,8 @@
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\AssetType.cs" />
+    <Compile Include="Models\Autocomplete.cs" />
+    <Compile Include="Models\BaseListWrapper.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\SearchAssets.cs" />
     <Compile Include="Models\Language.cs" />
@@ -607,6 +612,7 @@
     <Compile Include="Models\BuzzScore.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Image.cs" />
+    <Compile Include="Models\SlimAssetInfo.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\SignIn.cs" />
     <Compile Include="Models\User.cs" />

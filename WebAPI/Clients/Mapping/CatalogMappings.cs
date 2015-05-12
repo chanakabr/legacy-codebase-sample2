@@ -88,6 +88,19 @@ namespace WebAPI.Clients.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)));
 
+            //Media to SlimAssetInfo
+            Mapper.CreateMap<MediaObj, SlimAssetInfo>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID));
+
+            //Media to SlimAssetInfo
+            Mapper.CreateMap<ProgramObj, SlimAssetInfo>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
         }
 
         private static int GetPictureWidth(string size)
@@ -182,8 +195,8 @@ namespace WebAPI.Clients.Mapping
         {
             Dictionary<string, string> extraParams = new Dictionary<string, string>();
 
-            extraParams.Add("start_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
-            extraParams.Add("final_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
+            extraParams.Add("sys_start_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
+            extraParams.Add("sys_final_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
             extraParams.Add("external_ids", media.m_ExternalIDs);
 
             return extraParams;

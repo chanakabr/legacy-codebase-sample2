@@ -9,6 +9,8 @@ namespace WebAPI.Models
     {
         files,
 
-        stats
+        stats,
+
+        images
     }
 }
