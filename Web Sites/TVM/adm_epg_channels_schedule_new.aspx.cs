@@ -315,10 +315,13 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), true);        
         theRecord.AddRecord(dr_end_date);
 
-        DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField();
-        dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
-        dr_pic.SetValue(epg.PicID.ToString());
-        theRecord.AddRecord(dr_pic);
+        if (!string.IsNullOrEmpty(epg.EpgIdentifier))
+        {            
+            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField(string.Empty, epg.EpgIdentifier, epg.ChannelID);
+            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+            dr_pic.SetValue(epg.PicID.ToString());
+            theRecord.AddRecord(dr_pic);
+        }
 
         DataRecordLongTextField dr_bio = new DataRecordLongTextField("ltr", true, 60, 5);
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", epg.Description, false);           

@@ -564,13 +564,30 @@ function OpenMediaTypeBrowser(theID, lastPage) {
 }
 
 
-function OpenPicBrowserEpg(theID, maxPics, lastPage)
-{    
+//function OpenPicBrowserEpg(theID, maxPics, lastPage)
+//{
+//    debugger;
+//    theVal = window.document.getElementsByName(theID)[0].value;
+//    theURL = "adm_epg_pic_popup_selector.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage ;
+//    popUp(theURL, 'PicSelector');
+//}
+
+
+
+function OpenPicBrowserEpg(theID, maxPics, lastPage, epgIdentifier, channelID) {
+    debugger;
     theVal = window.document.getElementsByName(theID)[0].value;
-    theURL = "adm_epg_pic_popup_selector.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage;
+    theURL = "adm_epg_pic_popup_selector.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage + "&epgIdentifier=" + epgIdentifier + "&channelID=" + channelID;
     popUp(theURL, 'PicSelector');
 }
 
+function OpenPicBrowser(theID, maxPics, lastPage, epgIdentifier) {
+  
+    theVal = window.document.getElementsByName(theID)[0].value;
+
+    theURL = "adm_pic_popup_selector.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage;// + "&epgIdentifier=" + epgIdentifier;
+    popUp(theURL, 'PicSelector');
+}
 
 
 function OpenCommentsFilterBrowser() {
