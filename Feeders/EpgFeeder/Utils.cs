@@ -131,5 +131,34 @@ namespace EpgFeeder
             }
         }
 
+
+        internal static void GenerateTagsAndValues(ApiObjects.EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref Dictionary<int, List<string>> tagsAndValues)
+        {
+            foreach (string tagType in epg.Tags.Keys)
+            {
+                string tagTypel = tagType.ToLower();
+                int tagTypeID = 0;
+                List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
+                if (tagField != null && tagField.Count > 0)
+                {
+                    tagTypeID = tagField[0].ID;
+                }
+                else
+                {
+                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    continue;//missing tag definition in DB (in FieldEntityMapping)                        
+                }
+
+                if (!tagsAndValues.ContainsKey(tagTypeID))
+                {
+                    tagsAndValues.Add(tagTypeID, new List<string>());
+                }
+                foreach (string tagValue in epg.Tags[tagType])
+                {
+                    if (!tagsAndValues[tagTypeID].Contains(tagValue.ToLower()))
+                        tagsAndValues[tagTypeID].Add(tagValue.ToLower());
+                }
+            }
+        }
     }
 }
