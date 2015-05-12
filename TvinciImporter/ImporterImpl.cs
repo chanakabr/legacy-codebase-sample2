@@ -1753,7 +1753,7 @@ namespace TvinciImporter
 
 
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
-        {
+        {   
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
@@ -1762,6 +1762,43 @@ namespace TvinciImporter
             else
             {
                 return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+            }           
+        }
+
+        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, string epgIdentifier, int ratioID = 0)
+        {
+            Int32 picID = 0;
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+            {
+                picID = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+            }
+            else
+            {
+                picID = DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+            }
+            if (picID > 0)
+            {
+                // insert to db table 
+                bool result = InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);  //insert with sPicName instead of full path               
+            }
+            return picID;
+        }
+
+
+        private static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
+        {
+            try
+            {
+                bool result = Tvinci.Core.DAL.EpgDal.InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("InsertNewEPGMultiPic",
+                    string.Format("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID),
+                    "DownloadEPGPic");
+                return false;
             }
         }
 

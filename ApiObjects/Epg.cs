@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ApiObjects.Epg;
 namespace ApiObjects
 {
     [Serializable]
@@ -64,7 +65,11 @@ namespace ApiObjects
 
         [JsonProperty("language")]
         public string Language { get; set; }
-        
+
+        [JsonProperty("pictures", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public List<EpgPicture> pictures { get; set; }
+
+
         public EpgCB()
         {
             EpgID = 0;
@@ -92,6 +97,7 @@ namespace ApiObjects
             Tags = new Dictionary<string, List<string>>();
 
             Language = string.Empty;
+            pictures = new List<EpgPicture>();
         }
 
               
@@ -187,12 +193,32 @@ namespace ApiObjects
                     }
                 }
                 #endregion
+                                
+                #region Pictures
+                if (this.pictures != null && obj.pictures != null && this.pictures.Count == obj.pictures.Count)
+                {
+                    foreach (EpgPicture epgPicture in obj.pictures) // compare the values between the lists
+                    {
+                        if (!this.pictures.Exists(x => x.Url == epgPicture.Url))
+                        {
+                            return false;
+                        }
+                    }
+
+                    foreach (EpgPicture epgPicture in this.pictures) // compare the values between the lists
+                    {
+                        if (!obj.pictures.Exists(x => x.Url == epgPicture.Url))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                #endregion   
             }
             return true;
         }
-       
-
-       
+               
     }
 
     [Serializable]

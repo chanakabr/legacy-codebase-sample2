@@ -72,7 +72,14 @@ namespace ApiObjects
             media_id = nmedia_id;
             LIKE_COUNTER = nLikeCounter;
             EPG_PICTURES = new List<EpgPicture>();
-
+        }
+        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
+            string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
+            List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter , List<EpgPicture> epgPictures)
+        {
+            Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE, 
+                nPUBLISH_DATE, nCREATE_DATE, nEPG_TAGS, nEPG_META, nmedia_id, nLikeCounter);
+            EPG_PICTURES = epgPictures;
         }
 
         public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>

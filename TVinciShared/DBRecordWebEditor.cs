@@ -2324,17 +2324,28 @@ namespace TVinciShared
     public class DataRecordOnePicBrowserField : BaseDataRecordField
     {
         private string m_lastPage;
+        private string m_epgIdentifier;
+        private int m_channelID;
        
         public DataRecordOnePicBrowserField()
             : base()
         {
-            m_lastPage = string.Empty;           
+            m_lastPage = string.Empty;
+            m_epgIdentifier = string.Empty;
         }
 
         public DataRecordOnePicBrowserField(string lastPage)
             : base()
         {
             m_lastPage = lastPage;
+        }
+
+        public DataRecordOnePicBrowserField(string lastPage, string epgIdentifier, int channelID)
+            : base()
+        {
+            m_lastPage = lastPage;
+            m_epgIdentifier = epgIdentifier;
+            m_channelID = channelID;
         }
 
         protected string getLastPageName()
@@ -2433,8 +2444,8 @@ namespace TVinciShared
             sTmp += "maxlength=8 ";
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
-          
-                sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowser('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
+
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowser('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
@@ -2535,7 +2546,7 @@ namespace TVinciShared
             sTmp += "maxlength=8 ";
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage +"','"+ m_epgIdentifier+ "','"+m_channelID +"');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
