@@ -599,5 +599,55 @@ namespace TVinciShared
 
 
 
+
+        internal static void GetDateEpgImageDetails(string sPicDescription, int groupID, ref bool isNew, ref string picName, ref int picID, ref string baseURL)
+        {
+            isNew = true;
+            picName = GetDateImageName(); // if nothing exsist generate name
+            DataTable dt = Tvinci.Core.DAL.EpgDal.GetDateEpgImageDetails(sPicDescription, groupID);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                isNew = false;
+                picName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "name");
+                picID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+                baseURL = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "base_url");
+
+            }
+
+            //string retVal = string.Empty;
+            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += " select id, name, base_url  from EPG_pics ep where ";
+            //selectQuery += " ep.status = 1";
+            //selectQuery += " and ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", sPicDescription);
+            //selectQuery += " and ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
+            
+            //selectQuery.SetCachedSec(0);
+            //if (selectQuery.Execute("query", true) != null)
+            //{
+            //    int count = selectQuery.Table("query").DefaultView.Count;
+            //    if (count > 0)
+            //    {
+
+            //        retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+            //        if (retVal.IndexOf('.') > 0)
+            //        {
+            //            retVal = retVal.Substring(0, retVal.IndexOf('.'));
+            //            Logger.Logger.Log("BaseURL", string.Format("epg Pic ID:{0}, base:{1}", epgPicID, retVal), "GetDateImageName");
+            //        }
+            //    }
+            //}
+            //selectQuery.Finish();
+            //selectQuery = null;
+
+            //if (string.IsNullOrEmpty(retVal))
+            //{
+            //    retVal = GetDateImageName();
+            //    bIsNew = true;
+            //}
+
+            //return retVal;
+        }
     }
 }
