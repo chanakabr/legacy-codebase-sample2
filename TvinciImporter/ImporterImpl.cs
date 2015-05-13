@@ -1765,26 +1765,6 @@ namespace TvinciImporter
             }           
         }
 
-        //static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, string epgIdentifier, int ratioID = 0)
-        //{
-        //    Int32 picID = 0;
-        //    string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-        //    if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
-        //    {
-        //        picID = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-        //    }
-        //    else
-        //    {
-        //        picID = DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-        //    }
-        //    if (picID > 0)
-        //    {
-        //        // insert to db table 
-        //        bool result = InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);  //insert with sPicName instead of full path               
-        //    }
-        //    return picID;
-        //}
-
 
         public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
         {
@@ -1909,20 +1889,7 @@ namespace TvinciImporter
 
                 nPicID = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
             }
-            #region old Code - changed to CB
-            // Liat comment this update 02.02.2014
-            //if (nPicID != 0)
-            //{
-            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
-            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
-            //    updateQuery += " where ";
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
-            //    updateQuery.Execute();
-            //    updateQuery.Finish();
-            //    updateQuery = null;
-            //} 
-            #endregion
+            
             return nPicID;
         }
 
