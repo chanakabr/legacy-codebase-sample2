@@ -71,9 +71,6 @@ namespace ApiObjects
         [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public List<EpgPicture> pictures { get; set; }
 
-        [JsonProperty("tagsMultiLanguages")]
-        public Dictionary<string, List<EpgTagTranslate>> TagsMultiLanguages { get; set; }
-
         public EpgCB()
         {
             EpgID = 0;
@@ -102,8 +99,6 @@ namespace ApiObjects
 
             Language = string.Empty;
             pictures = new List<EpgPicture>();
-
-            TagsMultiLanguages = new Dictionary<string, List<EpgTagTranslate>>();
         }
 
               
@@ -221,10 +216,6 @@ namespace ApiObjects
                 }
                 #endregion
 
-
-                #region tag multi languages
-                //TO DO : 
-                #endregion
             }
             return true;
         }
@@ -279,38 +270,6 @@ namespace ApiObjects
             base.DateTimeFormat = "yyyyMMddHHmmss";
         }
     }
-
-    //public class Epg
-    //{
-    //    #region members
-    //    public int m_nGroupID;
-    //    public int EPG_ID;
-    //    public int m_nChannelID;
-    //    public string m_sName;
-    //    public string m_sDescription;
-    //    public int m_nIsActive;
-    //    public string m_sStartDate;
-    //    public string m_sEndDate;
-    //    public Dictionary<string, string> m_dMetas;
-    //    public Dictionary<string, string> m_dTags;
-    //    #endregion
-
-    //    public Epg()
-    //    {
-    //        m_sName = string.Empty;
-    //        m_sDescription = string.Empty;
-    //        EPG_ID = 0;
-    //        m_nGroupID = 0;
-    //        m_nIsActive = 0;
-
-    //        string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-    //        string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
-    //        m_sStartDate = sNow;
-    //        m_sEndDate = sMax;
-    //        m_dMetas = new Dictionary<string, string>();
-    //        m_dTags = new Dictionary<string, string>();
-    //    }
-    //}
 
     [Serializable]
     [JsonObject(Id = "epggroupsettings")]

@@ -1889,22 +1889,9 @@ public partial class metas {
 [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/xmltv", IsNullable=false)]
 public partial class MetaValues {
     
-    private string metaValueMainField;
-    
     private string langField;
     
     private string valueField;
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string MetaValueMain {
-        get {
-            return this.metaValueMainField;
-        }
-        set {
-            this.metaValueMainField = value;
-        }
-    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -1975,8 +1962,6 @@ public partial class TagValues {
     
     private string langField;
     
-    private string tagValueMainField;
-    
     private string valueField;
     
     /// <remarks/>
@@ -1987,17 +1972,6 @@ public partial class TagValues {
         }
         set {
             this.langField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string TagValueMain {
-        get {
-            return this.tagValueMainField;
-        }
-        set {
-            this.tagValueMainField = value;
         }
     }
     
