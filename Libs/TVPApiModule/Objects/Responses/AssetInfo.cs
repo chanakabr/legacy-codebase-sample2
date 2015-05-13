@@ -11,40 +11,88 @@ namespace TVPApiModule.Objects.Responses
     public class AssetInfo
     {
         [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
+        public string Id
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "type")]
-        public int Type { get; set; }
+        public int Type
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name { get; set; }
+        public string Name
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
+        public string Description
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "images")]
-        public List<Image> Images { get; set; }
+        public List<Image> Images
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
-        public List<File> Files { get; set; }
+        public List<File> Files
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "metas")]
-        public Dictionary<string, string> Metas { get; set; }
+        public Dictionary<string, string> Metas
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "tags")]
-        public Dictionary<string, List<string>> Tags { get; set; }
+        public Dictionary<string, List<string>> Tags
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "start_date")]
-        public long StartDate { get; set; }
+        public long StartDate
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "end_date")]
-        public long EndDate { get; set; }
+        public long EndDate
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
-        public Statistics Statistics { get; set; }
+        public Statistics Statistics
+        {
+            get;
+            set;
+        }
 
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> ExtraParams { get; set; }
+        public Dictionary<string, string> ExtraParams
+        {
+            get;
+            set;
+        }
 
         public AssetInfo(MediaObj media, bool shouldAddFiles)
         {
@@ -115,7 +163,7 @@ namespace TVPApiModule.Objects.Responses
                 Statistics = new Statistics()
                 {
                     Likes = stats.m_nLikes,
-                    Rating = stats.m_dRate, 
+                    Rating = stats.m_dRate,
                     Id = stats.m_nAssetID,
                     Views = stats.m_nViews,
                     RatingCount = stats.m_nVotes
@@ -146,9 +194,9 @@ namespace TVPApiModule.Objects.Responses
             {
                 Metas = new Dictionary<string, string>();
                 foreach (var epgMeta in epg.EPG_Meta)
-	            {
+                {
                     Metas.Add(epgMeta.Key, epgMeta.Value);
-	            }
+                }
             }
 
             if (epg.EPG_TAGS != null)
@@ -156,7 +204,7 @@ namespace TVPApiModule.Objects.Responses
                 Tags = new Dictionary<string, List<string>>();
                 List<string> tags;
                 foreach (var epgTag in epg.EPG_TAGS)
-	            {
+                {
                     if (Tags.ContainsKey(epgTag.Key))
                     {
                         ((List<string>)Tags[epgTag.Key]).Add(epgTag.Value);
@@ -167,7 +215,7 @@ namespace TVPApiModule.Objects.Responses
                         tags.Add(epgTag.Value);
                         Tags.Add(epgTag.Key, tags);
                     }
-	            }
+                }
             }
 
             ExtraParams = new Dictionary<string, string>();
@@ -177,15 +225,15 @@ namespace TVPApiModule.Objects.Responses
             ExtraParams.Add("related_media_id", epg.media_id);
         }
 
-        public AssetInfo(EPGChannelProgrammeObject epg, AssetStatsResult stats) 
-            : this (epg)
+        public AssetInfo(EPGChannelProgrammeObject epg, AssetStatsResult stats)
+            : this(epg)
         {
             if (stats != null)
             {
                 Statistics = new Statistics()
                 {
                     Likes = stats.m_nLikes,
-                    Rating = stats.m_dRate, 
+                    Rating = stats.m_dRate,
                     Id = stats.m_nAssetID,
                     Views = stats.m_nViews,
                     RatingCount = stats.m_nVotes
