@@ -3414,7 +3414,7 @@ namespace TVPApiServices
                         page_index = 0;
 
                     // page size - 5 <= size <= 50
-                    if (page_size == null)
+                    if (page_size == 0)
                         page_size = 25;
                     else
                     {
