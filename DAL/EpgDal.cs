@@ -431,5 +431,46 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int groupID, int channelID)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertNewEPGMultiPic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@epg_identifier", epgIdentifier);
+            sp.AddParameter("@pic_id", picID);
+            sp.AddParameter("@channel_id", channelID);
+            sp.AddParameter("@ratio_id", ratioID);
+            sp.AddParameter("@groupID", groupID);
+
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
+
+        public static DataTable GetDateEpgImageDetails(string sPicDescription, int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetDateEpgImageDetails");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@description", sPicDescription);
+            sp.AddParameter("@groupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetEpgMultiPictures(string epgIdentifier, int groupID, int channelID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetEpgMultiPictures");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@epgIdentifier", epgIdentifier);
+            sp.AddParameter("@channelID", channelID);
+            sp.AddParameter("@groupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Uploader
         }
 
         public override bool Upload(string fileToUpload, bool deleteFileAfterUpload)
-        {
+        {  
             if (m_sAddress.Trim() == "")
                 return false;
 

@@ -17,7 +17,7 @@ namespace ApiObjects.Epg
         [DataMember]
         public string Ratio { set; get; }
         [DataMember]
-        public string Url { set; get; }
+        public string Url { set; get; }    
 
         public EpgPicture()
         {
@@ -33,6 +33,6 @@ namespace ApiObjects.Epg
             this.PicWidth = picWidth;
             this.Ratio = ratio;
             this.Url = url;
-        }
+        }       
     }
 }

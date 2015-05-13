@@ -524,7 +524,8 @@ namespace EpgBL
             {
                 lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID)); 
                 // get picture sizes from DB
-                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreePicEpgUrl(m_nGroupID);
+                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
+
                 if (pictures != null)
                 {
                     MutateFullEpgPicURL(lRes, pictures);
@@ -538,48 +539,85 @@ namespace EpgBL
             bool IsFirstPicture;
             string baseEpgPicUrl;
             string picUrl;
+            EpgPicture pictureItem;
+
+            List<EpgPicture> finalEpgPicture = null;
             foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
             {
-                int groupID = int.Parse(oProgram.GROUP_ID);
-                IsFirstPicture = true;
-                baseEpgPicUrl = string.Empty;
-                picUrl = string.Empty;
-                if (pictures.ContainsKey(groupID))
+                if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
                 {
-                    if (oProgram != null && pictures[groupID] != null)
+
+                    foreach (EpgPicture pict in oProgram.EPG_PICTURES)
                     {
-                        foreach (EpgPicture pict in pictures[groupID])
+                        int group = int.Parse(oProgram.GROUP_ID);
+                        List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
+                        
+                        finalEpgPicture = new List<EpgPicture>();
+
+                        foreach (EpgPicture ratioItem in ratios)
                         {
-                            if (pict != null && !string.IsNullOrEmpty(pict.Url))
+                            pictureItem = new EpgPicture();
+                            pictureItem.Ratio = pict.Ratio;
+                            pictureItem.PicHeight = ratioItem.PicHeight;
+                            pictureItem.PicWidth = ratioItem.PicWidth;
+
+                            pictureItem.Url = pict.Url;
+                            if (ratioItem.PicHeight != 0 && ratioItem.PicWidth != 0)
                             {
-                                EpgPicture pictureItem = new EpgPicture();
-                                pictureItem.PicHeight = pict.PicHeight;
-                                pictureItem.PicWidth = pict.PicWidth;
-                                pictureItem.Ratio = pict.Ratio;
-                                if (IsFirstPicture)
+                                pictureItem.Url = pictureItem.Url.Replace(".", string.Format("_{0}X{1}.", ratioItem.PicWidth, ratioItem.PicHeight));
+                            }
+                            pictureItem.Url = string.Format("{0}{1}", ratioItem.Url, pictureItem.Url);
+
+                            finalEpgPicture.Add(pictureItem);
+                        }
+                    }
+
+                    oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
+                }
+                else
+                {
+                    int groupID = int.Parse(oProgram.GROUP_ID);
+                    IsFirstPicture = true;
+                    baseEpgPicUrl = string.Empty;
+                    picUrl = string.Empty;
+                    if (pictures.ContainsKey(groupID))
+                    {
+                        if (oProgram != null && pictures[groupID] != null)
+                        {
+                            foreach (EpgPicture pict in pictures[groupID])
+                            {
+                                if (pict != null && !string.IsNullOrEmpty(pict.Url))
                                 {
-                                    baseEpgPicUrl = pict.Url;
-                                    picUrl = oProgram.PIC_URL;
+                                    pictureItem = new EpgPicture();
+                                    pictureItem.PicHeight = pict.PicHeight;
+                                    pictureItem.PicWidth = pict.PicWidth;
+                                    pictureItem.Ratio = pict.Ratio;
+                                    if (IsFirstPicture)
+                                    {
+                                        baseEpgPicUrl = pict.Url;
+                                        picUrl = oProgram.PIC_URL;
+                                        if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                                        {
+                                            oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                                        }
+                                        oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
+                                        IsFirstPicture = false;
+                                    }
+
                                     if (pict.PicHeight != 0 && pict.PicWidth != 0)
                                     {
-                                        oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                                        pictureItem.Url = picUrl.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
                                     }
-                                    oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
-                                    IsFirstPicture = false;
+                                    pictureItem.Url = string.Format("{0}{1}", baseEpgPicUrl, pictureItem.Url);
+                                    oProgram.EPG_PICTURES.Add(pictureItem);
                                 }
-                                
-                                if (pict.PicHeight != 0 && pict.PicWidth != 0)
-                                {
-                                    pictureItem.Url = picUrl.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-                                }
-                                pictureItem.Url = string.Format("{0}{1}", baseEpgPicUrl, pictureItem.Url);
-                                oProgram.EPG_PICTURES.Add(pictureItem);                                
                             }
                         }
                     }
                 }
             }
         }
+    
         
 
         public override List<EpgCB> GetEpgs(List<string> lIds)
@@ -606,8 +644,8 @@ namespace EpgBL
                     if (lResCB != null)
                     {
                         lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
-
-                        Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreePicEpgUrl(m_nGroupID);
+                                                
+                        Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
                         if (pictures != null)
                         {
                             MutateFullEpgPicURL(lRes, pictures);
@@ -658,12 +696,11 @@ namespace EpgBL
                     dicEpgl.Value = val;
                     lTags.Add(dicEpgl);
                 }
-            }
-
+            }          
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
             oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(),
-                epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas, epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes);
+                epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas, epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures);
             return oProg;
         }
 

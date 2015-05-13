@@ -1357,17 +1357,17 @@ namespace Catalog
             if (!string.IsNullOrEmpty(facetsResults))
             {
                 sortedList = ProcessFacetResults(facetsResults, orderBy, orderDirection, ref alreadyContainedIds);
+            }
 
-                if (sortedList == null)
-                {
-                    sortedList = new List<int>();
-                }
+            if (sortedList == null)
+            {
+                sortedList = new List<int>();
             }
 
             // Add all ids that don't have stats
             foreach (var currentId in assetIds)
             {
-                if (!alreadyContainedIds.Contains(currentId))
+                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
                 {
                     // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                     if (orderDirection == OrderDir.ASC)

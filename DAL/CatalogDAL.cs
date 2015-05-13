@@ -2766,5 +2766,105 @@ namespace Tvinci.Core.DAL
 
             return epgIdentifiers;
         }
+
+        public static Dictionary<int, List<EpgPicture>> GetGroupTreeMultiPicEpgUrl(int parentGroupID)
+        {
+            Dictionary<int, List<EpgPicture>> res = null;
+            
+            StoredProcedure sp = new StoredProcedure("GetGroupTreeMultiPicEpgUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ParentGroupID", parentGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable groupRatioTable = ds.Tables[0];
+                string baseUrl = string.Empty;
+                int width = 0;
+                int height = 0;
+                string ratio = string.Empty;
+
+                if (groupRatioTable != null && groupRatioTable.Rows != null && groupRatioTable.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, List<EpgPicture>>();                
+                    foreach (DataRow dr in groupRatioTable.Rows)
+                    {
+                        int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+                        if (groupID > 0)
+                        {
+                            baseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "baseURL");
+                            if (baseUrl.Length > 0 && baseUrl[baseUrl.Length - 1] != '/')
+                            {
+                                baseUrl = String.Concat(baseUrl, '/');
+                            }
+                            width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
+                            height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
+                            ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+
+                            EpgPicture picture = new EpgPicture();
+                            picture.Initialize(width, height, ratio, baseUrl);
+                            if (!res.ContainsKey(groupID))
+                            {
+                                res.Add(groupID, new List<EpgPicture>() { picture });
+                            }
+                            else
+                            {
+                                res[groupID].Add(picture);
+                            }
+                        }
+                    }
+                }
+                if (ds.Tables.Count > 1)
+                {
+                    DataTable groupEpgRatioTable = ds.Tables[1];                    
+                    width = 0;
+                    height = 0;
+                    ratio = string.Empty;
+                    int ratioID = 0;
+                    if (groupEpgRatioTable != null && groupEpgRatioTable.Rows != null && groupEpgRatioTable.Rows.Count > 0)
+                    {
+                        if (res == null)
+                        {
+                            res = new Dictionary<int, List<EpgPicture>>();
+                        }
+
+                        foreach (DataRow dr in groupEpgRatioTable.Rows)
+                        {
+                            int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+                            if (groupID > 0)
+                            {                               
+                                width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
+                                height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
+                                ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                              
+                                EpgPicture picture = new EpgPicture();
+                                picture.Initialize(width, height, ratio, baseUrl);
+                                if (!res.ContainsKey(groupID))
+                                {
+                                    res.Add(groupID, new List<EpgPicture>() { picture });
+                                }
+                                else
+                                {
+                                    if (!res[groupID].Exists(x => x.Ratio == ratio && x.PicHeight == height && x.PicWidth == width))
+                                    {
+                                        res[groupID].Add(picture);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (res == null)
+                {
+                    res = new Dictionary<int, List<EpgPicture>>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, List<EpgPicture>>(0);
+            }
+
+            return res;
+        }
     }
 }
