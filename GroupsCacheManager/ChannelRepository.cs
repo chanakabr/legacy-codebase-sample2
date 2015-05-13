@@ -237,6 +237,7 @@ namespace GroupsCacheManager
                     }
 
                     DataRow rowData = channelData.Rows[0];
+                    oChannel.m_sName = ODBCWrapper.Utils.GetSafeStr(rowData["name"]);
                     oChannel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
                     oChannel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
                     oChannel.m_nChannelID = nChannelId;
