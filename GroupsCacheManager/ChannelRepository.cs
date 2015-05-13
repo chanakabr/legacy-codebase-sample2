@@ -792,5 +792,53 @@ namespace GroupsCacheManager
         }
 
         #endregion
+
+        /// <summary>
+        /// For given Ids, returns a list of media types
+        /// </summary>
+        /// <param name="typeIds"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        internal static List<MediaType> BuildMediaTypes(List<int> typeIds, int groupId)
+        {
+            List<MediaType> newMediaTypes = new List<MediaType>();
+
+            // Get table from stored procedure
+            DataTable mediaTypesTable = CatalogDAL.GetMediaTypesTable(groupId);
+
+            if (mediaTypesTable != null && mediaTypesTable.Rows != null && mediaTypesTable.Rows.Count > 0)
+            {
+                foreach (DataRow currentMediaType in mediaTypesTable.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(currentMediaType, "ID");
+
+                    // If this Id was requested
+                    if (typeIds.Contains(id))
+                    {
+                        // Get values from row
+                        string associationTag = ODBCWrapper.Utils.ExtractString(currentMediaType, "ASSOCIATION_TAG");
+                        string description = ODBCWrapper.Utils.ExtractString(currentMediaType, "DESCRIPTION");
+                        string name = ODBCWrapper.Utils.ExtractString(currentMediaType, "NAME");
+                        bool isLinear = ODBCWrapper.Utils.ExtractBoolean(currentMediaType, "IS_LINEAR");
+                        int parentId = ODBCWrapper.Utils.ExtractInteger(currentMediaType, "PAREANT_TYPE_ID");
+
+                        // Initialize new media type from row
+                        MediaType newType = new MediaType()
+                        {
+                            id = id,
+                            associationTag = associationTag,
+                            description = description,
+                            isLinear = isLinear,
+                            parentId = parentId,
+                            name = name
+                        };
+                        
+                        newMediaTypes.Add(newType);
+                    }
+                }
+            }
+
+            return newMediaTypes;
+        }
     }
 }

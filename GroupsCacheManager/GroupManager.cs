@@ -222,7 +222,29 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-               
+
+        public List<MediaType> GetMediaTypesOfGroup(int groupId)
+        {
+            List<MediaType> mediaTypes = new List<MediaType>();
+
+            try
+            {
+                Group group = this.GetGroup(groupId);
+
+                List<int> typeIds = group.GetMediaTypes();
+
+                mediaTypes = cache.GetMediaTypes(typeIds, groupId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log(
+                    "GetMediaTypesOfGroup", 
+                    string.Format("failed get media types of  groupID={0}, ex={1}, ST={2}", groupId, ex.Message, ex.StackTrace), 
+                    "GroupsCacheManager");
+            }
+
+            return mediaTypes;
+        }
 
         #endregion
 

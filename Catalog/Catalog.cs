@@ -735,13 +735,14 @@ namespace Catalog
 
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
-            if (request.filterTree != null)
-            {
-                CatalogCache catalogCache = CatalogCache.Instance();
+                            CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
+
+            if (request.filterTree != null)
+            {
 
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
@@ -896,6 +897,23 @@ namespace Catalog
             definitions.linearChannelMediaTypes = linearMediaTypes;
 
             #endregion
+
+            // Get media types of the group
+            List<GroupsCacheManager.MediaType> groupMediaTypes = groupManager.GetMediaTypesOfGroup(request.m_nGroupID);
+
+            foreach (var mediaType in groupMediaTypes)
+            {
+                if (mediaType.parentId > 0)
+                {
+                    // If this is relevant for the search at all
+                    if (definitions.mediaTypes.Contains(mediaType.parentId) || 
+                        (definitions.mediaTypes.Count == 0 && definitions.shouldSearchMedia))
+                    {
+                        definitions.parentMediaTypes.Add(mediaType.id, mediaType.parentId);
+                        definitions.associationTags.Add(mediaType.id, mediaType.associationTag);
+                    }
+                }
+            }
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;

@@ -713,7 +713,10 @@ namespace Catalog
                                   cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                                   update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null))
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                  start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken)
                               });
                         }
                     }
@@ -915,15 +918,26 @@ namespace Catalog
             // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
             if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
                 orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
-                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
+                // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
+                (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
+                unifiedSearchDefinitions.parentMediaTypes.Count > 0))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
                 queryParser.PageSize = 0;
 
-                // Initial sort will be by ID
-                unifiedSearchDefinitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
+                if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                {
+                    unifiedSearchDefinitions.extraReturnFields.Add("start_date");
+                    unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
+                }
+                else
+                {
+                    // Initial sort will be by ID
+                    unifiedSearchDefinitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
+                }
 
                 isOrderedByStat = true;
             }
@@ -979,7 +993,18 @@ namespace Catalog
                         {
                             List<int> assetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
 
-                            List<int> orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
+                            List<int> orderedIds = null;
+
+                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
+                            {
+                                orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
+                                    unifiedSearchDefinitions.associationTags,
+                                    unifiedSearchDefinitions.parentMediaTypes);
+                            }
+                            else
+                            {
+                                orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
+                            }
 
                             Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
 
@@ -1023,6 +1048,193 @@ namespace Catalog
             }
 
             return (searchResults);
+        }
+
+        private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, 
+            int groupId, OrderDir orderDirection, 
+            Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
+        {
+            Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
+            Dictionary<string, Dictionary<int, List<string>>> nameToTypeToId = new Dictionary<string, Dictionary<int, List<string>>>();
+
+            #region Map documents name and initial start dates
+
+            // Create mappings for later on
+            foreach (var document in assets)
+            {
+                idToStartDate.Add(document.id, document.start_date);
+
+                if (document.media_type_id > 0)
+                {
+                    if (!nameToTypeToId.ContainsKey(document.name))
+                    {
+                        nameToTypeToId[document.name] = new Dictionary<int, List<string>>();
+                    }
+
+                    if (!nameToTypeToId[document.name].ContainsKey(document.media_type_id))
+                    {
+                        nameToTypeToId[document.name][document.media_type_id] = new List<string>();
+                    }
+
+                    nameToTypeToId[document.name][document.media_type_id].Add(document.id);
+                }
+            }
+
+            #endregion
+
+            #region Define Facet Query
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = 0,
+                PageSize = 1
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+
+            FilterCompositeType tagsFilter = new FilterCompositeType(CutWith.OR);
+
+            // Filter data only to contain documents that have the specifiic tag
+            foreach (var item in associationTags.Values)
+            {
+                ESTerms tagsTerms = new ESTerms(false)
+                {
+                    Key = string.Format("tags.{0}", item)
+                };
+
+                tagsTerms.Value.AddRange(nameToTypeToId.Keys);
+
+                tagsFilter.AddChild(tagsTerms);
+            }
+
+            filteredQuery.Filter.FilterSettings = tagsFilter;
+
+            ESTermsStatsFacet facet = new ESTermsStatsFacet()
+            {
+                Query = filteredQuery
+            };
+
+            // Create a term stats facet for each association tag we have
+            foreach (var associationTag in associationTags)
+            {
+                // Filter each facet according to its media type
+                BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
+                facetFilter.AddChild(new ESTerm(true)
+                {
+                    Key = "media_type_id",
+                    // key of association tag is the child media type
+                    Value = associationTag.Key.ToString()
+                });
+
+                // Group by the association tag. Get statistics for start_date - we are interested in maximum start date
+                ElasticSearch.Searcher.ESTermsStatsFacet.ESTermsStatsFacetItem facetItem = new ESTermsStatsFacet.ESTermsStatsFacetItem()
+                {
+                    // the name of the tag will be the facet name
+                    FacetName = associationTag.Value,
+                    KeyField = string.Format("tags.{0}", associationTag.Value),
+                    ValueField = "start_date",
+                    FacetFilter = facetFilter
+                };
+
+                facet.AddTermStatsFacet(facetItem);
+            }
+
+            #endregion
+
+            #region Get Facets Results
+
+            string facetRequestBody = facet.ToString();
+            string index = groupId.ToString();
+
+            string facetsResults = m_oESApi.Search(index, "media", ref facetRequestBody);
+
+            // Get facet results
+            Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
+                ESTermsStatsFacet.FacetResults(ref facetsResults);
+
+            #endregion
+
+            #region Process Facets Results
+
+            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            {
+                foreach (var associationTag in associationTags)
+                {
+                    int parentMediaType = mediaTypeParent[associationTag.Key];
+
+                    // Get the current tag's statistics 
+                    if (facetsDictionary.ContainsKey(associationTag.Value))
+                    {
+                        List<ESTermsStatsFacet.StatisticFacetResult> currentFacetList = facetsDictionary[associationTag.Value];
+
+                        foreach (ESTermsStatsFacet.StatisticFacetResult facetTerm in currentFacetList)
+                        {
+                            // "series name" is the facets term
+                            string tagValue = facetTerm.term;
+
+                            if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                            {
+                                foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
+                                {
+                                    string maximumStartDate = facetTerm.max.ToString();
+
+                                    idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
+            // Sort the list of key value pairs by the value (the start date)
+            var sortedDictionary = idToStartDate.OrderBy(pair => pair.Value);
+
+            #region Create final, sorted, list
+
+            List<int> sortedList = new List<int>();
+            HashSet<int> alreadyContainedIds = new HashSet<int>();
+
+            foreach (var currentId in sortedDictionary)
+            {
+                int id = int.Parse(currentId.Key);
+
+                // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                if (orderDirection == OrderDir.DESC)
+                {
+                    sortedList.Insert(0, id);
+                }
+                else
+                {
+                    sortedList.Add(id);
+                }
+
+                alreadyContainedIds.Add(id);
+            }
+
+            // Add all ids that don't have stats
+            foreach (var asset in assets)
+            {
+                int currentId = int.Parse(asset.id);
+
+                if (!alreadyContainedIds.Contains(currentId))
+                {
+                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                    if (orderDirection == OrderDir.ASC)
+                    {
+                        sortedList.Insert(0, currentId);
+                    }
+                    else
+                    {
+                        sortedList.Add(currentId);
+                    }
+                }
+            }
+
+            #endregion
+
+            return sortedList;
         }
 
         /// <summary>

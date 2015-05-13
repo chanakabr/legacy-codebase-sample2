@@ -862,22 +862,62 @@ namespace ElasticSearch.Common
 
         public class ESAssetDocument
         {
-            public string index { get; set; }
-            public string type { get; set; }
-            public string id { get; set; }
-            public int asset_id { get; set; }
-            public int group_id { get; set; }
+            public string index
+            {
+                get;
+                set;
+            }
+            public string type
+            {
+                get;
+                set;
+            }
+            public string id
+            {
+                get;
+                set;
+            }
+            public int asset_id
+            {
+                get;
+                set;
+            }
+            public int group_id
+            {
+                get;
+                set;
+            }
             //public double score { get; set; }
-            public string name { get; set; }
-            public DateTime cache_date { get; set; }
+            public string name
+            {
+                get;
+                set;
+            }
+            public DateTime cache_date
+            {
+                get;
+                set;
+            }
             public DateTime update_date
             {
                 get;
                 set;
             }
-            public int epg_channel_id { get; set; }
-            public DateTime start_date { get; set; }
-            
+            public int epg_channel_id
+            {
+                get;
+                set;
+            }
+            public DateTime start_date
+            {
+                get;
+                set;
+            }
+            public int media_type_id
+            {
+                get;
+                set;
+            }
         }
 
         public class ESSearchResponse
