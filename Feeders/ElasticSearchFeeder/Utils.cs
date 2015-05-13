@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
+using Tvinci.Core.DAL;
 
 namespace ElasticSearchFeeder
 {
@@ -74,7 +75,23 @@ namespace ElasticSearchFeeder
                 return null;
             }
         }
+        public static List<EpgCB> GetEpgProgram(int nGroupID, int nEpgID, List<string> languages)
+        {  
+             List<EpgCB> epgs = null;
 
+            EpgBL.BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nGroupID);
+            try
+            {
+                ulong uEpgID = ulong.Parse(nEpgID.ToString());
+                epgs = oEpgBL.GetEpgCB(uEpgID, languages);
+                return epgs;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), "ESFeeder");
+                return new List<EpgCB>();
+            }
+        }
         public static string GetPermittedWatchRules(int nGroupId)
         {   
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
@@ -97,6 +114,21 @@ namespace ElasticSearchFeeder
 
             return sRules;
         }
+
+        public static List<LanguageObj> GetLanguages(int nGroupID)
+        {
+            List<LanguageObj> lLang = new List<LanguageObj>();
+            try
+            {
+                lLang = CatalogDAL.GetGroupLanguages(nGroupID);
+                return lLang;
+            }
+            catch (Exception ex)
+            {
+                //TO DO ADD LOGGER
+                return new List<LanguageObj>();
+            }
+        }
     }
 
     public enum eESFeederType
@@ -104,4 +136,7 @@ namespace ElasticSearchFeeder
         MEDIA,
         EPG
     }
+
+
+    
 }
