@@ -1885,11 +1885,6 @@ namespace Catalog
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
         }
 
-        public static bool UpdateEpgIndex(List<string> epgIds, int groupID, eAction action)
-        {
-            return UpdateEpg(epgIds, groupID, eObjectType.EPG, action);
-        }
-
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
@@ -1955,34 +1950,7 @@ namespace Catalog
             return bIsUpdateIndexSucceeded;
         }
 
-        private static bool UpdateEpg(List<string> Ids, int groupId, eObjectType objectType, eAction action)
-        {
-            bool bIsUpdateIndexSucceeded = false;
-
-            if (Ids != null && Ids.Count > 0)
-            {
-                GroupManager groupManager = new GroupManager();
-
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(groupId);
-
-
-                Group group = groupManager.GetGroup(parentGroupID);
-
-                if (group != null)
-                {
-                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(Ids, group.m_nParentGroupID, objectType, action);
-
-                    if (data != null)
-                    {
-                        BaseQueue queue = new CatalogQueue();
-                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
-                    }
-                }
-            }
-
-            return bIsUpdateIndexSucceeded;
-        }
+        
         #endregion
 
         internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchObj epgSearchReq)
@@ -2371,27 +2339,10 @@ namespace Catalog
             List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
-            {
-                string dot = ".";
-
-                Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(groupId);
-
-                string epgPicBaseUrl = string.Empty;
-                string epgPicWidth = string.Empty;
-                string epgPicHeight = string.Empty;
-                GetEpgPicUrlData(basicEpgObjects, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-
-                bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
-                bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
-                bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
-
-                string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-
+            {                
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
                     var currentEpg = basicEpgObjects[i];
-                 
-
 
                     int tempEpgChannelID = 0;
 
@@ -2399,18 +2350,6 @@ namespace Catalog
                     {
                         continue;
                     }
-
-                    // mutate epg pic url
-                    if (epgPicBaseUrlExists && !string.IsNullOrEmpty(currentEpg.PIC_URL))
-                    {
-                        if (epgPicWidthExists && epgPicHeightExists)
-                        {
-                            currentEpg.PIC_URL = basicEpgObjects[i].PIC_URL.Replace(dot, alternativePicUrl);
-                        }
-
-                        currentEpg.PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, basicEpgObjects[i].PIC_URL);
-                    }
-
                     DateTime updateDate = DateTime.MinValue;
                     DateTime.TryParse(currentEpg.UPDATE_DATE, out updateDate);
 

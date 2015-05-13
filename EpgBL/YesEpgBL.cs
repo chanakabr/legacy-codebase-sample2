@@ -178,6 +178,10 @@ namespace EpgBL
             return null;
         }
 
+        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)
+        {
+            return null;
+        }
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             cas = 0;
@@ -419,6 +423,7 @@ namespace EpgBL
 
             return programs;
         }
+
 
         private string GetLanguageParameter(string sQuery)
         {

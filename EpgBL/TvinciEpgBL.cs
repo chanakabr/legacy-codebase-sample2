@@ -279,6 +279,30 @@ namespace EpgBL
             return oRes;
         }
 
+        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)
+        {
+            try
+            {
+
+                string docID = string.Empty;
+                List<string> docIDs = new List<string>();
+                docIDs.Add(nProgramID.ToString());
+                //Build list of keys with language
+                foreach (string lang in languages)
+                {
+                    docID = string.Format("epg_{0}_lang_{1}", nProgramID, lang.ToLower());
+                    docIDs.Add(docID);
+                }
+                List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(docIDs);
+
+                return lResCB;
+            }
+            catch (Exception)
+            {
+                return new List<EpgCB>();
+            }
+        }
+
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString(), out cas);

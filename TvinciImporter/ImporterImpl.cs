@@ -1750,28 +1750,22 @@ namespace TvinciImporter
             selectQuery = null;
             return nRet;
         }
-
-        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, string epgIdentifier, int ratioID = 0)
-        {
-            Int32 picID = 0;
-             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+     
+        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
+        {   
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
-                picID =  DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
             }
             else
             {
-                picID =  DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-            }
-            if (picID > 0)
-            {
-                // insert to db table 
-                bool result = InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);  //insert with sPicName instead of full path               
-            }
-            return picID;
+                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+            }           
         }
 
-        private static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
+        public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
+
         {
             try
             {
@@ -1786,56 +1780,6 @@ namespace TvinciImporter
                 return false;
             }
         }
-
-        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
-        {   
-            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
-            {
-                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-            }
-            else
-            {
-                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-            }           
-        }
-
-        //static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, string epgIdentifier, int ratioID = 0)
-        //{
-        //    Int32 picID = 0;
-        //    string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-        //    if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
-        //    {
-        //        picID = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-        //    }
-        //    else
-        //    {
-        //        picID = DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-        //    }
-        //    if (picID > 0)
-        //    {
-        //        // insert to db table 
-        //        bool result = InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);  //insert with sPicName instead of full path               
-        //    }
-        //    return picID;
-        //}
-
-
-        //private static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
-        //{
-        //    try
-        //    {
-        //        bool result = Tvinci.Core.DAL.EpgDal.InsertNewEPGMultiPic(epgIdentifier, picID, ratioID, nGroupID, nChannelID);
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Logger.Log("InsertNewEPGMultiPic",
-        //            string.Format("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID),
-        //            "DownloadEPGPic");
-        //        return false;
-        //    }
-        //}
 
         static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
         {
@@ -4914,71 +4858,7 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static bool UpdateEpgIndex(List<string> epgIds, int groupId, eAction action)
-        {
-            bool isUpdateIndexSucceeded = false;
-
-            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
-            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
-            {
-                using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
-                {
-                    WSCatalog.IserviceClient wsCatalog = null;
-
-                    try
-                    {
-                        int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
-                        wsCatalog = GetWCFSvc("WS_Catalog");
-                        if (epgIds != null && epgIds.Count > 0 && parentGroupID > 0)
-                        {
-                            string sWSURL = GetCatalogUrl(parentGroupID);
-
-                            if (!string.IsNullOrEmpty(sWSURL))
-                            {
-                                string[] arrAddresses = sWSURL.Split(';');
-                                string[] arrEPGIds = epgIds.ToArray<string>();
-
-                                foreach (string sEndPointAddress in arrAddresses)
-                                {
-                                    try
-                                    {
-                                        wsCatalog = GetCatalogClient(sEndPointAddress);
-
-                                        if (wsCatalog != null)
-                                        {
-                                            isUpdateIndexSucceeded = wsCatalog.UpdateEpgMultiLanguageIndex(arrEPGIds, parentGroupID, action);
-
-                                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                            updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
-
-                                            wsCatalog.Close();
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
-                    }
-                    finally
-                    {
-                        if (wsCatalog != null)
-                        {
-                            wsCatalog.Close();
-                        }
-                    }
-                }
-            }
-
-            return isUpdateIndexSucceeded;
-        }
-
+      
         public static DateTime? ExtractDate(string sDate, string format)
         {
             DateTime? result = null;
