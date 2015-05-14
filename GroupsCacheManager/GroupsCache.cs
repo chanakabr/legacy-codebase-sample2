@@ -435,7 +435,7 @@ namespace GroupsCacheManager
 
                 var response = channelsCache.Remove(channelKey);
 
-                if (response != null && (bool)response.result)
+                if (response != null && response.result != null)
                 {
                     isRemovingChannelSucceded = true;
                 }

@@ -446,35 +446,6 @@ namespace GroupsCacheManager
             return this.channelIDs.Contains(id);
         }
 
-        public bool RemoveChannel(int id, out Channel channel)
-        {
-            var mutexSecurity = Utils.CreateMutex();
-            bool createdNew;
-            bool result = false;
-            channel = null;
-
-            using (Mutex mutex = new Mutex(false, string.Concat("Catalog ChannelID_", id), out createdNew, mutexSecurity))
-            {
-                try
-                {
-                    mutex.WaitOne(-1);
-
-                    this.channelIDs.Remove(id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(string.Format("Couldn't remove channel {0}, msg:{1}", id, ex.Message));
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                    _logger.Info(string.Format("{0} : {1}", "Release", string.Concat("Catalog ChannelID_", id)));
-                }
-            }
-
-            return (result);
-        }
-
         #endregion
 
         #region Language
