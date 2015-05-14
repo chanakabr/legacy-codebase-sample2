@@ -25,7 +25,7 @@ namespace CachingProvider
         /// <param name="externalCacheName"></param>
         private HybridCache(eCouchbaseBucket externalCacheName, string internalCacheName)
         {
-            this.inMemoryCache = new SingleInMemoryCache(externalCacheName.ToString(), 0);
+            this.inMemoryCache = new SingleInMemoryCache(internalCacheName, 0);
             this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
 
             this.secondsInMemory = WS_Utils.GetTcmDoubleValue("Groups_Cache_TTL");
@@ -39,20 +39,12 @@ namespace CachingProvider
 
         #endregion
 
-        public static HybridCache<T> GetInstance(string externalCacheName, string internalCacheName)
+        public static HybridCache<T> GetInstance(eCouchbaseBucket bucket, string internalCacheName)
         {
             HybridCache<T> cache = null;
             try
             {
-                eCouchbaseBucket eCacheName;
-                if (Enum.TryParse<eCouchbaseBucket>(externalCacheName.ToUpper(), out eCacheName))
-                {
-                    cache = new HybridCache<T>(eCacheName, internalCacheName);
-                }
-                else
-                {
-                    Logger.Logger.Log("Error", string.Format("Unable to create hybrid cache. Please check that cache of type {0} exists.", externalCacheName), "CachingProvider");
-                }
+                cache = new HybridCache<T>(bucket, internalCacheName);
             }
             catch (Exception ex)
             {
@@ -82,7 +74,7 @@ namespace CachingProvider
 
         public override bool Add(string key, BaseModuleCache value)
         {
-            bool inMemoryAdd = inMemoryCache.Add(key, value);
+            bool inMemoryAdd = inMemoryCache.Add(key, value, this.secondsInMemory / 60);
             bool couchBaseAdd = couchbaseCache.Add(key, value);
 
             return (inMemoryAdd && couchBaseAdd);
@@ -90,8 +82,8 @@ namespace CachingProvider
 
         public override bool Set(string key, BaseModuleCache value)
         {
-            bool inMemorySet = inMemoryCache.Add(key, value);
-            bool couchBaseSet = couchbaseCache.Add(key, value);
+            bool inMemorySet = inMemoryCache.Set(key, value, this.secondsInMemory / 60);
+            bool couchBaseSet = couchbaseCache.Set(key, value);
 
             return (inMemorySet && couchBaseSet);
         }
@@ -152,12 +144,12 @@ namespace CachingProvider
                 inMemoryCache.Add(key, result, this.secondsInMemory / 60);
             }
 
-            return result;        
+            return result;
         }
 
         public override bool AddWithVersion<T>(string key, BaseModuleCache value)
         {
-            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value);
+            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value, this.secondsInMemory / 60);
             bool couchBaseAdd = couchbaseCache.AddWithVersion<T>(key, value);
 
             return (inMemoryAdd && couchBaseAdd);

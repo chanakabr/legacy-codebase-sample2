@@ -355,20 +355,21 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool InsertChannels(List<Channel> newChannels, Group group)
-        {
-            bool bInsert = false;
-            try
-            {
-                bInsert = cache.InsertChannels(newChannels, group);
+        // XXX - Should it be used at all?
+        //internal bool InsertChannels(List<Channel> newChannels, Group group)
+        //{
+        //    bool bInsert = false;
+        //    try
+        //    {
+        //        bInsert = cache.InsertChannels(newChannels, group);
 
-                return bInsert;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
+        //        return bInsert;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return false;
+        //    }
+        //}
         #endregion
     }
 }

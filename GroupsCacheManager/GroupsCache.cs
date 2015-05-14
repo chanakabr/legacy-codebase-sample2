@@ -8,6 +8,7 @@ using CachingProvider;
 using DAL;
 using Enyim.Caching.Memcached;
 using ApiObjects;
+using CouchbaseManager;
 
 namespace GroupsCacheManager
 {
@@ -34,8 +35,8 @@ namespace GroupsCacheManager
         private readonly double dCacheTT;
         private string cacheGroupConfiguration;
         private string keyCachePrefix = string.Empty;
-        private ICachingService primaryGroupCacheService = null;
-        private ICachingService primaryChannelsCache = null;
+        private ICachingService groupCacheService = null;
+        private ICachingService channelsCache = null;
         
         private static GroupsCache instance = null;
 
@@ -54,8 +55,8 @@ namespace GroupsCacheManager
             {
                 case "CouchBase":
                 {
-                    primaryGroupCacheService = CouchBaseCache<Group>.GetInstance("CACHE");
-                    primaryChannelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
+                    groupCacheService = CouchBaseCache<Group>.GetInstance("CACHE");
+                    channelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
                     this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
                     dCacheTT = GetDocTTLSettings();     //set ttl time for document 
                     break;
@@ -71,8 +72,8 @@ namespace GroupsCacheManager
                 {
                     dCacheTT = GetDefaultCacheTimeInMinutes();
                     string cacheName = GetCacheName();
-                    primaryGroupCacheService = HybridCache<Group>.GetInstance("CACHE", cacheName);
-                    primaryChannelsCache = HybridCache<Channel>.GetInstance("CACHE", cacheName);
+                    groupCacheService = HybridCache<Group>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                    channelsCache = HybridCache<Channel>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
 
                     break;
                 }
@@ -120,8 +121,8 @@ namespace GroupsCacheManager
 
         private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
         {
-            this.primaryGroupCacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
-            this.primaryChannelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.groupCacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.channelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
         }
 
         private static double GetDocTTLSettings()
@@ -158,7 +159,7 @@ namespace GroupsCacheManager
             {
                 string cacheKey = BuildGroupCacheKey(nGroupID);
 
-                baseModule = this.primaryGroupCacheService.Get(cacheKey);
+                baseModule = this.groupCacheService.Get(cacheKey);
                 if (baseModule != null && baseModule.result != null)
                 {
                     group = baseModule.result as Group;
@@ -175,7 +176,7 @@ namespace GroupsCacheManager
                             mutex.WaitOne(-1);
                             // try to get GRoup from CB 
                             VersionModuleCache versionModule;
-                            versionModule = (VersionModuleCache)this.primaryGroupCacheService.GetWithVersion<Group>(cacheKey);
+                            versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<Group>(cacheKey);
 
                             if (versionModule != null && versionModule.result != null)
                             {
@@ -188,9 +189,9 @@ namespace GroupsCacheManager
 
                                 for (int i = 0; i < 3 && !bInsert; i++)
                                 {
-                                    //try insert to Cache                                     
+                                    //try insert to Cache
                                     versionModule.result = tempGroup;
-                                    bInsert = this.primaryGroupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+                                    bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
                                     if (bInsert)
                                     {
                                         group = tempGroup;
@@ -265,7 +266,7 @@ namespace GroupsCacheManager
 
                 for (int i = 0; i < 3 && !bAdd; i++)
                 {
-                    versionModule = (VersionModuleCache)this.primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                    versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<Group>(sKey);
                     if (versionModule != null && versionModule.result != null)
                     {
                         group = versionModule.result as Group;
@@ -274,7 +275,7 @@ namespace GroupsCacheManager
                         {
                             //try insert to CB                                   
                             versionModule.result = group;
-                            bAdd = this.primaryGroupCacheService.SetWithVersion<Group>(nGroupID.ToString(), versionModule, dCacheTT);
+                            bAdd = this.groupCacheService.SetWithVersion<Group>(nGroupID.ToString(), versionModule, dCacheTT);
                         }
                     }
                 }
@@ -326,7 +327,7 @@ namespace GroupsCacheManager
                 //get group by id from CB               
                 for (int i = 0; i < 3 && !bUpdate; i++)
                 {
-                    versionModule = (VersionModuleCache)this.primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                    versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<Group>(sKey);
                     if (versionModule != null && versionModule.result != null)
                     {
                         group = versionModule.result as Group;
@@ -335,7 +336,7 @@ namespace GroupsCacheManager
                         {
                             //try insert to CB                                   
                             versionModule.result = group;
-                            bUpdate = this.primaryGroupCacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
+                            bUpdate = this.groupCacheService.SetWithVersion<Group>(sKey, versionModule, dCacheTT);
                         }
                     }
                 }
@@ -357,7 +358,7 @@ namespace GroupsCacheManager
             {
                 string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
 
-                baseModule = this.primaryChannelsCache.Get(cacheKey);
+                baseModule = this.channelsCache.Get(cacheKey);
 
                 if (baseModule != null && baseModule.result != null)
                 {
@@ -369,7 +370,7 @@ namespace GroupsCacheManager
                     bool createdNew = false;
                     var mutexSecurity = Utils.CreateMutex();
 
-                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", group.m_nParentGroupID), out createdNew, mutexSecurity))
+                    using (Mutex mutex = new Mutex(false, string.Concat("Channel CID_", channelId), out createdNew, mutexSecurity))
                     {
                         try
                         {
@@ -377,7 +378,7 @@ namespace GroupsCacheManager
 
                             // try to get channel from CB 
                             VersionModuleCache versionModule;
-                            versionModule = (VersionModuleCache)this.primaryChannelsCache.GetWithVersion<Channel>(cacheKey);
+                            versionModule = (VersionModuleCache)this.channelsCache.GetWithVersion<Channel>(cacheKey);
 
                             if (versionModule != null && versionModule.result != null)
                             {
@@ -392,7 +393,7 @@ namespace GroupsCacheManager
                                 {
                                     //try insert to cache
                                     versionModule.result = temporaryCahnnel;
-                                    bInsert = this.primaryGroupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+                                    bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
 
                                     if (bInsert)
                                     {
@@ -432,7 +433,7 @@ namespace GroupsCacheManager
             {
                 string channelKey = BuildChannelCacheKey(nGroupID, nChannelId);
 
-                var response = primaryChannelsCache.Remove(channelKey);
+                var response = channelsCache.Remove(channelKey);
 
                 if (response != null && (bool)response.result)
                 {
@@ -460,7 +461,7 @@ namespace GroupsCacheManager
 
                 for (int i = 0; i < 3 && !isRemovingGroupSucceded; i++)
                 {
-                    vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                    vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
                     if (vModule != null && vModule.result != null)
                     {
                         group = vModule.result as Group;
@@ -472,7 +473,7 @@ namespace GroupsCacheManager
                         {
                             mutex.WaitOne(-1);
                             //try update to CB
-                            BaseModuleCache bModule = primaryGroupCacheService.Remove(sKey);
+                            BaseModuleCache bModule = groupCacheService.Remove(sKey);
                             if (bModule != null && bModule.result != null)
                             {
                                 isRemovingGroupSucceded = true;
@@ -502,7 +503,7 @@ namespace GroupsCacheManager
                 //get group by id from Cache
                 for (int i = 0; i < 3 && !bAdd; i++)
                 {
-                    vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                    vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
 
                     if (vModule != null && vModule.result != null)
                     {
@@ -511,7 +512,7 @@ namespace GroupsCacheManager
                         if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs, bAddNewOperator))
                         {
                             vModule.result = group;
-                            bAdd = primaryGroupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bAdd = groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
@@ -537,7 +538,7 @@ namespace GroupsCacheManager
                 //get group by id from cache                
                 for (int i = 0; i < 3 && !bDelete; i++)
                 {
-                    vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                    vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
 
                     if (vModule != null && vModule.result != null)
                     {
@@ -547,7 +548,7 @@ namespace GroupsCacheManager
                         {
                             vModule.result = group;
 
-                            bDelete = primaryGroupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bDelete = groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
@@ -561,43 +562,44 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool InsertChannels(List<Channel> channels, Group group)
-        {
-            bool inserted = true;
-            try
-            {
-                foreach (Channel channel in channels)
-                {                    
-                    bool currentInserted = false;
+        // XXX - should it be used at all?
+        //internal bool InsertChannels(List<Channel> channels, Group group)
+        //{
+        //    bool inserted = true;
+        //    try
+        //    {
+        //        foreach (Channel channel in channels)
+        //        {                    
+        //            bool currentInserted = false;
 
-                    for (int i = 0; i < 3 && !currentInserted; i++)
-                    {
-                        string key = BuildChannelCacheKey(group.m_nParentGroupID, channel.m_nChannelID);
+        //            for (int i = 0; i < 3 && !currentInserted; i++)
+        //            {
+        //                string key = BuildChannelCacheKey(group.m_nParentGroupID, channel.m_nChannelID);
 
-                        BaseModuleCache casResult = primaryChannelsCache.GetWithVersion<Channel>(key);
+        //                BaseModuleCache casResult = primaryChannelsCache.GetWithVersion<Channel>(key);
 
-                        if (casResult != null && casResult.result != null)
-                        {
-                            casResult.result = channel;
+        //                if (casResult != null && casResult.result != null)
+        //                {
+        //                    casResult.result = channel;
 
-                            inserted = primaryChannelsCache.Set(key, casResult);
-                        }
-                        else
-                        {
-                            inserted = primaryChannelsCache.Add(key, new BaseModuleCache(channel));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("InsertChannels",
-                    string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", group.m_nParentGroupID, ex.Message), "GroupsCacheManager");
-                inserted = false;
-            }
+        //                    inserted = primaryChannelsCache.Set(key, casResult);
+        //                }
+        //                else
+        //                {
+        //                    inserted = primaryChannelsCache.Add(key, new BaseModuleCache(channel));
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Logger.Log("InsertChannels",
+        //            string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", group.m_nParentGroupID, ex.Message), "GroupsCacheManager");
+        //        inserted = false;
+        //    }
 
-            return inserted;
-        }
+        //    return inserted;
+        //}
 
         private static string BuildChannelCacheKey(int groupId, int channelId)
         {
@@ -613,7 +615,7 @@ namespace GroupsCacheManager
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
                 
-                vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);               
+                vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);               
                 if (vModule != null && vModule.result != null)
                 {
                     group = vModule.result as Group;                
@@ -624,7 +626,7 @@ namespace GroupsCacheManager
                         if (group.AddServices(services))
                         {
                             vModule.result = group;
-                            bAdd = primaryGroupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bAdd = groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
@@ -645,7 +647,7 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
-                vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
                 if (vModule != null && vModule.result != null)
                 { 
                     group = vModule.result as Group;
@@ -656,7 +658,7 @@ namespace GroupsCacheManager
                         if (group.RemoveServices(services))
                         {
                             vModule.result = group;
-                            bDelete = primaryGroupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bDelete = groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
@@ -677,7 +679,7 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
-                vModule = (VersionModuleCache)primaryGroupCacheService.GetWithVersion<Group>(sKey);
+                vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
 
                 if (vModule != null && vModule.result != null)
                 {
@@ -689,7 +691,7 @@ namespace GroupsCacheManager
                         if (group.UpdateServices(services))
                         {
                             vModule.result = group;
-                            bUpdate = primaryGroupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
+                            bUpdate = groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                         }
                     }
                 }
