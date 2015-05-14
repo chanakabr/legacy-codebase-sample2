@@ -1056,6 +1056,7 @@ namespace Catalog
         {
             Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
             Dictionary<string, Dictionary<int, List<string>>> nameToTypeToId = new Dictionary<string, Dictionary<int, List<string>>>();
+            Dictionary<int, List<string>> typeToNames = new Dictionary<int, List<string>>();
 
             #region Map documents name and initial start dates
 
@@ -1077,6 +1078,13 @@ namespace Catalog
                     }
 
                     nameToTypeToId[document.name][document.media_type_id].Add(document.id);
+
+                    if (!typeToNames.ContainsKey(document.media_type_id))
+                    {
+                        typeToNames[document.media_type_id] = new List<string>();
+                    }
+
+                    typeToNames[document.media_type_id].Add(document.name);
                 }
             }
 
@@ -1095,16 +1103,20 @@ namespace Catalog
             FilterCompositeType tagsFilter = new FilterCompositeType(CutWith.OR);
 
             // Filter data only to contain documents that have the specifiic tag
-            foreach (var item in associationTags.Values)
+            foreach (var item in associationTags)
             {
-                ESTerms tagsTerms = new ESTerms(false)
+                if (mediaTypeParent.ContainsKey(item.Key) &&
+                    typeToNames.ContainsKey(mediaTypeParent[item.Key]))
                 {
-                    Key = string.Format("tags.{0}", item)
-                };
+                    ESTerms tagsTerms = new ESTerms(false)
+                    {
+                        Key = string.Format("tags.{0}", item.Value)
+                    };
 
-                tagsTerms.Value.AddRange(nameToTypeToId.Keys);
+                    tagsTerms.Value.AddRange(typeToNames[mediaTypeParent[item.Key]]);
 
-                tagsFilter.AddChild(tagsTerms);
+                    tagsFilter.AddChild(tagsTerms);
+                }
             }
 
             filteredQuery.Filter.FilterSettings = tagsFilter;
