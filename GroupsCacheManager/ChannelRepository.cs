@@ -137,51 +137,6 @@ namespace GroupsCacheManager
             }
         }
 
-        //private static void GetAllGroupChannels(Group oGroup)
-        //{
-        //    DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(oGroup.m_nParentGroupID, oGroup.m_nSubGroup);
-        //    List<int> channelIDList = new List<int>();
-        //    if (dt != null && dt.DefaultView.Count > 0)
-        //    {
-        //        int channelID;
-        //        foreach (DataRow row in dt.Rows)
-        //        {
-        //            channelID = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
-
-        //            if (channelID != 0)
-        //                channelIDList.Add(channelID);
-        //        }
-        //        Task[] buildChannelTask = new Task[channelIDList.Count];
-
-        //        for (int i = 0; i < channelIDList.Count; i++)
-        //        {
-        //            buildChannelTask[i] = Task.Factory.StartNew(
-        //                 (obj) =>
-        //                 {
-        //                     try
-        //                     {
-        //                         Channel oChannel = GetChannel(channelIDList[(int)obj], oGroup);
-        //                         if (oChannel != null)
-        //                             oGroup.SetChannel(oChannel.m_nChannelID, oChannel);
-        //                     }
-        //                     catch (Exception ex)
-        //                     {
-        //                         Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0} , Stack trace: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
-        //                     }
-        //                 }, i);
-        //        }
-        //        Task.WaitAll(buildChannelTask);
-        //        for (int i = 0; i < buildChannelTask.Length; i++)
-        //        {
-        //            if (buildChannelTask[i] != null)
-        //            {
-        //                buildChannelTask[i].Dispose();
-        //            }
-        //        }
-        //    }
-
-        //}
-
         /// <summary>
         /// Gets only the Ids of the channels of the given group
         /// </summary>
