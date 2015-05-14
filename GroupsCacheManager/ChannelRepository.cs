@@ -821,7 +821,7 @@ namespace GroupsCacheManager
                         string description = ODBCWrapper.Utils.ExtractString(currentMediaType, "DESCRIPTION");
                         string name = ODBCWrapper.Utils.ExtractString(currentMediaType, "NAME");
                         bool isLinear = ODBCWrapper.Utils.ExtractBoolean(currentMediaType, "IS_LINEAR");
-                        int parentId = ODBCWrapper.Utils.ExtractInteger(currentMediaType, "PAREANT_TYPE_ID");
+                        int parentId = ODBCWrapper.Utils.ExtractInteger(currentMediaType, "PARENT_TYPE_ID");
 
                         // Initialize new media type from row
                         MediaType newType = new MediaType()
