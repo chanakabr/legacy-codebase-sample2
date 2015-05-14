@@ -184,7 +184,7 @@ public partial class adm_categories_channels : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOrderBy);
 
         Int32 nCategoryID = 0;
