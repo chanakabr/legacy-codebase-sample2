@@ -10,3 +10,4 @@ obj/
 *.suo
 PrecompiledWeb/
 packages/
+WebAPI/Properties/AssemblyInfo.cs
