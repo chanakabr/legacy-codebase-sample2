@@ -58,32 +58,56 @@ namespace CachingProvider
 
         public override bool Add(string key, BaseModuleCache value, double minuteOffset)
         {
-            bool inMemoryAdd = inMemoryCache.Add(key, value, minuteOffset);
             bool couchBaseAdd = couchbaseCache.Add(key, value, minuteOffset);
+
+            bool inMemoryAdd = false;
+
+            if (couchBaseAdd)
+            {
+                inMemoryAdd = inMemoryCache.Add(key, value, minuteOffset);
+            }
 
             return (inMemoryAdd && couchBaseAdd);
         }
 
         public override bool Set(string key, BaseModuleCache value, double minuteOffset)
         {
-            bool inMemorySet = inMemoryCache.Set(key, value, minuteOffset);
             bool couchBaseSet = couchbaseCache.Set(key, value, minuteOffset);
+
+            bool inMemorySet = false;
+
+            if (couchBaseSet)
+            {
+                inMemorySet = inMemoryCache.Set(key, value, minuteOffset);
+            }
 
             return (inMemorySet && couchBaseSet);
         }
 
         public override bool Add(string key, BaseModuleCache value)
         {
-            bool inMemoryAdd = inMemoryCache.Add(key, value, this.secondsInMemory / 60);
             bool couchBaseAdd = couchbaseCache.Add(key, value);
+
+            bool inMemoryAdd = false;
+
+            if (couchBaseAdd)
+            {
+                inMemoryAdd = inMemoryCache.Add(key, value, this.secondsInMemory / 60);
+            }
 
             return (inMemoryAdd && couchBaseAdd);
         }
 
         public override bool Set(string key, BaseModuleCache value)
         {
-            bool inMemorySet = inMemoryCache.Set(key, value, this.secondsInMemory / 60);
             bool couchBaseSet = couchbaseCache.Set(key, value);
+
+            bool inMemorySet = false;
+
+            if (couchBaseSet)
+            {
+                inMemorySet = inMemoryCache.Set(key, value, this.secondsInMemory / 60);
+            }
 
             return (inMemorySet && couchBaseSet);
         }
@@ -120,8 +144,8 @@ namespace CachingProvider
 
         public override BaseModuleCache Remove(string key)
         {
+            BaseModuleCache resultCouchbase = this.couchbaseCache.Remove(key);            
             BaseModuleCache resultInMemory = this.inMemoryCache.Remove(key);
-            BaseModuleCache resultCouchbase = this.couchbaseCache.Remove(key);
 
             if (resultInMemory != null && resultInMemory.result != null)
             {
@@ -149,32 +173,56 @@ namespace CachingProvider
 
         public override bool AddWithVersion<T>(string key, BaseModuleCache value)
         {
-            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value, this.secondsInMemory / 60);
             bool couchBaseAdd = couchbaseCache.AddWithVersion<T>(key, value);
+
+            bool inMemoryAdd = false;
+
+            if (couchBaseAdd)
+            {
+                inMemoryCache.AddWithVersion<T>(key, value, this.secondsInMemory / 60);
+            }
 
             return (inMemoryAdd && couchBaseAdd);
         }
 
         public override bool AddWithVersion<T>(string key, BaseModuleCache value, double minuteOffset)
         {
-            bool inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value, minuteOffset);
             bool couchBaseAdd = couchbaseCache.AddWithVersion<T>(key, value, minuteOffset);
+
+            bool inMemoryAdd = false;
+
+            if (couchBaseAdd)
+            {
+                inMemoryAdd = inMemoryCache.AddWithVersion<T>(key, value, minuteOffset);
+            }
 
             return (inMemoryAdd && couchBaseAdd);
         }
 
         public override bool SetWithVersion<T>(string key, BaseModuleCache value, double minuteOffset)
         {
-            bool inMemorySet = inMemoryCache.SetWithVersion<T>(key, value, minuteOffset);
             bool couchBaseSet = couchbaseCache.SetWithVersion<T>(key, value, minuteOffset);
+
+            bool inMemorySet = false;
+
+            if (couchBaseSet)
+            {
+                inMemorySet = inMemoryCache.SetWithVersion<T>(key, value, minuteOffset);
+            }
 
             return (inMemorySet && couchBaseSet);
         }
 
         public override bool SetWithVersion<T>(string key, BaseModuleCache value)
         {
-            bool inMemorySet = inMemoryCache.SetWithVersion<T>(key, value);
             bool couchBaseSet = couchbaseCache.SetWithVersion<T>(key, value);
+
+            bool inMemorySet = false;
+
+            if (couchBaseSet)
+            {
+                inMemorySet = inMemoryCache.SetWithVersion<T>(key, value);
+            }
 
             return (inMemorySet && couchBaseSet);
         }
@@ -240,8 +288,14 @@ namespace CachingProvider
 
         public override bool SetJson<T>(string key, T obj, double cacheTT)
         {
-            bool inMemorySet = this.inMemoryCache.SetJson<T>(key, obj, cacheTT);
             bool couchBaseSet = this.couchbaseCache.SetJson<T>(key, obj, cacheTT);
+            
+            bool inMemorySet = false;
+
+            if (couchBaseSet)
+            {
+                inMemorySet = this.inMemoryCache.SetJson<T>(key, obj, cacheTT);
+            }
 
             return inMemorySet && couchBaseSet;
         }
