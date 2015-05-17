@@ -44,7 +44,8 @@ namespace Catalog
             int nPageIndex = 0;
             int nPageSize = 0;
             if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
-                          || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT)
+                || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
             {
                 nPageIndex = oSearch.m_nPageIndex;
                 nPageSize = oSearch.m_nPageSize;
@@ -90,11 +91,19 @@ namespace Catalog
 
                         if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
                             oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
-                            || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                            || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT)
+                            || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                         {
                             List<int> lMediaIds = oRes.m_resultIDs.Select(item => item.assetID).ToList();
 
-                            Utils.OrderMediasByStats(lMediaIds, (int)oSearch.m_oOrder.m_eOrderBy, (int)oSearch.m_oOrder.m_eOrderDir);
+                            if (oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                            {
+                                lMediaIds = SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir, oSearch.associationTags, oSearch.parentMediaTypes);
+                            }
+                            else
+                            {
+                                Utils.OrderMediasByStats(lMediaIds, (int)oSearch.m_oOrder.m_eOrderBy, (int)oSearch.m_oOrder.m_eOrderDir);
+                            }
 
                             Dictionary<int, SearchResult> dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
                             oRes.m_resultIDs.Clear();
@@ -202,9 +211,9 @@ namespace Catalog
             SearchResultsObj lSortedMedias = new SearchResultsObj();
 
             GroupManager groupManager = new GroupManager();
-            
+
             CatalogCache catalogCache = CatalogCache.Instance();
-            int  nSubscriptionParentGroupID = catalogCache.GetParentGroup(nSubscriptionGroupId);
+            int nSubscriptionParentGroupID = catalogCache.GetParentGroup(nSubscriptionGroupId);
 
             Group oGroup = groupManager.GetGroup(nSubscriptionParentGroupID);
 
@@ -251,9 +260,20 @@ namespace Catalog
                 string sOrderValue = FilteredQuery.GetESSortValue(oOrderObj);
 
 
-                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
-                tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = sOrderValue });
-                tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
+                tempQuery = new FilteredQuery()
+                {
+                    PageIndex = nPageIndex,
+                    PageSize = nPageSize
+                };
+                tempQuery.ESSort.Add(new ESOrderObj()
+                {
+                    m_eOrderDir = oOrderObj.m_eOrderDir,
+                    m_sOrderValue = sOrderValue
+                });
+                tempQuery.Filter = new QueryFilter()
+                {
+                    FilterSettings = groupedFilters
+                };
 
                 string sSearchQuery = tempQuery.ToString();
 
@@ -274,6 +294,7 @@ namespace Catalog
                     if ((oOrderObj.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                     {
                         List<int> lIds = lSearchResults.Select(item => item.asset_id).ToList();
+
                         Utils.OrderMediasByStats(lIds, (int)oOrderObj.m_eOrderBy, (int)oOrderObj.m_eOrderDir);
 
                         Dictionary<int, ElasticSearchApi.ESAssetDocument> dItems = lSearchResults.ToDictionary(item => item.asset_id);
@@ -1054,6 +1075,11 @@ namespace Catalog
             int groupId, OrderDir orderDirection, 
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
         {
+            if (assets == null || assets.Count == 0)
+            {
+                return new List<int>();
+            }
+
             Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
             Dictionary<string, Dictionary<int, List<string>>> nameToTypeToId = new Dictionary<string, Dictionary<int, List<string>>>();
             Dictionary<int, List<string>> typeToNames = new Dictionary<int, List<string>>();
