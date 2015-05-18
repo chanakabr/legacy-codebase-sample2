@@ -61,26 +61,6 @@ namespace GroupsCacheManager
             return lGroups;
         }
 
-        public static Channel RemoveChannelByChannelId(int nChannelId, ref Group group)
-        {
-            Channel removedChannel = null;
-            bool isRemovingChannelSucceded = false;
-
-            try
-            {
-                if (group.m_oGroupChannels.ContainsKey(nChannelId))
-                {
-                    isRemovingChannelSucceded = group.m_oGroupChannels.TryRemove(nChannelId, out removedChannel);
-                }
-            }
-            catch
-            {
-                isRemovingChannelSucceded = false;
-            }
-
-            return removedChannel;
-        }
-
 
         public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {

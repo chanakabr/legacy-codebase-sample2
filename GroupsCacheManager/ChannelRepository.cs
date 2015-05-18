@@ -40,8 +40,8 @@ namespace GroupsCacheManager
             if (newGroup != null)
             {
                 GetGroupsTagsTypes(ref newGroup);
-                GetAllGroupChannels(newGroup);
-                GetGroupLanguages(ref newGroup);      
+                GetAllGroupChannelIds(newGroup);
+                GetGroupLanguages(ref newGroup);
                 // get all services related to group
                 GetGroupServices(ref newGroup);
 
@@ -50,7 +50,7 @@ namespace GroupsCacheManager
 
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
-            
+
             return newGroup;
         }
 
@@ -156,51 +156,28 @@ namespace GroupsCacheManager
             }
         }
 
-        private static void GetAllGroupChannels(Group oGroup)
+        /// <summary>
+        /// Gets only the Ids of the channels of the given group
+        /// </summary>
+        /// <param name="group"></param>
+        private static void GetAllGroupChannelIds(Group group)
         {
-            oGroup.m_oGroupChannels = new System.Collections.Concurrent.ConcurrentDictionary<int, Channel>();
+            DataTable groupChannels = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(group.m_nParentGroupID, group.m_nSubGroup);
 
-            DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(oGroup.m_nParentGroupID, oGroup.m_nSubGroup);
-            List<int> channelIDList = new List<int>();
-            if (dt != null && dt.DefaultView.Count > 0)
+            if (groupChannels != null && groupChannels.DefaultView.Count > 0)
             {
                 int channelID;
-                foreach (DataRow row in dt.Rows)
+
+                foreach (DataRow row in groupChannels.Rows)
                 {
                     channelID = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
                     if (channelID != 0)
-                        channelIDList.Add(channelID);
-                }
-                Task[] buildChannelTask = new Task[channelIDList.Count];
-
-                for (int i = 0; i < channelIDList.Count; i++)
-                {
-                    buildChannelTask[i] = Task.Factory.StartNew(
-                         (obj) =>
-                         {
-                             try
-                             {
-                                 Channel oChannel = GetChannel(channelIDList[(int)obj], oGroup);
-                                 if (oChannel != null)
-                                     oGroup.m_oGroupChannels.TryAdd(oChannel.m_nChannelID, oChannel);
-                             }
-                             catch (Exception ex)
-                             {
-                                 Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0} , Stack trace: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
-                             }
-                         }, i);
-                }
-                Task.WaitAll(buildChannelTask);
-                for (int i = 0; i < buildChannelTask.Length; i++)
-                {
-                    if (buildChannelTask[i] != null)
                     {
-                        buildChannelTask[i].Dispose();
+                        group.channelIDs.Add(channelID);
                     }
                 }
             }
-
         }
 
         private static void SetPermittedWatchRules(ref Group newGroup)
@@ -221,7 +198,7 @@ namespace GroupsCacheManager
         {
             #region - select channel by channelId, and the parent_group_id
 
-            Channel oChannel = new Channel();
+            Channel oChannel = null;
             int mediaType;
             DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
 
@@ -229,58 +206,68 @@ namespace GroupsCacheManager
             {
                 DataTable channelData = ds.Tables[0];
 
-                if (channelData.Rows.Count > 0)
+                if (channelData != null && channelData.Rows != null && channelData.Rows.Count > 0)
                 {
-                    if (oChannel.m_lChannelTags == null)
-                    {
-                        oChannel.m_lChannelTags = new List<ApiObjects.SearchObjects.SearchValue>();
-                    }
-
                     DataRow rowData = channelData.Rows[0];
-                    oChannel.m_sName = ODBCWrapper.Utils.GetSafeStr(rowData["name"]);
-                    oChannel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
-                    oChannel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
-                    oChannel.m_nChannelID = nChannelId;
-                    oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);                    
-                    oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-                    mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
-                    oChannel.m_nMediaType = new List<int>();
-                    if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+
+                    int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+                    int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+                    int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+
+                    // If the channel belongs to the correct group and the channel is in correct status
+                    if ((group.m_nSubGroup.Contains(channelGroupId) || group.m_nParentGroupID == channelGroupId) &&
+                        (isActive == 1) && (status == 1))
                     {
-                        DataTable mediaTypeDT = ds.Tables[1];
-                        List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + nChannelId).ToList();
-                        foreach (DataRow drMediaType in drs)
+                        oChannel = new Channel();
+
+                        if (oChannel.m_lChannelTags == null)
                         {
-                            oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                            oChannel.m_lChannelTags = new List<ApiObjects.SearchObjects.SearchValue>();
                         }
-                    }
-                    if (oChannel.m_nMediaType.Count == 0)
-                    {
-                        if (mediaType != -1)
+
+                        oChannel.m_nIsActive = isActive;
+                        oChannel.m_nStatus = status;
+                        oChannel.m_nChannelID = nChannelId;
+                        oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+
+                        oChannel.m_nGroupID = channelGroupId;
+                        oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+                        mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+                        oChannel.m_nMediaType = new List<int>();
+                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                         {
-                            oChannel.m_nMediaType.Add(mediaType);
+                            DataTable mediaTypeDT = ds.Tables[1];
+                            List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + nChannelId).ToList();
+                            foreach (DataRow drMediaType in drs)
+                            {
+                                oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                            }
                         }
-                        else
+                        if (oChannel.m_nMediaType.Count == 0)
                         {
-                            oChannel.m_nMediaType.Add(0);
+                            if (mediaType != -1)
+                            {
+                                oChannel.m_nMediaType.Add(mediaType);
+                            }
+                            else
+                            {
+                                oChannel.m_nMediaType.Add(0);
+                            }
                         }
-                    }
 
-                    oChannel.m_nParentGroupID = group.m_nParentGroupID;
-                    oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
+                        oChannel.m_nParentGroupID = group.m_nParentGroupID;
+                        oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
 
-                    int nOrderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
-                    UpdateOrderByObjec(nOrderBy, ref oChannel, group);// initiate orderBy object 
+                        int nOrderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                        UpdateOrderByObjec(nOrderBy, ref oChannel, group);// initiate orderBy object 
 
-                    int nOrderDir = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
-                    oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
-                    oChannel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
-                    oChannel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
+                        int nOrderDir = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+                        oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
+                        oChannel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
+                        oChannel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
 
-                    int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
+                        int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
 
-                    if (oChannel.m_nIsActive == 1 && oChannel.m_nStatus == 1)
-                    {
                         if (nIsAnd == 1)
                         {
                             oChannel.m_eCutWith = ApiObjects.SearchObjects.CutWith.AND;
@@ -349,10 +336,6 @@ namespace GroupsCacheManager
                         {
                             UpdateOrderByObject(ref oChannel, group.m_oMetasValuesByGroupId[oChannel.m_nGroupID]);
                         }
-                    }
-                    else
-                    {
-                        oChannel = null;
                     }
                 }
             }
