@@ -389,15 +389,18 @@ namespace GroupsCacheManager
                             {
                                 Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group);
 
-                                for (int i = 0; i < 3 && !bInsert; i++)
+                                if (temporaryCahnnel != null)
                                 {
-                                    //try insert to cache
-                                    versionModule.result = temporaryCahnnel;
-                                    bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
-
-                                    if (bInsert)
+                                    for (int i = 0; i < 3 && !bInsert; i++)
                                     {
-                                        resultChannel = temporaryCahnnel;
+                                        //try insert to cache
+                                        versionModule.result = temporaryCahnnel;
+                                        bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+
+                                        if (bInsert)
+                                        {
+                                            resultChannel = temporaryCahnnel;
+                                        }
                                     }
                                 }
                             }
