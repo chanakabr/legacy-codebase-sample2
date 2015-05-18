@@ -94,6 +94,16 @@ namespace ApiObjects.SearchObjects
 
         public List<string> linearChannelMediaTypes;
 
+        /// <summary>
+        /// Mapping of which media types and their parents
+        /// </summary>
+        public Dictionary<int, int> parentMediaTypes;
+
+        /// <summary>
+        /// Mapping of association tag by child media type
+        /// </summary>
+        public Dictionary<int, string> associationTags;
+
         public MediaSearchObj()
         {
             m_sMediaTypes = string.Empty;
@@ -123,6 +133,9 @@ namespace ApiObjects.SearchObjects
             m_lOrMediaNotInAnyOfTheseChannelsDefinitions = new List<string>();
 
             regionIds = new List<int>();
+
+            parentMediaTypes = new Dictionary<int, int>();
+            associationTags = new Dictionary<int, string>();
         }
     }
 

@@ -59,19 +59,6 @@ namespace ElasticSearch.Searcher
         /// <param name="definitions"></param>
         public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions)
         {
-            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            this.ReturnFields.AddRange(definitions.extraReturnFields);
-
-            if (definitions.shouldSearchEpg)
-            {
-                this.ReturnFields.Add("\"epg_id\"");
-            }
-            
-            if (definitions.shouldSearchMedia)
-            {
-                this.ReturnFields.Add("\"media_id\"");
-            }
-
             this.SearchDefinitions = definitions;
 
             this.GroupID = definitions.groupId;
@@ -94,6 +81,19 @@ namespace ElasticSearch.Searcher
         /// <returns></returns>
         public virtual string BuildSearchQueryString()
         {
+            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
+            this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
+
+            if (this.SearchDefinitions.shouldSearchEpg)
+            {
+                this.ReturnFields.Add("\"epg_id\"");
+            }
+
+            if (this.SearchDefinitions.shouldSearchMedia)
+            {
+                this.ReturnFields.Add("\"media_id\"");
+            }
+
             // This is a query-filter.
             // First comes query
             // Then comes filter

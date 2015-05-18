@@ -1887,7 +1887,7 @@ namespace TvinciImporter
                 bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
 
                 nPicID = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
-            }          
+            }
             return nPicID;
         }
 

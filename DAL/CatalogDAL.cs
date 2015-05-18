@@ -2604,15 +2604,41 @@ namespace Tvinci.Core.DAL
         /// <param name="groupId"></param>
         /// <param name="idToName"></param>
         /// <param name="nameToId"></param>
-        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId)
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes)
         {
             idToName = new Dictionary<int, string>();
             nameToId = new Dictionary<string, int>();
+            parentMediaTypes = new Dictionary<int, int>();
+
+            DataTable mediaTypes = GetMediaTypesTable(groupId);
+
+            if (mediaTypes != null)
+            {
+                foreach (DataRow mediaType in mediaTypes.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
+                    string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
+                    int parent = ODBCWrapper.Utils.ExtractInteger(mediaType, "PARENT_TYPE_ID");
+
+                    idToName.Add(id, name);
+                    nameToId.Add(name, id);
+                    parentMediaTypes.Add(id, parent);
+                }
+            }
+        }
+
+        /// For a given group, gets the media types data table
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="idToName"></param>
+        /// <param name="nameToId"></param>
+        public static DataTable GetMediaTypesTable(int groupId)
+        {
+            DataTable table = null;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypes");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupId", groupId);
-
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
@@ -2622,16 +2648,11 @@ namespace Tvinci.Core.DAL
 
                 if (mediaTypes != null && mediaTypes.Rows != null && mediaTypes.Rows.Count > 0)
                 {
-                    foreach (DataRow mediaType in mediaTypes.Rows)
-                    {
-                        int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
-                        string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
-
-                        idToName.Add(id, name);
-                        nameToId.Add(name, id);
-                    }
+                    table = mediaTypes;
                 }
             }
+
+            return table;
         }
 
         ///

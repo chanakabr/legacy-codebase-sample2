@@ -735,13 +735,14 @@ namespace Catalog
 
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(parentGroupID);
+
             if (request.filterTree != null)
             {
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(parentGroupID);
 
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
@@ -897,10 +898,59 @@ namespace Catalog
 
             #endregion
 
+            Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
+                out definitions.parentMediaTypes, out definitions.associationTags,
+                definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
+
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        /// <summary>
+        /// For a given group, gets the media types definitions of parent relations and associated tags
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="parentMediaTypes"></param>
+        /// <param name="associationTags"></param>
+        /// <param name="relevantMediaTypes"></param>
+        /// <param name="shouldGetAllMediaTypes"></param>
+        /// <param name="groupManager"></param>
+        internal static void GetParentMediaTypesAssociations(
+            int groupId, out Dictionary<int, int> parentMediaTypes, out Dictionary<int, string> associationTags, List<int> relevantMediaTypes = null, 
+            bool shouldGetAllMediaTypes = false, GroupManager groupManager = null)
+        {
+            parentMediaTypes = new Dictionary<int, int>();
+            associationTags = new Dictionary<int, string>();
+
+            if (groupManager == null)
+            {
+                groupManager = new GroupManager();
+            }
+
+            if (relevantMediaTypes == null)
+            {
+                relevantMediaTypes = new List<int>();
+                shouldGetAllMediaTypes = true;
+            }
+
+            // Get media types of the group
+            List<GroupsCacheManager.MediaType> groupMediaTypes = groupManager.GetMediaTypesOfGroup(groupId);
+
+            foreach (var mediaType in groupMediaTypes)
+            {
+                if (mediaType.parentId > 0)
+                {
+                    // If this is relevant for the search at all
+                    if (relevantMediaTypes.Contains(mediaType.parentId) ||
+                        (relevantMediaTypes.Count == 0 && shouldGetAllMediaTypes))
+                    {
+                        parentMediaTypes.Add(mediaType.id, mediaType.parentId);
+                        associationTags.Add(mediaType.id, mediaType.associationTag);
+                    }
+                }
+            }
         }
 
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
@@ -1031,6 +1081,8 @@ namespace Catalog
 
                 searchObj.regionIds = regionIds;
                 searchObj.linearChannelMediaTypes = linearMediaTypes;
+
+                Catalog.GetParentMediaTypesAssociations(request.m_nGroupID, out searchObj.parentMediaTypes, out searchObj.associationTags);
             }
             catch (Exception ex)
             {
@@ -1706,6 +1758,9 @@ namespace Catalog
 
             searchObject.regionIds = regionIds;
             searchObject.linearChannelMediaTypes = linearMediaTypes;
+
+            Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
+                out searchObject.parentMediaTypes, out searchObject.associationTags);
 
             return searchObject;
         }
@@ -2952,6 +3007,8 @@ namespace Catalog
 
             res.regionIds = regionIds;
             res.linearChannelMediaTypes = linearMediaTypes;
+
+            Catalog.GetParentMediaTypesAssociations(nGroupID, out res.parentMediaTypes, out res.associationTags);
 
             return res;
         }
