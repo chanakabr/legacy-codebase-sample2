@@ -80,11 +80,6 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
     private void InsertChannelMediaType(int mediaTypeID, int channelID, int groupID)
     {
         bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, new List<int>() { mediaTypeID });
-    }
-
-    private void InsertChannelMediaType(List<int> mediaTypeIDs, int channelID, int groupID)
-    {
-        bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
         if (inserted)
         {
             bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
