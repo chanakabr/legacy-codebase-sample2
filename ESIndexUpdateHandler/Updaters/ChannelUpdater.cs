@@ -104,7 +104,7 @@ namespace ESIndexUpdateHandler.Updaters
             GroupManager groupManager = new GroupManager();
             Group oGroup = groupManager.GetGroup(m_nGroupID);
 
-            if (oGroup == null || oGroup.m_oGroupChannels == null)
+            if (oGroup == null || oGroup.channelIDs == null || oGroup.channelIDs.Count == 0)
                 return bRes;
 
             List<string> aliases = m_oESApi.GetAliases(m_nGroupID.ToString());

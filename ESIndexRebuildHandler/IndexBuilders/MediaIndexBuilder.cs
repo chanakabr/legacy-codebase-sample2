@@ -19,6 +19,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
         private ESSerializer m_oESSerializer;
         private ElasticSearchApi m_oESApi;
         private Group m_oGroup;
+        private GroupManager groupManager;
 
         public bool SwitchIndexAlias { get; set; }
         public bool DeleteOldIndices { get; set; }
@@ -176,7 +177,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
         private void IndexChannels(string sIndex)
         {
 
-            if (m_oGroup.m_oGroupChannels != null)
+            if (m_oGroup.channelIDs != null)
             {
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
@@ -184,9 +185,9 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
 
                 List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
-                foreach (int channelId in m_oGroup.m_oGroupChannels.Keys)
+                foreach (int channelId in m_oGroup.channelIDs)
                 {
-                    Channel oChannel = m_oGroup.m_oGroupChannels[channelId];
+                    Channel oChannel = groupManager.GetChannel(channelId, ref m_oGroup);
 
                     if (oChannel == null || oChannel.m_nIsActive != 1)
                         continue;
