@@ -136,9 +136,9 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             #region insert channel queries
 
-            if (oGroup.m_oGroupChannels != null)
+            if (oGroup.channelIDs != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.m_oGroupChannels.Count), "ESFeeder");
+                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.channelIDs.Count), "ESFeeder");
 
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
@@ -147,19 +147,19 @@ namespace ElasticSearchFeeder.IndexBuilders
                 List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
-                    foreach (int channelId in oGroup.m_oGroupChannels.Keys)
-                    {
-                        Channel oChannel = oGroup.m_oGroupChannels[channelId];
+                    List<Channel> allChannels = groupManager.GetChannels(oGroup.channelIDs.ToList(), m_nGroupID);
 
-                        if (oChannel == null || oChannel.m_nIsActive != 1)
+                    foreach (Channel currentChannel in allChannels)
+                    {
+                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
                             continue;
 
-                        oQueryParser.m_nGroupID = oChannel.m_nGroupID;
-                        oSearchObj = BuildBaseChannelSearchObject(oChannel);
+                        oQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                        oSearchObj = BuildBaseChannelSearchObject(currentChannel);
                         oQueryParser.oSearchObject = oSearchObj;
                         sQueryStr = oQueryParser.BuildSearchQueryString(false);
 
-                        lChannelRequests.Add(new KeyValuePair<int, string>(oChannel.m_nChannelID, sQueryStr));
+                        lChannelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, sQueryStr));
 
                         if (lChannelRequests.Count > 50)
                         {
