@@ -286,7 +286,7 @@ namespace EpgBL
 
                 string docID = string.Empty;
                 List<string> docIDs = new List<string>();
-                docIDs.Add(nProgramID.ToString());
+                docIDs.Add(nProgramID.ToString()); // for main language
                 //Build list of keys with language
                 foreach (string lang in languages)
                 {
