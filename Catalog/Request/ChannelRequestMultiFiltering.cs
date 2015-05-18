@@ -16,7 +16,7 @@ using Microsoft.SqlServer.Server;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
    * Get Channel + It's Medias List

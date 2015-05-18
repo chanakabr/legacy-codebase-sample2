@@ -6,8 +6,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using Logger;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class EpgAutoCompleteRequest : BaseRequest, IRequestImp, IEpgSearchable

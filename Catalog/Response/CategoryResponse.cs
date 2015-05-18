@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class CategoryResponse : BaseResponse

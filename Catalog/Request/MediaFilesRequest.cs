@@ -5,8 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class MediaFilesRequest : BaseRequest, IRequestImp

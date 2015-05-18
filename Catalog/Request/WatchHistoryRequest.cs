@@ -13,7 +13,7 @@ using Tvinci.Core.DAL;
 using System.Data;
 using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class WatchHistoryRequest : BaseRequest, IRequestImp

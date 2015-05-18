@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using ApiObjects;
+using Catalog.Response;
 
 namespace Catalog
 {

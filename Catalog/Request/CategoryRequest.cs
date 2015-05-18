@@ -6,9 +6,10 @@ using Logger;
 using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
+using Catalog.Response;
 
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     * Get Category Channel List

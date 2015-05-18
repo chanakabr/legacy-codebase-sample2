@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class BundlesContainingMediaResponse : BaseResponse

@@ -19,6 +19,7 @@ using ElasticSearch.Searcher;
 using Catalog.Cache;
 using GroupsCacheManager;
 using ApiObjects;
+using Catalog.Request;
 
 namespace Catalog
 {

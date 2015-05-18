@@ -14,8 +14,9 @@ using DAL;
 using Tvinci.Core.DAL;
 using System.Threading.Tasks;
 using ApiObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp

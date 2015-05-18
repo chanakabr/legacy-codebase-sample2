@@ -12,8 +12,9 @@ using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class MediaLastPositionRequest : BaseRequest, IRequestImp

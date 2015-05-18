@@ -8,8 +8,9 @@ using System.Reflection;
 using System.Data;
 using System.Text.RegularExpressions;
 using Tvinci.Core.DAL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     * Get Comments List

@@ -7,7 +7,7 @@ using System.Text;
 using Logger;
 using Tvinci.Core.DAL;
 
-namespace Catalog
+namespace Catalog.Request
 {
 
     [DataContract]

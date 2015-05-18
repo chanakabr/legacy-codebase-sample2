@@ -9,8 +9,9 @@ using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
 using ApiObjects.MediaMarks;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     * Get Personal Last Device

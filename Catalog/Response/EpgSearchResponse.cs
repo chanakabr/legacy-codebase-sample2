@@ -6,7 +6,7 @@ using System.Text;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class EpgSearchResponse : BaseResponse

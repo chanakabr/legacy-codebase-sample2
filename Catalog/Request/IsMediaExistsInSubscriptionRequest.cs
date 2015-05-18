@@ -8,11 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using Catalog.Response;
 using GroupsCacheManager;
 using Logger;
 using TVinciShared;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class IsMediaExistsInSubscriptionRequest : BaseRequest, IRequestImp

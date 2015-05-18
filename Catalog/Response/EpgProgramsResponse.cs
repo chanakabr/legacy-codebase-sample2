@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class EpgProgramsResponse : BaseResponse

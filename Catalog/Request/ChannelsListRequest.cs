@@ -11,8 +11,9 @@ using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     * Get Channel List

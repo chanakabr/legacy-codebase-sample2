@@ -12,8 +12,9 @@ using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using DAL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [KnownType(typeof(ChannelRequest))]
     [KnownType(typeof(MediaSearchRequest))]

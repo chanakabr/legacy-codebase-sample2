@@ -9,7 +9,7 @@ using System;
 using System.Text;
 
 
-namespace Catalog
+namespace Catalog.Request
 {
  
     public class MediaPlayRequestData

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.CrowdsourceItems.Base;
+using Catalog.Response;
 using Newtonsoft.Json;
 
-namespace Catalog
+namespace Catalog.Request
 {
     public class CrowdsourceRequest : BaseRequest, IRequestImp
     {

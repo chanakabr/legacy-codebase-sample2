@@ -7,11 +7,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 using EpgBL;
 using Logger;
 using Tvinci.Core.DAL;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class EpgSearchRequest : BaseRequest, IRequestImp, IEpgSearchable

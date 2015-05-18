@@ -13,8 +13,9 @@ using ApiObjects.SearchObjects;
 using System.Collections.Concurrent;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class BundleContainingMediaRequest : BaseRequest, IRequestImp

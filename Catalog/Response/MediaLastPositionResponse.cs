@@ -11,7 +11,7 @@ using System.Data;
 using Logger;
 using TVinciShared;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class MediaLastPositionResponse : BaseResponse

@@ -7,8 +7,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Tvinci.Core.DAL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class BundlesContainingMediaRequest : BaseRequest, IRequestImp

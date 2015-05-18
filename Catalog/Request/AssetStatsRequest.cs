@@ -6,8 +6,9 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using Logger;
 using ApiObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class AssetStatsRequest : BaseRequest, IRequestImp

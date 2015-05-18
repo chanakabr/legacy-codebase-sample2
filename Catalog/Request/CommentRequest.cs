@@ -5,11 +5,12 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Cache;
+using Catalog.Response;
 using GroupsCacheManager;
 using Logger;
 using Tvinci.Core.DAL;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     abstract public class CommentRequest : BaseRequest, IRequestImp

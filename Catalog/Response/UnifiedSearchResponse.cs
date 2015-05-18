@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Response
 {
     /// <summary>
     /// Catalog response that holds list of search results and their types

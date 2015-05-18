@@ -7,11 +7,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Catalog.Cache;
+using Catalog.Response;
 using GroupsCacheManager;
 using Logger;
 using Tvinci.Core.DAL;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class EpgCommentsListRequest : BaseRequest, IRequestImp

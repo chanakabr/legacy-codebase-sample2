@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Catalog
+namespace Catalog.Response
 {
     /// <summary>
     /// Holds information of several types of assets

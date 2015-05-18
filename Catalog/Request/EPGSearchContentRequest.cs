@@ -5,10 +5,11 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects;
+using Catalog.Response;
 using EpgBL;
 using Logger;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [Serializable]
     [DataContract]

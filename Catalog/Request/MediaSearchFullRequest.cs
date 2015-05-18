@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************************
   * return : Search Media with Searcher service 

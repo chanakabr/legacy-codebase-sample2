@@ -9,8 +9,9 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
      /**************************************************************************
      * Get Personal Last Watched

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using Catalog.Response;
 using Logger;
 using StatisticsBL;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [Serializable]
     [DataContract]

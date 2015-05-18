@@ -19,8 +19,9 @@ using ApiObjects.SearchObjects;
 
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
    * Get Channel + It's Medias List

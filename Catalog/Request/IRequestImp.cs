@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ServiceModel;
-namespace Catalog
+using Catalog.Response;
+namespace Catalog.Request
 {
     [ServiceContract()]
     public interface IRequestImp

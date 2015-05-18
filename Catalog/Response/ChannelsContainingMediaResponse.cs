@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Catalog
+namespace Catalog.Response
 {
     public class ChannelsContainingMediaResponse : BaseResponse
     {

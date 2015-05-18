@@ -8,8 +8,9 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /****************************************************
      * Return all medias a user like or post 

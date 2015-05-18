@@ -10,8 +10,9 @@ using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /*********************************************************************
      * Get Personal Recommended Request 

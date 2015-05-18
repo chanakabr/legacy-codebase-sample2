@@ -5,7 +5,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class CommentsListResponse : BaseResponse

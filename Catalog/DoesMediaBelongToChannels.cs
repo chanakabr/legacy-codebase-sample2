@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Request;
+using Catalog.Response;
 
 namespace Catalog
 {

@@ -6,8 +6,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [Serializable]
     [DataContract]

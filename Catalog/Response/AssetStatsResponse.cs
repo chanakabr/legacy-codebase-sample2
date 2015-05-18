@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using ApiObjects.Statistics;
 using System.Xml.Serialization;
 
-namespace Catalog
+namespace Catalog.Response
 {
     [DataContract]
     public class AssetStatsResponse : BaseResponse 

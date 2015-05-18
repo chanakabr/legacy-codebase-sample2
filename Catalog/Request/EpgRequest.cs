@@ -9,8 +9,9 @@ using ApiObjects;
 using ApiObjects.SearchObjects;
 using System.Diagnostics;
 using EpgBL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class EpgRequest : BaseRequest, IRequestImp, IEpgSearchable

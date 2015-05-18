@@ -17,8 +17,9 @@ using Catalog.Cache;
 using GroupsCacheManager;
 using System.Threading.Tasks;
 using ApiObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
 
     [DataContract]

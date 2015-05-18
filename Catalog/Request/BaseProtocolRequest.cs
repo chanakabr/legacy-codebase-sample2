@@ -9,8 +9,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using TVinciShared;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public abstract class BaseProtocolRequest : BaseRequest, IRequestImp

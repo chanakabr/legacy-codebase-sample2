@@ -9,8 +9,9 @@ using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class PicRequest : BaseRequest, IRequestImp

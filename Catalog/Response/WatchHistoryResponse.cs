@@ -7,7 +7,7 @@ using System.Text;
 using ApiObjects.MediaMarks;
 using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Response
 {
     /// <summary>
     /// Catalog response that holds list of search results and their types

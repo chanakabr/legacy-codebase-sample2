@@ -10,7 +10,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     *Get People Who Like Also Like

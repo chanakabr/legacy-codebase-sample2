@@ -9,8 +9,9 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public abstract class BaseMediaSearchRequest : BaseRequest, IRequestImp

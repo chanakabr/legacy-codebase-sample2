@@ -26,6 +26,8 @@ using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
 using NPVR;
 using ApiObjects.Response;
+using Catalog.Request;
+using Catalog.Response;
 
 namespace Catalog
 {

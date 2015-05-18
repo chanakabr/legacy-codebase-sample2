@@ -11,8 +11,9 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************************
    * return : Return all medias that share the same values Like the mediaID that was send

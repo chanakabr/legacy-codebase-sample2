@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Catalog
+namespace Catalog.Response
 {
     public class NPVRSeriesResponse : BaseResponse
     {

@@ -7,8 +7,9 @@ using Logger;
 using System.Reflection;
 using System.Data;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class MediaUpdateDateRequest : BaseRequest, IRequestImp

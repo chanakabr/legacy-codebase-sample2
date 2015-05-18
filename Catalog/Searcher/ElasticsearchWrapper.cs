@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using Logger;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
 namespace Catalog
 {

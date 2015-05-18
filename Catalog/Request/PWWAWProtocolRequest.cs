@@ -12,7 +12,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /**************************************************************************
     *Get People Who Watched Also Watched

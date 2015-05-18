@@ -7,8 +7,9 @@ using System.Text;
 using Logger;
 using ApiObjects;
 using EpgBL;
+using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     [Serializable]
     [DataContract]

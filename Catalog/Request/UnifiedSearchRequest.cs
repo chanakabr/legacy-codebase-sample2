@@ -10,7 +10,7 @@ using System.Text;
 using System.Web;
 using Catalog.Response;
 
-namespace Catalog
+namespace Catalog.Request
 {
     /// <summary>
     /// A search request of several types of assets: Media, EPGs etc. All in one, unified place.

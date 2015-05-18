@@ -5,9 +5,10 @@ using System.Text;
 using System.Runtime.Serialization;
 using Logger;
 using System.Reflection;
+using Catalog.Response;
 
 
-namespace Catalog
+namespace Catalog.Request
 {
     [DataContract]
     public class MediasProtocolRequest : BaseRequest, IMediasProtocolRequest
