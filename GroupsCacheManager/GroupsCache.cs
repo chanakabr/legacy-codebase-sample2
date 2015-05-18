@@ -779,7 +779,7 @@ namespace GroupsCacheManager
 
                     try
                     {
-                        baseModule = this.CacheService.Get(cacheKey);
+                        baseModule = this.groupCacheService.Get(cacheKey);
                     }
                     catch (ArgumentException exception)
                     {
@@ -808,7 +808,7 @@ namespace GroupsCacheManager
 
                                 try
                                 {
-                                    versionModule = (VersionModuleCache)this.CacheService.GetWithVersion<MediaType>(cacheKey);
+                                    versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<MediaType>(cacheKey);
                                 }
                                 catch (ArgumentException exception)
                                 {
@@ -859,7 +859,7 @@ namespace GroupsCacheManager
 
                             //try insert to Cache                                     
                             versionModule.result = newMediaType;
-                            wasInsert = this.CacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+                            wasInsert = this.groupCacheService.SetWithVersion<MediaType>(cacheKey, versionModule, dCacheTT);
                         }
 
                         mediaTypes.Add(newMediaType);
