@@ -100,7 +100,9 @@ namespace ElasticSearchFeeder.IndexBuilders
                 tempDate = tempDate.AddDays(1);
             }
 
-            if (bSwitchIndex)
+            bool indexExists = m_oESApi.IndexExists(Utils.GetEpgGroupAliasStr(m_nGroupID));
+
+            if (bSwitchIndex || !indexExists)
             {
                 List<string> lOldIndices = m_oESApi.GetAliases(sGroupAlias);
 
@@ -114,6 +116,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             return bRes;
         }
+
 
         private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters)
         {

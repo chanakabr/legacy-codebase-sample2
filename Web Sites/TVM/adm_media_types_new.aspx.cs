@@ -81,8 +81,14 @@ public partial class adm_media_types_new : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         object t = null; ;
+        int mediaTypeId = 0;
+
         if (Session["media_type_id"] != null && Session["media_type_id"].ToString() != "" && int.Parse(Session["media_type_id"].ToString()) != 0)
+        {
             t = Session["media_type_id"];
+            mediaTypeId = Convert.ToInt32(t);
+        }
+
         DBRecordWebEditor theRecord = new DBRecordWebEditor("media_types", "adm_table_pager", "adm_media_types.aspx", "", "ID", t, "adm_media_types.aspx", "media_type_id");
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
@@ -100,6 +106,27 @@ public partial class adm_media_types_new : System.Web.UI.Page
         DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
         dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", false);
         theRecord.AddRecord(dr_order_num);
+
+
+        DataRecordDropDownField parentTypeDropDown = new DataRecordDropDownField("media_Types", "NAME", "id", "", null, 240, true);
+
+        int groupId = LoginManager.GetLoginGroupID();
+        string parentTypesQuery = string.Format(
+            "select name as txt,id as id " +
+            "from media_types " +
+            "where status=1 " +
+            "and id <> {1} " +
+            "and (group_id = {0} OR group_id in (select * from dbo.F_Get_GroupsTree({0})))",
+            groupId,
+            mediaTypeId);
+
+        parentTypeDropDown.SetSelectsQuery(parentTypesQuery);
+        parentTypeDropDown.Initialize("Parent type", "adm_table_header_nbg", "FormInput", "PARENT_TYPE_ID", false);        
+        theRecord.AddRecord(parentTypeDropDown);
+
+        DataRecordShortTextField associationTagField = new DataRecordShortTextField("ltr", true, 60, 128);
+        associationTagField.Initialize("Association tag", "adm_table_header_nbg", "FormInput", "ASSOCIATION_TAG", false);
+        theRecord.AddRecord(associationTagField);
 
         //bool bVisible = PageUtils.IsTvinciUser();
         //if (bVisible == true)

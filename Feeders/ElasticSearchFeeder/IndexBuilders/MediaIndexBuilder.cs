@@ -191,10 +191,11 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             #endregion
 
+            string sAlias = Utils.GetMediaGroupAliasStr(m_nGroupID);
+            bool indexExists = m_oESApi.IndexExists(sAlias);
 
-            if (bSwitchIndex)
+            if (bSwitchIndex || !indexExists)
             {
-                string sAlias = Utils.GetMediaGroupAliasStr(m_nGroupID);
                 List<string> lOldIndices = m_oESApi.GetAliases(sAlias);
 
                 Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => m_oESApi.SwitchIndex(sNewIndex, sAlias, lOldIndices));
