@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using System.Collections.Generic;
 
 public partial class adm_channels_media : System.Web.UI.Page
 {
@@ -69,12 +70,19 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     public string GetTableCSV()
     {
-        TVinciShared.Channel channel = new TVinciShared.Channel(int.Parse(Session["channel_id"].ToString()), false , 0 , true , 0 , 0);
+        //TVinciShared.Channel channel = new TVinciShared.Channel(int.Parse(Session["channel_id"].ToString()), false , 0 , true , 0 , 0);
+
+
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOldOrderBy, ref channel);
+        int channelType = 0;
+        int orderBy = 0;
+        int orderDir = 0;
+        int channelID = int.Parse(Session["channel_id"].ToString());
+        GetChannelBasicData(ref channelType, ref orderBy, ref orderDir, channelID);
+        FillTheTableEditor(ref theTable, sOldOrderBy, channelID, channelType, orderBy, orderDir);
 
         string sCSVFile = theTable.OpenCSV();
         theTable.Finish();
@@ -82,51 +90,39 @@ public partial class adm_channels_media : System.Web.UI.Page
         return sCSVFile;
     }
 
-    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy , ref TVinciShared.Channel channel)
+    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy, int channelID, int channelType, int orderBy, int orderDir)
     {
-        
+        bool isAutoChannel = channelType == 1 ? true : false; // 1 = Auto channel 2 = maual channel
+
         theTable += "select m.id as m_id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
-        if (channel.GetType() == 2)
+        if (!isAutoChannel)
         {
             theTable += ",cm.id as cm_id,cm.status,cm.order_num";
         }
         theTable += " from ";
-        if (channel.GetType() == 2)
+        if (!isAutoChannel)
         {
             theTable += "channels_media cm,";
         }
 
         theTable += " media m where ";
-        if (channel.GetType() == 1)
-        {
-            string sMediaIDs = channel.GetChannelMediaIDs_OLD(0, null, false, false);
-            
-            if (string.IsNullOrEmpty(sMediaIDs))
-                sMediaIDs = "0";
 
-            theTable += " m.id in (" + sMediaIDs + ")";
-        }
-        if (channel.GetType() == 2)
-        {
-            theTable += " cm.media_id=m.id and cm.status=1 and m.status=1 and ";
-            theTable += ODBCWrapper.Parameter.NEW_PARAM("cm.channel_id", "=", int.Parse(Session["channel_id"].ToString()));
-        }
-         
+        string sMediaIDs = GetMediaIdsFromCatalog(channelID);
+        theTable += " m.id in (" + sMediaIDs + ")";       
 
-        if (!string.IsNullOrEmpty(channel.GetOrderByStr()))
+        string s_orderBy = GetOrderByStr(orderBy);
+        if (!string.IsNullOrEmpty(s_orderBy))
         {
-            theTable += " order by " + channel.GetOrderByStr();
-            if (channel.GetChannelOrderDir() == OrderDir.DESC)
+            theTable += " order by " + s_orderBy;
+            if (GetChannelOrderDir(orderDir) == TVinciShared.OrderDir.DESC)
             {
                 theTable += " desc";
             }
         }
-        else if (channel.GetType() == 2)
+        else if (!isAutoChannel)
         {
             theTable += " order by cm.order_num";
         }
-
-        
 
         if (LoginManager.IsActionPermittedOnPage("adm_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -134,21 +130,14 @@ public partial class adm_channels_media : System.Web.UI.Page
             linkColumn1.AddQueryStringValue("media_id", "field=m_id");
             theTable.AddLinkColumn(linkColumn1);
         }
-        if (channel.GetType() == 2)
+        if (!isAutoChannel)
         {
             theTable.AddOrderNumField("channels_media", "cm_id", "order_num", "Order Number");
             theTable.AddHiddenField("order_num");
             theTable.AddHiddenField("cm_id");
             theTable.AddHiddenField("m_id");
             theTable.AddHiddenField("status");
-            /*
-            if (LoginManager.IsActionPermittedOnPage("adm_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT))
-            {
-                DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_media_new.aspx", "Edit Inner", "");
-                linkColumn1.AddQueryStringValue("channel_media_id", "field=cm_id");
-                theTable.AddLinkColumn(linkColumn1);
-            }
-             */
+
             if (LoginManager.IsActionPermittedOnPage("adm_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.REMOVE))
             {
                 DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
@@ -188,28 +177,11 @@ public partial class adm_channels_media : System.Web.UI.Page
                 theTable.AddLinkColumn(linkColumn);
             }
         }
-        //if (channel.GetType() == 1 )
-        //{
-        //    string orderByStr = channel.GetOrderByStr();
-        //    if (!string.IsNullOrEmpty(orderByStr))
-        //    {
-        //        theTable += " order by ";
-        //        theTable += orderByStr;
-        //        switch (channel.GetChannelOrderDir())
-        //        {
-        //            case OrderDir.ASC:
-        //                theTable += " asc ";
-        //                break;
-        //            case OrderDir.DESC:
-        //                theTable += " desc ";
-        //                break;
-        //            default:
-        //                break;
-        //        }
-                
-        //    }
-            
-        //}
+    }
+
+    private string GetWSURL(string key)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
@@ -218,17 +190,177 @@ public partial class adm_channels_media : System.Web.UI.Page
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
 
-        TVinciShared.Channel channel = new TVinciShared.Channel(int.Parse(Session["channel_id"].ToString()), false, 0, true, 0, 0);
+        // get channel_type 
+        int channelType = 0;
+        int orderBy = 0;
+        int orderDir = 0;
+        int channelID = int.Parse(Session["channel_id"].ToString());
+        GetChannelBasicData(ref channelType, ref orderBy, ref orderDir, channelID);
         bool bAdd = false;
-        if (channel.GetType() == 2)
+        if (channelType == 2)
             bAdd = true;
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, bAdd, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOrderBy, ref channel);
+        FillTheTableEditor(ref theTable, sOrderBy, channelID, channelType, orderBy, orderDir);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
         Session["ContentPage"] = "adm_channels.aspx?search_save=1";
         theTable.Finish();
         theTable = null;
         return sTable;
+    }
+
+    private static void GetChannelBasicData(ref int channelType, ref int orderBy, ref int orderDir, int channelID)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        selectQuery += "select channel_type, ORDER_BY_TYPE, ORDER_BY_DIR from channels WITH (nolock) where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", channelID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            try
+            {
+                channelType = int.Parse(selectQuery.Table("query").DefaultView[0].Row["channel_type"].ToString());
+                orderBy = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ORDER_BY_TYPE"].ToString());
+                orderDir = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ORDER_BY_DIR"].ToString());
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private string GetOrderByStr(int OrderBy)
+    {
+        string retVal = string.Empty;
+        if (OrderBy == -10)
+            retVal = " m.start_date ";
+        else if (OrderBy == -11)
+            retVal = " m.name ";
+        else if (OrderBy == -12)
+            retVal = " m.create_date ";
+        else if (OrderBy == -9)
+            retVal = " m.like_counter ";
+        else if (OrderBy == -8)
+            retVal = ",((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end)) * ( case when m.VOTES_COUNT<5 then m.VOTES_COUNT else 5 end)) ,m.VOTES_COUNT ";
+        else if (OrderBy == -7)
+            retVal = " m.VIEWS ";
+        //else if (m_nOrderBy == -6)
+        //selectQuery += ",newid() ";
+        else if (OrderBy == 1)
+            retVal = " m.META1_STR ";
+        else if (OrderBy == 2)
+            retVal = " m.META2_STR ";
+        else if (OrderBy == 3)
+            retVal = " m.META3_STR ";
+        else if (OrderBy == 4)
+            retVal = " m.META4_STR ";
+        else if (OrderBy == 5)
+            retVal = " m.META5_STR ";
+        else if (OrderBy == 6)
+            retVal = " m.META6_STR ";
+        else if (OrderBy == 7)
+            retVal = " m.META7_STR ";
+        else if (OrderBy == 8)
+            retVal = " m.META8_STR ";
+        else if (OrderBy == 9)
+            retVal = " m.META9_STR ";
+        else if (OrderBy == 10)
+            retVal = " m.META10_STR ";
+        else if (OrderBy == 11)
+            retVal = " m.META11_STR ";
+        else if (OrderBy == 12)
+            retVal = " m.META12_STR ";
+        else if (OrderBy == 13)
+            retVal = " m.META13_STR ";
+        else if (OrderBy == 14)
+            retVal = " m.META14_STR ";
+        else if (OrderBy == 15)
+            retVal = " m.META15_STR ";
+        else if (OrderBy == 16)
+            retVal = " m.META16_STR ";
+        else if (OrderBy == 17)
+            retVal = " m.META17_STR ";
+        else if (OrderBy == 18)
+            retVal = " m.META18_STR ";
+        else if (OrderBy == 19)
+            retVal = " m.META19_STR ";
+        else if (OrderBy == 20)
+            retVal = " m.META20_STR ";
+
+        else if (OrderBy == 21)
+            retVal = " m.META1_DOUBLE ";
+        else if (OrderBy == 22)
+            retVal = " m.META2_DOUBLE ";
+        else if (OrderBy == 23)
+            retVal = " m.META3_DOUBLE ";
+        else if (OrderBy == 24)
+            retVal = " m.META4_DOUBLE ";
+        else if (OrderBy == 25)
+            retVal = " m.META5_DOUBLE ";
+        else if (OrderBy == 26)
+            retVal = " m.META6_DOUBLE ";
+        else if (OrderBy == 27)
+            retVal = " m.META7_DOUBLE ";
+        else if (OrderBy == 28)
+            retVal = " m.META8_DOUBLE ";
+        else if (OrderBy == 29)
+            retVal = " m.META9_DOUBLE ";
+        else if (OrderBy == 30)
+            retVal = " m.META10_DOUBLE ";
+
+        return retVal;
+    }
+
+    private TVinciShared.OrderDir GetChannelOrderDir(int orderDir)
+    {
+        TVinciShared.OrderDir retVal = TVinciShared.OrderDir.DESC;
+        if (orderDir > 0)
+        {
+            retVal = (TVinciShared.OrderDir)orderDir;
+        }
+        return retVal;
+    }
+
+
+
+    private string GetMediaIdsFromCatalog(int channelID)
+    {
+        string mediaIDs = string.Empty;
+        try
+        {
+            int[] assetIds;
+            
+            apiWS.API client = new apiWS.API();
+            string sWSURL = GetWSURL("api_ws");
+            if (string.IsNullOrEmpty(sWSURL))
+            {
+                throw new Exception("api address is not configured. ");
+            }
+            client.Url = sWSURL;
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
+            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Channel", "api", sIP, ref sWSUserName, ref sWSPass);            
+            
+            int[] channelIds = new int[1];
+            channelIds[0] = channelID;
+            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, channelIds, null, false, string.Empty, false, false);
+            if (assetIds != null && assetIds.Length > 0)
+            {
+                mediaIDs = string.Join(",", assetIds);
+            }
+            else
+            {
+                mediaIDs = "0";
+            }
+        }
+
+        catch (Exception ex)
+        {
+            mediaIDs = "0";
+        }
+
+        return mediaIDs;
     }
 }
