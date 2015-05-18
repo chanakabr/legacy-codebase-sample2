@@ -131,7 +131,7 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     if (watchHistory.AssetTypeId != (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR)
                     {
-                        key = new CacheKey(int.Parse(watchHistory.AssetId), watchHistory.AssetUpdatedDate);
+                        key = new CacheKey(int.Parse(watchHistory.AssetId), watchHistory.m_dUpdateDate);
                         mediaKeys.Add(key);
                     }
                 }
@@ -226,7 +226,7 @@ namespace TVPApiModule.CatalogLoaders
                     // gets the stats from Catalog
                     if (mediasInfo != null && mediasInfo.Count > 0)
                     {
-                        mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, mediasInfo.Select(m => m.m_nID).ToList(),
+                        mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, mediasInfo.Select(m => int.Parse(m.AssetId)).ToList(),
                             StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                     }
                 }
@@ -257,7 +257,7 @@ namespace TVPApiModule.CatalogLoaders
                 else
                 {
                     // build medias assets objects
-                    media = mediasInfo.Where(m => m != null && m.m_nID == int.Parse(item.AssetId)).FirstOrDefault();
+                    media = mediasInfo.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
@@ -265,7 +265,7 @@ namespace TVPApiModule.CatalogLoaders
                             // with stats
                             asset = new WatchHistoryAsset()
                             {
-                                Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles),
+                                Asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == int.Parse(media.AssetId)).FirstOrDefault(), shouldAddFiles),
                                 LastWatched = item.LastWatch,
                                 Position = item.Location,
                                 IsFinishedWatching = item.IsFinishedWatching,
@@ -304,7 +304,7 @@ namespace TVPApiModule.CatalogLoaders
                 if (obj is List<MediaObj>)
                 {
                     sText.AppendFormat("APIWatchHistoryLoader: GroupID = {0}, PageIndex = {1}, PageSize = {2}", GroupID, PageIndex, PageSize);
-                    sText.Append(CatalogHelper.IDsToString(((List<MediaObj>)obj).Select(m => m.m_nID).ToList(), "MediaIds"));
+                    sText.Append(CatalogHelper.IDsToString(((List<MediaObj>)obj).Select(m => int.Parse(m.AssetId)).ToList(), "MediaIds"));
                 }
             }
             logger.Debug(sText.ToString());

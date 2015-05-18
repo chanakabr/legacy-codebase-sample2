@@ -3453,7 +3453,7 @@ namespace TVPApiServices
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
-            if (response == null)
+            if (response == null || response.Status == null)
             {
                 response = new WatchHistory();
                 response.Status = ResponseUtils.ReturnGeneralErrorStatus();

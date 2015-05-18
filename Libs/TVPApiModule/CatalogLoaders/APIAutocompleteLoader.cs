@@ -27,7 +27,7 @@ namespace TVPApiModule.CatalogLoaders
         }
 
         #endregion
-        
+
         #region Override Methods
 
         protected override object Process()
@@ -53,7 +53,7 @@ namespace TVPApiModule.CatalogLoaders
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
 
             // Bad response from Catalog - return the status
-            if (response.status.Code != (int)eStatus.OK) 
+            if (response.status.Code != (int)eStatus.OK)
             {
                 result = new Objects.Responses.AutocompleteResponse();
                 result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
@@ -73,7 +73,7 @@ namespace TVPApiModule.CatalogLoaders
                 GetAssets(cacheKey, response, out medias, out epgs);
 
                 // Gets one list including both medias and EPGs, ordered by Catalog order
-                result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs); 
+                result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs);
             }
             else
             {
@@ -103,7 +103,7 @@ namespace TVPApiModule.CatalogLoaders
 
             if (medias != null)
             {
-                idToMedia = medias.ToDictionary<MediaObj, int>(media => media.m_nID);
+                idToMedia = medias.ToDictionary<MediaObj, int>(media => int.Parse(media.AssetId));
             }
             else
             {
@@ -112,7 +112,7 @@ namespace TVPApiModule.CatalogLoaders
 
             if (epgs != null)
             {
-                idToEpg = epgs.ToDictionary<ProgramObj, int>(epg => epg.m_nID);
+                idToEpg = epgs.ToDictionary<ProgramObj, int>(epg => int.Parse(epg.AssetId));
             }
             else
             {
@@ -165,7 +165,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            return result; 
+            return result;
         }
 
         #endregion
