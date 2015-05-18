@@ -32,6 +32,7 @@ namespace TVPApiModule.Services
             public int DomainID;
             public ResponseStatus LoginStatus;
             public User UserData;
+            public object Token;
         }
         #endregion
 

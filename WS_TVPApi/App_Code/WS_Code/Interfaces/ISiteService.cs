@@ -102,14 +102,14 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId);
 
-        [OperationContract]
-        string GenerateDeviceToken(InitializationObject initObj, string appId);
+        //[OperationContract]
+        //string GenerateDeviceToken(InitializationObject initObj, string appId);
+
+        //[OperationContract]
+        //object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken);
 
         [OperationContract]
-        object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken);
-
-        [OperationContract]
-        object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken);
+        object RefreshAccessToken(InitializationObject initObj, string refreshToken);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids);

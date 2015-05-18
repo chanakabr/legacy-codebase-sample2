@@ -181,6 +181,7 @@
     <Compile Include="Objects\Authorization\APIToken.cs" />
     <Compile Include="Objects\Authorization\AppCredentials.cs" />
     <Compile Include="Objects\Authorization\DeviceToken.cs" />
+    <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
     <Compile Include="Objects\CRM\Country.cs" />
     <Compile Include="Objects\CRM\enums.cs" />
     <Compile Include="Objects\CRM\State.cs" />

@@ -17,6 +17,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Manager;
 
 namespace TVPApiServices
 {
@@ -141,6 +142,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return;
+                }
                 try
                 {
                     string siteGuid = string.IsNullOrEmpty(sSiteGuid) ? initObj.SiteGuid : sSiteGuid;
@@ -333,6 +340,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGUID, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RenewUserPIN(sSiteGUID, ruleID);
@@ -543,6 +556,12 @@ namespace TVPApiServices
             {
                 try
                 {
+                    // Tokenization: validate siteGuid
+                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGUID, 0, null, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserTypeByUserID(sSiteGUID, nUserTypeID);
                 }
                 catch (Exception ex)

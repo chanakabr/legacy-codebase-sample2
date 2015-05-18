@@ -34,6 +34,7 @@ namespace TVPApiModule.Objects.Responses
         BadCredentials = 500000,
         InternalConnectionIssue = 500001,
         Timeout = 500002,
-        BadRequest = 500003
+        BadRequest = 500003,
+        Unauthorized = 500004
     }
 }

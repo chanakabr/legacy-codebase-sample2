@@ -14,6 +14,7 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using System.Web;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Manager;
 
 namespace TVPApiServices
 {
@@ -163,6 +164,12 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sUserGUID, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPricesWithCoupons(initObj.SiteGuid, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
@@ -186,6 +193,12 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sUserGUID, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(initObj.SiteGuid, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
@@ -462,6 +475,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate udid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, sUDID, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscriptionUsingCC(iPrice, sCurrency, sSubscriptionID, sCouponCode, clientIp, initObj.SiteGuid, sExtraParameters, sUDID, sPaymentMethodID, sEncryptedCVV);
@@ -621,6 +640,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, userGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).GetCollectionsPrices(collections, userGuid, countryCode2, languageCode3, initObj.UDID);
@@ -650,6 +675,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, userGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).GetCollectionsPricesWithCoupon(collections, userGuid, countryCode2, languageCode3, initObj.UDID, couponCode, clientIp);
@@ -677,6 +708,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedCollections(siteGuid);
@@ -791,6 +828,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     isTransactionCancelled = new ApiConditionalAccessService(groupId, initObj.Platform).CancelTransaction(siteGuid, assetId, transactionType, bIsForce);
@@ -819,6 +862,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     isWaiverTransactionSucceeded = new ApiConditionalAccessService(groupId, initObj.Platform).WaiverTransaction(siteGuid, assetId, transactionType);
@@ -847,6 +896,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     collections = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredCollections(siteGuid, numOfItems);
@@ -1183,6 +1238,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel);
@@ -1239,6 +1300,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelSubscriptionRenewal(domainID, serviceID);
@@ -1267,6 +1334,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domainID, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainServices(domainID);

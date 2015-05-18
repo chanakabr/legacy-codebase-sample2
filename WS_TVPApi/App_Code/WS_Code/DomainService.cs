@@ -16,6 +16,7 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Manager;
 
 namespace TVPApiServices
 {
@@ -37,6 +38,13 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
                 try
                 {
                     response = new ApiDomainsService(groupID, initObj.Platform).ResetDomain(initObj.DomainID);
@@ -63,6 +71,13 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain and device
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return false;
+                }
+
                 try
                 {
                     response = new ApiDomainsService(groupID, initObj.Platform).SetDeviceInfo(initObj.UDID, deviceName);
@@ -91,6 +106,13 @@ namespace TVPApiServices
             {
                 try
                 {
+                    // Tokenization: validate domain
+                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
+
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
                     resDomain = impl.AddDeviceToDomain(sDeviceName, iDeviceBrandID);
 
@@ -114,7 +136,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), AddedUserGuid);
@@ -137,6 +164,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain and siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, userGuidToRemove, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveUserFromDomain(initObj.DomainID, userGuidToRemove);
@@ -161,6 +194,13 @@ namespace TVPApiServices
             {
                 try
                 {
+                    // Tokenization: validate domain and udid
+                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
+
                     if (!string.IsNullOrEmpty(sUdid))
                         resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, sUdid);
                     else
@@ -184,6 +224,13 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain and udid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
                 try
                 {
                     resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
@@ -206,6 +253,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainInfo(initObj.DomainID);
@@ -228,6 +281,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
@@ -251,6 +310,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain and udid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
@@ -289,6 +354,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     pin = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetPINForDevice(initObj.UDID, devBrandID);
@@ -310,6 +381,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return default(TVPApiModule.Services.ApiDomainsService.DeviceRegistration);
+                }
                 try
                 {
                     TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
@@ -499,7 +576,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);
@@ -568,6 +650,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     passed = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRestriction(initObj.DomainID, restriction);
@@ -589,6 +677,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     int siteGuid = 0;
@@ -636,6 +730,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).AddHomeNetworkToDomain(Convert.ToInt64(initObj.DomainID), networkId, networkName, networkDesc);
@@ -657,6 +757,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).UpdateDomainHomeNetwork(Convert.ToInt64(initObj.DomainID), networkId, networkName, networkDesc, isActive);
@@ -678,6 +784,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).RemoveDomainHomeNetwork(Convert.ToInt64(initObj.DomainID), networkId);
@@ -699,6 +811,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     homeNetworks = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainHomeNetworks(Convert.ToInt64(initObj.DomainID));
@@ -720,6 +838,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain and newMasterID
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, newMasterID.ToString(), initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ChangeDomainMaster(initObj.DomainID, currentMasterID, newMasterID);
@@ -741,6 +865,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResetDomainFrequency(initObj.DomainID, frequencyType);
@@ -762,6 +892,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SuspendDomain(domainId);
@@ -788,6 +924,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResumeDomain(domainId);
@@ -814,6 +956,13 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    response = new DomainLimitationModuleResponse();
+                    response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.Unauthorized, "User is not in domain");
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainLimitationModule(domainLimitationID);
@@ -843,6 +992,12 @@ namespace TVPApiServices
 
             if (nGroupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
+                {
+                    clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus((int)eStatus.Unauthorized, "User is not in domain");
+                }
                 try
                 {
                     clientResponse = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRegion(domain_id, ext_region_id, lookup_key);
@@ -862,3 +1017,5 @@ namespace TVPApiServices
         }
     }
 }
+
+

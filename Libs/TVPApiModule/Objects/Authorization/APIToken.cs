@@ -11,20 +11,20 @@ namespace TVPApiModule.Objects.Authorization
 {
     public class APIToken : CbDocumentBase
     {
-        [JsonIgnore]
+        [JsonProperty("access_token")]
         public string AccessToken { get; set; }
 
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
-        [JsonProperty("udid")]
-        public string UDID { get; set; }
+        [JsonProperty("site_guid")]
+        public string SiteGuid { get; set; }
 
         [JsonProperty("create_date")]
-        public double CreateDate { get; set; }
+        public long CreateDate { get; set; }
 
-        [JsonProperty("app_id")]
-        public string AppId { get; set; }
+        [JsonProperty("refresh_token_update_date")]
+        public long RefreshTokenUpdateDate { get; set; }
 
         [JsonProperty("group_id")]
         public int GroupID { get; set; }
@@ -35,13 +35,18 @@ namespace TVPApiModule.Objects.Authorization
             get { return GetAPITokenId(AccessToken); }
         }
 
-        public APIToken(string appId, int groupId, string udid)
+        public APIToken()
+        {
+        }
+
+        public APIToken(string siteGuid, int groupId)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            CreateDate = TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
-            AppId = appId;
+            CreateDate = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
+            RefreshTokenUpdateDate = CreateDate;
             GroupID = groupId;
+            SiteGuid = siteGuid;
         }
 
         public static string GetAPITokenId(string accessToken)

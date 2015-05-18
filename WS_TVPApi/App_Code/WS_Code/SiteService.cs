@@ -666,7 +666,7 @@ namespace TVPApiServices
             return sRet != null ? sRet.m_sSiteGUID : string.Empty;
         }
 
-        [WebMethod(EnableSession = true, Description = "Sign-In a user")]        
+        [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
             TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
@@ -680,6 +680,12 @@ namespace TVPApiServices
                     //XXX: Do the UDID empty stuff
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
                     responseData = impl.SignIn(userName, password);
+                    // if sign in successful - generate access token
+                    if (responseData.UserData != null && responseData.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK && responseData.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
+                    {
+                        responseData.Token = AuthorizationManager.Instance.GenerateAccessToken(responseData.SiteGuid, groupID);
+
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -837,6 +843,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData, userDynamicData);
@@ -863,6 +875,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     string siteGuid = (string.IsNullOrEmpty(sSiteGuid)) ? initObj.SiteGuid : sSiteGuid;
@@ -890,6 +908,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(sSiteGuid);
@@ -1335,60 +1359,60 @@ namespace TVPApiServices
 
         
 
-        [WebMethod(EnableSession = true, Description = "Generates the temporary device token")]
-        public string GenerateDeviceToken(InitializationObject initObj, string appId)
-        {
-            string response = null;
+        //[WebMethod(EnableSession = true, Description = "Generates the temporary device token")]
+        //public string GenerateDeviceToken(InitializationObject initObj, string appId)
+        //{
+        //    string response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    response = AuthorizationManager.Instance.GenerateDeviceToken(initObj.UDID, appId);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            response = AuthorizationManager.Instance.GenerateDeviceToken(initObj.UDID, appId);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
-        [WebMethod(EnableSession = true, Description = "Exchanges the temporary device token with an access token")]
-        public object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken)
-        {
-            object response = null;
+        //[WebMethod(EnableSession = true, Description = "Exchanges the temporary device token with an access token")]
+        //public object ExchangeDeviceToken(InitializationObject initObj, string appId, string appSecret, string deviceToken)
+        //{
+        //    object response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ExchangeDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "ExchangeDeviceToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    response = AuthorizationManager.Instance.ExchangeDeviceToken(initObj.UDID, appId, appSecret, deviceToken);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            response = AuthorizationManager.Instance.ExchangeDeviceToken(initObj.UDID, appId, appSecret, deviceToken);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
-        public object RefreshAccessToken(InitializationObject initObj, string appId, string appSecret, string refreshToken)
+        public object RefreshAccessToken(InitializationObject initObj, string refreshToken)
         {
             object response = null;
 
@@ -1398,7 +1422,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.Instance.RefreshAccessToken(appId, appSecret, refreshToken, initObj.Token);
+                    response = AuthorizationManager.Instance.RefreshAccessToken(initObj.SiteGuid, refreshToken, initObj.Token, groupID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -1415,31 +1439,31 @@ namespace TVPApiServices
 
 
         // Delete later
-        [WebMethod(EnableSession = true, Description = "Generate Application Credentials")]
-        public AppCredentials GenerateAppCredentials(InitializationObject initObj)
-        {
-            AppCredentials response = null;
+        //[WebMethod(EnableSession = true, Description = "Generate Application Credentials")]
+        //public AppCredentials GenerateAppCredentials(InitializationObject initObj)
+        //{
+        //    AppCredentials response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateAppCredentials", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GenerateAppCredentials", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    response = AuthorizationManager.Instance.GenerateAppCredentials(groupID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            response = AuthorizationManager.Instance.GenerateAppCredentials(groupID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get regions: if regionIds supplied by the ids, if not returns all group regions")]
         public RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids)

@@ -25,12 +25,12 @@ namespace TVPApiModule.Objects.Authorization
             get { return GetAppCredentialsId(EncryptedAppId); }
         }
 
-        public AppCredentials(int groupId)
-        {
-            EncryptedAppId = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
-            EncryptedAppSecret = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
-            GroupId = groupId;
-        }
+        //public AppCredentials(int groupId)
+        //{
+        //    EncryptedAppId = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
+        //    EncryptedAppSecret = AuthorizationManager.Instance.EncryptData(Guid.NewGuid().ToString().Replace("-", string.Empty));
+        //    GroupId = groupId;
+        //}
 
         public static string GetAppCredentialsId(string appId)
         {

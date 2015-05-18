@@ -542,7 +542,7 @@ public partial class MethodFinder
     private class ParameterJsonInit : ParameterInitBase
     {
         private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
-        private static List<string> _authorizedMethods = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"]) ? null : ConfigurationManager.AppSettings["Authorization.AuthorizedMethods"].Split(',').ToList();
+        private static List<string> _unauthorizedMethods = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnauthorizedMethods"]) ? null : ConfigurationManager.AppSettings["Authorization.UnauthorizedMethods"].Split(',').ToList();
 
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum
@@ -620,11 +620,23 @@ public partial class MethodFinder
             string groupPlatformPair = string.Format("{0}_{1}", groupID, platform); // build the configuration value
             if (_authorizationUnsupportedGroupsPlatforms == null || !_authorizationUnsupportedGroupsPlatforms.Contains(groupPlatformPair)) // authorization supported
             {
-                if (_authorizedMethods == null || !_authorizedMethods.Contains(executer.m_MetodInfo.Name)) // method is not automatically authorized
+
+                string siteGuid;
+                // validate unauthorized methods and extract relevant siteGuid
+                if (executer.m_MetodInfo.Name != "RefreshAccessToken")
                 {
-                    if (!AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token))
+                    if (!AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid) ||
+                        (_unauthorizedMethods != null && _unauthorizedMethods.Contains(executer.m_MetodInfo.Name) && string.IsNullOrEmpty(siteGuid)))
+                    {
+                        AuthorizationManager.Instance.returnError(403, null);
                         return null;
+                    }
+
+                    // override siteGuid in initObj
+                    initObj.SiteGuid = siteGuid;
                 }
+                // add "tokenization" to context for later validations
+                HttpContext.Current.Items.Add("tokenization", null);
             }
 
             object result = executer.ExecuteMethod(methodParameters);

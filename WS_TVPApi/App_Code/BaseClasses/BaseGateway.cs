@@ -163,66 +163,66 @@ public abstract class BaseGateway : System.Web.UI.Page
         string mac = Request.QueryString["identity"];
         if (String.IsNullOrEmpty(mac)) return String.Empty;
         string SiteGuid = String.Empty;
-        if (groupId == 125)
-        {
-            do
-            {
-                if (HttpContext.Current.Cache[mac] != null)
-                    break;
+        //if (groupId == 125)
+        //{
+        //    do
+        //    {
+        //        if (HttpContext.Current.Cache[mac] != null)
+        //            break;
 
-                if (!locks.ContainsKey(mac))
-                {
-                    lock (mainRequestLocker)
-                    {
-                        if (!locks.ContainsKey(mac))
-                        {
-                            locks.Add(mac, new Object());
-                        }
-                    }
-                }
+        //        if (!locks.ContainsKey(mac))
+        //        {
+        //            lock (mainRequestLocker)
+        //            {
+        //                if (!locks.ContainsKey(mac))
+        //                {
+        //                    locks.Add(mac, new Object());
+        //                }
+        //            }
+        //        }
 
-                if (HttpContext.Current.Cache[mac] != null)
-                    break;
+        //        if (HttpContext.Current.Cache[mac] != null)
+        //            break;
 
-                lock (locks[mac])
-                {
-                    if (HttpContext.Current.Cache[mac] != null)
-                        break;
+        //        lock (locks[mac])
+        //        {
+        //            if (HttpContext.Current.Cache[mac] != null)
+        //                break;
 
-                    TVPApiModule.Services.ApiDomainsService.DeviceDomain[] retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
-                    {
-                        UDID = mac,
-                        Platform = PlatformType.STB,
-                        ApiUser = m_WsUsername,
-                        ApiPass = m_WsPassword
-                    });
-                    if (retSiteGuid != null && retSiteGuid.Length > 0 && retSiteGuid[0].DomainID != 0)
-                    {
-                        SiteGuid = retSiteGuid[0].SiteGuid;
-                        HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
-                            System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
-                    }
-                    else
-                    {//Check Known MAC address
-                        if (s_KnownMacAddress.ContainsKey(mac))
-                        {
-                            string usr = s_KnownMacAddress[mac].UserName;
-                            string pass = s_KnownMacAddress[mac].Password;
-                            SiteGuid = m_SiteService.SignIn(GetInitObj(), usr, pass).SiteGuid;
-                            if (SiteGuid == null)
-                                SiteGuid = "0";
-                            HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
-                                System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
-                        }
-                    }
-                }
+        //            TVPApiModule.Services.ApiDomainsService.DeviceDomain[] retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
+        //            {
+        //                UDID = mac,
+        //                Platform = PlatformType.STB,
+        //                ApiUser = m_WsUsername,
+        //                ApiPass = m_WsPassword
+        //            });
+        //            if (retSiteGuid != null && retSiteGuid.Length > 0 && retSiteGuid[0].DomainID != 0)
+        //            {
+        //                SiteGuid = retSiteGuid[0].SiteGuid;
+        //                HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
+        //                    System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
+        //            }
+        //            else
+        //            {//Check Known MAC address
+        //                if (s_KnownMacAddress.ContainsKey(mac))
+        //                {
+        //                    string usr = s_KnownMacAddress[mac].UserName;
+        //                    string pass = s_KnownMacAddress[mac].Password;
+        //                    SiteGuid = m_SiteService.SignIn(GetInitObj(), usr, pass).SiteGuid;
+        //                    if (SiteGuid == null)
+        //                        SiteGuid = "0";
+        //                    HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
+        //                        System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
+        //                }
+        //            }
+        //        }
 
-            } while (false);
+        //    } while (false);
 
-            SiteGuid = HttpContext.Current.Cache[mac] != null ? HttpContext.Current.Cache[mac].ToString() : String.Empty;
+        //    SiteGuid = HttpContext.Current.Cache[mac] != null ? HttpContext.Current.Cache[mac].ToString() : String.Empty;
 
-            return SiteGuid;
-        }
+        //    return SiteGuid;
+        //}
 
         return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
     }

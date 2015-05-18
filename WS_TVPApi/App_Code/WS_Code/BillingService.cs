@@ -14,6 +14,7 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
 using System.Web;
+using TVPApiModule.Manager;
 
 namespace TVPApiServices
 {
@@ -92,6 +93,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingTypeUserInfo(sSiteGuid);

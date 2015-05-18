@@ -18,6 +18,7 @@ using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using System.Web;
+using TVPApiModule.Manager;
 
 
 namespace TVPApiServices
@@ -576,6 +577,12 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActivityFeed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiSocialService(groupId, initObj.Platform).GetUserActivityFeed(siteGuid, nPageSize, nPageIndex, sPicDimension);

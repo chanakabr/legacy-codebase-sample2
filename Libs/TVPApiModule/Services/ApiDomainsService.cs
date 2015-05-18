@@ -597,5 +597,21 @@ namespace TVPApiModule.Services
 
             return clientResponse;
         }
+
+        public Domain GetDomainByUser(string siteGuid)
+        {
+            Domain result = null;
+
+            try
+            {
+                result = m_Module.GetDomainByUser(m_wsUserName, m_wsPassword, siteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while GetDomainByUser. siteGuid: {0}", siteGuid), ex);
+            }
+
+            return result;
+        }
     }
 }

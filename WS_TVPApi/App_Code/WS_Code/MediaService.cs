@@ -1370,6 +1370,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sUserGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
@@ -1655,6 +1661,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate udid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, sUDID, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, clientIp, initObj.SiteGuid, sExtraParameters, sUDID, string.Empty, string.Empty);
@@ -1683,6 +1695,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate udid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, sUDID, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, initObj.SiteGuid, sExtraParameters, sUDID);
@@ -3085,6 +3103,12 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     var res = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
