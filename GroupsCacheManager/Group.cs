@@ -522,7 +522,7 @@ namespace GroupsCacheManager
         #endregion
 
         #region Services
-       
+
         public bool AddServices(List<int> services)
         {
             bool bAdd = false;
@@ -534,7 +534,7 @@ namespace GroupsCacheManager
                     {
                         m_lServiceObject = new List<int>();
                     }
-                    
+
                     foreach (int newItem in services)
                     {
                         if (!m_lServiceObject.Contains(newItem))
@@ -559,7 +559,7 @@ namespace GroupsCacheManager
 
             if (m_lServiceObject != null && m_lServiceObject.Contains(nServiceID))
             {
-                res = nServiceID;             
+                res = nServiceID;
             }
 
             return res;
@@ -584,7 +584,7 @@ namespace GroupsCacheManager
                             m_lServiceObject.Remove(removeItem);
                             bRemove = true;
                         }
-                    }                    
+                    }
                 }
                 return bRemove;
             }
@@ -635,9 +635,9 @@ namespace GroupsCacheManager
                 this.mediaTypesNameToId.Count == 0 ||
                 this.mediaTypesIdToName.Count == 0)
             {
-                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, 
-                    out this.mediaTypesIdToName, 
-                    out this.mediaTypesNameToId, 
+                CatalogDAL.GetMediaTypes(this.m_nParentGroupID,
+                    out this.mediaTypesIdToName,
+                    out this.mediaTypesNameToId,
                     out mediaTypeParents);
             }
         }

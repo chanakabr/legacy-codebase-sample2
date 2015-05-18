@@ -45,7 +45,7 @@ namespace Catalog
 
                 response.m_bExists = false;
                 response.m_nTotalItems = 0;
-                                
+
                 GroupManager groupManager = new GroupManager();
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
@@ -54,8 +54,9 @@ namespace Catalog
                 List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, eBundleType.SUBSCRIPTION);
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
-                    // Buils search Object per channelId call Searcher to return true/false result
-                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    // Builds search Object per channelId call Searcher to return true/false result
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
+
 
                     if (allChannels != null && allChannels.Count > 0)
                     {
@@ -151,6 +152,6 @@ namespace Catalog
                 _logger.Error(ex.Message, ex);
                 throw ex;
             }
-        }       
+        }
     }
 }

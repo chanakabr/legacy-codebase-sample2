@@ -71,7 +71,8 @@ namespace Catalog
                 response.m_nTotalItems = 0;
 
                 List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nBundleID, request.m_eBundleType);
-                List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
+
 
                 if (channelIds != null && channelIds.Count > 0 && allChannels != null && allChannels.Count > 0)
                 {
