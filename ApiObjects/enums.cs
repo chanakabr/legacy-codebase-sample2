@@ -230,10 +230,11 @@ namespace ApiObjects
 
 
 
-    public enum eAssetFilterTypes
+    public enum eAssetTypes
     {
         EPG = 0,
-        NPVR = 1
+        NPVR = 1,
+        MEDIA = 2
     }
 
     [Serializable]
