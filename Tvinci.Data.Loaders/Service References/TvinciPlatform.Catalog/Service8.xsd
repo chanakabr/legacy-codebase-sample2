@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
   <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:element name="InjestAdiData">
     <xs:complexType>
@@ -51,28 +52,28 @@
   <xs:element name="GetResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="request" nillable="true" type="q1:BaseRequest" />
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Catalog.Request" minOccurs="0" name="request" nillable="true" type="q1:BaseRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetResponseResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="GetResponseResult" nillable="true" type="q2:BaseResponse" />
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Catalog.Response" minOccurs="0" name="GetResponseResult" nillable="true" type="q2:BaseResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetMediasByIDs">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="mediaRequest" nillable="true" type="q3:MediasProtocolRequest" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Catalog.Request" minOccurs="0" name="mediaRequest" nillable="true" type="q3:MediasProtocolRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetMediasByIDsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="GetMediasByIDsResult" nillable="true" type="q4:MediaResponse" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Catalog.Response" minOccurs="0" name="GetMediasByIDsResult" nillable="true" type="q4:MediaResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -126,14 +127,14 @@
   <xs:element name="GetProgramsByIDs">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="programRequest" nillable="true" type="q9:EpgProgramDetailsRequest" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Catalog.Request" minOccurs="0" name="programRequest" nillable="true" type="q9:EpgProgramDetailsRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetProgramsByIDsResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="GetProgramsByIDsResult" nillable="true" type="q10:EpgProgramResponse" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Catalog.Response" minOccurs="0" name="GetProgramsByIDsResult" nillable="true" type="q10:EpgProgramResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

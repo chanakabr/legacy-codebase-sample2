@@ -54,7 +54,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             // Get programs from cache
             Log("Trying to get programIDs", ProgramIDs);
             List<BaseObject> lProgramsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out programIdsForCatalog);
-            Log("Got programIDs", lProgramsFromCache.Select(program => program.m_nID).ToList());
+            Log("Got programIDs", lProgramsFromCache.Select(program => program.AssetId).ToList());
 
             // Check if programs are missing in cache 
             if (lProgramsFromCache != null && lProgramsFromCache.Count > 0)

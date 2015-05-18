@@ -73,7 +73,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 };
                 responsemedia rMedia = new responsemedia();
 
-                rMedia.id = media.m_nID.ToString();
+                rMedia.id = media.AssetId;
                 rMedia.title = media.m_sName;
                 rMedia.name = new responsemedianame() { value = media.m_sName };
                 rMedia.pic_size2 = (from pic in media.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
@@ -83,7 +83,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
                 // Trailer
                 inner_mediasmedia innerMedia = new inner_mediasmedia();
-                innerMedia.id = media.m_nID.ToString();
+                innerMedia.id = media.AssetId;
                 innerMedia.title = media.m_sName;
                 innerMedia.pic_size2 = (from pic in media.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
 

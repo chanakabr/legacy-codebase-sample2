@@ -120,6 +120,9 @@
     <None Include="Service References\TvinciPlatform.Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Service20.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service3.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service3.xsd">
       <SubType>Designer</SubType>

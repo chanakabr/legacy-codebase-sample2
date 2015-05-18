@@ -62,7 +62,7 @@ namespace Tvinci.Data.Loaders
                     cacheLock.EnterWriteLock();
                     try
                     {
-                        HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.m_nID), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                        HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
                     }
                     finally
                     {

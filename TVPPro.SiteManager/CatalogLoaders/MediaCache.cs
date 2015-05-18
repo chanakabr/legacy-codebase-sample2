@@ -52,7 +52,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             // Get medias from cache
             Log("Trying to get mediaIDs", MediaIDs);
             List<BaseObject> lMediasFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out mediaIdsForCatalog);
-            Log("Got mediaIDs", lMediasFromCache.Select(media => media.m_nID).ToList());
+            Log("Got mediaIDs", lMediasFromCache.Select(media => media.AssetId).ToList());
 
             // Check if medias are missing in cache 
             if (lMediasFromCache != null && lMediasFromCache.Count > 0)
@@ -71,7 +71,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     retVal = lMediasFromCache;
                 }
             }
-            else 
+            else
             {
                 retVal = GetMediasFromCatalog(m_oRequest as MediasProtocolRequest);
             }
@@ -82,7 +82,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         private List<BaseObject> GetMediasFromCatalog(MediasProtocolRequest request)
         {
             List<BaseObject> retVal = null;
-            
+
             MediaResponse oMediaResponse;
             eProviderResult providerResult = m_oProvider.TryExecuteGetMediasByIDs(request, out oMediaResponse);
             if (providerResult == eProviderResult.Success && oMediaResponse != null && oMediaResponse.m_lObj != null && oMediaResponse.m_lObj.Count > 0)
