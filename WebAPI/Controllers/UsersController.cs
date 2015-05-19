@@ -23,6 +23,8 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("users")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+
     public class UsersController : ApiController
     {
         /// <summary>

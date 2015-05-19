@@ -51,7 +51,7 @@ namespace WebAPI.Clients.Utils
             return true;
         }
 
-        public static T GetAssets<T>(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<With> with)
+        public static T SearchAssets<T>(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<With> with)
             where T : BaseListWrapper, new()
         {
             T result = new T();
@@ -305,6 +305,13 @@ namespace WebAPI.Clients.Utils
                         mediaAssets[i].Files = Mapper.Map<List<File>>(medias[i].m_lFiles);
                     }
                 }
+                if (with.Contains(With.images)) // if images are required - gets the stats from Catalog
+                {
+                    for (int i = 0; i < medias.Count; i++)
+                    {
+                        mediaAssets[i].Images = Mapper.Map<List<Image>>(medias[i].m_lPicture);
+                    }
+                }
             }
 
             // order results
@@ -386,6 +393,57 @@ namespace WebAPI.Clients.Utils
             }
 
             return results;
+        }
+
+        internal static WatchHistoryAssetWrapper WatchHistory(IserviceClient client, string signString, string signature, int cacheDuration, WatchHistoryRequest request, List<With> with)
+        {
+            WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
+
+            WatchHistoryResponse response;
+
+            try
+            {
+                if (GetBaseResponse<WatchHistoryResponse>(client, request, out response, true) && response.status != null && response.status.Code == (int)WebAPI.Models.StatusCode.OK)
+                {
+                    List<MediaObj> medias = null;
+                    List<long> missingMediaIds = null;
+                    List<ProgramObj> epgs = null;
+                    List<long> missingEpgIds = null;
+
+
+                    //if (!GetAssetsFromCache(response.result, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                    //{
+                    //    List<MediaObj> mediasFromCatalog;
+                    //    List<ProgramObj> epgsFromCatalog;
+
+                    //    // Get the assets that were missing in cache 
+                    //    GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+
+                    //    // Append the medias from Catalog to the medias from cache
+                    //    medias.AddRange(mediasFromCatalog);
+                    //}
+
+                    // Gets one list including both medias and epgds, ordered by Catalog order
+                    //result.WatchHistoryAssets = MargeAndCompleteHistoryResults(response.result, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId);
+
+                    result.TotalItems = response.m_nTotalItems;
+                }
+                else
+                {
+                    throw new ClientException(response.status.Code, response.status.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ClientException)
+                {
+                    throw ex;
+                }
+
+                throw new ClientException((int)StatusCode.InternalConnectionIssue);
+            }
+
+            return result;
         }
     }
 }

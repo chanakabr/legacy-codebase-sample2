@@ -7,7 +7,7 @@ using System.Web;
 
 namespace WebAPI.Models
 {
-    public class SearchAssets
+    public class WatchHistory
     {
         /// <summary>
         /// List of asset types to search within.
@@ -19,21 +19,20 @@ namespace WebAPI.Models
         public List<int> filter_types { get; set; }
 
         /// <summary>
-        /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
-        /// Comparison operators: for numerical fields =, >, >=, <![CDATA[<]]>, <![CDATA[<=]]>. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or.
+        /// Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
+        /// If omitted or specified filter = all – return all types.
+        /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.
         /// </summary>
-        [DataMember(Name = "filter")]
-        [JsonProperty(PropertyName = "filter")]
-        public string filter { get; set; }
+        [DataMember(Name = "filter_status")]
+        [JsonProperty(PropertyName = "filter_status")]
+        public WatchStatus? filter_status { get; set; }
 
         /// <summary>
-        /// Required sort option to apply for the identified assets. If omitted – will use relevancy.
-        /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.
+        /// How many days back to return the watched media. If omitted, default to 7 days
         /// </summary>
-        [DataMember(Name = "order_by")]
-        [JsonProperty(PropertyName = "order_by")]
-        public Order? order_by { get; set; }
+        [DataMember(Name = "days")]
+        [JsonProperty(PropertyName = "days")]
+        public int days { get; set; }
 
         /// <summary>
         /// Additional data to return per asset, formatted as a comma-separated array. 
@@ -49,7 +48,7 @@ namespace WebAPI.Models
         [DataMember(Name = "page_size")]
         [JsonProperty(PropertyName = "page_size")]
         public int? page_size { get; set; }
-
+        
         /// <summary>
         /// Page number to return. If omitted will return first page
         /// </summary>

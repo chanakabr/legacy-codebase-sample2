@@ -72,7 +72,7 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)StatusCode.BadRequest, "too long filter");
             }
-
+            // page size - 5 <= size <= 50
             if (pageSize == null)
             {
                 pageSize = 25;
@@ -155,7 +155,7 @@ namespace WebAPI.Clients
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.GetAssets<AssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            result = CatalogUtils.SearchAssets<AssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
             return result;
         }
@@ -243,7 +243,53 @@ namespace WebAPI.Clients
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.GetAssets<SlimAssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            result = CatalogUtils.SearchAssets<SlimAssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+
+            return result;
+        }
+
+        public WatchHistoryAssetWrapper WatchHistory(int groupID, string siteGuid, string udid, int language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> with)
+        {
+            WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
+
+            // page size - 5 <= size <= 50
+            if (pageSize == null)
+            {
+                pageSize = 25;
+            }
+            else if (pageSize > 50)
+            {
+                pageSize = 50;
+            }
+            else if (pageSize < 5)
+            {
+                throw new ClientException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
+            }
+
+            // days - default value 7
+            if (days == null || days == 0)
+                days = 7;
+
+            // build request
+            WatchHistoryRequest request = new WatchHistoryRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = language,
+                },
+                m_nGroupID = groupID,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                AssetTypes = assetTypes,
+                FilterStatus = (eWatchStatus)Enum.Parse(typeof(eWatchStatus), filterStatus.ToString()),
+                NumOfDays = days, 
+                OrderDir = OrderDir.DESC
+            };
+
+            result = CatalogUtils.WatchHistory(Catalog, SignString, Signature, CacheDuration, request, with);
 
             return result;
         }
@@ -282,6 +328,9 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        
+
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)

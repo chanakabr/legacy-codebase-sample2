@@ -105,5 +105,50 @@ namespace WebAPI.Controllers
         {
             return PostAutocomplete(group_id, request);
         }
+
+        /// <summary>
+        /// Get recently watched media for user, ordered by recently watched first.
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="request">The search asset request parameter</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("autocomplete"), HttpPost]
+        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, WatchHistory request)
+        {
+            WatchHistoryAssetWrapper response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, string.Empty, string.Empty, 0, request.page_index, request.page_size, request.filter_status, request.days, request.filter_types, request.with);
+            }
+            catch (ClientException ex)
+            {
+                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
+                {
+                    throw new BadRequestException(ex.Code, ex.Message);
+                }
+
+                throw new InternalServerErrorException(ex.Code, ex.Message);
+            }
+
+            return response;
+        }
+
+        //[Route("autocomplete"), HttpGet]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //public WatchHistoryAssetWrapper GetWatchHistory(string group_id, [FromUri] Autocomplete request)
+        //{
+        //    return PostAutocomplete(group_id, request);
+        //}
     }
 }

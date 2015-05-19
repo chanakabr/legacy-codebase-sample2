@@ -616,6 +616,9 @@
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\SignIn.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\WatchHistory.cs" />
+    <Compile Include="Models\WatchHistoryAsset.cs" />
+    <Compile Include="Models\WatchStatus.cs" />
     <Compile Include="Models\With.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
