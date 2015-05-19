@@ -148,6 +148,7 @@
     <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Response\ContainingMediaResponse.cs" />
+    <Compile Include="Response\UnifiedSearchResult.cs" />
     <Compile Include="Response\UserWatchHistory.cs" />
     <Compile Include="Response\WatchHistoryResponse.cs" />
     <Compile Include="Request\WatchHistoryRequest.cs" />
@@ -230,6 +231,7 @@
     <Compile Include="Request\EPGSearchContentRequest.cs" />
     <Compile Include="Searcher\ElasticsearchWrapper.cs" />
     <Compile Include="Searcher\Helper.cs" />
+    <Compile Include="Searcher\ISearcher.cs" />
     <Compile Include="Searcher\LuceneWrapper.cs" />
     <Compile Include="Request\BundleContainingMediaRequest.cs" />
     <Compile Include="TagMeta.cs" />

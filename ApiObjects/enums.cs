@@ -232,6 +232,7 @@ namespace ApiObjects
 
     public enum eAssetTypes
     {
+        UNKNOWN = -1,
         EPG = 0,
         NPVR = 1,
         MEDIA = 2

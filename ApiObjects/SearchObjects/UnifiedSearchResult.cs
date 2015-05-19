@@ -6,45 +6,45 @@ using System.Text;
 
 namespace ApiObjects.SearchObjects
 {
-    [DataContract]
-    public class UnifiedSearchResult : SearchResult
-    {
-        [DataMember]
-        public AssetType type
-        {
-            get;
-            set;
-        }
+    //[DataContract]
+    //public class UnifiedSearchResult : SearchResult
+    //{
+    //    //[DataMember]
+    //    //public AssetType type
+    //    //{
+    //    //    get;
+    //    //    set;
+    //    //}
 
-        /// <summary>
-        /// Parses a string to an enum, regardless of upper/lowercase issues
-        /// </summary>
-        /// <param name="typeString"></param>
-        /// <returns></returns>
-        public static AssetType ParseType(string typeString)
-        {
-            AssetType typeEnum = AssetType.Unknown;
+    //    /// <summary>
+    //    /// Parses a string to an enum, regardless of upper/lowercase issues
+    //    /// </summary>
+    //    /// <param name="typeString"></param>
+    //    /// <returns></returns>
+    //    public static eAssetTypes ParseType(string typeString)
+    //    {
+    //        eAssetTypes typeEnum = eAssetTypes.UNKNOWN;
 
-            if (typeString.ToLower().StartsWith("media"))
-            {
-                typeEnum = AssetType.Media;
-            }
-            else if (typeString.ToLower().StartsWith("epg"))
-            {
-                typeEnum = AssetType.Epg;
-            }
+    //        if (typeString.ToLower().StartsWith("media"))
+    //        {
+    //            typeEnum = eAssetTypes.MEDIA;
+    //        }
+    //        else if (typeString.ToLower().StartsWith("epg"))
+    //        {
+    //            typeEnum = eAssetTypes.EPG;
+    //        }
 
-            return (typeEnum);
-        }
-    }
+    //        return typeEnum;
+    //    }
+    //}
 
-    /// <summary>
-    /// Asset types that are stored in ES
-    /// </summary>
-    public enum AssetType
-    {
-        Unknown = -1,
-        Media = 1,
-        Epg = 2
-    }
+    ///// <summary>
+    ///// Asset types that are stored in ES
+    ///// </summary>
+    ////public enum AssetType
+    ////{
+    ////    Unknown = -1,
+    ////    Media = 1,
+    ////    Epg = 2
+    ////}
 }

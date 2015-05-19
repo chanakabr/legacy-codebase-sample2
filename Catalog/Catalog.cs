@@ -669,16 +669,11 @@ namespace Catalog
             {
                 SetLanguageDefinition(request, searchDefinitions);
 
-                SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
-                if (searchResultsObject != null)
+                if (searchResults != null)
                 {
-                    if (searchResultsObject.m_resultIDs != null)
-                    {
-                        searchResultsList = searchResultsObject.m_resultIDs.Select(result => result as UnifiedSearchResult).ToList();
-                    }
-
-                    totalItems = searchResultsObject.n_TotalItems;
+                    searchResultsList = searchResults;
                 }
             }
 
