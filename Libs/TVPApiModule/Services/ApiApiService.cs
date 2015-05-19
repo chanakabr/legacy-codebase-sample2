@@ -425,5 +425,32 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public AdminUserResponse AdminSignIn(string username, string password)
+        {
+            AdminUserResponse response = new TVPApiModule.Objects.Responses.AdminUserResponse(); ;
+
+            try
+            {
+                var result = m_Module.AdminSignIn(m_wsUserName, m_wsPassword, username, password);
+                if (result != null && result.m_status == AdminUserStatus.OK)
+                {
+                    response.AdminUser = new AdminUser(result);
+                    response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.OK, "OK");
+                }
+                else
+                {
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to get regions."), ex);
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
     }
 }

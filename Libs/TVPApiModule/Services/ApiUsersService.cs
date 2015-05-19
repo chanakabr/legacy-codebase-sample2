@@ -276,13 +276,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public UserResponseObject[] GetUsersData(string sSiteGuids)
+        public UserResponseObject[] GetUsersData(string[] siteGuids)
         {
             UserResponseObject[] response = null;
 
             try
             {
-                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
+                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids);
             }
             catch (Exception ex)
             {

@@ -277,7 +277,7 @@ namespace TVPApiModule.Manager
         //    return GetTokenResponseObject(apiToken);
         //}
 
-        public object GenerateAccessToken(string siteGuid, int groupId)
+        public object GenerateAccessToken(string siteGuid, int groupId, bool isAdmin)
         {
             if (string.IsNullOrEmpty(siteGuid))
             {
@@ -296,7 +296,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(siteGuid, groupId);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin);
             _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             
             return GetTokenResponseObject(apiToken, groupConfig);
@@ -368,8 +368,8 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            // generate new access token and refresh token pair
-            apiToken = new APIToken(siteGuid, groupId);
+            // generate new access token with the old refresh token
+            apiToken = new APIToken(siteGuid, groupId, apiToken.IsAdmin, apiToken.RefreshToken);
 
             // Store new access + refresh tokens pair
             if (_client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
@@ -387,9 +387,10 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(apiToken, groupConfig);
         }
 
-        public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, out string siteGuid)
+        public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, out string siteGuid, out bool isAdmin)
         {
             siteGuid = string.Empty;
+            isAdmin = false;
 
             // if no access token - validation will be performed later if needed
             if (string.IsNullOrEmpty(accessToken))
@@ -415,6 +416,7 @@ namespace TVPApiModule.Manager
             }
 
             siteGuid = apiToken.SiteGuid;
+            isAdmin = apiToken.IsAdmin;
 
             // get group configurations
             GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
@@ -443,6 +445,39 @@ namespace TVPApiModule.Manager
             return true;
         }
 
+        public bool ValidateMultipleSiteGuids(string initSiteGuid, string[] siteGuids, int groupId, PlatformType platform)
+        {
+            if (string.IsNullOrEmpty(initSiteGuid) || siteGuids == null || siteGuids.Length == 0)
+            {
+                logger.ErrorFormat("validateMultipleSiteGuids: initSiteGuid or siteGuids are empty. initSiteGuid {0}", initSiteGuid);
+                returnError(403);
+                return false;
+            }
+
+            // get domain
+            Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+            if (domain == null)
+            {
+                logger.ErrorFormat("validateMultipleSiteGuids: domain not found for initSiteGuid = {0}", initSiteGuid);
+                returnError(403);
+                return false;
+            }
+
+            int userId = 0;
+            foreach (var siteGuid in siteGuids)
+            {
+                userId = int.Parse(siteGuid);
+                if (!domain.m_DefaultUsersIDs.Contains(userId) && !domain.m_masterGUIDs.Contains(userId) && !domain.m_UsersIDs.Contains(userId) && !domain.m_PendingUsersIDs.Contains(userId))
+                {
+                    logger.ErrorFormat("ValidateRequestParameters: initSiteGuid and one of the siteGuids are not in the same domain. initSiteGuid = {0}, userId = {1}", initSiteGuid, userId);
+                    returnError(403);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public bool ValidateRequestParameters(string initSiteGuid, string siteGuid, int domainId, string udid, int groupId, PlatformType platform)
         {
             if (string.IsNullOrEmpty(initSiteGuid))
@@ -463,9 +498,10 @@ namespace TVPApiModule.Manager
                }
 
                 // if siteGuids are not the same, check if siteGuids are in the same domain
+               int userId;
                 if (!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid)
                 {
-                    int userId = int.Parse(siteGuid);
+                    userId = int.Parse(siteGuid);
                     if (!domain.m_DefaultUsersIDs.Contains(userId) && !domain.m_masterGUIDs.Contains(userId) && !domain.m_UsersIDs.Contains(userId) && !domain.m_PendingUsersIDs.Contains(userId))
                     {
                         logger.ErrorFormat("ValidateRequestParameters: initSiteGuid and siteGuid are not in the same domain. initSiteGuid = {0}, siteGuid = {1}", initSiteGuid, siteGuid);

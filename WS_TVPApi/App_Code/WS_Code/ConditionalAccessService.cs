@@ -356,6 +356,12 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuids
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateMultipleSiteGuids(initObj.SiteGuid, siteGuids, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).GetUsersBillingHistory(siteGuids, startDate, endDate);
@@ -377,6 +383,12 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainsBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                // Tokenization: validate domainId
+                if (HttpContext.Current.Items.Contains("tokenization") && (domainIDs != null && domainIDs.Length > 0 && domainIDs.Length < 2) &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domainIDs[0], null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainsBillingHistory(domainIDs, startDate, endDate);

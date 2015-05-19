@@ -29,6 +29,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("group_id")]
         public int GroupID { get; set; }
 
+        [JsonProperty("is_admin")]
+        public bool IsAdmin { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
@@ -39,14 +42,20 @@ namespace TVPApiModule.Objects.Authorization
         {
         }
 
-        public APIToken(string siteGuid, int groupId)
+        public APIToken(string siteGuid, int groupId, bool isAdmin) :
+            this(siteGuid, groupId, isAdmin, Guid.NewGuid().ToString().Replace("-", string.Empty))
+        {
+        }
+
+        public APIToken(string siteGuid, int groupId, bool isAdmin, string refreshToken)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            RefreshToken = refreshToken;
             CreateDate = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
             RefreshTokenUpdateDate = CreateDate;
             GroupID = groupId;
             SiteGuid = siteGuid;
+            IsAdmin = isAdmin;
         }
 
         public static string GetAPITokenId(string accessToken)

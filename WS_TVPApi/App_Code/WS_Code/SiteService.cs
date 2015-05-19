@@ -545,6 +545,13 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SSOSignIn(userName, password, providerID, string.Empty, SiteHelper.GetClientIP(), initObj.UDID, false);
+
+                    // if sign in successful - generate access token
+                    if (response.UserData != null && response.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK && response.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
+                    {
+                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.SiteGuid, groupID, false);
+
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -683,7 +690,7 @@ namespace TVPApiServices
                     // if sign in successful - generate access token
                     if (responseData.UserData != null && responseData.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK && responseData.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
                     {
-                        responseData.Token = AuthorizationManager.Instance.GenerateAccessToken(responseData.SiteGuid, groupID);
+                        responseData.Token = AuthorizationManager.Instance.GenerateAccessToken(responseData.SiteGuid, groupID, false);
 
                     }
                 }
@@ -908,15 +915,18 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
-                {
-                    return null;
-                }
+                
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(sSiteGuid);
+                    string[] siteGuids = sSiteGuid.Split(';');
+                    // Tokenization: validate multiple siteGuids
+                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateMultipleSiteGuids(initObj.SiteGuid, siteGuids, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
+
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(siteGuids);
                 }
                 catch (Exception ex)
                 {
@@ -1495,6 +1505,41 @@ namespace TVPApiServices
             return response;
         }
         
+        [WebMethod(EnableSession = true, Description = "Admin sign in using TVM users")]
+        public AdminUserResponse AdminSignIn(InitializationObject initObj, string username, string password)
+        {
+            AdminUserResponse response = null;
 
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AdminSignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).AdminSignIn(username, password);
+                    // if sign in successful - generate access token
+                    if (response.Status.Code == (int)eStatus.OK && response.AdminUser != null)
+                    {
+                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new AdminUserResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new AdminUserResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+        
     }
 }

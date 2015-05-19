@@ -622,10 +622,11 @@ public partial class MethodFinder
             {
 
                 string siteGuid;
+                bool isAdmin = false;
                 // validate unauthorized methods and extract relevant siteGuid
                 if (executer.m_MetodInfo.Name != "RefreshAccessToken")
                 {
-                    if (!AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid) ||
+                    if (!AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid, out isAdmin) ||
                         (_unauthorizedMethods != null && _unauthorizedMethods.Contains(executer.m_MetodInfo.Name) && string.IsNullOrEmpty(siteGuid)))
                     {
                         AuthorizationManager.Instance.returnError(403, null);
@@ -635,8 +636,11 @@ public partial class MethodFinder
                     // override siteGuid in initObj
                     initObj.SiteGuid = siteGuid;
                 }
-                // add "tokenization" to context for later validations
-                HttpContext.Current.Items.Add("tokenization", null);
+                // add "tokenization" to context for later validations (only if not admin)
+                if (!isAdmin)
+                {
+                    HttpContext.Current.Items.Add("tokenization", null);
+                }
             }
 
             object result = executer.ExecuteMethod(methodParameters);
