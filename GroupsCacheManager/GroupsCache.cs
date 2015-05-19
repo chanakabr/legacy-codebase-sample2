@@ -591,6 +591,11 @@ namespace GroupsCacheManager
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, this.version);
         }
 
+        private string BuildMediaTypeCacheKey(int groupId, int mediaType)
+        {
+            return string.Format("{2}_group_{0}_mediaType_{1}", groupId, mediaType, this.version);
+        }
+
         internal bool AddServices(int nGroupID, List<int> services)
         {
             try
@@ -726,100 +731,45 @@ namespace GroupsCacheManager
         internal List<MediaType> GetMediaTypes(List<int> typeIds, int groupId)
         {
             List<MediaType> mediaTypes = new List<MediaType>();
-            BaseModuleCache baseModule = null;
 
-            Dictionary<int, VersionModuleCache> missingTypes = new Dictionary<int, VersionModuleCache>();
+            HashSet<int> missingTypesList = new HashSet<int>();
 
             try
             {
                 foreach (int typeId in typeIds)
                 {
                     MediaType currentType = null;
-                    string cacheKey = string.Format("MediaType_{0}", typeId);
+                    string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
 
-                    try
+                    if (!this.groupCacheService.GetJsonAsT<MediaType>(cacheKey, out currentType))
                     {
-                        baseModule = this.groupCacheService.Get(cacheKey);
+                        missingTypesList.Add(typeId);
                     }
-                    catch (ArgumentException exception)
+                    else if (currentType == null)
                     {
-                        Logger.Logger.Log("GetMediaTypes",
-                            string.Format("MediaType in cache was not in expected format. " +
-                            "It will be rebuilt now. MediaType = {0}, Exception = {1}", typeId, exception.Message), "GroupsCacheManager");
-                    }
-
-                    if (baseModule != null && baseModule.result != null)
-                    {
-                        currentType = baseModule.result as MediaType;
+                        missingTypesList.Add(typeId);
                     }
                     else
                     {
-                        bool createdNew = false;
-                        var mutexSecurity = Utils.CreateMutex();
-
-                        using (Mutex mutex = new Mutex(false, string.Concat("MediaType_", typeId), out createdNew, mutexSecurity))
-                        {
-                            try
-                            {
-                                mutex.WaitOne(-1);
-
-                                // try to get media type from CB 
-                                VersionModuleCache versionModule = null;
-
-                                try
-                                {
-                                    versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<MediaType>(cacheKey);
-                                }
-                                catch (ArgumentException exception)
-                                {
-                                    Logger.Logger.Log("GetMediaTypes",
-                                        string.Format("MediaType in cache was not in expected format. " +
-                                        "It will be rebuilt now. MediaType = {0}, Exception = {1}", typeId, exception.Message), "GroupsCacheManager");
-                                }
-
-                                if (versionModule != null && versionModule.result != null)
-                                {
-                                    currentType = baseModule.result as MediaType;
-                                }
-                                else
-                                {
-                                    missingTypes.Add(typeId, versionModule);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Logger.Log("GetGroup", 
-                                    string.Format("Couldn't get media types group {0}, ex = {1}", groupId, ex.Message), "GroupsCacheManager");
-                            }
-                            finally
-                            {
-                                mutex.ReleaseMutex();
-                            }
-                        }
+                        mediaTypes.Add(currentType);
                     }
-
-                    mediaTypes.Add(currentType);
                 }
 
-                if (missingTypes.Count > 0)
+                if (missingTypesList.Count > 0)
                 {
-                    List<MediaType> newMediaTypes = ChannelRepository.BuildMediaTypes(missingTypes.Keys.ToList(), groupId);
+                    List<MediaType> newMediaTypes = ChannelRepository.BuildMediaTypes(missingTypesList.ToList(), groupId);
 
                     foreach (MediaType newMediaType in newMediaTypes)
                     {
                         int typeId = newMediaType.id;
 
-                        string cacheKey = string.Format("MediaType_{0}", typeId);
+                        string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
 
                         bool wasInsert = false;
 
                         for (int i = 0; i < 3 && !wasInsert; i++)
                         {
-                            VersionModuleCache versionModule = missingTypes[typeId];
-
-                            //try insert to Cache                                     
-                            versionModule.result = newMediaType;
-                            wasInsert = this.groupCacheService.SetWithVersion<MediaType>(cacheKey, versionModule, dCacheTT);
+                            wasInsert = this.groupCacheService.SetJson<MediaType>(cacheKey, newMediaType, dCacheTT);
                         }
 
                         mediaTypes.Add(newMediaType);
