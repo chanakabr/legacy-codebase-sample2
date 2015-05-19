@@ -2321,20 +2321,17 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get EPG Programs by id")]
-        public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> GetEPGProgramsByIds(InitializationObject initObj,
-            TVPApiModule.Objects.Enums.ProgramIdType programIdType,
-            List<string> programIds,
-            int pageSize,
-            int pageIndex)
+        public List<Program> GetEPGProgramsByIds(InitializationObject initObj, TVPApiModule.Objects.Enums.ProgramIdType programIdType, List<string> programIds, int pageSize, int pageIndex)
         {
-            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj> ret = new List<ProgramObj>();
-
+            List<Program> ret = new List<Program>();
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramsByIds", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
+                    ProgramObj programObj;
+                    Program program;
                     switch (programIdType)
                     {
                         case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
@@ -2342,16 +2339,32 @@ namespace TVPApiServices
                             var collection = new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<EPGChannelProgrammeObject>;
                             foreach (var obj in collection)
                             {
-                                Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj programObj = new ProgramObj();
-                                programObj.m_oProgram = obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject;
-                                ret.Add(programObj);
+                                programObj = new ProgramObj();
+                                programObj.m_oProgram = obj as EPGChannelProgrammeObject;
+
+                                // convert to local object
+                                program = new Program()
+                                {
+                                    m_oProgram = obj,
+                                    AssetType = eAssetTypes.EPG
+                                };
+                                ret.Add(program);
                             }
                             break;
+
                         case TVPApiModule.Objects.Enums.ProgramIdType.INTERNAL:
                             List<int> pidsToInt = programIds.Select(id => int.Parse(id)).ToList<int>();
-                            foreach (var obj in (new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute() as List<BaseObject>))
+                            foreach (ProgramObj obj in (new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute() as List<BaseObject>))
                             {
-                                ret.Add(obj as Tvinci.Data.Loaders.TvinciPlatform.Catalog.ProgramObj);
+                                // convert to local object
+                                program = new Program()
+                                {
+                                    m_oProgram = obj.m_oProgram,
+                                    AssetType = eAssetTypes.EPG,
+                                    AssetId = obj.AssetId,
+                                    m_dUpdateDate = obj.m_dUpdateDate
+                                };
+                                ret.Add(program);
                             }
                             break;
                         default:

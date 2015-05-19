@@ -196,6 +196,7 @@
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
+    <Compile Include="Objects\Responses\Program.cs" />
     <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
