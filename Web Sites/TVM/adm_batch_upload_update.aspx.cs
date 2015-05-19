@@ -215,38 +215,47 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
     }
 
     private Int32[] GetAllMediasID()
-    {
+    { 
         Hashtable hChannelsIDS = (Hashtable)Session["channels_ids"];
-        Hashtable hAllMedias = new Hashtable();
+        // cast all channels ke to list 
+        List<string> sChannelsIDS = hChannelsIDS.Keys.OfType<string>().ToList();
+        List<int> ChannelsIDS = sChannelsIDS.Select(x => int.Parse(x)).ToList();
+        int[] mediaIDs = GetMediaIdsFromCatalog(ChannelsIDS);
+        return mediaIDs;     
+    }
 
-        foreach (DictionaryEntry de in hChannelsIDS)
+    private int[]  GetMediaIdsFromCatalog(List<int> ChannelsIDS)
+    {       
+        try
         {
-            int nChannelID = int.Parse(de.Key.ToString());
+            int[] assetIds;
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
 
-            TVinciShared.Channel channel = new TVinciShared.Channel(nChannelID, false, 0, true, 0, 0);
-
-            DataTable d = channel.GetChannelMediaDT_OLD(0, null, false, true);
-
-            if (d == null)
-                return null;
-
-
-            Int32 nCount = d.DefaultView.Count;
-            
-            for (int i = 0; i < nCount; i++)
+            int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+            TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
+            string sWSURL = GetWSURL("api_ws");
+            if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
-                Int32 nMediaID = int.Parse(d.DefaultView[i].Row["id"].ToString());
-                if (!hAllMedias.Contains(nMediaID))
-                {
-                    hAllMedias.Add(nMediaID, nMediaID);
-                }
+                return null;
             }
+
+            apiWS.API client = new apiWS.API();
+            client.Url = sWSURL;
+
+            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, ChannelsIDS.ToArray(), null, false, string.Empty,false, true);
+            return assetIds;
+        }
+        catch (Exception ex)
+        {
+            return null;
         }
 
+    }
 
-        int[] nMedias = new int[hAllMedias.Keys.Count];
-        hAllMedias.Keys.CopyTo(nMedias, 0);
-
-        return nMedias;
+    private string GetWSURL(string key)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
     }
 }
