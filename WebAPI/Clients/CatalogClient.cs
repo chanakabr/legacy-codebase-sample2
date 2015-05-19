@@ -237,7 +237,7 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
             };
 
-            // build failover cahce key
+            // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("Autocomplete_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, size, 0, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
             if (assetTypes != null && assetTypes.Count > 0)
@@ -248,12 +248,13 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public WatchHistoryAssetWrapper WatchHistory(int groupID, string siteGuid, string udid, int language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> with)
+
+        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> with)
         {
             WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
 
             // page size - 5 <= size <= 50
-            if (pageSize == null)
+            if (pageSize == null || pageSize == 0)
             {
                 pageSize = 25;
             }
@@ -267,7 +268,7 @@ namespace WebAPI.Clients
             }
 
             // days - default value 7
-            if (days == null || days == 0)
+            if (days == 0)
                 days = 7;
 
             // build request
@@ -277,15 +278,14 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = language,
+                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language)
                 },
-                m_nGroupID = groupID,
+                m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 AssetTypes = assetTypes,
                 FilterStatus = (eWatchStatus)Enum.Parse(typeof(eWatchStatus), filterStatus.ToString()),
-                NumOfDays = days, 
+                NumOfDays = days,
                 OrderDir = OrderDir.DESC
             };
 
@@ -294,7 +294,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, string udid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
+        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
         {
             List<AssetStats> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
@@ -303,11 +303,6 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_sSiteGuid = siteGuid,
                 m_nGroupID = groupID,
-                m_oFilter = new Filter()
-                {
-                    m_sDeviceId = udid,
-                    //m_sPlatform = platform.ToString(),
-                },
                 m_nAssetIDs = assetIds,
                 m_dStartDate = SerializationUtils.ConvertFromUnixTimestamp(startTime),
                 m_dEndDate = SerializationUtils.ConvertFromUnixTimestamp(endTime),
@@ -329,7 +324,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        
+
 
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,

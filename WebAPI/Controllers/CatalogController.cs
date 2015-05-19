@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0, 
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0,
                 search_assets.page_index, search_assets.page_size, search_assets.filter, search_assets.order_by, search_assets.filter_types, search_assets.with);
             }
             catch (ClientException ex)
@@ -112,28 +112,29 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="user_id">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("autocomplete"), HttpPost]
-        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, WatchHistory request)
+        [Route("watch_history"), HttpPost]
+        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, string lang, WatchHistory request)
         {
             WatchHistoryAssetWrapper response = null;
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be an integer");
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, string.Empty, string.Empty, 0, request.page_index, request.page_size, request.filter_status, request.days, request.filter_types, request.with);
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size, request.filter_status, request.days, request.filter_types, request.with);
             }
             catch (ClientException ex)
             {
-                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
-                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
+                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
                 {
                     throw new BadRequestException(ex.Code, ex.Message);
                 }
