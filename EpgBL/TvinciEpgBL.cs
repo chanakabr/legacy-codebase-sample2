@@ -545,15 +545,14 @@ namespace EpgBL
             foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
             {
                 if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
-                {
+                { 
+                    finalEpgPicture = new List<EpgPicture>();
 
                     foreach (EpgPicture pict in oProgram.EPG_PICTURES)
                     {
                         int group = int.Parse(oProgram.GROUP_ID);
                         List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
-                        
-                        finalEpgPicture = new List<EpgPicture>();
-
+                    
                         foreach (EpgPicture ratioItem in ratios)
                         {
                             pictureItem = new EpgPicture();
