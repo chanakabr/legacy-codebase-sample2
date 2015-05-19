@@ -272,7 +272,7 @@ namespace TVPPro.SiteManager.Helper
                     retVal = OrderBy.NONE;
                     break;
                 case TVPPro.SiteManager.Context.Enums.eOrderBy.Added:
-                    retVal = OrderBy.CREATE_DATE;
+                    retVal = OrderBy.START_DATE;
                     break;
                 case TVPPro.SiteManager.Context.Enums.eOrderBy.Views:
                     retVal = OrderBy.VIEWS;
