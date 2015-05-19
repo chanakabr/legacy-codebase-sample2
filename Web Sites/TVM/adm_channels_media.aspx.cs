@@ -326,36 +326,33 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     private string GetMediaIdsFromCatalog(int channelID)
     {
-        string mediaIDs = string.Empty;
+        string mediaIDs = "0";
         try
         {
             int[] assetIds;
-            
-            apiWS.API client = new apiWS.API();
-            string sWSURL = GetWSURL("api_ws");
-            if (string.IsNullOrEmpty(sWSURL))
-            {
-                throw new Exception("api address is not configured. ");
-            }
-            client.Url = sWSURL;
+
+
             string sIP = "1.1.1.1";
             string sWSUserName = "";
             string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Channel", "api", sIP, ref sWSUserName, ref sWSPass);            
-            
-            int[] channelIds = new int[1];
-            channelIds[0] = channelID;
-            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, channelIds, null, false, string.Empty, false, false);
+
+            int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+            TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
+            string sWSURL = GetWSURL("api_ws");
+            if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
+            {
+                return mediaIDs;
+            }
+
+            apiWS.API client = new apiWS.API();
+            client.Url = sWSURL;
+
+            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, new int[] { channelID }, null, false, string.Empty, false, false);
             if (assetIds != null && assetIds.Length > 0)
             {
                 mediaIDs = string.Join(",", assetIds);
             }
-            else
-            {
-                mediaIDs = "0";
-            }
         }
-
         catch (Exception ex)
         {
             mediaIDs = "0";
