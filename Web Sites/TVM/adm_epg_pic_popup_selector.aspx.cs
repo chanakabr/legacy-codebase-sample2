@@ -39,7 +39,7 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
                     epg.EpgIdentifier = Session["epgIdentifier"].ToString();
                     epg.ChannelID = int.Parse(Session["channelID"].ToString());
 
-                    CouchBaseManipulator.DoTheWork(ref epg, new Dictionary<int, string>() , new Dictionary<int, string>());
+                    CouchBaseManipulator.SavePicture(ref epg);
                     int nID = epg.PicID;
                 Session["new_id"] = nID.ToString();
                 }
