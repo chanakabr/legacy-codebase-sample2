@@ -47,7 +47,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             List<long> mediaIdsForCatalog = null;
 
             // Build the List of CacheKeys from the MediaRes List
-            List<CacheKey> cacheKeys = MediaIDs.Select(mediaRes => new CacheKey() { ID = mediaRes.assetID, UpdateDate = mediaRes.UpdateDate }).ToList();
+            List<CacheKey> cacheKeys = MediaIDs.Select(mediaRes => new CacheKey() { ID = mediaRes.assetID.ToString(), UpdateDate = mediaRes.UpdateDate }).ToList();
 
             // Get medias from cache
             Log("Trying to get mediaIDs", MediaIDs);

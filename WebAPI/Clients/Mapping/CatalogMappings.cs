@@ -51,7 +51,7 @@ namespace WebAPI.Clients.Mapping
 
             //Media to AssetInfo
             Mapper.CreateMap<MediaObj, AssetInfo>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
@@ -77,7 +77,7 @@ namespace WebAPI.Clients.Mapping
 
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, AssetInfo>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
@@ -90,14 +90,14 @@ namespace WebAPI.Clients.Mapping
 
             //Media to SlimAssetInfo
             Mapper.CreateMap<MediaObj, SlimAssetInfo>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID));
 
             //Media to SlimAssetInfo
             Mapper.CreateMap<ProgramObj, SlimAssetInfo>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));

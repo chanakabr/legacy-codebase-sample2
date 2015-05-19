@@ -133,7 +133,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Catalog\Service.disco" />
     <None Include="Service References\Catalog\configuration91.svcinfo" />
     <None Include="Service References\Catalog\configuration.svcinfo" />
     <None Include="Service References\Catalog\Reference.svcmap">
@@ -144,6 +143,7 @@
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
+    <Content Include="Service References\Catalog\Service1.disco" />
     <Content Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Service References\Notifications\configuration91.svcinfo" />
     <Content Include="Service References\Notifications\configuration.svcinfo" />
@@ -154,9 +154,53 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <None Include="Service References\Catalog\Service13.xsd">
+    <None Include="Service References\Catalog\Service14.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service141.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service1410.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service1411.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service1412.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service1413.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service1414.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service142.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service143.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service144.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service145.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service146.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service147.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service148.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service149.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Catalog\Service2.wsdl" />
+    <Content Include="Service References\Catalog\Service21.wsdl" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -283,47 +327,6 @@
     <Content Include="Web References\Users\KeyValuePair.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <None Include="Service References\Catalog\Service.wsdl" />
-    <None Include="Service References\Catalog\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1.wsdl" />
-    <None Include="Service References\Catalog\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service10.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service11.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service12.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service8.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service9.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
