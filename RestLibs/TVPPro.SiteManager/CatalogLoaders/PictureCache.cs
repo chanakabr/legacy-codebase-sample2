@@ -46,12 +46,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
             List<long> picIdsForCatalog = null;
 
             // Build the List of CacheKeys with DateTime.MinValue
-            List<CacheKey> cacheKeys = PictureIDs.Select(picID => new CacheKey() { ID = picID, UpdateDate = DateTime.MinValue }).ToList();
+            List<CacheKey> cacheKeys = PictureIDs.Select(picID => new CacheKey() { ID = picID.ToString(), UpdateDate = DateTime.MinValue }).ToList();
 
             // Get pictures from cache
             Log("Trying to get PictureIDs", PictureIDs);
             List<BaseObject> lPicsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, CACHE_KEY_PREFIX, out picIdsForCatalog);
-            Log("Got PictureIDs", lPicsFromCache.Select(pic => pic.m_nID).ToList());
+            Log("Got PictureIDs", lPicsFromCache.Select(pic => pic.AssetId).ToList());
 
             // Check if pictures are missing in cache 
             if (lPicsFromCache != null && lPicsFromCache.Count > 0)

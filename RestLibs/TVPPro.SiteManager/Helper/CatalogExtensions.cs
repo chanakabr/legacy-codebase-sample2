@@ -21,7 +21,7 @@ namespace TVPPro
                     {
                         sb.AppendLine();
                         sb.AppendFormat("MediaID = {0}, Name = {1}, Description = {2}, CreationDate = {3}, EndDate = {4}, FinalDate = {5}, PublishDate = {6}, StartDate = {7}, LikeCounter = {8}, UpdateDate = {9}",
-                            media.m_nID, media.m_sName, media.m_sDescription, media.m_dCreationDate, media.m_dEndDate, media.m_dFinalDate, media.m_dPublishDate, media.m_dStartDate, media.m_nLikeCounter, media.m_dUpdateDate);
+                            media.AssetId, media.m_sName, media.m_sDescription, media.m_dCreationDate, media.m_dEndDate, media.m_dFinalDate, media.m_dPublishDate, media.m_dStartDate, media.m_nLikeCounter, media.m_dUpdateDate);
                         sb.AppendLine();
                         sb.AppendFormat("MediaType: MediaTypeName = {1}, MediaTypeID = {0} | Rating : RatingAvg = {2}, RatingCount = {3}, RatingSum = {4}, Views = {5}",
                             media.m_oMediaType.m_nTypeID, media.m_oMediaType.m_sTypeName, media.m_oRatingMedia.m_nRatingAvg, media.m_oRatingMedia.m_nRatingCount, media.m_oRatingMedia.m_nRatingSum, media.m_oRatingMedia.m_nViwes);
@@ -105,7 +105,7 @@ namespace TVPPro
                     if (program != null)
                     {
                         retVal.AppendLine();
-                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.AssetId, program.m_dUpdateDate);
                     }
                     else
                     {
@@ -130,7 +130,7 @@ namespace TVPPro
                     if (program != null)
                     {
                         retVal.AppendLine();
-                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.AssetId, program.m_dUpdateDate);
                     }
                     else
                     {
@@ -152,7 +152,7 @@ namespace TVPPro
                 foreach (var media in medias)
                 {
                     retVal.AppendLine();
-                    retVal.AppendFormat("MediaID = {0}, Type = {1} - {2}, Name = {3}, UpdateDate = {4}", media.m_nID, media.m_oMediaType.m_sTypeName, media.m_oMediaType.m_nTypeID, media.m_sName, media.m_dUpdateDate);
+                    retVal.AppendFormat("MediaID = {0}, Type = {1} - {2}, Name = {3}, UpdateDate = {4}", media.AssetId, media.m_oMediaType.m_sTypeName, media.m_oMediaType.m_nTypeID, media.m_sName, media.m_dUpdateDate);
                 }
                 retVal.Remove(retVal.Length - 1, 1);
             }
@@ -170,7 +170,7 @@ namespace TVPPro
                     if (pic != null)
                     {
                         sb.AppendLine();
-                        sb.AppendFormat("PictureID = {0}, UpdateDate = {1}", pic.m_nID, pic.m_dUpdateDate);
+                        sb.AppendFormat("PictureID = {0}, UpdateDate = {1}", pic.AssetId, pic.m_dUpdateDate);
                         sb.AppendLine();
                         if (pic.m_Picture!= null && pic.m_Picture.Count > 0)
                         {
@@ -204,7 +204,7 @@ namespace TVPPro
                 foreach (var pic in pics)
                 {
                     retVal.AppendLine();
-                    retVal.AppendFormat("PictureID = {0}, UpdateDate = {1}, Number Of URLs = {2}", pic.m_nID, pic.m_dUpdateDate, pic.m_Picture != null ? pic.m_Picture.Count : 0);
+                    retVal.AppendFormat("PictureID = {0}, UpdateDate = {1}, Number Of URLs = {2}", pic.AssetId, pic.m_dUpdateDate, pic.m_Picture != null ? pic.m_Picture.Count : 0);
                 }
                 retVal.Remove(retVal.Length - 1, 1);
             }

@@ -54,7 +54,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     {
                         if (media != null)
                         {
-                            var mediaLastWatched = ((PersonalLastDeviceResponse)deviceResponse).m_lPersonalLastWatched.Where(lastWatched => lastWatched.m_nID == media.m_nID).FirstOrDefault();
+                            var mediaLastWatched = ((PersonalLastDeviceResponse)deviceResponse).m_lPersonalLastWatched.Where(lastWatched => lastWatched.m_nID.ToString() == media.AssetId).FirstOrDefault();
                             if (mediaLastWatched != null)
                             {
                                 media.m_dLastWatchedDate = mediaLastWatched.m_dLastWatchedDate;

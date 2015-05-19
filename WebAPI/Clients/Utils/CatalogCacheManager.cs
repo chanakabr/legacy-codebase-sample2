@@ -30,36 +30,44 @@ namespace WebAPI.Clients.Utils
 
             foreach (CacheKey cacheKey in cacheKeys)
             {
-                object cacheObj;
-                cacheLock.EnterReadLock();
-                try
-                {
-                    cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
-                }
-                finally
-                {
-                    cacheLock.ExitReadLock();
-                }
-                if (cacheObj != null)
-                {
-                    ///
-                    /// cacheObj Ticks > cacheKey Ticks when request fails '(cacheKey.UpdateDate).Ticks' = 0
-                    /// (cacheObj as BaseObject).m_dUpdateDate.Ticks == (cacheKey.UpdateDate).Ticks when media didn't change
-                    ///
-                    if ((cacheObj as BaseObject).m_dUpdateDate.Ticks >= (cacheKey.UpdateDate).Ticks)
-                    {
-                        BaseObject baseObj = cacheObj as BaseObject;
-                        foundObjects.Add(baseObj);
-                    }
-                    else // cache miss
-                    {
-                        missingIds.Add(cacheKey.ID);
-                    }
-                }
-                else // cache miss
-                {
-                    missingIds.Add(cacheKey.ID);
-                }
+                  long longId = 0;
+                  if (!long.TryParse(cacheKey.ID, out longId))
+                  {
+                      throw new ArgumentException("Id was in unexpected format");
+                  }
+                  else
+                  {
+                      object cacheObj;
+                      cacheLock.EnterReadLock();
+                      try
+                      {
+                          cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
+                      }
+                      finally
+                      {
+                          cacheLock.ExitReadLock();
+                      }
+                      if (cacheObj != null)
+                      {
+                          ///
+                          /// cacheObj Ticks > cacheKey Ticks when request fails '(cacheKey.UpdateDate).Ticks' = 0
+                          /// (cacheObj as BaseObject).m_dUpdateDate.Ticks == (cacheKey.UpdateDate).Ticks when media didn't change
+                          ///
+                          if ((cacheObj as BaseObject).m_dUpdateDate.Ticks >= (cacheKey.UpdateDate).Ticks)
+                          {
+                              BaseObject baseObj = cacheObj as BaseObject;
+                              foundObjects.Add(baseObj);
+                          }
+                          else // cache miss
+                          {
+                              missingIds.Add(longId);
+                          }
+                      }
+                      else // cache miss
+                      {
+                          missingIds.Add(longId);
+                      }
+                  }
             }
             return foundObjects;
         }
@@ -73,7 +81,7 @@ namespace WebAPI.Clients.Utils
                     cacheLock.EnterWriteLock();
                     try
                     {
-                        HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.m_nID), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                        HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
                     }
                     finally
                     {
@@ -121,14 +129,14 @@ namespace WebAPI.Clients.Utils
 
     public class CacheKey
     {
-        public int ID { get; set; }
+        public string ID { get; set; }
         public DateTime UpdateDate { get; set; }
 
         public CacheKey()
         {
         }
 
-        public CacheKey(int id, DateTime updateDate)
+        public CacheKey(string id, DateTime updateDate)
         {
             ID = id;
             UpdateDate = updateDate;

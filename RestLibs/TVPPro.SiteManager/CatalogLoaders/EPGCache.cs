@@ -49,12 +49,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
             List<long> programIdsForCatalog = null;
 
             // Build the List of CacheKeys from the ProgramRes List
-            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID, UpdateDate = programRes.UpdateDate }).ToList();
+            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID.ToString(), UpdateDate = programRes.UpdateDate }).ToList();
 
             // Get programs from cache
             Log("Trying to get programIDs", ProgramIDs);
             List<BaseObject> lProgramsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out programIdsForCatalog);
-            Log("Got programIDs", lProgramsFromCache.Select(program => program.m_nID).ToList());
+            Log("Got programIDs", lProgramsFromCache.Select(program => program.AssetId).ToList());
 
             // Check if programs are missing in cache 
             if (lProgramsFromCache != null && lProgramsFromCache.Count > 0)

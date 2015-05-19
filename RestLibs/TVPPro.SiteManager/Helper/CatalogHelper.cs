@@ -22,7 +22,7 @@ namespace TVPPro.SiteManager.Helper
             IEnumerable<BaseObject> lMedias = list1.Union(list2);
             for (int i = 0; i < order.Count; i++)
             {
-                retVal.Add(lMedias.Where(media => media != null && media.m_nID == order[i]).FirstOrDefault());
+                retVal.Add(lMedias.Where(media => media != null && media.AssetId == order[i].ToString()).FirstOrDefault());
             }
             return retVal.Where(o => o != null).ToList();
         }
@@ -41,10 +41,10 @@ namespace TVPPro.SiteManager.Helper
                     {
                         dsItemInfo.ItemRow oRow = retVal.Item.NewItemRow();
 
-                        oRow.ID = media.m_nID.ToString();
+                        oRow.ID = media.AssetId;
                         oRow.Title = media.m_sName;
                         oRow.Name = media.m_sName;
-                        if(!string.IsNullOrEmpty(picSize))
+                        if (!string.IsNullOrEmpty(picSize))
                             oRow.ImageLink = (from pic in media.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
                         oRow.MediaType = media.m_oMediaType.m_sTypeName;
                         oRow.MediaTypeID = media.m_oMediaType.m_nTypeID.ToString();
@@ -76,7 +76,7 @@ namespace TVPPro.SiteManager.Helper
                             foreach (FileMedia file in media.m_lFiles)
                             {
                                 dsItemInfo.FilesRow rowFile = retVal.Files.NewFilesRow();
-                                rowFile.ID = media.m_nID.ToString();
+                                rowFile.ID = media.AssetId;
                                 rowFile.Duration = file.m_nDuration.ToString();
                                 rowFile.FileID = file.m_nFileId.ToString();
                                 rowFile.Format = file.m_sFileFormat;
@@ -155,7 +155,7 @@ namespace TVPPro.SiteManager.Helper
                             DataColumn colMetaName = (retVal.Metas.Columns.Contains(meta.m_oTagMeta.m_sName)) ? retVal.Metas.Columns[meta.m_oTagMeta.m_sName] : retVal.Metas.Columns.Add(meta.m_oTagMeta.m_sName, typeof(String));
                             rowMeta[colMetaName] = meta.m_sValue;
                         }
-                        rowMeta["ID"] = media.m_nID;
+                        rowMeta["ID"] = media.AssetId;
                         retVal.Metas.AddMetasRow(rowMeta);
 
                         //Copy Tags
@@ -176,7 +176,7 @@ namespace TVPPro.SiteManager.Helper
                                 }
                             }
                         }
-                        rowTag["ID"] = media.m_nID;
+                        rowTag["ID"] = media.AssetId;
                         retVal.Tags.AddTagsRow(rowTag);
 
                         //ExternalIDs
@@ -187,7 +187,7 @@ namespace TVPPro.SiteManager.Helper
                                 retVal.ExtIDs.Columns.Add("epg_id");
                             dsItemInfo.ExtIDsRow rowExtID = retVal.ExtIDs.NewExtIDsRow();
                             rowExtID["epg_id"] = media.m_ExternalIDs;
-                            rowExtID["ID"] = media.m_nID;
+                            rowExtID["ID"] = media.AssetId;
                             retVal.ExtIDs.AddExtIDsRow(rowExtID);
                         }
 
@@ -197,7 +197,7 @@ namespace TVPPro.SiteManager.Helper
                             foreach (Picture pic in media.m_lPicture)
                             {
                                 dsItemInfo.PicturesRow rowPic = retVal.Pictures.NewPicturesRow();
-                                rowPic.ID = media.m_nID.ToString();
+                                rowPic.ID = media.AssetId;
                                 rowPic.PicSize = pic.m_sSize;
                                 rowPic.URL = pic.m_sURL;
                                 retVal.Pictures.AddPicturesRow(rowPic);
@@ -209,7 +209,7 @@ namespace TVPPro.SiteManager.Helper
             }
             return retVal;
         }
-        
+
         public static OrderDir GetCatalogOrderDirection(TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection orderDir)
         {
             OrderDir retVal;
@@ -338,7 +338,7 @@ namespace TVPPro.SiteManager.Helper
         public static string IDsToString(List<int> ids, string type)
         {
             StringBuilder retVal = new StringBuilder();
-            if (ids != null &&  ids.Count > 0)
+            if (ids != null && ids.Count > 0)
             {
                 retVal.AppendFormat("{0}:", type);
 
