@@ -49,7 +49,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             List<long> programIdsForCatalog = null;
 
             // Build the List of CacheKeys from the ProgramRes List
-            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID, UpdateDate = programRes.UpdateDate}).ToList();
+            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID.ToString(), UpdateDate = programRes.UpdateDate}).ToList();
 
             // Get programs from cache
             Log("Trying to get programIDs", ProgramIDs);

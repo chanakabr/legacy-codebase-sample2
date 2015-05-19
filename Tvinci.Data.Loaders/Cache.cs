@@ -19,35 +19,44 @@ namespace Tvinci.Data.Loaders
 
             foreach (CacheKey cacheKey in cacheKeys)
             {
-                object cacheObj;
-                cacheLock.EnterReadLock();
-                try
+                long longId = 0;
+
+                if (!long.TryParse(cacheKey.ID, out longId))
                 {
-                    cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
+                    throw new ArgumentException("Id was in unexpected format");
                 }
-                finally
+                else
                 {
-                    cacheLock.ExitReadLock();
-                }
-                if (cacheObj != null)
-                {
-                    ///
-                    /// cacheObj Ticks > cacheKey Ticks when request fails '(cacheKey.UpdateDate).Ticks' = 0
-                    /// (cacheObj as BaseObject).m_dUpdateDate.Ticks == (cacheKey.UpdateDate).Ticks when media didn't change
-                    ///
-                    if ((cacheObj as BaseObject).m_dUpdateDate.Ticks >= (cacheKey.UpdateDate).Ticks)
+                    object cacheObj;
+                    cacheLock.EnterReadLock();
+                    try
                     {
-                        BaseObject baseObj = cacheObj as BaseObject;
-                        lObj.Add(baseObj);
+                        cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
+                    }
+                    finally
+                    {
+                        cacheLock.ExitReadLock();
+                    }
+                    if (cacheObj != null)
+                    {
+                        ///
+                        /// cacheObj Ticks > cacheKey Ticks when request fails '(cacheKey.UpdateDate).Ticks' = 0
+                        /// (cacheObj as BaseObject).m_dUpdateDate.Ticks == (cacheKey.UpdateDate).Ticks when media didn't change
+                        ///
+                        if ((cacheObj as BaseObject).m_dUpdateDate.Ticks >= (cacheKey.UpdateDate).Ticks)
+                        {
+                            BaseObject baseObj = cacheObj as BaseObject;
+                            lObj.Add(baseObj);
+                        }
+                        else // cache miss
+                        {
+                            missingIds.Add(longId);
+                        }
                     }
                     else // cache miss
                     {
-                        missingIds.Add(cacheKey.ID);
+                        missingIds.Add(longId);
                     }
-                }
-                else // cache miss
-                {
-                    missingIds.Add(cacheKey.ID);
                 }
             }
             return lObj;

@@ -9,14 +9,14 @@ namespace Tvinci.Data.Loaders
 {
     public class CacheKey
     {
-        public int ID { get; set; }
+        public string ID { get; set; }
         public DateTime UpdateDate { get; set; }
 
         public CacheKey()
         {
         }
 
-        public CacheKey(int id, DateTime updateDate)
+        public CacheKey(string id, DateTime updateDate)
         {
             ID = id;
             UpdateDate = updateDate;
