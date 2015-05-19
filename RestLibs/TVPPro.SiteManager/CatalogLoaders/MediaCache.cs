@@ -52,7 +52,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             // Get medias from cache
             Log("Trying to get mediaIDs", MediaIDs);
             List<BaseObject> lMediasFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out mediaIdsForCatalog);
-            Log("Got mediaIDs", lMediasFromCache.Select(media => media.m_nID).ToList());
+            Log("Got mediaIDs", lMediasFromCache.Select(media => media.AssetId).ToList());
 
             // Check if medias are missing in cache 
             if (lMediasFromCache != null && lMediasFromCache.Count > 0)

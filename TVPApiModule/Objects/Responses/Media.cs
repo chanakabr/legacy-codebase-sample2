@@ -217,7 +217,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (mediaObj != null)
             {
-                media_id = mediaObj.m_nID.ToString();
+                media_id = mediaObj.AssetId;
                 media_name = mediaObj.m_sName;
                 media_type_id = mediaObj.m_oMediaType.m_nTypeID.ToString();
                 media_type_name = mediaObj.m_oMediaType.m_sTypeName;
@@ -333,7 +333,7 @@ namespace TVPApiModule.Objects.Responses
                     files.Add(mediaFile);
                 }
             }
-        }        
+        }
 
         private void buildPictures(List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture> mediaPictures)
         {
@@ -398,12 +398,12 @@ namespace TVPApiModule.Objects.Responses
                                 if (adTags.Contains(pair.key))
                                     advertising_parameters.Add(pair);
                             }
-                                //}
-                                //else
-                                //{
-                                //    mediaTag.value = (!String.IsNullOrEmpty(mediaTag.value.ToString())) ? string.Concat(mediaTag.value.ToString(), "|", tagValue) : tagValue;
-                                //}
-                            
+                            //}
+                            //else
+                            //{
+                            //    mediaTag.value = (!String.IsNullOrEmpty(mediaTag.value.ToString())) ? string.Concat(mediaTag.value.ToString(), "|", tagValue) : tagValue;
+                            //}
+
                         }
                     }
                     //string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
@@ -424,7 +424,7 @@ namespace TVPApiModule.Objects.Responses
             int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(media_type_id));
 
             return retVal;
-        }        
+        }
 
         #endregion
     }

@@ -51,7 +51,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             // Get pictures from cache
             Log("Trying to get PictureIDs", PictureIDs);
             List<BaseObject> lPicsFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, CACHE_KEY_PREFIX, out picIdsForCatalog);
-            Log("Got PictureIDs", lPicsFromCache.Select(pic => pic.m_nID).ToList());
+            Log("Got PictureIDs", lPicsFromCache.Select(pic => pic.AssetId).ToList());
 
             // Check if pictures are missing in cache 
             if (lPicsFromCache != null && lPicsFromCache.Count > 0)

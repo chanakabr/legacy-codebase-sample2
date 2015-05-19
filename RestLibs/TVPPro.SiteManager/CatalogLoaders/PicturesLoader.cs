@@ -76,9 +76,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 foreach (PicObj pic in pictures)
                 {
                     StringBuilder picUrl = new StringBuilder(pic.m_Picture.Where(url => url.m_sSize.ToLower() == PicSize.ToLower()).FirstOrDefault().m_sURL);
-                    if (!retVal.ContainsKey(pic.m_nID.ToString()))
+                    if (!retVal.ContainsKey(pic.AssetId.ToString()))
                     {
-                        retVal.Add(pic.m_nID.ToString(), picUrl.ToString());
+                        retVal.Add(pic.AssetId.ToString(), picUrl.ToString());
                     }
                 }
             }
