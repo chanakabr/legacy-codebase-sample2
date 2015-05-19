@@ -417,7 +417,7 @@ namespace GroupsCacheManager
                                     {
                                         //try insert to cache
                                         versionModule.result = temporaryCahnnel;
-                                        bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+                                        bInsert = this.groupCacheService.SetWithVersion<Channel>(cacheKey, versionModule, dCacheTT);
 
                                         if (bInsert)
                                         {
