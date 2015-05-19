@@ -472,5 +472,27 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static Dictionary<string, string> Get_PicsEpgRatios()
+        {
+            Dictionary<string, string> ratios = new Dictionary<string, string>();
+            StoredProcedure sp = new StoredProcedure("Get_PicsEpgRatios");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                string key = string.Empty;
+                string value = string.Empty;
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    key = ODBCWrapper.Utils.GetSafeStr(dr, "id");
+                    value = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+
+                    ratios.Add(key, value);
+                }
+            }
+
+            return ratios;
+        }
     }
 }
