@@ -23,11 +23,11 @@ namespace GroupsCacheManager
         #region Data members
 
         #region InnerCache properties
-        private static object locker = new object();       
+        private static object locker = new object();
         #endregion
 
         #region OutOfProcessCache
-        private static object syncRoot = new Object();        
+        private static object syncRoot = new Object();
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
         #endregion
 
@@ -37,7 +37,7 @@ namespace GroupsCacheManager
         private string keyCachePrefix = string.Empty;
         private ICachingService groupCacheService = null;
         private ICachingService channelsCache = null;
-        
+
         private static GroupsCache instance = null;
 
         private string version;
@@ -263,7 +263,7 @@ namespace GroupsCacheManager
                 locker.EnterWriteLock();
                 if (operatorIDs.Contains(nOperatorID))
                 {
-                    retVal = AddChannelsToOperator(group.m_nParentGroupID, nOperatorID, channelIDs);                   
+                    retVal = AddChannelsToOperator(group.m_nParentGroupID, nOperatorID, channelIDs);
                 }
                 else
                 {
@@ -307,12 +307,12 @@ namespace GroupsCacheManager
             {
                 string sChannelsList = string.Join(",", channelIDs);
                 Logger.Logger.Log("AddChannelsToOperator",
-                    string.Format("fail to add channels to operator group {0}, OperatorID = {1}, sChannelsList = {2}, ex = {3}", nGroupID, nOperatorID, sChannelsList, ex.Message), 
+                    string.Format("fail to add channels to operator group {0}, OperatorID = {1}, sChannelsList = {2}, ex = {3}", nGroupID, nOperatorID, sChannelsList, ex.Message),
                     "GroupsCacheManager");
                 return false;
             }
         }
-        
+
         /*Method that lock group when change the object*/
         private void GetLocker(int nGroupID, int nOperatorID, ref ReaderWriterLockSlim locker)
         {
@@ -354,7 +354,7 @@ namespace GroupsCacheManager
                     {
                         group = versionModule.result as Group;
                         //try update to CB
-                        if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs, bAddNewOperator)) 
+                        if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs, bAddNewOperator))
                         {
                             //try insert to CB                                   
                             versionModule.result = group;
@@ -374,68 +374,28 @@ namespace GroupsCacheManager
         internal Channel GetChannel(int channelId, Group group)
         {
             Channel resultChannel = null;
-            BaseModuleCache baseModule;
 
             try
             {
                 string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
 
-                baseModule = this.channelsCache.Get(cacheKey);
-
-                if (baseModule != null && baseModule.result != null)
+                if (!this.channelsCache.GetJsonAsT<Channel>(cacheKey, out resultChannel))
                 {
-                    resultChannel = baseModule.result as Channel;
-                }
-                else
-                {
-                    bool bInsert = false;
-                    bool createdNew = false;
-                    var mutexSecurity = Utils.CreateMutex();
+                    Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group);
 
-                    using (Mutex mutex = new Mutex(false, string.Concat("Channel CID_", channelId), out createdNew, mutexSecurity))
+                    bool wasInserted = false;
+
+                    if (temporaryCahnnel != null)
                     {
-                        try
+                        for (int i = 0; i < 3 && !wasInserted; i++)
                         {
-                            mutex.WaitOne(-1);
+                            //try insert to cache
+                            wasInserted = this.groupCacheService.SetJson<Channel>(cacheKey, temporaryCahnnel, dCacheTT);
 
-                            // try to get channel from CB 
-                            VersionModuleCache versionModule;
-                            versionModule = (VersionModuleCache)this.channelsCache.GetWithVersion<Channel>(cacheKey);
-
-                            if (versionModule != null && versionModule.result != null)
+                            if (wasInserted)
                             {
-                                resultChannel = baseModule.result as Channel;
+                                resultChannel = temporaryCahnnel;
                             }
-
-                            else
-                            {
-                                Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group);
-
-                                if (temporaryCahnnel != null)
-                                {
-                                    for (int i = 0; i < 3 && !bInsert; i++)
-                                    {
-                                        //try insert to cache
-                                        versionModule.result = temporaryCahnnel;
-                                        bInsert = this.groupCacheService.SetWithVersion<Channel>(cacheKey, versionModule, dCacheTT);
-
-                                        if (bInsert)
-                                        {
-                                            resultChannel = temporaryCahnnel;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Logger.Log("GetChannel", 
-                                string.Format("Couldn't get channel id = {0}, group = {1}, ex = {2}, ST = {3}", channelId, group.m_nParentGroupID, ex.Message, ex.StackTrace), 
-                                "GroupsCacheManager");
-                        }
-                        finally
-                        {
-                            mutex.ReleaseMutex();
                         }
                     }
                 }
@@ -524,7 +484,7 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
-                
+
                 //get group by id from Cache
                 for (int i = 0; i < 3 && !bAdd; i++)
                 {
@@ -541,7 +501,7 @@ namespace GroupsCacheManager
                         }
                     }
                 }
-                
+
                 return bAdd;
             }
             catch (Exception ex)
@@ -559,7 +519,7 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
-                
+
                 //get group by id from cache                
                 for (int i = 0; i < 3 && !bDelete; i++)
                 {
@@ -577,7 +537,7 @@ namespace GroupsCacheManager
                         }
                     }
                 }
-                
+
                 return bDelete;
             }
             catch (Exception ex)
@@ -626,11 +586,11 @@ namespace GroupsCacheManager
         //    return inserted;
         //}
 
-        private static string BuildChannelCacheKey(int groupId, int channelId)
+        private string BuildChannelCacheKey(int groupId, int channelId)
         {
-            return string.Format("group_{0}_channel_{1}", groupId, channelId);
+            return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, this.version);
         }
-        
+
         internal bool AddServices(int nGroupID, List<int> services)
         {
             try
@@ -639,11 +599,11 @@ namespace GroupsCacheManager
                 Group group = null;
                 VersionModuleCache vModule = null;
                 string sKey = BuildGroupCacheKey(nGroupID);
-                
-                vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);               
+
+                vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
                 if (vModule != null && vModule.result != null)
                 {
-                    group = vModule.result as Group;                
+                    group = vModule.result as Group;
                     //get group by id from Cache
                     for (int i = 0; i < 3 && !bAdd; i++)
                     {
@@ -674,11 +634,11 @@ namespace GroupsCacheManager
                 string sKey = BuildGroupCacheKey(nGroupID);
                 vModule = (VersionModuleCache)groupCacheService.GetWithVersion<Group>(sKey);
                 if (vModule != null && vModule.result != null)
-                { 
+                {
                     group = vModule.result as Group;
                     //get group by id from Cache
                     for (int i = 0; i < 3 && !bDelete; i++)
-                    {                       
+                    {
                         //try update to CB
                         if (group.RemoveServices(services))
                         {
