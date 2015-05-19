@@ -98,25 +98,25 @@ namespace TVPApiModule.CatalogLoaders
             }
 
             // Convert lists to dictionaries for easier access by ID later on
-            Dictionary<int, MediaObj> idToMedia = null;
-            Dictionary<int, ProgramObj> idToEpg = null;
+            Dictionary<string, MediaObj> idToMedia = null;
+            Dictionary<string, ProgramObj> idToEpg = null;
 
             if (medias != null)
             {
-                idToMedia = medias.ToDictionary<MediaObj, int>(media => int.Parse(media.AssetId));
+                idToMedia = medias.ToDictionary<MediaObj, string>(media => media.AssetId);
             }
             else
             {
-                idToMedia = new Dictionary<int, MediaObj>();
+                idToMedia = new Dictionary<string, MediaObj>();
             }
 
             if (epgs != null)
             {
-                idToEpg = epgs.ToDictionary<ProgramObj, int>(epg => int.Parse(epg.AssetId));
+                idToEpg = epgs.ToDictionary<ProgramObj, string>(epg => epg.AssetId);
             }
             else
             {
-                idToEpg = new Dictionary<int, ProgramObj>();
+                idToEpg = new Dictionary<string, ProgramObj>();
             }
 
             List<SlimAssetInfo> result = new List<SlimAssetInfo>();
@@ -139,11 +139,11 @@ namespace TVPApiModule.CatalogLoaders
                 MediaObj media = null;
                 ProgramObj epg = null;
 
-                if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                 {
-                    if (idToMedia.ContainsKey(item.assetID))
+                    if (idToMedia.ContainsKey(item.AssetId))
                     {
-                        media = idToMedia[item.assetID];
+                        media = idToMedia[item.AssetId];
 
                         asset = new SlimAssetInfo(media, shouldAddImages);
                         result.Add(asset);
@@ -151,11 +151,11 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                 {
-                    if (idToEpg.ContainsKey(item.assetID))
+                    if (idToEpg.ContainsKey(item.AssetId))
                     {
-                        epg = idToEpg[item.assetID];
+                        epg = idToEpg[item.AssetId];
 
                         asset = new SlimAssetInfo(epg.m_oProgram, shouldAddImages);
 

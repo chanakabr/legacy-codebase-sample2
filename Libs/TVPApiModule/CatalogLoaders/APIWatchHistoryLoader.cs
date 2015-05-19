@@ -131,7 +131,7 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     if (watchHistory.AssetTypeId != (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR)
                     {
-                        key = new CacheKey(int.Parse(watchHistory.AssetId), watchHistory.m_dUpdateDate);
+                        key = new CacheKey(watchHistory.AssetId, watchHistory.m_dUpdateDate);
                         mediaKeys.Add(key);
                     }
                 }

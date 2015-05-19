@@ -253,9 +253,9 @@ namespace TVPApiModule.CatalogLoaders
             // Build the AssetInfo objects
             foreach (var item in order)
             {
-                if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                 {
-                    media = medias.Where(m => m != null && m.AssetId == item.assetID.ToString()).FirstOrDefault();
+                    media = medias.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
@@ -270,9 +270,9 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                 {
-                    epg = epgs.Where(p => p != null && p.AssetId == item.assetID.ToString()).FirstOrDefault();
+                    epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
                     if (epg != null)
                     {
                         if (epgAssetsStats != null && epgAssetsStats.Count > 0)
@@ -400,15 +400,15 @@ namespace TVPApiModule.CatalogLoaders
                 // Separate media ids and epg ids and build the cache keys
                 foreach (var id in ids)
                 {
-                    if (id.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                    key = new CacheKey(id.AssetId, id.m_dUpdateDate);
+
+                    if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                     {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
                         mediaKeys.Add(key);
                     }
 
-                    else if (id.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                    else if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                     {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
                         epgKeys.Add(key);
                     }
                 }
