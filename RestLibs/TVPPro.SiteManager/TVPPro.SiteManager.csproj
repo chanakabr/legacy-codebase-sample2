@@ -442,54 +442,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TVPLibs\Controls\Tvinci.Web.Controls.csproj">
-      <Project>{6409da6b-d48d-43a2-9217-02b25d4ed5e3}</Project>
-      <Name>Tvinci.Web.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
-      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
-      <Name>Tvinci.Data.DataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\iucon\iucon.Framework.csproj">
-      <Project>{5d400db4-c756-4b5c-8359-fe55084043f4}</Project>
-      <Name>iucon.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Localization\Localization.csproj">
-      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
-      <Name>Localization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
-      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
-      <Name>Tvinci.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
-      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
-      <Name>Tvinci.Data.Loaders</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj">
-      <Project>{53d79e6c-fe76-40fd-8c8e-6256d9de79a3}</Project>
-      <Name>Tvinci.Helpers.Link</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Helpers\Tvinci.Helpers.csproj">
-      <Project>{b76f07e3-91c2-44a7-b80b-eb60bfb07825}</Project>
-      <Name>Tvinci.Helpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.MultiClient\Tvinci.MultiClient.csproj">
-      <Project>{9c98db15-9efb-47a4-8be1-9bb873518e8c}</Project>
-      <Name>Tvinci.MultiClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\TVinci.TimePeriod\TVinci.TimePeriod.csproj">
-      <Project>{9d2abb52-e0a0-4dfa-9e24-7e0b98d3557d}</Project>
-      <Name>TVinci.TimePeriod</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVPLibs\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
-      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
-      <Name>Tvinci.Data.TVMDataLoader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
       <Name>TVPPro.Configuration</Name>

@@ -460,48 +460,6 @@
   <ItemGroup>
     <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
-      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
-      <Name>Tvinci.Data.DataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Localization\Localization.csproj">
-      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
-      <Name>Localization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
-      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
-      <Name>Tvinci.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
-      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
-      <Name>Tvinci.Data.Loaders</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Tvinci.Helpers\Tvinci.Helpers.csproj">
-      <Project>{b76f07e3-91c2-44a7-b80b-eb60bfb07825}</Project>
-      <Name>Tvinci.Helpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
-      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
-      <Name>Tvinci.Data.TVMDataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj">
-      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
-      <Name>TVPPro.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RestLibs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
-      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
-      <Name>TVPPro.SiteManager</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

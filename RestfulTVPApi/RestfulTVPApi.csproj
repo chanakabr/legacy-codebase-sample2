@@ -1237,12 +1237,6 @@
     <WCFMetadataStorage Include="Service References\Notification\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
