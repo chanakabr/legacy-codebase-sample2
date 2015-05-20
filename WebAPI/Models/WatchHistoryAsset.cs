@@ -7,16 +7,23 @@ using System.Web;
 
 namespace WebAPI.Models
 {
+    [Serializable]
     public class WatchHistoryAssetWrapper : BaseListWrapper
     {
+        /// <summary>
+        /// WatchHistoryAssets Models
+        /// </summary>
+        [DataMember(Name = "assets")]
+        [JsonProperty(PropertyName = "assets")]
         public List<WatchHistoryAsset> WatchHistoryAssets { get; set; }
 
         public WatchHistoryAssetWrapper()
-        {
+        {            
             WatchHistoryAssets = new List<WatchHistoryAsset>();
         }
     }
 
+    [Serializable]
     public class WatchHistoryAsset
     {
         /// <summary>

@@ -253,24 +253,6 @@ namespace WebAPI.Clients
         {
             WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
 
-            // page size - 5 <= size <= 50
-            if (pageSize == null || pageSize == 0)
-            {
-                pageSize = 25;
-            }
-            else if (pageSize > 50)
-            {
-                pageSize = 50;
-            }
-            else if (pageSize < 5)
-            {
-                throw new ClientException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
-
-            // days - default value 7
-            if (days == 0)
-                days = 7;
-
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
             {

@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// <param name="request">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="user_id">Language Code</param>
+        /// <param name="lang">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -122,14 +122,34 @@ namespace WebAPI.Controllers
         public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, string lang, WatchHistory request)
         {
             WatchHistoryAssetWrapper response = null;
-            int groupId;
-            if (!int.TryParse(group_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be an integer");
-            }
-
             try
             {
+                // parameters validation
+                int groupId;
+                if (!int.TryParse(group_id, out groupId))
+                {
+                    throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be an integer");
+                }
+
+                // page size - 5 <= size <= 50
+                if (request.page_size == null || request.page_size == 0)
+                {
+                    request.page_size = 25;
+                }
+                else if (request.page_size > 50)
+                {
+                    request.page_size = 50;
+                }
+                else if (request.page_size < 5)
+                {
+                    throw new ClientException((int)WebAPI.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                }
+
+                // days - default value 7
+                if (request.days == 0)
+                    request.days = 7;
+
+                // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size,
                                                                        request.filter_status, request.days, request.filter_types, request.with);
             }

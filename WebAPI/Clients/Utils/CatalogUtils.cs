@@ -221,7 +221,7 @@ namespace WebAPI.Clients.Utils
                         case eAssetTypes.MEDIA:
                             mediaKeys.Add(key);
                             break;
-                        case eAssetTypes.NPVR:
+                        case eAssetTypes.EPG:
                             epgKeys.Add(key);
                             break;
                         default:
@@ -443,16 +443,19 @@ namespace WebAPI.Clients.Utils
                         List<AssetInfo> assetInfoList = BuildOrderedAssetsInfo(assetsBaseData, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
 
                         // build final result (combine asset info and data from watch history
-                        for (int i = 0; i < assetInfoList.Count; i++)
+                        if (assetInfoList != null)
                         {
-                            result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                                      {
-                                          Asset = assetInfoList[i],
-                                          Duration = response.result[i].Duration,
-                                          IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                          LastWatched = response.result[i].LastWatch,
-                                          Position = response.result[i].Location
-                                      });
+                            for (int i = 0; i < assetInfoList.Count; i++)
+                            {
+                                result.WatchHistoryAssets.Add(new WatchHistoryAsset()
+                                          {
+                                              Asset = assetInfoList[i],
+                                              Duration = response.result[i].Duration,
+                                              IsFinishedWatching = response.result[i].IsFinishedWatching,
+                                              LastWatched = response.result[i].LastWatch,
+                                              Position = response.result[i].Location
+                                          });
+                            }
                         }
 
                         result.TotalItems = response.m_nTotalItems;

@@ -21,7 +21,7 @@ namespace WebAPI.Utils
 
         public JilFormatter()
         {
-            _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true);
+            _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
 
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
