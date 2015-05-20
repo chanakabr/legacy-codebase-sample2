@@ -15,10 +15,6 @@ namespace WebAPI.Clients
 {
     public class CatalogClient : BaseClient
     {
-        private const string MEDIA_CACHE_KEY_PREFIX = "media";
-        private const string EPG_CACHE_KEY_PREFIX = "epg";
-        private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
-
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -32,12 +28,7 @@ namespace WebAPI.Clients
 
         public int CacheDuration { get; set; }
 
-        public CatalogClient()
-        {
-
-        }
-
-        protected WebAPI.Catalog.IserviceClient Catalog
+        protected WebAPI.Catalog.IserviceClient CatalogClientModule
         {
             get
             {
@@ -149,13 +140,13 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
             };
 
-            // build failover cahce key
+            // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.SearchAssets<AssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            result = CatalogUtils.SearchAssets<AssetInfoWrapper>(CatalogClientModule, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
             return result;
         }
@@ -243,7 +234,7 @@ namespace WebAPI.Clients
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.SearchAssets<SlimAssetInfoWrapper>(Catalog, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            result = CatalogUtils.SearchAssets<SlimAssetInfoWrapper>(CatalogClientModule, SignString, Signature, CacheDuration, request, key.ToString(), with);
 
             return result;
         }
@@ -272,7 +263,33 @@ namespace WebAPI.Clients
                 OrderDir = OrderDir.DESC
             };
 
-            result = CatalogUtils.WatchHistory(Catalog, SignString, Signature, CacheDuration, request, with);
+            // fire request
+            WatchHistoryResponse response = new WatchHistoryResponse();
+            CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out response);
+
+            if (response == null ||
+                response.status == null ||
+                response.status.Code != (int)WebAPI.Models.StatusCode.OK)
+            {
+                // Bad response from WS
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+            else
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = response.result.Select(x => x as BaseObject).ToList();
+
+                List<MediaObj> medias = new List<MediaObj>();
+                List<ProgramObj> epgs = new List<ProgramObj>();
+                if (CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, out medias, out epgs))
+                {
+                    // create response object
+                }
+                else
+                {
+
+                }
+            }
 
             return result;
         }
@@ -292,7 +309,7 @@ namespace WebAPI.Clients
                 m_type = Mapper.Map<WebAPI.Catalog.StatsType>(assetType)
             };
 
-            var response = Catalog.GetResponse(request) as AssetStatsResponse;
+            var response = CatalogClientModule.GetResponse(request) as AssetStatsResponse;
 
             if (response != null)
             {

@@ -17,42 +17,33 @@ namespace WebAPI.Clients.Utils
         private const string EPG_CACHE_KEY_PREFIX = "epg";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
 
-        //private static readonly ILog logger = LogManager.GetLogger(typeof(CatalogUtils));
-
         public static bool GetBaseResponse<T>(WebAPI.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
+            bool passed = false;
             response = null;
 
             BaseResponse baseResponse = client.GetResponse(request);
 
-            if (baseResponse == null && !shouldSupportFailOverCaching)
-            {
-                return false;
-            }
-            else if (baseResponse == null)
+            if (baseResponse == null && shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
             {
                 // No response from Catalog -> gets medias from cache
                 baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
-
-                if (baseResponse == null)
-                {
-                    // No response from Catalog nor cache
-                    return false;
-                }
             }
 
             if (baseResponse != null && baseResponse is T)
             {
-                if (shouldSupportFailOverCaching)
+                // response received
+                if (shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
                 {
-                    // Insert to cache for failover support
+                    // insert to cache for failover support
                     CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey);
                 }
-                response = baseResponse as T;
-                return true;
-            }
 
-            return true;
+                // convert response to requires object
+                response = baseResponse as T;
+                passed = true;
+            }
+            return passed;
         }
 
         public static T SearchAssets<T>(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<With> with)
@@ -75,11 +66,11 @@ namespace WebAPI.Clients.Utils
                         !GetAssetsFromCache(response.searchResults.Select(x => x as BaseObject).ToList(),
                         request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
                     {
-                        List<MediaObj> mediasFromCatalog;
-                        List<ProgramObj> epgsFromCatalog;
+                        List<MediaObj> mediasFromCatalog = new List<MediaObj>();
+                        List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
 
                         // Get the assets that were missing in cache 
-                        GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+                        GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
 
                         // Append the medias from Catalog to the medias from cache
                         medias.AddRange(mediasFromCatalog);
@@ -118,7 +109,7 @@ namespace WebAPI.Clients.Utils
             return (T)result;
         }
 
-        private static void GetAssetsFromCatalog(IserviceClient client, string signString, string signature, int cacheDuration, int groupID, string platform, string siteGuid, string udid, int language, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
+        private static void GetAssetsFromCatalog(IserviceClient client, BaseRequest request, int cacheDuration, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
         {
             mediasFromCatalog = new List<MediaObj>();
             epgsFromCatalog = new List<ProgramObj>(); ;
@@ -126,22 +117,22 @@ namespace WebAPI.Clients.Utils
             if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
             {
                 // Build AssetInfoRequest with the missing ids
-                AssetInfoRequest request = new AssetInfoRequest()
+                AssetInfoRequest assetsRequest = new AssetInfoRequest()
                 {
                     epgIds = missingEpgIds,
                     mediaIds = missingMediaIds,
-                    m_nGroupID = groupID,
+                    m_nGroupID = request.m_nGroupID,
                     m_nPageIndex = 0,
                     m_nPageSize = 0,
                     m_oFilter = new Filter()
                     {
-                        m_nLanguage = language,
-                        m_sDeviceId = udid,
+                        m_nLanguage = request.m_oFilter.m_nLanguage,
+                        m_sDeviceId = request.m_oFilter.m_sDeviceId,
                         //m_sPlatform = platform.ToString()
                     },
-                    m_sSignature = signature,
-                    m_sSignString = signString,
-                    m_sSiteGuid = siteGuid,
+                    m_sSignature = request.m_sSignature,
+                    m_sSignString = request.m_sSignString,
+                    m_sSiteGuid = request.m_sSiteGuid,
                 };
 
                 BaseResponse response = client.GetResponse(request);
@@ -154,8 +145,8 @@ namespace WebAPI.Clients.Utils
                     epgsFromCatalog = CleanNullsFromAssetsList(assetInfoResponse.epgList);
 
                     // Store in Cache the medias and epgs from Catalog
-                    StoreAssetsInCache(mediasFromCatalog, MEDIA_CACHE_KEY_PREFIX, language, cacheDuration);
-                    StoreAssetsInCache(epgsFromCatalog, EPG_CACHE_KEY_PREFIX, language, cacheDuration);
+                    StoreAssetsInCache(mediasFromCatalog, MEDIA_CACHE_KEY_PREFIX, request.m_oFilter.m_nLanguage, cacheDuration);
+                    StoreAssetsInCache(epgsFromCatalog, EPG_CACHE_KEY_PREFIX, request.m_oFilter.m_nLanguage, cacheDuration);
                 }
             }
         }
@@ -429,11 +420,11 @@ namespace WebAPI.Clients.Utils
                         // get assets from cache
                         if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
                         {
-                            List<MediaObj> mediasFromCatalog;
+                            List<MediaObj> mediasFromCatalog = new List<MediaObj>();
                             List<ProgramObj> epgsFromCatalog;
 
                             // Get the assets from catalog that were missing in cache (and add them to cache) 
-                            GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+                            // GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
 
                             // Append the medias from Catalog to the medias from cache
                             medias.AddRange(mediasFromCatalog);
@@ -448,13 +439,13 @@ namespace WebAPI.Clients.Utils
                             for (int i = 0; i < assetInfoList.Count; i++)
                             {
                                 result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                                          {
-                                              Asset = assetInfoList[i],
-                                              Duration = response.result[i].Duration,
-                                              IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                              LastWatched = response.result[i].LastWatch,
-                                              Position = response.result[i].Location
-                                          });
+                                {
+                                    Asset = assetInfoList[i],
+                                    Duration = response.result[i].Duration,
+                                    IsFinishedWatching = response.result[i].IsFinishedWatching,
+                                    LastWatched = response.result[i].LastWatch,
+                                    Position = response.result[i].Location
+                                });
                             }
                         }
 
@@ -496,6 +487,33 @@ namespace WebAPI.Clients.Utils
                 return langModel.Id;
             else
                 return 0;
+        }
+
+        internal static bool GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, out List<MediaObj> medias, out  List<ProgramObj> epgs)
+        {
+            bool passed = false;
+            medias = new List<MediaObj>();
+            epgs = new List<ProgramObj>();
+
+            // get assets from cache
+            List<MediaObj> mediasFromCatalog = new List<MediaObj>();
+            List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
+            List<long> missingMediaIds = new List<long>();
+            List<long> missingEpgIds = new List<long>();
+            if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+            {
+                // Get the assets from catalog that were missing in cache (and add them to cache) 
+                GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+
+                // Append the medias from Catalog to the medias from cache
+                medias.AddRange(mediasFromCatalog);
+
+                // Append the EPGs from Catalog to the EPGs from cache
+                epgs.AddRange(epgsFromCatalog);
+
+                passed = true;
+            }
+            return passed;
         }
     }
 }
