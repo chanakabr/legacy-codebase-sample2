@@ -130,7 +130,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size, request.filter_status, request.days, request.filter_types, request.with);
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size,
+                                                                       request.filter_status, request.days, request.filter_types, request.with);
             }
             catch (ClientException ex)
             {

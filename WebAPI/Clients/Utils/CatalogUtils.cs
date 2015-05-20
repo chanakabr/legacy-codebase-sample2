@@ -19,31 +19,34 @@ namespace WebAPI.Clients.Utils
 
         //private static readonly ILog logger = LogManager.GetLogger(typeof(CatalogUtils));
 
-        public static bool GetBaseResponse<T>(WebAPI.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportCaching = false, string cacheKey = null) where T : BaseResponse
+        public static bool GetBaseResponse<T>(WebAPI.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
             response = null;
 
             BaseResponse baseResponse = client.GetResponse(request);
 
-            if (baseResponse == null && !shouldSupportCaching)
+            if (baseResponse == null && !shouldSupportFailOverCaching)
             {
                 return false;
             }
-            else if (baseResponse == null) // No response from Catalog, gets medias from cache
+            else if (baseResponse == null)
             {
+                // No response from Catalog -> gets medias from cache
                 baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
 
-                if (baseResponse == null) // No response from Catalog and no response from cache
+                if (baseResponse == null)
                 {
+                    // No response from Catalog nor cache
                     return false;
                 }
             }
 
             if (baseResponse != null && baseResponse is T)
             {
-                if (shouldSupportCaching)
+                if (shouldSupportFailOverCaching)
                 {
-                    CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
+                    // Insert to cache for failover support
+                    CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey);
                 }
                 response = baseResponse as T;
                 return true;
@@ -401,51 +404,63 @@ namespace WebAPI.Clients.Utils
         internal static WatchHistoryAssetWrapper WatchHistory(IserviceClient client, string signString, string signature, int cacheDuration, WatchHistoryRequest request, List<With> with)
         {
             WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
-            WatchHistoryResponse response;
+            WatchHistoryResponse response = new WatchHistoryResponse();
 
             try
             {
-                if (GetBaseResponse<WatchHistoryResponse>(client, request, out response, true) && response.status != null && response.status.Code == (int)WebAPI.Models.StatusCode.OK)
+                // fire request
+                GetBaseResponse<WatchHistoryResponse>(client, request, out response);
+
+                if (response != null &&
+                    response.status != null &&
+                    response.status.Code == (int)WebAPI.Models.StatusCode.OK)
                 {
-                    List<MediaObj> medias = null;
-                    List<long> missingMediaIds = null;
-                    List<ProgramObj> epgs = null;
-                    List<long> missingEpgIds = null;
+                    List<MediaObj> medias = new List<MediaObj>();
+                    List<long> missingMediaIds = new List<long>();
+                    List<ProgramObj> epgs = new List<ProgramObj>();
+                    List<long> missingEpgIds = new List<long>();
 
 
-                    if (response != null && response.result != null &&
-                        !GetAssetsFromCache(response.result.Select(x => x as BaseObject).ToList(),
-                        request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                    if (response.result != null)
                     {
-                        List<MediaObj> mediasFromCatalog;
-                        List<ProgramObj> epgsFromCatalog;
+                        // get base objects list
+                        List<BaseObject> assetsBaseData = response.result.Select(x => x as BaseObject).ToList();
 
-                        // Get the assets that were missing in cache 
-                        GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+                        // get assets from cache
+                        if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+                        {
+                            List<MediaObj> mediasFromCatalog;
+                            List<ProgramObj> epgsFromCatalog;
 
-                        // Append the medias from Catalog to the medias from cache
-                        medias.AddRange(mediasFromCatalog);
+                            // Get the assets from catalog that were missing in cache (and add them to cache) 
+                            GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+
+                            // Append the medias from Catalog to the medias from cache
+                            medias.AddRange(mediasFromCatalog);
+                        }
+
+                        // Gets one list including both medias and epgds, ordered by Catalog order
+                        List<AssetInfo> assetInfoList = BuildOrderedAssetsInfo(assetsBaseData, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
+
+                        // build final result (combine asset info and data from watch history
+                        for (int i = 0; i < assetInfoList.Count; i++)
+                        {
+                            result.WatchHistoryAssets.Add(new WatchHistoryAsset()
+                                      {
+                                          Asset = assetInfoList[i],
+                                          Duration = response.result[i].Duration,
+                                          IsFinishedWatching = response.result[i].IsFinishedWatching,
+                                          LastWatched = response.result[i].LastWatch,
+                                          Position = response.result[i].Location
+                                      });
+                        }
+
+                        result.TotalItems = response.m_nTotalItems;
                     }
-
-                    // Gets one list including both medias and epgds, ordered by Catalog order
-                    List<AssetInfo> assetInfoList = BuildOrderedAssetsInfo(response.result.Select(x => x as BaseObject).ToList(), medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
-
-                    for (int i = 0; i < assetInfoList.Count; i++)
-                    {
-                        result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                                  {
-                                      Asset = assetInfoList[i],
-                                      Duration = response.result[i].Duration,
-                                      IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                      LastWatched = response.result[i].LastWatch,
-                                      Position = response.result[i].Location
-                                  });
-                    }
-
-                    result.TotalItems = response.m_nTotalItems;
                 }
                 else
                 {
+                    // Bad response from WS
                     throw new ClientException(response.status.Code, response.status.Message);
                 }
             }
