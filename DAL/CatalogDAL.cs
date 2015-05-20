@@ -2697,7 +2697,6 @@ namespace Tvinci.Core.DAL
                     width = 0;
                     height = 0;
                     ratio = string.Empty;
-                    int ratioID = 0;
                     if (groupEpgRatioTable != null && groupEpgRatioTable.Rows != null && groupEpgRatioTable.Rows.Count > 0)
                     {
                         if (res == null)
