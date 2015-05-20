@@ -632,6 +632,13 @@ namespace TVPApiServices
                     string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
                     string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
                     sRet = SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
+
+                    // Tokenization: validate siteGuid
+                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sRet, 0, null, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1182,6 +1189,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate domain
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetDomainGroupRule(initObj.DomainID, ruleID, PIN, isActive);

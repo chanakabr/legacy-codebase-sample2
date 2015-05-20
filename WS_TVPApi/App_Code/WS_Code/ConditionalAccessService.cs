@@ -874,9 +874,8 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
-                // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
+                // Tokenization: validate if siteGuid is the same as in initObj
+                if (HttpContext.Current.Items.Contains("tokenization") && initObj.SiteGuid != siteGuid)
                 {
                     return false;
                 }

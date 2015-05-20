@@ -621,7 +621,7 @@ public partial class MethodFinder
             if (_authorizationUnsupportedGroupsPlatforms == null || !_authorizationUnsupportedGroupsPlatforms.Contains(groupPlatformPair)) // authorization supported
             {
 
-                string siteGuid;
+                string siteGuid = null;
                 bool isAdmin = false;
                 // validate unauthorized methods and extract relevant siteGuid
                 if (executer.m_MetodInfo.Name != "RefreshAccessToken")
@@ -632,13 +632,12 @@ public partial class MethodFinder
                         AuthorizationManager.Instance.returnError(403, null);
                         return null;
                     }
-
-                    // override siteGuid in initObj
-                    initObj.SiteGuid = siteGuid;
                 }
                 // add "tokenization" to context for later validations (only if not admin)
                 if (!isAdmin)
                 {
+                    // override siteGuid in initObj
+                    initObj.SiteGuid = siteGuid;
                     HttpContext.Current.Items.Add("tokenization", null);
                 }
             }
