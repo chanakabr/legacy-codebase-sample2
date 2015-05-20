@@ -818,7 +818,8 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static int Insert_SmartSunTransaction(int nGroupID, string sSiteGUID, int nItemType, string sMsisdn, double dPrice, int nCustomDataID, int nStatus)
+        public static int Insert_SmartSunTransaction(int nGroupID, string sSiteGUID, int nItemType, string sMsisdn, double dPrice, int nCustomDataID, 
+            int nReferenceTransactionID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertSmartSunTransaction = new ODBCWrapper.StoredProcedure("Insert_SmartSunTransaction");
             spInsertSmartSunTransaction.SetConnectionKey("CONNECTION_STRING");
@@ -826,7 +827,7 @@ namespace DAL
             spInsertSmartSunTransaction.AddParameter("@SiteGuid", sSiteGUID);
             spInsertSmartSunTransaction.AddParameter("@ItemType", nItemType);
             spInsertSmartSunTransaction.AddParameter("@Msisdn", sMsisdn);
-            //spInsertM1Transaction.AddParameter("@CustomerServiceID", sCustomerServiceID);
+            spInsertSmartSunTransaction.AddParameter("@ReferenceTransactionID", nReferenceTransactionID);
             spInsertSmartSunTransaction.AddParameter("@Price", dPrice);
             spInsertSmartSunTransaction.AddParameter("@CustomDataID", nCustomDataID);
             spInsertSmartSunTransaction.AddParameter("@Status", nStatus);
