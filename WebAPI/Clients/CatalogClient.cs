@@ -274,6 +274,7 @@ namespace WebAPI.Clients
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
             {
+                m_sSiteGuid = siteGuid,
                 m_sSignature = Signature,
                 m_sSignString = SignString,
                 m_oFilter = new Filter()

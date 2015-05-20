@@ -10,6 +10,11 @@ namespace WebAPI.Models
     public class WatchHistoryAssetWrapper : BaseListWrapper
     {
         public List<WatchHistoryAsset> WatchHistoryAssets { get; set; }
+
+        public WatchHistoryAssetWrapper()
+        {
+            WatchHistoryAssets = new List<WatchHistoryAsset>();
+        }
     }
 
     public class WatchHistoryAsset
