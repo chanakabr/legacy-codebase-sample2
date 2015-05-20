@@ -52,6 +52,12 @@ namespace Catalog
                 nPageSize = oSearch.m_nPageSize;
                 queryParser.PageIndex = 0;
                 queryParser.PageSize = 0;
+
+                if (oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                {
+                    queryParser.ReturnFields.Add("\"start_date\"");
+                    queryParser.ReturnFields.Add("\"media_type_id\"");
+                }
             }
             else
             {
