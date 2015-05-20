@@ -279,6 +279,7 @@ namespace WebAPI.Clients
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = response.result.Select(x => x as BaseObject).ToList();
 
+                // get assets from catalog/cache
                 List<MediaObj> medias = new List<MediaObj>();
                 List<ProgramObj> epgs = new List<ProgramObj>();
                 if (CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, out medias, out epgs))
