@@ -9,12 +9,16 @@ using WebAPI.Clients.Exceptions;
 using WebAPI.Clients.Utils;
 using WebAPI.Filters;
 using WebAPI.Models;
+using log4net;
+using System.Reflection;
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("catalog")]
     public class CatalogController : ApiController
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
         public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets)

@@ -8,6 +8,8 @@ using WebAPI.Clients.Exceptions;
 using WebAPI.Models;
 using WebAPI.Utils;
 using WebAPI.Managers;
+using WebAPI.Filters;
+using System.ServiceModel;
 
 namespace WebAPI.Clients.Utils
 {
@@ -135,7 +137,21 @@ namespace WebAPI.Clients.Utils
                     m_sSiteGuid = request.m_sSiteGuid,
                 };
 
-                BaseResponse response = client.GetResponse(request);
+                BaseResponse response = new BaseResponse();
+                try
+                {
+                    response = client.GetResponse(assetsRequest);
+                }
+                catch (TimeoutException exception)
+                {
+                    throw new ClientException((int)WebAPI.Models.StatusCode.Timeout, CommonStrings.TIMEOUT_MSG);
+                    client.Abort();
+                }
+                catch (CommunicationException exception)
+                {
+                    Console.WriteLine("Got {0}", exception.GetType());
+                    client.Abort();
+                }
 
                 if (response != null)
                 {
@@ -512,6 +528,25 @@ namespace WebAPI.Clients.Utils
                 epgs.AddRange(epgsFromCatalog);
 
                 passed = true;
+            }
+            return passed;
+        }
+
+        internal static bool GetAssetsInfo(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<With> withItemsList, out List<MediaObj> medias, out  List<ProgramObj> epgs, out List<AssetInfo> assetInfoList)
+        {
+            bool passed = false;
+
+            medias = new List<MediaObj>();
+            epgs = new List<ProgramObj>();
+            assetInfoList = new List<AssetInfo>();
+
+            if (CatalogUtils.GetAssets(client, assetsBaseData, request, cacheDuration, out medias, out epgs))
+            {
+                // Gets one list including both medias and EPGs, ordered by Catalog order
+                assetInfoList = BuildOrderedAssetsInfo(assetsBaseData, medias, epgs, withItemsList, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
+
+                if (assetInfoList != null)
+                    passed = true;
             }
             return passed;
         }

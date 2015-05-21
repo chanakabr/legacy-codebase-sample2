@@ -282,9 +282,28 @@ namespace WebAPI.Clients
                 // get assets from catalog/cache
                 List<MediaObj> medias = new List<MediaObj>();
                 List<ProgramObj> epgs = new List<ProgramObj>();
-                if (CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, out medias, out epgs))
+                List<AssetInfo> assetInfoList = new List<AssetInfo>();
+                if (CatalogUtils.GetAssetsInfo(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, out medias, out epgs, out assetInfoList))
                 {
                     // create response object
+
+                    // build final result (combine asset info and data from watch history
+                    if (assetInfoList != null)
+                    {
+                        for (int i = 0; i < assetInfoList.Count; i++)
+                        {
+                            result.WatchHistoryAssets.Add(new WatchHistoryAsset()
+                            {
+                                Asset = assetInfoList[i],
+                                Duration = response.result[i].Duration,
+                                IsFinishedWatching = response.result[i].IsFinishedWatching,
+                                LastWatched = response.result[i].LastWatch,
+                                Position = response.result[i].Location
+                            });
+                        }
+                    }
+
+                    result.TotalItems = response.m_nTotalItems;
                 }
                 else
                 {

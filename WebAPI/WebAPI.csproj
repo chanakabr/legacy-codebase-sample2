@@ -57,6 +57,10 @@
     <Reference Include="Jil">
       <HintPath>..\packages\Jil.2.9.0\lib\net45\Jil.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.2.2\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
       <Private>True</Private>
@@ -129,6 +133,7 @@
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="post.sh" />
+    <Content Include="log4net.config" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -566,6 +571,7 @@
   <ItemGroup>
     <Compile Include="Clients\Mapping\ApiMappings.cs" />
     <Compile Include="Clients\Exceptions\ClientException.cs" />
+    <Compile Include="Clients\Utils\CommonStrings.cs" />
     <Compile Include="Filters\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
