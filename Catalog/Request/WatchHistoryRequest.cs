@@ -58,11 +58,25 @@ namespace Catalog.Request
 
                 // take finished percent threshold 
                 int finishedPercentThreshold = 0;
-                object dbVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", m_nGroupID);
-                if (dbVal == null ||
-                    dbVal != DBNull.Value ||
-                    !int.TryParse(dbVal.ToString(), out finishedPercentThreshold))
+                try
                 {
+                    object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", m_nGroupID);
+                    if (dbThresholdVal == null ||
+                        dbThresholdVal != DBNull.Value ||
+                        !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
+                    {
+                        finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error - WatchHistoryRequest",
+                       string.Format("Exception: group = {0}, siteGuid = {1}, message = {2}, ST = {3}",
+                       baseRequest.m_nGroupID,                                                                                         // {0}
+                       baseRequest.m_sSiteGuid,                                                                                        // {1}
+                       "Did not find FINISHED_PERCENT_THRESHOLD in groups table - taken default value: " + FINISHED_PERCENT_THRESHOLD, // {2}
+                       ex.StackTrace), this.GetType().Name);                                                                           // {3}
+
                     finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
                 }
 
