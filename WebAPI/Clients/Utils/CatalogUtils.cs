@@ -10,11 +10,15 @@ using WebAPI.Utils;
 using WebAPI.Managers;
 using WebAPI.Filters;
 using System.ServiceModel;
+using log4net;
+using System.Reflection;
 
 namespace WebAPI.Clients.Utils
 {
     public class CatalogUtils
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
@@ -142,15 +146,23 @@ namespace WebAPI.Clients.Utils
                 {
                     response = client.GetResponse(assetsRequest);
                 }
-                catch (TimeoutException exception)
+                catch (TimeoutException ex)
                 {
-                    throw new ClientException((int)WebAPI.Models.StatusCode.Timeout, CommonStrings.TIMEOUT_MSG);
+                    log.Error(ex);
                     client.Abort();
+                    throw new ClientException((int)StatusCode.Timeout, StatusCode.Timeout.ToString());
                 }
-                catch (CommunicationException exception)
+                catch (CommunicationException ex)
                 {
-                    Console.WriteLine("Got {0}", exception.GetType());
+                    log.Error(ex);
                     client.Abort();
+                    throw new ClientException((int)StatusCode.InternalConnectionIssue, StatusCode.InternalConnectionIssue.ToString());
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex);
+                    client.Abort();
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
                 }
 
                 if (response != null)
@@ -406,85 +418,6 @@ namespace WebAPI.Clients.Utils
             }
 
             return results;
-        }
-
-        internal static WatchHistoryAssetWrapper WatchHistory(IserviceClient client, string signString, string signature, int cacheDuration, WatchHistoryRequest request, List<With> with)
-        {
-            WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
-            WatchHistoryResponse response = new WatchHistoryResponse();
-
-            try
-            {
-                // fire request
-                GetBaseResponse<WatchHistoryResponse>(client, request, out response);
-
-                if (response != null &&
-                    response.status != null &&
-                    response.status.Code == (int)WebAPI.Models.StatusCode.OK)
-                {
-                    List<MediaObj> medias = new List<MediaObj>();
-                    List<long> missingMediaIds = new List<long>();
-                    List<ProgramObj> epgs = new List<ProgramObj>();
-                    List<long> missingEpgIds = new List<long>();
-
-
-                    if (response.result != null)
-                    {
-                        // get base objects list
-                        List<BaseObject> assetsBaseData = response.result.Select(x => x as BaseObject).ToList();
-
-                        // get assets from cache
-                        if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
-                        {
-                            List<MediaObj> mediasFromCatalog = new List<MediaObj>();
-                            List<ProgramObj> epgsFromCatalog;
-
-                            // Get the assets from catalog that were missing in cache (and add them to cache) 
-                            // GetAssetsFromCatalog(client, signString, signature, cacheDuration, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId, request.m_oFilter.m_nLanguage, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
-
-                            // Append the medias from Catalog to the medias from cache
-                            medias.AddRange(mediasFromCatalog);
-                        }
-
-                        // Gets one list including both medias and epgds, ordered by Catalog order
-                        List<AssetInfo> assetInfoList = BuildOrderedAssetsInfo(assetsBaseData, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
-
-                        // build final result (combine asset info and data from watch history
-                        if (assetInfoList != null)
-                        {
-                            for (int i = 0; i < assetInfoList.Count; i++)
-                            {
-                                result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                                {
-                                    Asset = assetInfoList[i],
-                                    Duration = response.result[i].Duration,
-                                    IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                    LastWatched = response.result[i].LastWatch,
-                                    Position = response.result[i].Location
-                                });
-                            }
-                        }
-
-                        result.TotalItems = response.m_nTotalItems;
-                    }
-                }
-                else
-                {
-                    // Bad response from WS
-                    throw new ClientException(response.status.Code, response.status.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is ClientException)
-                {
-                    throw ex;
-                }
-
-                throw new ClientException((int)StatusCode.InternalConnectionIssue);
-            }
-
-            return result;
         }
 
         internal static int GetLanguageId(int groupId, string language)

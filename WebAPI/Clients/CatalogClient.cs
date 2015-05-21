@@ -302,7 +302,6 @@ namespace WebAPI.Clients
                             });
                         }
                     }
-
                     result.TotalItems = response.m_nTotalItems;
                 }
                 else
