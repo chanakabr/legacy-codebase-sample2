@@ -56,11 +56,15 @@ namespace Catalog.Request
                 // check signature
                 CheckSignature(baseRequest);
 
-                // take finished percent threshold from TCM
-                int finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
-                string tempFinishedPercentThreshold = Utils.GetWSURL(string.Format("FINISHED_PERCENT_THRESHOLD_{0}", m_nGroupID));
-                if (!string.IsNullOrEmpty(tempFinishedPercentThreshold))
-                    int.TryParse(tempFinishedPercentThreshold, out finishedPercentThreshold);
+                // take finished percent threshold 
+                int finishedPercentThreshold = 0;
+                object dbVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", m_nGroupID);
+                if (dbVal == null ||
+                    dbVal != DBNull.Value ||
+                    !int.TryParse(dbVal.ToString(), out finishedPercentThreshold))
+                {
+                    finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
+                }
 
                 // get results
                 int totalItems = 0;
