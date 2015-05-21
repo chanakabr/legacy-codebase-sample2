@@ -60,7 +60,7 @@ namespace Catalog.Request
                 int finishedPercentThreshold = 0;
                 object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", m_nGroupID, 3600);
                 if (dbThresholdVal == null ||
-                    dbThresholdVal != DBNull.Value ||
+                    dbThresholdVal == DBNull.Value ||
                     !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
                 {
                     finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
