@@ -32,7 +32,7 @@ namespace TVPApiModule.Objects.Responses
     public class UserSignIn
     {
         [JsonProperty(PropertyName = "user")]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject user { get; set; }
+        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject user { get; set; }
 
         public UserSignIn(TVPPro.SiteManager.TvinciPlatform.Users.SignInResponse signIn)
         {

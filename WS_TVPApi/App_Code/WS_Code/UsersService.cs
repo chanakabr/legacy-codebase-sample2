@@ -18,6 +18,7 @@ using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 namespace TVPApiServices
 {
@@ -230,6 +231,9 @@ namespace TVPApiServices
                     SiteService siteSvc = new SiteService();
                     string sClearPassword = siteSvc.GetSiteGuidFromSecured(initObj,sEncryptedPassword);
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
+
+                    // if sign in successful and tokenization enabled - generate access token and add to headers
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -647,6 +651,17 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, sessionID, initObj.UDID, preventDoubleLogins, keyValueList);
+
+                    // if sign in successful and tokenization enabled - generate access token and add it to headers
+                    if (HttpContext.Current.Items.Contains("tokenization") && response.Status != null && response.Status.Code == (int)eStatus.OK &&
+                       response.Result != null && response.Result.user != null && response.Result.user.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK &&
+                       response.Result.user.m_user.m_eSuspendState != DomainSuspentionStatus.Suspended)
+                    {
+                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false);
+
+                        HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
+                        HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));
+                    }
                 }
                 catch (Exception ex)
                 {

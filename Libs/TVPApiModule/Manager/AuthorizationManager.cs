@@ -277,7 +277,7 @@ namespace TVPApiModule.Manager
         //    return GetTokenResponseObject(apiToken);
         //}
 
-        public object GenerateAccessToken(string siteGuid, int groupId, bool isAdmin)
+        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin)
         {
             if (string.IsNullOrEmpty(siteGuid))
             {
@@ -296,11 +296,25 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig);
             _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             
-            return GetTokenResponseObject(apiToken, groupConfig);
+            return apiToken;
         }
+
+        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
+        {
+            if (HttpContext.Current.Items.Contains("tokenization") &&
+                        signInResponse.UserData != null && signInResponse.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK &&
+                        signInResponse.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
+            {
+                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false);
+
+                HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
+                HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));
+            }
+        }
+
 
         public object RefreshAccessToken(string siteGuid, string refreshToken, string accessToken, int groupId, PlatformType platform)
         {
@@ -355,7 +369,7 @@ namespace TVPApiModule.Manager
             if (user == null || user.m_RespStatus != ResponseStatus.OK || user.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
             {
                 logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
-                returnError(401);
+                returnError(403);
                 return null;
             }
 
@@ -369,7 +383,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate new access token with the old refresh token
-            apiToken = new APIToken(siteGuid, groupId, apiToken.IsAdmin, apiToken.RefreshToken);
+            apiToken = new APIToken(apiToken, groupConfig.AccessTokenExpirationSeconds);
 
             // Store new access + refresh tokens pair
             if (_client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
@@ -427,18 +441,18 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
-            // access token expired 
-            if (TimeHelper.ConvertFromUnixTimestamp(apiToken.CreateDate).AddSeconds(groupConfig.AccessTokenExpirationSeconds) < DateTime.UtcNow)
+            // check if access token expired 
+            if (TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration) < DateTime.UtcNow)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token expired. access_token = {0}", accessToken);
-                returnError(401);
+                returnError(403);
                 return false;
             }
 
             // access token is valid - extend refreshToken if extendable
             if (groupConfig.IsRefreshTokenExtendable)
             {
-                apiToken.RefreshTokenUpdateDate = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
+                apiToken.RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
                 _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             }
 
@@ -563,10 +577,8 @@ namespace TVPApiModule.Manager
             {
                 access_token = apiToken.AccessToken,
                 refresh_token = apiToken.RefreshToken,
-                expiration_time = apiToken.CreateDate + groupConfig.AccessTokenExpirationSeconds,
-                refresh_expiration_time = groupConfig.IsRefreshTokenExtendable ? 
-                apiToken.RefreshTokenUpdateDate + groupConfig.RefreshTokenExpirationSeconds :
-                apiToken.CreateDate + groupConfig.RefreshTokenExpirationSeconds,
+                expiration_time = apiToken.AccessTokenExpiration,
+                refresh_expiration_time = apiToken.RefreshTokenExpiration
             };
         }
 

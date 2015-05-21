@@ -620,7 +620,6 @@ public partial class MethodFinder
             string groupPlatformPair = string.Format("{0}_{1}", groupID, platform); // build the configuration value
             if (_authorizationUnsupportedGroupsPlatforms == null || !_authorizationUnsupportedGroupsPlatforms.Contains(groupPlatformPair)) // authorization supported
             {
-
                 string siteGuid = null;
                 bool isAdmin = false;
                 // validate unauthorized methods and extract relevant siteGuid
@@ -640,6 +639,8 @@ public partial class MethodFinder
                     initObj.SiteGuid = siteGuid;
                     HttpContext.Current.Items.Add("tokenization", null);
                 }
+
+
             }
 
             object result = executer.ExecuteMethod(methodParameters);

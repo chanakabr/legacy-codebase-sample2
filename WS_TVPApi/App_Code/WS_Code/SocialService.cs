@@ -19,6 +19,7 @@ using System.Configuration;
 using TVPApiModule.Services;
 using System.Web;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 
 namespace TVPApiServices
@@ -638,6 +639,15 @@ namespace TVPApiServices
                 {
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupId, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     responseData = new ApiSocialService(groupId, initObj.Platform).FBUserSignin(token, initObj.UDID, isSingleLogin);
+
+                    // if sign in successful and tokenization enabled - generate access token and add it to headers
+                    if (HttpContext.Current.Items.Contains("tokenization") && responseData.status != null && responseData.status.Code == 1 &&
+                       responseData.user != null && responseData.user.m_RespStatus == ResponseStatus.OK && responseData.user.m_user != null)
+                    {
+                        APIToken accessToken = AuthorizationManager.Instance.GenerateAccessToken(responseData.user.m_user.m_sSiteGUID, groupId, false);
+                        HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", accessToken.AccessToken, accessToken.AccessTokenExpiration));
+                        HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", accessToken.RefreshToken, accessToken.RefreshTokenExpiration));
+                    }
                 }
                 catch (Exception ex)
                 {

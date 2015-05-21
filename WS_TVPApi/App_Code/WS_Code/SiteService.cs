@@ -546,12 +546,8 @@ namespace TVPApiServices
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SSOSignIn(userName, password, providerID, string.Empty, SiteHelper.GetClientIP(), initObj.UDID, false);
 
-                    // if sign in successful - generate access token
-                    if (response.UserData != null && response.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK && response.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
-                    {
-                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.SiteGuid, groupID, false);
-
-                    }
+                    // if sign in successful and tokenization enabled - generate access token and add it to headers
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -694,12 +690,9 @@ namespace TVPApiServices
                     //XXX: Do the UDID empty stuff
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
                     responseData = impl.SignIn(userName, password);
-                    // if sign in successful - generate access token
-                    if (responseData.UserData != null && responseData.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK && responseData.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
-                    {
-                        responseData.Token = AuthorizationManager.Instance.GenerateAccessToken(responseData.SiteGuid, groupID, false);
 
-                    }
+                    // if sign in successful and tokenization enabled - generate access token and add it to headers
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -714,6 +707,8 @@ namespace TVPApiServices
             return responseData;
         }
 
+        
+
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(InitializationObject initObj, string token)
         {
@@ -727,6 +722,9 @@ namespace TVPApiServices
                 {
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;                                                            
                     responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithToken(token, HttpContext.Current.Session.SessionID, SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
+
+                    // if sign in successful and tokenization enabled - generate access token and add it to headers
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID);
                 }
                 catch (Exception ex)
                 {
