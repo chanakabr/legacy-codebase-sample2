@@ -277,7 +277,7 @@ namespace TVPApiModule.Manager
         //    return GetTokenResponseObject(apiToken);
         //}
 
-        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin)
+        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB)
         {
             if (string.IsNullOrEmpty(siteGuid))
             {
@@ -296,7 +296,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB);
             _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             
             return apiToken;
@@ -308,7 +308,7 @@ namespace TVPApiModule.Manager
                         signInResponse.UserData != null && signInResponse.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK &&
                         signInResponse.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
             {
-                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false);
+                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
 
                 HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
                 HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));

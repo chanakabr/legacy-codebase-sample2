@@ -657,7 +657,7 @@ namespace TVPApiServices
                        response.Result != null && response.Result.user != null && response.Result.user.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK &&
                        response.Result.user.m_user.m_eSuspendState != DomainSuspentionStatus.Suspended)
                     {
-                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false);
+                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true);
 
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));

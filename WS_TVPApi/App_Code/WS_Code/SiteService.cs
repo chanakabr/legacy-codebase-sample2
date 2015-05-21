@@ -1531,7 +1531,7 @@ namespace TVPApiServices
                     // if sign in successful - generate access token
                     if (response.Status.Code == (int)eStatus.OK && response.AdminUser != null)
                     {
-                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true);
+                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false);
 
                     }
                 }

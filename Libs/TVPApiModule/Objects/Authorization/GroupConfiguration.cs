@@ -23,6 +23,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("is_refresh_token_extendable")]
         public bool IsRefreshTokenExtendable { get; set; }
 
+        [JsonProperty("refresh_expiration_for_stb_seconds")]
+        public long RefreshExpirationForSTBSeconds { get; set; }
+
         [JsonIgnore]
         public override string Id
         {

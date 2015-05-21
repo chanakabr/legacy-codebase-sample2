@@ -42,12 +42,14 @@ namespace TVPApiModule.Objects.Authorization
         {
         }
 
-        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig)
+        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isSTB)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
-            RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            RefreshTokenExpiration = isSTB ? 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForSTBSeconds)) : 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
             SiteGuid = siteGuid;
             IsAdmin = isAdmin;
