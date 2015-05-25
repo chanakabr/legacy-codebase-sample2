@@ -26,6 +26,8 @@ using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
 using NPVR;
 using ApiObjects.Response;
+using Catalog.Request;
+using Catalog.Response;
 
 namespace Catalog
 {
@@ -464,7 +466,7 @@ namespace Catalog
                     if (dtMedia.Rows.Count != 0)
                     {
                         result = true;
-                        oMediaObj.m_nID = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID");
+                        oMediaObj.AssetId = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID").ToString();
                         if (!bIsMainLang)
                         {
                             oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateName");
@@ -667,16 +669,11 @@ namespace Catalog
             {
                 SetLanguageDefinition(request, searchDefinitions);
 
-                SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
-                if (searchResultsObject != null)
+                if (searchResults != null)
                 {
-                    if (searchResultsObject.m_resultIDs != null)
-                    {
-                        searchResultsList = searchResultsObject.m_resultIDs.Select(result => result as UnifiedSearchResult).ToList();
-                    }
-
-                    totalItems = searchResultsObject.n_TotalItems;
+                    searchResultsList = searchResults;
                 }
             }
 
@@ -735,13 +732,14 @@ namespace Catalog
 
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(parentGroupID);
+
             if (request.filterTree != null)
             {
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(parentGroupID);
 
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
@@ -897,10 +895,59 @@ namespace Catalog
 
             #endregion
 
+            Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
+                out definitions.parentMediaTypes, out definitions.associationTags,
+                definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
+
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        /// <summary>
+        /// For a given group, gets the media types definitions of parent relations and associated tags
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="parentMediaTypes"></param>
+        /// <param name="associationTags"></param>
+        /// <param name="relevantMediaTypes"></param>
+        /// <param name="shouldGetAllMediaTypes"></param>
+        /// <param name="groupManager"></param>
+        internal static void GetParentMediaTypesAssociations(
+            int groupId, out Dictionary<int, int> parentMediaTypes, out Dictionary<int, string> associationTags, List<int> relevantMediaTypes = null, 
+            bool shouldGetAllMediaTypes = false, GroupManager groupManager = null)
+        {
+            parentMediaTypes = new Dictionary<int, int>();
+            associationTags = new Dictionary<int, string>();
+
+            if (groupManager == null)
+            {
+                groupManager = new GroupManager();
+            }
+
+            if (relevantMediaTypes == null)
+            {
+                relevantMediaTypes = new List<int>();
+                shouldGetAllMediaTypes = true;
+            }
+
+            // Get media types of the group
+            List<GroupsCacheManager.MediaType> groupMediaTypes = groupManager.GetMediaTypesOfGroup(groupId);
+
+            foreach (var mediaType in groupMediaTypes)
+            {
+                if (mediaType.parentId > 0)
+                {
+                    // If this is relevant for the search at all
+                    if (relevantMediaTypes.Contains(mediaType.parentId) ||
+                        (relevantMediaTypes.Count == 0 && shouldGetAllMediaTypes))
+                    {
+                        parentMediaTypes.Add(mediaType.id, mediaType.parentId);
+                        associationTags.Add(mediaType.id, mediaType.associationTag);
+                    }
+                }
+            }
         }
 
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
@@ -1031,6 +1078,8 @@ namespace Catalog
 
                 searchObj.regionIds = regionIds;
                 searchObj.linearChannelMediaTypes = linearMediaTypes;
+
+                Catalog.GetParentMediaTypesAssociations(request.m_nGroupID, out searchObj.parentMediaTypes, out searchObj.associationTags);
             }
             catch (Exception ex)
             {
@@ -1707,6 +1756,9 @@ namespace Catalog
             searchObject.regionIds = regionIds;
             searchObject.linearChannelMediaTypes = linearMediaTypes;
 
+            Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
+                out searchObject.parentMediaTypes, out searchObject.associationTags);
+
             return searchObject;
         }
 
@@ -2055,7 +2107,7 @@ namespace Catalog
                     epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
                     oProgramObj = new ProgramObj();
                     oProgramObj.m_oProgram = epgProg;
-                    oProgramObj.m_nID = (int)epgProg.EPG_ID;
+                    oProgramObj.AssetId = epgProg.EPG_ID.ToString();
 
                     bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
                     lProgramObj.Add(oProgramObj);
@@ -2337,7 +2389,7 @@ namespace Catalog
             List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
-            {                
+            {
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
                     var currentEpg = basicEpgObjects[i];
@@ -2354,7 +2406,7 @@ namespace Catalog
                     epgsInformation.Add(new ProgramObj()
                     {
                         m_oProgram = currentEpg,
-                        m_nID = (int)currentEpg.EPG_ID,
+                        AssetId = currentEpg.EPG_ID.ToString(),
                         m_dUpdateDate = updateDate
                     }
                     );
@@ -2950,6 +3002,8 @@ namespace Catalog
 
             res.regionIds = regionIds;
             res.linearChannelMediaTypes = linearMediaTypes;
+
+            Catalog.GetParentMediaTypesAssociations(nGroupID, out res.parentMediaTypes, out res.associationTags);
 
             return res;
         }

@@ -161,7 +161,7 @@
     <Compile Include="MediaMarks\MediaMarkLog.cs" />
     <Compile Include="MediaMarks\UserMediaKey.cs" />
     <Compile Include="MediaMarks\UserMediaMark.cs" />
-    <Compile Include="MediaMarks\UserWatchHistory.cs" />
+    <Compile Include="MediaMarks\WatchHistory.cs" />
     <Compile Include="MediaObject.cs" />
     <Compile Include="MediaPersonalStatistics.cs" />
     <Compile Include="MediaStatistics.cs" />

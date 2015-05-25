@@ -97,7 +97,11 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            sbFilteredQuery.Append(lQueryFilter.Aggregate((current, next) => current + "," + next));
+            if (lQueryFilter.Count > 0)
+            {
+                sbFilteredQuery.Append(lQueryFilter.Aggregate((current, next) => current + "," + next));
+            }
+
             sbFilteredQuery.Append("}}");
 
             if (m_bIsRoot)

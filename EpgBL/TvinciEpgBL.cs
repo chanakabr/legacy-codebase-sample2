@@ -536,87 +536,72 @@ namespace EpgBL
 
         private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures)
         {
-            bool IsFirstPicture;
-            string baseEpgPicUrl;
-            string picUrl;
-            EpgPicture pictureItem;
-
-            List<EpgPicture> finalEpgPicture = null;
-            foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
+            try
             {
-                if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
-                {
+                string baseEpgPicUrl;
+                EpgPicture pictureItem;
 
-                    foreach (EpgPicture pict in oProgram.EPG_PICTURES)
+                List<EpgPicture> finalEpgPicture = null;
+                foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
+                {
+                    int group = int.Parse(oProgram.GROUP_ID);
+                    if (!pictures.ContainsKey(group))
                     {
-                        int group = int.Parse(oProgram.GROUP_ID);
-                        List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
-                        
+                        continue;
+                    }                   
+                    if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
+                    {
                         finalEpgPicture = new List<EpgPicture>();
 
-                        foreach (EpgPicture ratioItem in ratios)
+                        foreach (EpgPicture pict in oProgram.EPG_PICTURES)
                         {
-                            pictureItem = new EpgPicture();
-                            pictureItem.Ratio = pict.Ratio;
-                            pictureItem.PicHeight = ratioItem.PicHeight;
-                            pictureItem.PicWidth = ratioItem.PicWidth;
+                            List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
 
-                            pictureItem.Url = pict.Url;
-                            if (ratioItem.PicHeight != 0 && ratioItem.PicWidth != 0)
+                            foreach (EpgPicture ratioItem in ratios)
                             {
-                                pictureItem.Url = pictureItem.Url.Replace(".", string.Format("_{0}X{1}.", ratioItem.PicWidth, ratioItem.PicHeight));
-                            }
-                            pictureItem.Url = string.Format("{0}{1}", ratioItem.Url, pictureItem.Url);
+                                pictureItem = new EpgPicture();
+                                pictureItem.Ratio = pict.Ratio;
+                                pictureItem.PicHeight = ratioItem.PicHeight;
+                                pictureItem.PicWidth = ratioItem.PicWidth;
 
-                            finalEpgPicture.Add(pictureItem);
+                                pictureItem.Url = pict.Url;
+                                if (ratioItem.PicHeight != 0 && ratioItem.PicWidth != 0)
+                                {
+                                    pictureItem.Url = pictureItem.Url.Replace(".", string.Format("_{0}X{1}.", ratioItem.PicWidth, ratioItem.PicHeight));
+                                }
+                                pictureItem.Url = string.Format("{0}{1}", ratioItem.Url, pictureItem.Url);
+
+                                finalEpgPicture.Add(pictureItem);
+                            }
                         }
                     }
 
                     oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-                }
-                else
-                {
-                    int groupID = int.Parse(oProgram.GROUP_ID);
-                    IsFirstPicture = true;
-                    baseEpgPicUrl = string.Empty;
-                    picUrl = string.Empty;
-                    if (pictures.ContainsKey(groupID))
-                    {
-                        if (oProgram != null && pictures[groupID] != null)
-                        {
-                            foreach (EpgPicture pict in pictures[groupID])
-                            {
-                                if (pict != null && !string.IsNullOrEmpty(pict.Url))
-                                {
-                                    pictureItem = new EpgPicture();
-                                    pictureItem.PicHeight = pict.PicHeight;
-                                    pictureItem.PicWidth = pict.PicWidth;
-                                    pictureItem.Ratio = pict.Ratio;
-                                    if (IsFirstPicture)
-                                    {
-                                        baseEpgPicUrl = pict.Url;
-                                        picUrl = oProgram.PIC_URL;
-                                        if (pict.PicHeight != 0 && pict.PicWidth != 0)
-                                        {
-                                            oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-                                        }
-                                        oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
-                                        IsFirstPicture = false;
-                                    }
 
-                                    if (pict.PicHeight != 0 && pict.PicWidth != 0)
-                                    {
-                                        pictureItem.Url = picUrl.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-                                    }
-                                    pictureItem.Url = string.Format("{0}{1}", baseEpgPicUrl, pictureItem.Url);
-                                    oProgram.EPG_PICTURES.Add(pictureItem);
-                                }
+                    // complete the picURL for back support                
+                    baseEpgPicUrl = string.Empty;
+                    if (oProgram != null && pictures[group] != null)
+                    {
+                        EpgPicture pict = pictures[group].First();
+                        if (pict != null && !string.IsNullOrEmpty(pict.Url))
+                        {
+                            baseEpgPicUrl = pict.Url;
+                            if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                            {
+                                oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
                             }
+                            oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("MutateFullEpgPicURL", string.Format("Failed ex={0}", ex.Message), "TvinciEpgBL");
+            }
         }
+            
+        
     
         
 

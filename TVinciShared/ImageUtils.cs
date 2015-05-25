@@ -603,7 +603,8 @@ namespace TVinciShared
         internal static void GetDateEpgImageDetails(string sPicDescription, int groupID, ref bool isNew, ref string picName, ref int picID, ref string baseURL)
         {
             isNew = true;
-            picName = GetDateImageName(); // if nothing exsist generate name
+            baseURL = GetDateImageName(); // if nothing exsist generate name
+
             DataTable dt = Tvinci.Core.DAL.EpgDal.GetDateEpgImageDetails(sPicDescription, groupID);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -611,6 +612,7 @@ namespace TVinciShared
                 picName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "name");
                 picID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
                 baseURL = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "base_url");
+                baseURL = baseURL.Substring(0, baseURL.IndexOf('.'));
 
             }
 

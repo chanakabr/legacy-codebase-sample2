@@ -1515,7 +1515,7 @@ namespace Tvinci.Core.DAL
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            List<UserWatchHistory> lastWatchViews = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            List<WatchHistory> lastWatchViews = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                            .StartKey(new object[] { usersList, 0 })
                                             .EndKey(new object[] { usersList, string.Empty }).Stale(Couchbase.StaleMode.False).ToList();
 
@@ -1530,9 +1530,9 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<WatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
-            List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
+            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             totalItems = 0;
 
@@ -1543,7 +1543,7 @@ namespace Tvinci.Core.DAL
             try
             {
                 // get views
-                List<UserWatchHistory> unFilteredresult = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                List<WatchHistory> unFilteredresult = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                               .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
                                               .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).Stale(Couchbase.StaleMode.False).ToList();
 
@@ -2287,7 +2287,7 @@ namespace Tvinci.Core.DAL
                     NpvrID = sNpvrID,
                     AssetAction = action,
                     FileDuration = fileDuration,
-                    AssetTypeId = (int)eAssetFilterTypes.NPVR
+                    AssetTypeId = (int)eAssetTypes.NPVR
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
@@ -2338,7 +2338,7 @@ namespace Tvinci.Core.DAL
                     NpvrID = sNpvrID,
                     AssetAction = action,
                     FileDuration = fileDuration,
-                    AssetTypeId = (int)eAssetFilterTypes.NPVR
+                    AssetTypeId = (int)eAssetTypes.NPVR
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -2605,15 +2605,41 @@ namespace Tvinci.Core.DAL
         /// <param name="groupId"></param>
         /// <param name="idToName"></param>
         /// <param name="nameToId"></param>
-        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId)
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes)
         {
             idToName = new Dictionary<int, string>();
             nameToId = new Dictionary<string, int>();
+            parentMediaTypes = new Dictionary<int, int>();
+
+            DataTable mediaTypes = GetMediaTypesTable(groupId);
+
+            if (mediaTypes != null)
+            {
+                foreach (DataRow mediaType in mediaTypes.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
+                    string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
+                    int parent = ODBCWrapper.Utils.ExtractInteger(mediaType, "PARENT_TYPE_ID");
+
+                    idToName.Add(id, name);
+                    nameToId.Add(name, id);
+                    parentMediaTypes.Add(id, parent);
+                }
+            }
+        }
+
+        /// For a given group, gets the media types data table
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="idToName"></param>
+        /// <param name="nameToId"></param>
+        public static DataTable GetMediaTypesTable(int groupId)
+        {
+            DataTable table = null;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypes");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupId", groupId);
-
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
@@ -2623,16 +2649,11 @@ namespace Tvinci.Core.DAL
 
                 if (mediaTypes != null && mediaTypes.Rows != null && mediaTypes.Rows.Count > 0)
                 {
-                    foreach (DataRow mediaType in mediaTypes.Rows)
-                    {
-                        int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
-                        string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
-
-                        idToName.Add(id, name);
-                        nameToId.Add(name, id);
-                    }
+                    table = mediaTypes;
                 }
             }
+
+            return table;
         }
 
         ///
@@ -2799,7 +2820,6 @@ namespace Tvinci.Core.DAL
                     width = 0;
                     height = 0;
                     ratio = string.Empty;
-                    int ratioID = 0;
                     if (groupEpgRatioTable != null && groupEpgRatioTable.Rows != null && groupEpgRatioTable.Rows.Count > 0)
                     {
                         if (res == null)

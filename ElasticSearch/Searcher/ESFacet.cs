@@ -354,13 +354,41 @@ namespace ElasticSearch.Searcher
 
         public class StatisticFacetResult
         {
-            public string term { get; set; }
-            public int count { get; set; }
-            public int totalCount { get; set; }
-            public int min { get; set; }
-            public int max { get; set; }
-            public int total { get; set; }
-            public double mean { get; set; }
+            public string term
+            {
+                get;
+                set;
+            }
+            public int count
+            {
+                get;
+                set;
+            }
+            public int totalCount
+            {
+                get;
+                set;
+            }
+            public long min
+            {
+                get;
+                set;
+            }
+            public long max
+            {
+                get;
+                set;
+            }
+            public long total
+            {
+                get;
+                set;
+            }
+            public double mean
+            {
+                get;
+                set;
+            }
         }
 
 
@@ -399,9 +427,9 @@ namespace ElasticSearch.Searcher
                                             term = tm.Value<string>(),
                                             count = count.Value<int>(),
                                             totalCount = total_count.Value<int>(),
-                                            min = min.Value<int>(),
-                                            max = max.Value<int>(),
-                                            total = total.Value<int>(),
+                                            min = min.Value<long>(),
+                                            max = max.Value<long>(),
+                                            total = total.Value<long>(),
                                             mean = mean.Value<double>()
                                         });
                             }

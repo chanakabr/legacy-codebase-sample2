@@ -103,6 +103,16 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public List<string> linearChannelMediaTypes;
 
+        /// <summary>
+        /// Mapping of which media types and their parents
+        /// </summary>
+        public Dictionary<int, int> parentMediaTypes;
+
+        /// <summary>
+        /// Mapping of association tag by child media type
+        /// </summary>
+        public Dictionary<int, string> associationTags;
+
         #endregion
 
         #region Ctor
@@ -127,6 +137,8 @@ namespace ApiObjects.SearchObjects
 
             mediaTypes = new List<int>();
             extraReturnFields = new List<string>();
+            parentMediaTypes = new Dictionary<int, int>();
+            associationTags = new Dictionary<int, string>();
         }
 
         #endregion

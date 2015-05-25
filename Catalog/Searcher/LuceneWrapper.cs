@@ -6,6 +6,7 @@ using ApiObjects.SearchObjects;
 using System.ServiceModel;
 using Catalog.Searchers;
 using ApiObjects;
+using Catalog.Response;
 
 namespace Catalog
 {
@@ -279,7 +280,7 @@ namespace Catalog
         #endregion
 
 
-        public SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearch)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems)
         {
             throw new NotImplementedException();
         }

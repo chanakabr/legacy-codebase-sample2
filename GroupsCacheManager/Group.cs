@@ -18,8 +18,12 @@ namespace GroupsCacheManager
     {
 
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #region Consts
+
         private const string GROUP_LOG_FILENAME = "Group";
 
+        #endregion
 
         #region Members
         [JsonProperty("m_nParentGroupID")]
@@ -30,8 +34,6 @@ namespace GroupsCacheManager
         public Dictionary<int, Dictionary<string, string>> m_oMetasValuesByGroupId { get; set; } // Holds mapped meta columns (<groupId, <meta , meta name>>)
         [JsonProperty("m_oGroupTags")]
         public Dictionary<int, string> m_oGroupTags { get; set; }
-        [JsonProperty("m_oGroupChannels")]
-        public ConcurrentDictionary<int, Channel> m_oGroupChannels { get; set; }
         [JsonProperty("m_oEpgGroupSettings")]
         public EpgGroupSettings m_oEpgGroupSettings { get; set; }
         [JsonProperty("m_sPermittedWatchRules")]
@@ -69,6 +71,10 @@ namespace GroupsCacheManager
         /// The default region of this group (in case a domain isn't associated with any region)
         /// </summary>
         public int defaultRegion;
+        /// List of channel Ids of this group
+        /// </summary>
+        [JsonProperty("m_nChannelIds")]
+        public HashSet<int> channelIDs;
 
         #endregion
 
@@ -85,7 +91,6 @@ namespace GroupsCacheManager
         {
             this.m_nParentGroupID = groupID;
             this.m_oMetasValuesByGroupId = new Dictionary<int, Dictionary<string, string>>();
-            this.m_oGroupChannels = new ConcurrentDictionary<int, Channel>();
             this.m_oGroupTags = new Dictionary<int, string>();
             this.m_oEpgGroupSettings = new EpgGroupSettings();
             this.m_sPermittedWatchRules = new List<string>();
@@ -96,6 +101,7 @@ namespace GroupsCacheManager
             this.m_oDefaultLanguage = null;
             this.mediaTypesIdToName = new Dictionary<int, string>();
             this.mediaTypesNameToId = new Dictionary<string, int>();
+            this.channelIDs = new HashSet<int>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -162,24 +168,6 @@ namespace GroupsCacheManager
         #endregion
 
         #region Internal
-        internal bool AddChannels(int nGroupID, List<Channel> lNewCreatedChannels)
-        {
-            try
-            {
-                foreach (Channel channel in lNewCreatedChannels)
-                {
-                    if (!m_oGroupChannels.ContainsKey(channel.m_nChannelID))
-                    {
-                        m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
-                    }
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
 
         internal string GetSubTreeGroupIds()
         {
@@ -189,8 +177,6 @@ namespace GroupsCacheManager
             }
             return string.Empty;
         }
-
-
 
         internal bool RemoveOperator(int nOperatorID)
         {
@@ -471,39 +457,14 @@ namespace GroupsCacheManager
             return res;
         }
 
-        public List<Channel> GetChannelsFromCache(List<int> channelIds, int nOwnerGroup)
+        #endregion
+
+        #region Channels
+
+
+        public bool HasChannel(int id)
         {
-            List<Channel> lRes = null;
-
-            if (this != null && channelIds != null && channelIds.Count > 0)
-            {
-                lRes = new List<Channel>();
-                Channel oChannel;
-                foreach (int channelID in channelIds)
-                {
-                    if (this.m_oGroupChannels.TryGetValue(channelID, out oChannel))
-                    {
-                        lRes.Add(oChannel);
-                    }
-                }
-
-                //get all channels from DB
-                var channelsNotInCache = channelIds.Where(id => !lRes.Any(existId => existId.m_nChannelID == id));
-                if (channelsNotInCache != null)
-                {
-                    List<int> lNotIncludedInCache = channelsNotInCache.ToList<int>();
-                    if (lNotIncludedInCache.Count > 0)
-                    {
-                        List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, this);
-                        //add the channels from DB to cache 
-
-                        GroupManager groupManager = new GroupManager();
-                        bool bAdd = groupManager.InsertChannels(lNewCreatedChannels, this.m_nParentGroupID);
-                        lRes.AddRange(lNewCreatedChannels);
-                    }
-                }
-            }
-            return lRes;
+            return this.channelIDs.Contains(id);
         }
 
         #endregion
@@ -561,7 +522,7 @@ namespace GroupsCacheManager
         #endregion
 
         #region Services
-       
+
         public bool AddServices(List<int> services)
         {
             bool bAdd = false;
@@ -573,7 +534,7 @@ namespace GroupsCacheManager
                     {
                         m_lServiceObject = new List<int>();
                     }
-                    
+
                     foreach (int newItem in services)
                     {
                         if (!m_lServiceObject.Contains(newItem))
@@ -598,7 +559,7 @@ namespace GroupsCacheManager
 
             if (m_lServiceObject != null && m_lServiceObject.Contains(nServiceID))
             {
-                res = nServiceID;             
+                res = nServiceID;
             }
 
             return res;
@@ -623,7 +584,7 @@ namespace GroupsCacheManager
                             m_lServiceObject.Remove(removeItem);
                             bRemove = true;
                         }
-                    }                    
+                    }
                 }
                 return bRemove;
             }
@@ -663,23 +624,36 @@ namespace GroupsCacheManager
         #region Media Types
 
         /// <summary>
-        /// Gets list of all media types Ids in this group
+        /// Initialize dictionaries of media types if not initialized yet
         /// </summary>
-        /// <returns></returns>
-        public List<int> GetMediaTypes()
+        private void InitializeMediaTypes()
         {
-            // Initialize dictionaries if not initialized yet
+            Dictionary<int, int> mediaTypeParents;
+
             if (this.mediaTypesNameToId == null ||
                 this.mediaTypesIdToName == null ||
                 this.mediaTypesNameToId.Count == 0 ||
                 this.mediaTypesIdToName.Count == 0)
             {
-                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
+                CatalogDAL.GetMediaTypes(this.m_nParentGroupID,
+                    out this.mediaTypesIdToName,
+                    out this.mediaTypesNameToId,
+                    out mediaTypeParents);
             }
+        }
+
+        /// <summary>
+        /// Gets list of all media types Ids in this group
+        /// </summary>
+        /// <returns></returns>
+        public List<int> GetMediaTypes()
+        {
+            InitializeMediaTypes();
 
             // Convert dictionary to list of ints
             return (this.mediaTypesIdToName.Keys.ToList());
         }
+
 
         /// <summary>
         /// Reverse lookup of Id by name
@@ -690,14 +664,7 @@ namespace GroupsCacheManager
         {
             int id = 0;
 
-            // Initialize dictionaries if not initialized yet
-            if (this.mediaTypesNameToId == null ||
-                this.mediaTypesIdToName == null ||
-                this.mediaTypesNameToId.Count == 0 ||
-                this.mediaTypesIdToName.Count == 0)
-            {
-                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
-            }
+            InitializeMediaTypes();
 
             // Simple lookup in dictionary
             this.mediaTypesNameToId.TryGetValue(name, out id);
@@ -714,14 +681,7 @@ namespace GroupsCacheManager
         {
             List<int> ids = new List<int>();
 
-            // Initialize dictionaries if not initialized yet
-            if (this.mediaTypesNameToId == null ||
-                this.mediaTypesIdToName == null || 
-                this.mediaTypesNameToId.Count == 0 ||
-                this.mediaTypesIdToName.Count == 0)
-            {
-                CatalogDAL.GetMediaTypes(this.m_nParentGroupID, out this.mediaTypesIdToName, out this.mediaTypesNameToId);
-            }
+            InitializeMediaTypes();
 
             // Lookup each name in dictionary and add to list
             foreach (var name in names)
