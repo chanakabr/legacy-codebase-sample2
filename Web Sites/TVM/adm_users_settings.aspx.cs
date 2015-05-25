@@ -39,9 +39,7 @@ public partial class adm_users_settings : System.Web.UI.Page
 
     public void GetHeader()
     {
-        string sRet =  "User Settings";
-        sRet += " - Edit";
-        Response.Write(sRet);
+        Response.Write(PageUtils.GetPreHeader() + ": User Settings");     
     }
 
     protected void GetSubMenu()
