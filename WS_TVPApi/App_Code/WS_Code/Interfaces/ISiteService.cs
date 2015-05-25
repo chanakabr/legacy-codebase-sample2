@@ -64,7 +64,7 @@ namespace TVPApiServices
         TVPApiModule.Services.ApiUsersService.LogInResponseData SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
 
         [OperationContract]
-        bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
+        bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive, string siteGuid);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj);
@@ -79,7 +79,7 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
 
         [OperationContract]
-        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);
+        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive, string siteGuid);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj);

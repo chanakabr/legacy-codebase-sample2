@@ -305,7 +305,9 @@ namespace TVPApiModule.Manager
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
         {
             if (HttpContext.Current.Items.Contains("tokenization") &&
-                        signInResponse.UserData != null && signInResponse.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                (signInResponse.LoginStatus != ResponseStatus.OK || signInResponse.LoginStatus != ResponseStatus.UserNotActivated || signInResponse.LoginStatus != ResponseStatus.DeviceNotRegistered ||
+                signInResponse.LoginStatus != ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus != ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus != ResponseStatus.UserWithNoDomain ||
+                signInResponse.LoginStatus != ResponseStatus.UserSuspended))
             {
                 var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
 
@@ -367,7 +369,9 @@ namespace TVPApiModule.Manager
                 returnError(403);
                 return null;
             }
-            if (user == null || user.m_RespStatus != ResponseStatus.OK || user.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered && 
+                user.m_RespStatus != ResponseStatus.UserNotMasterApproved && user.m_RespStatus != ResponseStatus.UserNotIndDomain  && user.m_RespStatus != ResponseStatus.UserWithNoDomain &&
+                user.m_RespStatus != ResponseStatus.UserSuspended))
             {
                 logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
                 returnError(403);

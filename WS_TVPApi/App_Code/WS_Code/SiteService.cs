@@ -402,7 +402,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set User Group Rule")]
-        public bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
+        public bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive, string siteGuid)
         {
             bool response = false;
 
@@ -410,6 +410,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(initObj.SiteGuid, ruleID, PIN, isActive);
@@ -1129,7 +1135,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set User Rule State")]
-        public bool SetRuleState(InitializationObject initObj, int ruleID, int isActive)
+        public bool SetRuleState(InitializationObject initObj, int ruleID, int isActive, string siteGuid)
         {
             bool response = false;
 
@@ -1137,6 +1143,12 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return false;
+                }
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetRuleState(initObj.SiteGuid, initObj.DomainID, ruleID, isActive);

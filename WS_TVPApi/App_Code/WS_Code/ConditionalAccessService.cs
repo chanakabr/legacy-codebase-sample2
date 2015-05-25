@@ -625,6 +625,11 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") && initObj.SiteGuid != sSiteGuid)
+                {
+                    return ChangeSubscriptionStatus.Error;
+                }
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription);

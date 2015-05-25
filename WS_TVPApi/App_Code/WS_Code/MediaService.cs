@@ -2678,29 +2678,55 @@ namespace TVPApiServices
 
         #region MessageBox
         [WebMethod(EnableSession = true, Description = "SendMessage")]
-        public void SendMessage(string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)
+        public void SendMessage(InitializationObject initObj, string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)
         {
-            MBMessage msg = new MBMessage()
-            {
-                MediaID = iMediaID,
-                MediaTypeID = iMediaTypeID,
-                Location = iLocation,
-                SendToUDID = sRecieverUDID,
-                SiteGuid = sSiteGuid,
-                Action = sAction,
-                Username = sUsername,
-                Password = sPassword
-            };
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SendMessage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            MessageBox.Instance.Send(msg);
+            if (groupId > 0)
+            {
+                // Tokenization: validate siteGuid
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupId, initObj.Platform))
+                {
+                    return;
+                }
+
+                MBMessage msg = new MBMessage()
+                {
+                    MediaID = iMediaID,
+                    MediaTypeID = iMediaTypeID,
+                    Location = iLocation,
+                    SendToUDID = sRecieverUDID,
+                    SiteGuid = sSiteGuid,
+                    Action = sAction,
+                    Username = sUsername,
+                    Password = sPassword
+                };
+
+
+                MessageBox.Instance.Send(msg);
+            }
         }
 
         [WebMethod(EnableSession = true, Description = "Get new message")]
-        public MBMessage GetMessage(string sUDID)
+        public MBMessage GetMessage(InitializationObject initObj)
         {
             MBMessage msg = null;
 
-            msg = MessageBox.Instance.GetNewMessage(sUDID);
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMessage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                // Tokenization: validate device
+                if (HttpContext.Current.Items.Contains("tokenization") &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, initObj.UDID, groupId, initObj.Platform))
+                {
+                    return null;
+                }
+
+                msg = MessageBox.Instance.GetNewMessage(initObj.UDID);
+
+            }
 
             return msg;
         }

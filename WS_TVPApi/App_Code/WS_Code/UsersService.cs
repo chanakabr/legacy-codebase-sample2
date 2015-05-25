@@ -654,7 +654,11 @@ namespace TVPApiServices
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (HttpContext.Current.Items.Contains("tokenization") && response.Status != null && response.Status.Code == (int)eStatus.OK &&
-                       response.Result != null && response.Result.user != null && response.Result.user.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                       response.Result != null && response.Result.user != null && 
+                       (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated || 
+                       response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || 
+                       response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||
+                       response.Result.user.m_RespStatus != ResponseStatus.UserSuspended))
                     {
                         var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true);
 
