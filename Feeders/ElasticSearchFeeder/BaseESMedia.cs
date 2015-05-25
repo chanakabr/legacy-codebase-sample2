@@ -313,7 +313,7 @@ namespace ElasticSearchFeeder
             bool bres = groupManager.RemoveGroup(m_nGroupID);
             Group oGroup = groupManager.GetGroup(m_nGroupID);
 
-            if (oGroup == null || oGroup.m_oGroupChannels == null)
+            if (oGroup == null)
                 return bRes;
 
             List<string> aliases = m_oESApi.GetAliases(m_nGroupID.ToString());
