@@ -297,7 +297,7 @@ namespace TVPApiModule.Manager
 
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB);
-            _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration));
             
             return apiToken;
         }
