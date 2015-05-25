@@ -27,7 +27,7 @@ namespace TVPApiModule.CatalogLoaders
         }
 
         #endregion
-        
+
         #region Override Methods
 
         protected override object Process()
@@ -53,7 +53,7 @@ namespace TVPApiModule.CatalogLoaders
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
 
             // Bad response from Catalog - return the status
-            if (response.status.Code != (int)eStatus.OK) 
+            if (response.status.Code != (int)eStatus.OK)
             {
                 result = new Objects.Responses.AutocompleteResponse();
                 result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
@@ -73,7 +73,7 @@ namespace TVPApiModule.CatalogLoaders
                 GetAssets(cacheKey, response, out medias, out epgs);
 
                 // Gets one list including both medias and EPGs, ordered by Catalog order
-                result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs); 
+                result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs);
             }
             else
             {
@@ -98,25 +98,25 @@ namespace TVPApiModule.CatalogLoaders
             }
 
             // Convert lists to dictionaries for easier access by ID later on
-            Dictionary<int, MediaObj> idToMedia = null;
-            Dictionary<int, ProgramObj> idToEpg = null;
+            Dictionary<string, MediaObj> idToMedia = null;
+            Dictionary<string, ProgramObj> idToEpg = null;
 
             if (medias != null)
             {
-                idToMedia = medias.ToDictionary<MediaObj, int>(media => media.m_nID);
+                idToMedia = medias.ToDictionary<MediaObj, string>(media => media.AssetId);
             }
             else
             {
-                idToMedia = new Dictionary<int, MediaObj>();
+                idToMedia = new Dictionary<string, MediaObj>();
             }
 
             if (epgs != null)
             {
-                idToEpg = epgs.ToDictionary<ProgramObj, int>(epg => epg.m_nID);
+                idToEpg = epgs.ToDictionary<ProgramObj, string>(epg => epg.AssetId);
             }
             else
             {
-                idToEpg = new Dictionary<int, ProgramObj>();
+                idToEpg = new Dictionary<string, ProgramObj>();
             }
 
             List<SlimAssetInfo> result = new List<SlimAssetInfo>();
@@ -139,11 +139,11 @@ namespace TVPApiModule.CatalogLoaders
                 MediaObj media = null;
                 ProgramObj epg = null;
 
-                if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                 {
-                    if (idToMedia.ContainsKey(item.assetID))
+                    if (idToMedia.ContainsKey(item.AssetId))
                     {
-                        media = idToMedia[item.assetID];
+                        media = idToMedia[item.AssetId];
 
                         asset = new SlimAssetInfo(media, shouldAddImages);
                         result.Add(asset);
@@ -151,11 +151,11 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                 {
-                    if (idToEpg.ContainsKey(item.assetID))
+                    if (idToEpg.ContainsKey(item.AssetId))
                     {
-                        epg = idToEpg[item.assetID];
+                        epg = idToEpg[item.AssetId];
 
                         asset = new SlimAssetInfo(epg.m_oProgram, shouldAddImages);
 
@@ -165,7 +165,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            return result; 
+            return result;
         }
 
         #endregion

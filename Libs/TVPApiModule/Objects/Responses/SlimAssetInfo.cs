@@ -82,7 +82,7 @@ namespace TVPApiModule.Objects.Responses
         {
             if (media != null)
             {
-                Id = media.m_nID.ToString();
+                Id = media.AssetId;
                 Name = media.m_sName;
                 Description = media.m_sDescription;
 

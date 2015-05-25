@@ -24,7 +24,7 @@ namespace TVPApiModule.CatalogLoaders
         public List<int> AssetTypes { get; set; }
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }
         public OrderObj Order { get; set; }
-        public string Filter{ get; set; }
+        public string Filter { get; set; }
         public string Query { get; set; }
         public List<string> With { get; set; }
 
@@ -64,7 +64,7 @@ namespace TVPApiModule.CatalogLoaders
             // ov = OrderValue 
             // at = AssetTypes
             //f = filter
-            
+
             key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}", GroupID, PageSize, PageIndex);
             if (Order != null)
             {
@@ -85,7 +85,7 @@ namespace TVPApiModule.CatalogLoaders
             BuildRequest();
             Log("TryExecuteGetBaseResponse:", m_oRequest);
             var res = m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse); // Get the assets ids + update dates from catalog
-            if (res == eProviderResult.Success) 
+            if (res == eProviderResult.Success)
             {
                 Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
                 if (response.status.Code == (int)eStatus.OK)
@@ -147,7 +147,7 @@ namespace TVPApiModule.CatalogLoaders
             result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
             result.TotalItems = response.m_nTotalItems;
 
-            if (response.searchResults!= null && response.searchResults.Count > 0)  
+            if (response.searchResults != null && response.searchResults.Count > 0)
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
 
@@ -229,18 +229,18 @@ namespace TVPApiModule.CatalogLoaders
 
             bool shouldAddFiles = false;
 
-            if (With != null) 
+            if (With != null)
             {
                 if (With.Contains("stats")) // if stats are required - gets the stats from Catalog
                 {
                     if (medias != null && medias.Count > 0)
                     {
-                        mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => m.m_nID).ToList(),
+                        mediaAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, medias.Select(m => int.Parse(m.AssetId)).ToList(),
                             StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                     }
                     if (epgs != null && epgs.Count > 0)
                     {
-                        epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => p.m_nID).ToList(),
+                        epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => int.Parse(p.AssetId)).ToList(),
                             StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                     }
                 }
@@ -253,14 +253,14 @@ namespace TVPApiModule.CatalogLoaders
             // Build the AssetInfo objects
             foreach (var item in order)
             {
-                if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                 {
-                    media = medias.Where(m =>  m != null && m.m_nID == item.assetID).FirstOrDefault();
+                    media = medias.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
                     if (media != null)
                     {
                         if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
                         {
-                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID == media.m_nID).FirstOrDefault(), shouldAddFiles);
+                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID.ToString() == media.AssetId).FirstOrDefault(), shouldAddFiles);
                         }
                         else
                         {
@@ -270,14 +270,14 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                 {
-                    epg = epgs.Where(p => p!= null && p.m_nID == item.assetID).FirstOrDefault();
+                    epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
                     if (epg != null)
                     {
                         if (epgAssetsStats != null && epgAssetsStats.Count > 0)
                         {
-                            asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID == epg.m_nID).FirstOrDefault());
+                            asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID.ToString() == epg.AssetId).FirstOrDefault());
                         }
                         else
                         {
@@ -289,7 +289,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            return result; 
+            return result;
         }
 
         protected void GetAssetsFromCatalog(List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
@@ -376,7 +376,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
         }
-        
+
 
         // Gets medias and epgs from cache
         // Returns true if all assets were found in cache, false if at least one is missing or not up to date
@@ -394,21 +394,21 @@ namespace TVPApiModule.CatalogLoaders
 
                 List<CacheKey> mediaKeys = new List<CacheKey>();
                 List<CacheKey> epgKeys = new List<CacheKey>();
-                
+
                 CacheKey key = null;
 
                 // Separate media ids and epg ids and build the cache keys
                 foreach (var id in ids)
                 {
-                    if (id.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Media)
+                    key = new CacheKey(id.AssetId, id.m_dUpdateDate);
+
+                    if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
                     {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
                         mediaKeys.Add(key);
                     }
 
-                    else if (id.type == Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetType.Epg)
+                    else if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
                     {
-                        key = new CacheKey(id.assetID, id.UpdateDate);
                         epgKeys.Add(key);
                     }
                 }
@@ -465,14 +465,14 @@ namespace TVPApiModule.CatalogLoaders
                 if (obj is List<MediaObj>)
                 {
                     sText.AppendFormat("APIUnifiedSearchLoader: GroupID = {0}, PageIndex = {1}, PageSize = {2}", GroupID, PageIndex, PageSize);
-                    sText.Append(CatalogHelper.IDsToString(((List<MediaObj>)obj).Select(m => m.m_nID).ToList(), "MediaIds"));
+                    sText.Append(CatalogHelper.IDsToString(((List<MediaObj>)obj).Select(m => int.Parse(m.AssetId)).ToList(), "MediaIds"));
                 }
                 if (obj is List<ProgramObj>)
                 {
                     sText.AppendFormat("APIUnifiedSearchLoader: GroupID = {0}, PageIndex = {1}, PageSize = {2}", GroupID, PageIndex, PageSize);
-                    sText.Append(CatalogHelper.IDsToString(((List<ProgramObj>)obj).Select(p => p.m_nID).ToList(), "EpgIds"));
+                    sText.Append(CatalogHelper.IDsToString(((List<ProgramObj>)obj).Select(p => int.Parse(p.AssetId)).ToList(), "EpgIds"));
                 }
-                   
+
             }
             logger.Debug(sText.ToString());
         }
