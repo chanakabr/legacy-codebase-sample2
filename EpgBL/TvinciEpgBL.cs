@@ -59,7 +59,7 @@ namespace EpgBL
             return bRes;
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, out string docID, ulong? cas = null)
+        public override bool InsertEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
         {
             //epgID = 0;
             bool bRes = false;
@@ -71,13 +71,13 @@ namespace EpgBL
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
-                    if (!string.IsNullOrEmpty(newEpgItem.Language))
+                    if (isMainLang)
                     {
-                        docID = string.Format("epg_{0}_lang_{1}", newEpgItem.EpgID, newEpgItem.Language.ToLower());
+                        docID = newEpgItem.EpgID.ToString();
                     }
                     else
                     {
-                        docID = newEpgItem.EpgID.ToString();
+                        docID = string.Format("epg_{0}_lang_{1}", newEpgItem.EpgID, newEpgItem.Language.ToLower());
                     }
 
                     bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
