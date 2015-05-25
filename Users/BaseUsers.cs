@@ -723,7 +723,7 @@ namespace Users
                         response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
                         response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
 
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.GenerateNewLoginPIN, "new login pin generate for user");
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
                     }
                 }
                 else
