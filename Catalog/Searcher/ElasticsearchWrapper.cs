@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using Logger;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Response;
 
 namespace Catalog
 {
@@ -51,6 +52,12 @@ namespace Catalog
                 nPageSize = oSearch.m_nPageSize;
                 queryParser.PageIndex = 0;
                 queryParser.PageSize = 0;
+
+                if (oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                {
+                    queryParser.ReturnFields.Add("\"start_date\"");
+                    queryParser.ReturnFields.Add("\"media_type_id\"");
+                }
             }
             else
             {
@@ -701,18 +708,18 @@ namespace Catalog
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
                             string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                            AssetType assetType = UnifiedSearchResult.ParseType(typeString);
+                            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
 
                             string assetIdField = string.Empty;
 
                             switch (assetType)
                             {
-                                case AssetType.Media:
+                                case eAssetTypes.MEDIA:
                                 {
                                     assetIdField = "fields.media_id";
                                     break;
                                 }
-                                case AssetType.Epg:
+                                case eAssetTypes.EPG:
                                 {
                                     assetIdField = "fields.epg_id";
                                     break;
@@ -923,9 +930,10 @@ namespace Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public SearchResultsObj UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
         {
-            SearchResultsObj searchResults = new SearchResultsObj();
+            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
 
             OrderObj order = unifiedSearchDefinitions.order;
             ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
@@ -991,28 +999,26 @@ namespace Catalog
 
                 if (httpStatus == STATUS_OK)
                 {
-                    int totalItems = 0;
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
-                        searchResults.m_resultIDs = new List<SearchResult>();
-                        searchResults.n_TotalItems = totalItems;
+                        searchResultsList = new List<UnifiedSearchResult>();
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
-                            searchResults.m_resultIDs.Add(new UnifiedSearchResult()
+                            searchResultsList.Add(new UnifiedSearchResult()
                             {
-                                assetID = doc.asset_id,
-                                UpdateDate = doc.update_date,
-                                type = UnifiedSearchResult.ParseType(doc.type)
+                                AssetId = doc.asset_id.ToString(),
+                                m_dUpdateDate = doc.update_date,
+                                AssetType = UnifiedSearchResult.ParseType(doc.type)
                             });
                         }
 
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                         if (isOrderedByStat)
                         {
-                            List<int> assetIds = searchResults.m_resultIDs.Select(item => item.assetID).ToList();
+                            List<int> assetIds = searchResultsList.Select(item => int.Parse(item.AssetId)).ToList();
 
                             List<int> orderedIds = null;
 
@@ -1030,15 +1036,17 @@ namespace Catalog
                             Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
 
                             // Map all results in dictionary
-                            searchResults.m_resultIDs.ForEach(item =>
+                            searchResultsList.ForEach(item =>
                                 {
-                                    if (!idToResultDictionary.ContainsKey(item.assetID))
+                                    int assetId = int.Parse(item.AssetId);
+
+                                    if (!idToResultDictionary.ContainsKey(assetId))
                                     {
-                                        idToResultDictionary.Add(item.assetID, item as UnifiedSearchResult);
+                                        idToResultDictionary.Add(assetId, item);
                                     }
                                 });
 
-                            searchResults.m_resultIDs.Clear();
+                            searchResultsList.Clear();
 
                             int validNumberOfMediasRange = pageSize;
 
@@ -1056,7 +1064,7 @@ namespace Catalog
 
                                 if (idToResultDictionary.TryGetValue(id, out tempResult))
                                 {
-                                    searchResults.m_resultIDs.Add(tempResult);
+                                    searchResultsList.Add(tempResult);
                                 }
                             }
                         }
@@ -1068,7 +1076,7 @@ namespace Catalog
                 }
             }
 
-            return (searchResults);
+            return (searchResultsList);
         }
 
         private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, 

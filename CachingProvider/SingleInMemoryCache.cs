@@ -19,6 +19,7 @@ namespace CachingProvider
          */
         private static readonly string SINGLE_IN_MEM_CACHE_LOG_FILE = "SingleInMemoryCache";
         private MemoryCache cache = null;
+
         public string CacheName
         {
             get;
@@ -30,12 +31,16 @@ namespace CachingProvider
             private set;
         }
 
+        #region Ctors
+
         public SingleInMemoryCache(string name, double defaultMinOffset)
         {
             CacheName = name;
             DefaultMinOffset = defaultMinOffset;
             cache = new MemoryCache(name);
         }
+
+        #endregion
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {

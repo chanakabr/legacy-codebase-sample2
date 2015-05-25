@@ -19,6 +19,7 @@ using ElasticSearch.Searcher;
 using Catalog.Cache;
 using GroupsCacheManager;
 using ApiObjects;
+using Catalog.Request;
 
 namespace Catalog
 {
@@ -26,7 +27,7 @@ namespace Catalog
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
-        
+
         public static string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
@@ -309,13 +310,13 @@ namespace Catalog
                         SearchResult res = searcher.GetDoc(nParentGroupID, mediaID);
                         if (res != null)
                         {
-                            dictRes[mediaID] = new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate };                          
+                            dictRes[mediaID] = new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate };
                         }
                     }
                         );
-                
+
                     lMediaRes = dictRes.Values.ToList();
-                 
+
                 }
             }
 
@@ -394,7 +395,7 @@ namespace Catalog
             if (csts == 0)
                 csts = 30.0;
 
-            string sMin = DateTime.UtcNow.AddSeconds(-1*csts).ToString("yyyyMMddHHmmss");
+            string sMin = DateTime.UtcNow.AddSeconds(-1 * csts).ToString("yyyyMMddHHmmss");
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
             filter.AddChild(dateRange);
@@ -612,10 +613,10 @@ namespace Catalog
         public static bool KeyInGroupTags(int nGroupID, string sTagType)
         {
             bool bRes = false;
-                       
+
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(nGroupID);
-            
+
             if (group != null)
             {
                 if (group.m_oGroupTags.ContainsValue(sTagType))
@@ -711,7 +712,7 @@ namespace Catalog
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.USERS);
                 if (oCredentials != null)
                 {
-                    nUserTypeID = u.GetUserType(oCredentials.m_sUsername, oCredentials.m_sPassword, sSiteGuid);                
+                    nUserTypeID = u.GetUserType(oCredentials.m_sUsername, oCredentials.m_sPassword, sSiteGuid);
                 }
 
                 return nUserTypeID;
@@ -737,7 +738,7 @@ namespace Catalog
             if (!string.IsNullOrEmpty(configOverride) && Int32.TryParse(configOverride, out res) && res > 0)
                 return res;
             return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
-        }      
+        }
 
     }
 }

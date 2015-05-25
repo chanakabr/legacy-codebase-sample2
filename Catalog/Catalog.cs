@@ -26,6 +26,8 @@ using Newtonsoft.Json.Linq;
 using ApiObjects.MediaMarks;
 using NPVR;
 using ApiObjects.Response;
+using Catalog.Request;
+using Catalog.Response;
 
 namespace Catalog
 {
@@ -464,7 +466,7 @@ namespace Catalog
                     if (dtMedia.Rows.Count != 0)
                     {
                         result = true;
-                        oMediaObj.m_nID = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID");
+                        oMediaObj.AssetId = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID").ToString();
                         if (!bIsMainLang)
                         {
                             oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateName");
@@ -667,16 +669,11 @@ namespace Catalog
             {
                 SetLanguageDefinition(request, searchDefinitions);
 
-                SearchResultsObj searchResultsObject = searcher.UnifiedSearch(searchDefinitions);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
-                if (searchResultsObject != null)
+                if (searchResults != null)
                 {
-                    if (searchResultsObject.m_resultIDs != null)
-                    {
-                        searchResultsList = searchResultsObject.m_resultIDs.Select(result => result as UnifiedSearchResult).ToList();
-                    }
-
-                    totalItems = searchResultsObject.n_TotalItems;
+                    searchResultsList = searchResults;
                 }
             }
 
@@ -2112,7 +2109,7 @@ namespace Catalog
                     epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
                     oProgramObj = new ProgramObj();
                     oProgramObj.m_oProgram = epgProg;
-                    oProgramObj.m_nID = (int)epgProg.EPG_ID;
+                    oProgramObj.AssetId = epgProg.EPG_ID.ToString();
 
                     bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
                     lProgramObj.Add(oProgramObj);
@@ -2394,7 +2391,7 @@ namespace Catalog
             List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
-            {                
+            {
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
                     var currentEpg = basicEpgObjects[i];
@@ -2411,7 +2408,7 @@ namespace Catalog
                     epgsInformation.Add(new ProgramObj()
                     {
                         m_oProgram = currentEpg,
-                        m_nID = (int)currentEpg.EPG_ID,
+                        AssetId = currentEpg.EPG_ID.ToString(),
                         m_dUpdateDate = updateDate
                     }
                     );

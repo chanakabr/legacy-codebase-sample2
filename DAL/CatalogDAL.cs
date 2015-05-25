@@ -1514,7 +1514,7 @@ namespace Tvinci.Core.DAL
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            List<UserWatchHistory> lastWatchViews = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            List<WatchHistory> lastWatchViews = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                            .StartKey(new object[] { usersList, 0 })
                                             .EndKey(new object[] { usersList, string.Empty }).Stale(Couchbase.StaleMode.False).ToList();
 
@@ -1529,9 +1529,9 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-        public static List<UserWatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<WatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
-            List<UserWatchHistory> usersWatchHistory = new List<UserWatchHistory>();
+            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             totalItems = 0;
 
@@ -1542,7 +1542,7 @@ namespace Tvinci.Core.DAL
             try
             {
                 // get views
-                List<UserWatchHistory> unFilteredresult = m_oClient.GetView<UserWatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                List<WatchHistory> unFilteredresult = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                                               .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
                                               .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).Stale(Couchbase.StaleMode.False).ToList();
 
@@ -2286,7 +2286,7 @@ namespace Tvinci.Core.DAL
                     NpvrID = sNpvrID,
                     AssetAction = action,
                     FileDuration = fileDuration,
-                    AssetTypeId = (int)eAssetFilterTypes.NPVR
+                    AssetTypeId = (int)eAssetTypes.NPVR
                 };
 
                 DomainMediaMark mm = new DomainMediaMark();
@@ -2337,7 +2337,7 @@ namespace Tvinci.Core.DAL
                     NpvrID = sNpvrID,
                     AssetAction = action,
                     FileDuration = fileDuration,
-                    AssetTypeId = (int)eAssetFilterTypes.NPVR
+                    AssetTypeId = (int)eAssetTypes.NPVR
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();
@@ -2819,7 +2819,6 @@ namespace Tvinci.Core.DAL
                     width = 0;
                     height = 0;
                     ratio = string.Empty;
-                    int ratioID = 0;
                     if (groupEpgRatioTable != null && groupEpgRatioTable.Rows != null && groupEpgRatioTable.Rows.Count > 0)
                     {
                         if (res == null)

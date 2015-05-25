@@ -534,23 +534,22 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-
-        public static Dictionary<int, string> Get_PicsEpgRatios()
+        public static Dictionary<string, string> Get_PicsEpgRatios()
         {
-            Dictionary<int, string> ratios = new Dictionary<int, string>();
+            Dictionary<string, string> ratios = new Dictionary<string, string>();
             StoredProcedure sp = new StoredProcedure("Get_PicsEpgRatios");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");           
-
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                int ratioID = 0;
-                string ratio = string.Empty;
+                string key = string.Empty;
+                string value = string.Empty;
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    ratioID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                    ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
-                    ratios.Add(ratioID, ratio);
+                    key = ODBCWrapper.Utils.GetSafeStr(dr, "id");
+                    value = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+
+                    ratios.Add(key, value);
                 }
             }
 

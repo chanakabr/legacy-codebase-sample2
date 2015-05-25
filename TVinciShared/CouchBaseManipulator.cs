@@ -40,6 +40,31 @@ namespace TVinciShared
             return nID;
         }
 
+        public static int SavePicture(ref EpgCB epg)
+        {
+            int nID = 0;
+            NameValueCollection coll = HttpContext.Current.Request.Form;
+            if (coll["table_name"] == null)
+            {
+                HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
+                EndOfAction();
+            }
+
+            if (epg == null)
+            {
+                epg = new EpgCB();
+                epg.CreateDate = DateTime.UtcNow;
+            }
+
+            setBasicEpgData(ref coll, ref epg);           
+            setEpgPictures(ref epg);
+
+
+            nID = (int)epg.EpgID;
+            EndOfAction();
+            return nID;
+        }
+
         private static void setEpgPictures(ref EpgCB epg)
         {
             if (string.IsNullOrEmpty(epg.EpgIdentifier) || epg.GroupID == 0 || epg.ChannelID == 0)
@@ -51,15 +76,17 @@ namespace TVinciShared
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 ApiObjects.Epg.EpgPicture epgPicture;
+                epg.pictures = new List<ApiObjects.Epg.EpgPicture>();
                 foreach (DataRow dr in dt.Rows)
                 {
                     epgPicture = new ApiObjects.Epg.EpgPicture();
                     epgPicture.Url = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL");
                     epgPicture.Ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
-                    if (!epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio && x.Url == epgPicture.Url))
+                    
+                    if (!epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio))
                     {
                         epg.pictures.Add(epgPicture);
-                    }
+                    }                    
                 }
             }
         }
@@ -394,6 +421,8 @@ namespace TVinciShared
                     bValid = true;
                     sPicDescription = string.Format("{0}_{1}_{2}", epg.ChannelID, selectedRatioVal, theFile.FileName);
                     ImageUtils.GetDateEpgImageDetails(sPicDescription, nGroupID, ref bIsNew, ref sPicName, ref picID, ref baseURL);
+                    Dictionary<string,string> ratios =  Tvinci.Core.DAL.EpgDal.Get_PicsEpgRatios();
+
 
                     string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
                    
@@ -412,7 +441,7 @@ namespace TVinciShared
                         #region generate sizes list
                         int count = 0;
                         bool bCont = true;
-                        while (bCont && sPicName != "")
+                        while (bCont && baseURL != "")
                         {
                             if (coll[nCounter.ToString() + "_picDim_width_" + count.ToString()] != null &&
                                 coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].Trim().ToString() != "")
@@ -435,12 +464,12 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        Logger.Logger.Log("Ratio matched", "for: " + sDirectory + "/" + sPicName + sEndName, "Ratio");
+                                        Logger.Logger.Log("Ratio matched", "for: " + sDirectory + "/" + baseURL + sEndName, "Ratio");
                                     }
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Ratio not found", "for: " + sDirectory + "/" + sPicName + sEndName, "Ratio");
+                                    Logger.Logger.Log("Ratio not found", "for: " + sDirectory + "/" + baseURL + sEndName, "Ratio");
                                 }
                                 if (isResize)
                                 {
@@ -454,17 +483,24 @@ namespace TVinciShared
                         string[] sPicSizes = lSizes.ToArray();
                         #endregion
 
-                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
+                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, baseURL, sBasePath, sPicSizes, nGroupID); //send to Rabbit
 
-                        epg.PicUrl = sPicName + sUploadedFileExt;                        
+                        epg.PicUrl = baseURL + sUploadedFileExt;
                         epg.Description = sPicDescription;
                         epg.PicID = picID;
 
                         // for save the full epg object in main page 
                         epgPicture = new ApiObjects.Epg.EpgPicture();
-                        epgPicture.Ratio = selectedRatioVal;
+                        if (ratios.ContainsKey(selectedRatioVal))
+                        {
+                            epgPicture.Ratio = ratios[selectedRatioVal];
+                        }
                         epgPicture.Url = epg.PicUrl;
-                        epg.pictures.Add(epgPicture);
+                        if (epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio)) // replace it 
+                        {
+                            epg.pictures.RemoveAll(x => x.Ratio == epgPicture.Ratio);
+                        }
+                        epg.pictures.Add(epgPicture);   
 
                         updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid, selectedRatioVal);
                     }
@@ -490,16 +526,16 @@ namespace TVinciShared
                             sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
 
 
-                        string sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicName + "_full" + sUploadedFileExt;
+                        string sFullImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + baseURL + "_full" + sUploadedFileExt;
                         bool bExists = System.IO.File.Exists(sFullImage);
 
                         theFile.SaveAs(sFullImage);
                         UploadPicToGroup(nGroupID, sFullImage);
 
                         //add a "tn" size upload to pictre size at FTP 
-                        if (coll["4_val"] == "on" && !string.IsNullOrEmpty(sPicName))
+                        if (coll["4_val"] == "on" && !string.IsNullOrEmpty(baseURL))
                         {
-                            string sTNImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicName + "_tn" + sUploadedFileExt;
+                            string sTNImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + baseURL + "_tn" + sUploadedFileExt;
                             ImageUtils.ResizeImageAndSave(sFullImage, sTNImage, 90, 65, true, true);
                             UploadPicToGroup(nGroupID, sTNImage);
                         }
@@ -507,7 +543,7 @@ namespace TVinciShared
                         #region Upload different sizes
                         int nI = 0;
                         bool bCont1 = true;
-                        while (bCont1 && sPicName != "")
+                        while (bCont1 && baseURL != "")
                         {
                             if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
                                 coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
@@ -518,7 +554,7 @@ namespace TVinciShared
                                 string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                                 string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                                 string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
-                                string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicName + "_" + sEndName + sUploadedFileExt;
+                                string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + baseURL + "_" + sEndName + sUploadedFileExt;
                                 if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                 {
@@ -551,17 +587,22 @@ namespace TVinciShared
                         }
                         #endregion
 
-                        epg.PicUrl = sPicName + sUploadedFileExt;
+                        epg.PicUrl = baseURL + sUploadedFileExt;
                         epg.Description = sPicDescription;
                         epg.PicID = picID;
                         // for save the full epg object in main page 
                         epgPicture = new ApiObjects.Epg.EpgPicture();
-                        epgPicture.Ratio = selectedRatioVal;
+                        if (ratios.ContainsKey(selectedRatioVal))
+                        {
+                            epgPicture.Ratio = ratios[selectedRatioVal];
+                        }
                         epgPicture.Url = epg.PicUrl;
+                        if (epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio)) // replace it 
+                        {
+                            epg.pictures.RemoveAll(x => x.Ratio == epgPicture.Ratio);
+                        }
                         epg.pictures.Add(epgPicture);
-
                         updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid, selectedRatioVal);
-
                     }
                 }
             }
@@ -571,7 +612,7 @@ namespace TVinciShared
         private static void updateEpgAndDB(ref EpgCB epg, ref NameValueCollection coll, string sUrl, int nGroupID, bool bIsNew, bool bValid, string selectedRatioVal)
         {
             //check if this is an existing epg_Pic and update it
-            if (bIsNew && epg.PicID != 0)    // && bValid && coll["id"] != null && coll["id"].ToString() != "")
+            if (!bIsNew && epg.PicID != 0)    // && bValid && coll["id"] != null && coll["id"].ToString() != "")
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());

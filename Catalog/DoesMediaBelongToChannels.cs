@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using GroupsCacheManager;
+using Catalog.Request;
+using Catalog.Response;
 
 namespace Catalog
 {
@@ -67,7 +69,7 @@ namespace Catalog
                     Group groupInCache = groupManager.GetGroup(nParentGroupID); 
 
                     List<int> channelIds = request.m_lChannelIDs;
-                    List<GroupsCacheManager.Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
 
                     if (groupInCache != null && allChannels != null && allChannels.Count > 0)
                     {
