@@ -805,6 +805,8 @@ namespace TVPApiServices
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, string.Empty, isSingleLogin);
+
+                    AuthorizationManager.Instance.DeleteAccessToken(initObj.Token);
                 }
                 catch (Exception ex)
                 {
@@ -1443,7 +1445,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.Instance.RefreshAccessToken(initObj.SiteGuid, refreshToken, initObj.Token, groupID, initObj.Platform);
+                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -1531,8 +1533,9 @@ namespace TVPApiServices
                     // if sign in successful - generate access token
                     if (response.Status.Code == (int)eStatus.OK && response.AdminUser != null)
                     {
-                        response.Token = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false);
-
+                        var accessToken = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false);
+                        HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", accessToken.AccessToken, accessToken.AccessTokenExpiration));
+                        HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", accessToken.RefreshToken, accessToken.RefreshTokenExpiration));
                     }
                 }
                 catch (Exception ex)

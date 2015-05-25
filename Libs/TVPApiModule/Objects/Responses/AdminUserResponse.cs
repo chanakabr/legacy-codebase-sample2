@@ -12,9 +12,6 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "admin_user")]
         public AdminUser AdminUser { get; set; }
 
-        [JsonProperty(PropertyName = "token")]
-        public object Token { get; set; }        
-
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
     }

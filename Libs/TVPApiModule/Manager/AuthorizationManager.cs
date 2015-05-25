@@ -305,8 +305,7 @@ namespace TVPApiModule.Manager
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
         {
             if (HttpContext.Current.Items.Contains("tokenization") &&
-                        signInResponse.UserData != null && signInResponse.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK &&
-                        signInResponse.UserData.m_eSuspendState != DomainSuspentionStatus.Suspended)
+                        signInResponse.UserData != null && signInResponse.LoginStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
             {
                 var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
 
@@ -316,12 +315,12 @@ namespace TVPApiModule.Manager
         }
 
 
-        public object RefreshAccessToken(string siteGuid, string refreshToken, string accessToken, int groupId, PlatformType platform)
+        public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform)
         {
             // validate request parameters
-            if (string.IsNullOrEmpty(siteGuid) || string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
             {
-                logger.ErrorFormat("RefreshAccessToken: Bad request siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
+                logger.ErrorFormat("RefreshAccessToken: Bad request refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
                 returnError(403);
                 return null;
             }
@@ -331,7 +330,7 @@ namespace TVPApiModule.Manager
             CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
             if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
             {
-                logger.ErrorFormat("RefreshAccessToken: refreshToken expired. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
+                logger.ErrorFormat("RefreshAccessToken: refreshToken expired. refreshToken = {0}, accessToken = {1}",  refreshToken, accessToken);
                 returnError(403);
                 return null;
             }
@@ -341,10 +340,12 @@ namespace TVPApiModule.Manager
             // validate refresh token
             if (apiToken.RefreshToken != refreshToken)
             {
-                logger.ErrorFormat("RefreshAccessToken: refreshToken not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
+                logger.ErrorFormat("RefreshAccessToken: refreshToken not valid. refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
                 returnError(403);
                 return null;
             }
+
+            string siteGuid = apiToken.SiteGuid;
 
             // validate siteGuid
             if (apiToken.SiteGuid != siteGuid)
@@ -596,5 +597,15 @@ namespace TVPApiModule.Manager
         //        return null;
         //    return SecurityHelper.DecryptData(_key, _iv, data);
         //}
+
+        public void DeleteAccessToken(string accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                string apiTokenId = APIToken.GetAPITokenId(accessToken);
+                // delete token
+                _client.Remove(apiTokenId);
+            }
+        }
     }
 }
