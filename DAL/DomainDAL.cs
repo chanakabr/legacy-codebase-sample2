@@ -1911,5 +1911,15 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+        public static int GetDomainIDBySiteGuid(int groupId, string siteGuid)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DomainIDByUser");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", siteGuid);
+
+            var res = (long)sp.ExecuteReturnValue();
+            return (int)res;
+        }
     }
 }

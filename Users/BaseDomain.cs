@@ -1260,5 +1260,21 @@ namespace Users
 
             return status;
         }
+
+        public Domain GetDomainByUser(int groupId, string siteGuid)
+        {
+            Domain domain = null;
+            try
+            {
+                var domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
+                DomainsCache domainsCache = DomainsCache.Instance();
+                domain = domainsCache.GetDomain(domainId, groupId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetDomainByUser", string.Format("failed to GetDomainByUser siteGuid = {0}, ex = {1}", siteGuid, ex.Message), "BaseDomain");
+            }
+            return domain;
+        }
     }
 }
