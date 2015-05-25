@@ -93,7 +93,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://192.168.192.146/webservices/social/module.asmx";
+            this.Url = global::TVPPro.SiteManager.Properties.Settings.Default.TVPPro_SiteManager_TvinciPlatform_Social_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -1793,6 +1793,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         private int m_nSSOOperatorIDField;
         
+        private DomainSuspentionStatus m_eSuspendStateField;
+        
         /// <remarks/>
         public UserBasicData m_oBasicData {
             get {
@@ -1862,6 +1864,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
                 this.m_nSSOOperatorIDField = value;
             }
         }
+        
+        /// <remarks/>
+        public DomainSuspentionStatus m_eSuspendState {
+            get {
+                return this.m_eSuspendStateField;
+            }
+            set {
+                this.m_eSuspendStateField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -1884,6 +1896,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         LoggedOut,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum DomainSuspentionStatus {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        Suspended,
     }
     
     /// <remarks/>
@@ -2002,6 +2027,15 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         UserWithNoDomain,
+        
+        /// <remarks/>
+        InternalError,
+        
+        /// <remarks/>
+        LoginServerDown,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
@@ -2010,7 +2044,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class StatusObject {
+    public partial class Status {
         
         private int codeField;
         
@@ -2045,12 +2079,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class FBSignin {
         
-        private StatusObject statusField;
+        private Status statusField;
         
         private UserResponseObject userField;
         
         /// <remarks/>
-        public StatusObject status {
+        public Status status {
             get {
                 return this.statusField;
             }
