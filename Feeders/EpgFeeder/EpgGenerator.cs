@@ -29,7 +29,11 @@ namespace EpgFeeder
         #endregion
 
         public EpgGenerator()
+        {            
+        }
+        public void Initialize(EpgChannels epgChannel)
         {
+            m_Channels = epgChannel;
             List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
             Dictionary<string, List<EpgChannelObj>> epgChannelDict = EpgDal.GetAllEpgChannelsDic(m_Channels.groupid, channelExternalIds);
         }
@@ -102,6 +106,7 @@ namespace EpgFeeder
             foreach (programme prog in programs)
             {
                 newEpgItem = new EpgCB();
+                dEpgCbTranslate = new Dictionary<string, EpgCB>(); // Language, EpgCB
                 try
                 {
                     dProgStartDate = DateTime.MinValue;
@@ -140,7 +145,7 @@ namespace EpgFeeder
                         newEpgItem.Name = name.Value;
                         dEpgCbTranslate.Add(language, newEpgItem);
 
-                        if (language == m_Channels.mainlang.ToLower()) // create the urlPic if this is the main language
+                        if (language == m_Channels.mainlang.ToLower() && prog.icon != null) // create the urlPic if this is the main language
                         {
                             #region Upload Picture
                             foreach (icon icon in prog.icon)
@@ -157,41 +162,44 @@ namespace EpgFeeder
                                         //Update CB, the DB is updated in the end with all other data
                                         sPicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
                                     }
-                                }
-                                //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
-                                if (newEpgItem.PicID == 0)
-                                {
-                                    newEpgItem.PicID = nPicID;
-                                }
-                                if (string.IsNullOrEmpty(newEpgItem.PicUrl))
-                                {
-                                    newEpgItem.PicUrl = sPicUrl;
-                                }
+                                    //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
+                                    if (newEpgItem.PicID == 0)
+                                    {
+                                        newEpgItem.PicID = nPicID;
+                                    }
+                                    if (string.IsNullOrEmpty(newEpgItem.PicUrl))
+                                    {
+                                        newEpgItem.PicUrl = sPicUrl;
+                                    }
 
-                                if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
-                                {
-                                    epgPicture.Url = sPicUrl;
-                                    epgPicture.PicID = nPicID;
-                                    epgPicture.Ratio = icon.ratio;
-                                    newEpgItem.pictures.Add(epgPicture);
+                                    if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
+                                    {
+                                        epgPicture.Url = sPicUrl;
+                                        epgPicture.PicID = nPicID;
+                                        epgPicture.Ratio = icon.ratio;
+                                        newEpgItem.pictures.Add(epgPicture);
+                                    }
                                 }
                             }
                             #endregion
                         }
                     }
 
-                    #region Description With languages                    
-                    foreach (desc description in prog.desc)
+                    #region Description With languages     
+                    if (prog.desc != null)
                     {
-                        language = description.lang.ToLower();
-                        if (dEpgCbTranslate.ContainsKey(language))
+                        foreach (desc description in prog.desc)
                         {
-                            dEpgCbTranslate[language].Description = description.Value;
-                        }
-                        else
-                        {
-                            newEpgItem.Description = description.Value;
-                            dEpgCbTranslate.Add(language, newEpgItem);
+                            language = description.lang.ToLower();
+                            if (dEpgCbTranslate.ContainsKey(language))
+                            {
+                                dEpgCbTranslate[language].Description = description.Value;
+                            }
+                            else
+                            {
+                                newEpgItem.Description = description.Value;
+                                dEpgCbTranslate.Add(language, newEpgItem);
+                            }
                         }
                     }
                     #endregion 
@@ -201,8 +209,8 @@ namespace EpgFeeder
                     {
                         language = epg.Key.ToLower();
                         epg.Value.Metas = GetEpgProgramMetas(prog, language);
-                        epg.Value.Tags = GetEpgProgramTags(prog, language);
-                        epg.Value.Language = language;
+                        epg.Value.Tags = GetEpgProgramTags(prog, language);                       
+                        epg.Value.Language = language;                        
                         if (dEpg.ContainsKey(epg.Value.EpgIdentifier))
                         {
                             dEpg[epg.Value.EpgIdentifier].Add(epg);
@@ -243,7 +251,8 @@ namespace EpgFeeder
 
                     #region Insert EpgProgram to CB
                     string epgID = string.Empty;
-                    bool bInsert = oEpgBL.InsertEpg(epg.Value, out epgID);
+                    bool isMainLang = epg.Value.Language.ToLower() == m_Channels.mainlang.ToLower() ? true : false;
+                    bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
                     #endregion
 
                     #region Insert EpgProgram ES
@@ -354,7 +363,8 @@ namespace EpgFeeder
             try
             {
                 // get mapping between ratio_id and ratio 
-                Dictionary<int, string> ratios =  EpgDal.Get_PicsEpgRatios();
+                Dictionary<string, string> sRatios =  EpgDal.Get_PicsEpgRatios();
+                Dictionary<int, string> ratios = sRatios.ToDictionary(x=> int.Parse(x.Key) , x=>x.Value);
 
                 foreach (string sGuid in epgDic.Keys)
                 {
@@ -475,8 +485,15 @@ namespace EpgFeeder
                     row["epg_identifier"] = epg.EpgIdentifier;
                     row["pic_id"] = epgPicture.PicID;
 
-                    int ratioID = ratios.Where(x => x.Value == epgPicture.Ratio).First().Key;
-                    row["ratio_id"] = ratioID;
+                    if (!string.IsNullOrEmpty(epgPicture.Ratio))
+                    {
+                        int ratioID = ratios.Where(x => x.Value == epgPicture.Ratio).First().Key;
+                        row["ratio_id"] = ratioID;
+                    }
+                    else
+                    {
+                        row["ratio_id"] = 0;
+                    }
                  
                     row["STATUS"] = epg.Status;
                     row["GROUP_ID"] = epg.GroupID;
@@ -785,21 +802,23 @@ namespace EpgFeeder
             try
             {
                 Dictionary<string, List<string>> dEpgMetas = new Dictionary<string, List<string>>();
-
-                foreach (metas meta in prog.metas)
+                if (prog.metas != null)
                 {
-                    // get all relevant language 
-                    List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
-                    foreach (MetaValues value in metaValues)
+                    foreach (metas meta in prog.metas)
                     {
-                        if (dEpgMetas.ContainsKey(meta.MetaType))
+                        // get all relevant language 
+                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
+                        foreach (MetaValues value in metaValues)
                         {
-                            dEpgMetas[meta.MetaType].Add(value.Value);
+                            if (dEpgMetas.ContainsKey(meta.MetaType))
+                            {
+                                dEpgMetas[meta.MetaType].Add(value.Value);
+                            }
+                            else
+                            {
+                                dEpgMetas.Add(meta.MetaType, new List<string>() { value.Value });
+                            }
                         }
-                        else
-                        {
-                            dEpgMetas.Add(meta.MetaType, new List<string>() { value.Value });
-                        }                       
                     }
                 }
                 return dEpgMetas;
@@ -815,19 +834,22 @@ namespace EpgFeeder
         {
             try
             {
-                Dictionary<string, List<string>> dEpgTags = new Dictionary<string, List<string>>();               
-                foreach (tags tag in prog.tags)
+                Dictionary<string, List<string>> dEpgTags = new Dictionary<string, List<string>>();
+                if (prog.tags != null)
                 {
-                    List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language).ToList();
-                    foreach (TagValues value in tagValues)
+                    foreach (tags tag in prog.tags)
                     {
-                        if (dEpgTags.ContainsKey(tag.TagType))
+                        List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language).ToList();
+                        foreach (TagValues value in tagValues)
                         {
-                            dEpgTags[tag.TagType].Add(value.Value);
-                        }
-                        else
-                        {
-                            dEpgTags.Add(tag.TagType, new List<string>() { value.Value });
+                            if (dEpgTags.ContainsKey(tag.TagType))
+                            {
+                                dEpgTags[tag.TagType].Add(value.Value);
+                            }
+                            else
+                            {
+                                dEpgTags.Add(tag.TagType, new List<string>() { value.Value });
+                            }
                         }
                     }
                 }
