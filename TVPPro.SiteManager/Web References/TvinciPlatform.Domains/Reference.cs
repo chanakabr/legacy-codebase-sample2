@@ -105,11 +105,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback SetDomainRegionOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetDomainByUserOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost/ws_domains/module.asmx";
+            this.Url = global::TVPPro.SiteManager.Properties.Settings.Default.TVPPro_SiteManager_TvinciPlatform_Domains_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -256,6 +258,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event SetDomainRegionCompletedEventHandler SetDomainRegionCompleted;
+        
+        /// <remarks/>
+        public event GetDomainByUserCompletedEventHandler GetDomainByUserCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1626,6 +1631,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainByUser", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Domain GetDomainByUser(string sWSUserName, string sWSPassword, string siteGuid) {
+            object[] results = this.Invoke("GetDomainByUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid});
+            return ((Domain)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainByUserAsync(string sWSUserName, string sWSPassword, string siteGuid) {
+            this.GetDomainByUserAsync(sWSUserName, sWSPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainByUserAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+            if ((this.GetDomainByUserOperationCompleted == null)) {
+                this.GetDomainByUserOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainByUserOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainByUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid}, this.GetDomainByUserOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainByUserOperationCompleted(object arg) {
+            if ((this.GetDomainByUserCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainByUserCompleted(this, new GetDomainByUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2919,6 +2957,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         DomainSuspended,
+        
+        /// <remarks/>
+        NoUsersInDomain,
+        
+        /// <remarks/>
+        UserExistsInOtherDomains,
     }
     
     /// <remarks/>
@@ -3940,6 +3984,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetDomainByUserCompletedEventHandler(object sender, GetDomainByUserCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainByUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainByUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Domain Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Domain)(this.results[0]));
             }
         }
     }
