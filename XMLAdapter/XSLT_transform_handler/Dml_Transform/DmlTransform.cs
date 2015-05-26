@@ -13,7 +13,7 @@ namespace XSLT_transform_handlar
     public sealed class DmlTransform : BaseTransformHandler
     {
         // TODO: later on, read these configuration information fron outside
-        string XSL_DEFAULT_FILE = ConfigurationManager.AppSettings["DML_XSLT_PATH"];
+        string XSL_DEFAULT_FILE = TVinciShared.WS_Utils.GetTcmConfigValue("DML_XSLT_PATH");
 
         // transform and add the physical url files
         public override void Transform(string pathInputFile, string nameInputFile, StringWriter output)

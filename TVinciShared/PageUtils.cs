@@ -564,10 +564,10 @@ namespace TVinciShared
                 int nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    Int32 nWidth = int.Parse(selectQuery.Table("query").DefaultView[i].Row["width"].ToString());
-                    Int32 nHeight = int.Parse(selectQuery.Table("query").DefaultView[i].Row["height"].ToString());
-                    Int32 nCrop = int.Parse(selectQuery.Table("query").DefaultView[i].Row["TO_CROP"].ToString());
-                    string sRatio = selectQuery.Table("query").DefaultView[i].Row["ratio_id"].ToString();
+                    Int32 nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "width", i); 
+                    Int32 nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "height", i);
+                    Int32 nCrop = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "TO_CROP", i);
+                    string sRatio = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ratio_id", i);
                     string sNameEnd = nWidth.ToString() + "X" + nHeight.ToString();
                     bool bCrop = true;
                     if (nCrop == 0)
