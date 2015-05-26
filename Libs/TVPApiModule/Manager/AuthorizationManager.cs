@@ -97,7 +97,7 @@ namespace TVPApiModule.Manager
                     {
                         try
                         {
-                            HttpContext.Current.Cache.Insert(groupKey, groupConfig, null, DateTime.UtcNow.AddSeconds(_groupConfigsTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                            HttpContext.Current.Cache.Insert(groupKey, groupConfig, null, _groupConfigsTtlSeconds == 0 ? DateTime.MaxValue : DateTime.UtcNow.AddSeconds(_groupConfigsTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
                         }
                         catch (Exception ex)
                         {
