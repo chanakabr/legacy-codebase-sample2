@@ -412,7 +412,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
                 {
                     return false;
@@ -640,7 +640,7 @@ namespace TVPApiServices
                     sRet = SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
 
                     // Tokenization: validate siteGuid
-                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sRet, 0, null, groupID, initObj.Platform))
                     {
                         return null;
@@ -872,7 +872,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -905,7 +905,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -943,7 +943,7 @@ namespace TVPApiServices
                 {
                     string[] siteGuids = sSiteGuid.Split(';');
                     // Tokenization: validate multiple siteGuids
-                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateMultipleSiteGuids(initObj.SiteGuid, siteGuids, groupID, initObj.Platform))
                     {
                         return null;
@@ -1158,7 +1158,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
                 {
                     return false;
@@ -1217,7 +1217,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return false;

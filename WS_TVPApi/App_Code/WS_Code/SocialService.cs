@@ -596,7 +596,7 @@ namespace TVPApiServices
             if (groupId > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupId, initObj.Platform))
                 {
                     return null;
@@ -658,7 +658,7 @@ namespace TVPApiServices
                     responseData = new ApiSocialService(groupId, initObj.Platform).FBUserSignin(token, initObj.UDID, isSingleLogin);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    if (HttpContext.Current.Items.Contains("tokenization") && responseData.status != null && responseData.status.Code == 1 &&
+                    if (AuthorizationManager.IsTokenizationEnabled() && responseData.status != null && responseData.status.Code == 1 &&
                        responseData.user != null && responseData.user.m_RespStatus != null && responseData.user.m_user != null && (responseData.user.m_RespStatus != ResponseStatus.OK || 
                        responseData.user.m_RespStatus != ResponseStatus.UserNotActivated || responseData.user.m_RespStatus != ResponseStatus.DeviceNotRegistered ||
                        responseData.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || responseData.user.m_RespStatus != ResponseStatus.UserNotIndDomain || 

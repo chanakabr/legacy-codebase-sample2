@@ -40,7 +40,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -74,7 +74,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain and device
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
                     return false;
@@ -109,7 +109,7 @@ namespace TVPApiServices
                 try
                 {
                     // Tokenization: validate domain
-                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                     {
                         return null;
@@ -140,7 +140,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -169,7 +169,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain and siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, userGuidToRemove, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -200,7 +200,7 @@ namespace TVPApiServices
                 try
                 {
                     // Tokenization: validate domain and udid
-                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                     {
                         return null;
@@ -231,7 +231,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain and udid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
                     return null;
@@ -261,7 +261,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -290,7 +290,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -320,7 +320,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain and udid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
                     return null;
@@ -365,7 +365,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -393,7 +393,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return default(TVPApiModule.Services.ApiDomainsService.DeviceRegistration);
@@ -529,7 +529,7 @@ namespace TVPApiServices
                     HttpContext.Current.Items.Add("Error", ex);
                 }
                 // Tokenization: validate coGuid
-                if (HttpContext.Current.Items.Contains("tokenization") && res != null && res.m_oDomain != null &&
+                if (AuthorizationManager.IsTokenizationEnabled() && res != null && res.m_oDomain != null &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, res.m_oDomain.m_nDomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -557,7 +557,7 @@ namespace TVPApiServices
                     HttpContext.Current.Items.Add("Error", ex);
                 }
                 // Tokenization: validate coGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, res, null, groupID, initObj.Platform))
                 {
                     return 0;
@@ -606,7 +606,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -635,7 +635,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: authorized only for admin
-                if (HttpContext.Current.Items.Contains("tokenization"))
+                if (AuthorizationManager.IsTokenizationEnabled())
                 {
                     return null;
                 }
@@ -663,7 +663,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate device                
-                if (HttpContext.Current.Items.Contains("tokenization") && bIsUDID &&
+                if (AuthorizationManager.IsTokenizationEnabled() && bIsUDID &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, initObj.UDID, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -678,7 +678,7 @@ namespace TVPApiServices
                 }
 
                 // Tokenization: validate device in domain               
-                if (HttpContext.Current.Items.Contains("tokenization") && !bIsUDID && deviceInfo != null && deviceInfo.m_oDevice != null &&
+                if (AuthorizationManager.IsTokenizationEnabled() && !bIsUDID && deviceInfo != null && deviceInfo.m_oDevice != null &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, deviceInfo.m_oDevice.m_domainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -700,7 +700,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return false;
@@ -728,7 +728,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -760,7 +760,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate device
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, udid, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -788,7 +788,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -816,7 +816,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -844,7 +844,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -872,7 +872,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -900,7 +900,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain and newMasterID
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, newMasterID.ToString(), initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -928,7 +928,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -956,7 +956,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -989,7 +989,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     return null;
@@ -1022,7 +1022,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     response = new DomainLimitationModuleResponse();
@@ -1059,7 +1059,7 @@ namespace TVPApiServices
             if (nGroupId > 0)
             {
                 // Tokenization: validate domain
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
                     clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus((int)eStatus.Unauthorized, "User is not in domain");

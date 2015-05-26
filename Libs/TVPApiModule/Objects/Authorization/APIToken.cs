@@ -48,7 +48,7 @@ namespace TVPApiModule.Objects.Authorization
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             RefreshTokenExpiration = isSTB ? 
-                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForSTBSeconds)) : 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) : 
                 (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
             SiteGuid = siteGuid;

@@ -438,5 +438,10 @@ namespace TVPApiModule.Manager
                 _client.Remove(apiTokenId);
             }
         }
+
+        public static bool IsTokenizationEnabled()
+        {
+            return HttpContext.Current.Items.Contains("tokenization");
+        }
     }
 }

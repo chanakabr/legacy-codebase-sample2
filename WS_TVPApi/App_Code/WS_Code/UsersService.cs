@@ -146,7 +146,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
                 {
                     return;
@@ -348,7 +348,7 @@ namespace TVPApiServices
             if (groupID > 0)
             {
                 // Tokenization: validate siteGuid
-                if (HttpContext.Current.Items.Contains("tokenization") &&
+                if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGUID, 0, null, groupID, initObj.Platform))
                 {
                     return null;
@@ -569,7 +569,7 @@ namespace TVPApiServices
                 try
                 {
                     // Tokenization: validate siteGuid
-                    if (HttpContext.Current.Items.Contains("tokenization") &&
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
                         !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGUID, 0, null, groupID, initObj.Platform))
                     {
                         return null;
@@ -663,7 +663,7 @@ namespace TVPApiServices
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, initObj.UDID, preventDoubleLogins);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    if (HttpContext.Current.Items.Contains("tokenization") && response.Status != null && response.Status.Code == (int)eStatus.OK &&
+                    if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&
                        response.Result != null && response.Result.user != null && response.Result.user.m_user != null && 
                        (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated || 
                        response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || 
