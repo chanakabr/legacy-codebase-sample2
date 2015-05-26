@@ -64,7 +64,7 @@ public partial class adm_users_settings : System.Web.UI.Page
         theRecord.SetConnectionKey("users_connection_string");
         
         DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
-        dr_pin_must_hours.Initialize("PIN Expirey Timeout (minitus)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
+        dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
         theRecord.AddRecord(dr_pin_must_hours);
 
         string sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
