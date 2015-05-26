@@ -49,7 +49,7 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         if (Session["notification_setting_id"] == null || Session["notification_setting_id"].ToString() == "" || Session["notification_setting_id"].ToString() == "0")
             return;
 
-        string sRet = PageUtils.GetPreHeader() + ": Notifications Settings names ";
+        string sRet = PageUtils.GetPreHeader() + ":New Media Notifications Settings names ";
         if (Session["notification_setting_id"] != null && Session["notification_setting_id"].ToString() != "" && Session["notification_setting_id"].ToString() != "0")
             sRet += " - Edit";
         else
@@ -103,30 +103,19 @@ public partial class adm_tvm_notifications_settings_new : System.Web.UI.Page
         DataRecordLongTextField dr_text = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_text.Initialize("Message Text", "adm_table_header_nbg", "FormInput", "message_text", true);
         theRecord.AddRecord(dr_text);
-
-        DataRecordLongTextField dr_smsText = new DataRecordLongTextField("ltr", true, 60, 4);
-        dr_smsText.Initialize("SMS Message Text", "adm_table_header_nbg", "FormInput", "sms_message_text", true);
-        theRecord.AddRecord(dr_smsText);
-
-        DataRecordLongTextField dr_pullText = new DataRecordLongTextField("ltr", true, 60, 4);
-        dr_pullText.Initialize("Pull Message Text", "adm_table_header_nbg", "FormInput", "pull_message_text", true);
-        theRecord.AddRecord(dr_pullText);
-
-        DataRecordDropDownField dr_notification_trigger_type = new DataRecordDropDownField("notification_triggers_types", "decription", "id", "", null, 60, false);
-        dr_notification_trigger_type.Initialize("Trigger Type", "adm_table_header_nbg", "FormInput", "trigger_type", true);
-        dr_notification_trigger_type.SetFieldType("string");
-        dr_notification_trigger_type.SetDefault(0);
-        theRecord.AddRecord(dr_notification_trigger_type);
-
       
-
-        DataRecordShortTextField dr_emailTemplate = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_emailTemplate.Initialize("Email Template", "adm_table_header_nbg", "FormInput", "notification_email_template", false);
-        theRecord.AddRecord(dr_emailTemplate);
+        DataRecordShortIntField dr_notification_trigger_type = new DataRecordShortIntField(false, 9, 9);
+        dr_notification_trigger_type.Initialize("trigger type", "adm_table_header_nbg", "FormInput", "trigger_type", false);
+        dr_notification_trigger_type.SetValue("3"); // follow by tag
+        theRecord.AddRecord(dr_notification_trigger_type);
 
         DataRecordShortTextField dr_dateDefaultFormat = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_dateDefaultFormat.Initialize("Date Default Format", "adm_table_header_nbg", "FormInput", "notification_date_format", false);
         theRecord.AddRecord(dr_dateDefaultFormat);
+
+        DataRecordShortTextField dr_emailTemplate = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_emailTemplate.Initialize("Email Template", "adm_table_header_nbg", "FormInput", "notification_email_template", false);
+        theRecord.AddRecord(dr_emailTemplate);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
