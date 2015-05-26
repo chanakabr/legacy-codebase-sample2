@@ -6,15 +6,18 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Web;
-using WebAPI.Filters;
+using WebAPI.Exceptions;
 using WebAPI.Models;
+using log4net;
+using System.Reflection;
 
-namespace WebAPI.Managers
+namespace WebAPI.ClientManagers
 {
     public enum CouchbaseBucket { Groups = 0}
 
     public class CouchbaseManager
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
@@ -42,6 +45,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception ex)
                     {
+                        log.Error(ex);
                         throw new InternalServerErrorException();
                     }
                     finally
@@ -60,6 +64,7 @@ namespace WebAPI.Managers
                 }
                 catch (Exception ex)
                 {
+                    log.Error(ex);
                     throw new InternalServerErrorException();
                 }
                 finally

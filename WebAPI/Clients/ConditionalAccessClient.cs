@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using WebAPI.Clients.Utils;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {

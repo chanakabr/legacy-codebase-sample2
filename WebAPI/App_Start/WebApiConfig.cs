@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using WebAPI.App_Start;
-using WebAPI.Filters;
+using WebAPI.Exceptions;
 using WebAPI.Models;
 using WebAPI.Utils;
+using System.Reflection;
 
 namespace WebAPI
 {

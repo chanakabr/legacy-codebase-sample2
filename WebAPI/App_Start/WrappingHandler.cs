@@ -1,23 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using WebAPI.Filters.Exceptions;
+using log4net;
 using WebAPI.Models;
 
 namespace WebAPI.App_Start
 {
     public class WrappingHandler : DelegatingHandler
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var response = await base.SendAsync(request, cancellationToken);
+            //logging request body
+            string requestBody = await request.Content.ReadAsStringAsync();
+            log.Debug(requestBody);
 
-            return await BuildApiResponse(request, response);
+            //let other handlers process the request
+            var response = await base.SendAsync(request, cancellationToken);           
+            var wrapped = await BuildApiResponse(request, response);
+
+            //await (wrapped.Content ?? new StringContent("")).ReadAsStringAsync().ContinueWith(x =>
+            //{
+            //    log.Debug(x.Result);
+            //});
+            
+            return wrapped;
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
@@ -71,5 +86,7 @@ namespace WebAPI.App_Start
 
             return newResponse;
         }
+
+
     }
 }

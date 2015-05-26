@@ -569,37 +569,36 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clients\Mapping\ApiMappings.cs" />
-    <Compile Include="Clients\Exceptions\ClientException.cs" />
-    <Compile Include="Clients\Utils\CommonStrings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
+    <Compile Include="Exceptions\ClientException.cs" />
+    <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
     <Compile Include="Filters\AutoMapperConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Clients\ApiClient.cs" />
-    <Compile Include="Clients\Mapping\CatalogMappings.cs" />
-    <Compile Include="Clients\Mapping\UsersMappings.cs" />
-    <Compile Include="Clients\Utils\BaseClient.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
+    <Compile Include="Managers\ClientManager\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
     <Compile Include="Clients\CatalogClient.cs" />
-    <Compile Include="Clients\Utils\ClientFactory.cs" />
-    <Compile Include="Clients\Utils\ClientsManager.cs" />
-    <Compile Include="Clients\Utils\ClientType.cs" />
+    <Compile Include="Managers\ClientManager\ClientFactory.cs" />
+    <Compile Include="Managers\ClientManager\ClientsManager.cs" />
+    <Compile Include="Managers\ClientManager\ClientType.cs" />
     <Compile Include="Clients\ConditionalAccessClient.cs" />
     <Compile Include="Clients\DomainsClient.cs" />
     <Compile Include="Clients\NotificationsClient.cs" />
     <Compile Include="Clients\PricingClient.cs" />
     <Compile Include="Clients\SocialClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
-    <Compile Include="Clients\Utils\CatalogCacheManager.cs" />
-    <Compile Include="Clients\Utils\CatalogUtils.cs" />
+    <Compile Include="Managers\CatalogCacheManager.cs" />
     <Compile Include="Controllers\CatalogController.cs" />
     <Compile Include="Filters\ApiAuthorize.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
-    <Compile Include="Filters\Exceptions\ApiException.cs" />
-    <Compile Include="Filters\Exceptions\BadRequestException.cs" />
-    <Compile Include="Filters\Exceptions\ForbiddenException.cs" />
-    <Compile Include="Filters\Exceptions\InternalServerErrorException.cs" />
-    <Compile Include="Filters\Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Exceptions\ApiException.cs" />
+    <Compile Include="Exceptions\BadRequestException.cs" />
+    <Compile Include="Exceptions\ForbiddenException.cs" />
+    <Compile Include="Exceptions\InternalServerErrorException.cs" />
+    <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\UsersController.cs" />
@@ -607,28 +606,29 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Managers\CouchbaseManager.cs" />
-    <Compile Include="Managers\Models\Credentials.cs" />
-    <Compile Include="Managers\Models\Group.cs" />
+    <Compile Include="Models\General\Credentials.cs" />
+    <Compile Include="Models\General\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\AssetType.cs" />
     <Compile Include="Models\Autocomplete.cs" />
     <Compile Include="Models\BaseListWrapper.cs" />
+    <Compile Include="Models\Catalog\IAssetable.cs" />
     <Compile Include="Models\Order.cs" />
-    <Compile Include="Models\SearchAssets.cs" />
+    <Compile Include="Models\Catalog\SearchAssets.cs" />
     <Compile Include="Models\Language.cs" />
-    <Compile Include="Managers\Models\KS.cs" />
-    <Compile Include="Models\AssetInfo.cs" />
-    <Compile Include="Models\AssetStats.cs" />
-    <Compile Include="Models\BuzzScore.cs" />
-    <Compile Include="Models\File.cs" />
-    <Compile Include="Models\Image.cs" />
-    <Compile Include="Models\SlimAssetInfo.cs" />
+    <Compile Include="Models\General\KS.cs" />
+    <Compile Include="Models\Catalog\AssetInfo.cs" />
+    <Compile Include="Models\Catalog\AssetStats.cs" />
+    <Compile Include="Models\Catalog\BuzzScore.cs" />
+    <Compile Include="Models\Catalog\File.cs" />
+    <Compile Include="Models\Catalog\Image.cs" />
+    <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
     <Compile Include="Models\Status.cs" />
-    <Compile Include="Models\SignIn.cs" />
-    <Compile Include="Models\User.cs" />
-    <Compile Include="Models\WatchHistory.cs" />
-    <Compile Include="Models\WatchHistoryAsset.cs" />
-    <Compile Include="Models\WatchStatus.cs" />
+    <Compile Include="Models\User\SignIn.cs" />
+    <Compile Include="Models\User\ClientUser.cs" />
+    <Compile Include="Models\Catalog\WatchHistory.cs" />
+    <Compile Include="Models\Catalog\WatchHistoryAsset.cs" />
+    <Compile Include="Models\Catalog\WatchStatus.cs" />
     <Compile Include="Models\With.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -646,7 +646,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Utils\CatalogUtils.cs" />
+    <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
+    <Compile Include="Utils\Enums.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Web References\Api\Reference.cs">
@@ -697,7 +700,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

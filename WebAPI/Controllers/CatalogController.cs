@@ -5,12 +5,13 @@ using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
-using WebAPI.Clients.Exceptions;
-using WebAPI.Clients.Utils;
-using WebAPI.Filters;
+using WebAPI.Exceptions;
 using WebAPI.Models;
 using log4net;
 using System.Reflection;
+using WebAPI.Models.Catalog;
+using WebAPI.Utils;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Controllers
 {
@@ -56,10 +57,10 @@ namespace WebAPI.Controllers
                 // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
                 if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
                 {
-                    throw new BadRequestException(ex.Code, ex.Message);
+                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
 
-                throw new InternalServerErrorException(ex.Code, ex.Message);
+                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
             }
 
             return response;
@@ -94,10 +95,10 @@ namespace WebAPI.Controllers
                 // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
                 if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
                 {
-                    throw new BadRequestException(ex.Code, ex.Message);
+                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
 
-                throw new InternalServerErrorException(ex.Code, ex.Message);
+                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
             }
 
             return response;
@@ -155,16 +156,21 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size,
-                                                                       request.filter_status, request.days, request.filter_types, request.with);
+                                                                       request.filter_status, request.days, request.filter_types, request.with);                                
             }
             catch (ClientException ex)
             {
+                log.ErrorFormat("{user ID: {0}, group ID: {1}, exception: {2}",
+                    user_id != null ? user_id : string.Empty,   // 0
+                    group_id != null ? group_id : string.Empty, // 1
+                    ex);                                        // 2
+
                 if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
                 {
-                    throw new BadRequestException(ex.Code, ex.Message);
+                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
 
-                throw new InternalServerErrorException(ex.Code, ex.Message);
+                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
             }
 
             return response;

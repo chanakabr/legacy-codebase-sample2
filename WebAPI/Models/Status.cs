@@ -9,22 +9,6 @@ using System.Web;
 namespace WebAPI.Models
 {
     [DataContract]
-    public class StatusWrapper
-    {
-        public StatusWrapper(StatusCode code, Guid reqID, object result = null, string msg = null)
-        {
-            Status = new Status((int)code, msg, reqID);
-            Result = result;
-        }
-
-        [DataMember(Name = "result")]
-        public object Result { get; set; }
-
-        [DataMember(Name = "status")]
-        public Status Status { get; set; }
-    }
-
-    [DataContract]
     public class Status
     {
         [DataMember(Name = "code")]
@@ -46,6 +30,22 @@ namespace WebAPI.Models
         public Status()
         {
         }
+    }
+
+    [DataContract]
+    public class StatusWrapper
+    {
+        public StatusWrapper(StatusCode code, Guid reqID, object result = null, string msg = null)
+        {
+            Status = new Status((int)code, msg, reqID);
+            Result = result;
+        }
+
+        [DataMember(Name = "result")]
+        public object Result { get; set; }
+
+        [DataMember(Name = "status")]
+        public Status Status { get; set; }
     }
 
     public enum StatusCode

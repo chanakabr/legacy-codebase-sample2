@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using WebAPI.Filters;
+using WebAPI.Exceptions;
 using WebAPI.Models;
 
 namespace WebAPI.Utils

@@ -8,10 +8,9 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using WebAPI.Filters.Exceptions;
 using WebAPI.Models;
 
-namespace WebAPI.Filters
+namespace WebAPI.Exceptions
 {
     public class ExceptionFilter : ExceptionFilterAttribute
     {

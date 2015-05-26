@@ -1,20 +1,24 @@
-﻿using WebAPI.Clients.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Web;
 using WebAPI.Clients;
-using WebAPI.Managers.Models;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using AutoMapper;
 using Couchbase.Extensions;
-using WebAPI.Filters;
+using WebAPI.Exceptions;
+using WebAPI.Utils;
+using WebAPI.Models.General;
+using log4net;
+using System.Reflection;
 
-namespace WebAPI.Managers
+namespace WebAPI.ClientManagers
 {
     public class GroupsManager
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static string groupKeyFormat;
         private static int groupCacheTtlSeconds;
 
@@ -34,6 +38,7 @@ namespace WebAPI.Managers
             }
             catch (Exception ex)
             {
+                log.Error(ex);
                 throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
             }
         }
@@ -64,6 +69,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception ex)
                     {
+                        log.Error(ex);
                         throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                     }
                     finally
@@ -86,6 +92,7 @@ namespace WebAPI.Managers
                 }
                 catch (Exception ex)
                 {
+                    log.Error(ex);
                     throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                 }
                 finally

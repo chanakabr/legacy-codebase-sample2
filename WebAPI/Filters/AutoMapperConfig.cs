@@ -1,14 +1,6 @@
-﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using WebAPI.Catalog;
-using WebAPI.Clients.Mapping;
-using WebAPI.Models;
-using WebAPI.Utils;
+﻿using WebAPI.Mapping.ObjectsConvertor;
 
-namespace WebAPI.Filters
+namespace WebAPI.Exceptions
 {
     public class AutoMapperConfig
     {

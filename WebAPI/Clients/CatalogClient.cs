@@ -1,20 +1,25 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
+using AutoMapper;
+using Enyim.Caching;
 using WebAPI.Catalog;
-using WebAPI.Clients.Exceptions;
-using WebAPI.Clients.Utils;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
 using WebAPI.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.ObjectsConvertor;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
     public class CatalogClient : BaseClient
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -35,7 +40,6 @@ namespace WebAPI.Clients
                 return (Module as WebAPI.Catalog.IserviceClient);
             }
         }
-
 
         private string GetSignature(string signString, string signatureKey)
         {
@@ -239,10 +243,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-
-        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> with)
+        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> withList)
         {
-            WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
+            WatchHistoryAssetWrapper finalResults = new WatchHistoryAssetWrapper();
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -263,50 +266,51 @@ namespace WebAPI.Clients
                 OrderDir = OrderDir.DESC
             };
 
-            // fire request
-            WatchHistoryResponse response = new WatchHistoryResponse();
-            CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out response);
-
-            if (response == null ||
-                response.status == null ||
-                response.status.Code != (int)WebAPI.Models.StatusCode.OK)
+            // fire history watched request
+            WatchHistoryResponse watchHistoryResponse = new WatchHistoryResponse();
+            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out watchHistoryResponse))
             {
-                // Bad response from WS
-                throw new ClientException(response.status.Code, response.status.Message);
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-            else
+
+            if (watchHistoryResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(watchHistoryResponse.status.Code, watchHistoryResponse.status.Message);
+            }
+
+            if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
             {
                 // get base objects list
-                List<BaseObject> assetsBaseDataList = response.result.Select(x => x as BaseObject).ToList();
+                List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<MediaObj> medias = new List<MediaObj>();
-                List<ProgramObj> epgs = new List<ProgramObj>();
-                List<AssetInfo> assetInfoList = new List<AssetInfo>();
-                if (CatalogUtils.GetAssetsInfo(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, out medias, out epgs, out assetInfoList))
-                {
-                    // create response object
+                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
-                    // build final result (combine asset info and data from watch history
-                    if (assetInfoList != null)
+                // combine asset info and watch history info
+                finalResults.TotalItems = watchHistoryResponse.m_nTotalItems;
+
+                UserWatchHistory watchHistory = new UserWatchHistory();
+                foreach (var assetInfo in assetsInfo)
+                {
+                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((AssetInfo)assetInfo).Id.ToString());
+
+                    if (watchHistory != null)
                     {
-                        for (int i = 0; i < assetInfoList.Count; i++)
+                        finalResults.WatchHistoryAssets.Add(new WatchHistoryAsset()
                         {
-                            result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                            {
-                                Asset = assetInfoList[i],
-                                Duration = response.result[i].Duration,
-                                IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                LastWatched = response.result[i].LastWatch,
-                                Position = response.result[i].Location
-                            });
-                        }
+                            Asset = (AssetInfo)assetInfo,
+                            Duration = watchHistory.Duration,
+                            IsFinishedWatching = watchHistory.IsFinishedWatching,
+                            LastWatched = watchHistory.LastWatch,
+                            Position = watchHistory.Location
+                        });
                     }
-                    result.TotalItems = response.m_nTotalItems;
                 }
             }
 
-            return result;
+            return finalResults;
         }
 
         public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
@@ -338,9 +342,6 @@ namespace WebAPI.Clients
 
             return result;
         }
-
-
-
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)

@@ -10,12 +10,13 @@ using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Routing;
-using WebAPI.Clients.Utils;
-using WebAPI.Filters;
-using WebAPI.Managers;
-using WebAPI.Managers.Models;
+using WebAPI.Exceptions;
+using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using WebAPI.Utils;
+using WebAPI.Models.User;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
@@ -38,7 +39,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
         [ApiAuthorize()]
-        public List<User> GetUsersData(string ids)
+        public List< ClientUser> GetUsersData(string ids)
         {
             var c = new Users.UsersService();
 
@@ -59,7 +60,7 @@ namespace WebAPI.Controllers
 
             var res = c.GetUsersData("users_215", "11111", unmaskedIds);
 
-            List<User> dto = Mapper.Map<List<User>>(res);
+            List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
 
             return dto;
         }
@@ -74,14 +75,14 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         [Route(""), HttpPost]
         [Authorize()]
-        public bool Post([FromBody]User user)
+        public bool Post([FromBody]ClientUser user)
         {
 
             return true;
         }
 
         [Route("{id}")]
-        public void Put(int id, [FromBody]User value)
+        public void Put(int id, [FromBody]ClientUser value)
         {
 
         }
@@ -110,7 +111,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
             }
 
-            User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+            WebAPI.Models.User.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
 
             if (user == null)
             {
