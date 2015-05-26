@@ -84,7 +84,7 @@ public partial class adm_tvm_notifications_settings : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += " select n.ID ,n.trigger_type, ntt.Decription as 'TriggerTypeDescription' ,n.group_id ,n.message_text ,n.sms_message_text , n.pull_message_text,n.notification_email_template ,STATUS, is_active  " +
+        theTable += " select n.ID ,n.trigger_type, ntt.Decription as 'TriggerTypeDescription' ,n.group_id ,n.message_text ,n.notification_email_template ,STATUS, is_active  " +
                             " from notifications_settings n " +
                             " inner	join notification_triggers_types ntt " +
                             " on	ntt.ID = n.trigger_type " +
