@@ -228,9 +228,9 @@ namespace GroupsCacheManager
                         oChannel.m_nIsActive = isActive;
                         oChannel.m_nStatus = status;
                         oChannel.m_nChannelID = nChannelId;
-                        oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
-
                         oChannel.m_nGroupID = channelGroupId;
+
+                        oChannel.m_sName = ODBCWrapper.Utils.GetSafeStr(rowData["name"]);
                         oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
                         mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
                         oChannel.m_nMediaType = new List<int>();
