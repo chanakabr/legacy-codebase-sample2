@@ -910,11 +910,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(string PIN, string sessionID, string deviceID, bool isDoubleLogin, KeyValuePair[] keyValueList)
+        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(string PIN, string deviceID, bool isDoubleLogin)
         {
             TVPApiModule.Objects.Responses.SignInResponse response = null;
             try
             {
+                KeyValuePair[] keyValueList = new KeyValuePair[1];
+                string sessionID = "0";
                 var result = m_Module.SignInWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, isDoubleLogin, keyValueList);
                 response = new TVPApiModule.Objects.Responses.SignInResponse(result);
             }

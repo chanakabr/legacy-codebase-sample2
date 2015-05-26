@@ -640,7 +640,7 @@ namespace TVPApiServices
         #endregion
 
 
-        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, string sessionID,  bool preventDoubleLogins, KeyValuePair[] keyValueList)
+        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, bool preventDoubleLogins)
         {
             TVPApiModule.Objects.Responses.SignInResponse response = null;
 
@@ -650,7 +650,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, sessionID, initObj.UDID, preventDoubleLogins, keyValueList);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, initObj.UDID, preventDoubleLogins);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (HttpContext.Current.Items.Contains("tokenization") && response.Status != null && response.Status.Code == (int)eStatus.OK &&
