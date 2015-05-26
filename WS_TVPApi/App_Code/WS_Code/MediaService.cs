@@ -31,6 +31,7 @@ using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
 using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj;
 using System.Data;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Objects.Authorization;
 
 namespace TVPApiServices
 {
@@ -220,6 +221,7 @@ namespace TVPApiServices
 
         // Check if media has been added to favorites
         [WebMethod(EnableSession = true, Description = "Check if media has been added to favorites")]
+        [PrivateMethod]
         public bool IsMediaFavorite(InitializationObject initObj, int mediaID)
         {
             bool bRet = false;
@@ -246,6 +248,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if media array has been added to favorites")]
+        [PrivateMethod]
         public List<KeyValuePair<long, bool>> AreMediasFavorite(InitializationObject initObj, List<long> mediaIds)
         {
             List<KeyValuePair<long, bool>> result = new List<KeyValuePair<long, bool>>();
@@ -300,6 +303,7 @@ namespace TVPApiServices
 
         //Get User Items (Favorites, Rentals etc..)
         [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
+        [PrivateMethod]
         public FavoritObject[] GetUserFavorites(InitializationObject initObj)
         {
             FavoritObject[] favoritesObj = null;
@@ -522,6 +526,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get last watched medias")]
+        [PrivateMethod]
         public List<Media> GetLastWatchedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
@@ -548,6 +553,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get last watched medias")]
+        [PrivateMethod]
         public List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, int mediaID, int mediaType, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod)
         {
             List<Media> lstMedia = null;
@@ -1121,6 +1127,7 @@ namespace TVPApiServices
 
         #region Actions
         [WebMethod(EnableSession = true, Description = "Send to a friend")]
+        [PrivateMethod]
         public string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
         {
             string retVal = null;
@@ -1146,6 +1153,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add comment")]
+        [PrivateMethod]
         public bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive)
         {
             bool retVal = false;
@@ -1172,6 +1180,7 @@ namespace TVPApiServices
 
         // Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)
         [WebMethod(EnableSession = true, Description = "Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)")]
+        [PrivateMethod]
         public bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
         {
             bool retVal = false;
@@ -1197,6 +1206,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Rate a Media")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal)
         {
             TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject retVal = new TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject();
@@ -1230,6 +1240,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
+        [PrivateMethod]
         public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
@@ -1258,6 +1269,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
+        [PrivateMethod]
         public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
         {
             string sRet = string.Empty;
@@ -1286,6 +1298,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get last player position")]
+        [PrivateMethod]
         public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID)
         {
             MediaMarkObject mediaMark = null;
@@ -1315,6 +1328,7 @@ namespace TVPApiServices
         #region Purchase
 
         [WebMethod(EnableSession = true, Description = "Get media price reason")]
+        [PrivateMethod]
         public TVPApi.PriceReason GetItemPriceReason(InitializationObject initObj, int iFileID)
         {
             TVPApi.PriceReason priceReason = TVPApi.PriceReason.UnKnown;
@@ -1361,9 +1375,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if item is purchased")]
+        [PrivateMethod]
         public bool IsItemPurchased(InitializationObject initObj, int iFileID, string sUserGuid)
         {
-
             bool bRet = false;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1395,6 +1409,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
+        [PrivateMethod]
         public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj)
         {
             PermittedMediaContainer[] permittedMediaContainer = { };
@@ -1478,6 +1493,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
+        [PrivateMethod]
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = new PermittedSubscriptionContainer[] { };
@@ -1506,6 +1522,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions and packages info for a user")]
+        [PrivateMethod]
         public List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string picSize)
         {
             List<PermittedPackages> permittedPackages = new List<PermittedPackages>();
@@ -1569,6 +1586,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform validation and purchase with Inapp")]
+        [PrivateMethod]
         public BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode)
         {
             BillingResponse response = null;
@@ -1593,6 +1611,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user dummy purchase for file")]
+        [PrivateMethod]
         public string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
             string response = string.Empty;
@@ -1619,6 +1638,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
+        [PrivateMethod]
         public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
             string response = string.Empty;
@@ -1650,6 +1670,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        [PrivateMethod]
         public string ChargeUserForMediaSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
         {
             string response = string.Empty;
@@ -1687,6 +1708,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Perform a user dummy purchase for subscription")]
+        [PrivateMethod]
         public string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
         {
             string response = string.Empty;
@@ -1719,6 +1741,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        [PrivateMethod]
         public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, int[] fileIds, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] itemPrices = null;
@@ -1818,6 +1841,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user transaction history")]
+        [PrivateMethod]
         public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize)
         {
             BillingTransactionsResponse transactions = null;
@@ -1844,6 +1868,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
+        [PrivateMethod]
         public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, int iTotalItems)
         {
             PermittedMediaContainer[] items = null;
@@ -1878,6 +1903,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired subscription")]
+        [PrivateMethod]
         public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, int iTotalItems)
         {
             PermittedSubscriptionContainer[] items = null;
@@ -1911,6 +1937,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get subscription price")]
+        [PrivateMethod]
         public SubscriptionsPricesContainer[] GetSubscriptionsPrices(InitializationObject initObj, string[] SubscriptionIDs)
         {
             SubscriptionsPricesContainer[] items = null;
@@ -1939,6 +1966,7 @@ namespace TVPApiServices
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Get Prepaid balance")]
+        [PrivateMethod]
         public string[] GetPrepaidBalance(InitializationObject initObj, string currencyCode)
         {
             string[] fResponse = null;
@@ -1965,6 +1993,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Buy PPV With PP")]
+        [PrivateMethod]
         public string ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode)
         {
             PrePaidResponseStatus oResponse = PrePaidResponseStatus.UnKnown;
@@ -1991,6 +2020,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]
+        [PrivateMethod]
         public bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {
             bool bResponse = false;
@@ -2072,6 +2102,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Media License")]
+        [PrivateMethod]
         public string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink)
         {
             string sResponse = string.Empty;
@@ -2100,6 +2131,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Media License")]
+        [PrivateMethod]
         public string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP)
         {
             string sResponse = string.Empty;
@@ -2650,6 +2682,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get DRM Media License data")]
+        [PrivateMethod]
         public string GetMediaLicenseData(InitializationObject initObj, int iMediaFileID, int iMediaID)
         {
             string sResponse = string.Empty;
@@ -2678,6 +2711,7 @@ namespace TVPApiServices
 
         #region MessageBox
         [WebMethod(EnableSession = true, Description = "SendMessage")]
+        [PrivateMethod]
         public void SendMessage(InitializationObject initObj, string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SendMessage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -2709,6 +2743,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get new message")]
+        [PrivateMethod]
         public MBMessage GetMessage(InitializationObject initObj)
         {
             MBMessage msg = null;
@@ -2764,6 +2799,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add EPG Comment")]
+        [PrivateMethod]
         public string AddEPGComment(InitializationObject initObj, int epgProgramID, string contentText, string header, string subHeader, string writer, bool autoActive)
         {
             string retVal = null;
@@ -3134,6 +3170,7 @@ namespace TVPApiServices
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
+        [PrivateMethod]
         public DomainLastPositionResponse GetDomainLastPosition(InitializationObject initObj, int mediaID)
         {
             DomainLastPositionResponse sRet = null;
@@ -3175,6 +3212,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings for User")]
+        [PrivateMethod]
         public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
         {
@@ -3208,6 +3246,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
+        [PrivateMethod]
         public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
         {
             List<RecordedSeriesObject> res = null;
@@ -3453,6 +3492,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieve the recently watched media of a user")]
+        [PrivateMethod]
         public WatchHistory WatchHistory(InitializationObject initObj, List<int> filter_types, eWatchStatus filter_status,
                                                                                  int? days, List<string> with, int? page_index, int page_size)
         {

@@ -402,6 +402,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set User Group Rule")]
+        [PrivateMethod]
         public bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive, string siteGuid)
         {
             bool response = false;
@@ -434,6 +435,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
+        [PrivateMethod]
         public bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN)
         {
             bool response = false;
@@ -460,6 +462,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Secured SiteGuid")]
+        [PrivateMethod]
         public string GetSecuredSiteGuid(InitializationObject initObj)
         {
             string sRet = string.Empty;
@@ -595,6 +598,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user data by co-guid")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
         {
             TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject response = null;
@@ -746,6 +750,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Has user connected to FB")]
+        [PrivateMethod]
         public bool IsFacebookUser(InitializationObject initObj)
         {
             bool bRes = false;
@@ -800,6 +805,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
+        [PrivateMethod]
         public void SignOut(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignOut", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -826,6 +832,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
+        [PrivateMethod]
         public bool IsUserSignedIn(InitializationObject initObj)
         {
             bool bRet = false;
@@ -854,6 +861,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
@@ -887,6 +895,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user details info")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserData(InitializationObject initObj, string sSiteGuid)
         {
             TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject response = new TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject();
@@ -920,6 +929,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get users details info")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject[] GetUsersData(InitializationObject initObj, string sSiteGuid)
         {
             TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject[] response = null;
@@ -1007,6 +1017,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set specific dynamic user key data")]
+        [PrivateMethod]
         public bool SetUserDynamicData(InitializationObject initObj, string sKey, string sValue)
         {
             bool bRet = false;
@@ -1033,6 +1044,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Clean User History")]
+        [PrivateMethod]
         public bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs)
         {
             bool bRet = false;
@@ -1062,6 +1074,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
+        [PrivateMethod]
         public DoSocialActionResponse DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             DoSocialActionResponse sRes = null;
@@ -1086,6 +1099,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
+        [PrivateMethod]
         public SocialActivityDoc[] GetUserSocialActions(InitializationObject initObj, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
             SocialActivityDoc[] res = null;
@@ -1167,6 +1181,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Domain Group Rules")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj)
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
@@ -1310,6 +1325,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user started watching medias")]
+        [PrivateMethod]
         public string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems)
         {
             string[] response = null;
@@ -1337,6 +1353,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Record All")]
+        [PrivateMethod]
         public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
         {
             TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;

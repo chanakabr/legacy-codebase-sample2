@@ -33,6 +33,7 @@ namespace TVPApiServices
         private readonly ILog logger = LogManager.GetLogger(typeof(SocialService));
 
         [WebMethod(EnableSession = true, Description = "Get all medias that user's friends watched")]
+        [PrivateMethod]
         public FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, int maxResult)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass,
@@ -64,6 +65,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that watched the specified media")]
+        [PrivateMethod]
         public FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, int mediaId)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsWatchedByMedia", initObj.ApiUser,
@@ -95,6 +97,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that liked a media")]
+        [PrivateMethod]
         public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass,
@@ -127,6 +130,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all user's friends")]
+        [PrivateMethod]
         public string[] GetUserFriends(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass,
@@ -193,6 +197,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets FB user data")]
+        [PrivateMethod]
         public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass,
@@ -218,6 +223,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Merges FB user")]
+        [PrivateMethod]
         public FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass,
@@ -270,6 +276,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user social privacy")]
+        [PrivateMethod]
         public string GetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -294,6 +301,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user allowed social privacy list")]
+        [PrivateMethod]
         public eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserAllowedSocialPrivacyList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -318,6 +326,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets user social privacy")]
+        [PrivateMethod]
         public bool SetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -342,6 +351,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user actions")]
+        [PrivateMethod]
         public SocialActivityDoc[] GetUserActions(InitializationObject initObj, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -362,6 +372,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets friends actions")]
+        [PrivateMethod]
         public SocialActivityDoc[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -382,6 +393,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
+        [PrivateMethod]
         public DoSocialActionResponse DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -402,6 +414,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
+        [PrivateMethod]
         public string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExternalActionShare", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -422,6 +435,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Internal Action Privacy")]
+        [PrivateMethod]
         public string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -462,6 +476,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
+        [PrivateMethod]
         public bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -546,6 +561,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes data stored in Kaltura's DB which makes Facebook actions (login, share, like, etc) on the customer site feasible. The user will still be able to see the actions he performed as these are logged as 'Tvinci actions'. However, all his friends won't be able to view his actions as they'll be deleted from social feed")]
+        [PrivateMethod]
         public FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password)
         {
             FacebookResponseObject response = null;
@@ -571,6 +587,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes data stored in Kaltura's DB which makes Facebook actions (login, share, like, etc) on the customer site feasible. The user will still be able to see the actions he performed as these are logged as 'Tvinci actions'. However, all his friends won't be able to view his actions as they'll be deleted from social feed")]
+        [PrivateMethod]
         public SocialActivityDoc[] GetUserActivityFeed(InitializationObject initObj, string siteGuid, int nPageSize, int nPageIndex, string sPicDimension)
         {
             SocialActivityDoc[] response = null;
@@ -642,7 +659,7 @@ namespace TVPApiServices
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (HttpContext.Current.Items.Contains("tokenization") && responseData.status != null && responseData.status.Code == 1 &&
-                       responseData.user != null && responseData.user.m_RespStatus != null && (responseData.user.m_RespStatus != ResponseStatus.OK || 
+                       responseData.user != null && responseData.user.m_RespStatus != null && responseData.user.m_user != null && (responseData.user.m_RespStatus != ResponseStatus.OK || 
                        responseData.user.m_RespStatus != ResponseStatus.UserNotActivated || responseData.user.m_RespStatus != ResponseStatus.DeviceNotRegistered ||
                        responseData.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || responseData.user.m_RespStatus != ResponseStatus.UserNotIndDomain || 
                        responseData.user.m_RespStatus != ResponseStatus.UserWithNoDomain || responseData.user.m_RespStatus != ResponseStatus.UserSuspended))

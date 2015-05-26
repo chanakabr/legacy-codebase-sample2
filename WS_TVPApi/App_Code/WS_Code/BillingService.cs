@@ -15,6 +15,7 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
 using System.Web;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 namespace TVPApiServices
 {
@@ -33,6 +34,7 @@ namespace TVPApiServices
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Get last billing Info")]
+        [PrivateMethod]
         public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, int billingMethod)
         {
             AdyenBillingDetail response = null;
@@ -85,6 +87,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "")]
+        [PrivateMethod]
         public AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid)
         {
             TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail response = null;

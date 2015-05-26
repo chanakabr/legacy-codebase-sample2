@@ -33,6 +33,7 @@ namespace TVPApiServices
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Change user password")]
+        [PrivateMethod]
         public UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
         {
             UserResponseObject response = new UserResponseObject();
@@ -137,6 +138,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Logout")]
+        [PrivateMethod]
         public void Logout(InitializationObject initObj, string sSiteGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "Logout", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -166,6 +168,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate user account")]
+        [PrivateMethod]
         public UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken)
         {
             UserResponseObject response = new UserResponseObject();
@@ -368,6 +371,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate Account By Domain Master")]
+        [PrivateMethod]
         public UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token)
         {
             UserResponseObject response = null;
@@ -420,6 +424,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Adds Item To List")]
+        [PrivateMethod]
         public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
@@ -446,6 +451,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes Item From List")]
+        [PrivateMethod]
         public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
@@ -472,6 +478,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Updates Item In List")]
+        [PrivateMethod]
         public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
@@ -524,6 +531,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
+        [PrivateMethod]
         public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             KeyValuePair[] response = null;
@@ -581,6 +589,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
+        [PrivateMethod]
         public TVPApiModule.Objects.UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value)
         {
             TVPApiModule.Objects.UserResponse retVal = null;
@@ -608,6 +617,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GenerateLoginPIN")]
+        [PrivateMethod]
         public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj)
         {
             TVPApiModule.Objects.Responses.PinCodeResponse response = null;
@@ -654,7 +664,7 @@ namespace TVPApiServices
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (HttpContext.Current.Items.Contains("tokenization") && response.Status != null && response.Status.Code == (int)eStatus.OK &&
-                       response.Result != null && response.Result.user != null && 
+                       response.Result != null && response.Result.user != null && response.Result.user.m_user != null && 
                        (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated || 
                        response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || 
                        response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||

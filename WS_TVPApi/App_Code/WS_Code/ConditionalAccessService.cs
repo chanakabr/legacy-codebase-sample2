@@ -15,6 +15,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using System.Web;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 namespace TVPApiServices
 {
@@ -158,6 +159,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get items prices with coupon")]
+        [PrivateMethod]
         public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             MediaFileItemPricesContainer[] res = null;
@@ -187,6 +189,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get subscriptions prices with coupon")]
+        [PrivateMethod]
         public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             SubscriptionsPricesContainer[] res = null;
@@ -283,6 +286,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get customer data")]
+        [PrivateMethod]
         public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode, string receipt)
         {
             BillingResponse res = null;
@@ -305,6 +309,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Charges users for PP")]
+        [PrivateMethod]
         public BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode)
         {
             BillingResponse res = null;
@@ -327,6 +332,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Charges license for EPG")]
+        [PrivateMethod]
         public string GetEPGLicensedLink(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
             string res = string.Empty;
@@ -350,6 +356,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user's billing history")]
+        [PrivateMethod]
         public UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
         {
             UserBillingTransactionsResponse[] res = null;
@@ -377,6 +384,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get domain's billing history")]
+        [PrivateMethod]
         public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
         {
             DomainBillingTransactionsResponse[] res = null;
@@ -404,6 +412,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieve domain's permitted media")]
+        [PrivateMethod]
         public PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
         {
             PermittedMediaContainer[] res = null;
@@ -425,6 +434,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieve domain's permitted subscriptions")]
+        [PrivateMethod]
         public PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
         {
             PermittedSubscriptionContainer[] res = null;
@@ -446,6 +456,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for file using credit card")]
+        [PrivateMethod]
         public string ChargeUserForMediaFileUsingCC(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon, string sPaymentMethodID, string sEncryptedCVV)
         {
             string response = string.Empty;
@@ -476,6 +487,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription using credit card")]
+        [PrivateMethod]
         public string ChargeUserForMediaSubscriptionUsingCC(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
         {
             string response = string.Empty;
@@ -512,6 +524,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Charge User For Media File using Cellular")]
+        [PrivateMethod]
         public BillingResponse Cellular_ChargeUserForMediaFile(InitializationObject initObj, double price, string currencyCode3, int mediaFileID, string ppvModuleCode, string couponCode, string extraParameters, string deviceName)
         {
             BillingResponse response = null;
@@ -538,6 +551,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Charge User For Subscription using Cellular")]
+        [PrivateMethod]
         public BillingResponse Cellular_ChargeUserForSubscription(InitializationObject initObj, double price, string currencyCode3, string subscriptionCode, string couponCode, string extraParameters, string deviceName)
         {
             BillingResponse response = null;
@@ -564,6 +578,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
+        [PrivateMethod]
         public string ChargeUserForMediaFileByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sCoupon, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
             string response = string.Empty;
@@ -590,6 +605,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        [PrivateMethod]
         public string ChargeUserForSubscriptionByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV)
         {
             string response = string.Empty;
@@ -617,6 +633,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Change Subscription")]
+        [PrivateMethod]
         public ChangeSubscriptionStatus ChangeSubscription(InitializationObject initObj, string sSiteGuid, int nOldSubscription, int nNewSubscription)
         {
             ChangeSubscriptionStatus response = ChangeSubscriptionStatus.Error; ;
@@ -649,6 +666,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get collections prices")]
+        [PrivateMethod]
         public CollectionsPricesContainer[] GetCollectionsPrices(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3)
         {
             CollectionsPricesContainer[] response = null;
@@ -682,6 +700,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get collections prices with coupon")]
+        [PrivateMethod]
         public CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3, string couponCode)
         {
             CollectionsPricesContainer[] response = null;
@@ -717,6 +736,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Get user permitted collections")]
+        [PrivateMethod]
         public PermittedCollectionContainer[] GetUserPermittedCollections(InitializationObject initObj, string siteGuid)
         {
             PermittedCollectionContainer[] response = null;
@@ -751,6 +771,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Get domain permitted collections")]
+        [PrivateMethod]
         public PermittedCollectionContainer[] GetDomainPermittedCollections(InitializationObject initObj)
         {
             PermittedCollectionContainer[] response = null;
@@ -779,6 +800,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Charge users for collection")]
+        [PrivateMethod]
         public BillingResponse ChargeUserForCollection(InitializationObject initObj, double price, string currencyCode3, string collectionCode, string couponCode, string extraParameters, string countryCode2, string languageCode3, string paymentMethodID, string encryptedCvv)
         {
             BillingResponse response = null;
@@ -807,6 +829,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Dummy Charge users for collection")]
+        [PrivateMethod]
         public string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3)
         {
             string response = null;
@@ -835,6 +858,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Transaction")]
+        [PrivateMethod]
         public bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool bIsForce)
         {
             bool isTransactionCancelled = false;
@@ -902,6 +926,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get User Expired Collection")]
+        [PrivateMethod]
         public PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems)
         {
             PermittedCollectionContainer[] collections = null;
@@ -936,6 +961,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Returns the CDN URLs to use in case one fails")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse links = null;
@@ -964,6 +990,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a record asset request")]
+        [PrivateMethod]
         public RecordResponse RecordAsset(InitializationObject initObj, string epgId)
         {
             RecordResponse res = null;
@@ -992,6 +1019,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a cancel asset request")]
+        [PrivateMethod]
         public NPVRResponse CancelAssetRecording(InitializationObject initObj, string recordingId)
         {
             NPVRResponse res = null;
@@ -1020,6 +1048,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a delete asset request")]
+        [PrivateMethod]
         public NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId)
         {
             NPVRResponse res = null;
@@ -1048,6 +1077,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a get NPVR quota request")]
+        [PrivateMethod]
         public QuotaResponse GetNPVRQuota(InitializationObject initObj)
         {
             QuotaResponse res = null;
@@ -1104,6 +1134,7 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Issues a record series request")]
+        [PrivateMethod]
         public NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId)
         {
             NPVRResponse res = null;
@@ -1132,6 +1163,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a delete series request")]
+        [PrivateMethod]
         public NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId)
         {
             NPVRResponse res = null;
@@ -1160,6 +1192,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a cancel series request")]
+        [PrivateMethod]
         public NPVRResponse CancelSeriesRecording(InitializationObject initObj, string seriesRecordingId)
         {
             NPVRResponse res = null;
@@ -1188,6 +1221,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Issues a cancel series request")]
+        [PrivateMethod]
         public NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect)
         {
             NPVRResponse res = null;
@@ -1216,6 +1250,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
+        [PrivateMethod]
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
@@ -1244,6 +1279,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel household service now")]
+        [PrivateMethod]
         public ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel)
         {
             ClientResponseStatus clientResponse;
@@ -1280,6 +1316,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
+        [PrivateMethod]
         public bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID)
         {
             bool response = false;
@@ -1306,6 +1343,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription Renewal")]
+        [PrivateMethod]
         public ClientResponseStatus CancelSubscriptionRenewal(InitializationObject initObj, int domainID, string serviceID)
         {
             ClientResponseStatus clientResponse = new ClientResponseStatus();
@@ -1342,6 +1380,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
+        [PrivateMethod]
         public ServicesResponse GetDomainServices(InitializationObject initObj, int domainID)
         {
             ServicesResponse response;
@@ -1378,6 +1417,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets link for EPG")]
+        [PrivateMethod]
         public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedData(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, int formatType)
         {
             TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;

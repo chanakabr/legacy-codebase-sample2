@@ -22,20 +22,9 @@ namespace TVPApiModule.Manager
     public class AuthorizationManager
     {
         private static ILog logger = log4net.LogManager.GetLogger(typeof(AuthorizationManager));
-
-        //private static long deviceTokenExpirationSeconds;
-        //private static long accessTokenExpirationSeconds;
-        //private static long refreshTokenExpirationSeconds;
-
         private static long _groupConfigsTtlSeconds;
-        
-        //private static string _key; 
-        //private static string _iv; 
-
         private static GenericCouchbaseClient _client;
-
         private static ReaderWriterLockSlim _lock;
-        //private Dictionary<string, AppCredentials> _appsCredentials;
         private static AuthorizationManager _instance = null;
 
         public static AuthorizationManager Instance
@@ -53,24 +42,11 @@ namespace TVPApiModule.Manager
         {
             try
             {
-                //string deviceTokenExpiration = ConfigurationManager.AppSettings["Authorization.DeviceTokenExpirationSeconds"];
-                //string accessTokenExpiration = ConfigurationManager.AppSettings["Authorization.AccessTokenExpirationSeconds"];
-                //string refreshTokenExpiration = ConfigurationManager.AppSettings["Authorization.RefreshTokenExpirationSeconds"];
                 string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
-
-                //_key = ConfigurationManager.AppSettings["Authorization.key"];
-                //_iv = ConfigurationManager.AppSettings["Authorization.iv"];
-
+                
                 _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
-
                 _lock = new ReaderWriterLockSlim();
-                //_appsCredentials = new Dictionary<string, AppCredentials>();
-
-                //if (!long.TryParse(deviceTokenExpiration, out deviceTokenExpirationSeconds) ||
-                //    !long.TryParse(accessTokenExpiration, out accessTokenExpirationSeconds) ||
-                //    !long.TryParse(refreshTokenExpiration, out refreshTokenExpirationSeconds) ||
-                //    !long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds) ||
-                //    string.IsNullOrEmpty(_key) || string.IsNullOrEmpty(_iv))
+                
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
                 {
                     logger.ErrorFormat("AuthorizationManager: Configuration for authorization is missing!");
@@ -143,140 +119,6 @@ namespace TVPApiModule.Manager
             return groupConfig;
         }
 
-        //public AppCredentials GetAppCredentials(string appId)
-        //{
-        //    AppCredentials appCredentials = null;
-
-        //    // try get app credentials from dictionary
-        //    if (_lock.TryEnterReadLock(1000))
-        //    {
-        //        try
-        //        {
-        //            _appsCredentials.TryGetValue(appId, out appCredentials);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            logger.ErrorFormat("GetAppCredentials: on extracting from dictionary with appId = {0}, Exception = {1}", appId, ex);
-        //        }
-        //        finally
-        //        {
-        //            _lock.ExitReadLock();
-        //        }
-        //    }
-
-        //    // if not exists in dictionary, try get from CB 
-        //    if (appCredentials == null)
-        //    {
-        //        string appCredentialsId = AppCredentials.GetAppCredentialsId(EncryptData(appId));
-        //        appCredentials = _client.Get<AppCredentials>(appCredentialsId);
-        //        if (appCredentials != null)
-        //        {
-        //            // add app credentials to dictionary if not exists
-        //            if (_lock.TryEnterWriteLock(1000))
-        //            {
-        //                try
-        //                {
-        //                    if (!_appsCredentials.Keys.Contains(appId))
-        //                    {
-        //                        _appsCredentials.Add(appId, appCredentials);
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    logger.ErrorFormat("GetAppCredentials: on adding to dictionary with appId = {0}, Exception = {1}", appId, ex);
-        //                }
-        //                finally
-        //                {
-        //                    _lock.ExitWriteLock();
-        //                }
-        //            }
-        //        }
-        //        // no app credentials in CB
-        //        else
-        //        {
-        //            logger.ErrorFormat("GetAppCredentials: app credentials not exist for appId = {0}", appId);
-        //        }
-        //    }
-
-        //    return appCredentials;
-        //}
-
-        //Maybe should be deleted later
-        //public AppCredentials GenerateAppCredentials(int groupId)
-        //{
-        //    new AuthorizationManager();
-        //    AppCredentials appCredentials = null;
-        //    appCredentials = new AppCredentials(groupId);
-        //    _client.Store<AppCredentials>(appCredentials);
-        //    appCredentials.EncryptedAppId = DecryptData(appCredentials.EncryptedAppId);
-        //    appCredentials.EncryptedAppSecret = DecryptData(appCredentials.EncryptedAppSecret);
-        //    return appCredentials;
-        //}
-
-
-
-        //public string GenerateDeviceToken(string udid, string appId)
-        //{
-        //    // validate request parameters
-        //    if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId))
-        //    {
-        //        logger.ErrorFormat("GenerateDeviceToken: bad request. app_id = {0}, udid = {2}", appId, udid);
-        //        returnError(403);
-        //        return null;
-        //    }
-
-        //    // validate app credentials
-        //    AppCredentials appCredentials = Instance.GetAppCredentials(appId);
-        //    if (appCredentials == null)
-        //    {
-        //        logger.ErrorFormat("GenerateDeviceToken: appId not found = {0}", appId);
-        //        returnError(403);
-        //        return null;
-        //    }
-
-        //    // generate device token
-        //    DeviceToken deviceToken = new DeviceToken(appCredentials.EncryptedAppId, udid);
-        //    _client.Store<DeviceToken>(deviceToken, DateTime.UtcNow.AddSeconds(deviceTokenExpirationSeconds));
-        //    return deviceToken.Token;
-        //}
-
-        //public object ExchangeDeviceToken(string udid, string appId, string appSecret, string deviceToken)
-        //{
-        //    // validate request parameters
-        //    if (string.IsNullOrEmpty(udid) || string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(appSecret) || string.IsNullOrEmpty(deviceToken))
-        //    {
-        //        logger.ErrorFormat("ExchangeDeviceToken: Bad request udid = {0}, appId = {1}, appSecret = {2}, deviceToken = {3}", udid, appId, appSecret, deviceToken);
-        //        returnError(403);
-        //        return null;
-        //    }
-
-        //    // validate app credentials
-        //    AppCredentials appCredentials = Instance.GetAppCredentials(appId);
-        //    if (appCredentials == null || DecryptData(appCredentials.EncryptedAppSecret) != appSecret)
-        //    {
-        //        logger.ErrorFormat("ExchangeDeviceToken: app credentials not found or do not match for appId = {0}", appId);
-        //        returnError(403);
-        //        return null;
-        //    }
-
-        //    // validate device token
-        //    string deviceTokenId = DeviceToken.GetDeviceTokenId(appCredentials.EncryptedAppId, deviceToken);
-        //    DeviceToken deviceTokenObj = _client.Get<DeviceToken>(deviceTokenId);
-        //    if (deviceTokenObj == null || deviceTokenObj.UDID != udid)
-        //    {
-        //        logger.ErrorFormat("ExchangeDeviceToken: device token not valid or expired. deviceToken = {0}, udid = {1}, appId = {2}", deviceToken, udid, appId);
-        //        returnError(403);
-        //        return null;
-        //    }
-
-        //    // generate access token and refresh token pair
-        //    APIToken apiToken = new APIToken(appCredentials.EncryptedAppId, appCredentials.GroupId, udid);
-        //    _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(refreshTokenExpirationSeconds));
-        //    _client.Remove(deviceTokenId);
-
-        //    return GetTokenResponseObject(apiToken);
-        //}
-
         public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB)
         {
             if (string.IsNullOrEmpty(siteGuid))
@@ -304,7 +146,7 @@ namespace TVPApiModule.Manager
 
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
         {
-            if (HttpContext.Current.Items.Contains("tokenization") &&
+            if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null && 
                 (signInResponse.LoginStatus != ResponseStatus.OK || signInResponse.LoginStatus != ResponseStatus.UserNotActivated || signInResponse.LoginStatus != ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus != ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus != ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus != ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus != ResponseStatus.UserSuspended))
@@ -586,21 +428,6 @@ namespace TVPApiModule.Manager
                 refresh_expiration_time = apiToken.RefreshTokenExpiration
             };
         }
-
-
-        //public string EncryptData(string data)
-        //{
-        //    if (data == null)
-        //        return null;
-        //    return SecurityHelper.EncryptData(_key, _iv, data);
-        //}
-
-        //public string DecryptData(string data)
-        //{
-        //    if (data == null)
-        //        return null;
-        //    return SecurityHelper.DecryptData(_key, _iv, data);
-        //}
 
         public void DeleteAccessToken(string accessToken)
         {

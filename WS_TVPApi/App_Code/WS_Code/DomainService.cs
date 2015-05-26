@@ -17,6 +17,7 @@ using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
 
 namespace TVPApiServices
 {
@@ -63,6 +64,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set device info")]
+        [PrivateMethod]
         public bool SetDeviceInfo(InitializationObject initObj, string deviceName)
         {
             bool response = false;
@@ -128,6 +130,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add a user to domain")]
+        [PrivateMethod]
         public DomainResponseObject AddUserToDomain(InitializationObject initObj, int AddedUserGuid)
         {
             DomainResponseObject resDomain = null;
@@ -156,6 +159,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove a user from domain")]
+        [PrivateMethod]
         public DomainResponseObject RemoveUserFromDomain(InitializationObject initObj, string userGuidToRemove)
         {
             DomainResponseObject domain = null;
@@ -184,6 +188,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove device from domain")]
+        [PrivateMethod]
         public DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, int domainID, string sDeviceName, int iDeviceBrandID, string sUdid)
         {
             DomainResponseObject resDomain = null;
@@ -216,6 +221,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate/Deactivate a device in domain")]
+        [PrivateMethod]
         public DomainResponseObject ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive)
         {
             DomainResponseObject resDomain = null;
@@ -245,6 +251,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get device/user domain info")]
+        [PrivateMethod]
         public Domain GetDomainInfo(InitializationObject initObj)
         {
             Domain domain = null;
@@ -273,6 +280,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set device/user domain info")]
+        [PrivateMethod]
         public DomainResponseObject SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
         {
             DomainResponseObject resDomain = null;
@@ -301,6 +309,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get device domains")]
+        [PrivateMethod]
         public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
         {
             Domain[] domains = null;
@@ -347,6 +356,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get PIN Code for a new device")]
+        [PrivateMethod]
         public string GetPINForDevice(InitializationObject initObj, int devBrandID)
         {
             string pin = string.Empty;
@@ -374,6 +384,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Register a device to domain by PIN code")]
+        [PrivateMethod]
         public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
         {
             TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
@@ -430,6 +441,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add domain to master site user")]
+        [PrivateMethod]
         public DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
         {
             DomainResponseObject domainRes = null;
@@ -451,6 +463,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add domain with Co-GUID to master site user")]
+        [PrivateMethod]
         public DomainResponseObject AddDomainWithCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid, string coGuid)
         {
             DomainResponseObject domainRes = null;
@@ -499,6 +512,7 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get domain object by CoGuid")]
+        [PrivateMethod]
         public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)
         {
             DomainResponseObject res = null;
@@ -526,6 +540,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get domain ID by CoGuid")]
+        [PrivateMethod]
         public int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid)
         {
             int res = 0;
@@ -553,6 +568,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Submit user to a domain request")]
+        [PrivateMethod]
         public DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string masterUsername)
         {
             DomainResponseObject resDomain = null;
@@ -580,6 +596,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove Domain")]
+        [PrivateMethod]
         public string RemoveDomain(InitializationObject initObj)
         {
             DomainResponseStatus resDomain = DomainResponseStatus.UnKnown;
@@ -608,6 +625,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get DomainIDs By Operator CoGuid")]
+        [PrivateMethod]
         public int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
         {
             int[] resDomains = null;
@@ -635,6 +653,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Device Info")]
+        [PrivateMethod]
         public DeviceResponseObject GetDeviceInfo(InitializationObject initObj, string sId, bool bIsUDID)
         {
             DeviceResponseObject deviceInfo = null;
@@ -671,6 +690,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets Domain Restriction")]
+        [PrivateMethod]
         public bool SetDomainRestriction(InitializationObject initObj, int restriction)
         {
             bool passed = false;
@@ -698,6 +718,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Adds a device to a domain")]
+        [PrivateMethod]
         public DomainResponseObject SubmitAddDeviceToDomainRequest(InitializationObject initObj, string deviceName, int brandId)
         {
             DomainResponseObject domain = null;
@@ -729,6 +750,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Confirms a device by master")]
+        [PrivateMethod]
         public DomainResponseObject ConfirmDeviceByDomainMaster(InitializationObject initObj, string udid, string masterUn, string token)
         {
             DomainResponseObject domain = null;
@@ -784,6 +806,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Updates the home network's state")]
+        [PrivateMethod]
         public NetworkResponseObject UpdateDomainHomeNetwork(InitializationObject initObj, string networkId, string networkName, string networkDesc, bool isActive)
         {
             NetworkResponseObject network = null;
@@ -811,6 +834,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes domain's home network")]
+        [PrivateMethod]
         public NetworkResponseObject RemoveDomainHomeNetwork(InitializationObject initObj, string networkId)
         {
             NetworkResponseObject network = null;
@@ -838,6 +862,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the domain's home networks")]
+        [PrivateMethod]
         public HomeNetwork[] GetDomainHomeNetworks(InitializationObject initObj)
         {
             HomeNetwork[] homeNetworks = null;
@@ -865,6 +890,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Change the domain master")]
+        [PrivateMethod]
         public DomainResponseObject ChangeDomainMaster(InitializationObject initObj, int currentMasterID, int newMasterID)
         {
             DomainResponseObject domain = null;
@@ -892,6 +918,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Reset the domain frequency")]
+        [PrivateMethod]
         public DomainResponseObject ResetDomainFrequency(InitializationObject initObj, int frequencyType)
         {
             DomainResponseObject domain = null;
@@ -919,6 +946,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Suspends a domain for the given domain ID")]
+        [PrivateMethod]
         public ClientResponseStatus SuspendDomain(InitializationObject initObj, int domainId)
         {
             ClientResponseStatus clientResponse;
@@ -951,6 +979,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Resuming a suspended domain for the given domain ID")]
+        [PrivateMethod]
         public ClientResponseStatus ResumeDomain(InitializationObject initObj, int domainId)
         {
             ClientResponseStatus clientResponse;
@@ -983,6 +1012,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the domain limitation module by ID")]
+        [PrivateMethod]
         public DomainLimitationModuleResponse GetDomainLimitationModule(InitializationObject initObj, int domainLimitationID)
         {
             DomainLimitationModuleResponse response = null;
@@ -1019,6 +1049,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set region for domain")]
+        [PrivateMethod]
         public ClientResponseStatus SetDomainRegion(InitializationObject initObj, int domain_id, string ext_region_id, string lookup_key)
         {
             ClientResponseStatus clientResponse = null;

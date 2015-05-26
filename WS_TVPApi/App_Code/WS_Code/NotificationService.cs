@@ -13,6 +13,7 @@ using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Objects.Authorization;
 
 
 namespace TVPApiServices
@@ -26,6 +27,7 @@ namespace TVPApiServices
         private readonly ILog logger = LogManager.GetLogger(typeof(NotificationService));
 
         [WebMethod(EnableSession = true, Description = "Gets device notifications")]
+        [PrivateMethod]
         public List<Notification> GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceNotifications", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -51,6 +53,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets notification message view status")]
+        [PrivateMethod]
         public bool SetNotificationMessageViewStatus(InitializationObject initObj, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetNotificationMessageViewStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -76,6 +79,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Followup by tag")]
+        [PrivateMethod]
         public bool SubscribeByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SubscribeByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -100,6 +104,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Unsubscribe Followup by tag")]
+        [PrivateMethod]
         public bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnsubscribeFollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -124,6 +129,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the user status subscription")]
+        [PrivateMethod]
         public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());

@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using TVPApiModule.Manager;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Objects.Authorization;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -542,7 +543,6 @@ public partial class MethodFinder
     private class ParameterJsonInit : ParameterInitBase
     {
         private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
-        private static List<string> _unauthorizedMethods = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnauthorizedMethods"]) ? null : ConfigurationManager.AppSettings["Authorization.UnauthorizedMethods"].Split(',').ToList();
 
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum
@@ -624,7 +624,7 @@ public partial class MethodFinder
                 bool isAdmin = false;
                 // validate unauthorized methods and extract relevant siteGuid
                 if (executer.m_MetodInfo.Name != "RefreshAccessToken" && !AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid, out isAdmin) ||
-                    (_unauthorizedMethods != null && _unauthorizedMethods.Contains(executer.m_MetodInfo.Name) && string.IsNullOrEmpty(siteGuid)))
+                    (executer.m_MetodInfo.GetCustomAttributes(typeof(PrivateMethodAttribute), false).Length > 0 && string.IsNullOrEmpty(siteGuid)))
                 {
                     AuthorizationManager.Instance.returnError(403, null);
                     return null;
