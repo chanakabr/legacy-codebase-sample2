@@ -914,10 +914,9 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.SignInResponse response = null;
             try
-            {
-                KeyValuePair[] keyValueList = new KeyValuePair[1];
+            {                
                 string sessionID = "0";
-                var result = m_Module.SignInWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, isDoubleLogin, keyValueList);
+                var result = m_Module.SignInWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, isDoubleLogin, null);
                 response = new TVPApiModule.Objects.Responses.SignInResponse(result);
             }
             catch (Exception ex)
