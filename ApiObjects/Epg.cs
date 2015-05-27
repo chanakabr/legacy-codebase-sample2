@@ -200,7 +200,7 @@ namespace ApiObjects
                 {
                     foreach (EpgPicture epgPicture in obj.pictures) // compare the values between the lists
                     {
-                        if (!this.pictures.Exists(x => x.Url == epgPicture.Url))
+                        if (!this.pictures.Exists(x => x.Url == epgPicture.Url && x.Ratio == epgPicture.Ratio))
                         {
                             return false;
                         }
@@ -208,14 +208,13 @@ namespace ApiObjects
 
                     foreach (EpgPicture epgPicture in this.pictures) // compare the values between the lists
                     {
-                        if (!obj.pictures.Exists(x => x.Url == epgPicture.Url))
+                        if (!obj.pictures.Exists(x => x.Url == epgPicture.Url && x.Ratio == epgPicture.Ratio))
                         {
                             return false;
                         }
                     }
                 }
                 #endregion
-
             }
             return true;
         }
