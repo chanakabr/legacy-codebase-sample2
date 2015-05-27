@@ -16,11 +16,12 @@ namespace WebAPI.App_Start
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        Stopwatch sw = new Stopwatch();
+        
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             //logging request body
+            Stopwatch sw = new Stopwatch();
             sw.Start();
             string requestBody = await request.Content.ReadAsStringAsync();
             log.DebugFormat("API Request - ID: {0}, Request:{1}{2}{3}{4}",
@@ -41,6 +42,7 @@ namespace WebAPI.App_Start
                             request.GetCorrelationId(),  // 0
                             sw.ElapsedMilliseconds,      // 1   
                             wrappedResponse.StatusCode); // 2
+            //sw.Reset();
 
             return wrappedResponse;
         }
