@@ -133,7 +133,9 @@
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="post.sh" />
-    <Content Include="log4net.config" />
+    <Content Include="log4net.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -569,6 +571,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Managers\KMonitor.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
