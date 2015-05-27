@@ -280,7 +280,7 @@ namespace WebAPI.Clients
             return finalResults;
         }
 
-        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
+        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
         {
             List<AssetStats> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
@@ -290,8 +290,8 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 m_nGroupID = groupID,
                 m_nAssetIDs = assetIds,
-                m_dStartDate = SerializationUtils.ConvertFromUnixTimestamp(startTime),
-                m_dEndDate = SerializationUtils.ConvertFromUnixTimestamp(endTime),
+                m_dStartDate = startTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(startTime) : DateTime.MinValue,
+                m_dEndDate = endTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(endTime) : DateTime.MaxValue,
                 m_type = Mapper.Map<WebAPI.Catalog.StatsType>(assetType)
             };
 
