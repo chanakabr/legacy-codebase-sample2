@@ -104,6 +104,7 @@ namespace WebAPI.ClientManagers.Client
                 if (clientType == ClientType.Catalog)
                 {
                     ((CatalogClient)client).SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "SignatureKey"));
+                    ((CatalogClient)client).CacheDuration = TCMClient.Settings.Instance.GetValue<int>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "CacheDurationSeconds"));
                 }
                 
                 clients.TryAdd(clientType, client);

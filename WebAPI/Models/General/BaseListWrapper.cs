@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace WebAPI.Models
+namespace WebAPI.Models.General
 {
     [Serializable]
     public class BaseListWrapper

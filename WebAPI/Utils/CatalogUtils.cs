@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using AutoMapper;
 using log4net;
 using WebAPI.Catalog;
 using WebAPI.ClientManagers;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor;
+using WebAPI.Models.General;
 
 namespace WebAPI.Utils
 {
@@ -82,69 +81,6 @@ namespace WebAPI.Utils
                 }
             }
             return passed;
-        }
-
-        public static T SearchAssets<T>(WebAPI.Catalog.IserviceClient client, string signString, string signature, int cacheDuration, UnifiedSearchRequest request, string cacheKey, List<With> with)
-            where T : BaseListWrapper, new()
-        {
-            T result = new T();
-
-            UnifiedSearchResponse response;
-
-            try
-            {
-                if (GetBaseResponse<UnifiedSearchResponse>(client, request, out response, true, cacheKey) && response.status != null && response.status.Code == (int)WebAPI.Models.StatusCode.OK)
-                {
-                    List<MediaObj> medias = null;
-                    List<ProgramObj> epgs = null;
-                    List<long> missingMediaIds = null;
-                    List<long> missingEpgIds = null;
-
-                    if (response != null && response.searchResults != null &&
-                        !GetAssetsFromCache(response.searchResults.Select(x => x as BaseObject).ToList(),
-                        request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
-                    {
-                        List<MediaObj> mediasFromCatalog = new List<MediaObj>();
-                        List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
-
-                        // Get the assets that were missing in cache 
-                        GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
-
-                        // Append the medias from Catalog to the medias from cache
-                        medias.AddRange(mediasFromCatalog);
-
-                        // Append the epgs from Catalog to the epgs from cache
-                        epgs.AddRange(epgsFromCatalog);
-                    }
-
-                    // Gets one list including both medias and epgds, ordered by Catalog order
-                    if (typeof(T) == typeof(AssetInfoWrapper))
-                    {
-                        (result as AssetInfoWrapper).Assets = BuildOrderedAssetsInfo(response.searchResults.Select(x => x as BaseObject).ToList(), medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid);
-                    }
-                    else if (typeof(T) == typeof(SlimAssetInfoWrapper))
-                    {
-                        (result as SlimAssetInfoWrapper).Assets = MergeAndCompleteSlimResults(response.searchResults, medias, epgs, with, request.m_nGroupID, request.m_oFilter.m_sPlatform, request.m_sSiteGuid, request.m_oFilter.m_sDeviceId);
-                    }
-
-                    result.TotalItems = response.m_nTotalItems;
-                }
-                else
-                {
-                    throw new ClientException(response.status.Code, response.status.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is ClientException)
-                {
-                    throw ex;
-                }
-
-                throw new ClientException((int)StatusCode.InternalConnectionIssue);
-            }
-
-            return (T)result;
         }
 
         private static void GetAssetsFromCatalog(IserviceClient client, BaseRequest request, int cacheDuration, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
@@ -290,115 +226,7 @@ namespace WebAPI.Utils
 
             return result;
         }
-
-        // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
-        // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        private static List<AssetInfo> BuildOrderedAssetsInfo(List<BaseObject> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<With> with,
-            int groupID, string platform, string siteGuid)
-        {
-            List<AssetInfo> results = new List<AssetInfo>();
-
-            if (orderedAssetsIds == null || ((medias == null || medias.Count == 0) && (epgs == null || epgs.Count == 0)))
-            {
-                return null;
-            }
-
-            List<AssetInfo> mediaAssets = Mapper.Map<List<AssetInfo>>(medias);
-            List<AssetInfo> epgAssets = Mapper.Map<List<AssetInfo>>(epgs);
-
-            List<AssetStats> mediaAssetsStats = null;
-            List<AssetStats> epgAssetsStats = null;
-
-            if (with != null)
-            {
-                if (with.Contains(With.stats)) // if stats are required - gets the stats from Catalog
-                {
-                    if (medias != null && medias.Count > 0)
-                    {
-                        mediaAssetsStats = ClientsManager.CatalogClient().
-                           GetAssetsStats(groupID, siteGuid, medias.Select(m => int.Parse(m.AssetId)).ToList(),
-                            SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue), SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue),
-                            Mapper.Map<WebAPI.Catalog.StatsType>(WebAPI.Models.AssetType.Media));
-                    }
-                    if (epgs != null && epgs.Count > 0)
-                    {
-                        epgAssetsStats = ClientsManager.CatalogClient().
-                            GetAssetsStats(groupID, siteGuid, epgs.Select(e => int.Parse(e.AssetId)).ToList(),
-                            SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue), SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue),
-                            Mapper.Map<WebAPI.Catalog.StatsType>(WebAPI.Models.AssetType.Epg));
-                    }
-                }
-                if (with.Contains(With.files)) // if files are required - parses the files
-                {
-                    for (int i = 0; i < medias.Count; i++)
-                    {
-                        mediaAssets[i].Files = Mapper.Map<List<File>>(medias[i].m_lFiles);
-                    }
-                }
-                if (with.Contains(With.images)) // if images are required - gets the stats from Catalog
-                {
-                    for (int i = 0; i < medias.Count; i++)
-                    {
-                        mediaAssets[i].Images = Mapper.Map<List<Image>>(medias[i].m_lPicture);
-                    }
-                }
-            }
-
-            return results;
-        }
-
-        private static List<SlimAssetInfo> MergeAndCompleteSlimResults(List<UnifiedSearchResult> orderedAssetsIds, List<MediaObj> medias, List<ProgramObj> epgs, List<With> with,
-            int groupID, string platform, string siteGuid, string udid)
-        {
-            List<SlimAssetInfo> results = new List<SlimAssetInfo>();
-
-            if (orderedAssetsIds == null || ((medias == null || medias.Count == 0) && (epgs == null || epgs.Count == 0)))
-            {
-                return null;
-            }
-
-            SlimAssetInfo asset = null;
-
-            List<SlimAssetInfo> mediaAssets = Mapper.Map<List<SlimAssetInfo>>(medias);
-            List<SlimAssetInfo> epgAssets = Mapper.Map<List<SlimAssetInfo>>(epgs);
-
-            if (with != null)
-            {
-                if (with.Contains(With.images)) // if images are required - gets the stats from Catalog
-                {
-                    for (int i = 0; i < medias.Count; i++)
-                    {
-                        mediaAssets[i].Images = Mapper.Map<List<Image>>(medias[i].m_lPicture);
-                    }
-                }
-            }
-
-            // order results
-            foreach (var item in orderedAssetsIds)
-            {
-                if (item.AssetType == eAssetTypes.MEDIA)
-                {
-                    asset = mediaAssets.Where(m => m != null && m.Id.ToString() == item.AssetId).FirstOrDefault();
-                    if (asset != null)
-                    {
-                        results.Add(asset);
-                        asset = null;
-                    }
-                }
-                else if (item.AssetType == eAssetTypes.EPG)
-                {
-                    asset = epgAssets.Where(p => p != null && p.Id.ToString() == item.AssetId).FirstOrDefault();
-                    if (asset != null)
-                    {
-                        results.Add(asset);
-                        asset = null;
-                    }
-                }
-            }
-
-            return results;
-        }
-
+        
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages

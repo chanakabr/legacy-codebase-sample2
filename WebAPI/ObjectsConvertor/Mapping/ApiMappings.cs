@@ -6,6 +6,8 @@ using System.Web;
 using WebAPI.Api;
 using WebAPI.Exceptions;
 using WebAPI.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -22,7 +24,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<WebAPI.Models.AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
+            Mapper.CreateMap<WebAPI.Models.Catalog.AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
             {
                 WebAPI.Catalog.StatsType result;
                 switch (type)

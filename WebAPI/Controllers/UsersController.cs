@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
 
             WebAPI.Models.User.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using log4net;
 using WebAPI.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.App_Start
 {
@@ -71,6 +72,9 @@ namespace WebAPI.App_Start
 
                 if (error != null)
                 {
+                    log.ErrorFormat("Request ID: {0}, exception: {1}",
+                    request.GetCorrelationId().ToString(),                                   // 0
+                    string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG

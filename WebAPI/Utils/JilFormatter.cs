@@ -13,6 +13,7 @@ using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Models;
 using Enyim.Caching;
+using WebAPI.Models.General;
 
 namespace WebAPI.Utils
 {

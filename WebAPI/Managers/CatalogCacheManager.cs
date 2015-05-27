@@ -20,6 +20,7 @@ namespace WebAPI.ClientManagers
 
     public class Cache
     {
+        private const int DEFAULT_DURATION = 86400;
         private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
         public List<BaseObject> GetObjects(List<CacheKey> cacheKeys, string keyPrefix, out List<long> missingIds)
@@ -71,7 +72,7 @@ namespace WebAPI.ClientManagers
 
         public void StoreObjects(List<BaseObject> objects, string keyPrefix, int duration)
         {
-            DateTime experationTime = duration > 0 ? DateTime.Now.AddMinutes(duration) : DateTime.MaxValue;
+            DateTime experationTime = duration > 0 ? DateTime.UtcNow.AddSeconds(duration) : DateTime.UtcNow.AddSeconds(DEFAULT_DURATION);
             foreach (BaseObject obj in objects)
             {
                 if (obj != null)
