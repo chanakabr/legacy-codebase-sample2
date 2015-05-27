@@ -45,8 +45,6 @@ namespace WebAPI.Utils
                         client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty, // 3
                         ex);
 
-                    client.Abort();
-
                     if (ex is CommunicationException)
                     {
                         throw new ClientException((int)StatusCode.InternalConnectionIssue, StatusCode.InternalConnectionIssue.ToString());
@@ -175,36 +173,11 @@ namespace WebAPI.Utils
                     m_sSiteGuid = request.m_sSiteGuid,
                 };
 
-                BaseResponse response = new BaseResponse();
-                try
+                AssetInfoResponse response = new AssetInfoResponse();
+                if (GetBaseResponse(client, assetsRequest, out response))
                 {
-                    response = client.GetResponse(assetsRequest);
-                }
-                catch (TimeoutException ex)
-                {
-                    log.Error(ex);
-                    client.Abort();
-                    throw new ClientException((int)StatusCode.Timeout, StatusCode.Timeout.ToString());
-                }
-                catch (CommunicationException ex)
-                {
-                    log.Error(ex);
-                    client.Abort();
-                    throw new ClientException((int)StatusCode.InternalConnectionIssue, StatusCode.InternalConnectionIssue.ToString());
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                    client.Abort();
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-                }
-
-                if (response != null)
-                {
-                    AssetInfoResponse assetInfoResponse = (AssetInfoResponse)response;
-
-                    mediasFromCatalog = CleanNullsFromAssetsList(assetInfoResponse.mediaList);
-                    epgsFromCatalog = CleanNullsFromAssetsList(assetInfoResponse.epgList);
+                    mediasFromCatalog = CleanNullsFromAssetsList(response.mediaList);
+                    epgsFromCatalog = CleanNullsFromAssetsList(response.epgList);
 
                     // Store in Cache the medias and epgs from Catalog
                     StoreAssetsInCache(mediasFromCatalog, MEDIA_CACHE_KEY_PREFIX, request.m_oFilter.m_nLanguage, cacheDuration);
