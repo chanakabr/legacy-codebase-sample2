@@ -1,23 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using WebAPI.Filters.Exceptions;
+using log4net;
 using WebAPI.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.App_Start
 {
     public class WrappingHandler : DelegatingHandler
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var response = await base.SendAsync(request, cancellationToken);
+            //logging request body
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            string requestBody = await request.Content.ReadAsStringAsync();
+            log.DebugFormat("API Request - ID: {0}, Request:{1}{2}{3}{4}",
+                            request.GetCorrelationId(),         // 0
+                            Environment.NewLine,                // 1
+                            request.RequestUri.OriginalString,  // 2
+                            Environment.NewLine,                // 3
+                            requestBody);                       // 4
 
-            return await BuildApiResponse(request, response);
+            //let other handlers process the request
+            var response = await base.SendAsync(request, cancellationToken);
+            var wrappedResponse = await BuildApiResponse(request, response);
+
+
+            // log response status code
+            sw.Stop();
+            log.DebugFormat("API Result - ID: {0}, took {1} ms. StatusCode: {2}",
+                            request.GetCorrelationId(),  // 0
+                            sw.ElapsedMilliseconds,      // 1   
+                            wrappedResponse.StatusCode); // 2
+            //sw.Reset();
+
+            return wrappedResponse;
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
@@ -44,6 +72,9 @@ namespace WebAPI.App_Start
 
                 if (error != null)
                 {
+                    log.ErrorFormat("Request ID: {0}, exception: {1}",
+                    request.GetCorrelationId().ToString(),                                   // 0
+                    string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG
@@ -71,5 +102,7 @@ namespace WebAPI.App_Start
 
             return newResponse;
         }
+
+
     }
 }

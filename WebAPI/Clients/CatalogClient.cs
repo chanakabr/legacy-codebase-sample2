@@ -1,20 +1,26 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
+using AutoMapper;
+using Enyim.Caching;
 using WebAPI.Catalog;
-using WebAPI.Clients.Exceptions;
-using WebAPI.Clients.Utils;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
 using WebAPI.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.ObjectsConvertor;
 using WebAPI.Utils;
+using WebAPI.Models.General;
 
 namespace WebAPI.Clients
 {
     public class CatalogClient : BaseClient
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -36,7 +42,6 @@ namespace WebAPI.Clients
             }
         }
 
-
         private string GetSignature(string signString, string signatureKey)
         {
             string retVal;
@@ -54,28 +59,10 @@ namespace WebAPI.Clients
             return retVal;
         }
 
-        public AssetInfoWrapper SearchAssets(int groupID, string siteGuid, string udid, int language, int pageIndex, int? pageSize,
+        public AssetInfoWrapper SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
             string filter, Order? orderBy, List<int> assetTypes, List<With> with)
         {
             AssetInfoWrapper result = new AssetInfoWrapper();
-
-            if (!string.IsNullOrEmpty(filter) && filter.Length > 500 * 1024)
-            {
-                throw new ClientException((int)StatusCode.BadRequest, "too long filter");
-            }
-            // page size - 5 <= size <= 50
-            if (pageSize == null)
-            {
-                pageSize = 25;
-            }
-            else if (pageSize > 50)
-            {
-                pageSize = 50;
-            }
-            else if (pageSize < 5)
-            {
-                throw new ClientException((int)StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -86,40 +73,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                switch (orderBy)
-                {
-                    case Order.a_to_z:
-                        order.m_eOrderBy = OrderBy.NAME;
-                        order.m_eOrderDir = OrderDir.ASC;
-                        break;
-                    case Order.z_to_a:
-                        order.m_eOrderBy = OrderBy.NAME;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.views:
-                        order.m_eOrderBy = OrderBy.VIEWS;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.ratings:
-                        order.m_eOrderBy = OrderBy.RATING;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.votes:
-                        order.m_eOrderBy = OrderBy.VOTES_COUNT;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.newest:
-                        order.m_eOrderBy = OrderBy.CREATE_DATE;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case null:
-                    case Order.relevancy:
-                        order.m_eOrderBy = OrderBy.RELATED;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.BadRequest, "Unknown order_by value");
-                }
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
             // build request
@@ -130,9 +84,9 @@ namespace WebAPI.Clients
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid,
-                    m_nLanguage = language,
+                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language),
                 },
-                m_nGroupID = groupID,
+                m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 filterQuery = filter,
@@ -142,72 +96,60 @@ namespace WebAPI.Clients
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.SearchAssets<AssetInfoWrapper>(CatalogClientModule, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                
+                // build AssetInfoWrapper response
+                if (assetsInfo != null)
+                {
+                    result.Assets = assetsInfo.Select(a => (AssetInfo)a).ToList();
+                }
+
+                result.TotalItems = searchResponse.m_nTotalItems;
+            }
             return result;
         }
 
-        public SlimAssetInfoWrapper Autocomplete(int groupID, string siteGuid, string udid, int language, int? size, string query, Order? orderBy, List<int> assetTypes, List<With> with)
+        public SlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, Order? orderBy, List<int> assetTypes, List<With> with)
         {
             SlimAssetInfoWrapper result = new SlimAssetInfoWrapper();
-
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (size == null || size > 10 || size < 1)
-            {
-                size = 5;
-            }
 
             // Create our own filter - only search in title
             string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-
             if (orderBy == null)
             {
-                order.m_eOrderBy = OrderBy.CREATE_DATE;
+                order.m_eOrderBy = OrderBy.RELATED;
                 order.m_eOrderDir = OrderDir.DESC;
             }
             else
             {
-                switch (orderBy)
-                {
-                    case Order.a_to_z:
-                        order.m_eOrderBy = OrderBy.NAME;
-                        order.m_eOrderDir = OrderDir.ASC;
-                        break;
-                    case Order.z_to_a:
-                        order.m_eOrderBy = OrderBy.NAME;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.views:
-                        order.m_eOrderBy = OrderBy.VIEWS;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.ratings:
-                        order.m_eOrderBy = OrderBy.RATING;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.votes:
-                        order.m_eOrderBy = OrderBy.VOTES_COUNT;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case Order.newest:
-                        order.m_eOrderBy = OrderBy.CREATE_DATE;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case null:
-                    case Order.relevancy:
-                        order.m_eOrderBy = OrderBy.RELATED;
-                        order.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.BadRequest, "Unknown order_by value");
-                }
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
             // build request
@@ -217,10 +159,10 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_nLanguage = language,
+                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language),
                     m_sDeviceId = udid
                 },
-                m_nGroupID = groupID,
+                m_nGroupID = groupId,
                 m_nPageIndex = 0,
                 m_nPageSize = size.Value,
                 filterQuery = filter,
@@ -230,19 +172,47 @@ namespace WebAPI.Clients
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("Autocomplete_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupID, size, 0, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            key.AppendFormat("Autocomplete_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, size, 0, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
             if (assetTypes != null && assetTypes.Count > 0)
                 key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
-            result = CatalogUtils.SearchAssets<SlimAssetInfoWrapper>(CatalogClientModule, SignString, Signature, CacheDuration, request, key.ToString(), with);
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
+
+                // build AssetInfoWrapper response
+                if (assetsInfo != null)
+                {
+                    result.Assets = assetsInfo.Select(a => (SlimAssetInfo)a).ToList();
+                }
+
+                result.TotalItems = searchResponse.m_nTotalItems;
+            }
 
             return result;
         }
 
-
-        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> with)
+        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> withList)
         {
-            WatchHistoryAssetWrapper result = new WatchHistoryAssetWrapper();
+            WatchHistoryAssetWrapper finalResults = new WatchHistoryAssetWrapper();
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -263,50 +233,51 @@ namespace WebAPI.Clients
                 OrderDir = OrderDir.DESC
             };
 
-            // fire request
-            WatchHistoryResponse response = new WatchHistoryResponse();
-            CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out response);
-
-            if (response == null ||
-                response.status == null ||
-                response.status.Code != (int)WebAPI.Models.StatusCode.OK)
+            // fire history watched request
+            WatchHistoryResponse watchHistoryResponse = new WatchHistoryResponse();
+            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out watchHistoryResponse))
             {
-                // Bad response from WS
-                throw new ClientException(response.status.Code, response.status.Message);
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-            else
+
+            if (watchHistoryResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(watchHistoryResponse.status.Code, watchHistoryResponse.status.Message);
+            }
+
+            if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
             {
                 // get base objects list
-                List<BaseObject> assetsBaseDataList = response.result.Select(x => x as BaseObject).ToList();
+                List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<MediaObj> medias = new List<MediaObj>();
-                List<ProgramObj> epgs = new List<ProgramObj>();
-                List<AssetInfo> assetInfoList = new List<AssetInfo>();
-                if (CatalogUtils.GetAssetsInfo(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, out medias, out epgs, out assetInfoList))
-                {
-                    // create response object
+                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
-                    // build final result (combine asset info and data from watch history
-                    if (assetInfoList != null)
+                // combine asset info and watch history info
+                finalResults.TotalItems = watchHistoryResponse.m_nTotalItems;
+
+                UserWatchHistory watchHistory = new UserWatchHistory();
+                foreach (var assetInfo in assetsInfo)
+                {
+                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((AssetInfo)assetInfo).Id.ToString());
+
+                    if (watchHistory != null)
                     {
-                        for (int i = 0; i < assetInfoList.Count; i++)
+                        finalResults.WatchHistoryAssets.Add(new WatchHistoryAsset()
                         {
-                            result.WatchHistoryAssets.Add(new WatchHistoryAsset()
-                            {
-                                Asset = assetInfoList[i],
-                                Duration = response.result[i].Duration,
-                                IsFinishedWatching = response.result[i].IsFinishedWatching,
-                                LastWatched = response.result[i].LastWatch,
-                                Position = response.result[i].Location
-                            });
-                        }
+                            Asset = (AssetInfo)assetInfo,
+                            Duration = watchHistory.Duration,
+                            IsFinishedWatching = watchHistory.IsFinishedWatching,
+                            LastWatched = watchHistory.LastWatch,
+                            Position = watchHistory.Location
+                        });
                     }
-                    result.TotalItems = response.m_nTotalItems;
                 }
             }
 
-            return result;
+            return finalResults;
         }
 
         public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, long startTime, long endTime, StatsType assetType)
@@ -338,9 +309,6 @@ namespace WebAPI.Clients
 
             return result;
         }
-
-
-
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)

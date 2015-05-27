@@ -1,21 +1,17 @@
 ﻿using AutoMapper;
-using Newtonsoft.Json;
-using Swashbuckle.Swagger.Annotations;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Web.Http;
+using System.Net.Http;
 using System.Web.Http.Description;
 using System.Web.Routing;
-using WebAPI.Clients.Utils;
-using WebAPI.Filters;
-using WebAPI.Managers;
-using WebAPI.Managers.Models;
-using WebAPI.Models;
+using WebAPI.Exceptions;
+using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Utils;
+using WebAPI.Models.User;
+using WebAPI.Models.General;
+using Logger;
 
 namespace WebAPI.Controllers
 {
@@ -23,7 +19,7 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("users")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
 
     public class UsersController : ApiController
     {
@@ -37,31 +33,37 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
-        [ApiAuthorize()]
-        public List<User> GetUsersData(string ids)
+        //[ApiAuthorize()]
+        public List<ClientUser> GetUsersData(string ids)
         {
-            var c = new Users.UsersService();
-
-            //XXX: Example of using the unmasking
-            string[] unmaskedIds = null;
-            try
+            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, "147", "GetUsersData"))
             {
-                unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
+                var c = new Users.UsersService();
+
+                //XXX: Example of using the unmasking
+                string[] unmaskedIds = null;
+                try
+                {
+                    using (KMonitor kmm = new KMonitor(KMonitor.EVENT_CONNTOOK, "147", "GetUsersData"))
+                    {
+                        unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
+                    }
+                }
+                catch
+                {
+                    /*
+                     * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
+                     * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
+                    */
+                    throw new BadRequestException();
+                }
+
+                var res = c.GetUsersData("users_215", "11111", unmaskedIds);
+
+                List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
+
+                return dto;
             }
-            catch
-            {
-                /*
-                 * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
-                 * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
-                */
-                throw new BadRequestException();
-            }
-
-            var res = c.GetUsersData("users_215", "11111", unmaskedIds);
-
-            List<User> dto = Mapper.Map<List<User>>(res);
-
-            return dto;
         }
 
         /// <summary>
@@ -74,14 +76,14 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         [Route(""), HttpPost]
         [Authorize()]
-        public bool Post([FromBody]User user)
+        public bool Post([FromBody]ClientUser user)
         {
 
             return true;
         }
 
         [Route("{id}")]
-        public void Put(int id, [FromBody]User value)
+        public void Put(int id, [FromBody]ClientUser value)
         {
 
         }
@@ -107,10 +109,10 @@ namespace WebAPI.Controllers
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
 
-            User user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+            WebAPI.Models.User.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
 
             if (user == null)
             {
@@ -118,7 +120,7 @@ namespace WebAPI.Controllers
             }
 
             string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
-            
+
             //TODO: get real value
             int expiration = 1462543601;
 

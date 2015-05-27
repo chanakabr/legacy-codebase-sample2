@@ -6,11 +6,12 @@ using System.Net.Http;
 using System.Text;
 using System.Web;
 using System.Web.Http.Controllers;
-using WebAPI.Managers;
-using WebAPI.Managers.Models;
+using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using Couchbase.Extensions;
-using WebAPI.Filters.Exceptions;
+using WebAPI.Models.General;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Controllers
 {
@@ -66,14 +67,14 @@ namespace WebAPI.Controllers
         {
             return true;
 
-            eRole role;
-            //TODO: use the private KS above. when KS is completed, change this to extract from the KS object
-            if (!Enum.TryParse(HttpContext.Current.Request.QueryString["ks"], false, out role) || ((Role & role) != role))
-            {
-                return false;
-            }
+            //eRole role;
+            ////TODO: use the private KS above. when KS is completed, change this to extract from the KS object
+            //if (!Enum.TryParse(HttpContext.Current.Request.QueryString["ks"], false, out role) || ((Role & role) != role))
+            //{
+            //    return false;
+            //}
 
-            return true;
+            //return true;
         }
     }
 }

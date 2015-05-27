@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Api;
-using WebAPI.Clients.Exceptions;
-using WebAPI.Clients.Utils;
-using WebAPI.Managers;
-using WebAPI.Managers.Models;
+using WebAPI.Exceptions;
+using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
+using WebAPI.Models.General;
+using WebAPI.Utils;
 
 
 namespace WebAPI.Clients

@@ -9,7 +9,7 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using WebAPI.Models;
 
-namespace WebAPI.Filters
+namespace WebAPI.Exceptions
 {
     public class ValidateModelAttribute : ActionFilterAttribute
     {
