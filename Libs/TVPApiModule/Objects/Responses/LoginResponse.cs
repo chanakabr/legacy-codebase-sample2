@@ -6,37 +6,37 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class SignInResponse
+    public class LoginResponse
     {
         [JsonProperty(PropertyName = "result")]
-        public UserSignIn Result { get; set; }
+        public UserLogIn Result { get; set; }
 
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public SignInResponse(TVPPro.SiteManager.TvinciPlatform.Users.SignInResponse signIn)
+        public LoginResponse(TVPPro.SiteManager.TvinciPlatform.Users.LoginResponse logIn)
         {
-            if (signIn != null)
+            if (logIn != null)
             {
-                this.Status = new Responses.Status(signIn.resp.Code, signIn.resp.Message);
-                this.Result = new UserSignIn(signIn);
+                this.Status = new Responses.Status(logIn.resp.Code, logIn.resp.Message);
+                this.Result = new UserLogIn(logIn);
             }
         }
 
-        public SignInResponse()
+        public LoginResponse()
         {
         }
 
     }
 
-    public class UserSignIn
+    public class UserLogIn
     {
         [JsonProperty(PropertyName = "user")]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject user { get; set; }
 
-        public UserSignIn(TVPPro.SiteManager.TvinciPlatform.Users.SignInResponse signIn)
+        public UserLogIn(TVPPro.SiteManager.TvinciPlatform.Users.LoginResponse logIn)
         {
-            this.user = signIn.user;
+            this.user = logIn.user;
         }
     }
 }

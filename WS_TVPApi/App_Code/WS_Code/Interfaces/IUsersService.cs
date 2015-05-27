@@ -70,6 +70,6 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj);
         [OperationContract]
-        TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, bool bPreventDoubleLogins);
+        TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN);
     }
 }
