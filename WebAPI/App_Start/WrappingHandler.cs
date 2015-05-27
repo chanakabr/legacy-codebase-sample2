@@ -16,23 +16,33 @@ namespace WebAPI.App_Start
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        Stopwatch sw = new Stopwatch();
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             //logging request body
+            sw.Start();
             string requestBody = await request.Content.ReadAsStringAsync();
-            log.Debug(requestBody);
+            log.DebugFormat("API Request - ID: {0}, Request:{1}{2}{3}{4}",
+                            request.GetCorrelationId(),         // 0
+                            Environment.NewLine,                // 1
+                            request.RequestUri.OriginalString,  // 2
+                            Environment.NewLine,                // 3
+                            requestBody);                       // 4
 
             //let other handlers process the request
-            var response = await base.SendAsync(request, cancellationToken);           
-            var wrapped = await BuildApiResponse(request, response);
+            var response = await base.SendAsync(request, cancellationToken);
+            var wrappedResponse = await BuildApiResponse(request, response);
 
-            //await (wrapped.Content ?? new StringContent("")).ReadAsStringAsync().ContinueWith(x =>
-            //{
-            //    log.Debug(x.Result);
-            //});
-            
-            return wrapped;
+
+            // log response status code
+            sw.Stop();
+            log.DebugFormat("API Result - ID: {0}, took {1} ms. StatusCode: {2}",
+                            request.GetCorrelationId(),  // 0
+                            sw.ElapsedMilliseconds,      // 1   
+                            wrappedResponse.StatusCode); // 2
+
+            return wrappedResponse;
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)

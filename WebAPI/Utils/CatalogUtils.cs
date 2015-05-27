@@ -1,18 +1,16 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using WebAPI.Catalog;
-using WebAPI.Models;
-using WebAPI.Utils;
-using WebAPI.ClientManagers;
-using WebAPI.Exceptions;
-using System.ServiceModel;
-using log4net;
 using System.Reflection;
-using WebAPI.Models.Catalog;
+using System.ServiceModel;
+using AutoMapper;
+using log4net;
+using WebAPI.Catalog;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor;
 
 namespace WebAPI.Utils

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Routing;
 using System.Web.Http.Description;
 using WebAPI.Exceptions;
 using WebAPI.Models;
@@ -12,6 +13,8 @@ using System.Reflection;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
+using System.Net.Http;
+
 
 namespace WebAPI.Controllers
 {
@@ -126,6 +129,8 @@ namespace WebAPI.Controllers
         [Route("watch_history"), HttpPost]
         public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, string lang, WatchHistory request)
         {
+            Request.GetCorrelationId();
+
             WatchHistoryAssetWrapper response = null;
             try
             {
@@ -160,10 +165,11 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                log.ErrorFormat("{user ID: {0}, group ID: {1}, exception: {2}",
-                    user_id != null ? user_id : string.Empty,   // 0
-                    group_id != null ? group_id : string.Empty, // 1
-                    ex);                                        // 2
+                log.ErrorFormat("Request ID: {0}, user ID: {1}, group ID: {2}, exception: {3}",
+                    Request.GetCorrelationId().ToString(),                 // 0
+                    user_id != null ? user_id : string.Empty,              // 1
+                    group_id != null ? group_id : string.Empty,            // 2
+                    ex);                                                   // 3
 
                 if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
                 {

@@ -12,11 +12,13 @@ using System.Threading.Tasks;
 using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Models;
+using Enyim.Caching;
 
 namespace WebAPI.Utils
 {
     public class JilFormatter : MediaTypeFormatter
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly Options _jilOptions;
 
         public JilFormatter()
@@ -73,6 +75,11 @@ namespace WebAPI.Utils
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 JSON.Serialize(value, streamWriter, _jilOptions);
+
+                //byte[] buf = new byte[writeStream.Length];
+                //writeStream.Read(buf, 0, (int)writeStream.Length);
+                //log.Debug(Encoding.UTF8.GetString(buf));
+
                 return Task.FromResult(writeStream);
             }
         }

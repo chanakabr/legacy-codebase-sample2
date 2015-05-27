@@ -17,7 +17,7 @@ namespace WebAPI
 
         protected void Application_Start()
         {
-            log.Info("application start");
+            log.Info("Application started");
             TCMClient.Settings.Instance.Init();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
