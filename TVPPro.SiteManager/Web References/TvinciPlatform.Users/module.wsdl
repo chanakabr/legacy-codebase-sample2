@@ -1362,7 +1362,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="SignInWithPIN">
+      <s:element name="LoginWithPIN">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -1376,14 +1376,14 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="SignInWithPINResponse">
+      <s:element name="LoginWithPINResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SignInWithPINResult" type="tns:SignInResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="LoginWithPINResult" type="tns:LoginResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="SignInResponse">
+      <s:complexType name="LoginResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
@@ -1798,11 +1798,11 @@
   <wsdl:message name="GenerateLoginPINSoapOut">
     <wsdl:part name="parameters" element="tns:GenerateLoginPINResponse" />
   </wsdl:message>
-  <wsdl:message name="SignInWithPINSoapIn">
-    <wsdl:part name="parameters" element="tns:SignInWithPIN" />
+  <wsdl:message name="LoginWithPINSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginWithPIN" />
   </wsdl:message>
-  <wsdl:message name="SignInWithPINSoapOut">
-    <wsdl:part name="parameters" element="tns:SignInWithPINResponse" />
+  <wsdl:message name="LoginWithPINSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginWithPINResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2544,9 +2544,9 @@
       <wsdl:input message="tns:GenerateLoginPINSoapIn" />
       <wsdl:output message="tns:GenerateLoginPINSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="SignInWithPIN">
-      <wsdl:input message="tns:SignInWithPINSoapIn" />
-      <wsdl:output message="tns:SignInWithPINSoapOut" />
+    <wsdl:operation name="LoginWithPIN">
+      <wsdl:input message="tns:LoginWithPINSoapIn" />
+      <wsdl:output message="tns:LoginWithPINSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
@@ -3332,8 +3332,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SignInWithPIN">
-      <soap:operation soapAction="http://users.tvinci.com/SignInWithPIN" style="document" />
+    <wsdl:operation name="LoginWithPIN">
+      <soap:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3911,8 +3911,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SignInWithPIN">
-      <soap12:operation soapAction="http://users.tvinci.com/SignInWithPIN" style="document" />
+    <wsdl:operation name="LoginWithPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

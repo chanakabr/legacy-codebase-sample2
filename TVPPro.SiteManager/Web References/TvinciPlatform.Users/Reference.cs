@@ -155,7 +155,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         private System.Threading.SendOrPostCallback GenerateLoginPINOperationCompleted;
         
-        private System.Threading.SendOrPostCallback SignInWithPINOperationCompleted;
+        private System.Threading.SendOrPostCallback LoginWithPINOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -385,7 +385,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         public event GenerateLoginPINCompletedEventHandler GenerateLoginPINCompleted;
         
         /// <remarks/>
-        public event SignInWithPINCompletedEventHandler SignInWithPINCompleted;
+        public event LoginWithPINCompletedEventHandler LoginWithPINCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2646,9 +2646,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SignInWithPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SignInResponse SignInWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
-            object[] results = this.Invoke("SignInWithPIN", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/LoginWithPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public LoginResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
+            object[] results = this.Invoke("LoginWithPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         PIN,
@@ -2657,20 +2657,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         deviceID,
                         bPreventDoubleLogins,
                         keyValueList});
-            return ((SignInResponse)(results[0]));
+            return ((LoginResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SignInWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
-            this.SignInWithPINAsync(sWSUserName, sWSPassword, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, null);
+        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
+            this.LoginWithPINAsync(sWSUserName, sWSPassword, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, null);
         }
         
         /// <remarks/>
-        public void SignInWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, object userState) {
-            if ((this.SignInWithPINOperationCompleted == null)) {
-                this.SignInWithPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSignInWithPINOperationCompleted);
+        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, object userState) {
+            if ((this.LoginWithPINOperationCompleted == null)) {
+                this.LoginWithPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnLoginWithPINOperationCompleted);
             }
-            this.InvokeAsync("SignInWithPIN", new object[] {
+            this.InvokeAsync("LoginWithPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         PIN,
@@ -2678,13 +2678,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         sIP,
                         deviceID,
                         bPreventDoubleLogins,
-                        keyValueList}, this.SignInWithPINOperationCompleted, userState);
+                        keyValueList}, this.LoginWithPINOperationCompleted, userState);
         }
         
-        private void OnSignInWithPINOperationCompleted(object arg) {
-            if ((this.SignInWithPINCompleted != null)) {
+        private void OnLoginWithPINOperationCompleted(object arg) {
+            if ((this.LoginWithPINCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SignInWithPINCompleted(this, new SignInWithPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.LoginWithPINCompleted(this, new LoginWithPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3296,7 +3296,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class SignInResponse {
+    public partial class LoginResponse {
         
         private Status respField;
         
@@ -5530,26 +5530,26 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SignInWithPINCompletedEventHandler(object sender, SignInWithPINCompletedEventArgs e);
+    public delegate void LoginWithPINCompletedEventHandler(object sender, LoginWithPINCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SignInWithPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class LoginWithPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal SignInWithPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal LoginWithPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public SignInResponse Result {
+        public LoginResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((SignInResponse)(this.results[0]));
+                return ((LoginResponse)(this.results[0]));
             }
         }
     }
