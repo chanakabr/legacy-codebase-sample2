@@ -295,16 +295,15 @@ namespace WebAPI.Clients
                 m_type = Mapper.Map<WebAPI.Catalog.StatsType>(assetType)
             };
 
-            var response = CatalogClientModule.GetResponse(request) as AssetStatsResponse;
-
-            if (response != null)
+            AssetStatsResponse response = null;
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
             {
                 result = response.m_lAssetStat != null ?
                     Mapper.Map<List<AssetStats>>(response.m_lAssetStat) : null;
             }
             else
             {
-                throw new ClientException((int)StatusCode.Error, "Failed to receive stats from catalog");
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             return result;
