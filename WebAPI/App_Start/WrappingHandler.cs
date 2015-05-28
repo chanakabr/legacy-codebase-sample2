@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using log4net;
+using Logger;
 using WebAPI.Models;
 
 namespace WebAPI.App_Start
@@ -16,13 +17,10 @@ namespace WebAPI.App_Start
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        
+
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            //logging request body
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             string requestBody = await request.Content.ReadAsStringAsync();
             log.DebugFormat("API Request - ID: {0}, Request:{1}{2}{3}{4}",
                             request.GetCorrelationId(),         // 0
@@ -31,20 +29,23 @@ namespace WebAPI.App_Start
                             Environment.NewLine,                // 3
                             requestBody);                       // 4
 
-            //let other handlers process the request
-            var response = await base.SendAsync(request, cancellationToken);
-            var wrappedResponse = await BuildApiResponse(request, response);
+
+            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, ))
+            {
+                //let other handlers process the request
+                var response = await base.SendAsync(request, cancellationToken);
+                var wrappedResponse = await BuildApiResponse(request, response);
 
 
-            // log response status code
-            sw.Stop();
-            log.DebugFormat("API Result - ID: {0}, took {1} ms. StatusCode: {2}",
-                            request.GetCorrelationId(),  // 0
-                            sw.ElapsedMilliseconds,      // 1   
-                            wrappedResponse.StatusCode); // 2
-            //sw.Reset();
+                //// log response status code         
+                //log.DebugFormat("API Result - ID: {0}, took {1} ms. StatusCode: {2}",
+                //                request.GetCorrelationId(),  // 0
+                //                sw.ElapsedMilliseconds,      // 1   
+                //                wrappedResponse.StatusCode); // 2
+                //sw.Reset();
 
-            return wrappedResponse;
+                return wrappedResponse;
+            }
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)

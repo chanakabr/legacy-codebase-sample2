@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
+using System.Web;
 using AutoMapper;
 using log4net;
+using Logger;
 using WebAPI.Catalog;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -32,7 +35,11 @@ namespace WebAPI.Utils
             {
                 try
                 {
-                    baseResponse = client.GetResponse(request);
+                    HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
+                    using (KMonitor km = new KMonitor(KMonitor.EVENT_CONNTOOK, request.m_nGroupID.ToString(), httpRequestMessage.GetRequestContext().RouteData.Route.RouteTemplate))
+                    {
+                        baseResponse = client.GetResponse(request);
+                    }
                 }
                 catch (Exception ex)
                 {

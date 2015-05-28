@@ -129,8 +129,6 @@ namespace WebAPI.Controllers
         [Route("watch_history"), HttpPost]
         public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, string lang, WatchHistory request)
         {
-            Request.GetCorrelationId();
-
             WatchHistoryAssetWrapper response = null;
             try
             {
