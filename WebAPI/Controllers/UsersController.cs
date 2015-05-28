@@ -36,18 +36,18 @@ namespace WebAPI.Controllers
         //[ApiAuthorize()]
         public List<ClientUser> GetUsersData(string ids)
         {
-            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, "147", "GetUsersData"))
-            {
+            //using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, "147", "GetUsersData"))
+            //{
                 var c = new Users.UsersService();
 
                 //XXX: Example of using the unmasking
                 string[] unmaskedIds = null;
                 try
                 {
-                    using (KMonitor kmm = new KMonitor(KMonitor.EVENT_CONNTOOK, "147", "GetUsersData"))
-                    {
+                    //using (KMonitor kmm = new KMonitor(KMonitor.EVENT_CONNTOOK, "147", "GetUsersData"))
+                    //{
                         unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
-                    }
+                   // }
                 }
                 catch
                 {
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
                 List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
 
                 return dto;
-            }
+            //}
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
 
             WebAPI.Models.User.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);

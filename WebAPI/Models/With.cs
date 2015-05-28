@@ -7,10 +7,10 @@ namespace WebAPI.Models
 {
     public enum With
     {
+        images,
+
         files,
 
-        stats,
-
-        images
+        stats
     }
 }

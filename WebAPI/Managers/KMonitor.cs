@@ -56,7 +56,7 @@ namespace Logger
         public const string EVENT_CONNTOOK = "conn";
         public const string EVENT_DUMPFILE = "file";
 
-        public KMonitor(string eventName, string groupID, string action)
+        public KMonitor(string eventName, string groupID, string action, string uniqueID, string clientTag)
         {
             this.Watch = new Stopwatch();
             this.Watch.Start();
@@ -64,17 +64,23 @@ namespace Logger
             this.Event = eventName;
             this.Server = Environment.MachineName;
             this.IPAddress = HttpContext.Current.Request.UserHostAddress;
-            HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
-            this.UniqueID = httpRequestMessage.GetCorrelationId().ToString();
+            this.UniqueID = uniqueID;
             this.PartnerID = groupID;
             this.Action = action;
-            this.ClientTag = HttpContext.Current.Request.UserAgent;
+            this.ClientTag = clientTag;
 
             /* In case this is a start event, we fire it first, and on dispose, we will fire the END */
             if (eventName == EVENT_API_START)
             {
                 logger.Monitor(this.ToString());
             }
+        }
+
+        public KMonitor(string eventName, string groupID)
+            : this(eventName, groupID, HttpContext.Current.Items["kmon_action"].ToString(),
+            HttpContext.Current.Items["kmon_req_id"].ToString(), HttpContext.Current.Request.UserAgent)
+        {
+
         }
 
         public virtual void Dispose()

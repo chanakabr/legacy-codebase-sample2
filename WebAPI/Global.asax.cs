@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
@@ -22,5 +23,12 @@ namespace WebAPI
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
         }
+
+        protected void Begin_Request()
+        {
+            HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
+            HttpContext.Current.Items.Add("kmon_req_id", httpRequestMessage.GetCorrelationId().ToString());
+        }
+
     }
 }

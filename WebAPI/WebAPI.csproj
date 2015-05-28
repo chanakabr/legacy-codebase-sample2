@@ -613,11 +613,11 @@
     <Compile Include="Models\General\Credentials.cs" />
     <Compile Include="Models\General\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="Models\AssetType.cs" />
-    <Compile Include="Models\Autocomplete.cs" />
-    <Compile Include="Models\BaseListWrapper.cs" />
+    <Compile Include="Models\Catalog\AssetType.cs" />
+    <Compile Include="Models\Catalog\Autocomplete.cs" />
+    <Compile Include="Models\General\BaseListWrapper.cs" />
     <Compile Include="Models\Catalog\IAssetable.cs" />
-    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\Catalog\Order.cs" />
     <Compile Include="Models\Catalog\SearchAssets.cs" />
     <Compile Include="Models\Language.cs" />
     <Compile Include="Models\General\KS.cs" />
@@ -627,7 +627,7 @@
     <Compile Include="Models\Catalog\File.cs" />
     <Compile Include="Models\Catalog\Image.cs" />
     <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
-    <Compile Include="Models\Status.cs" />
+    <Compile Include="Models\General\Status.cs" />
     <Compile Include="Models\User\SignIn.cs" />
     <Compile Include="Models\User\ClientUser.cs" />
     <Compile Include="Models\Catalog\WatchHistory.cs" />
