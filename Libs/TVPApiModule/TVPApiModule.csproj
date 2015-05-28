@@ -199,7 +199,11 @@
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
+    <Compile Include="Objects\Responses\Rules\PinResponse.cs" />
     <Compile Include="Objects\Responses\Program.cs" />
+    <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
+    <Compile Include="Objects\Responses\Rules\ParentalRulesResponse.cs" />
+    <Compile Include="Objects\Responses\Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />

@@ -452,5 +452,292 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        #region Parental Rules
+
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalRules()
+        {
+            TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetParentalRules(m_wsUserName, m_wsPassword);
+
+                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetParentalRules."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetDomainParentalRule(int domainId)
+        {
+            TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetDomainParentalRules(m_wsUserName, m_wsPassword, domainId);
+
+                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetDomainParentalRule."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetUserParentalRules(string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid);
+
+                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetUserParentalRules."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.Status SetParentalRules(string siteGuid, int domainID, long ruleId, int isActive)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    var webServiceRespone = m_Module.SetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid, ruleId, isActive);
+
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
+                else
+                {
+                    var webServiceRespone = m_Module.SetDomainParentalRules(m_wsUserName, m_wsPassword, domainID, ruleId, isActive);
+
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to SetParentalRules."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(int domainId, string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.PinResponse response = new Objects.Responses.PinResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetParentalPIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
+
+                response = new Objects.Responses.PinResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetParentalPin."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.Status SetParentalPIN(string siteGuid, int domainID, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                var webServiceRespone = m_Module.SetParentalPIN(m_wsUserName, m_wsPassword, domainID, siteGuid, pin);
+
+                status.Code = webServiceRespone.Code;
+                status.Message = webServiceRespone.Message;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to SetParentalPIN."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.PurchaseSettingsResponse GetPurchaseSettings(int domainId, string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.PurchaseSettingsResponse response = new Objects.Responses.PurchaseSettingsResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid);
+
+                response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetPurchaseSettings."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.Status SetPurchaseSettings(int domainId, string siteGuid, int setting)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                var webServiceRespone = m_Module.SetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid, setting);
+
+                status.Code = webServiceRespone.Code;
+                status.Message = webServiceRespone.Message;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to SetPurchaseSettings."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.PurchaseSettingsResponse GetPurchasePIN(int domainId, string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.PurchaseSettingsResponse response = new Objects.Responses.PurchaseSettingsResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
+
+                response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetPurchasePIN."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.Status SetPurchasePIN(int domainId, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                var webServiceRespone = m_Module.SetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid, pin);
+
+                status.Code = webServiceRespone.Code;
+                status.Message = webServiceRespone.Message;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to SetPurchasePIN."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(int domainId, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                var webServiceRespone = m_Module.ValidateParentalPIN(m_wsUserName, m_wsPassword, siteGuid, pin);
+
+                status.Code = webServiceRespone.Code;
+                status.Message = webServiceRespone.Message;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to ValidateParentalPIN."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.Status ValidatePurchasePIN(int domainId, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                var webServiceRespone = m_Module.ValidatePurchasePIN(m_wsUserName, m_wsPassword, siteGuid, pin);
+
+                status.Code = webServiceRespone.Code;
+                status.Message = webServiceRespone.Message;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to ValidatePurchasePIN."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
+
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalMediaRules(string siteGuid, long mediaId)
+        {
+            TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetParentalMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId);
+
+                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetParentalMediaRules."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(string siteGuid, long epgId)
+        {
+            TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
+
+            try
+            {
+                var webServiceResponse = m_Module.GetParentalEPGRules(m_wsUserName, m_wsPassword, siteGuid, epgId);
+
+                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetParentalEPGRules."), ex);
+                response.status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        #endregion
+
     }
 }

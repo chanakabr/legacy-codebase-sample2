@@ -40,7 +40,7 @@ namespace TVPApiServices
         List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index);
 
         [OperationContract]
-        PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
+        PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
 
         [OperationContract]
         DoSocialActionResponse DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam);
@@ -113,5 +113,47 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalRules(InitializationObject initObj);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetDomainParentalRule(InitializationObject initObj);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetUserParentalRules(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status SetParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.PurchaseSettingsResponse GetPurchaseSettings(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status SetPurchaseSettings(InitializationObject initObj, string siteGuid, int setting);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.PurchaseSettingsResponse GetPurchasePIN(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status SetPurchasePIN(InitializationObject initObj, string siteGuid, string pin);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status ValidatePurchasePIN(InitializationObject initObj, string siteGuid, string pin);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalMediaRules(InitializationObject initObj, string siteGuid, long mediaId);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(InitializationObject initObj, string siteGuid, long epgId);
     }
 }

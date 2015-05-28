@@ -1409,8 +1409,6 @@ namespace TVPApiServices
         
         #endregion
 
-        
-
         //[WebMethod(EnableSession = true, Description = "Generates the temporary device token")]
         //public string GenerateDeviceToken(InitializationObject initObj, string appId)
         //{
@@ -1583,6 +1581,389 @@ namespace TVPApiServices
 
             return response;
         }
-        
+
+        #region Parental Rules
+
+        [WebMethod(EnableSession = true, Description = "Get Group Parental Rules")]
+        public ParentalRulesResponse GetParentalRules(InitializationObject initObj)
+        {
+            ParentalRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalRules();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Domain Parental Rules")]
+        public ParentalRulesResponse GetDomainParentalRule(InitializationObject initObj)
+        {
+            ParentalRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainParentalRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetDomainParentalRule(initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get User Parental Rules")]
+        public ParentalRulesResponse GetUserParentalRules(InitializationObject initObj, string siteGuid)
+        {
+            ParentalRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserParentalRules(userGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets parental rules")]
+        public TVPApiModule.Objects.Responses.Status SetParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalRules(siteGuid, initObj.DomainID, ruleId, isActive);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets Parental PIN")]
+        public PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid)
+        {
+            PinResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetParentalPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalPIN(initObj.DomainID, siteUserGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets Parental PIN")]
+        public TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetParentalPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalPIN(siteGuid, initObj.DomainID, pin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets Purchase Settings")]
+        public PurchaseSettingsResponse GetPurchaseSettings(InitializationObject initObj, string siteGuid)
+        {
+            PurchaseSettingsResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPurchaseSettings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetPurchaseSettings(initObj.DomainID, siteUserGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets Purchase Settings")]
+        public TVPApiModule.Objects.Responses.Status SetPurchaseSettings(InitializationObject initObj, string siteGuid, int setting)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetPurchaseSettings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetPurchaseSettings(initObj.DomainID, siteGuid, setting);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets Purchase PIN")]
+        public PurchaseSettingsResponse GetPurchasePIN(InitializationObject initObj, string siteGuid)
+        {
+            PurchaseSettingsResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPurchasePIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetPurchasePIN(initObj.DomainID, siteUserGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets Purchase PIN")]
+        public TVPApiModule.Objects.Responses.Status SetPurchasePIN(InitializationObject initObj, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetPurchasePIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetPurchasePIN(initObj.DomainID, siteGuid, pin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Validates Parental PIN")]
+        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ValidateParentalPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).ValidateParentalPIN(initObj.DomainID, siteUserGuid, pin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Validates Purchase PIN")]
+        public TVPApiModule.Objects.Responses.Status ValidatePurchasePIN(InitializationObject initObj, string siteGuid, string pin)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ValidatePurchasePIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).ValidatePurchasePIN(initObj.DomainID, siteUserGuid, pin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets Parental rules that apply to media")]
+        public ParentalRulesResponse GetParentalMediaRules(InitializationObject initObj, string siteGuid, long mediaId)
+        {
+            ParentalRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetParentalMediaRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalMediaRules(userGuid, mediaId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets Parental rules that apply to program")]
+        public ParentalRulesResponse GetParentalEPGRules(InitializationObject initObj, string siteGuid, long epgId)
+        {
+            ParentalRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetParentalEPGRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalEPGRules(userGuid, epgId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        #endregion
     }
 }
