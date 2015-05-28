@@ -650,17 +650,17 @@ namespace TVPApiServices
         #endregion
 
 
-        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(InitializationObject initObj, string PIN, bool preventDoubleLogins)
+        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN)
         {
-            TVPApiModule.Objects.Responses.SignInResponse response = null;
+            TVPApiModule.Objects.Responses.LoginResponse response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignInWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithPIN(PIN, initObj.UDID, preventDoubleLogins);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, initObj.UDID);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&
@@ -679,14 +679,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    response = new TVPApiModule.Objects.Responses.SignInResponse();
+                    response = new TVPApiModule.Objects.Responses.LoginResponse();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                response = new TVPApiModule.Objects.Responses.SignInResponse();
+                response = new TVPApiModule.Objects.Responses.LoginResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

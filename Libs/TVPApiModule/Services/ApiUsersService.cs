@@ -910,19 +910,19 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.SignInResponse SignInWithPIN(string PIN, string deviceID, bool isDoubleLogin)
+        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(string PIN, string deviceID)
         {
-            TVPApiModule.Objects.Responses.SignInResponse response = null;
+            TVPApiModule.Objects.Responses.LoginResponse response = null;
             try
             {                
                 string sessionID = "0";
-                var result = m_Module.SignInWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, isDoubleLogin, null);
-                response = new TVPApiModule.Objects.Responses.SignInResponse(result);
+                var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null);
+                response = new TVPApiModule.Objects.Responses.LoginResponse(result);
             }
             catch (Exception ex)
             {
                 logger.Error(string.Format("Error while trying to get regions."), ex);
-                response = new TVPApiModule.Objects.Responses.SignInResponse();
+                response = new TVPApiModule.Objects.Responses.LoginResponse();
                 response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
             return response;
