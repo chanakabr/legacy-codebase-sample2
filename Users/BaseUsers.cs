@@ -723,7 +723,7 @@ namespace Users
                         response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
                         response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
 
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.GenerateNewLoginPIN, "new login pin generate for user");
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
                     }
                 }
                 else
@@ -789,9 +789,9 @@ namespace Users
             return sNewPIN;
         }
 
-        public SignInResponse SignInWithPIN(int groupID, string PIN)
+        public LoginResponse LoginWithPIN(int groupID, string PIN)
         {
-            SignInResponse response = new SignInResponse();
+            LoginResponse response = new LoginResponse();
             try
             {
                 //Try to get users by PIN from DB 
@@ -818,7 +818,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                response = new SignInResponse();
+                response = new LoginResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
                 Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
             }

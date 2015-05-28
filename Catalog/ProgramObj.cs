@@ -44,6 +44,7 @@ namespace Catalog
         public ProgramObj()
             : base()
         {
+            this.AssetType = ApiObjects.eAssetTypes.EPG;
             this.m_oProgram = new ApiObjects.EPGChannelProgrammeObject();
         }
     }
