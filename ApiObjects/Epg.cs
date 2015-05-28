@@ -183,9 +183,9 @@ namespace ApiObjects
                         else
                         {
                             // compare the values between the lists
-                            foreach (string sMetaValue in obj.Tags[objMetaKey])
+                            foreach (string sMetaValue in obj.Metas[objMetaKey])
                             {
-                                if (!this.Tags[objMetaKey.ToLower()].Contains(sMetaValue))
+                                if (!this.Metas[objMetaKey.ToLower()].Contains(sMetaValue))
                                 {
                                     return false;
                                 }

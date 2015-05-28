@@ -20,6 +20,7 @@ namespace ApiObjects.Epg
         [DataMember(IsRequired = false)]
         public int PicID { set; get; }
 
+        [DataMember(IsRequired = false)]
         public string Url { set; get; }
 
 
