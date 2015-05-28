@@ -7,9 +7,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
-using log4net;
-using Logger;
+using KLogMonitor;
 using WebAPI.Models;
 using WebAPI.Models.General;
 
@@ -17,36 +17,28 @@ namespace WebAPI.App_Start
 {
     public class WrappingHandler : DelegatingHandler
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger();
 
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            string requestBody = await request.Content.ReadAsStringAsync();
-            log.DebugFormat("API Request - ID: {0}, Request:{1}{2}{3}{4}",
-                            request.GetCorrelationId(),         // 0
-                            Environment.NewLine,                // 1
-                            request.RequestUri.OriginalString,  // 2
-                            Environment.NewLine,                // 3
-                            requestBody);                       // 4
+            // get request ID
+            HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
 
+            // log request body
+            log.DebugFormat("API Request - Request:{0}{1}{2}{3}", true,
+                            Environment.NewLine,                          // 0
+                            request.RequestUri.OriginalString,            // 1
+                            Environment.NewLine,                          // 2
+                            await request.Content.ReadAsStringAsync());   // 3
 
-            //using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, ))
-            //{
+            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START))
+            {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
                 var wrappedResponse = await BuildApiResponse(request, response);
-
-
-                //// log response status code         
-                //log.DebugFormat("API Result - ID: {0}, took {1} ms. StatusCode: {2}",
-                //                request.GetCorrelationId(),  // 0
-                //                sw.ElapsedMilliseconds,      // 1   
-                //                wrappedResponse.StatusCode); // 2
-                //sw.Reset();
-
                 return wrappedResponse;
-         //   }
+            }
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
@@ -73,7 +65,7 @@ namespace WebAPI.App_Start
 
                 if (error != null)
                 {
-                    log.ErrorFormat("Request ID: {0}, exception: {1}",
+                    log.ErrorFormat("Request ID: {0}, exception: {1}", true, null,
                     request.GetCorrelationId().ToString(),                                   // 0
                     string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
                     content = null;

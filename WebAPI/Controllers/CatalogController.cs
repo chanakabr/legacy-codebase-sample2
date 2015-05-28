@@ -8,12 +8,12 @@ using System.Web.Routing;
 using System.Web.Http.Description;
 using WebAPI.Exceptions;
 using WebAPI.Models;
-using log4net;
 using System.Reflection;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
 using System.Net.Http;
+using KLogMonitor;
 
 
 namespace WebAPI.Controllers
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
     [RoutePrefix("catalog")]
     public class CatalogController : ApiController
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger();
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]

@@ -11,14 +11,14 @@ using Couchbase.Extensions;
 using WebAPI.Exceptions;
 using WebAPI.Utils;
 using WebAPI.Models.General;
-using log4net;
 using System.Reflection;
+using KLogMonitor;
 
 namespace WebAPI.ClientManagers
 {
     public class GroupsManager
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger();
         private static string groupKeyFormat;
         private static int groupCacheTtlSeconds;
 
@@ -38,7 +38,7 @@ namespace WebAPI.ClientManagers
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.Error("Error while initiating groups manager", true, ex);
                 throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
             }
         }
@@ -69,7 +69,7 @@ namespace WebAPI.ClientManagers
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex);
+                        log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}", true, ex, groupKey, groupId);
                         throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                     }
                     finally
@@ -92,7 +92,7 @@ namespace WebAPI.ClientManagers
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}", true, ex, groupKey, groupId);
                     throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                 }
                 finally

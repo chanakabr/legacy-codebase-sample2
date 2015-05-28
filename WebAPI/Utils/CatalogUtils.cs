@@ -6,8 +6,6 @@ using System.Reflection;
 using System.ServiceModel;
 using System.Web;
 using AutoMapper;
-using log4net;
-using Logger;
 using WebAPI.Catalog;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
@@ -15,12 +13,13 @@ using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor;
 using WebAPI.Models.General;
+using KLogMonitor;
 
 namespace WebAPI.Utils
 {
     public class CatalogUtils
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger();
 
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";
@@ -35,22 +34,22 @@ namespace WebAPI.Utils
             {
                 try
                 {
-                    HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
+                    //HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
                     //using (KMonitor km = new KMonitor(KMonitor.EVENT_CONNTOOK, request.m_nGroupID.ToString(), httpRequestMessage.GetRequestContext().RouteData.Route.RouteTemplate))
                     //{
-                        baseResponse = client.GetResponse(request);
+                    baseResponse = client.GetResponse(request);
                     //}
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, group ID: {1}, request type: {2}, request address: {3} Exception: {4}",
+                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, group ID: {1}, request type: {2}, request address: {3}", true, ex,
                         request.m_sSiteGuid != null ? request.m_sSiteGuid : string.Empty,                            // 0
                         request.m_nGroupID,                                                                          // 1
                         request.GetType(),                                                                           // 2
                         client.Endpoint != null &&
                         client.Endpoint.Address != null &&
-                        client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty, // 3
-                        ex);
+                        client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty  // 3
+                        );
 
                     if (ex is CommunicationException)
                     {
@@ -234,7 +233,7 @@ namespace WebAPI.Utils
 
             return result;
         }
-        
+
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages

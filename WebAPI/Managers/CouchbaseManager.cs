@@ -8,16 +8,17 @@ using System.Threading;
 using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Models;
-using log4net;
 using System.Reflection;
+using KLogMonitor;
 
 namespace WebAPI.ClientManagers
 {
-    public enum CouchbaseBucket { Groups = 0}
+    public enum CouchbaseBucket { Groups = 0 }
 
     public class CouchbaseManager
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        //private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger();
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
@@ -45,7 +46,7 @@ namespace WebAPI.ClientManagers
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex);
+                        log.ErrorFormat("Error while getting CB instance {0}", true, ex, eBucket.ToString());
                         throw new InternalServerErrorException();
                     }
                     finally
@@ -64,7 +65,7 @@ namespace WebAPI.ClientManagers
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.ErrorFormat("Error while getting CB instance_ {0}", true, ex, eBucket.ToString());
                     throw new InternalServerErrorException();
                 }
                 finally
