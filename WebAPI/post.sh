@@ -40,6 +40,7 @@ fi
 
 for file in $assembly_files; do
   sed -i.bak "s/\AssemblyInformationalVersion(\".*\")/AssemblyInformationalVersion(\"$tag\")/g" $file
+  cmd //c "Icacls Properties /t /grant Everyone:(f)"
 done
 
 #cat $rootPath/Properties/AssemblyInfo.cs
