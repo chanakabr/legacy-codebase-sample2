@@ -571,6 +571,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Managers\KLogger.cs" />
     <Compile Include="Managers\KMonitor.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />

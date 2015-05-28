@@ -66,6 +66,9 @@ namespace Logger
         public const string EVENT_API_START = "start";
         private const string EVENT_API_END = "end";
         public const string EVENT_DATABASE = "db";
+        public const string EVENT_COUCHBASE = "cb";
+        public const string EVENT_ELASTIC = "elastic";
+        public const string EVENT_RABBITMQ = "rabbit";
         public const string EVENT_SPHINX = "sphinx";
         public const string EVENT_CONNTOOK = "conn";
         public const string EVENT_DUMPFILE = "file";
