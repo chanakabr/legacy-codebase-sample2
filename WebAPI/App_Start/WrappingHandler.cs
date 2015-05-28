@@ -11,6 +11,7 @@ using System.Web.Http;
 using log4net;
 using Logger;
 using WebAPI.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.App_Start
 {
@@ -30,8 +31,8 @@ namespace WebAPI.App_Start
                             requestBody);                       // 4
 
 
-            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, ))
-            {
+            //using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START, ))
+            //{
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
                 var wrappedResponse = await BuildApiResponse(request, response);
@@ -45,7 +46,7 @@ namespace WebAPI.App_Start
                 //sw.Reset();
 
                 return wrappedResponse;
-            }
+         //   }
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
@@ -72,6 +73,9 @@ namespace WebAPI.App_Start
 
                 if (error != null)
                 {
+                    log.ErrorFormat("Request ID: {0}, exception: {1}",
+                    request.GetCorrelationId().ToString(),                                   // 0
+                    string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG

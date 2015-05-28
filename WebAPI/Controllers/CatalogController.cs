@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets)
+        public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets, string language = null)
         {
             return PostSearch(group_id, search_assets);
         }
@@ -36,29 +36,52 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="search_assets">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper PostSearch(string group_id, SearchAssets search_assets)
+        public AssetInfoWrapper PostSearch(string group_id, SearchAssets request, string language = null)
         {
             AssetInfoWrapper response = null;
+
+            // parameters validation
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 500 * 1024)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "too long filter");
+            }
+
+            // page size - 5 <= size <= 50
+            if (request.page_size == null || request.page_size == 0)
+            {
+                request.page_size = 25;
+            }
+            else if (request.page_size > 50)
+            {
+                request.page_size = 50;
+            }
+            else if (request.page_size < 5)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, 0,
-                search_assets.page_index, search_assets.page_size, search_assets.filter, search_assets.order_by, search_assets.filter_types, search_assets.with);
+                // call client
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
+                request.page_index, request.page_size, request.filter, request.order_by, request.filter_types, request.with);
             }
             catch (ClientException ex)
             {
                 // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
-                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
+                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
                 {
                     throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
@@ -71,32 +94,39 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper PostAutocomplete(string group_id, Autocomplete request)
+        public SlimAssetInfoWrapper PostAutocomplete(string group_id, Autocomplete request, string language = null)
         {
             SlimAssetInfoWrapper response = null;
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (request.size == null || request.size > 10 || request.size < 1)
+            {
+                request.size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, 0, request.size, request.query, request.order_by, request.filter_types, request.with);
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, request.size, request.query, request.order_by, request.filter_types, request.with);
             }
             catch (ClientException ex)
             {
-                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
-                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
+                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003
+                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || ex.Code == 4002 || ex.Code <= 4003)
                 {
                     throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
@@ -109,7 +139,7 @@ namespace WebAPI.Controllers
 
         [Route("autocomplete"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public SlimAssetInfoWrapper GetAutocomplete(string group_id, [FromUri] Autocomplete request)
+        public SlimAssetInfoWrapper GetAutocomplete(string group_id, [FromUri] Autocomplete request, string language = null)
         {
             return PostAutocomplete(group_id, request);
         }
@@ -119,57 +149,51 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="group_id" >Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="lang">Language Code</param>
+        /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("watch_history"), HttpPost]
-        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, string lang, WatchHistory request)
+        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, WatchHistory request, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            // page size - 5 <= size <= 50
+            if (request.page_size == null || request.page_size == 0)
+            {
+                request.page_size = 25;
+            }
+            else if (request.page_size > 50)
+            {
+                request.page_size = 50;
+            }
+            else if (request.page_size < 5)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+            }
+
+            // days - default value 7
+            if (request.days == 0)
+                request.days = 7;
             try
             {
-                // parameters validation
-                int groupId;
-                if (!int.TryParse(group_id, out groupId))
-                {
-                    throw new BadRequestException((int)WebAPI.Models.StatusCode.BadRequest, "group_id must be an integer");
-                }
-
-                // page size - 5 <= size <= 50
-                if (request.page_size == null || request.page_size == 0)
-                {
-                    request.page_size = 25;
-                }
-                else if (request.page_size > 50)
-                {
-                    request.page_size = 50;
-                }
-                else if (request.page_size < 5)
-                {
-                    throw new ClientException((int)WebAPI.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
-                }
-
-                // days - default value 7
-                if (request.days == 0)
-                    request.days = 7;
-
                 // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, lang, request.page_index, request.page_size,
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, request.page_index, request.page_size,
                                                                        request.filter_status, request.days, request.filter_types, request.with);                                
             }
             catch (ClientException ex)
             {
-                log.ErrorFormat("Request ID: {0}, user ID: {1}, group ID: {2}, exception: {3}",
-                    Request.GetCorrelationId().ToString(),                 // 0
-                    user_id != null ? user_id : string.Empty,              // 1
-                    group_id != null ? group_id : string.Empty,            // 2
-                    ex);                                                   // 3
-
-                if (ex.Code == (int)WebAPI.Models.StatusCode.BadRequest)
+                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest)
                 {
                     throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 }
@@ -180,11 +204,11 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        //[Route("autocomplete"), HttpGet]
-        //[ApiExplorerSettings(IgnoreApi = true)]
-        //public WatchHistoryAssetWrapper GetWatchHistory(string group_id, [FromUri] Autocomplete request)
-        //{
-        //    return PostAutocomplete(group_id, request);
-        //}
+        [Route("watch_history"), HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public WatchHistoryAssetWrapper GetWatchHistory(string group_id, string user_id, [FromUri] WatchHistory request, string language = null)
+        {
+            return PostWatchHistory(group_id, user_id, request, language);
+        }
     }
 }
