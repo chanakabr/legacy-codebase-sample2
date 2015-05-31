@@ -62,6 +62,11 @@ namespace CouchbaseWrapper
             return _client.StoreJson(StoreMode.Set, document.Id, document, ttl);
         }
 
+        public bool Add<T>(T document, DateTime expiresAt) where T : CbDocumentBase
+        {
+            return _client.StoreJson(StoreMode.Add, document.Id, document, expiresAt);
+        }
+
         public bool Remove(string id)
         {
             return _client.Remove(id);
