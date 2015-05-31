@@ -18,6 +18,13 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_sSiteGUID)))
                 .ForMember(dest => dest.DomainID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName));
+
+            // PinCode
+            Mapper.CreateMap<Users.PinCodeResponse, LoginPin>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+                .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
+                .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
         }
+
     }
 }

@@ -12,6 +12,9 @@ using WebAPI.Exceptions;
 using WebAPI.Models.General;
 using KLogMonitor;
 using System.Reflection;
+using WebAPI.Models.User;
+using System.ServiceModel;
+using System.Net;
 
 namespace WebAPI.Clients
 {
@@ -53,6 +56,45 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue);
             }
             return user;
+        }
+
+        public LoginPin GenerateLoginPin(int groupId, string userId)
+        {
+            LoginPin pinCode = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            PinCodeResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GenerateLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. groupId = {0}, userId: {1}, request address: {2}", true, ex,
+                        groupId,                           // 0
+                        userId,                            // 1
+                        Users.Url                          // 2
+                        );
+
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.resp.Code, response.resp.Message);
+            }
+
+            pinCode = Mapper.Map<LoginPin>(response);
+
+            return pinCode;
         }
     }
 }

@@ -18,10 +18,62 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("users")]
-    //[ApiExplorerSettings(IgnoreApi = true)]
-
     public class UsersController : ApiController
     {
+        /// <summary>
+        /// Generates a temporarily PIN that can allow a user to log-in.
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
+        /// </summary>
+        /// <param name="search_assets">The search asset request parameter</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("generate_login_pin"), HttpPost]
+        public LoginPin PostGenerateLoginPin([FromUri] string group_id, [FromUri] string user_id)
+        {
+            LoginPin response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest)
+                {
+                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
+                }
+
+                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+            }
+
+            return response;
+        }
+
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("generate_login_pin"), HttpGet]
+        public LoginPin GetGenerateLoginPin(string group_id, string user_id)
+        {
+            return PostGenerateLoginPin(group_id, user_id);
+        }
+
         /// <summary>
         /// Retrieving users' data
         /// </summary>
@@ -33,6 +85,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         [Route("{ids}"), HttpGet]
         //[ApiAuthorize()]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public List<ClientUser> GetUsersData(string ids)
         {
             var c = new Users.UsersService();
@@ -67,6 +120,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         [Route(""), HttpPost]
         [Authorize()]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public bool Post([FromBody]ClientUser user)
         {
 
@@ -74,12 +128,14 @@ namespace WebAPI.Controllers
         }
 
         [Route("{id}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public void Put(int id, [FromBody]ClientUser value)
         {
 
         }
 
         [Route("{id}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public void Delete(int id)
         {
 
@@ -90,6 +146,7 @@ namespace WebAPI.Controllers
         /// <param name="request">Credentials</param>
         /// <param name="group_id">Group ID</param>
         [Route("sign_in"), HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
         {
             //TODO: add parameters
@@ -117,5 +174,7 @@ namespace WebAPI.Controllers
 
             return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         }
+
+
     }
 }

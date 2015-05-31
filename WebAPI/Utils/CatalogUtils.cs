@@ -49,20 +49,7 @@ namespace WebAPI.Utils
                         client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty  // 2
                         );
 
-                    if (ex is CommunicationException)
-                    {
-                        throw new ClientException((int)StatusCode.InternalConnectionIssue, StatusCode.InternalConnectionIssue.ToString());
-                    }
-
-                    if (ex is TimeoutException)
-                    {
-                        throw new ClientException((int)StatusCode.Timeout, StatusCode.Timeout.ToString());
-                    }
-
-                    if (ex is Exception)
-                    {
-                        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-                    }
+                    ErrorUtils.HandleWSException(ex);
                 }
 
                 if (baseResponse == null && shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))

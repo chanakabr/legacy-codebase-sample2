@@ -1332,6 +1332,63 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GenerateLoginPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GenerateLoginPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GenerateLoginPINResult" type="tns:PinCodeResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PinCodeResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="pinCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="expiredDate" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="LoginWithPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PIN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginWithPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginWithPINResult" type="tns:LoginResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="LoginResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
@@ -1348,6 +1405,7 @@
       <s:element name="UserGroupRuleResponse" nillable="true" type="tns:UserGroupRuleResponse" />
       <s:element name="ArrayOfUserType" nillable="true" type="tns:ArrayOfUserType" />
       <s:element name="int" type="s:int" />
+      <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
     </s:schema>
     <s:schema targetNamespace="http://users.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -1733,6 +1791,18 @@
   </wsdl:message>
   <wsdl:message name="GetUserTypeSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserTypeResponse" />
+  </wsdl:message>
+  <wsdl:message name="GenerateLoginPINSoapIn">
+    <wsdl:part name="parameters" element="tns:GenerateLoginPIN" />
+  </wsdl:message>
+  <wsdl:message name="GenerateLoginPINSoapOut">
+    <wsdl:part name="parameters" element="tns:GenerateLoginPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginWithPINSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginWithPIN" />
+  </wsdl:message>
+  <wsdl:message name="LoginWithPINSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginWithPINResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2213,6 +2283,14 @@
   <wsdl:message name="GetUserTypeHttpPostOut">
     <wsdl:part name="Body" element="tns:int" />
   </wsdl:message>
+  <wsdl:message name="GenerateLoginPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GenerateLoginPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:PinCodeResponse" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -2462,6 +2540,14 @@
       <wsdl:input message="tns:GetUserTypeSoapIn" />
       <wsdl:output message="tns:GetUserTypeSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <wsdl:input message="tns:GenerateLoginPINSoapIn" />
+      <wsdl:output message="tns:GenerateLoginPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <wsdl:input message="tns:LoginWithPINSoapIn" />
+      <wsdl:output message="tns:LoginWithPINSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -2671,6 +2757,10 @@
     <wsdl:operation name="GetUserType">
       <wsdl:input message="tns:GetUserTypeHttpPostIn" />
       <wsdl:output message="tns:GetUserTypeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <wsdl:input message="tns:GenerateLoginPINHttpPostIn" />
+      <wsdl:output message="tns:GenerateLoginPINHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -3226,6 +3316,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserType">
       <soap:operation soapAction="http://users.tvinci.com/GetUserType" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <soap:operation soapAction="http://users.tvinci.com/GenerateLoginPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <soap:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3794,6 +3902,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/GenerateLoginPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -4250,6 +4376,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserType">
       <http:operation location="/GetUserType" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <http:operation location="/GenerateLoginPIN" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

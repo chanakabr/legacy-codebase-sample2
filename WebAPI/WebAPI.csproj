@@ -531,14 +531,20 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Web References\Users\LoginResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Web References\Users\Reference.map">
+    <Content Include="Web References\Users\PinCodeResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Users\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Users\ResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -571,6 +577,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\User\LoginPin.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
@@ -652,6 +659,7 @@
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
     <Compile Include="Utils\Enums.cs" />
+    <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Web References\Api\Reference.cs">
