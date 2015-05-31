@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="KLogger.cs" />
     <Compile Include="KMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

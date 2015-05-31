@@ -61,23 +61,13 @@ namespace KLogMonitor
 
         private Stopwatch Watch { get; set; }
 
-        public const string EVENT_API_START = "start";
-        private const string EVENT_API_END = "end";
-        public const string EVENT_DATABASE = "db";
-        public const string EVENT_COUCHBASE = "cb";
-        public const string EVENT_ELASTIC = "elastic";
-        public const string EVENT_RABBITMQ = "rabbit";
-        public const string EVENT_SPHINX = "sphinx";
-        public const string EVENT_CONNTOOK = "conn";
-        public const string EVENT_DUMPFILE = "file";
-
-        public KMonitor(string eventName, string groupID = null, string action = null, string uniqueID = null, string clientTag = null)
+        public KMonitor(Events.eEvent eventName, string groupID = null, string action = null, string uniqueID = null, string clientTag = null)
         {
             // start counter
             this.Watch = new Stopwatch();
             this.Watch.Start();
 
-            this.Event = eventName;
+            this.Event = Events.GetEventString(eventName);
             this.Server = Environment.MachineName;
 
             // If used under WEB
@@ -113,7 +103,7 @@ namespace KLogMonitor
                 this.ClientTag = clientTag;
 
             /* In case this is a start event, we fire it first, and on dispose, we will fire the END */
-            if (eventName == EVENT_API_START)
+            if (eventName == Events.eEvent.EVENT_API_START)
                 logger.Monitor(this.ToString());
         }
 
@@ -126,10 +116,10 @@ namespace KLogMonitor
         {
             this.Watch.Stop();
 
-            if (this.Event == EVENT_API_START)
+            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
             {
                 /* We are firing the END event, so we just overriding the START */
-                this.Event = EVENT_API_END;
+                this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
             }
 
             logger.Monitor(this.ToString());
