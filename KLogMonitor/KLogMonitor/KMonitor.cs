@@ -140,7 +140,8 @@ namespace KLogMonitor
             {
                 // first load - there may be an exception - ignore it!
             }
-            
+
+            return string.Empty;
         }
     }
 
