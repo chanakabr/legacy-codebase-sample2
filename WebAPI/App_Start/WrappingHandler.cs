@@ -34,11 +34,12 @@ namespace WebAPI.App_Start
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_API_START))
             {
+            }
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
                 var wrappedResponse = await BuildApiResponse(request, response);
                 return wrappedResponse;
-            }
+            
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
