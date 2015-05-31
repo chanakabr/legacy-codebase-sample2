@@ -19,6 +19,15 @@ namespace KLogMonitor
             EVENT_SPHINX,
             EVENT_CONNTOOK,
             EVENT_DUMPFILE,
+            EVENT_WS
+        }
+
+        public enum eDBQueryType
+        {
+            SELECT,
+            UPDATE,
+            INSERT,
+            DELETE
         }
 
         internal static string GetEventString(eEvent eventMonitor)
@@ -43,6 +52,8 @@ namespace KLogMonitor
                     return Constants.EVENT_CONNTOOK;
                 case eEvent.EVENT_DUMPFILE:
                     return Constants.EVENT_DUMPFILE;
+                case eEvent.EVENT_WS:
+                    return Constants.EVENT_WS;
                 default:
                     break;
             }

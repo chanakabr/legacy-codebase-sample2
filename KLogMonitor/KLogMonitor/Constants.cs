@@ -25,5 +25,6 @@ namespace KLogMonitor
         public const string EVENT_SPHINX = "sphinx";
         public const string EVENT_CONNTOOK = "conn";
         public const string EVENT_DUMPFILE = "file";
+        public const string EVENT_WS = "ws";
     }
 }

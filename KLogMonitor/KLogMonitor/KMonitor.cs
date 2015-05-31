@@ -45,7 +45,12 @@ namespace KLogMonitor
         public string Table { get; set; }
 
         [DataMember(Name = "q")]
-        public string QueryType { get; set; }
+        public string QueryTypeString { get; private set; }
+
+        public Events.eDBQueryType QueryType
+        {
+            set { this.QueryTypeString = value.ToString(); }
+        }
 
         [DataMember(Name = "d")]
         public string Database { get; set; }
