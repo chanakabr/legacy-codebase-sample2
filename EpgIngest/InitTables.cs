@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace EpgIngest
 {
-    public static class InitTables
+    internal static class InitTables
     {
-        public static readonly int MaxDescriptionSize = 1024;
-        public static readonly int MaxNameSize = 255;
+        internal static readonly int MaxDescriptionSize = 1024;
+        internal static readonly int MaxNameSize = 255;
 
         internal static DataTable InitEPGProgramMetaDataTable()
         {

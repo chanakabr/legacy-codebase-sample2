@@ -86,7 +86,8 @@ namespace Catalog
     public enum eIngestType
     {
         Tvinci = 0,
-        Adi = 1
+        Adi = 1,
+        KalturaEpg = 2
     }
 
     public enum eBundleType

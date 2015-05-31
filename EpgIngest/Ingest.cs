@@ -4,9 +4,12 @@ using EpgBL;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 
@@ -29,9 +32,9 @@ namespace EpgIngest
         {            
         }
 
-        public void Initialize(EpgChannels epgChannel)
+        public void Initialize(string Data)
         {
-            m_Channels = epgChannel;
+            m_Channels = SerializeEpgChannel(Data);          
             oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
             lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
@@ -43,10 +46,49 @@ namespace EpgIngest
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
         }
 
-        public void SaveChannelPrograms()
+        private EpgChannels SerializeEpgChannel(string Data)
         {
+            EpgChannels epgchannel = null;
             try
             {
+                XmlSerializer ser = new XmlSerializer(typeof(EpgChannels));
+                XmlReaderSettings settings = new XmlReaderSettings();
+                // No settings need modifying here
+                using (StringReader textReader = new StringReader(Data))
+                {
+                    using (XmlReader xmlReader = XmlReader.Create(textReader, settings))
+                    {
+                        epgchannel = (EpgChannels)ser.Deserialize(xmlReader);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SerializeEpgChannel", string.Format("exception={0}", ex.Message), "EpgIngest");
+                epgchannel = null;
+            }
+            return epgchannel;
+        }
+
+        //public void Initialize(EpgChannels epgChannel)
+        //{
+        //    m_Channels = epgChannel;
+        //    oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
+        //    lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
+        //    // get mapping tags and metas 
+        //    FieldEntityMapping = Utils.GetMappingFields(m_Channels.parentgroupid);
+        //    update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+        //    nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+        //    // get mapping between ratio_id and ratio 
+        //    Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
+        //    ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
+        //}
+
+        public string SaveChannelPrograms()
+        {
+            bool success = true;
+            try
+            {                
                 int kalturaChannelID;
                 string channelID;
                 EpgChannelType epgChannelType;
@@ -67,20 +109,26 @@ namespace EpgIngest
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
 
-                        SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType);
+                        if (success)
+                        {
+                            success = returnSuccess;
+                        }
                     }
                 }
+                return success.ToString();
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SaveChannelPrograms", string.Format("exception={0}", ex.Message), "EpgGenerator");
+                Logger.Logger.Log("SaveChannelPrograms", string.Format("exception={0}", ex.Message), "EpgIngest");
+                return "false";
             }
         }
 
-        private void SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
-
+            bool success = false;
             int nCount = 0;
             int nPicID = 0;
             List<ulong> epgIds = new List<ulong>();
@@ -114,7 +162,7 @@ namespace EpgIngest
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
-                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", prog.start, prog.stop), "EPG");
+                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", prog.start, prog.stop), "EpgIngest");
                         continue;
                     }
 
@@ -229,7 +277,8 @@ namespace EpgIngest
                 }
                 catch (Exception exc)
                 {
-                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, exc.Message), "EpgFeeder");
+                    success = false;
+                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, exc.Message), "EpgIngest");
                 }
             }
             #endregion
@@ -290,6 +339,9 @@ namespace EpgIngest
 
             //start Upload proccess Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(m_Channels.parentgroupid);
+
+            success = true;
+            return success;
         }
         
         private Dictionary<string, List<string>> GetEpgProgramMetas(programme prog, string language)
@@ -320,7 +372,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgFeeder");
+                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgIngest");
                 return new Dictionary<string, List<string>>();
             }
         }
@@ -352,7 +404,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgFeeder");
+                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgIngest");
                 return new Dictionary<string, List<string>>();
             }
         }
@@ -445,7 +497,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "GraceNoteFeeder");
+                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "EpgIngest");
             }
         }
 
@@ -499,7 +551,7 @@ namespace EpgIngest
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgIngest");
                 return;
             }
         }
@@ -561,7 +613,7 @@ namespace EpgIngest
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgIngest");
                 return;
             }
         }
@@ -702,7 +754,7 @@ namespace EpgIngest
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgFeeder");
+                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgIngest");
                 }
                 metaField = null;
             }
@@ -724,7 +776,7 @@ namespace EpgIngest
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
+                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgIngest");
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -867,7 +919,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "GraceNoteFeeder");
+                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "EpgIngest");
                 return null;
             }
         }
@@ -882,7 +934,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgIngest");
                 return false;
             }
         }

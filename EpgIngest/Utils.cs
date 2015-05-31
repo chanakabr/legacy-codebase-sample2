@@ -11,9 +11,9 @@ using Tvinci.Core.DAL;
 
 namespace EpgIngest
 {
-    public static class Utils
+    internal static class Utils
     {
-        public static List<LanguageObj> GetLanguages(int nGroupID)
+        internal static List<LanguageObj> GetLanguages(int nGroupID)
         {
             List<LanguageObj> lLang = new List<LanguageObj>();
             try
@@ -28,7 +28,7 @@ namespace EpgIngest
             }
         }
 
-        public static List<FieldTypeEntity> GetMappingFields(int nGroupID)
+        internal static List<FieldTypeEntity> GetMappingFields(int nGroupID)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace EpgIngest
             }
         }
 
-        public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
+        internal static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)
                 return false;
