@@ -31,7 +31,7 @@ namespace KLogMonitor
         {
             this.logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
-            this.ClassName = ClassName;
+            this.ClassName = className;
         }
 
         public static void Configure(string logConfigFile)
