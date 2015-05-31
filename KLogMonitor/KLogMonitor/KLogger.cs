@@ -16,27 +16,22 @@ namespace KLogMonitor
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private class LogEvent
-        {
-            public enum LogLevel { INFO, DEBUG, ERROR }
-            public string Message { get; set; }
-            public Exception Exception { get; set; }
-            public LogLevel Level { get; set; }
-        }
-
-        private string Server { get; set; }
-        public string IPAddress { get; set; }
         public string UniqueID { get; set; }
         public string PartnerID { get; set; }
+        public string ClassName { get; set; }
         public string Action { get; set; }
         public string ClientTag { get; set; }
         public string ErrorCode { get; set; }
+        private string Server { get; set; }
+        public string IPAddress { get; set; }
+
         private List<LogEvent> logs;
 
-        public KLogger()
+        public KLogger(string className)
         {
             this.logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
+            this.ClassName = ClassName;
         }
 
         public static void Configure(string logConfigFile)
@@ -44,8 +39,7 @@ namespace KLogMonitor
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
         }
 
-        private void handleEvent(string msg, KLogger.LogEvent.LogLevel level,
-            bool isFlush, Exception ex = null)
+        private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, Exception ex = null)
         {
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
             {
@@ -80,7 +74,7 @@ namespace KLogMonitor
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("{0} - s:{1} ip:{2} req:{3} partner:{4} action:{5} client:{6} error:{7} msg:{8}",
+            return string.Format("{0} - server:{1} ip:{2} req id:{3} partner:{4} action:{5} client:{6} error:{7} msg:{8}",
                 creationDate,                                  // 0
                 Server != null ? Server : string.Empty,        // 1
                 IPAddress != null ? IPAddress : string.Empty,  // 2
@@ -149,6 +143,14 @@ namespace KLogMonitor
                 sendLog(e);
 
             logs.Clear();
+        }
+
+        private class LogEvent
+        {
+            public enum LogLevel { INFO, DEBUG, ERROR }
+            public string Message { get; set; }
+            public Exception Exception { get; set; }
+            public LogLevel Level { get; set; }
         }
     }
 }
