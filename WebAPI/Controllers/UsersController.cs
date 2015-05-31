@@ -21,10 +21,9 @@ namespace WebAPI.Controllers
     public class UsersController : ApiController
     {
         /// <summary>
-        /// Generates a temporarily PIN that can allow a user to log-in.
+        /// Generates a temporarily PIN that can allow a user to log-in.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
-        /// </summary>
-        /// <param name="search_assets">The search asset request parameter</param>
+        /// </summary>        
         /// <param name="group_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <remarks></remarks>
