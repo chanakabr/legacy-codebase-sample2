@@ -76,11 +76,6 @@ namespace WebAPI.Utils
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 JSON.Serialize(value, streamWriter, _jilOptions);
-
-                //byte[] buf = new byte[writeStream.Length];
-                //writeStream.Read(buf, 0, (int)writeStream.Length);
-                //log.Debug(Encoding.UTF8.GetString(buf));
-
                 return Task.FromResult(writeStream);
             }
         }

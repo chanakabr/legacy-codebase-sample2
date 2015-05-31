@@ -26,11 +26,9 @@ namespace WebAPI.App_Start
             HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
 
             // log request body
-            log.DebugFormat("API Request:{0}{1}{2}{3}", true,
-                            Environment.NewLine,                          // 0
-                            request.RequestUri.OriginalString,            // 1
-                            Environment.NewLine,                          // 2
-                            await request.Content.ReadAsStringAsync());   // 3
+            log.DebugFormat("API Request - \n{0}\n{1}", true,
+                            request.RequestUri.OriginalString,            // 0
+                            await request.Content.ReadAsStringAsync());   // 1
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_API_START))
             {
@@ -63,16 +61,15 @@ namespace WebAPI.App_Start
                 else
                     subCode = StatusCode.Error;
 
+                string errMsg = string.Concat(message, error.ExceptionMessage, error.StackTrace);
                 if (error != null)
                 {
-                    log.ErrorFormat("Request ID: {0}, exception: {1}", true, null,
-                    request.GetCorrelationId().ToString(),                                   // 0
-                    string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
+                    log.ErrorFormat("{0}", true, null, errMsg);
 
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG
-                    message = string.Concat(message, error.ExceptionMessage, error.StackTrace);
+                    message = errMsg;
 #endif
                 }
             }
