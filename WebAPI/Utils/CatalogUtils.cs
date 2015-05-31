@@ -34,21 +34,19 @@ namespace WebAPI.Utils
             {
                 try
                 {
-                    //HttpRequestMessage httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
-                    //using (KMonitor km = new KMonitor(KMonitor.EVENT_CONNTOOK, request.m_nGroupID.ToString(), httpRequestMessage.GetRequestContext().RouteData.Route.RouteTemplate))
-                    //{
-                    baseResponse = client.GetResponse(request);
-                    //}
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CONNTOOK))
+                    {
+                        baseResponse = client.GetResponse(request);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, group ID: {1}, request type: {2}, request address: {3}", true, ex,
+                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, request address: {2}", true, ex,
                         request.m_sSiteGuid != null ? request.m_sSiteGuid : string.Empty,                            // 0
-                        request.m_nGroupID,                                                                          // 1
-                        request.GetType(),                                                                           // 2
+                        request.GetType(),                                                                           // 1
                         client.Endpoint != null &&
                         client.Endpoint.Address != null &&
-                        client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty  // 3
+                        client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty  // 2
                         );
 
                     if (ex is CommunicationException)

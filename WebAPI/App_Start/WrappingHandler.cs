@@ -26,13 +26,13 @@ namespace WebAPI.App_Start
             HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
 
             // log request body
-            log.DebugFormat("API Request - Request:{0}{1}{2}{3}", true,
+            log.DebugFormat("API Request:{0}{1}{2}{3}", true,
                             Environment.NewLine,                          // 0
                             request.RequestUri.OriginalString,            // 1
                             Environment.NewLine,                          // 2
                             await request.Content.ReadAsStringAsync());   // 3
 
-            using (KMonitor km = new KMonitor(KMonitor.EVENT_API_START))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_API_START))
             {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
