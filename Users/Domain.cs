@@ -291,6 +291,8 @@ namespace Users
                 }
                 if (oLimitationsManager.lDeviceFamilyLimitations != null)
                 {
+                    m_oLimitationsManager.lDeviceFamilyLimitations = oLimitationsManager.lDeviceFamilyLimitations;
+
                     foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                     {
                         DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency);
@@ -1620,7 +1622,12 @@ namespace Users
         private void IncrementDeviceCount(Device device)
         {
             if (device.IsActivated())
-                m_totalNumOfDevices++;
+            {
+                if (m_oDeviceFamiliesMapping.ContainsKey(device.m_deviceFamilyID) && !m_oDeviceFamiliesMapping[device.m_deviceFamilyID].IsUnlimitedQuantity())
+                {
+                    m_totalNumOfDevices++;
+                }
+            }
         }
 
         private void MapDeviceToFamily(Device device)
