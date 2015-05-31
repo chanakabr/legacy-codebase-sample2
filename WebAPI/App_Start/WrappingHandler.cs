@@ -61,16 +61,15 @@ namespace WebAPI.App_Start
                 else
                     subCode = StatusCode.Error;
 
+                string errMsg = string.Concat(message, error.ExceptionMessage, error.StackTrace);
                 if (error != null)
                 {
-                    log.ErrorFormat("Request ID: {0}, exception: {1}", true, null,
-                    request.GetCorrelationId().ToString(),                                   // 0
-                    string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
+                    log.ErrorFormat("{0}", true, null, errMsg);
 
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG
-                    message = string.Concat(message, error.ExceptionMessage, error.StackTrace);
+                    message = errMsg;
 #endif
                 }
             }
