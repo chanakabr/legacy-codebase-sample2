@@ -887,7 +887,24 @@ namespace DAL
 
             return (lTransactionId);
         }
-        
+
+
+        public static string getEmailDateFormat(int groupId)
+        {
+            string dateFormat = string.Empty; 
+            StoredProcedure sp = new StoredProcedure("Get_EmailDateFormat");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null)
+            {
+                if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    dateFormat = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "date_email_format");
+                }
+            }
+            return dateFormat;
+        }
     }
 }
 
