@@ -93,6 +93,9 @@ namespace KLogMonitor
                 case LogEvent.LogLevel.DEBUG:
                     logger.Debug(logEvent.Message, logEvent.Exception);
                     break;
+                case LogEvent.LogLevel.WARNING:
+                    logger.Warn(logEvent.Message, logEvent.Exception);
+                    break;
                 case LogEvent.LogLevel.ERROR:
                     logger.Error(logEvent.Message, logEvent.Exception);
                     break;
@@ -126,6 +129,18 @@ namespace KLogMonitor
             handleEvent(msg, KLogger.LogEvent.LogLevel.INFO, isFlush);
         }
 
+        public void Warning(string sMessage, bool isFlush = true, Exception ex = null)
+        {
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, isFlush, ex);
+        }
+
+        public void WarningFormat(string format, bool isFlush = true, Exception ex = null, params object[] args)
+        {
+            string msg = string.Format(format, args);
+            handleEvent(msg, KLogger.LogEvent.LogLevel.WARNING, isFlush, ex);
+        }
+
+
         public void Error(string sMessage, bool isFlush = true, Exception ex = null)
         {
             handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, isFlush, ex);
@@ -147,7 +162,7 @@ namespace KLogMonitor
 
         private class LogEvent
         {
-            public enum LogLevel { INFO, DEBUG, ERROR }
+            public enum LogLevel { INFO, DEBUG, WARNING, ERROR }
             public string Message { get; set; }
             public Exception Exception { get; set; }
             public LogLevel Level { get; set; }
