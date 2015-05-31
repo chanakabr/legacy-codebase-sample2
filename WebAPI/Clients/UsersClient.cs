@@ -73,10 +73,8 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. groupId = {0}, userId: {1}, request address: {2}", true, ex,
-                        groupId,                           // 0
-                        userId,                            // 1
-                        Users.Url                          // 2
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}", true, ex,
+                        Users.Url                          // 0
                         );
 
                 ErrorUtils.HandleWSException(ex);

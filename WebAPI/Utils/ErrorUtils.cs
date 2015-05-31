@@ -28,5 +28,17 @@ namespace WebAPI.Utils
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
         }
+
+
+        public static void HandleClientException(ClientException ex, List<int> additionalBadRequestStatusCodes = null)
+        {
+
+            if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (additionalBadRequestStatusCodes != null && additionalBadRequestStatusCodes.Contains(ex.Code)))
+            {
+                throw new BadRequestException(ex.Code, ex.ExceptionMessage);
+            }
+
+            throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+        }
     }
 }

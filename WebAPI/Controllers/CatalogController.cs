@@ -81,12 +81,7 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
-                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (ex.Code >= 4002 && ex.Code <= 4005))
-                {
-                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
-                }
-
-                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+                ErrorUtils.HandleClientException(ex, new List<int>() { 4002, 4003, 4004, 4005 });
             }
 
             return response;
@@ -126,12 +121,7 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003
-                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || ex.Code == 4002 || ex.Code <= 4003)
-                {
-                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
-                }
-
-                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+                ErrorUtils.HandleClientException(ex, new List<int>() { 4002, 4003 });
             }
 
             return response;
@@ -193,12 +183,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest)
-                {
-                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
-                }
-
-                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+                ErrorUtils.HandleClientException(ex);
             }
 
             return response;

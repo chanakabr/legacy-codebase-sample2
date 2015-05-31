@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("generate_login_pin"), HttpPost]
+        [Route("signup/pin"), HttpPost]
         public LoginPin PostGenerateLoginPin([FromUri] string group_id, [FromUri] string user_id)
         {
             LoginPin response = null;
@@ -55,12 +55,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest)
-                {
-                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
-                }
-
-                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+                ErrorUtils.HandleClientException(ex);
             }
 
             return response;
@@ -68,11 +63,14 @@ namespace WebAPI.Controllers
 
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("generate_login_pin"), HttpGet]
+        [Route("signup/pin"), HttpGet]
         public LoginPin GetGenerateLoginPin(string group_id, string user_id)
         {
             return PostGenerateLoginPin(group_id, user_id);
         }
+
+
+
 
         /// <summary>
         /// Retrieving users' data
