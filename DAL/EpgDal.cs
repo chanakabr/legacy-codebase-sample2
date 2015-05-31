@@ -554,6 +554,18 @@ namespace Tvinci.Core.DAL
             }
 
             return ratios;
-        }       
+        }
+
+        public static bool DeleteEpgProgramPicturess(List<int> epgIDs, int groupID, int channelID)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_EpgProgramPictures");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@channelID", channelID);
+
+            bool retVal = sp.ExecuteReturnValue<bool>();
+            return retVal;
+        }
     }
 }

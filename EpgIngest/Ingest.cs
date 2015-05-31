@@ -607,6 +607,8 @@ namespace EpgIngest
 
                 // delete all values per tag and meta for programIDS that exsits 
                 bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, groupID);
+                bool bDeletePictures = EpgDal.DeleteEpgProgramPicturess(epgIDs, groupID, channelID);
+
                 Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
                 Utils.InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
                 Utils.InsertBulk(dtEpgPictures, "epg_multi_pictures", sConn);//insert Multi epg pictures to DB
