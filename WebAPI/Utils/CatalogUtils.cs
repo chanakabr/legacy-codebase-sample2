@@ -34,7 +34,7 @@ namespace WebAPI.Utils
             {
                 try
                 {
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CONNTOOK))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         baseResponse = client.GetResponse(request);
                     }

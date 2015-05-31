@@ -10,15 +10,19 @@ using WebAPI.Users;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.Clients
 {
     public class UsersClient : BaseClient
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public UsersClient()
         {
         }
-       
+
         protected WebAPI.Users.UsersService Users
         {
             get
@@ -35,11 +39,17 @@ namespace WebAPI.Clients
             try
             {
                 //TODO: add parameters
-                UserResponseObject response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
+                UserResponseObject response;
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
+                }
+
                 user = Mapper.Map<WebAPI.Models.User.ClientUser>(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.ErrorFormat("Error while signing in. Username: {0}", true, ex, userName);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue);
             }
             return user;

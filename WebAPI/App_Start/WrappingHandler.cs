@@ -68,6 +68,7 @@ namespace WebAPI.App_Start
                     log.ErrorFormat("Request ID: {0}, exception: {1}", true, null,
                     request.GetCorrelationId().ToString(),                                   // 0
                     string.Concat(message, error.ExceptionMessage, error.StackTrace));       // 1
+
                     content = null;
                     message = error.ExceptionMessage;
 #if DEBUG
@@ -95,7 +96,5 @@ namespace WebAPI.App_Start
 
             return newResponse;
         }
-
-
     }
 }

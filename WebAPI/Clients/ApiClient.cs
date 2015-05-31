@@ -9,12 +9,16 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Utils;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace WebAPI.Clients
 {
     public class ApiClient : BaseClient
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public ApiClient()
         {
         }
@@ -31,12 +35,15 @@ namespace WebAPI.Clients
         {
             try
             {
-                return Api.GetGroupLanguages(username, password);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    return Api.GetGroupLanguages(username, password);
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.ErrorFormat("Error while trying to get languages. username: {0}", true, ex, username);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
-
             }
         }
 

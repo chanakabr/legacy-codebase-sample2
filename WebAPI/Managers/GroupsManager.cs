@@ -108,18 +108,20 @@ namespace WebAPI.ClientManagers
         {
             Group group = null;
 
-            group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = Events.eDBQueryType.SELECT })
+            {
+                group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
+            }
 
             if (group == null)
             {
+                log.Warning("failed to get group cache from Couchbase");
                 throw new Exception();
             }
 
             var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
             if (languages != null)
-            {
                 group.Languages = Mapper.Map<List<Language>>(languages);
-            }
 
             return group;
         }
