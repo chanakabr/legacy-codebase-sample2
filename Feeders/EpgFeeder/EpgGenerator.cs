@@ -21,7 +21,12 @@ namespace EpgFeeder
     {
         #region Member
         EpgChannels m_Channels;
-        List<LanguageObj> lLanguage = new List<LanguageObj>();
+        BaseEpgBL oEpgBL;
+        List<LanguageObj> lLanguage = new List<LanguageObj>();        
+        List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
+        Dictionary<int, string> ratios;
+        string update_epg_package;
+        int nCountPackage;
 
         protected static readonly int MaxDescriptionSize = 1024;        
         public static readonly int MaxNameSize = 255;
@@ -34,8 +39,15 @@ namespace EpgFeeder
         public void Initialize(EpgChannels epgChannel)
         {
             m_Channels = epgChannel;
-            List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
-            Dictionary<string, List<EpgChannelObj>> epgChannelDict = EpgDal.GetAllEpgChannelsDic(m_Channels.groupid, channelExternalIds);
+            oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
+            lLanguage = GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
+            // get mapping tags and metas 
+            FieldEntityMapping = GetMappingFields(m_Channels.parentgroupid);
+            update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+            nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            // get mapping between ratio_id and ratio 
+            Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
+            ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
         }
 
         public void SaveChannelPrograms()
@@ -47,8 +59,9 @@ namespace EpgFeeder
                 EpgChannelType epgChannelType;
 
                 // get the kaltura+ type to each channel by its external id                
-                List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
+                List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();                
                 Dictionary<string, List<EpgChannelObj>> epgChannelDict = EpgDal.GetAllEpgChannelsDic(m_Channels.groupid, channelExternalIds);
+                
                 //Run for each channel - 
                 foreach (KeyValuePair<string, List<EpgChannelObj>> channel in epgChannelDict)
                 {
@@ -57,7 +70,6 @@ namespace EpgFeeder
 
                     foreach (EpgChannelObj epgChannelObj in channel.Value)
                     {
-
                         kalturaChannelID = epgChannelObj.ChannelId;
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
@@ -74,16 +86,7 @@ namespace EpgFeeder
 
         private void SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
         {
-            // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????
-
-            lLanguage = GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
-
-            // get mapping tags and metas 
-            List<FieldTypeEntity> FieldEntityMapping = GetMappingFields(m_Channels.parentgroupid);
-
-            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
-            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             
             int nCount = 0;
             int nPicID = 0;
@@ -139,53 +142,22 @@ namespace EpgFeeder
                     newEpgItem.isActive = true;
                     newEpgItem.Status = 1;
 
+                    string picName = string.Empty;
+                    #region Name  With languages
                     foreach (title name in prog.title)
                     {
                         language = name.lang.ToLower();
                         newEpgItem.Name = name.Value;
                         dEpgCbTranslate.Add(language, newEpgItem);
 
-                        if (language == m_Channels.mainlang.ToLower() && prog.icon != null) // create the urlPic if this is the main language
+                        if (language == m_Channels.mainlang.ToLower())
                         {
-                            #region Upload Picture
-                            foreach (icon icon in prog.icon)
-                            {
-                                string imgurl = icon.src; // TO BE ABLE TO WORK WITH MORE THEN ONE PIC 
-                                int ratio = ODBCWrapper.Utils.GetIntSafeVal(icon.ratio);
-                                epgPicture = new EpgPicture();
-                                if (!string.IsNullOrEmpty(imgurl))
-                                {
-                                    nPicID = ImporterImpl.DownloadEPGPic(imgurl, name.Value, m_Channels.groupid, 0, kalturaChannelID, ratio);
-
-                                    if (nPicID != 0)
-                                    {
-                                        //Update CB, the DB is updated in the end with all other data
-                                        sPicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
-                                    }
-                                    //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
-                                    if (newEpgItem.PicID == 0)
-                                    {
-                                        newEpgItem.PicID = nPicID;
-                                    }
-                                    if (string.IsNullOrEmpty(newEpgItem.PicUrl))
-                                    {
-                                        newEpgItem.PicUrl = sPicUrl;
-                                    }
-
-                                    if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
-                                    {
-                                        epgPicture.Url = sPicUrl;
-                                        epgPicture.PicID = nPicID;
-                                        epgPicture.Ratio = icon.ratio;
-                                        newEpgItem.pictures.Add(epgPicture);
-                                    }
-                                }
-                            }
-                            #endregion
+                            picName = name.Value;
                         }
                     }
+                    #endregion
 
-                    #region Description With languages     
+                    #region Description With languages
                     if (prog.desc != null)
                     {
                         foreach (desc description in prog.desc)
@@ -202,7 +174,47 @@ namespace EpgFeeder
                             }
                         }
                     }
-                    #endregion 
+                    #endregion  
+                      
+                     #region Upload Picture
+                    if (!string.IsNullOrEmpty(picName) && prog.icon != null) // create the urlPic if this is the main language
+                    {
+                        foreach (icon icon in prog.icon)
+                        {
+                            string imgurl = icon.src; // TO BE ABLE TO WORK WITH MORE THEN ONE PIC 
+                            // get the ratioid by ratio
+                            int ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.Where(x => x.Value == icon.ratio).FirstOrDefault().Key);
+                            epgPicture = new EpgPicture();
+                            if (!string.IsNullOrEmpty(imgurl))
+                            {
+                                nPicID = ImporterImpl.DownloadEPGPic(imgurl, picName, m_Channels.groupid, 0, kalturaChannelID, ratio);
+
+                                if (nPicID != 0)
+                                {
+                                    //Update CB, the DB is updated in the end with all other data
+                                    sPicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
+                                }
+                                //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
+                                if (newEpgItem.PicID == 0)
+                                {
+                                    newEpgItem.PicID = nPicID;
+                                }
+                                if (string.IsNullOrEmpty(newEpgItem.PicUrl))
+                                {
+                                    newEpgItem.PicUrl = sPicUrl;
+                                }
+
+                                if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
+                                {
+                                    epgPicture.Url = sPicUrl;
+                                    epgPicture.PicID = nPicID;
+                                    epgPicture.Ratio = icon.ratio;
+                                    newEpgItem.pictures.Add(epgPicture);
+                                }
+                            }
+                        }
+                    }
+                    #endregion                   
 
                     #region Tags and Metas
                     foreach (KeyValuePair<string, EpgCB> epg in dEpgCbTranslate)
@@ -236,8 +248,7 @@ namespace EpgFeeder
 
             //insert EPGs to DB in batches
             InsertEpgsDBBatches(ref dEpg, m_Channels.groupid, nCountPackage, FieldEntityMapping, m_Channels.mainlang.ToLower(), dPublishDate, kalturaChannelID);
-
-
+            
             // Delete all EpgIdentifiers that are not needed (per channel per day)
             List<int> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
             List<string> docIds = BuildDocIdsToRemoveGroupPrograms(lProgramsID);
@@ -362,10 +373,6 @@ namespace EpgFeeder
             int nEpgCount = 0;
             try
             {
-                // get mapping between ratio_id and ratio 
-                Dictionary<string, string> sRatios =  EpgDal.Get_PicsEpgRatios();
-                Dictionary<int, string> ratios = sRatios.ToDictionary(x=> int.Parse(x.Key) , x=>x.Value);
-
                 foreach (string sGuid in epgDic.Keys)
                 {
                     // get only the main language
