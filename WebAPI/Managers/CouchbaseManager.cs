@@ -18,7 +18,7 @@ namespace WebAPI.ClientManagers
     public class CouchbaseManager
     {
         //private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly KLogger log = new KLogger();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();

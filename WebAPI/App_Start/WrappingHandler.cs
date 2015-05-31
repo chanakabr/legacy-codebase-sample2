@@ -17,7 +17,7 @@ namespace WebAPI.App_Start
 {
     public class WrappingHandler : DelegatingHandler
     {
-        private static readonly KLogger log = new KLogger();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

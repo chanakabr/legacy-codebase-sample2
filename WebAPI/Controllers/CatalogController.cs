@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
     [RoutePrefix("catalog")]
     public class CatalogController : ApiController
     {
-        private static readonly KLogger log = new KLogger();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]

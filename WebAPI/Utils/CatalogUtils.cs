@@ -19,7 +19,7 @@ namespace WebAPI.Utils
 {
     public class CatalogUtils
     {
-        private static readonly KLogger log = new KLogger();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";

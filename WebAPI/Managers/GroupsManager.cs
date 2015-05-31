@@ -18,7 +18,7 @@ namespace WebAPI.ClientManagers
 {
     public class GroupsManager
     {
-        private static readonly KLogger log = new KLogger();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static string groupKeyFormat;
         private static int groupCacheTtlSeconds;
 
