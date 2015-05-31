@@ -26,7 +26,7 @@ namespace WebAPI.App_Start
             HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
 
             // log request body
-            log.DebugFormat("API Request - {0}, {1}", true,
+            log.DebugFormat("API Request - \n{0}\n{1}", true,
                             request.RequestUri.OriginalString,            // 0
                             await request.Content.ReadAsStringAsync());   // 1
 
