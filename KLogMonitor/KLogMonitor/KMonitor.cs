@@ -132,7 +132,15 @@ namespace KLogMonitor
 
         public override string ToString()
         {
-            return Jil.JSON.Serialize<KMonitor>(this, new Jil.Options(excludeNulls: true));
+            try
+            {
+                return Jil.JSON.Serialize<KMonitor>(this, new Jil.Options(excludeNulls: true));
+            }
+            catch (Exception)
+            {
+                // first load - there may be an exception - ignore it!
+            }
+            
         }
     }
 
