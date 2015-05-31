@@ -21,7 +21,7 @@ namespace KLogMonitor
         public string ClassName { get; set; }
         public string Action { get; set; }
         public string ClientTag { get; set; }
-        public string ErrorCode { get; set; }
+        public string UserID { get; set; }
         private string Server { get; set; }
         public string IPAddress { get; set; }
 
@@ -57,6 +57,9 @@ namespace KLogMonitor
 
                 if (HttpContext.Current.Items[Constants.ACTION] != null)
                     this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
+
+                if (HttpContext.Current.Items[Constants.USER_ID] != null)
+                    this.UserID = HttpContext.Current.Items[Constants.USER_ID].ToString();
             }
 
             LogEvent le = new LogEvent()
@@ -74,7 +77,7 @@ namespace KLogMonitor
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("{0} - class: {1} server:{2} ip:{3} reqid:{4} partner:{5} action:{6} client:{7} error:{8} msg:{9}",
+            return string.Format("{0} - class: {1} server:{2} ip:{3} reqid:{4} partner:{5} action:{6} client:{7} uid:{8} msg:{9}",
                 creationDate,                                  // 0
                 ClassName != null ? ClassName : string.Empty,  // 1
                 Server != null ? Server : string.Empty,        // 2
@@ -83,7 +86,7 @@ namespace KLogMonitor
                 PartnerID != null ? PartnerID : string.Empty,  // 5
                 Action != null ? Action : string.Empty,        // 6
                 ClientTag != null ? ClientTag : string.Empty,  // 7
-                ErrorCode != null ? ErrorCode : "0",           // 8
+                UserID != null ? UserID : "0",                 // 8
                 msg != null ? msg : string.Empty);             // 9
         }
 
