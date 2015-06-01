@@ -4932,11 +4932,7 @@ namespace ConditionalAccess
 
                         // get last view date
                         DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
-                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
-                        {
-                            dEnd = dLastViewDate;
-                        }
-
+                        
                         DateTime dCurrent = DateTime.UtcNow;
                         if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
                             dCurrent = (DateTime)(dataRow["cDate"]);
