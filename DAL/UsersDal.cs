@@ -1876,7 +1876,7 @@ namespace DAL
         public static void LoginViaPinWithSecurityQuestion(int groupID, out bool security, out bool loginViaPin)
         {
             security = false;
-            loginViaPin = true;
+            loginViaPin = false;
             try
             {
                 StoredProcedure sp = new StoredProcedure("LoginViaPinWithSecurityQuestion");
@@ -1895,6 +1895,22 @@ namespace DAL
             {
                 security = false;
                 loginViaPin = true;
+            }
+        }
+
+        public static bool ExpirePINByUserID(int groupID, string siteGuid)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("ExpirePINByUserID");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@siteGuid", siteGuid);
+                bool res = sp.ExecuteReturnValue<bool>();
+                return res;
+            }
+            catch
+            {
+                return false;
             }
         }
     } 

@@ -41,6 +41,8 @@ namespace ApiObjects.Response
         MissingSecurityParameter = 2007,
         SecretIsWrong = 2008,
         LoginViaPinNotAllowed = 2009,
+        PinNotInTheRightLength = 2010,
+        PinExists = 2011,
 
 
         // CAS Section 3000 - 3999
