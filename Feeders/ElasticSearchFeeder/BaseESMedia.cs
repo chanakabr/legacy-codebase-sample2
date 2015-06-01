@@ -149,35 +149,51 @@ namespace ElasticSearchFeeder
 
             try
             {
+                // get all languages per group
+                Group oGroup = GroupsCache.Instance().GetGroup(m_nGroupID);
 
-                Task<EpgCB>[] tPrograms = new Task<EpgCB>[lEpgIDs.Count];
+                if (oGroup == null)
+                    return false;
+
+                List<LanguageObj> lLanguage = oGroup.GetLangauges(); // dictionary contains all language ids and its  code (string)
+                List<string> languages = lLanguage.Select(p => p.Code.ToLower()).ToList<string>();
+                Dictionary<int, List<EpgCB>> dPrograms = new Dictionary<int, List<EpgCB>>();
+
+                Task<List<EpgCB>>[] tPrograms = new Task<List<EpgCB>>[lEpgIDs.Count];
+
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
-                //bulk insert
+                //bulk insert                
+                
                 for (int i = 0; i < lEpgIDs.Count; i++)
                 {
-                    tPrograms[i] = Task.Factory.StartNew<EpgCB>(
+                    tPrograms[i] = Task.Factory.StartNew<List<EpgCB>>(
                         (index) =>
                         {
-                            return Utils.GetEpgProgram(m_nGroupID, (int)index);
+                             return Utils.GetEpgProgram(m_nGroupID, (int)index, languages);
                         }, lEpgIDs[i]);
                 }
 
                 Task.WaitAll(tPrograms);
 
-                List<EpgCB> lEpg = tPrograms.Select(t => t.Result).Where(t => t != null).ToList();
-
-                if (lEpg != null & lEpg.Count > 0)
+                List<EpgCB> lEpg = tPrograms.SelectMany(t => t.Result).Where(t => t != null).ToList();
+                // create dictionary by languages                 
+                foreach (LanguageObj lang in lLanguage)
                 {
+                    List<EpgCB> tempEpgs = lEpg.Where(x => x.Language.ToLower() == lang.Code.ToLower()).ToList();
+
                     List<KeyValuePair<ulong, string>> lKvp = new List<KeyValuePair<ulong, string>>();
                     string sSerializedEpg;
-                    foreach (EpgCB epg in lEpg)
+                    foreach (EpgCB epg in tempEpgs)
                     {
                         sSerializedEpg = m_oESSerializer.SerializeEpgObject(epg);
                         lKvp.Add(new KeyValuePair<ulong, string>(epg.EpgID, sSerializedEpg));
                     }
                     string sAlias = Utils.GetEpgGroupAliasStr(m_nGroupID);
-                    m_oESApi.CreateBulkIndexRequest(sAlias, EPG, lKvp);
+
+                    string sType = Utils.GetTanslationType(EPG, oGroup.GetLanguage(lang.ID));
+
+                    m_oESApi.CreateBulkIndexRequest(sAlias, sType, lKvp);
 
                     bRes = true;
                 }
@@ -186,6 +202,7 @@ namespace ElasticSearchFeeder
 
             return bRes;
         }
+               
 
         private bool checkIndexExists(eESFeederType eFeeder)
         {
