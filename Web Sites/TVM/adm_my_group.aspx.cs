@@ -290,6 +290,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_region.Initialize("Default Region", "adm_table_header_nbg", "FormInput", "DEFAULT_REGION", false);
         theRecord.AddRecord(dr_region);
 
+        DataRecordShortTextField dr_dateFormat = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_dateFormat.Initialize("Default date Format for email notifications", "adm_table_header_nbg", "FormInput", "date_email_format", false);
+        theRecord.AddRecord(dr_dateFormat);
+
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
