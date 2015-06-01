@@ -139,7 +139,14 @@ namespace TVPApiModule.Manager
 
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB);
-            _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration));
+
+            // try store in CB, will return false if the same token already exists
+            if (!_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            {
+                logger.ErrorFormat("GenerateAccessToken: access token already exists. token = {0}, ", apiToken.AccessToken);
+                returnError(403);
+                return null;
+            }
             
             return apiToken;
         }
@@ -152,9 +159,11 @@ namespace TVPApiModule.Manager
                 signInResponse.LoginStatus != ResponseStatus.UserSuspended))
             {
                 var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
-
-                HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
-                HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));
+                if (token != null)
+                {
+                    HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
+                    HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));
+                }
             }
         }
 
@@ -233,7 +242,7 @@ namespace TVPApiModule.Manager
             apiToken = new APIToken(apiToken, groupConfig.AccessTokenExpirationSeconds);
 
             // Store new access + refresh tokens pair
-            if (_client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
+            if (_client.Add<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
             {
                 // delete the old one
                 _client.Remove(apiTokenId);
