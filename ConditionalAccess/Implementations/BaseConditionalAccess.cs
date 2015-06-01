@@ -7915,6 +7915,8 @@ namespace ConditionalAccess
 
                     string sPrePaidCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["pre_paid_code"]);
 
+
+
                     if (nBILLING_PROVIDER == -1)
                     {
                         if (nNEW_RENEWABLE_STATUS == 0)
@@ -7989,6 +7991,37 @@ namespace ConditionalAccess
                         theResp.m_Transactions[i].m_bIsRecurring = theSub.m_bIsRecurring;
                     }
 
+                    // check if transaction is a collection type
+                    string collectionCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["COLLECTION_CODE"]);
+                    if (!string.IsNullOrEmpty(collectionCode))
+                    {
+                        // update type
+                        theResp.m_Transactions[i].m_eItemType = BillingItemsType.Collection;
+
+
+                        // get collection data
+                        TvinciPricing.Collection collection = null;
+                        collection = m.GetCollectionData(sWSUserName, sWSPass, collectionCode, string.Empty, string.Empty, string.Empty, true);
+
+                        // get collection name
+                        string sMainLang = string.Empty;
+                        string sMainLangCode = string.Empty;
+                        GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
+                        if (collection.m_sName != null)
+                        {
+                            Int32 nNameLangLength = collection.m_sName.Length;
+                            for (int j = 0; j < nNameLangLength; j++)
+                            {
+                                string sLang = collection.m_sName[j].m_sLanguageCode3;
+                                string sVal = collection.m_sName[j].m_sValue;
+
+                                if (sLang == sMainLangCode)
+                                    theResp.m_Transactions[i].m_sPurchasedItemName = sVal;
+                            }
+                        }
+
+                        theResp.m_Transactions[i].m_sPurchasedItemCode = collectionCode;
+                    }
 
                     if (nMediaID != 0)
                     {

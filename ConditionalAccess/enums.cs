@@ -29,7 +29,8 @@ namespace ConditionalAccess
         PPV = 1,
         Subscription = 2,
         PrePaid = 3,
-        PrePaidExpired = 4
+        PrePaidExpired = 4,
+        Collection = 5
     }
 
     public enum PaymentMethod
