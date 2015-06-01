@@ -365,5 +365,40 @@ namespace ElasticSearch.Searcher
             sResult = filteredQuery.ToString();
             return sResult;
         }
+
+        /*Build query by channelId and spesipic dates*/
+        public static string BuildDeleteQuery(int channelID, List<DateTime> lDates)
+        {
+            string sQuery = string.Empty;
+
+            ESTerm epgChannelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelID.ToString() };
+
+            BoolQuery oBoolQuery = new BoolQuery();
+
+
+            BoolQuery oBoolQueryDates = new BoolQuery();
+            foreach (DateTime date in lDates)
+            {
+                string sMaxtDate = date.AddDays(1).AddMilliseconds(-1).ToString("yyyyMMddHHmmss");
+
+                ESRange startDateRange = new ESRange(false);
+
+                startDateRange.Key = "start_date";
+                string sMin = date.ToString("yyyyMMddHHmmss");
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMaxtDate));
+
+                oBoolQueryDates.AddChild(startDateRange, ApiObjects.SearchObjects.CutWith.OR);
+            }
+
+            oBoolQuery.AddChild(epgChannelTerm, ApiObjects.SearchObjects.CutWith.AND); // channel must be equel to channelID
+            oBoolQuery.AddChild(oBoolQueryDates, ApiObjects.SearchObjects.CutWith.AND);// and start date must be in lDates list (with or between dates)
+
+            sQuery = oBoolQuery.ToString();
+
+
+            return sQuery;
+
+        }
     }
 }

@@ -184,7 +184,7 @@
     <Compile Include="UserGroupRuleResponse.cs" />
     <Compile Include="UserItemList.cs" />
     <Compile Include="UserOfflineObject.cs" />
-    <Compile Include="SignInResponse.cs" />
+    <Compile Include="LoginResponse.cs" />
     <Compile Include="UsersCache.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />

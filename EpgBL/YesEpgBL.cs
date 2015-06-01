@@ -133,7 +133,7 @@ namespace EpgBL
             }
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
+        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)            
         {
             //TvinciEpgBL Bl = new TvinciEpgBL(this.m_nGroupID);
             //return Bl.InsertEpg(newEpgItem, out  epgID, cas);
@@ -141,7 +141,11 @@ namespace EpgBL
             epgID = 0;
             return false;
         }
-
+        public override bool InsertEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
+        {
+            docID = string.Empty;
+            return false;
+        }
         public override bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
         {
             epgID = 0;
@@ -165,11 +169,19 @@ namespace EpgBL
         {
         }
 
+        public override void RemoveGroupPrograms(List<string> docIds)
+        {
+        }
+
         public override EpgCB GetEpgCB(ulong nProgramID)
         {
             return null;
         }
 
+        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)
+        {
+            return null;
+        }
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             cas = 0;
@@ -411,6 +423,7 @@ namespace EpgBL
 
             return programs;
         }
+
 
         private string GetLanguageParameter(string sQuery)
         {

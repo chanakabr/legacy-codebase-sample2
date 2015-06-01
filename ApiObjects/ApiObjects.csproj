@@ -119,6 +119,7 @@
     <Compile Include="EPGChannelObject.cs" />
     <Compile Include="EpgRes.cs" />
     <Compile Include="Epg\EpgChannelObj.cs" />
+    <Compile Include="Epg\EpgDictionary.cs" />
     <Compile Include="Epg\EpgLinkConstants.cs" />
     <Compile Include="Epg\EpgObject.cs" />
     <Compile Include="Epg\Picture.cs" />
@@ -127,6 +128,9 @@
     <Compile Include="Epg\Meta.cs" />
     <Compile Include="Epg\ProgramObject.cs" />
     <Compile Include="Epg\Tag.cs" />
+    <Compile Include="Epg\xmltv.cs">
+      <DependentUpon>xmltv.xsd</DependentUpon>
+    </Compile>
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />
@@ -245,7 +249,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Epg\xmltv.dtd" />
+    <None Include="Epg\xmltv.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

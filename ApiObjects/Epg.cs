@@ -66,9 +66,10 @@ namespace ApiObjects
         [JsonProperty("language")]
         public string Language { get; set; }
 
-        [JsonProperty("pictures", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public List<EpgPicture> pictures { get; set; }
 
+        // from LUNA version
+        [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public List<EpgPicture> pictures { get; set; }
 
         public EpgCB()
         {
@@ -182,9 +183,9 @@ namespace ApiObjects
                         else
                         {
                             // compare the values between the lists
-                            foreach (string sMetaValue in obj.Tags[objMetaKey])
+                            foreach (string sMetaValue in obj.Metas[objMetaKey])
                             {
-                                if (!this.Tags[objMetaKey.ToLower()].Contains(sMetaValue))
+                                if (!this.Metas[objMetaKey.ToLower()].Contains(sMetaValue))
                                 {
                                     return false;
                                 }
@@ -193,13 +194,13 @@ namespace ApiObjects
                     }
                 }
                 #endregion
-                                
+
                 #region Pictures
                 if (this.pictures != null && obj.pictures != null && this.pictures.Count == obj.pictures.Count)
                 {
                     foreach (EpgPicture epgPicture in obj.pictures) // compare the values between the lists
                     {
-                        if (!this.pictures.Exists(x => x.Url == epgPicture.Url))
+                        if (!this.pictures.Exists(x => x.Url == epgPicture.Url && x.Ratio == epgPicture.Ratio))
                         {
                             return false;
                         }
@@ -207,14 +208,13 @@ namespace ApiObjects
 
                     foreach (EpgPicture epgPicture in this.pictures) // compare the values between the lists
                     {
-                        if (!obj.pictures.Exists(x => x.Url == epgPicture.Url))
+                        if (!obj.pictures.Exists(x => x.Url == epgPicture.Url && x.Ratio == epgPicture.Ratio))
                         {
                             return false;
                         }
                     }
                 }
-
-                #endregion   
+                #endregion
             }
             return true;
         }
@@ -269,38 +269,6 @@ namespace ApiObjects
             base.DateTimeFormat = "yyyyMMddHHmmss";
         }
     }
-
-    //public class Epg
-    //{
-    //    #region members
-    //    public int m_nGroupID;
-    //    public int EPG_ID;
-    //    public int m_nChannelID;
-    //    public string m_sName;
-    //    public string m_sDescription;
-    //    public int m_nIsActive;
-    //    public string m_sStartDate;
-    //    public string m_sEndDate;
-    //    public Dictionary<string, string> m_dMetas;
-    //    public Dictionary<string, string> m_dTags;
-    //    #endregion
-
-    //    public Epg()
-    //    {
-    //        m_sName = string.Empty;
-    //        m_sDescription = string.Empty;
-    //        EPG_ID = 0;
-    //        m_nGroupID = 0;
-    //        m_nIsActive = 0;
-
-    //        string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-    //        string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
-    //        m_sStartDate = sNow;
-    //        m_sEndDate = sMax;
-    //        m_dMetas = new Dictionary<string, string>();
-    //        m_dTags = new Dictionary<string, string>();
-    //    }
-    //}
 
     [Serializable]
     [JsonObject(Id = "epggroupsettings")]

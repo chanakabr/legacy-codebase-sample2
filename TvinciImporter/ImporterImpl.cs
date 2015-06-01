@@ -1750,8 +1750,7 @@ namespace TvinciImporter
             selectQuery = null;
             return nRet;
         }
-
-
+     
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
         {   
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
@@ -1765,8 +1764,8 @@ namespace TvinciImporter
             }           
         }
 
-
         public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
+
         {
             try
             {
@@ -1775,8 +1774,8 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertNewEPGMultiPic",
-                    string.Format("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID),
+                Logger.Logger.Log("InsertNewEPGMultiPic",               
+                    string.Format("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID), 
                     "DownloadEPGPic");
                 return false;
             }
@@ -1889,7 +1888,6 @@ namespace TvinciImporter
 
                 nPicID = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
             }
-            
             return nPicID;
         }
 
@@ -4860,6 +4858,7 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
+      
         public static DateTime? ExtractDate(string sDate, string format)
         {
             DateTime? result = null;

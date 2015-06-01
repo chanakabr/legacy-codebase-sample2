@@ -915,7 +915,7 @@ namespace Catalog
         /// <param name="shouldGetAllMediaTypes"></param>
         /// <param name="groupManager"></param>
         internal static void GetParentMediaTypesAssociations(
-            int groupId, out Dictionary<int, int> parentMediaTypes, out Dictionary<int, string> associationTags, List<int> relevantMediaTypes = null, 
+            int groupId, out Dictionary<int, int> parentMediaTypes, out Dictionary<int, string> associationTags, List<int> relevantMediaTypes = null,
             bool shouldGetAllMediaTypes = false, GroupManager groupManager = null)
         {
             parentMediaTypes = new Dictionary<int, int>();
@@ -2001,6 +2001,8 @@ namespace Catalog
 
             return bIsUpdateIndexSucceeded;
         }
+
+
         #endregion
 
         internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchObj epgSearchReq)
