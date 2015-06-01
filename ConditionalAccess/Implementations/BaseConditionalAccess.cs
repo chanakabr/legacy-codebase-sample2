@@ -3649,7 +3649,7 @@ namespace ConditionalAccess
 
 
         public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
-        {          
+        {
             return new LicensedLinkResponse();
         }
 
@@ -4924,10 +4924,18 @@ namespace ConditionalAccess
                         Int32 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MEDIA_FILE_ID"]);
                         Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
                         Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+
                         int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
                         DateTime dEnd = new DateTime(2099, 1, 1);
                         if (dataRow["END_DATE"] != null && dataRow["END_DATE"] != DBNull.Value)
                             dEnd = (DateTime)(dataRow["END_DATE"]);
+
+                        // get last view date
+                        DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                        {
+                            dEnd = dLastViewDate;
+                        }
 
                         DateTime dCurrent = DateTime.UtcNow;
                         if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
@@ -4956,7 +4964,7 @@ namespace ConditionalAccess
 
 
                         PermittedMediaContainer p = new PermittedMediaContainer();
-                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
+                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
                         h[nMediaFileID] = p;
                         ++i;
                     }
@@ -6938,7 +6946,7 @@ namespace ConditionalAccess
                                         }
                                     case eBundleType.COLLECTION:
                                         {
-                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, uObj.m_user.m_domianID,dPrice, sCurrency, sCouponCode,
+                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, uObj.m_user.m_domianID, dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
                                                                         sPaymentMethodID, sEncryptedCVV, p, ref bm);
 
@@ -6969,28 +6977,28 @@ namespace ConditionalAccess
                             switch (theReason)
                             {
                                 case PriceReason.Free:
-                                {
-                                    ret.m_sStatusDescription = string.Format("The {0} is free", collectionOrSubscription);
-                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                    {
+                                        ret.m_sStatusDescription = string.Format("The {0} is free", collectionOrSubscription);
+                                        WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
 
-                                    break;
-                                }
+                                        break;
+                                    }
                                 case PriceReason.SubscriptionPurchased:
                                 case PriceReason.CollectionPurchased:
-                                {
-                                    ret.m_sStatusDescription = string.Format("The {0} is already purchased", collectionOrSubscription);
-                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
-                                    break;
-                                }
+                                    {
+                                        ret.m_sStatusDescription = string.Format("The {0} is already purchased", collectionOrSubscription);
+                                        WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                        break;
+                                    }
                                 default:
-                                {
-                                    Logger.Logger.Log("ChargeUserForBundle",
-                                        string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
-                                        "price reason = {1} for site guid = {2} and bundle id = {3}",
-                                        collectionOrSubscription, theReason, sSiteGUID, sBundleCode), 
-                                        this.GetLogFilename());
-                                    break;
-                                }
+                                    {
+                                        Logger.Logger.Log("ChargeUserForBundle",
+                                            string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
+                                            "price reason = {1} for site guid = {2} and bundle id = {3}",
+                                            collectionOrSubscription, theReason, sSiteGUID, sBundleCode),
+                                            this.GetLogFilename());
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -7151,7 +7159,7 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID ,theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
                     sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
 
                 // Enqueue notification for PS so they know a collection was charged
@@ -10141,7 +10149,7 @@ namespace ConditionalAccess
                                         {
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID ,relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
                                                                                        thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
@@ -10892,24 +10900,24 @@ namespace ConditionalAccess
                             switch (p_enmTransactionType)
                             {
                                 case eTransactionType.PPV:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 case eTransactionType.Subscription:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 case eTransactionType.Collection:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 default:
-                                {
-                                    break;
-                                }
+                                    {
+                                        break;
+                                    }
                             }
 
                             if (bResult)
@@ -11379,7 +11387,7 @@ namespace ConditionalAccess
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString(); 
+                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
                                         res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
 
                                         Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
@@ -11401,7 +11409,7 @@ namespace ConditionalAccess
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidFileData.ToString(); 
+                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
                                 res.Status.Code = (int)eResponseStatus.Error;
 
                                 Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
@@ -11421,7 +11429,7 @@ namespace ConditionalAccess
                     {
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                        res.status = eLicensedLinkStatus.InvalidPrice.ToString(); 
+                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
                         res.Status.Code = (int)eResponseStatus.Error;
 
                         Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
@@ -11431,7 +11439,7 @@ namespace ConditionalAccess
                 {
                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                    res.status = eLicensedLinkStatus.InvalidInput.ToString(); 
+                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
                     res.Status.Code = (int)eResponseStatus.Error;
 
                     Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
@@ -11763,7 +11771,7 @@ namespace ConditionalAccess
         {
             DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
             PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
-            
+
             if (domainSubscriptions != null)
             {
                 List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
@@ -11789,7 +11797,7 @@ namespace ConditionalAccess
                     }
                 }
             }
-            
+
             return domainServicesResponse;
         }
 
@@ -11842,7 +11850,7 @@ namespace ConditionalAccess
 
                 // check if the service is allowed for the domain
                 ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
-                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 && 
+                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
                     allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
                 {
                     return true;
