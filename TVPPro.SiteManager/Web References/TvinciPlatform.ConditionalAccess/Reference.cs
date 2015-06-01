@@ -194,7 +194,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost/ws_conditionalaccess/module.asmx";
+            this.Url = global::TVPPro.SiteManager.Properties.Settings.Default.TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -4058,6 +4058,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.DateTime m_dPurchaseDateField;
         
+        private System.DateTime m_dLastViewDateField;
+        
         private PaymentMethod m_purchaseMethodField;
         
         private string m_sDeviceUDIDField;
@@ -4133,6 +4135,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_dPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dLastViewDate {
+            get {
+                return this.m_dLastViewDateField;
+            }
+            set {
+                this.m_dLastViewDateField = value;
             }
         }
         
@@ -4755,29 +4767,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class EntitlementResponse {
         
-        private string fullLifceCycleField;
+        private string fullLifeCycleField;
         
-        private string viewLifceCycleField;
+        private string viewLifeCycleField;
         
         private bool isOfflinePlayBackField;
         
         /// <remarks/>
-        public string FullLifceCycle {
+        public string FullLifeCycle {
             get {
-                return this.fullLifceCycleField;
+                return this.fullLifeCycleField;
             }
             set {
-                this.fullLifceCycleField = value;
+                this.fullLifeCycleField = value;
             }
         }
         
         /// <remarks/>
-        public string ViewLifceCycle {
+        public string ViewLifeCycle {
             get {
-                return this.viewLifceCycleField;
+                return this.viewLifeCycleField;
             }
             set {
-                this.viewLifceCycleField = value;
+                this.viewLifeCycleField = value;
             }
         }
         
