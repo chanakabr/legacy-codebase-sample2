@@ -170,6 +170,9 @@
     <Compile Include="NotifiedActions.cs" />
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
+    <Compile Include="Rules\PinResponse.cs" />
+    <Compile Include="Rules\ParentalRule.cs" />
+    <Compile Include="Rules\ParentalRulesResponse.cs" />
     <Compile Include="PicObject.cs" />
     <Compile Include="MediaIndexingObjects\PictureData.cs" />
     <Compile Include="PlayerIMRequestObject.cs" />
@@ -185,6 +188,7 @@
     <Compile Include="RegionResponse.cs" />
     <Compile Include="RequestObj.cs" />
     <Compile Include="Response\EnumResponseStatus.cs" />
+    <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BooleanLeaf.cs" />
