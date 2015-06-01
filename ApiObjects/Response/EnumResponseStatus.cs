@@ -38,6 +38,9 @@ namespace ApiObjects.Response
         PinExpired = 2004,
         ValidPin = 2005,
         NoValidPin = 2006,
+        MissingSecurityParameter = 2007,
+        SecretIsWrong = 2008,
+        LoginViaPinNotAllowed = 2009,
 
 
         // CAS Section 3000 - 3999

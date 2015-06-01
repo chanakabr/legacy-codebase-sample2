@@ -1773,7 +1773,7 @@ namespace DAL
             return rows;
         }
 
-        public static DataTable GenerateLoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date)
+        public static DataTable GenerateLoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date, string secret)
         {
             try
             {
@@ -1782,6 +1782,7 @@ namespace DAL
                 sp.AddParameter("@siteGuid", siteGuid);
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@expired_date", expired_date);
+                sp.AddParameter("@secret", secret);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -1811,16 +1812,27 @@ namespace DAL
             }
         }
 
-        public static DataRow GetUserByPIN(int groupID, string pinCode)
+        public static DataRow GetUserByPIN(int groupID, string pinCode, string secret, out bool security, out bool loginViaPin)
         {
+            security = false;
+            loginViaPin = true;
             try
             {
                 StoredProcedure sp = new StoredProcedure("GetUserByPIN");
                 sp.AddParameter("@groupID", groupID);                
                 sp.AddParameter("@pinCode", pinCode);
+                sp.AddParameter("@secret", secret);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
+                    if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        int nSecurity = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "security");
+                        int nLoginViaPin = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "loginViaPin");
+                        security = (nSecurity == 1 ? true : false);
+                        loginViaPin = (nLoginViaPin == 1 ? true : false);
+                    }
                     return ds.Tables[0].Rows[0];
                 }
                 return null;
@@ -1844,6 +1856,45 @@ namespace DAL
             catch
             {
                 return false;
+            }
+        }
+
+        public static bool SecurityQuestion(int groupID)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("SecurityQuestion");
+                sp.AddParameter("@groupID", groupID);
+                bool res = sp.ExecuteReturnValue<bool>();
+                return res;
+            }
+            catch
+            {
+                return false;
+            }
+        }        
+        public static void LoginViaPinWithSecurityQuestion(int groupID, out bool security, out bool loginViaPin)
+        {
+            security = false;
+            loginViaPin = true;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("LoginViaPinWithSecurityQuestion");
+                sp.AddParameter("@groupID", groupID);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    int nSecurity = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "security");
+                    int nLoginViaPin = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "loginViaPin");
+                    security = (nSecurity == 1 ? true : false);
+                    loginViaPin = (nLoginViaPin == 1 ? true : false);
+                }
+            }
+            catch
+            {
+                security = false;
+                loginViaPin = true;
             }
         }
     } 
