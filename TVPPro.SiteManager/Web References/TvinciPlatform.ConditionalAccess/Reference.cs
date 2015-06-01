@@ -4905,6 +4905,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         PrePaidExpired,
+        
+        /// <remarks/>
+        Collection,
     }
     
     /// <remarks/>

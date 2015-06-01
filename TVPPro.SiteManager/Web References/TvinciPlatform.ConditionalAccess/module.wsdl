@@ -521,6 +521,7 @@
           <s:enumeration value="Subscription" />
           <s:enumeration value="PrePaid" />
           <s:enumeration value="PrePaidExpired" />
+          <s:enumeration value="Collection" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="BillingAction">
