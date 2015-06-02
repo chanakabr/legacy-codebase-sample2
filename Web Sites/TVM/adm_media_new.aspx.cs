@@ -364,6 +364,10 @@ public partial class adm_media_new : System.Web.UI.Page
         dr_co_guid.Initialize("Outer Guid(connection to outer feed)", "adm_table_header_nbg", "FormInput", "CO_GUID", false);
         theRecord.AddRecord(dr_co_guid);
 
+        DataRecordShortTextField dr_entry_id = new DataRecordShortTextField("ltr", true, 30, 128);
+        dr_entry_id.Initialize("Entry Identifier", "adm_table_header_nbg", "FormInput", "ENTRY_ID", false);
+        theRecord.AddRecord(dr_entry_id);
+        
         DataRecordShortTextField dr_epg_guid = new DataRecordShortTextField("ltr", true, 30, 128);
         dr_epg_guid.Initialize("EPG Guid(connection to the EPG)", "adm_table_header_nbg", "FormInput", "EPG_IDENTIFIER", false);
         theRecord.AddRecord(dr_epg_guid);
