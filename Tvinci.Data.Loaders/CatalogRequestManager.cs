@@ -163,6 +163,7 @@ namespace Tvinci.Data.Loaders
             m_oRequest.m_sSignString = m_sSignString;
             m_oRequest.m_sUserIP = m_sUserIP;
             m_oRequest.m_sSiteGuid = SiteGuid;
+            m_oRequest.domainId = DomainId;
         }
 
         private string GetSignature(string signString)
