@@ -37,8 +37,11 @@ namespace KLogMonitor
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
         }
 
-        private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, Exception ex = null)
+        private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
         {
+            if (args != null && ex != null)
+                throw new Exception("Args and Exception cannot co exist");
+
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
             {
                 if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
@@ -64,7 +67,8 @@ namespace KLogMonitor
             {
                 Message = formatMessage(msg, DateTime.UtcNow),
                 Exception = ex,
-                Level = level
+                Level = level,
+                args = args
             };
 
             if (isFlush)
@@ -99,59 +103,101 @@ namespace KLogMonitor
                     logger.Warn(logEvent.Message, logEvent.Exception);
                     break;
                 case LogEvent.LogLevel.ERROR:
-                    logger.Error(logEvent.Message, logEvent.Exception);
+                    if (logEvent.args != null)
+                        logger.ErrorFormat(logEvent.Message, logEvent.args);
+                    else
+                        logger.Error(logEvent.Message, logEvent.Exception);
                     break;
                 case LogEvent.LogLevel.INFO:
-                    logger.Info(logEvent.Message, logEvent.Exception);
+                    if (logEvent.args != null)
+                        logger.InfoFormat(logEvent.Message, logEvent.args);
+                    else
+                        logger.Info(logEvent.Message, logEvent.Exception);
                     break;
                 default:
                     throw new Exception("Log level is unknown");
             }
         }
 
-        public void Debug(string sMessage, bool isFlush = true)
+        public void Debug(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.DEBUG, isFlush);
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
         }
 
-        public void DebugFormat(string format, bool isFlush = true, params object[] args)
+        public void DebugFormat(string format, params object[] args)
         {
-            string msg = string.Format(format, args);
-            handleEvent(msg, KLogger.LogEvent.LogLevel.DEBUG, isFlush);
+            handleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, true, args, null);
         }
 
-        public void Info(string sMessage, bool isFlush = true)
+        public void Info(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.INFO, isFlush);
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
         }
 
-        public void InfoFormat(string format, bool isFlush = true, params object[] args)
+        public void InfoFormat(string format, params object[] args)
         {
-            string msg = string.Format(format, args);
-            handleEvent(msg, KLogger.LogEvent.LogLevel.INFO, isFlush);
+            handleEvent(format, KLogger.LogEvent.LogLevel.INFO, true, args, null);
         }
 
-        public void Warning(string sMessage, bool isFlush = true, Exception ex = null)
+        public void Warning(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, isFlush, ex);
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
         }
 
-        public void WarningFormat(string format, bool isFlush = true, Exception ex = null, params object[] args)
+        public void WarningFormat(string format, params object[] args)
         {
-            string msg = string.Format(format, args);
-            handleEvent(msg, KLogger.LogEvent.LogLevel.WARNING, isFlush, ex);
+            handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, true, args, null);
         }
 
 
-        public void Error(string sMessage, bool isFlush = true, Exception ex = null)
+        public void Error(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, isFlush, ex);
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
         }
 
-        public void ErrorFormat(string format, bool isFlush = true, Exception ex = null, params object[] args)
+        public void ErrorFormat(string format, params object[] args)
         {
-            string msg = string.Format(format, args);
-            handleEvent(msg, KLogger.LogEvent.LogLevel.ERROR, isFlush, ex);
+            handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);
+        }
+
+        public void DebugNoFlush(string sMessage, Exception ex = null)
+        {
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
+        }
+
+        public void DebugFormatNoFlush(string format, params object[] args)
+        {
+            handleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, false, args, null);
+        }
+
+        public void InfoNoFlush(string sMessage, Exception ex = null)
+        {
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.INFO, false, null, ex);
+        }
+
+        public void InfoFormatNoFlush(string format, params object[] args)
+        {
+            handleEvent(format, KLogger.LogEvent.LogLevel.INFO, false, args, null);
+        }
+
+        public void WarningNoFlush(string sMessage, Exception ex = null)
+        {
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
+        }
+
+        public void WarningFormatNoFlush(string format, params object[] args)
+        {
+            handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, false, args, null);
+        }
+
+        public void ErrorNoFlush(string sMessage, Exception ex = null)
+        {
+            handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, false, null, ex);
+        }
+
+        public void ErrorFormatNoFlush(string format, params object[] args)
+        {
+            handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, false, args, null);
         }
 
         public virtual void Dispose()
@@ -168,6 +214,7 @@ namespace KLogMonitor
             public string Message { get; set; }
             public Exception Exception { get; set; }
             public LogLevel Level { get; set; }
+            public object[] args { get; set; }
         }
     }
 }
