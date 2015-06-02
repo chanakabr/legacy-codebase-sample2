@@ -8012,7 +8012,6 @@ namespace ConditionalAccess
                     }
 
                     // check if transaction is a collection type
-
                     if (!string.IsNullOrEmpty(collectionCode))
                     {
                         // update type
@@ -8024,21 +8023,8 @@ namespace ConditionalAccess
                         collection = m.GetCollectionData(sWSUserName, sWSPass, collectionCode, string.Empty, string.Empty, string.Empty, true);
 
                         // get collection name
-                        if (collection != null && collection.m_sName != null)
-                        {
-                            string sMainLang = string.Empty;
-                            string sMainLangCode = string.Empty;
-                            GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
-                            Int32 nNameLangLength = collection.m_sName.Length;
-                            for (int j = 0; j < nNameLangLength; j++)
-                            {
-                                string sLang = collection.m_sName[j].m_sLanguageCode3;
-                                string sVal = collection.m_sName[j].m_sValue;
-
-                                if (sLang == sMainLangCode)
-                                    theResp.m_Transactions[i].m_sPurchasedItemName = sVal;
-                            }
-                        }
+                        if (collection != null)
+                            theResp.m_Transactions[i].m_sPurchasedItemName = ((PPVModule)collection).m_sObjectVirtualName;
 
                         theResp.m_Transactions[i].m_sPurchasedItemCode = collectionCode;
                     }
