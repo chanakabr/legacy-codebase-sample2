@@ -1664,18 +1664,42 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Sets parental rules")]
-        public TVPApiModule.Objects.Responses.Status SetParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive)
+        public TVPApiModule.Objects.Responses.Status SetUserParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive)
         {
             TVPApiModule.Objects.Responses.Status response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalRules(siteGuid, initObj.DomainID, ruleId, isActive);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.Status SetDomainParentalRules(InitializationObject initObj, long ruleId, int isActive)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainParentalRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalRules(string.Empty, initObj.DomainID, ruleId, isActive);
                 }
                 catch (Exception ex)
                 {
@@ -1965,5 +1989,6 @@ namespace TVPApiServices
         }
 
         #endregion
+
     }
 }

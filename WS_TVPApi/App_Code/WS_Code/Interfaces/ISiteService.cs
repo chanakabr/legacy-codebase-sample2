@@ -122,9 +122,12 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetUserParentalRules(InitializationObject initObj, string siteGuid);
-
+        
         [OperationContract]
-        TVPApiModule.Objects.Responses.Status SetParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive);
+        TVPApiModule.Objects.Responses.Status SetUserParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive);
+        
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Status SetDomainParentalRules(InitializationObject initObj, long ruleId, int isActive);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid);
