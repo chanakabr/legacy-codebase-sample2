@@ -118,7 +118,7 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalRules(InitializationObject initObj);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.ParentalRulesResponse GetDomainParentalRule(InitializationObject initObj);
+        TVPApiModule.Objects.Responses.ParentalRulesResponse GetDomainParentalRules(InitializationObject initObj);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetUserParentalRules(InitializationObject initObj, string siteGuid);

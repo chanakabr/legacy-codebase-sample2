@@ -1611,7 +1611,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Domain Parental Rules")]
-        public ParentalRulesResponse GetDomainParentalRule(InitializationObject initObj)
+        public ParentalRulesResponse GetDomainParentalRules(InitializationObject initObj)
         {
             ParentalRulesResponse response = null;
 
