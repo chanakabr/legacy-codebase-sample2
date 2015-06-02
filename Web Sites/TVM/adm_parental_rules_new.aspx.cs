@@ -69,8 +69,13 @@ public partial class adm_parental_rules_new : System.Web.UI.Page
 
         GroupManager groupManager = new GroupManager();
         List<int> subGroups = groupManager.GetSubGroup(currentGroup);
+        
+        string groups  = currentGroup.ToString();
 
-        string groups = string.Join(",", subGroups);
+        if (subGroups != null && subGroups.Count > 0)
+        {
+            groups = string.Join(",", subGroups);
+        }
 
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
         {
