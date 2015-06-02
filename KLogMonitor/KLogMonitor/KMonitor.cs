@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using log4net;
 
@@ -17,44 +16,57 @@ namespace KLogMonitor
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "e")]
         [DataMember(Name = "e")]
         public string Event { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "s")]
         [DataMember(Name = "s")]
         public string Server { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "i")]
         [DataMember(Name = "i")]
         public string IPAddress { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "u")]
         [DataMember(Name = "u")]
         public string UniqueID { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "p")]
         [DataMember(Name = "p")]
         public string PartnerID { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "a")]
         [DataMember(Name = "a")]
         public string Action { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "l")]
         [DataMember(Name = "l")]
         public string ClientTag { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "r")]
         [DataMember(Name = "r")]
         public string ErrorCode { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "t")]
         [DataMember(Name = "t")]
         public string Table { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "q")]
         [DataMember(Name = "q")]
         public string QueryTypeString { get; private set; }
+
 
         public Events.eDBQueryType QueryType
         {
             set { this.QueryTypeString = value.ToString(); }
         }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "d")]
         [DataMember(Name = "d")]
         public string Database { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "x")]
         [DataMember(Name = "x")]
         public string ExecutionTime
         {
@@ -134,7 +146,18 @@ namespace KLogMonitor
         {
             try
             {
+                Newtonsoft.Json.JsonSerializer _jsonWriter = new Newtonsoft.Json.JsonSerializer
+            {
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+            };
+
+
+#if RUNNING_ON_3_5
+                return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings() { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore });
+#endif
+#if NOT_RUNNING_ON_3_5
                 return Jil.JSON.Serialize<KMonitor>(this, new Jil.Options(excludeNulls: true));
+#endif
             }
             catch (Exception)
             {
