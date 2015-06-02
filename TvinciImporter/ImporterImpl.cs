@@ -1538,6 +1538,7 @@ namespace TvinciImporter
                 AddError(ref sErrorMessage, "Missing co_guid");
                 return false;
             }
+            string entryId = GetItemParameterVal(ref theItem, "entry_id");
             string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
             string sIsActive = GetItemParameterVal(ref theItem, "is_active").Trim().ToLower();
             if (sAction == "delete")
@@ -1634,7 +1635,7 @@ namespace TvinciImporter
 
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
-                    ref theItemDesc, sIsActive, dCreate);
+                    ref theItemDesc, sIsActive, dCreate, entryId);
                 Logger.Logger.Log("TespIngest", "InserRatiosStart", "TempIngest");
                 if (thePicRatios != null)
                 {
@@ -3905,7 +3906,7 @@ namespace TvinciImporter
         static protected bool UpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 nMediaID, Int32 nItemType, string sCoGuid,
             string sEpgIdentifier, Int32 nWatchPerRule, Int32 nGeoBlockRule, Int32 nPlayersRule, Int32 nDeviceRule,
             DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sThumb, string sMainLang,
-            ref XmlNode theItemNames, ref XmlNode theItemDesc, string sIsActive, DateTime dCreate)
+            ref XmlNode theItemNames, ref XmlNode theItemDesc, string sIsActive, DateTime dCreate, string entryId)
         {
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
             string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
@@ -3920,6 +3921,7 @@ namespace TvinciImporter
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ENTRY_ID", "=", entryId);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCH_PERMISSION_TYPE_ID", "=", nWatchPerRule);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PLAYERS_RULES", "=", nPlayersRule);
@@ -3968,6 +3970,7 @@ namespace TvinciImporter
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ENTRY_ID", "=", entryId);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
                 if (nWatchPerRule != 0)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCH_PERMISSION_TYPE_ID", "=", nWatchPerRule);
