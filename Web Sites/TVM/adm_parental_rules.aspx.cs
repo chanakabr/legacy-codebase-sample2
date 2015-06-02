@@ -33,7 +33,7 @@ public partial class adm_parental_rules : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Group Rules");
+        Response.Write(PageUtils.GetPreHeader() + ": Parental Rules");
     }
 
     protected void GetMainMenu()
@@ -106,7 +106,7 @@ public partial class adm_parental_rules : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "groups_rules");
+            linkColumn.AddQueryStringValue("table", "parental_rules");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "14");
             linkColumn.AddQueryStringValue("sub_menu", "2");
@@ -119,7 +119,7 @@ public partial class adm_parental_rules : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "groups_rules");
+            linkColumn.AddQueryStringValue("table", "parental_rules");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "14");
             linkColumn.AddQueryStringValue("sub_menu", "2");
