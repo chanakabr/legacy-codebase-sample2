@@ -505,22 +505,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalMediaRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetParentalMediaRules(string userName, string password, string siteGuid, long mediaId) {
+        public ParentalRulesResponse GetParentalMediaRules(string userName, string password, string siteGuid, long mediaId, long domainId) {
             object[] results = this.Invoke("GetParentalMediaRules", new object[] {
                         userName,
                         password,
                         siteGuid,
-                        mediaId});
+                        mediaId,
+                        domainId});
             return ((ParentalRulesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId) {
-            this.GetParentalMediaRulesAsync(userName, password, siteGuid, mediaId, null);
+        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId) {
+            this.GetParentalMediaRulesAsync(userName, password, siteGuid, mediaId, domainId, null);
         }
         
         /// <remarks/>
-        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, object userState) {
+        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId, object userState) {
             if ((this.GetParentalMediaRulesOperationCompleted == null)) {
                 this.GetParentalMediaRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalMediaRulesOperationCompleted);
             }
@@ -528,7 +529,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         userName,
                         password,
                         siteGuid,
-                        mediaId}, this.GetParentalMediaRulesOperationCompleted, userState);
+                        mediaId,
+                        domainId}, this.GetParentalMediaRulesOperationCompleted, userState);
         }
         
         private void OnGetParentalMediaRulesOperationCompleted(object arg) {
@@ -540,22 +542,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalEPGRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetParentalEPGRules(string userName, string password, string siteGuid, long epgId) {
+        public ParentalRulesResponse GetParentalEPGRules(string userName, string password, string siteGuid, long epgId, long domainId) {
             object[] results = this.Invoke("GetParentalEPGRules", new object[] {
                         userName,
                         password,
                         siteGuid,
-                        epgId});
+                        epgId,
+                        domainId});
             return ((ParentalRulesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId) {
-            this.GetParentalEPGRulesAsync(userName, password, siteGuid, epgId, null);
+        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId) {
+            this.GetParentalEPGRulesAsync(userName, password, siteGuid, epgId, domainId, null);
         }
         
         /// <remarks/>
-        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, object userState) {
+        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId, object userState) {
             if ((this.GetParentalEPGRulesOperationCompleted == null)) {
                 this.GetParentalEPGRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalEPGRulesOperationCompleted);
             }
@@ -563,7 +566,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         userName,
                         password,
                         siteGuid,
-                        epgId}, this.GetParentalEPGRulesOperationCompleted, userState);
+                        epgId,
+                        domainId}, this.GetParentalEPGRulesOperationCompleted, userState);
         }
         
         private void OnGetParentalEPGRulesOperationCompleted(object arg) {
@@ -4172,6 +4176,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string ratioField;
         
+        private int picIDField;
+        
         private string urlField;
         
         /// <remarks/>
@@ -4201,6 +4207,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.ratioField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicID {
+            get {
+                return this.picIDField;
+            }
+            set {
+                this.picIDField = value;
             }
         }
         

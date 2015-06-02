@@ -9,6 +9,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -78,6 +79,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2182,6 +2184,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
         </s:sequence>
       </s:complexType>
@@ -3193,6 +3196,7 @@
     <wsdl:part name="password" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="mediaId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetParentalMediaRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
@@ -3202,6 +3206,7 @@
     <wsdl:part name="password" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetParentalEPGRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
@@ -6498,13 +6503,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost:82/WS_API/api.asmx" />
+      <soap:address location="http://localhost:82/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost:82/WS_API/api.asmx" />
+      <soap12:address location="http://localhost:82/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost:82/WS_API/api.asmx" />
+      <http:address location="http://localhost:82/ws_api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
