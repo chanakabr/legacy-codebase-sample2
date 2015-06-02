@@ -21,6 +21,8 @@ namespace WebAPI
             TCMClient.Settings.Instance.Init();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
+
+            // set monitor and log configuration files
             KMonitor.Configure("log4net.config");
             KLogger.Configure("log4net.config");
         }
