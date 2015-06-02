@@ -97,7 +97,7 @@ public partial class adm_parental_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordShortIntField dr_order = new DataRecordShortIntField(true, 9, 9);
-        dr_order.Initialize("Order", "adm_table_header_nbg", "FormInput", "ORDER_NUM", false);
+        dr_order.Initialize("Order", "adm_table_header_nbg", "FormInput", "ORDER_NUM", true);
         theRecord.AddRecord(dr_order);
 
         // <summary>
