@@ -38,7 +38,7 @@ namespace WebAPI.ClientManagers
             }
             catch (Exception ex)
             {
-                log.Error("Error while initiating groups manager", true, ex);
+                log.Error("Error while initiating groups manager", ex);
                 throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
             }
         }
