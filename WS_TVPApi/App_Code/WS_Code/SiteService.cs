@@ -1945,7 +1945,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalMediaRules(userGuid, mediaId);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalMediaRules(userGuid, mediaId, initObj.DomainID);
                 }
                 catch (Exception ex)
                 {
@@ -1973,7 +1973,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalEPGRules(userGuid, epgId);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalEPGRules(userGuid, epgId, initObj.DomainID);
                 }
                 catch (Exception ex)
                 {

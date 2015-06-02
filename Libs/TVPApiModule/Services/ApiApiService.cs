@@ -699,13 +699,13 @@ namespace TVPApiModule.Services
             return status;
         }
 
-        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalMediaRules(string siteGuid, long mediaId)
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalMediaRules(string siteGuid, long mediaId, long domainId)
         {
             TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId);
+                var webServiceResponse = m_Module.GetParentalMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId);
 
                 response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
             }
@@ -718,13 +718,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(string siteGuid, long epgId)
+        public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(string siteGuid, long epgId, long domainId)
         {
             TVPApiModule.Objects.Responses.ParentalRulesResponse response = new Objects.Responses.ParentalRulesResponse();
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalEPGRules(m_wsUserName, m_wsPassword, siteGuid, epgId);
+                var webServiceResponse = m_Module.GetParentalEPGRules(m_wsUserName, m_wsPassword, siteGuid, epgId, domainId);
 
                 response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
             }
