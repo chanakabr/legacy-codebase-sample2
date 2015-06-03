@@ -68,8 +68,12 @@ namespace TVPApiServices
         TVPApiModule.Objects.UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj);
+        TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj, string secret);
         [OperationContract]
-        TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN);
+        TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret);
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret);
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPIN(InitializationObject initObj);
     }
 }

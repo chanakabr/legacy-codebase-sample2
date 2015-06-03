@@ -618,7 +618,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "GenerateLoginPIN")]
         [PrivateMethod]
-        public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj, string secret)
         {
             TVPApiModule.Objects.Responses.PinCodeResponse response = null;
 
@@ -628,7 +628,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GenerateLoginPIN(initObj.SiteGuid);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GenerateLoginPIN(initObj.SiteGuid, secret);
                 }
                 catch (Exception ex)
                 {
@@ -650,7 +650,7 @@ namespace TVPApiServices
         #endregion
 
 
-        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN)
+        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret)
         {
             TVPApiModule.Objects.Responses.LoginResponse response = null;
 
@@ -660,7 +660,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, initObj.UDID);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, secret,  initObj.UDID);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&
@@ -692,5 +692,69 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "SetLoginPIN")]
+        [PrivateMethod]
+        public ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetLoginPIN(initObj.SiteGuid, PIN, secret);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "ClearLoginPIN")]
+        [PrivateMethod]
+        public ClientResponseStatus ClearLoginPIN(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ClearLoginPIN(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+
     }
 }
