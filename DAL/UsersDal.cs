@@ -1812,28 +1812,36 @@ namespace DAL
             }
         }
 
-        public static DataRow GetUserByPIN(int groupID, string pinCode, string secret, out bool security, out bool loginViaPin)
+        public static DataRow GetUserByPIN(int groupID, string pinCode, string secret, out bool security, out bool loginViaPin, out DateTime expiredPIN)
         {
             security = false;
-            loginViaPin = true;
+            loginViaPin = false;
+            expiredPIN = DateTime.MaxValue;
             try
             {
                 StoredProcedure sp = new StoredProcedure("GetUserByPIN");
-                sp.AddParameter("@groupID", groupID);                
+                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@secret", secret);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    if (ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                     {
-                        int nSecurity = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "security");
-                        int nLoginViaPin = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "loginViaPin");
+                        int nSecurity = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "security");
+                        int nLoginViaPin = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "loginViaPin");
                         security = (nSecurity == 1 ? true : false);
                         loginViaPin = (nLoginViaPin == 1 ? true : false);
                     }
-                    return ds.Tables[0].Rows[0];
+                    if (ds.Tables.Count > 2 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                    {
+                        expiredPIN = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[2].Rows[0], "expired_date");
+                    }  
+                    if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        return ds.Tables[1].Rows[0];
+                    }  
                 }
                 return null;
             }

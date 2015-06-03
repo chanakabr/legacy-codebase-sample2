@@ -701,6 +701,12 @@ namespace Users
             return nUserTypeID;
         }
 
+        /*
+        * Get: groupID , siteGuid , secret
+        * return LoginResponse
+        * Generate PIN code automatic (unique one with digits only) 
+         * secret code check only if force by group == > group must enable loin by PIN
+        */
         public virtual PinCodeResponse GenerateLoginPIN(string siteGuid, int groupID, string secret)
         {
             PinCodeResponse response = new PinCodeResponse();
@@ -743,7 +749,7 @@ namespace Users
                 else
                 {
                     response = new PinCodeResponse();
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExists, "UserNotExists");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "UserDoesNotExists");
                 }
             }
             catch (Exception ex)
@@ -802,7 +808,43 @@ namespace Users
             }
             return sNewPIN;
         }
+        private static bool IsDigitsOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                    return false;
+            }
 
+            return true;
+        }
+        private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
+        {
+            //Allow the operator to set a 8-10 digits PIN
+            if (string.IsNullOrEmpty(PIN) || PIN.Length < 8 || PIN.Length > 10)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "pin must be between 8-10digit");
+                return false;
+            }
+            if (!IsDigitsOnly(PIN)) // check if only digits 
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.PinMustBeDigitsOnly, "pin must include digits only");
+                return false;
+            }
+            if (PIN.Substring(0, 1) == "0")
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.PinCanNotStartWithZero, "pin can't start with 0");
+                return false;
+            }
+            response = new ApiObjects.Response.Status();
+            return true;
+        }
+        
+        /*
+         * Get: groupID , PIN , secret
+         * return LoginResponse
+         * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
+         */
         public LoginResponse LoginWithPIN(int groupID, string PIN, string secret)
         {
             LoginResponse response = new LoginResponse();
@@ -811,8 +853,9 @@ namespace Users
                 //Try to get users by PIN from DB 
 
                 bool security = false;
-                bool loginViaPin = true;
-                DataRow dr = UsersDal.GetUserByPIN(groupID, PIN, secret, out security, out loginViaPin);
+                bool loginViaPin = false;
+                DateTime expiredPIN = DateTime.MaxValue;
+                DataRow dr = UsersDal.GetUserByPIN(groupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
 
                 if (loginViaPin && dr != null)
                 {
@@ -835,9 +878,13 @@ namespace Users
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
                     }
-                    else if (security)
+                    else if (security && expiredPIN == DateTime.MaxValue)
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
+                    }
+                    else if (expiredPIN != DateTime.MaxValue)
+                    {
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired");
                     }
                     else
                     {
@@ -859,18 +906,23 @@ namespace Users
             bool expirePIN = UsersDal.ExpirePIN(groupID, PIN);
         }
 
+        /*
+         * Get: groupID , PIN , secret, siteGuid
+         * return Status
+         * get pin code for user - try to add it as a uniqe pincode , must be digits only 8-10 digits and start <> 0 
+         * only if group enable loin with pin + secret must be applied if security must be forced
+         */
         public ApiObjects.Response.Status SetLoginPIN(string siteGuid, string PIN, int groupID, string secret)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
-                //Allow the operator to set a 8-10 digits PIN
-                if (string.IsNullOrEmpty(PIN) || PIN.Length < 8 || PIN.Length > 10)
-                {                   
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "pin must be between 8-10digit");
+                // chaeck validation of PIN code
+                bool isValidPin = isValidPIN(PIN, out response);
+                if (!isValidPin)
+                {
                     return response;
                 }
-
                 // check if forece security question  + login via pin is allowed
                 bool loginViaPin = false;
                 bool securityQuestion = false;
@@ -911,6 +963,11 @@ namespace Users
             return response;
         }
 
+        /*
+       * Get: groupID , siteGuid
+       * return Status
+       * get siteGuiid - clear all pincode exsits for him
+       */
         public ApiObjects.Response.Status ClearLoginPIN(string siteGuid, int groupID)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
