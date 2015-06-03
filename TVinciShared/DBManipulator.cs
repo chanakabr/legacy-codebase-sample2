@@ -790,6 +790,8 @@ namespace TVinciShared
                 string sMiddleFieldRefToMain = coll[nCounter.ToString() + "_middle_ref_main_field"].ToString();
                 string sMiddleFieldRefToCollection = coll[nCounter.ToString() + "_middle_ref_collection_field"].ToString();
                 string sAddExtra = coll[nCounter.ToString() + "_collection_auto_add"].ToString();
+                string sMiddleTableType = coll[nCounter.ToString() + "_middle_table_type"].ToString();
+                
 
                 object mainPointerValue = null;
                 if (selectQuery != null)
@@ -810,6 +812,7 @@ namespace TVinciShared
                 char[] t = { ';' };
                 string[] splitedStr = sVal.Split(t);
                 Int32 nGroupID = LoginManager.GetLoginGroupID();
+                
                 if (nGroupID == 0)
                 {
                     if (coll[nCounter.ToString() + "_group"] != null)
@@ -825,6 +828,23 @@ namespace TVinciShared
                         }
                     }
                 }
+
+                int collectionTableGroupId = nGroupID;
+
+                // This is a special case when defining tags on PARENT group.
+                // The tag (collection) table is on CHILD group
+                // Therefore we will look for the group of the TYPE of the tags
+                // And this will be the CORRECT GROUP ID
+                if (sCollectionTable.ToLower() == "tags" || sCollectionTable.ToLower() == "epg_tags")
+                {
+                    object correctGroup = ODBCWrapper.Utils.GetTableSingleVal(sMiddleTableType, "GROUP_ID", int.Parse(sExtraFieldVal));
+
+                    if (correctGroup != null && correctGroup != DBNull.Value)
+                    {
+                        collectionTableGroupId = Convert.ToInt32(correctGroup);
+                    }
+                }
+
                 for (int i = 0; i < splitedStr.Length; i++)
                 {
                     bool bEntered = false;
@@ -869,14 +889,23 @@ namespace TVinciShared
                                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sExtraFieldName, "=", sToEnter);
                             }
                         }
+
                         if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" &&
                             sCollectionTable != "lu_languages" && sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands")
                         {
                             selectQuery1 += " and ";
-                            if (sCollectionTable != "channels" && sCollectionTable != "categories")
-                                selectQuery1 += " group_id " + PageUtils.GetParentsGroupsStr(nGroupID);
+                            
+                            if (collectionTableGroupId != nGroupID)
+                            {
+                                selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", collectionTableGroupId);
+                            }
                             else
-                                selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                            {
+                                if (sCollectionTable != "channels" && sCollectionTable != "categories")
+                                    selectQuery1 += " group_id " + PageUtils.GetParentsGroupsStr(nGroupID);
+                                else
+                                    selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                            }
                         }
 
                         if (selectQuery1.Execute("query", true) != null)
@@ -891,6 +920,7 @@ namespace TVinciShared
                         }
                         selectQuery1.Finish();
                         selectQuery1 = null;
+
                         if (bEntered == false)
                         {
                             if (sAddExtra.ToLower() == "false" || nRound == 1)
@@ -915,7 +945,8 @@ namespace TVinciShared
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM(sExtraFieldName, "=", sToEnter);
                                     }
                                 }
-                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+
+                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", collectionTableGroupId);
                                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
                                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                                 insertQuery.Execute();
@@ -930,7 +961,7 @@ namespace TVinciShared
                                     ODBCWrapper.DataSetSelectQuery selectQuery3 = new ODBCWrapper.DataSetSelectQuery();
                                     selectQuery3.SetConnectionKey(sConnectionKey);
                                     selectQuery3 += "select g.TAGS_NOTIFY_URL from groups g where ";
-                                    selectQuery3 += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
+                                    selectQuery3 += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", collectionTableGroupId);
                                     if (sExtraFieldVal != "")
                                         sTagType = ODBCWrapper.Utils.GetTableSingleVal("media_tags_types", "name", int.Parse(sExtraFieldVal)).ToString();
                                     if (selectQuery3.Execute("query", true) != null)
