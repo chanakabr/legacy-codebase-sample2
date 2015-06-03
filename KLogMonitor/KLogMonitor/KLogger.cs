@@ -97,24 +97,39 @@ namespace KLogMonitor
             switch (logEvent.Level)
             {
                 case LogEvent.LogLevel.DEBUG:
-                    logger.Debug(logEvent.Message, logEvent.Exception);
+
+                    if (logEvent.args != null && logEvent.args.Count() > 0)
+                        logger.DebugFormat(logEvent.Message, logEvent.args);
+                    else
+                        logger.Debug(logEvent.Message, logEvent.Exception);
                     break;
+
                 case LogEvent.LogLevel.WARNING:
-                    logger.Warn(logEvent.Message, logEvent.Exception);
+
+                    if (logEvent.args != null && logEvent.args.Count() > 0)
+                        logger.WarnFormat(logEvent.Message, logEvent.args);
+                    else
+                        logger.Warn(logEvent.Message, logEvent.Exception);
                     break;
+
                 case LogEvent.LogLevel.ERROR:
-                    if (logEvent.args != null)
+
+                    if (logEvent.args != null && logEvent.args.Count() > 0)
                         logger.ErrorFormat(logEvent.Message, logEvent.args);
                     else
                         logger.Error(logEvent.Message, logEvent.Exception);
                     break;
+
                 case LogEvent.LogLevel.INFO:
-                    if (logEvent.args != null)
+
+                    if (logEvent.args != null && logEvent.args.Count() > 0)
                         logger.InfoFormat(logEvent.Message, logEvent.args);
                     else
                         logger.Info(logEvent.Message, logEvent.Exception);
                     break;
+
                 default:
+
                     throw new Exception("Log level is unknown");
             }
         }
@@ -139,12 +154,12 @@ namespace KLogMonitor
             handleEvent(format, KLogger.LogEvent.LogLevel.INFO, true, args, null);
         }
 
-        public void Warning(string sMessage, Exception ex = null)
+        public void Warn(string sMessage, Exception ex = null)
         {
             handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
         }
 
-        public void WarningFormat(string format, params object[] args)
+        public void WarnFormat(string format, params object[] args)
         {
             handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, true, args, null);
         }
@@ -180,12 +195,12 @@ namespace KLogMonitor
             handleEvent(format, KLogger.LogEvent.LogLevel.INFO, false, args, null);
         }
 
-        public void WarningNoFlush(string sMessage, Exception ex = null)
+        public void WarnNoFlush(string sMessage, Exception ex = null)
         {
             handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
         }
 
-        public void WarningFormatNoFlush(string format, params object[] args)
+        public void WarnFormatNoFlush(string format, params object[] args)
         {
             handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, false, args, null);
         }
