@@ -714,43 +714,57 @@ namespace Users
             {
                 // check that user exsits 
                 UserResponseObject user = GetUserData(siteGuid);
-                if (user != null && user.m_user != null && user.m_RespStatus == ResponseStatus.OK)
+                if (user != null)
                 {
-                    // check if forece security question 
-                    bool loginViaPin = false;
-                    bool securityQuestion = false;
-                    UsersDal.LoginViaPinWithSecurityQuestion(groupID, out securityQuestion, out loginViaPin);
-                    if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
+                    if (user.m_user != null && (user.m_RespStatus == ResponseStatus.OK || user.m_RespStatus == ResponseStatus.UserNotIndDomain))
                     {
-                        //if so always generated pincode for him 
-                        string pinCode = GenerateNewPIN(groupID);
-
-                        DateTime expired_date = DateTime.UtcNow;
-                        DataTable dt = DAL.UsersDal.GenerateLoginPIN(siteGuid, pinCode, groupID, expired_date, secret);
-                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                        // check if forece security question 
+                        bool loginViaPin = false;
+                        bool securityQuestion = false;
+                        UsersDal.LoginViaPinWithSecurityQuestion(groupID, out securityQuestion, out loginViaPin);
+                        if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                         {
-                            DataRow dr = dt.Rows[0];
-                            response.pinCode = ODBCWrapper.Utils.GetSafeStr(dr, "pinCode");
-                            response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
-                            response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
+                            //if so always generated pincode for him 
+                            string pinCode = GenerateNewPIN(groupID);
 
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
+                            DateTime expired_date = DateTime.UtcNow;
+                            DataTable dt = DAL.UsersDal.GenerateLoginPIN(siteGuid, pinCode, groupID, expired_date, secret);
+                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                            {
+                                DataRow dr = dt.Rows[0];
+                                response.pinCode = ODBCWrapper.Utils.GetSafeStr(dr, "pinCode");
+                                response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+                                response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
+
+                                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
+                            }
+                        }
+                        else if (!loginViaPin)
+                        {
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed");
+                        }
+                        else // security must be provided
+                        {
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "Missing security parameter");
                         }
                     }
-                    else if (!loginViaPin)
+                    else
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed");
-                    }
-                    else // security must be provided
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "Missing security parameter");
+                        response = new PinCodeResponse();
+                        ApiObjects.Response.eResponseStatus resp = new ApiObjects.Response.eResponseStatus();
+                        // return the result return from GetUserData(siteGuid);                        
+                        bool parseEnum = Enum.TryParse(user.m_RespStatus.ToString(), out resp);
+                        if (!parseEnum)
+                        {
+                            resp = eResponseStatus.Error;
+                        }
+                        response.resp = new ApiObjects.Response.Status((int)resp, resp.ToString());
                     }
                 }
                 else
                 {
-                    response = new PinCodeResponse();
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "UserDoesNotExists");
-                }
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GetUserData return null");
+                }   
             }
             catch (Exception ex)
             {
