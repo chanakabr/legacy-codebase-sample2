@@ -5,12 +5,14 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace QueueWrapper
 {
     public class RabbitSingleConnection : IDisposable
     {
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #region CONST
 
         private int FAIL_COUNT_LIMIT = 3;
@@ -74,7 +76,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-
+                    logger.Error("", ex);
                 }
             }
 
@@ -103,6 +105,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
+                        logger.Error("", ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
@@ -134,7 +137,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-
+                    logger.Error("", ex);
                 }
             }
 
@@ -154,7 +157,10 @@ namespace QueueWrapper
                 {
                     this.m_Model.Close();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
             }
 
             if (this.m_Connection != null)
@@ -163,7 +169,10 @@ namespace QueueWrapper
                 {
                     this.m_Connection.Close();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
             }
 
             this.m_Model = null;

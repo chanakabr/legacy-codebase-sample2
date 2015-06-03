@@ -3,11 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace QueueWrapper
 {
     public class RabbitQueue : IQueueImpl
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #region Members
 
         private string m_sHostName = string.Empty;
@@ -61,7 +64,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-
+                logger.Error("", ex);
             }
 
             return bIsEnqueueSucceeded;

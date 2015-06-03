@@ -10,11 +10,14 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace QueueWrapper
 {
     public class RabbitConnection : IDisposable
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region CONST
 
@@ -80,7 +83,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-
+                        logger.Error("", ex);
                     }
                     finally
                     {
@@ -125,7 +128,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-
+                    logger.Error("", ex);
                 }
             }
 
@@ -158,6 +161,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
+                        logger.Error("", ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
@@ -229,7 +233,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-
+                    logger.Error("", ex);
                 }
             }
 
@@ -264,6 +268,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
+                        logger.Error("", ex);
                         m_Connection = null;
                         m_Model = null;
                         IncreaseFailCounter();

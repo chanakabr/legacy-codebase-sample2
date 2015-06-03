@@ -69,6 +69,9 @@
     <Reference Include="ApiObjects">
       <HintPath>..\External\ApiObjects.dll</HintPath>
     </Reference>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\External\3.5\KLogMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.0.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\RabbitMQ.Client.dll</HintPath>
