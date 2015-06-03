@@ -14,6 +14,8 @@ namespace Users
     public abstract class BaseUsers
     {
         public const int PIN_NUMBER_OF_DIGITS = 10;
+        public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
+        public const int PIN_MAX_NUMBER_OF_DIGITS = 10;
 
         protected BaseUsers() { }
         protected BaseUsers(Int32 nGroupID)
@@ -834,10 +836,20 @@ namespace Users
         }
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            //Allow the operator to set a 8-10 digits PIN
-            if (string.IsNullOrEmpty(PIN) || PIN.Length < 8 || PIN.Length > 10)
+            int minlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MIN_NUMBER_OF_DIGITS"));
+            int maxlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MAX_NUMBER_OF_DIGITS"));
+            if (minlength == 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "pin must be between 8-10digit");
+                minlength = PIN_MIN_NUMBER_OF_DIGITS; //default number of digits
+            }
+            if (maxlength == 0)
+            {
+                maxlength = PIN_MAX_NUMBER_OF_DIGITS; //default number of digits
+            }
+            //Allow the operator to set a 8-10 digits PIN
+            if (string.IsNullOrEmpty(PIN) || PIN.Length < minlength || PIN.Length > maxlength)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "pin must be between" + minlength.ToString() + " - " + maxlength.ToString() + " digit");
                 return false;
             }
             if (!IsDigitsOnly(PIN)) // check if only digits 
