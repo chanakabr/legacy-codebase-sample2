@@ -1434,5 +1434,417 @@ namespace DAL
 
             return sp.ExecuteDataSet();
         }
+
+        /// <summary>
+        /// Gets all parental rules active of a given group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static List<ParentalRule> Get_Group_ParentalRules(int groupId)
+        {
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Group_ParentalRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            return rules;
+        }
+
+        /// <summary>
+        /// From a given dataset, returns the list of parental rules it (hopefully) contains
+        /// </summary>
+        /// <param name="dataSet"></param>
+        /// <returns></returns>
+        private static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
+        {
+            Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 2)
+            {
+                DataTable rulesTable = dataSet.Tables[0];
+                DataTable tagsTable = dataSet.Tables[1];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (rulesTable != null && rulesTable.Rows != null && rulesTable.Rows.Count > 0)
+                {
+                    foreach (DataRow row in rulesTable.Rows)
+                    {
+                        ParentalRule newRule = CreateParentalRuleFromRow(row);
+
+                        // Map in dictionary for easy access
+                        rules.Add(newRule.id, newRule);
+                    }
+                }
+
+                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
+                {
+                    foreach (DataRow row in tagsTable.Rows)
+                    {
+                        ParentalRule currentRule;
+
+                        long ruleId = ODBCWrapper.Utils.ExtractValue<long>(row, "RULE_ID");
+
+                        // Try to get the rule from the dictionary (should always succeed though)
+                        if (rules.TryGetValue(ruleId, out currentRule))
+                        {
+                            // Asset type in database should match the enum!
+                            eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+                            string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+
+                            // According to asset, update the relevant list
+                            switch (assetType)
+                            {
+                                case eAssetTypes.EPG:
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
+                                case eAssetTypes.MEDIA:
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return rules.Values.ToList();
+        }
+
+        /// <summary>
+        /// Extracts data from fields and creates a parental rule object
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private static ParentalRule CreateParentalRuleFromRow(DataRow row)
+        {
+            ParentalRule newRule = new ParentalRule();
+
+            newRule.id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+            newRule.name = ODBCWrapper.Utils.ExtractString(row, "NAME");
+            newRule.description = ODBCWrapper.Utils.ExtractString(row, "DESCRIPTION");
+            newRule.order = ODBCWrapper.Utils.ExtractInteger(row, "ORDER_NUM");
+            newRule.mediaTagTypeId = ODBCWrapper.Utils.ExtractInteger(row, "MEDIA_TAG_TYPE_ID");
+            newRule.epgTagTypeId = ODBCWrapper.Utils.ExtractInteger(row, "EPG_TAG_TYPE_ID");
+            newRule.blockAnonymousAccess = ODBCWrapper.Utils.ExtractBoolean(row, "BLOCK_ANONYMOUS_ACCESS");
+            newRule.ruleType = (eParentalRuleType)ODBCWrapper.Utils.ExtractInteger(row, "RULE_TYPE");
+
+            int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
+
+            if (level != 0)
+            {
+                newRule.level = (eRuleLevel)level;
+            }
+            else
+            {
+                newRule.level = eRuleLevel.Group;
+            }
+
+            newRule.isDefault = ODBCWrapper.Utils.ExtractBoolean(row, "IS_DEFAULT");
+
+            return newRule;
+        }
+
+        public static List<ParentalRule> Get_Domain_ParentalRules(int groupId, int domainId)
+        {
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Domain_ParentalRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@DomainID", domainId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            return rules;
+        }
+
+        public static List<ParentalRule> Get_User_ParentalRules(int groupId, string siteGuid)
+        {
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            return rules;
+        }
+
+        public static int Set_UserParentalRule(int groupId, string siteGuid, long ruleId, int isActive)
+        {
+            int newId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_UserParentalRule");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@RuleID", ruleId);
+            storedProcedure.AddParameter("@IsActive", isActive);
+
+            newId = storedProcedure.ExecuteReturnValue<int>();
+
+            return newId;
+        }
+
+        public static int Set_DomainParentalRule(int groupId, int domainId, long ruleId, int isActive)
+        {
+            int newId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_DomainParentalRule");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@RuleID", ruleId);
+            storedProcedure.AddParameter("@IsActive", isActive);
+
+            newId = storedProcedure.ExecuteReturnValue<int>();
+
+            return newId;
+        }
+
+        public static string Get_ParentalPIN(int groupId, int domainId, string siteGuid, out eRuleLevel level, bool getUserDomain)
+        {
+            string pin = null;
+            level = eRuleLevel.User;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_UserDomainPIN");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@RuleType", 1);
+            storedProcedure.AddParameter("@GetUserDomain", getUserDomain);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                if (table != null && table.Rows != null && table.Rows.Count == 1)
+                {
+                    DataRow row = table.Rows[0];
+
+                    pin = ODBCWrapper.Utils.ExtractString(row, "PIN");
+                    level = (eRuleLevel)ODBCWrapper.Utils.ExtractInteger(row, "PIN_LEVEL");
+                }
+            }
+
+            return pin;
+        }
+
+        public static int Set_ParentalPIN(int groupId, string siteGuid, int domainId, string pin)
+        {
+            int newId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_UserDomainPin");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@Pin", pin);
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@RuleType", 1);
+
+            newId = storedProcedure.ExecuteReturnValue<int>();
+
+            return newId;       
+        }
+
+        public static bool Get_PurchaseSettings(int groupId, int domainId, string siteGuid, out eRuleLevel level, out ePurchaeSettingsType type)
+        {
+            bool success = false;
+            level = eRuleLevel.User;
+            type = ePurchaeSettingsType.Block;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_PurchaseSettings");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@GroupID", groupId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                if (table != null && table.Rows != null && table.Rows.Count == 1)
+                {
+                    DataRow row = table.Rows[0];
+
+                    type = (ePurchaeSettingsType)ODBCWrapper.Utils.ExtractInteger(row, "PURCHASE_SETTING");
+                    level = (eRuleLevel)ODBCWrapper.Utils.ExtractInteger(row, "SETTING_LEVEL");
+
+                    success = true;
+                }
+            }
+
+            return success;
+        }
+
+        public static int Set_PurchaseSettings(int groupId, string siteGuid, int domainId, ePurchaeSettingsType ePurchaeSettingsType)
+        {
+            int newId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_PurchaseSettings");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@PurchaseSetting", (int)ePurchaeSettingsType);
+            storedProcedure.AddParameter("@GroupID", groupId);
+
+            newId = storedProcedure.ExecuteReturnValue<int>();
+
+            return newId;       
+        }
+
+        public static string Get_PurchasePin(int groupId, int domainId, string siteGuid, out eRuleLevel level, bool getUserDomain)
+        {
+            string pin = null;
+            level = eRuleLevel.User;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_UserDomainPIN");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@RuleType", 2);
+            storedProcedure.AddParameter("@GetUserDomain", getUserDomain);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                if (table != null && table.Rows != null && table.Rows.Count == 1)
+                {
+                    DataRow row = table.Rows[0];
+
+                    pin = ODBCWrapper.Utils.ExtractString(row, "PIN");
+                    level = (eRuleLevel)ODBCWrapper.Utils.ExtractInteger(row, "PIN_LEVEL");
+                }
+            }
+
+            return pin;
+        }
+
+        public static int Set_PurchasePIN(int groupId, string siteGuid, int domainId, string pin)
+        {
+            int newId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_UserDomainPin");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@Pin", pin);
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@RuleType", 2);
+
+            newId = storedProcedure.ExecuteReturnValue<int>();
+
+            return newId;   
+        }
+
+        public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@MediaID", mediaId);
+            storedProcedure.AddParameter("@DomainID", domainId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+
+            return rules;
+        }
+
+        private static List<ParentalRule> CreateParentalRulesFromSingleTable(DataSet dataSet)
+        {
+            Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                DataTable rulesAndTagsTable = dataSet.Tables[0];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (rulesAndTagsTable != null && rulesAndTagsTable.Rows != null && rulesAndTagsTable.Rows.Count > 0)
+                {
+                    foreach (DataRow row in rulesAndTagsTable.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                        ParentalRule currentRule = null;
+
+                        // First check if we have this rule already in dictionary
+                        if (!rules.TryGetValue(id, out currentRule))
+                        {
+                            currentRule = CreateParentalRuleFromRow(row);
+
+                            // Map in dictionary for easy access
+                            rules[id] = currentRule;
+                        }
+
+                        eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+
+                        string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                        // According to asset, update the relevant list
+                        switch (assetType)
+                        {
+                            case eAssetTypes.EPG:
+                            {
+                                currentRule.epgTagValues.Add(value);
+                                break;
+                            }
+                            case eAssetTypes.MEDIA:
+                            {
+                                currentRule.mediaTagValues.Add(value);
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return rules.Values.ToList();
+        }
+
+        public static List<ParentalRule> Get_ParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalEPGRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@EpgID", epgId);
+            storedProcedure.AddParameter("@DomainID", domainId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+
+            return rules;
+        }
     }
 }
