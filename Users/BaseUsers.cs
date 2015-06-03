@@ -958,6 +958,10 @@ namespace Users
                         {
                             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
                         }
+                        else
+                        {
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to generate pin code");
+                        }
                     }
                 }
                 else if (!loginViaPin)
@@ -994,7 +998,7 @@ namespace Users
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "no pin code exsits to user");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exsits for user");
                 }
             }
             catch (Exception ex)
