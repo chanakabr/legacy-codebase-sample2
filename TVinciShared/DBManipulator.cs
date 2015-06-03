@@ -1012,7 +1012,7 @@ namespace TVinciShared
                         sListIDs += sExtraFieldName + "='" + sExtraFieldVal + "'";
                     }
                     sListIDs += " and ";
-                    string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
+                    string sGroups = PageUtils.GetParentsGroupsStr(collectionTableGroupId);
                     sListIDs += "group_id " + sGroups;
                     sListIDs += ")";
                 }
