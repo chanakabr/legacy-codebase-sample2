@@ -42,7 +42,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get languages. username: {0}", true, ex, username);
+                log.ErrorFormat("Error while trying to get languages. username: {0}, exception: {1}", username, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }

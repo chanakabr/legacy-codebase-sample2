@@ -26,7 +26,7 @@ namespace WebAPI.App_Start
             HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
 
             // log request body
-            log.DebugFormat("API Request - \n{0}\n{1}", true,
+            log.DebugFormat("API Request - \n{0}\n{1}",
                             request.RequestUri.OriginalString,            // 0
                             await request.Content.ReadAsStringAsync());   // 1
 
@@ -64,7 +64,7 @@ namespace WebAPI.App_Start
                 string errMsg = string.Concat(message, error.ExceptionMessage, error.StackTrace);
                 if (error != null)
                 {
-                    log.ErrorFormat("{0}", true, null, errMsg);
+                    log.ErrorFormat("{0}", errMsg);
 
                     content = null;
                     message = error.ExceptionMessage;

@@ -52,7 +52,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in. Username: {0}", true, ex, userName);
+                log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue);
             }
             return user;
@@ -73,10 +73,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}", true, ex,
-                        Users.Url                          // 0
-                        );
-
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

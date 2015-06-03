@@ -46,7 +46,7 @@ namespace WebAPI.ClientManagers
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error while getting CB instance {0}", true, ex, eBucket.ToString());
+                        log.ErrorFormat("Error while getting CB instance {0}, exception: {1}", eBucket.ToString(), ex);
                         throw new InternalServerErrorException();
                     }
                     finally
@@ -65,7 +65,7 @@ namespace WebAPI.ClientManagers
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while getting CB instance_ {0}", true, ex, eBucket.ToString());
+                    log.ErrorFormat("Error while getting CB instance_ {0}, exception: {1}", eBucket.ToString(), ex);
                     throw new InternalServerErrorException();
                 }
                 finally
