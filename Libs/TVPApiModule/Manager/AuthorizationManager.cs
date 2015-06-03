@@ -1,6 +1,5 @@
 ﻿using CouchbaseWrapper;
 using CouchbaseWrapper.DalEntities;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,12 +15,14 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Manager
 {
     public class AuthorizationManager
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(AuthorizationManager));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static long _groupConfigsTtlSeconds;
         private static GenericCouchbaseClient _client;
         private static ReaderWriterLockSlim _lock;
@@ -43,10 +44,10 @@ namespace TVPApiModule.Manager
             try
             {
                 string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
-                
+
                 _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
                 _lock = new ReaderWriterLockSlim();
-                
+
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
                 {
                     logger.ErrorFormat("AuthorizationManager: Configuration for authorization is missing!");
@@ -147,13 +148,13 @@ namespace TVPApiModule.Manager
                 returnError(403);
                 return null;
             }
-            
+
             return apiToken;
         }
 
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
         {
-            if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null && 
+            if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
                 (signInResponse.LoginStatus != ResponseStatus.OK || signInResponse.LoginStatus != ResponseStatus.UserNotActivated || signInResponse.LoginStatus != ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus != ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus != ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus != ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus != ResponseStatus.UserSuspended))
@@ -183,7 +184,7 @@ namespace TVPApiModule.Manager
             CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
             if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
             {
-                logger.ErrorFormat("RefreshAccessToken: refreshToken expired. refreshToken = {0}, accessToken = {1}",  refreshToken, accessToken);
+                logger.ErrorFormat("RefreshAccessToken: refreshToken expired. refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
                 returnError(403);
                 return null;
             }
@@ -214,14 +215,14 @@ namespace TVPApiModule.Manager
             {
                 user = new ApiUsersService(groupId, platform).GetUserData(siteGuid);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                logger.ErrorFormat("RefreshAccessToken: error while getting user. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
+                logger.ErrorFormat("RefreshAccessToken: error while getting user. siteGuid = {0}, refreshToken = {1}, accessToken = {2}, exception = {3}", siteGuid, refreshToken, accessToken, ex);
                 returnError(403);
                 return null;
             }
-            if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered && 
-                user.m_RespStatus != ResponseStatus.UserNotMasterApproved && user.m_RespStatus != ResponseStatus.UserNotIndDomain  && user.m_RespStatus != ResponseStatus.UserWithNoDomain &&
+            if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered &&
+                user.m_RespStatus != ResponseStatus.UserNotMasterApproved && user.m_RespStatus != ResponseStatus.UserNotIndDomain && user.m_RespStatus != ResponseStatus.UserWithNoDomain &&
                 user.m_RespStatus != ResponseStatus.UserSuspended))
             {
                 logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
@@ -359,16 +360,16 @@ namespace TVPApiModule.Manager
 
             if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || domainId != 0 || !string.IsNullOrEmpty(udid))
             {
-               Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
-               if (domain == null)
+                Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+                if (domain == null)
                 {
                     logger.ErrorFormat("ValidateRequestParameters: domain not found for initSiteGuid = {0}", initSiteGuid);
                     returnError(403);
                     return false;
-               }
+                }
 
                 // if siteGuids are not the same, check if siteGuids are in the same domain
-               int userId;
+                int userId;
                 if (!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid)
                 {
                     userId = int.Parse(siteGuid);

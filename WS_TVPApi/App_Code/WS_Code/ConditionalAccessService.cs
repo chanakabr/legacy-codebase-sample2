@@ -7,7 +7,6 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
@@ -16,6 +15,8 @@ using System.Web;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -26,7 +27,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class ConditionalAccessService : System.Web.Services.WebService, IConditionalAccessService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(ConditionalAccessService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod(EnableSession = true, Description = "Activate Campaign with information")]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,

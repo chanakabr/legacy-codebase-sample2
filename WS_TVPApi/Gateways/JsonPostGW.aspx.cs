@@ -9,11 +9,15 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using Logger;
 using System.Xml;
+using KLogMonitor;
+using System.Reflection;
+using TVPPro.SiteManager.Helper;
 
 public partial class Gateways_JsonPostGW : BaseGateway
 {
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
@@ -33,6 +37,8 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
         if (!string.IsNullOrEmpty(sJsonRequest))
         {
+
+
             JObject json = JObject.Parse(sJsonRequest);
 
             foreach (KeyValuePair<string, JToken> pair in json)
@@ -45,14 +51,14 @@ public partial class Gateways_JsonPostGW : BaseGateway
                 {
                     sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
 
-                    #region Remove opening and closing ""
+                    // Remove opening and closing ""
                     if ((!pair.Key.Equals("initObj") &&
-                              !pair.Key.Equals("tagPairs") &&
-                              !pair.Key.Equals("metaPairs") &&
-                              !pair.Key.Equals("userBasicData") &&
-                              !pair.Key.Equals("userDynamicData")) &&
-                              !pair.Key.Equals("orderObj") &&
-                              !pair.Key.Equals("recordedEPGOrderObj"))
+                         !pair.Key.Equals("tagPairs") &&
+                         !pair.Key.Equals("metaPairs") &&
+                         !pair.Key.Equals("userBasicData") &&
+                         !pair.Key.Equals("userDynamicData")) &&
+                         !pair.Key.Equals("orderObj") &&
+                         !pair.Key.Equals("recordedEPGOrderObj"))
                     {
                         if (sValue[0] == '\"' && sValue[sValue.Length - 1] == '\"')
                         {
@@ -60,11 +66,30 @@ public partial class Gateways_JsonPostGW : BaseGateway
                         }
                     }
 
-                    #endregion
+                    if (pair.Key.Equals("initObj"))
+                    {
+                        InitializationObject initObj = JsonConvert.DeserializeObject<InitializationObject>(pair.Value.ToString());
+                        if (initObj != null)
+                        {
+                            // get user ID
+                            if (initObj.SiteGuid != null)
+                                HttpContext.Current.Items.Add(Constants.USER_ID, initObj.SiteGuid);
+
+                            // get group ID
+                            if (initObj.ApiUser != null && initObj.ApiUser != null)
+                            {
+                                int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+                                HttpContext.Current.Items.Add(Constants.GROUP_ID, groupId);
+                            }
+                        }
+                    }
                 }
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
+
+            // log request body
+            logger.DebugFormat("API Request - \n{0}", sJsonRequest);
         }
 
 
@@ -79,6 +104,9 @@ public partial class Gateways_JsonPostGW : BaseGateway
                                                         m_UsersService,
                                                         m_NotificationService);
 
-        queryServices.ProcessRequest(sJsonRequest);
+        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START, null, null, null, null))
+        {
+            queryServices.ProcessRequest(sJsonRequest);
+        }
     }
 }

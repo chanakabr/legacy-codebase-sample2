@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Collections;
-using log4net;
 using System.Configuration;
 using System.Reflection;
+using KLogMonitor;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -18,7 +18,7 @@ namespace TVPApi
 {
     public class ConnectionHelper
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
         private static Dictionary<string, Dictionary<string, int>> _groupsModulesIPs = new Dictionary<string, Dictionary<string, int>>();
 
@@ -34,7 +34,7 @@ namespace TVPApi
                 try
                 {
                     _locker.EnterWriteLock();
-                    
+
                     //Second check to make sure another thread didn't add the value already
                     if (!_groupsModulesIPs.ContainsKey(sUN + ":" + sPass))
                     {
@@ -51,7 +51,7 @@ namespace TVPApi
 
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    logger.Error("", ex);
                     return 0;
                 }
 
@@ -118,36 +118,10 @@ namespace TVPApi
         }
 
         //Init delegates
-        public static void InitServiceConfigs()//int groupID, PlatformType platform
+        public static void InitServiceConfigs()
         {
-            //ConnectionManager connMngr = new ConnectionManager(groupID, platform, false);
-            //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = connMngr.GetClientConnectionString;
-            //string EnvironmentClient = System.Configuration.ConfigurationManager.AppSettings["ClientIndentifier"].ToLower();
-
-            //if (!string.IsNullOrEmpty(ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.Site.LogBasePath))
-            //{
-            //    log4net.GlobalContext.Properties["DebuggingLogFilePath"] = string.Format(@"{0}\{1}\Debugging_{2}.log", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.Site.LogBasePath, EnvironmentClient, System.Environment.MachineName);
-            //    log4net.GlobalContext.Properties["InformationLogFilePath"] = string.Format(@"{0}\{1}\Information_{2}.log", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.Site.LogBasePath, EnvironmentClient, System.Environment.MachineName);
-            //    log4net.GlobalContext.Properties["ExceptionsLogFilePath"] = string.Format(@"{0}\{1}\Exceptions_{2}.log", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.Site.LogBasePath, EnvironmentClient, System.Environment.MachineName);
-            //    log4net.GlobalContext.Properties["PerformancesLogFilePath"] = string.Format(@"{0}\{1}\Performances_{2}.log", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.Site.LogBasePath, EnvironmentClient, System.Environment.MachineName);
-
-            //    string logConfigPath = System.Configuration.ConfigurationManager.AppSettings["Log4NetConfiguration"];
-            //    if (!string.IsNullOrEmpty(logConfigPath))
-            //    {
-            //        logConfigPath = HttpContext.Current.Server.MapPath(logConfigPath);
-            //        log4net.Config.XmlConfigurator.ConfigureAndWatch(new System.IO.FileInfo(logConfigPath));
-            //    }
-            //}
-
-            //Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = delegate() { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.TVMConfiguration; };
-            //TVPPro.SiteManager.Manager.TechnicalManager.GetTVMConfiguration;
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
             Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigurationManager.AppSettings["TVM_API_URL"]; };
-            //TVPPro.SiteManager.Manager.TextLocalization.Instance.Dispose();
-            //TVPPro.SiteManager.Manager.TextLocalization.Instance.TranslationCulture = HttpContext.Current.Items["GroupID"].ToString();
-            // TVPPro.SiteManager.Manager.TextLocalization.Instance.Sync(null);
-
-            //  TVPPro.SiteManager.Manager.TextLocalization.Instance.RegisterInstance();
         }
 
         public static string GetFlashVarsLangVal()

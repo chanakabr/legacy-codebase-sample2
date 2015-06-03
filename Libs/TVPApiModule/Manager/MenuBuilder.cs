@@ -5,6 +5,8 @@ using System.Web;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApi;
+using KLogMonitor;
+using System.Reflection;
 
 
 /// <summary>
@@ -20,11 +22,11 @@ namespace TVPApi
             Footer = 2
         }
 
-        #region Private Fields
+
         private Dictionary<string, Dictionary<long, List<MenuItem>>> m_dictMenuItems;
         private Dictionary<string, Dictionary<long, List<MenuItem>>> m_dictFooterItems;
         private static Dictionary<string, MenuBuilder> m_Instances;
-        #endregion
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constructor
         private MenuBuilder(int groupID, PlatformType platform)
@@ -73,7 +75,7 @@ namespace TVPApi
 
         public void Init(int groupID, PlatformType platform)
         {
-           // m_Logger.Info("Starting initialization of main menu manager");
+            logger.Info("Starting initialization of main menu manager");
 
             try
             {
@@ -82,7 +84,7 @@ namespace TVPApi
 
                 if (data == null)
                 {
-                   // m_Logger.Error("MainMenuLoader returned null data");
+                    logger.Error("MainMenuLoader returned null data");
                     return;
                 }
 
@@ -93,11 +95,11 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
-               // m_Logger.Error("Failed initialzing main menu manager", ex);
+                logger.Error("Failed initialzing main menu manager", ex);
                 return;
             }
 
-           // m_Logger.Info("Finished initialization of main menu manager");
+            logger.Info("Finished initialization of main menu manager");
         }
 
 
@@ -110,6 +112,7 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
+                logger.Error("", ex);
                 if (ex != null && ex.InnerException != null) ex = ex.InnerException;
                 if (ex == null) ex = new Exception("Unknown Exception");
             }
@@ -126,6 +129,7 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
+                logger.Error("", ex);
                 if (ex != null && ex.InnerException != null) ex = ex.InnerException;
                 if (ex == null) ex = new Exception("Unknown Exception");
             }
@@ -142,6 +146,7 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
+                logger.Error("", ex);
                 if (ex != null && ex.InnerException != null) ex = ex.InnerException;
                 if (ex == null) ex = new Exception("Unknown Exception");
             }

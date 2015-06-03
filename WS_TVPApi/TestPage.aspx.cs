@@ -58,7 +58,7 @@ public partial class TestPage : System.Web.UI.Page
        // service.SearchMedia(initObj, user, pass, "t", 0, "full", 10, 0, OrderBy.Added);
         //service.GetUserItems(initObj, user, pass, UserItemType.Favorite, 0, "full", 10, 0);
         //service.GetGalleryItemContent(initObj, user, pass, 1910, 191, 67, "full", 5, 0);
-        long count = 0;
+        //long count = 0;
         //service.GetRelatedMediaWithMediaCount(initObj, user, pass, 122682, 0, "full", 5, 0, ref count);
         //service.SignIn(initObj, user, pass, "test3@test.tt", "123456");
         m_mediaService.GetMediaInfo(initObj, 122632, 257, "full", true);

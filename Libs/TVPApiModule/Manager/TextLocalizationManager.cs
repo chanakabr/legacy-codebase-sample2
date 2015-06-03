@@ -6,21 +6,22 @@ using System.Data;
 using System.Globalization;
 using TVPApi;
 using Tvinci.Localization;
-using log4net;
 using System.Threading;
 using TVPApiModule.Objects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Manager
 {
 
     public class TextLocalizationManager
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(TextLocalizationManager));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static ReaderWriterLockSlim m_Lock = new ReaderWriterLockSlim();
         private Dictionary<string, TextLocalization> m_dTextLocalization = new Dictionary<string, TextLocalization>();
-        
+
         private static TextLocalizationManager m_Instance = null;
-        
+
         public static TextLocalizationManager Instance
         {
             get

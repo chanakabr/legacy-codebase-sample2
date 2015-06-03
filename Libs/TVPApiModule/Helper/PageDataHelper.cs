@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
+using KLogMonitor;
 using TVPApi;
-using log4net;
 
 /// <summary>
 /// Summary description for PageDataHelper
 /// </summary>
 public class PageDataHelper
 {
-    private static readonly ILog logger = LogManager.GetLogger(typeof(PageDataHelper));
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-    private int m_groupID;
-    private PlatformType m_platform;
+    //private int m_groupID;
+    //private PlatformType m_platform;
 
     public PageDataHelper(int groupID, PlatformType platform)
     {
@@ -50,7 +51,7 @@ public class PageDataHelper
         }
 
         AddMenuToPageContext(retVal, initObj, withMenu, withFooter, groupID);
-        
+
         return retVal;
     }
 

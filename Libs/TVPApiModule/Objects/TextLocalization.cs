@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tvinci.Localization;
-using log4net;
 using System.Data;
 using TVPApi;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Objects
 {
@@ -13,9 +14,9 @@ namespace TVPApiModule.Objects
     {
         private int m_GroupID;
         private PlatformType m_Platform;
-        
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(TextLocalization));
-		public string TranslationCulture { get; set; }
+
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        public string TranslationCulture { get; set; }
 
         public delegate string AddTokentitleId(string key, string translation);
         protected event AddTokentitleId AddTokenWrapperHandler;
@@ -30,19 +31,20 @@ namespace TVPApiModule.Objects
             AddTokenWrapperHandler = null;
         }
 
-		public TextLocalization(int groupID, PlatformType platform) : base(string.Empty)
-		{
-			TranslationCulture = string.Empty;
+        public TextLocalization(int groupID, PlatformType platform)
+            : base(string.Empty)
+        {
+            TranslationCulture = string.Empty;
             m_GroupID = groupID;
             m_Platform = platform;
             Sync(null);
-		}
+        }
 
-		[Obsolete("use [] instead")]
-		public string GetText(string key)
-		{
-			return this[key];
-		}
+        [Obsolete("use [] instead")]
+        public string GetText(string key)
+        {
+            return this[key];
+        }
 
         public override string this[string token]
         {
@@ -64,117 +66,117 @@ namespace TVPApiModule.Objects
             return m_GroupID;
         }
 
-		protected override LanguagesDefinition FetchLanguages(object parameters)
-		{
+        protected override LanguagesDefinition FetchLanguages(object parameters)
+        {
             ConnectionManager conManager = new ConnectionManager(m_GroupID, m_Platform, false);
             string connectionString = conManager.GetClientConnectionString();
 
-			LanguagesDefinition result = new LanguagesDefinition();
-			result.TranslationKey = this.TranslationCulture;
+            LanguagesDefinition result = new LanguagesDefinition();
+            result.TranslationKey = this.TranslationCulture;
 
-			logger.Info("Start syncing site languages");
-			ODBCWrapper.DataSetSelectQuery mainQuery = null;
+            logger.Info("Start syncing site languages");
+            ODBCWrapper.DataSetSelectQuery mainQuery = null;
 
-			try
-			{
-				mainQuery = new ODBCWrapper.DataSetSelectQuery();
+            try
+            {
+                mainQuery = new ODBCWrapper.DataSetSelectQuery();
                 mainQuery.SetConnectionString(connectionString);
-				string translationPart = string.IsNullOrEmpty(TranslationCulture) ? "" : string.Format("or culture = '{0}'", TranslationCulture);
-				mainQuery += string.Format("select ID, CULTURE, NAME, DIRECTION, isUsed, isDefault, TVMValue from LU_LANGUAGES where (isUsed = 1 {0})", translationPart);
+                string translationPart = string.IsNullOrEmpty(TranslationCulture) ? "" : string.Format("or culture = '{0}'", TranslationCulture);
+                mainQuery += string.Format("select ID, CULTURE, NAME, DIRECTION, isUsed, isDefault, TVMValue from LU_LANGUAGES where (isUsed = 1 {0})", translationPart);
 
-				if (mainQuery.Execute("temp", true) != null)
-				{
-					DataTable table = mainQuery.Table("temp");
+                if (mainQuery.Execute("temp", true) != null)
+                {
+                    DataTable table = mainQuery.Table("temp");
 
-					logger.InfoFormat("Extracted {0} languages.", table.Rows.Count);
+                    logger.InfoFormat("Extracted {0} languages.", table.Rows.Count);
 
-					for (int i = 0; i < table.Rows.Count; i++)
-					{
-						DataRow oRow = table.Rows[i];
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        DataRow oRow = table.Rows[i];
 
-						try
-						{
-							string tvmValue = oRow["TVMValue"] as string;
-							string culture = (string) oRow["Culture"];
+                        try
+                        {
+                            string tvmValue = oRow["TVMValue"] as string;
+                            string culture = (string)oRow["Culture"];
                             string name = (string)oRow["Name"];
 
-							logger.DebugFormat("Found language with culture '{0}', is default '{1}', is used '{2}'", oRow["Culture"], oRow["isDefault"], oRow["IsUsed"]);
+                            logger.DebugFormat("Found language with culture '{0}', is default '{1}', is used '{2}'", oRow["Culture"], oRow["isDefault"], oRow["IsUsed"]);
 
-							if (!isValidCulture(culture))
-							{
-								logger.FatalFormat("Failed to handle language id '{0}' name '{1}'. Language is not supported (Did you forget to add the language culture '{2}' to the enum 'eLanguage'?)", oRow["ID"], oRow["Name"], oRow["Culture"]);
-								continue;
-							}
+                            if (!isValidCulture(culture))
+                            {
+                                logger.ErrorFormat("Failed to handle language id '{0}' name '{1}'. Language is not supported (Did you forget to add the language culture '{2}' to the enum 'eLanguage'?)", oRow["ID"], oRow["Name"], oRow["Culture"]);
+                                continue;
+                            }
 
-							string key = culture;
+                            string key = culture;
 
-							object valueInDB = oRow["ID"];
-							eDirection direction = (eDirection) Enum.Parse(typeof(eDirection), (string) oRow["Direction"]);
+                            object valueInDB = oRow["ID"];
+                            eDirection direction = (eDirection)Enum.Parse(typeof(eDirection), (string)oRow["Direction"]);
 
-							if ((bool) oRow["isDefault"])
-							{
-								if (string.IsNullOrEmpty(result.TranslationKey))
-								{
-									// no custom translation value set. using default language
-									result.TranslationKey = key.ToString();
-								}
+                            if ((bool)oRow["isDefault"])
+                            {
+                                if (string.IsNullOrEmpty(result.TranslationKey))
+                                {
+                                    // no custom translation value set. using default language
+                                    result.TranslationKey = key.ToString();
+                                }
 
-								result.DefaultKey = key.ToString();
-							}
+                                result.DefaultKey = key.ToString();
+                            }
 
-							DataTable languageData = null;
-							if ((bool) oRow["IsUsed"])
-							{
-								ODBCWrapper.DataSetSelectQuery subQuery = new ODBCWrapper.DataSetSelectQuery();
+                            DataTable languageData = null;
+                            if ((bool)oRow["IsUsed"])
+                            {
+                                ODBCWrapper.DataSetSelectQuery subQuery = new ODBCWrapper.DataSetSelectQuery();
                                 subQuery.SetConnectionString(connectionString);
                                 subQuery += "select t.CategoryToken '" + LanguageHelper.CategoryTokenKey + "', t.titleID '" + LanguageHelper.ItemTokenKey + "', ISNULL(NULLIF(tm.TEXT, ''), tm.OriginalText) 'TEXT' ";
-								subQuery += "from translationMetadata tm left join translation t on t.id = tm.translationid where ";
-								subQuery += ODBCWrapper.Parameter.NEW_PARAM("tm.Culture", "=", culture);
+                                subQuery += "from translationMetadata tm left join translation t on t.id = tm.translationid where ";
+                                subQuery += ODBCWrapper.Parameter.NEW_PARAM("tm.Culture", "=", culture);
 
-								logger.DebugFormat("Trying to extract translation for culture '{0}'", culture);
-								string tableName = oRow["CULTURE"].ToString();
-								DataTable transTable = subQuery.Execute(tableName, true);
-								if (transTable != null)
-								{
-									languageData = transTable.Copy();
-								}
-								else
-								{
-									logger.ErrorFormat("Failed to execute sql against db to extract translations for culture '{0}'", culture);
-								}
+                                logger.DebugFormat("Trying to extract translation for culture '{0}'", culture);
+                                string tableName = oRow["CULTURE"].ToString();
+                                DataTable transTable = subQuery.Execute(tableName, true);
+                                if (transTable != null)
+                                {
+                                    languageData = transTable.Copy();
+                                }
+                                else
+                                {
+                                    logger.ErrorFormat("Failed to execute sql against db to extract translations for culture '{0}'", culture);
+                                }
 
-								subQuery.Finish();
-							}
+                                subQuery.Finish();
+                            }
 
-							result.LanguageDictionary.Add(key, new LanguageContext(key, valueInDB, direction, culture, languageData) { TVMValue = tvmValue, Name = name });
-						}
-						catch (Exception ex)
-						{
-							logger.Error("Error occured while extracting language information ", ex);
-						}
-					}
-				}
-				else
-				{
-					logger.Error("Failed to execute query against db to retrieve language information");
-				}
-			}
-			finally
-			{
-				if (mainQuery != null)
-				{
-					mainQuery.Finish();
-				}
-				logger.Info("Finished syncing site languages");
-			}
+                            result.LanguageDictionary.Add(key, new LanguageContext(key, valueInDB, direction, culture, languageData) { TVMValue = tvmValue, Name = name });
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("Error occured while extracting language information ", ex);
+                        }
+                    }
+                }
+                else
+                {
+                    logger.Error("Failed to execute query against db to retrieve language information");
+                }
+            }
+            finally
+            {
+                if (mainQuery != null)
+                {
+                    mainQuery.Finish();
+                }
+                logger.Info("Finished syncing site languages");
+            }
 
-			return result;
-		}
+            return result;
+        }
 
-		private bool isValidCulture(string culture)
-		{
-			return (culture.Length == 2);
-		}
+        private bool isValidCulture(string culture)
+        {
+            return (culture.Length == 2);
+        }
 
         public int GetLanguageDBID(string culture)
         {
@@ -190,6 +192,6 @@ namespace TVPApiModule.Objects
             }
             return 0;
         }
-	
+
     }
 }

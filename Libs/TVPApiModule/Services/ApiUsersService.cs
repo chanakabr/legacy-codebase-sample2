@@ -5,18 +5,19 @@ using System.Text;
 using TVPPro.SiteManager.Services;
 using TVPApi;
 using TVPPro.SiteManager.Context;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiUsersService : ApiBase
     {
         #region Variables
-        private readonly ILog logger = LogManager.GetLogger(typeof(ApiUsersService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
 
         private string m_wsUserName;
@@ -58,7 +59,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : ValidateUser, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userName, password);
+                logger.ErrorFormat("Error calling webservice protocol : ValidateUser, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", true, ex, ex.Message, userName, password);
             }
 
             return response;
@@ -69,7 +70,7 @@ namespace TVPApiModule.Services
             LogInResponseData loginData = new LogInResponseData();
 
             try
-            {                
+            {
                 UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);
 
                 if (response != null && response.m_user != null)
@@ -86,7 +87,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SignIn, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, sUserName, sPassword);
+                logger.ErrorFormat("Error calling webservice protocol : SignIn, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", true, ex, ex.Message, sUserName, sPassword);
             }
 
             return loginData;
@@ -101,7 +102,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SignUp, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userBasicData.m_sUserName, sPassword);
+                logger.ErrorFormat("Error calling webservice protocol : SignUp, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", true, ex, ex.Message, userBasicData.m_sUserName, sPassword);
             }
 
             return response;
@@ -115,7 +116,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SignOut, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : SignOut, Error Message: {0}, Parameters :  SiteGuid: {1}", true, ex, ex.Message, sSiteGuid);
             }
         }
 
@@ -133,7 +134,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  siteGuid: {1}", true, ex, ex.Message, sSiteGuid);
             }
 
             return bRet;
@@ -150,7 +151,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol AddUserFavorit, Error Message: {0} Parameters :ws User name : {1} , ws Password {2} ", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol AddUserFavorit, Error Message: {0} Parameters :ws User name : {1} , ws Password {2} ", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return IsRemoved;
@@ -166,7 +167,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error receive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sSiteGuid);
             }
 
             return response;
@@ -181,7 +182,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Media: {2}", ex.Message, sSiteGuid, sMediaID);
+                logger.ErrorFormat("Error receive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Media: {2}", true, ex, ex.Message, sSiteGuid, sMediaID);
             }
 
             return bRet;
@@ -195,7 +196,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favourite: {2}", ex.Message, sSiteGuid, mediaID);
+                logger.ErrorFormat("Error receive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favorite: {2}", true, ex, ex.Message, sSiteGuid, mediaID);
             }
         }
 
@@ -205,7 +206,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);                 
+                UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
 
                 if (response != null && response.m_user != null)
                 {
@@ -217,11 +218,11 @@ namespace TVPApiModule.Services
                 else if (response != null)
                 {
                     loginData.LoginStatus = response.m_RespStatus;
-                }                
+                }
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+                logger.ErrorFormat("Error receive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sUserName);
             }
 
             return loginData;
@@ -237,7 +238,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+                logger.ErrorFormat("Error receive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sUserName);
             }
 
             return response;
@@ -253,7 +254,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+                logger.ErrorFormat("Error receive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sUserName);
             }
 
             return response;
@@ -269,7 +270,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error receive user data Protocol GetUserData, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sSiteGuid);
             }
 
             return response;
@@ -285,7 +286,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUsersData, Error Message: {0}", ex.Message);
+                logger.ErrorFormat("Error receive user data Protocol GetUsersData, Error Message: {0}", true, ex, ex.Message);
             }
 
             return response;
@@ -301,7 +302,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol SetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error receive user data Protocol SetUserData, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sSiteGuid);
             }
 
             return response;
@@ -317,7 +318,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : ActivateAccount, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
+                logger.ErrorFormat("Error calling webservice protocol : ActivateAccount, Error Message: {0}, Parameters :  sUserName: {1}", true, ex, ex.Message, sUserName);
             }
 
             return response;
@@ -333,7 +334,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : ResendActivationMail, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
+                logger.ErrorFormat("Error calling webservice protocol : ResendActivationMail, Error Message: {0}, Parameters :  sUserName: {1}", true, ex, ex.Message, sUserName);
             }
 
             return response;
@@ -351,7 +352,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+                logger.ErrorFormat("Error receive user data Protocol GetUserOfflineList, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, sSiteGuid);
             }
 
             return response;
@@ -367,7 +368,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol AddUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error receive user data Protocol AddUserOfflineMedia, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, siteGuid);
             }
 
             return response;
@@ -383,7 +384,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol RemoveUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error receive user data Protocol RemoveUserOfflineMedia, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, siteGuid);
             }
 
             return response;
@@ -399,7 +400,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol ClearUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error receive user data Protocol ClearUserOfflineList, Error Message: {0} Parameters : User {1}", true, ex, ex.Message, siteGuid);
             }
 
             return response;
@@ -412,18 +413,18 @@ namespace TVPApiModule.Services
                 UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName);
                 if (uro.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
                 {
-                    logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
+                    logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", true, UserName);
                     return true;
                 }
                 else
                 {
-                    logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", UserName);
+                    logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", true, UserName);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error occured in SentNewPasswordToUser protocol ForgotPassword, Error Message: {0} Parameters :User : {1} ", ex.Message, UserName);
+                logger.ErrorFormat("Error occurred in SentNewPasswordToUser protocol ForgotPassword, Error Message: {0} Parameters :User : {1} ", true, ex, ex.Message, UserName);
                 return false;
             }
         }
@@ -439,7 +440,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol IpToCountry, Error Message: {0} Parameters : UserIP {1}", ex.Message, sIP);
+                logger.ErrorFormat("Error receive user data Protocol IpToCountry, Error Message: {0} Parameters : UserIP {1}", true, ex, ex.Message, sIP);
             }
 
             return sRet;
@@ -518,7 +519,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol SetUserDynamicData, Error Message: {0} Parameters :ws User name : {1} , ws Password: {2}, SiteGUID: {3}, Key: {4}, Value: {5}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                logger.ErrorFormat("Error receive user data Protocol SetUserDynamicData, Error Message: {0} Parameters :ws User name : {1} , ws Password: {2}, SiteGUID: {3}, Key: {4}, Value: {5}", true, ex, ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
             }
 
             return bRet;
@@ -534,7 +535,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : coGuid {1}", ex.Message, coGuid);
+                logger.ErrorFormat("Error receive user data Protocol GetUserData, Error Message: {0} Parameters : coGuid {1}", true, ex, ex.Message, coGuid);
             }
 
             return response;
@@ -549,7 +550,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol ChangeUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol ChangeUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -564,7 +565,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol GetUserByFacebookID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol GetUserByFacebookID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -579,7 +580,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol GetUserByUsername, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol GetUserByUsername, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -595,7 +596,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol SearchUsers, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol SearchUsers, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -609,7 +610,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol Logout, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, SiteGUID: {3}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid);
+                logger.ErrorFormat("Error receive user data Protocol Logout, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, SiteGUID: {3}", true, ex, ex.Message, m_wsUserName, m_wsPassword, sSiteGuid);
             }
         }
 
@@ -622,7 +623,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol GetCountryList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol GetCountryList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -637,7 +638,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol CheckTemporaryToken, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol CheckTemporaryToken, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -653,7 +654,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol GetGroupUserTypes, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol GetGroupUserTypes, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -668,7 +669,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol RenewUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+                logger.ErrorFormat("Error receive user data Protocol RenewUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", true, ex, ex.Message, m_wsUserName, m_wsPassword);
             }
 
             return bRet;
@@ -684,7 +685,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol RenewUserPIN, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, ruleID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                logger.ErrorFormat("Error receive user data Protocol RenewUserPIN, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, ruleID: {4}", true, ex, ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
 
                 bRet = ResponseStatus.ErrorOnSendingMail;
             }
@@ -702,7 +703,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol ActivateAccountByDomainMaster, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, masterUserName: {3}, userName: {4}, token: {5}", 
+                logger.ErrorFormat("Error receive user data Protocol ActivateAccountByDomainMaster, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, masterUserName: {3}, userName: {4}, token: {5}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, masterUserName, userName, token);
             }
 
@@ -719,7 +720,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol SendPasswordMail, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, userName: {3}",
+                logger.ErrorFormat("Error receive user data Protocol SendPasswordMail, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, userName: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, userName);
             }
 
@@ -738,13 +739,13 @@ namespace TVPApiModule.Services
                     itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
-                    
+
                 };
                 res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol AddItemToList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuide: {3}",
+                logger.ErrorFormat("Error receive user data Protocol AddItemToList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuide: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, siteGuid);
             }
 
@@ -769,7 +770,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol RemoveItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                logger.ErrorFormat("Error receive user data Protocol RemoveItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, siteGuid);
             }
 
@@ -794,7 +795,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol UpdateItemInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                logger.ErrorFormat("Error receive user data Protocol UpdateItemInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, siteGuid);
             }
 
@@ -819,7 +820,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol GetItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                logger.ErrorFormat("Error receive user data Protocol GetItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, siteGuid);
             }
 
@@ -844,7 +845,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol IsItemExistsInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                logger.ErrorFormat("Error receive user data Protocol IsItemExistsInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}", true, ex,
                     ex.Message, m_wsUserName, m_wsPassword, siteGuid);
             }
 
@@ -860,7 +861,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol SetUserTypeByUserID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, userTypeID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                logger.ErrorFormat("Error receive user data Protocol SetUserTypeByUserID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, userTypeID: {4}", true, ex, ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
                 bRet = ResponseStatus.ErrorOnUpdatingUserType;
             }
             return bRet;
@@ -887,7 +888,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SignInWithToken, Error Message: {0}, Parameters : ws User name : {1}, ws Password: {2}, token: {3}", ex.Message, m_wsUserName, m_wsPassword, sToken);
+                logger.ErrorFormat("Error calling webservice protocol : SignInWithToken, Error Message: {0}, Parameters : ws User name : {1}, ws Password: {2}, token: {3}", true, ex, ex.Message, m_wsUserName, m_wsPassword, sToken);
             }
             return loginData;
         }
@@ -903,7 +904,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("Error while trying to get regions."), ex);
+                logger.Error("Error while trying to get regions.", ex);
                 response = new TVPApiModule.Objects.Responses.PinCodeResponse();
                 response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
@@ -914,14 +915,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.LoginResponse response = null;
             try
-            {                
+            {
                 string sessionID = "0";
                 var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null, secret);
                 response = new TVPApiModule.Objects.Responses.LoginResponse(result);
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("Error while trying to get regions."), ex);
+                logger.Error("Error while trying to get regions.", ex);
                 response = new TVPApiModule.Objects.Responses.LoginResponse();
                 response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }

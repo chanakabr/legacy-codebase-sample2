@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataLoaders;
@@ -14,6 +13,8 @@ using TVPApiModule.Services;
 using System.ServiceModel;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Interfaces;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -26,7 +27,7 @@ namespace TVPApiServices
     // [System.Web.Script.Services.ScriptService]
     public class PlayerService : System.Web.Services.WebService
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PlayerService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public PlayerService()
         {
@@ -273,7 +274,7 @@ namespace TVPApiServices
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         public void Log(InitializationObject initObj, ErrorMessageWrapper message)
         {
-            logger.Debug(String.Format("Silverlight Player Log: {0}", message.Message));
+            logger.DebugFormat(String.Format("Silverlight Player Log: {0}", message.Message));
         }
 
         [WebMethod(EnableSession = true, Description = "Check Parental PIN")]

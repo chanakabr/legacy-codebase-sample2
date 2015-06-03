@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using log4net;
 using System.Linq;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Objects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiNotificationService : ApiBase
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(ApiNotificationService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object instanceLock = new object();
         private int m_groupID;
         private PlatformType m_platform;

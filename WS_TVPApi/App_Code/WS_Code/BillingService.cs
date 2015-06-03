@@ -7,7 +7,6 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
@@ -16,6 +15,8 @@ using TVPPro.SiteManager.TvinciPlatform.Billing;
 using System.Web;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -29,7 +30,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class BillingService : System.Web.Services.WebService, IBillingService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(BillingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region public methods
 
@@ -49,12 +50,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);                    
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");                    
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;

@@ -12,12 +12,16 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.DataLoaders;
 using TVPPro.SiteManager.DataEntities;
+using KLogMonitor;
+using System.Reflection;
 
 /// <summary>
 /// Summary description for GWFrontController
 /// </summary>
 public class GWFrontController
 {
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     public struct ApiAccessInfo
     {
         public TVPApi.InitializationObject initObj { get; set; }
@@ -373,7 +377,7 @@ public class GWFrontController
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("Netgem purchasestatus Exception ", ex.ToString(), "TVPApi");
+            logger.Error("Netgem purchasestatus Exception", ex);
             //XXX: Check with documentation
             p.status = "ERR";
         }

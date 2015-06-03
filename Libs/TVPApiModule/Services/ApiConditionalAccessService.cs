@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApi;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.Configuration.Site;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiConditionalAccessService : ApiBase
     {
         #region Variables
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(ApiConditionalAccessService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
 

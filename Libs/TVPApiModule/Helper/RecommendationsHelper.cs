@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
@@ -27,7 +28,8 @@ namespace TVPApiModule.Helper
 
     public class RecommendationsHelper
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(RecommendationsHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         internal static object ParseOrcaResponseToVideoRecommendationList(string xml)
         {
@@ -44,7 +46,7 @@ namespace TVPApiModule.Helper
                 logger.ErrorFormat("RecommendationsHelper::ParseOrcaResponseToVideoRecommendationList -> Resonse from Orca contains INVALID_CREDENTIALS status");
                 return "INVALID_CREDENTIALS";
             }
-            
+
             List<VideoRecommendation> retVal = new List<VideoRecommendation>();
 
             VideoRecommendation recommendation;
@@ -179,14 +181,14 @@ namespace TVPApiModule.Helper
                 var endTime = RecommendationsHelper.GetEndTimeForLiveRequest(orcaConfiguration);
                 var startTime = DateTime.UtcNow.AddHours(orcaConfiguration.Data.GMTOffset);
                 var orList = new List<KeyValue>();
-                pids.ForEach(pid => orList.Add(new KeyValue(){m_sKey = "epg_identifier", m_sValue = pid}));
+                pids.ForEach(pid => orList.Add(new KeyValue() { m_sKey = "epg_identifier", m_sValue = pid }));
 
                 var programs = new APIEPGSearchLoader(groupID, platform.ToString(), SiteHelper.GetClientIP(), 0, 0, new List<KeyValue>(), orList, true, startTime, endTime)
                     {
                         Culture = calture
                     }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseObject>;
 
-                epgChannelProgrammes = programs != null ? programs.Select(p => (p as ProgramObj).m_oProgram).ToList() : null; 
+                epgChannelProgrammes = programs != null ? programs.Select(p => (p as ProgramObj).m_oProgram).ToList() : null;
 
             }
             catch (Exception ex)

@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiBillingService : ApiBase
     {
         #region Variables
-        private static ILog logger = LogManager.GetLogger(typeof(ApiBillingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.Billing.module m_Module;
 
@@ -32,7 +33,7 @@ namespace TVPApiModule.Services
             m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultPassword;
-            
+
             m_groupID = groupID;
             m_platform = platform;
         }
@@ -74,7 +75,7 @@ namespace TVPApiModule.Services
             TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail lastBillingInfo = null;
             try
             {
-                lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword,sSiteGuid);
+                lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword, sSiteGuid);
             }
             catch (Exception ex)
             {

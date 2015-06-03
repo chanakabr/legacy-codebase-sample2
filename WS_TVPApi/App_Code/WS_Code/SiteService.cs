@@ -8,7 +8,6 @@ using TVPApi;
 using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
@@ -20,6 +19,8 @@ using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace TVPApiServices
@@ -34,8 +35,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class SiteService : System.Web.Services.WebService, ISiteService
     {
-
-        private readonly ILog logger = LogManager.GetLogger(typeof(SiteService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region SiteMap
 
@@ -319,7 +319,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get content from specific gallery items")]
         public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
-            List<Media> lstMedia = null;            
+            List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -328,8 +328,8 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Patch for ximon
-                    if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)                    
-                        pageIndex = pageIndex / pageSize;                    
+                    if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
+                        pageIndex = pageIndex / pageSize;
 
                     lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
                 }
@@ -717,7 +717,7 @@ namespace TVPApiServices
             return responseData;
         }
 
-        
+
 
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(InitializationObject initObj, string token)
@@ -730,7 +730,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;                                                            
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithToken(token, HttpContext.Current.Session.SessionID, SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
@@ -938,7 +938,7 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                
+
                 try
                 {
                     string[] siteGuids = sSiteGuid.Split(';');
@@ -1406,7 +1406,7 @@ namespace TVPApiServices
 
             return response;
         }
-        
+
         #endregion
 
         //[WebMethod(EnableSession = true, Description = "Generates the temporary device token")]
@@ -1544,7 +1544,7 @@ namespace TVPApiServices
 
             return response;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Admin sign in using TVM users")]
         public AdminUserResponse AdminSignIn(InitializationObject initObj, string username, string password)
         {

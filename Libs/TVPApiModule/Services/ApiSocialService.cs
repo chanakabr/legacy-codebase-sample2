@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPPro.SiteManager.TvinciPlatform.Social;
-using log4net;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
@@ -13,7 +14,7 @@ namespace TVPApiModule.Services
     {
         #region Fields
 
-        private readonly ILog logger = LogManager.GetLogger(typeof(ApiSocialService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object instanceLock = new object();
 
         private int m_groupID;
@@ -88,7 +89,7 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat(
-                    "Error occured in DoSocialAction, Error : {0} Parameters : mediaID {1}, action: {2}, platform: {3}, param: {4}",
+                    "Error occurred in DoSocialAction, Error : {0} Parameters : mediaID {1}, action: {2}, platform: {3}, param: {4}",
                     ex.Message, mediaID,
                     userAction, socialPlatform, actionParam);
             }
