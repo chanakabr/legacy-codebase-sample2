@@ -115,7 +115,7 @@ namespace WebAPI.ClientManagers
 
             if (group == null)
             {
-                log.Warning("failed to get group cache from Couchbase");
+                log.Warn("failed to get group cache from Couchbase");
                 throw new Exception();
             }
 
