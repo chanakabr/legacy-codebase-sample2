@@ -103,7 +103,7 @@ namespace TVPApi.Configuration.Technical
 
         private void TechDataModified(TechnicalData data)
         {
-            logger.Info("Start handling technical configuration data changed");
+            //logger.Info("Start handling technical configuration data changed");
 
             if (data == null)
             {
@@ -156,7 +156,7 @@ namespace TVPApi.Configuration.Technical
                 //        m_dynamicDefinitions[string.Concat(category.ID, "_", item.ID)] = item.Value;
                 //    }
                 //}
-                logger.Info("Finished handling technical configuration data changed");
+                //logger.Info("Finished handling technical configuration data changed");
             }
             catch (Exception e)
             {
