@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.Helper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
@@ -14,7 +15,7 @@ namespace TVPPro.SiteManager.Services
         #region Fields
         private static object lockObject = new object();
         private TvinciPlatform.Pricing.mdoule m_Module;
-        private static ILog logger = LogManager.GetLogger(typeof(PricingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string wsUserName = string.Empty;
         private string wsPassword = string.Empty;
         #endregion

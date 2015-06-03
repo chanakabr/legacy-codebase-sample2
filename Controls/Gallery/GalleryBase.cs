@@ -103,7 +103,7 @@ namespace Tvinci.Web.Controls.Gallery
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 this.Visible = false;
                 OnGalleryStatusUpdated(new StatusUpdatedEventArgs(StatusUpdatedEventArgs.eStatus.Error));

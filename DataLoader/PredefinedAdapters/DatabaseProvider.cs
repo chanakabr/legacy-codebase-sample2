@@ -6,15 +6,15 @@ using System.Text.RegularExpressions;
 using System.Data.Odbc;
 using ODBCWrapper;
 using System.Data;
-using log4net;
 using System.Reflection;
 using Tvinci.Performance;
+using KLogMonitor;
 
 namespace Tvinci.Data.DataLoader.PredefinedAdapters
 {
     public class DatabaseProvider : LoaderProvider<IDatabaseAdapter>
     {
-        public static ILog logger = log4net.LogManager.GetLogger(typeof(DatabaseProvider));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         Connection m_conn = new Connection();
         public override object GetDataFromSource(IDatabaseAdapter adapter)
@@ -23,7 +23,8 @@ namespace Tvinci.Data.DataLoader.PredefinedAdapters
 
             adapter.ExecuteInitializeQuery(query);
             Guid requestGuid = Guid.NewGuid();
-            if (logger.IsDebugEnabled)
+            //if (logger.IsDebugEnabled)
+#if DEBUG
             {
                 FieldInfo statementInfo = query.GetType().BaseType.BaseType.GetField("m_sOraStr", System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.NonPublic | BindingFlags.Instance);
                 string statement = (string)statementInfo.GetValue(query);
@@ -52,18 +53,19 @@ namespace Tvinci.Data.DataLoader.PredefinedAdapters
 
                 logger.DebugFormat("{0}SQL - {3}{0}{1}{0}{0}Parameters{0}{2}", "\r\n", statement, sb.ToString(), requestGuid.ToString());                
             }
+#endif
                      
             query.SetCachedSec(0);    
         
             DataTable result = null;
             try
             {
-                using (TvinciStopwatch timer = new TvinciStopwatch(ePerformanceSource.Site, string.Concat("Database Request - ", requestGuid.ToString())))
+                using (KMonitor mon = new KMonitor(Events.eEvent.EVENT_DATABASE) { Table = "table" })
                 {
-                    result = query.Execute("table", true);
-                }
+                    result = query.Execute("table", true);              
+                }      
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

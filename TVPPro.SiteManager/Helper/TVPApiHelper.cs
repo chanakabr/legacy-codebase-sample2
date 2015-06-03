@@ -14,7 +14,7 @@ namespace TVPPro.SiteManager.Helper
 {
     public static class TVPApiHelper
     {
-        static bool useTVPAPI = true;
+        //static bool useTVPAPI = true;
         static string baseTVPapiURL = System.Configuration.ConfigurationManager.AppSettings["BASE_TVPAPI_URL"];
         static JavaScriptSerializer json = new JavaScriptSerializer();
 

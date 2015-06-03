@@ -9,12 +9,16 @@ using System.Globalization;
 using TVPPro.SiteManager.CatalogLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.Manager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class LastWatchedLoader : TVMAdapter<dsItemInfo>
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private PersonalLastWatchedLoader m_oPersonalLastWatchedLoader;
         private bool m_bShouldUseCache;
 
@@ -255,8 +259,11 @@ namespace TVPPro.SiteManager.DataLoaders
                     string[] hour = med.last_watched_date.Split(' ')[1].Split(':');
                     itemRow.AddedDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]), int.Parse(hour[0]), int.Parse(hour[1]), 0);
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
+
 
                 try
                 {
@@ -264,8 +271,10 @@ namespace TVPPro.SiteManager.DataLoaders
                     string[] hour = med.last_watched_date.Split(' ')[1].Split(':');
                     itemRow.LastWatchedDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]), int.Parse(hour[0]), int.Parse(hour[1]), 0);
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
 
                 result.Item.AddItemRow(itemRow);
             }

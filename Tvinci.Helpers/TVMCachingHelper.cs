@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using ODBCWrapper;
 using System.Web;
 using System.Threading;
 using Tvinci.Data.DataLoader.PredefinedAdapters;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Helpers
 {
     public class TVMCachingHelper
     {
-        #region Constructor
+
         private TVMCachingHelper()
         {
             // Register to timer
@@ -22,26 +23,20 @@ namespace Tvinci.Helpers
             m_SyncTimer.Elapsed += new System.Timers.ElapsedEventHandler(m_SyncTimer_Elapsed);
             m_NoSignalTimer.Elapsed += new System.Timers.ElapsedEventHandler(m_NoSignalTimer_Elapsed);
             m_NoSignalTimer.AutoReset = false;
-        }        
-        #endregion
+        }
 
-        #region Constants
         public const string TVMONLINE_OFFLINE_STATUS = "OFFLINE";
         public const string TVMOSTATUS_OFFLINE_STATUS = "OFFLINE";
 
-        #endregion
-
-        #region Private Fields
         private static TVMCachingHelper m_instance = new TVMCachingHelper();
-        private readonly ILog logger = LogManager.GetLogger("Site.TVMCaching.Helper");        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string m_LastTVMOnline;
         private string m_LastTVMStatus;
         ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
-		private System.Timers.Timer m_SyncTimer;
+        private System.Timers.Timer m_SyncTimer;
         private System.Timers.Timer m_NoSignalTimer;
-        #endregion
 
-        #region Public Properties
+
         public static TVMCachingHelper Instance
         {
             get
@@ -78,7 +73,7 @@ namespace Tvinci.Helpers
                 // Stop no signal timer
                 m_NoSignalTimer.Stop();
 
-                UpdateTVMOnline(value);                
+                UpdateTVMOnline(value);
 
                 // Start no signal timer
                 m_NoSignalTimer.Start();
@@ -103,13 +98,10 @@ namespace Tvinci.Helpers
 
                 return null;
             }
-        } 
-        #endregion
-
-        #region Private Methods
+        }
 
         private void sync()
-        {			
+        {
             logger.Debug("Started sync process.");
 
             // Get values from database
@@ -225,7 +217,6 @@ namespace Tvinci.Helpers
                 uQuery = null;
             }
         }
-        #endregion
 
         #region Public Methods
         public void Start()
@@ -233,16 +224,16 @@ namespace Tvinci.Helpers
             logger.Info("Starting automatic sync of tvm status from database.");
 
             try
-            {				
-				m_SyncTimer.Start();
-                
-				// Force sync
-				sync();
+            {
+                m_SyncTimer.Start();
+
+                // Force sync
+                sync();
 
             }
             catch (Exception ex)
             {
-                logger.Error("Failed to start automatic sync of tvm status from database", ex); 
+                logger.Error("Failed to start automatic sync of tvm status from database", ex);
             }
         }
 
@@ -257,15 +248,15 @@ namespace Tvinci.Helpers
             }
             catch (Exception ex)
             {
-                logger.Error("Failed to stop automatic sync of tvm status from database", ex); 
+                logger.Error("Failed to stop automatic sync of tvm status from database", ex);
             }
         }
         #endregion
 
         #region Event Handlers
         void m_SyncTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {			
-			sync();			
+        {
+            sync();
         }
 
         void m_NoSignalTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

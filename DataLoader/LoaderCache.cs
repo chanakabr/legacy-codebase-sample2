@@ -7,7 +7,8 @@ using System.Web;
 using System.Threading;
 using System.Configuration;
 using System.Web.Caching;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Data.DataLoader
 {
@@ -20,7 +21,7 @@ namespace Tvinci.Data.DataLoader
         {
             Value = value;
             Categories = categories;
-            CreationTime = DateTime.Now;            
+            CreationTime = DateTime.Now;
         }
     }
 
@@ -35,12 +36,12 @@ namespace Tvinci.Data.DataLoader
 
         public DateTime GetValidStartDate()
         {
-            return m_validStartDate;            
+            return m_validStartDate;
         }
 
         public void InitializeStartDate()
-        {            
-            calculateUpdateTime();            
+        {
+            calculateUpdateTime();
         }
 
         public DateTime GetExpirationTime()
@@ -141,7 +142,7 @@ namespace Tvinci.Data.DataLoader
                 CategoryContext context;
 
                 if (categories.Length == 1)
-                {                    
+                {
                     if (m_categories.TryGetValue(categories[0], out context))
                     {
                         DateTime validDate = context.GetValidStartDate();
@@ -188,7 +189,7 @@ namespace Tvinci.Data.DataLoader
                 CategoryContext context;
 
                 if (categories.Length == 1)
-                {                    
+                {
                     if (m_categories.TryGetValue(categories[0], out context))
                     {
                         DateTime categoryExpiration = context.GetExpirationTime();
@@ -202,7 +203,7 @@ namespace Tvinci.Data.DataLoader
                 else
                 {
                     foreach (string category in categories)
-                    {                        
+                    {
                         if (m_categories.TryGetValue(category, out context))
                         {
                             DateTime categoryExpiration = context.GetExpirationTime();
@@ -219,7 +220,7 @@ namespace Tvinci.Data.DataLoader
             return expiration;
         }
     }
-   
+
     public sealed class LoaderCacheLite : ILoaderCache
     {
         static LoaderCacheLite instance = new LoaderCacheLite();
@@ -285,11 +286,11 @@ namespace Tvinci.Data.DataLoader
                 return false;
             }
         }
-        
+
         public void AddData(string uniqueKey, object data, string[] categories, int cacheDuration)
         {
             if (ShouldUseCache)
-            {                
+            {
                 DateTime expirationTime = DateTime.Now.AddMinutes((cacheDuration <= 0 || cacheDuration > 60) ? DefaultCacheDuration : cacheDuration);
 
                 HttpContext.Current.Cache.Insert(uniqueKey, data, null, expirationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
@@ -297,7 +298,7 @@ namespace Tvinci.Data.DataLoader
             }
         }
 
-        private static ILog logger = LogManager.GetLogger("Performances.Data");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private void cacheRemove(string key, object value, CacheItemRemovedReason reason)
         {
             //logger.WarnFormat("Item with key '{0}' was removed from cache. reason = '{1};", key, reason);
@@ -329,7 +330,7 @@ namespace Tvinci.Data.DataLoader
     //    {
     //        // no implementation needed
     //    }
-      
+
     //    #region ILoaderCache Members
 
     //    public bool TryGetData<TData>(string uniqueKey, out TData data)

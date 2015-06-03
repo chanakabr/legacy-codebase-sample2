@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Web;
 using System.Web.SessionState;
 using System.Xml;
-using log4net;
+using KLogMonitor;
+
 
 public abstract class TvinciClientRequestHandler : IHttpHandler, IRequiresSessionState
 {
-    public static ILog logger = LogManager.GetLogger("Site.ClientRequestHandler");
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     #region IHttpHandler Members
     public bool IsReusable
@@ -26,7 +28,7 @@ public abstract class TvinciClientRequestHandler : IHttpHandler, IRequiresSessio
             string Parameters = string.Empty;
             if (context.Request["Parameters"] != null)
             {
-                Parameters = context.Request["Parameters"].ToString();    
+                Parameters = context.Request["Parameters"].ToString();
             }
 
             if (string.IsNullOrEmpty(RequestType))

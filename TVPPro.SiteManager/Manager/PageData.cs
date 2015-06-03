@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using System.Web;
@@ -13,15 +12,17 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using System.Collections;
 using TVPPro.Configuration.Site;
 using Tvinci.Web.Controls;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager
 {
     public class PageData
     {
-		//static PageData()
-		//{
-		//    m_Instance = new PageData();
-		//}
+        //static PageData()
+        //{
+        //    m_Instance = new PageData();
+        //}
 
         private PageData()
         {
@@ -29,16 +30,16 @@ namespace TVPPro.SiteManager.Manager
         }
 
         #region Fields
-        public static ILog m_Logger = log4net.LogManager.GetLogger("TVPPro.PageData");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-		//private const int m_initCounter = 3;
+        //private const int m_initCounter = 3;
         private Dictionary<string, Dictionary<long, PageContext>> m_LanguageIDPages;
         private Dictionary<string, Dictionary<string, PageContext>> m_LanguageTokenPages;
 
         private static PageData m_Instance;
-		static object instanceLock = new object();
+        static object instanceLock = new object();
 
-		private dsPageData DataOnPage;
+        private dsPageData DataOnPage;
         //public dsPageData SiteGallries
         //{
         //    get
@@ -47,17 +48,17 @@ namespace TVPPro.SiteManager.Manager
         //    }
         //}
 
-		private PageContext pageContext
-		{
-			get
-			{
-				return HttpContext.Current.Items[REQUEST_PAGE_KEY] as PageContext;
-			}
-			set
-			{
-				HttpContext.Current.Items[REQUEST_PAGE_KEY] = value;
-			}
-		}
+        private PageContext pageContext
+        {
+            get
+            {
+                return HttpContext.Current.Items[REQUEST_PAGE_KEY] as PageContext;
+            }
+            set
+            {
+                HttpContext.Current.Items[REQUEST_PAGE_KEY] = value;
+            }
+        }
 
         public List<BreadCrumbItem> PageHierarchy
         {
@@ -69,7 +70,7 @@ namespace TVPPro.SiteManager.Manager
             {
                 HttpContext.Current.Items[REQUEST_PAGE_HIERARCHY_KEY] = value;
             }
-        }                
+        }
 
 
         #endregion
@@ -84,16 +85,16 @@ namespace TVPPro.SiteManager.Manager
         {
             get
             {
-				if (m_Instance == null)
-				{
-					lock (instanceLock)
-					{
-						if (m_Instance == null)
-						{
-							m_Instance = new PageData();
-						}
-					}
-				}
+                if (m_Instance == null)
+                {
+                    lock (instanceLock)
+                    {
+                        if (m_Instance == null)
+                        {
+                            m_Instance = new PageData();
+                        }
+                    }
+                }
                 return m_Instance;
             }
         }
@@ -103,7 +104,7 @@ namespace TVPPro.SiteManager.Manager
         #region Private Methods
         public void Init()
         {
-            m_Logger.Info("Started intializing page information");
+            logger.Info("Started intializing page information");
 
             // Load pages dataset]
             try
@@ -113,19 +114,19 @@ namespace TVPPro.SiteManager.Manager
 
                 if (DataOnPage == null)
                 {
-                    m_Logger.Error("Page data returned null");
+                    logger.Error("Page data returned null");
                     return;
                 }
             }
             catch (Exception ex)
             {
-                m_Logger.Error("Failed retrieving page data information", ex);
+                logger.Error("Failed retrieving page data information", ex);
                 return;
             }
 
             // Run on pages and create dictionary
             m_LanguageIDPages = new Dictionary<string, Dictionary<long, PageContext>>();
-			m_LanguageTokenPages = new Dictionary<string, Dictionary<string, PageContext>>();	
+            m_LanguageTokenPages = new Dictionary<string, Dictionary<string, PageContext>>();
             foreach (var page in DataOnPage.Pages)
             {
                 if (page.PageToken.Equals(Enums.ePages.Article.ToString())) continue;
@@ -138,7 +139,7 @@ namespace TVPPro.SiteManager.Manager
                     // Check if page id exists for language
                     if (m_LanguageIDPages[page.LanguageCulture].ContainsKey(page.ID))
                     {
-                        m_Logger.ErrorFormat("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture);
+                        logger.ErrorFormat("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture);
                         throw new Exception(string.Format("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture));
                     }
 
@@ -153,19 +154,19 @@ namespace TVPPro.SiteManager.Manager
                 }
 
                 // Add to language by page token dictionary
-				if (pg.PageToken != Enums.ePages.UnKnown && pg.PageToken != Enums.ePages.Dynamic 
-					&& pg.PageToken != Enums.ePages.Article && pg.IsActive)
+                if (pg.PageToken != Enums.ePages.UnKnown && pg.PageToken != Enums.ePages.Dynamic
+                    && pg.PageToken != Enums.ePages.Article && pg.IsActive)
                 {
                     if (m_LanguageTokenPages.ContainsKey(page.LanguageCulture))
                     {
                         // Check if page id exists for language
                         if (m_LanguageTokenPages[page.LanguageCulture].ContainsKey(page.PageToken))
                         {
-                            m_Logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
+                            logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
                             //throw new Exception(string.Format("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture));
                         }
-						else
-	                        m_LanguageTokenPages[page.LanguageCulture].Add(pg.PageToken.ToString(), pg);
+                        else
+                            m_LanguageTokenPages[page.LanguageCulture].Add(pg.PageToken.ToString(), pg);
                     }
                     else
                     {
@@ -201,7 +202,7 @@ namespace TVPPro.SiteManager.Manager
                 }
             }
 
-            m_Logger.Info("Finished intializing page information, found: " + DataOnPage.Pages.Count + " pages");
+            logger.Info("Finished intializing page information, found: " + DataOnPage.Pages.Count + " pages");
 
         }
 
@@ -212,21 +213,21 @@ namespace TVPPro.SiteManager.Manager
             pg.ID = page.ID;
             pg.PageMetadataID = page.SitePageMetadataID;
 
-			if (!page.IsPageTokenNull())
-			{
-				//Check if page exists
-				if (Enum.IsDefined(typeof(Enums.ePages), page.PageToken))
-					pg.PageToken = (Enums.ePages) Enum.Parse(typeof(Enums.ePages), page.PageToken, true);
-				else
-				{
-					m_Logger.ErrorFormat("Page Token:{0} doesn't exists in enums list", page.PageToken);
-					pg.PageToken = Enums.ePages.UnKnown;
-				}
-			}
-			else
-			{
-				pg.PageToken = Enums.ePages.UnKnown;
-			}
+            if (!page.IsPageTokenNull())
+            {
+                //Check if page exists
+                if (Enum.IsDefined(typeof(Enums.ePages), page.PageToken))
+                    pg.PageToken = (Enums.ePages)Enum.Parse(typeof(Enums.ePages), page.PageToken, true);
+                else
+                {
+                    logger.ErrorFormat("Page Token:{0} doesn't exists in enums list", page.PageToken);
+                    pg.PageToken = Enums.ePages.UnKnown;
+                }
+            }
+            else
+            {
+                pg.PageToken = Enums.ePages.UnKnown;
+            }
 
             if (!page.IsBreadCrumbTextNull())
                 pg.BreadCrumbText = page.BreadCrumbText;
@@ -237,14 +238,14 @@ namespace TVPPro.SiteManager.Manager
             if (!page.IsHasPlayerNull())
                 pg.HasPlayer = page.HasPlayer;
 
-			if (!page.IsHasCarouselNull())
-				pg.HasCarousel = page.HasCarousel;
+            if (!page.IsHasCarouselNull())
+                pg.HasCarousel = page.HasCarousel;
 
-			if (!page.IsHasMiddleFooterNull())
-				pg.HasMiddleFooter = page.HasMiddleFooter;
+            if (!page.IsHasMiddleFooterNull())
+                pg.HasMiddleFooter = page.HasMiddleFooter;
 
-			if (!page.IsPlayerAutoPlayNull())
-				pg.PlayerAutoPlay = page.PlayerAutoPlay;
+            if (!page.IsPlayerAutoPlayNull())
+                pg.PlayerAutoPlay = page.PlayerAutoPlay;
 
             if (!page.IsNameNull())
                 pg.Name = page.Name;
@@ -261,26 +262,26 @@ namespace TVPPro.SiteManager.Manager
             if (!page.IsPlayerTreeCategoryNull())
                 pg.PlayerTreeCategory = page.PlayerTreeCategory;
 
-			if (!page.IsCarouselChannelNull())
-				pg.CarouselChannel = page.CarouselChannel;
+            if (!page.IsCarouselChannelNull())
+                pg.CarouselChannel = page.CarouselChannel;
 
-			if (!page.IsMenuIDNull())
-			    pg.MenuID = page.MenuID;
+            if (!page.IsMenuIDNull())
+                pg.MenuID = page.MenuID;
 
-			if (!page.IsFooterIDNull())
-				pg.FooterID = page.FooterID;
+            if (!page.IsFooterIDNull())
+                pg.FooterID = page.FooterID;
 
-			if (!page.IsMiddleFooterIDNull())
-				pg.MiddleFooterID = page.MiddleFooterID;
+            if (!page.IsMiddleFooterIDNull())
+                pg.MiddleFooterID = page.MiddleFooterID;
 
-			if (!page.IsProfileIDNull())
-				pg.ProfileID = page.ProfileID;
+            if (!page.IsProfileIDNull())
+                pg.ProfileID = page.ProfileID;
 
             if (!page.IsIsProtectedNull())
                 pg.IsProtected = (page.IsProtected == 1);
 
-			if (!page.IsIsActiveNull())
-				pg.IsActive = (page.IsActive == 1);
+            if (!page.IsIsActiveNull())
+                pg.IsActive = (page.IsActive == 1);
 
             if (!page.IsBrandingBigPicIDNull())
                 pg.BrandingBigImageID = page.BrandingBigPicID;
@@ -372,11 +373,11 @@ namespace TVPPro.SiteManager.Manager
         {
             //dsPageData.PageGalleriesRow[] galleries = pageRow.GetPageGalleriesRows();
 
-			if (GalleryList == null)
+            if (GalleryList == null)
                 return;
 
             Dictionary<string, Dictionary<long, PageGallery>> galleryDict = new Dictionary<string, Dictionary<long, PageGallery>>();
-            
+
             bool isActiveGallery = true;
             if (GalleryList is IEnumerable<dsPageData.InActivePageGalleriesRow>)
             {
@@ -398,25 +399,25 @@ namespace TVPPro.SiteManager.Manager
 
                 bool isChildGallery = false;
                 PageGallery pgallery = new PageGallery();
-                
-                pgallery.GalleryID =  (isActiveGallery ? galleryRow.ID : inActiveGalleryRow.ID);
+
+                pgallery.GalleryID = (isActiveGallery ? galleryRow.ID : inActiveGalleryRow.ID);
 
                 pgallery.GalleryType = (isActiveGallery ? (TVPPro.SiteManager.Context.Enums.eGalleryType)galleryRow.GalleryType : (TVPPro.SiteManager.Context.Enums.eGalleryType)inActiveGalleryRow.GalleryType);
-				pgallery.UIGalleryType = (isActiveGallery ? (TVPPro.SiteManager.Context.Enums.eUIGalleryType) galleryRow.UiComponentType : (TVPPro.SiteManager.Context.Enums.eUIGalleryType) inActiveGalleryRow.UiComponentType);
+                pgallery.UIGalleryType = (isActiveGallery ? (TVPPro.SiteManager.Context.Enums.eUIGalleryType)galleryRow.UiComponentType : (TVPPro.SiteManager.Context.Enums.eUIGalleryType)inActiveGalleryRow.UiComponentType);
                 pgallery.ViewType = (isActiveGallery ? galleryRow.ViewType : inActiveGalleryRow.ViewType);
                 pgallery.NumberOfItemsPerPage = (isActiveGallery ? galleryRow.NumberOfItemsPerPage : inActiveGalleryRow.NumberOfItemsPerPage);
-                
+
                 if ((isActiveGallery && !galleryRow.IsTitleNull()) || (!isActiveGallery && !inActiveGalleryRow.IsTitleNull()))
                     pgallery.Title = (isActiveGallery ? galleryRow.Title : inActiveGalleryRow.Title);
 
                 if ((isActiveGallery && !galleryRow.IsTVMChannelIDNull()) || (!isActiveGallery && !inActiveGalleryRow.IsTVMChannelIDNull()))
                     pgallery.TVMChannelID = (isActiveGallery ? galleryRow.TVMChannelID : inActiveGalleryRow.TVMChannelID);
 
-				if ((isActiveGallery && !galleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(galleryRow.MainPlayerUN)) || (!isActiveGallery && !inActiveGalleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(inActiveGalleryRow.MainPlayerUN)))
-				{
-					pgallery.TVMUser = (isActiveGallery ? galleryRow.MainPlayerUN : inActiveGalleryRow.MainPlayerUN);
-					pgallery.TVMPass = (isActiveGallery ? galleryRow.MainPlayerPass : inActiveGalleryRow.MainPlayerPass);
-				}
+                if ((isActiveGallery && !galleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(galleryRow.MainPlayerUN)) || (!isActiveGallery && !inActiveGalleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(inActiveGalleryRow.MainPlayerUN)))
+                {
+                    pgallery.TVMUser = (isActiveGallery ? galleryRow.MainPlayerUN : inActiveGalleryRow.MainPlayerUN);
+                    pgallery.TVMPass = (isActiveGallery ? galleryRow.MainPlayerPass : inActiveGalleryRow.MainPlayerPass);
+                }
 
                 else if ((isActiveGallery && !galleryRow.IsTvmAccountUNNull()) || (!isActiveGallery && !inActiveGalleryRow.IsTvmAccountUNNull()))
                 {
@@ -424,7 +425,7 @@ namespace TVPPro.SiteManager.Manager
                     pgallery.TVMPass = (isActiveGallery ? galleryRow.TvmAccountPass : inActiveGalleryRow.TvmAccountPass);
                 }
 
-				if ((isActiveGallery && !galleryRow.IslocationNull()) || (!isActiveGallery && !inActiveGalleryRow.IslocationNull()))
+                if ((isActiveGallery && !galleryRow.IslocationNull()) || (!isActiveGallery && !inActiveGalleryRow.IslocationNull()))
                     pgallery.GalleryLocation = (isActiveGallery ? galleryRow.location : inActiveGalleryRow.location);
 
                 if ((isActiveGallery && !galleryRow.Isorder_numNull()) || (!isActiveGallery && !inActiveGalleryRow.Isorder_numNull()))
@@ -438,20 +439,20 @@ namespace TVPPro.SiteManager.Manager
 
                 if ((isActiveGallery && !galleryRow.IsCULTURENull()) || (!isActiveGallery && !inActiveGalleryRow.IsCULTURENull()))
                     pgallery.Culture = (isActiveGallery ? galleryRow.CULTURE : inActiveGalleryRow.CULTURE);
-                
+
                 if ((isActiveGallery && !galleryRow.IsPictureSizeNull()) || (!isActiveGallery && !inActiveGalleryRow.IsPictureSizeNull()))
                     pgallery.PictureSize = (isActiveGallery ? galleryRow.PictureSize : inActiveGalleryRow.PictureSize);
 
                 if ((isActiveGallery && !galleryRow.IsBooleanParamNull()) || (!isActiveGallery && !inActiveGalleryRow.IsBooleanParamNull()))
-                    pgallery.BooleanParam = (isActiveGallery? Convert.ToBoolean(galleryRow.BooleanParam) : Convert.ToBoolean(inActiveGalleryRow.BooleanParam));
+                    pgallery.BooleanParam = (isActiveGallery ? Convert.ToBoolean(galleryRow.BooleanParam) : Convert.ToBoolean(inActiveGalleryRow.BooleanParam));
 
                 if ((isActiveGallery && !galleryRow.IsFamily_NumNull()) || (!isActiveGallery && !inActiveGalleryRow.IsFamily_NumNull()))
                     pgallery.FamilyID = (isActiveGallery ? galleryRow.Family_Num : inActiveGalleryRow.Family_Num);
 
                 if ((isActiveGallery && !galleryRow.IsNumericParamNull()) || (!isActiveGallery && !inActiveGalleryRow.IsNumericParamNull()))
                     pgallery.NumericParam = (isActiveGallery ? galleryRow.NumericParam : inActiveGalleryRow.NumericParam);
-                
-				//pgallery.IsPoster = galleryRow.IsPoster;
+
+                //pgallery.IsPoster = galleryRow.IsPoster;
 
                 if ((isActiveGallery && !galleryRow.IsNumOfItemsNull()) || (!isActiveGallery && !inActiveGalleryRow.IsNumOfItemsNull()))
                     pgallery.NumOfItems = (isActiveGallery ? galleryRow.NumOfItems : inActiveGalleryRow.NumOfItems);//this propery is the numbers of items show s when the gallery open (not the total number of items)
@@ -468,11 +469,11 @@ namespace TVPPro.SiteManager.Manager
                 if ((isActiveGallery && !galleryRow.IsMAIN_DESCRIPTIONNull()) || (!isActiveGallery && !inActiveGalleryRow.IsMAIN_DESCRIPTIONNull()))
                     pgallery.MainDescription = (isActiveGallery ? galleryRow.MAIN_DESCRIPTION : inActiveGalleryRow.MAIN_DESCRIPTION);
 
-				if ((isActiveGallery && !galleryRow.IsSUB_DESCRIPTIONNull()) || (!isActiveGallery && !inActiveGalleryRow.IsSUB_DESCRIPTIONNull()))
-					pgallery.SubDescription = (isActiveGallery ? galleryRow.SUB_DESCRIPTION : inActiveGalleryRow.SUB_DESCRIPTION);
+                if ((isActiveGallery && !galleryRow.IsSUB_DESCRIPTIONNull()) || (!isActiveGallery && !inActiveGalleryRow.IsSUB_DESCRIPTIONNull()))
+                    pgallery.SubDescription = (isActiveGallery ? galleryRow.SUB_DESCRIPTION : inActiveGalleryRow.SUB_DESCRIPTION);
 
-				if ((isActiveGallery && !galleryRow.IsSWFNull()) || (!isActiveGallery && !inActiveGalleryRow.IsSWFNull()))
-					pgallery.SWFFile = (isActiveGallery ? galleryRow.SWF : inActiveGalleryRow.SWF);
+                if ((isActiveGallery && !galleryRow.IsSWFNull()) || (!isActiveGallery && !inActiveGalleryRow.IsSWFNull()))
+                    pgallery.SWFFile = (isActiveGallery ? galleryRow.SWF : inActiveGalleryRow.SWF);
 
                 if (isActiveGallery)
                 {
@@ -510,7 +511,7 @@ namespace TVPPro.SiteManager.Manager
                     }
 
                 }
-                
+
                 if (!isChildGallery)
                 {
                     //Regular gallery - add it to the page
@@ -537,24 +538,24 @@ namespace TVPPro.SiteManager.Manager
 
 
         #region Public Methods
-		/// <summary>
-		/// Extract the page galleries by location and culture.
-		/// </summary>
-		public IEnumerable<PageGallery> GetCurrentPageGalleries(Enums.eGalleryLocation Location)
-		{
-			PageContext currentPage = GetCurrentPage();
-            
-			if (currentPage == null)
-				return null;
+        /// <summary>
+        /// Extract the page galleries by location and culture.
+        /// </summary>
+        public IEnumerable<PageGallery> GetCurrentPageGalleries(Enums.eGalleryLocation Location)
+        {
+            PageContext currentPage = GetCurrentPage();
 
-			IEnumerable<PageGallery> PageGalleryList =
-                from galleries in getGelleries(currentPage.Galleries,currentPage.InActiveGalleries)
+            if (currentPage == null)
+                return null;
+
+            IEnumerable<PageGallery> PageGalleryList =
+                from galleries in getGelleries(currentPage.Galleries, currentPage.InActiveGalleries)
                 where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(Location.ToString()) &&
-				(galleries.MainCulture == null || galleries.MainCulture.Equals(TextLocalization.Instance.UserContext.Culture))
-				select galleries;
+                (galleries.MainCulture == null || galleries.MainCulture.Equals(TextLocalization.Instance.UserContext.Culture))
+                select galleries;
 
-			return PageGalleryList;
-		}
+            return PageGalleryList;
+        }
 
         private IEnumerable<PageGallery> getGelleries(IEnumerable<PageGallery> ActiveGalleries, IEnumerable<PageGallery> InActiveGalleries)
         {
@@ -579,10 +580,10 @@ namespace TVPPro.SiteManager.Manager
 
             if (locale != null && locale.IsAdminLocale)
             {
-                PageGalleryList = PageGalleryList.Union( from galleries in currentPage.InActiveGalleries
-                where galleries.GalleryLocation.Equals(Location.ToString()) &&
-                (galleries.MainCulture == null || galleries.MainCulture.Equals(TextLocalization.Instance.UserContext.Culture))
-                select galleries);
+                PageGalleryList = PageGalleryList.Union(from galleries in currentPage.InActiveGalleries
+                                                        where galleries.GalleryLocation.Equals(Location.ToString()) &&
+                                                        (galleries.MainCulture == null || galleries.MainCulture.Equals(TextLocalization.Instance.UserContext.Culture))
+                                                        select galleries);
             }
             //Group the galleries by family num
             Dictionary<long, List<PageGallery>> galleriesByFamilies =
@@ -591,8 +592,8 @@ namespace TVPPro.SiteManager.Manager
 
             List<PageGallery> galleryList = new List<PageGallery>();
             Enums.eLocaleUserState localeUserState = locale.LocaleUserState;
-            
-			//All the galleries with default family id
+
+            //All the galleries with default family id
             if (galleriesByFamilies.ContainsKey(0))
             {
                 foreach (PageGallery pg in galleriesByFamilies[0])
@@ -618,8 +619,8 @@ namespace TVPPro.SiteManager.Manager
             }
 
             IEnumerable<PageGallery> retVal = from galleries in galleryList
-                              orderby galleries.GalleryOrder ascending
-                              select galleries;
+                                              orderby galleries.GalleryOrder ascending
+                                              select galleries;
 
             return retVal;
         }
@@ -631,7 +632,7 @@ namespace TVPPro.SiteManager.Manager
                 return false;
 
             if (pg.Locale_Devices != null && !pg.Locale_Devices.Contains(locale.LocaleDevice))
-               return false;
+                return false;
 
             if (pg.Locale_Countrys != null && !pg.Locale_Countrys.Contains(locale.LocaleCountry))
                 return false;
@@ -720,7 +721,7 @@ namespace TVPPro.SiteManager.Manager
             if (HttpContext.Current == null || HttpContext.Current.Items == null)
                 return null;
 
-			object pageObject = pageContext;
+            object pageObject = pageContext;
 
             if (pageObject == null)
                 return null;
@@ -728,10 +729,10 @@ namespace TVPPro.SiteManager.Manager
             return pageObject as PageContext;
         }
 
-		public void SetCurrentPage(Enums.ePages pageToken)
-		{
-			SetCurrentPage(pageToken.ToString());
-		}
+        public void SetCurrentPage(Enums.ePages pageToken)
+        {
+            SetCurrentPage(pageToken.ToString());
+        }
 
         public void SetCurrentPage(string pageToken)
         {
@@ -746,14 +747,14 @@ namespace TVPPro.SiteManager.Manager
                 else
                 {
                     string msg = string.Format("Page token '{0}' in language {1} not found", pageToken, TextLocalization.Instance.UserContext.Culture);
-                    m_Logger.Error(msg);
+                    logger.Error(msg);
                     //throw new Exception(msg);
                 }
             }
             else
             {
                 string msg = string.Format("No pages found in language {0}", TextLocalization.Instance.UserContext.Culture);
-                m_Logger.Error(msg);
+                logger.Error(msg);
                 throw new Exception(msg);
             }
         }
@@ -781,7 +782,7 @@ namespace TVPPro.SiteManager.Manager
                     else
                     {
                         string msg = string.Format("Page id '{0}' in language {1} not found", pageID, TextLocalization.Instance.UserContext.Culture);
-                        m_Logger.Error(msg);
+                        logger.Error(msg);
                         throw new Exception(msg);
                     }
                 }
@@ -789,22 +790,22 @@ namespace TVPPro.SiteManager.Manager
             else
             {
                 string msg = string.Format("No pages found in language {1}", TextLocalization.Instance.UserContext.Culture);
-                m_Logger.Error(msg);
+                logger.Error(msg);
                 throw new Exception(msg);
             }
         }
 
-		public void SetCurrentPage(iucon.web.Controls.ParameterCollection IuconParams)
-		{
-			long pageID = 0;
-			long.TryParse(IuconParams["PageID"], out pageID);
-			Enums.ePages PageToken = (Enums.ePages) Enum.Parse(typeof(Enums.ePages), IuconParams["PageToken"], true);
+        public void SetCurrentPage(iucon.web.Controls.ParameterCollection IuconParams)
+        {
+            long pageID = 0;
+            long.TryParse(IuconParams["PageID"], out pageID);
+            Enums.ePages PageToken = (Enums.ePages)Enum.Parse(typeof(Enums.ePages), IuconParams["PageToken"], true);
 
-			if (pageID != 0)
-				SetCurrentPage(pageID);
-			else if (PageToken != Enums.ePages.UnKnown && PageToken != Enums.ePages.Dynamic)
-				SetCurrentPage(PageToken);
-		}
+            if (pageID != 0)
+                SetCurrentPage(pageID);
+            else if (PageToken != Enums.ePages.UnKnown && PageToken != Enums.ePages.Dynamic)
+                SetCurrentPage(PageToken);
+        }
 
         //Get TVM Account params by MediaType
         public TVMAccountType GetTVMAccountByMediaType(int tvmMediaID)
@@ -844,7 +845,7 @@ namespace TVPPro.SiteManager.Manager
         {
             string AccountName = accountType.ToString();
             dsPageData.TVMAccountsRow tvmRow = (from accounts in DataOnPage.TVMAccounts
-                                                where accounts.Name == AccountName 
+                                                where accounts.Name == AccountName
                                                 select accounts).FirstOrDefault();
 
             TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
@@ -863,10 +864,10 @@ namespace TVPPro.SiteManager.Manager
             return retVal;
         }
 
-		public void SetBreadCrumb(string BreadCrumbText)
-		{
-			 pageContext.BreadCrumbText = BreadCrumbText;
-		}
+        public void SetBreadCrumb(string BreadCrumbText)
+        {
+            pageContext.BreadCrumbText = BreadCrumbText;
+        }
 
         public long? GetProfileIDFromPageID(long? pageID)
         {
@@ -881,7 +882,7 @@ namespace TVPPro.SiteManager.Manager
 
             if (sPageUrl.ToLower().Contains("pageid="))
             {
-                string sPageID = sPageUrl.ToLower().Substring(sPageUrl.ToLower().LastIndexOf("pageid=")+7);
+                string sPageID = sPageUrl.ToLower().Substring(sPageUrl.ToLower().LastIndexOf("pageid=") + 7);
                 sPageID = sPageID.Trim('/');
                 long iPageID;
                 long.TryParse(sPageID, out iPageID);
@@ -891,7 +892,7 @@ namespace TVPPro.SiteManager.Manager
             else
             {
                 iRet = (from entry in m_LanguageIDPages[TextLocalization.Instance.UserContext.Culture]
-						where entry.Value.URL != null && sPageUrl.ToLower().Contains(entry.Value.URL.ToLower()) && entry.Value.IsActive
+                        where entry.Value.URL != null && sPageUrl.ToLower().Contains(entry.Value.URL.ToLower()) && entry.Value.IsActive
                         select (long?)entry.Key).FirstOrDefault();
             }
 
@@ -957,7 +958,7 @@ namespace TVPPro.SiteManager.Manager
 
                             PageHierarchy.Add(new BreadCrumbItem(sBreadCrumb, sLink));
                         }
-                        
+
                         break;
                     }
                 }
@@ -975,30 +976,30 @@ namespace TVPPro.SiteManager.Manager
         public string BreadCrumbText { get; set; }
         public string URL { get; set; }
         public bool HasPlayer { get; set; }
-		public bool HasCarousel { get; set; }
-		public bool HasMiddleFooter { get; set; }
-		public bool PlayerAutoPlay { get; set; }
-		public TVPPro.SiteManager.Context.Enums.ePages PageToken { get; set; }
-		public TVPPro.SiteManager.DataLoaders.CustomLayoutLoader.CustomLayout CustomLayout { get; internal set; }
+        public bool HasCarousel { get; set; }
+        public bool HasMiddleFooter { get; set; }
+        public bool PlayerAutoPlay { get; set; }
+        public TVPPro.SiteManager.Context.Enums.ePages PageToken { get; set; }
+        public TVPPro.SiteManager.DataLoaders.CustomLayoutLoader.CustomLayout CustomLayout { get; internal set; }
 
         public string Name { get; set; }
         public string Description { get; set; }
         public string Keywords { get; set; }
         public long PlayerChannel { get; set; }
         public long PlayerTreeCategory { get; set; }
-		public long CarouselChannel { get; set; }
+        public long CarouselChannel { get; set; }
 
-		public long MenuID { get; set; }
-		public long FooterID { get; set; }
-		public long MiddleFooterID { get; set; }
-		public long ProfileID { get; set; }
-		public bool IsProtected { get; set; }
-		public bool IsActive { get; set; }
+        public long MenuID { get; set; }
+        public long FooterID { get; set; }
+        public long MiddleFooterID { get; set; }
+        public long ProfileID { get; set; }
+        public bool IsProtected { get; set; }
+        public bool IsActive { get; set; }
         public long BrandingBigImageID { get; set; }
         public long BrandingSmallImageID { get; set; }
         public long BrandingPixelHeigt { get; set; }
-        public int BrandingRecurringHorizonal{ get; set; }
-        public int BrandingRecurringVertical{ get; set; }
+        public int BrandingRecurringHorizonal { get; set; }
+        public int BrandingRecurringVertical { get; set; }
         public int HaseSideProfile { get; set; }
         public string BodyClass { get; set; }
 
@@ -1055,11 +1056,11 @@ namespace TVPPro.SiteManager.Manager
     #endregion
 
     #region PageGallery
-    public class PageGallery 
+    public class PageGallery
     {
-        public long GalleryID{ get; set; }
-        public TVPPro.SiteManager.Context.Enums.eGalleryType GalleryType{ get; set; }
-		public TVPPro.SiteManager.Context.Enums.eUIGalleryType UIGalleryType { get; set; }
+        public long GalleryID { get; set; }
+        public TVPPro.SiteManager.Context.Enums.eGalleryType GalleryType { get; set; }
+        public TVPPro.SiteManager.Context.Enums.eUIGalleryType UIGalleryType { get; set; }
         public string ViewType { get; set; }
         public string Title { get; set; }
         public long TVMChannelID { get; set; }
@@ -1070,18 +1071,18 @@ namespace TVPPro.SiteManager.Manager
         public bool BooleanParam { get; set; }
         public long NumericParam { get; set; }
 
-		public string TVMUser{ get; set; }
-		public string TVMPass { get; set; }
-		public string GalleryLocation { get; set; }
-		public string MainCulture { get; set; }
+        public string TVMUser { get; set; }
+        public string TVMPass { get; set; }
+        public string GalleryLocation { get; set; }
+        public string MainCulture { get; set; }
         public string Culture { get; set; }
         public string LinksHeader { get; set; }
         public string Link { get; set; }
         public string GroupTitle { get; set; }
         public string MainDescription { get; set; }
-		public string SubDescription { get; set; }
-		public string SWFFile { get; set; }
-		public long GalleryOrder { get; set; }
+        public string SubDescription { get; set; }
+        public string SWFFile { get; set; }
+        public long GalleryOrder { get; set; }
         public long MainPic { get; set; }
         public List<string> Locale_Langs { get; set; }
         public List<string> Locale_Countrys { get; set; }
@@ -1117,7 +1118,7 @@ namespace TVPPro.SiteManager.Manager
     #region TVMAccount
     public struct TVMAccountType
     {
-        private string m_TVMUser; 
+        private string m_TVMUser;
         private string m_TVMPass;
         private string m_MediaType;
         private string m_ApiWsUser;
@@ -1140,7 +1141,7 @@ namespace TVPPro.SiteManager.Manager
         {
             get
             {
-                return m_TVMUser; 
+                return m_TVMUser;
             }
         }
 

@@ -5,14 +5,15 @@ using System.Text;
 using System.IO;
 using TVPPro.SiteManager.Objects;
 using System.Diagnostics;
-using log4net;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Helper
 {
     public class MediaCorpAddressHelper
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaCorpAddressHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static MediaCorpAddressHelper _Instance = new MediaCorpAddressHelper();
         private static object locker = new object();
         private string fileDbUrl = System.Configuration.ConfigurationManager.AppSettings["PostalCodeDbFilesUrl"];

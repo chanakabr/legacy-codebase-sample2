@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Helper;
 using TVPPro.Configuration.Media;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
@@ -16,7 +17,7 @@ namespace TVPPro.SiteManager.Services
         #region Members
         private static object lockObject = new object();
         private TvinciPlatform.api.API m_Module;
-        private static ILog logger = LogManager.GetLogger(typeof(ApiService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string wsUserName = string.Empty;
         private string wsPassword = string.Empty;
         private Dictionary<int, FileTypeContainer[]> m_AllFileTypes = new Dictionary<int, FileTypeContainer[]>();

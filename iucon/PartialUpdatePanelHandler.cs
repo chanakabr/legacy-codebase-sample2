@@ -4,20 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.SessionState;
-using log4net;
+using KLogMonitor;
 
 namespace iucon.web.Controls
 {
     public class PartialUpdatePanelHandler : IHttpHandler, IRequiresSessionState
     {
-        private static readonly ILog logger = LogManager.GetLogger("Tvinci.AjaxFramework");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constants
-		private const string ISAJAX_REQUEST_ITEM = "IsAjaxRequestItem"; 
-	    #endregion
+        private const string ISAJAX_REQUEST_ITEM = "IsAjaxRequestItem";
+        #endregion
 
         #region IHttpHandler Members
 
@@ -25,7 +26,7 @@ namespace iucon.web.Controls
         {
             get { return true; }
         }
-        
+
         public void ProcessRequest(HttpContext context)
         {
             if (context.Request.Form["__USERCONTROLPATH"] != null)
@@ -35,7 +36,7 @@ namespace iucon.web.Controls
                     context.Items.Add(ISAJAX_REQUEST_ITEM, true);
 
                     // TODO Change to a normal file exists check
-                    
+
                     if (!string.IsNullOrEmpty(PartialUpdatePanelSingleton.Instance.BaseUrl))
                     {
                         // check if url contains querystring
@@ -54,13 +55,13 @@ namespace iucon.web.Controls
                         context.RewritePath(context.Request.UrlReferrer.LocalPath, "",
                             context.Request.UrlReferrer.Query.StartsWith("?") ? context.Request.UrlReferrer.Query.Substring(1) : context.Request.UrlReferrer.Query, true);
                     }
-                    
+
                     PanelHostPage page = new PanelHostPage(context.Request.Form["__USERCONTROLPATH"], context.Request.Form["__CONTROLCLIENTID"]);
 
                     ((IHttpHandler)page).ProcessRequest(context);
 
                     context.Response.Clear();
-                    context.Response.Write(page.GetHtmlContent());                                            
+                    context.Response.Write(page.GetHtmlContent());
                 }
                 catch (Exception ex)
                 {
@@ -68,9 +69,9 @@ namespace iucon.web.Controls
                     if (HttpContext.Current.Items["System.Web.UI.PageRequestManager:AsyncPostBackError"] != null)
                         HttpContext.Current.Items["System.Web.UI.PageRequestManager:AsyncPostBackError"] = false;
 
-                    logger.Error("Error occured while performing ajax request", ex);
+                    logger.Error("Error occurred while performing Ajax request", ex);
                     context.Response.Write("Error occured while performing ajax request");
-                    
+
                     //if (ex.InnerException != null)
                     //{
                     //    context.Response.Write(ex.InnerException.Message.Replace("\n","<br />"));

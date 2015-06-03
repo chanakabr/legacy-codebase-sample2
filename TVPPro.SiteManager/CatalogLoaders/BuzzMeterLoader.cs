@@ -1,8 +1,9 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     {
         #region Members
 
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(BuzzMeterLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public string Id { get; set; } // Indicates a series id or linear channel id
 

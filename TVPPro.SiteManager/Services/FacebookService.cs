@@ -7,19 +7,20 @@ using Facebook.Rest;
 using System.Configuration;
 using Facebook.Schema;
 using TVPPro.SiteManager.Manager;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
     public class FacebookService
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static FacebookUser GetFacebookUser()
         {
             Api m_facebookAPI;
             ConnectSession m_ConnectSession;
             FacebookUser m_FacebookUser = null;
-            ILog logger = LogManager.GetLogger(typeof(FacebookService));
 
             if (FacebookAuthentication.isConnected())
             {

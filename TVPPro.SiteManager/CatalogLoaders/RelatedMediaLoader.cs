@@ -5,15 +5,16 @@ using System.Text;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders;
-using log4net;
 using TVPPro.SiteManager.Helper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class RelatedMediaLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(RelatedMediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int MediaID { get; set; }
         public List<int> MediaTypes { get; set; }

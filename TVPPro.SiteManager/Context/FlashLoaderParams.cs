@@ -17,7 +17,7 @@ namespace TVPPro.SiteManager.Context
 		private bool m_isPic1Poster;
 		private bool m_isPic2Poster;
         private string m_UserIP;
-        private string m_AdminToken;        
+        //private string m_AdminToken;        
         private string m_SiteGuid;        
 
         public string UserIP

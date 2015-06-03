@@ -4,32 +4,33 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
-using log4net;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataEntities;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class CategoryLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(CategoryLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int CategoryID { get; set; }
         public string PicSize { get; set; }
 
-         public CategoryLoader(int groupID, string userIP, int categoryID)
+        public CategoryLoader(int groupID, string userIP, int categoryID)
             : base(groupID, userIP, 0, 0)
         {
             CategoryID = categoryID;
         }
 
-         public CategoryLoader(string userName, string userIP, int categoryId)
+        public CategoryLoader(string userName, string userIP, int categoryId)
             : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, categoryId)
         {
         }
-        
+
         protected override void BuildSpecificRequest()
         {
             m_oRequest = new CategoryRequest()
@@ -103,7 +104,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 else if (obj is CategoryResponse)
                 {
                     CategoryResponse res = obj as CategoryResponse;
-                    sText.AppendFormat("CategoryResponse: ID = {0}, ParentCategoryID = {1}, CoGuid = {2}, Title = {3}", res.ID,  res.m_nParentCategoryID, res.m_sCoGuid, res.m_sTitle);
+                    sText.AppendFormat("CategoryResponse: ID = {0}, ParentCategoryID = {1}, CoGuid = {2}, Title = {3}", res.ID, res.m_nParentCategoryID, res.m_sCoGuid, res.m_sTitle);
                 }
             }
             logger.Debug(sText.ToString());

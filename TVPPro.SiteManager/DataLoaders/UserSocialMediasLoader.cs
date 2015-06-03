@@ -10,12 +10,15 @@ using TVPPro.Configuration.Media;
 using TVPPro.SiteManager.Helper;
 using Tvinci.Data.DataLoader;
 using TVPPro.SiteManager.Context;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class UserSocialMediasLoader : TVMAdapter<dsItemInfo>
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string m_tvmUser;
         private string m_tvmPass;
 
@@ -112,16 +115,16 @@ namespace TVPPro.SiteManager.DataLoaders
         }
 
         #region C'tor
-        public UserSocialMediasLoader(string picSize) 
-		{
+        public UserSocialMediasLoader(string picSize)
+        {
             PicSize = picSize;
-			// Do nothing.
-		}
+            // Do nothing.
+        }
 
         public UserSocialMediasLoader(string TVMUser, string TVMPass, string picSize)
         {
-			m_tvmUser = TVMUser;
-			m_tvmPass = TVMPass;
+            m_tvmUser = TVMUser;
+            m_tvmPass = TVMPass;
 
             if (string.IsNullOrEmpty(picSize))
             {
@@ -134,7 +137,7 @@ namespace TVPPro.SiteManager.DataLoaders
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             UserSocialMedias result = new UserSocialMedias();
-            
+
             result.root.request.@params.site_guid = SiteGuid;
             result.root.request.@params.with_file_types = WithFileTypes.ToString();
             result.root.request.@params.social_action = SocialAction.ToString();
@@ -225,8 +228,10 @@ namespace TVPPro.SiteManager.DataLoaders
                             string[] date = media.date.Split('/');
                             itemRow.AddedDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
                         }
-                        catch
-                        { }
+                        catch (Exception ex)
+                        {
+                            logger.Error("", ex);
+                        }
 
                         // add sub file format info
                         //if (media.inner_medias.Count > 0)

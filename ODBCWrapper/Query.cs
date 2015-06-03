@@ -1,7 +1,8 @@
 using System;
 using System.Data.Odbc;
 using System.Collections;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
@@ -10,7 +11,7 @@ namespace ODBCWrapper
 	/// </summary>
 	public abstract class Query
 	{
-        protected static ILog logger = log4net.LogManager.GetLogger(typeof(Query));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 		private int m_nTimeout;
         protected string m_sErrorMsg;

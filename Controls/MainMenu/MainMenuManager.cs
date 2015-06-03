@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using Tvinci.Data.DataLoader.PredefinedAdapters;
 using Tvinci.Helpers;
-using log4net;
 using System.Web;
 using System.Configuration;
 using System.Globalization;
@@ -13,6 +12,8 @@ using Tvinci.Localization;
 using System.Collections.Specialized;
 using Tvinci.Web.HttpModules.Configuration;
 using Tvinci.Helpers.Link.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Web.Controls.MainMenu
 {
@@ -93,8 +94,8 @@ namespace Tvinci.Web.Controls.MainMenu
             {
                 string configMode = ConfigurationManager.AppSettings["Tvinci.Web.Controls.MainMenu.Mode"];
 
-                if(Enum.IsDefined(typeof(eMode),configMode))
-                    defaultMode = (eMode)Enum.Parse(typeof(eMode), configMode);                
+                if (Enum.IsDefined(typeof(eMode), configMode))
+                    defaultMode = (eMode)Enum.Parse(typeof(eMode), configMode);
             }
 
             static MainMenuManager singletonInstance = new MainMenuManager();
@@ -108,10 +109,8 @@ namespace Tvinci.Web.Controls.MainMenu
                         return new MainMenuManager();
                     case eMode.Singleton:
                         return singletonInstance;
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
-                        break;
                 }
             }
         }
@@ -127,7 +126,7 @@ namespace Tvinci.Web.Controls.MainMenu
                 ItemsOnActivePath = new List<MenuItem>();
             }
         }
-        private static readonly ILog logger = LogManager.GetLogger(typeof(MainMenuManager));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private Dictionary<short, MenuItem> m_defaultItem = new Dictionary<short, MenuItem>();
         public MenuItem DefaultItem

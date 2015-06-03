@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.Configuration.PlatformServices;
 using System.Web;
 using System.Web.SessionState;
@@ -11,13 +10,16 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.Helper;
 using System.Collections;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
     public class UsersService
     {
         #region Fields
-        private readonly ILog logger = LogManager.GetLogger(typeof(UsersService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public const string sessionKey = "UserManagerUserKey";
         private TvinciPlatform.Users.UsersService PlatUserService;
 
@@ -29,7 +31,7 @@ namespace TVPPro.SiteManager.Services
         private Dictionary<int, string> m_dictCountries = new Dictionary<int, string>();
         private Dictionary<string, RegionData> m_dictCountriesList;
         private Dictionary<string, UserContext> m_UserContext = new Dictionary<string, UserContext>();
-        private UserContext context;
+        //private UserContext context;
         #endregion
 
         public struct RegionData

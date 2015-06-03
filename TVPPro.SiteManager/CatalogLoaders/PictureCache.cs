@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders;
-using log4net;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Helper;
 using System.Xml.Serialization;
 using System.IO;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -17,7 +18,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     {
         //private static Cache m_oCache = new Cache();
         private const string CACHE_KEY_PREFIX = "picture";
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PictureCache));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public List<int> PictureIDs { get; set; }
 

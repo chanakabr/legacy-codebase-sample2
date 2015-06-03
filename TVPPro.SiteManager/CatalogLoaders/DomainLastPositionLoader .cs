@@ -1,8 +1,9 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -12,19 +13,19 @@ namespace TVPPro.SiteManager.CatalogLoaders
 {
     public class DomainLastPositionLoader : CatalogRequestManager, ILoaderAdapter
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(DomainLastPositionLoader));        
-        
-        public int MediaID { get; set; }                
-        public string UDID { get; set; }        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public int MediaID { get; set; }
+        public string UDID { get; set; }
         public int DomainID { get; set; }
 
         #region Constructors
-        public DomainLastPositionLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID )
+        public DomainLastPositionLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID)
             : base(groupID, userIP, 0, 0)
-        {            
-            MediaID = mediaID;            
+        {
+            MediaID = mediaID;
             SiteGuid = siteGuid;
-            UDID = udid;            
+            UDID = udid;
         }
 
         public DomainLastPositionLoader(string userName, string userIP, string siteGuid, string udid, int mediaID)
@@ -44,13 +45,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
             m_oRequest = new DomainLastPositionRequest()
             {
                 data = new MediaLastPositionRequestData()
-                {                    
+                {
                     m_nMediaID = MediaID,
                     m_sSiteGuid = SiteGuid,
-                    m_sUDID = UDID                    
+                    m_sUDID = UDID
                 },
-                m_nDomainID = DomainID                
-            };           
+                m_nDomainID = DomainID
+            };
         }
 
         public object Execute()

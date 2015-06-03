@@ -14,7 +14,7 @@ namespace Tvinci.Configuration
 
         public DbConfigManager(int nGroupID, string sPlatform, string sEnvironment, eConfigType type)
         {
-            ConfigKeyVal[] resKeyVal;
+            //ConfigKeyVal[] resKeyVal;
             using (TVPConfigSvcClient configSvc = new TVPConfigSvcClient())
             {
                 source = configSvc.GetConfig(nGroupID, sEnvironment, sPlatform, type);

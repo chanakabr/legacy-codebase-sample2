@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 //using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.Search;
-using log4net;
 using TVPPro.SiteManager.DataEntities;
 //using Tvinci.Projects.TVP.Core.Configuration.Technical;
 
@@ -12,7 +13,7 @@ namespace TVPPro.SiteManager.Helper
 {
     public static class SearchProtocolHelper
     {
-        public static ILog logger = log4net.LogManager.GetLogger(typeof(SearchProtocolHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         //*******************************************
         // NOTICE!!!!!!
         // Must starts/ends with ';' and must be lowercase!!
@@ -24,7 +25,7 @@ namespace TVPPro.SiteManager.Helper
         {
             if (media.tags_collections != null)
             {
-				foreach (tags_collectionstag_type tagType in media.tags_collections)
+                foreach (tags_collectionstag_type tagType in media.tags_collections)
                 {
                     if (TagsToHandle.IndexOf(string.Format(";{0};", tagType.name.ToLower())) != -1)
                     {
@@ -35,7 +36,7 @@ namespace TVPPro.SiteManager.Helper
                             continue;
                         }
 
-						foreach (tag tag in tagType.tagCollection)
+                        foreach (tag tag in tagType.tagCollection)
                         {
                             if (sb.Length != 0)
                             {
@@ -102,7 +103,7 @@ namespace TVPPro.SiteManager.Helper
             return row;
         }
 
-        
+
         public static void ParseMediaInfoElement(dsTVMMediaInfo.MediaRow row, media media, bool shouldHandleTags)
         {
             if (!string.IsNullOrEmpty(media.id))
@@ -140,7 +141,7 @@ namespace TVPPro.SiteManager.Helper
                     logger.WarnFormat("No added date returned for item '{0}' from TVM. Dummy value is set (11-8-1980)", media.id);
                 }
                 row.ImageLink = media.pic_size1;
-                
+
                 row.ShowName = media.META1_STR_NAME.value;
                 row.EpisodeName = media.META3_STR_NAME.value;
                 row.Description = media.META4_STR_NAME.value;
@@ -151,18 +152,18 @@ namespace TVPPro.SiteManager.Helper
                 row.Keyword3 = media.META9_STR_NAME.value;
                 row.ServiceCode = media.META10_STR_NAME.value;
 
-				//switch (TechnicalConfiguration.Config.TemporaryDefinitions.AssetIDType)
-				//{
-				//    case AssetIDType.Meta16:
-				//        row.AssetID = media.META16_STR_NAME.value;
-				//        break;
-				//    case AssetIDType.MediaID:
-				//        row.AssetID = media.id;
-				//        break;
-				//    default:
-				//        throw new ArgumentOutOfRangeException();
-				//        break;
-				//}
+                //switch (TechnicalConfiguration.Config.TemporaryDefinitions.AssetIDType)
+                //{
+                //    case AssetIDType.Meta16:
+                //        row.AssetID = media.META16_STR_NAME.value;
+                //        break;
+                //    case AssetIDType.MediaID:
+                //        row.AssetID = media.id;
+                //        break;
+                //    default:
+                //        throw new ArgumentOutOfRangeException();
+                //        break;
+                //}
 
                 row.FECM = media.META17_STR_NAME.value;
 

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     public class PeopleWhoLikedLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PeopleWhoLikedLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int MediaID { get; set; }
         public int CountryID { get; set; }
@@ -63,7 +64,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.PWLALProtocolRequest":
                         PWLALProtocolRequest peopleWhoLikedRequest = obj as PWLALProtocolRequest;
                         sText.AppendFormat("PWLALProtocolRequest: MediaID = {0}, MediaFileID = {1}, CountryID = {2}, SocialAction = {3}, SocialPlatform = {4}, GroupID = {5}, PageIndex = {6}, PageSize = {7}",
-                            peopleWhoLikedRequest.m_nMediaID, peopleWhoLikedRequest.m_nMediaFileID ,peopleWhoLikedRequest.m_nCountryID, peopleWhoLikedRequest.m_nSocialAction, peopleWhoLikedRequest.m_nSocialPlatform, peopleWhoLikedRequest.m_nGroupID, peopleWhoLikedRequest.m_nPageIndex, peopleWhoLikedRequest.m_nPageSize);
+                            peopleWhoLikedRequest.m_nMediaID, peopleWhoLikedRequest.m_nMediaFileID, peopleWhoLikedRequest.m_nCountryID, peopleWhoLikedRequest.m_nSocialAction, peopleWhoLikedRequest.m_nSocialPlatform, peopleWhoLikedRequest.m_nGroupID, peopleWhoLikedRequest.m_nPageIndex, peopleWhoLikedRequest.m_nPageSize);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsResponse":
                         MediaIdsResponse mediaIDsResponse = obj as MediaIdsResponse;
@@ -78,6 +79,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
             //logger.Info(sText.ToString());
         }
 
-        
+
     }
 }

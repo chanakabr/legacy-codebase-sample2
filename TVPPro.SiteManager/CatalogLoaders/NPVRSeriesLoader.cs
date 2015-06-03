@@ -1,34 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 
-namespace TVPPro.SiteManager.CatalogLoaders 
+namespace TVPPro.SiteManager.CatalogLoaders
 {
     public class NPVRSeriesLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(NPVRSeriesLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
 
         #region ctr
 
         public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
-                : base(groupID, userIP, pageSize, pageIndex)
-            {
-                RecordedEPGOrderObj = recordedEPGOrderObj;
-                SiteGuid = siteGuid;
-            }
+            : base(groupID, userIP, pageSize, pageIndex)
+        {
+            RecordedEPGOrderObj = recordedEPGOrderObj;
+            SiteGuid = siteGuid;
+        }
 
         public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
-                : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj)
-            {
-            }
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj)
+        {
+        }
 
         #endregion
 

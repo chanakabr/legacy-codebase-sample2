@@ -53,7 +53,7 @@ namespace TVPPro.SiteManager.Helper
                                    where s.m_sLanguageCode3.ToLower() == lang.ToLower()
                                    select s.m_sValue).First();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }

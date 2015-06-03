@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
-using log4net;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.DataLoaders;

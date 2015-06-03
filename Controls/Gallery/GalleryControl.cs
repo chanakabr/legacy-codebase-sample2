@@ -14,7 +14,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Tvinci.Web.Controls.Gallery.Part;
 using System.Runtime.Serialization;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Web.Controls.Gallery
 {
@@ -35,8 +36,7 @@ namespace Tvinci.Web.Controls.Gallery
 
     public class GalleryControl : GalleryBase
     {
-        public static ILog logger = log4net.LogManager.GetLogger(typeof(GalleryControl));
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public class GallerySource
         {

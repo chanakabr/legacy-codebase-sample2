@@ -2,33 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Web.Controls.Gallery.Part;
 using System.Web.UI;
 using Tvinci.Web.Controls.ContainerControl;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager
 {
     public class MenuBuilder
     {
-		#region Private Fields
-		private ILog m_Logger = log4net.LogManager.GetLogger("MainMenuManager");
-        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         //      Dictionary<iMenuID, Dictionary<iMenuID, List<MenueItems>>>
         private Dictionary<string, Dictionary<long, List<MenuPartControl>>> m_dictMenuItems;
-        
-		#endregion
+
 
         #region Constructor
         private MenuBuilder()
         {
             Init();
-        } 
+        }
         #endregion
 
-		#region Public Properties
+        #region Public Properties
         private static MenuBuilder m_Instance;
         public static MenuBuilder Instance
         {
@@ -43,34 +41,34 @@ namespace TVPPro.SiteManager.Manager
         #endregion
 
         #region Public Methods
-		public void Init()
-		{
-			m_Logger.Info("Starting initialization of main menu manager");
+        public void Init()
+        {
+            logger.Info("Starting initialization of main menu manager");
 
-			try
-			{
-				// Run loader and get data
-				dsMenu.MenuDataTable data = new MenuLoader().Execute();
+            try
+            {
+                // Run loader and get data
+                dsMenu.MenuDataTable data = new MenuLoader().Execute();
 
-				if (data == null)
-				{
-					m_Logger.Error("MainMenuLoader returned null data");
-					return;
-				}
+                if (data == null)
+                {
+                    logger.Error("MainMenuLoader returned null data");
+                    return;
+                }
 
                 m_dictMenuItems = new Dictionary<string, Dictionary<long, List<MenuPartControl>>>();
 
                 // collect and build ALL menus hierarchy
                 CreateMenuItem(data, null, string.Empty);
-			}
-			catch (Exception ex)
-			{
-				m_Logger.Error("Failed initialzing main menu manager", ex);
-				return;
-			}
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Failed initialzing main menu manager", ex);
+                return;
+            }
 
-			m_Logger.Info("Finished initialization of main menu manager");
-		}
+            logger.Info("Finished initialization of main menu manager");
+        }
 
         //TODO: tvp_new changes: (to delete) override for other websites because of the new DB structure
         public List<MenuPartControl> GetLevelItems(int level) { return new List<MenuPartControl>(); }
@@ -81,7 +79,9 @@ namespace TVPPro.SiteManager.Manager
             {
                 return m_dictMenuItems[TextLocalization.Instance.UserContext.Culture][iMenuID];
 
-            } catch(Exception ex){
+            }
+            catch (Exception ex)
+            {
                 if (ex != null && ex.InnerException != null) ex = ex.InnerException;
                 if (ex == null) ex = new Exception("Unknown Exception");
             }
@@ -90,37 +90,37 @@ namespace TVPPro.SiteManager.Manager
         }
         #endregion
 
-		#region Private Methods
-		private void CreateMenuItem(dsMenu.MenuDataTable sourceData, MenuPartItem parentMenuItem, string culture)
-		{
-			// Get current items
-			IEnumerable<dsMenu.MenuRow> rows;
-			if (parentMenuItem == null)
-			{
-				// Get root items
+        #region Private Methods
+        private void CreateMenuItem(dsMenu.MenuDataTable sourceData, MenuPartItem parentMenuItem, string culture)
+        {
+            // Get current items
+            IEnumerable<dsMenu.MenuRow> rows;
+            if (parentMenuItem == null)
+            {
+                // Get root items
                 rows = sourceData.Where(row => row.IsParentItemIDNull() || row.ParentItemID == 0);
-			}
-			else
-			{
-				// Get parent's children
+            }
+            else
+            {
+                // Get parent's children
                 rows = sourceData.Where(row => !row.IsParentItemIDNull() && row.ParentItemID != 0 && row.ParentItemID == parentMenuItem.ID);
-			}
+            }
 
-			// Run on items
-			foreach (dsMenu.MenuRow row in rows)
-			{
-				// Create menu item
-				MenuPartItem item = new MenuPartItem();
-				item.ID = row.ItemID;
+            // Run on items
+            foreach (dsMenu.MenuRow row in rows)
+            {
+                // Create menu item
+                MenuPartItem item = new MenuPartItem();
+                item.ID = row.ItemID;
 
                 if (!row.IsMenuIDNull())
                     item.MenuID = row.MenuID;
 
-				if (!row.IsTitleNull())
-					item.Title = row.Title;
+                if (!row.IsTitleNull())
+                    item.Title = row.Title;
 
-				if (!row.IsIndexNull())
-					item.Index = row.Index;
+                if (!row.IsIndexNull())
+                    item.Index = row.Index;
 
                 if (!row.IsCultureNull())
                     item.Calture = row.Culture;
@@ -138,15 +138,15 @@ namespace TVPPro.SiteManager.Manager
                     item.HasNoFollow = row.HasNoFollow;
                 }
 
-				// Add menu item to list
-				if (parentMenuItem == null)
-				{
+                // Add menu item to list
+                if (parentMenuItem == null)
+                {
                     Dictionary<long, List<MenuPartControl>> dictList = new Dictionary<long, List<MenuPartControl>>();
                     // add culture key if not exsist 
                     if (!m_dictMenuItems.ContainsKey(row.Culture))
-					{
+                    {
                         m_dictMenuItems.Add(row.Culture, new Dictionary<long, List<MenuPartControl>>());
-					}
+                    }
                     // add MenuID key if not exsist 
                     if (!m_dictMenuItems[row.Culture].ContainsKey(row.MenuID))
                     {
@@ -154,21 +154,21 @@ namespace TVPPro.SiteManager.Manager
                     }
 
                     m_dictMenuItems[row.Culture][item.MenuID].Add(new MenuPartControl(item));
-				}
-				else
-				{
+                }
+                else
+                {
                     if (item.Calture.Equals(parentMenuItem.Calture))
                     {
                         item.Parent = parentMenuItem;
                         parentMenuItem.Children.Add(item);
                     }
-				}
+                }
 
                 // Add all of item's children recursively
                 CreateMenuItem(sourceData, item, row.Culture);
-			}
-		}
-		#endregion
+            }
+        }
+        #endregion
     }
 
     #region MainMenuItem
@@ -222,9 +222,9 @@ namespace TVPPro.SiteManager.Manager
             PageContext curPage = PageData.Instance.GetCurrentPage();
             if (curPage == null)
                 return false;
-            
+
             if ((item.SitePageID.HasValue && item.SitePageID.Value == curPage.ID) ||
-                (!string.IsNullOrEmpty(item.URL) && 
+                (!string.IsNullOrEmpty(item.URL) &&
                 System.Web.HttpContext.Current.Request.Url.AbsoluteUri.ToLower().EndsWith(item.URL.ToLower())))
             {
                 return true;
@@ -232,7 +232,7 @@ namespace TVPPro.SiteManager.Manager
 
             return false;
         }
-    } 
+    }
     #endregion
 
     public class MenuContentPart : ContentPart<MenuPartControl>
@@ -250,7 +250,7 @@ namespace TVPPro.SiteManager.Manager
     public class MenuPartControl : System.Web.UI.Control, INamingContainer
     {
         public MenuPartItem MenuItem { get; private set; }
-        
+
         public MenuPartControl(MenuPartItem item)
         {
             MenuItem = item;

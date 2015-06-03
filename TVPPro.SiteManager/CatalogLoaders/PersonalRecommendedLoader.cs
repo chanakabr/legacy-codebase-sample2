@@ -4,20 +4,21 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class PersonalRecommendedLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PersonalRecommendedLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constructors
         public PersonalRecommendedLoader(string siteGuid, int groupID, string userIP, int pageSize, int pageIndex, string picSize)
             : base(groupID, userIP, pageSize, pageIndex, picSize)
         {
-            SiteGuid = siteGuid; 
+            SiteGuid = siteGuid;
         }
 
         public PersonalRecommendedLoader(string siteGuid, string userName, string userIP, int pageSize, int pageIndex, string picSize)

@@ -289,7 +289,6 @@ namespace Tvinci.Web.Controls
                             break;
                         default:
                             throw new NotSupportedException();
-                            break;
                     }
                 }
 

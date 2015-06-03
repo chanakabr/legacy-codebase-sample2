@@ -5,10 +5,11 @@ using System.ComponentModel;
 using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using log4net;
 using Tvinci.Web.HttpModules.Configuration;
 using System.Collections.Specialized;
 using Tvinci.Helpers.Link.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Helpers
 {
@@ -21,11 +22,11 @@ namespace Tvinci.Helpers
         LeaveRelativeURL = 4,
         ForceHandleSpecialTypes = 8
     }
-    
+
     #endregion
 
     #region QueryStringHelper
-        
+
     /// <summary>
     /// Summary description for QuerystringHelper
     /// </summary>
@@ -59,7 +60,8 @@ namespace Tvinci.Helpers
         #endregion
 
         #region Private Fields
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(QueryStringHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         private QueryStringCollection ContextParameters
         {
@@ -82,8 +84,8 @@ namespace Tvinci.Helpers
                     for (int i = 0; i < HttpContext.Current.Request.QueryString.Count; i++)
                     {
                         string key = HttpContext.Current.Request.QueryString.Keys[i];
-                        string value = HttpContext.Current.Request.QueryString[i];                       
-                        handleQueryItem(result.ContextParameters, key, value.Replace("+","%2B"), eItemType.Clear, eViolationTreatment.Exception);
+                        string value = HttpContext.Current.Request.QueryString[i];
+                        handleQueryItem(result.ContextParameters, key, value.Replace("+", "%2B"), eItemType.Clear, eViolationTreatment.Exception);
                     }
                 }
 
@@ -177,7 +179,7 @@ namespace Tvinci.Helpers
                     }
                 }
             }
-            
+
             // Remove query items if given
             if (queryItemToRemove != null)
             {
@@ -225,7 +227,7 @@ namespace Tvinci.Helpers
                 QueryStringCollection queryItems = new QueryStringCollection();
                 handleQuery(queryItems, LinkHelper.GetQuerystring(url), eItemType.Clear, eViolationTreatment.ConvertToBase64);
                 queryItems.GenerateLink(url);
-                return url;                
+                return url;
             }
             catch
             {
@@ -235,12 +237,12 @@ namespace Tvinci.Helpers
         }
 
         internal static string EncryptString(string value)
-        {            
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(value)).TrimEnd('=');            
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(value)).TrimEnd('=');
         }
 
         [System.Diagnostics.DebuggerStepThrough]
-        public static string EncryptQueryString(string url)        
+        public static string EncryptQueryString(string url)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -250,8 +252,8 @@ namespace Tvinci.Helpers
             string[] token = url.Split(new char[] { '?' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (token.Length == 2)
-            {                
-                return string.Concat(token[0], "?", EncryptString(token[1]));            
+            {
+                return string.Concat(token[0], "?", EncryptString(token[1]));
             }
             else if (token.Length == 1)
             {
@@ -275,7 +277,7 @@ namespace Tvinci.Helpers
 
             return Encoding.UTF8.GetString(Convert.FromBase64String(querystring));
         }
-        		       
+
         /// <summary>
         /// Returns value of querystring parameter. if value exists returns true and the value as out parameter
         /// </summary>
@@ -294,7 +296,7 @@ namespace Tvinci.Helpers
             {
                 value = string.Empty;
                 return false;
-            }                        
+            }
         }
 
         /// <summary>
@@ -306,7 +308,7 @@ namespace Tvinci.Helpers
         public static string GetString(string key)
         {
             return GetString(key, string.Empty);
-        }                       
+        }
 
         /// <summary>
         /// Returns value of querystring parameter. If parameter not found returns the default value.
@@ -352,14 +354,14 @@ namespace Tvinci.Helpers
                 else
                 {
                     return false;
-                }                
+                }
             }
             else
             {
                 return false;
-            }            
+            }
         }
-        
+
         /// <summary>
         /// Returns value of querystring parameter.
         /// </summary>
@@ -386,7 +388,7 @@ namespace Tvinci.Helpers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 logger.ErrorFormat("Attempting to convert value to querystring items collection with the wrong type. item is being ignored. type: '{0}', value '{1}'", typeof(TValue).ToString(), key);
             }
@@ -608,7 +610,7 @@ namespace Tvinci.Helpers
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
-                        break;
+                    // break;
                 }
 
                 if (shouldValidate && !QueryConfigManager.Instance.IsPageIgnored(LinkHelper.GetPageVirtualPath()))
@@ -662,7 +664,7 @@ namespace Tvinci.Helpers
                     logger.ErrorFormat("Attempting to add value without a key to querystring items collection. item is being ignored. value '{0}'", value);
                 }
             }
-        } 
+        }
         #endregion
 
         #region QuerystringContext
@@ -676,11 +678,11 @@ namespace Tvinci.Helpers
                 ContextParameters = new QueryStringCollection();
                 Query = string.Empty;
             }
-        } 
+        }
         #endregion
 
         #region Delegates
-        public delegate QueryStringPair AddQueryToURLDelegate(); 
+        public delegate QueryStringPair AddQueryToURLDelegate();
         #endregion
     }
     #endregion

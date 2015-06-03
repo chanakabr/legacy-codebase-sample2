@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Data;
-using log4net.Util;
 using System.Threading;
 using System.Globalization;
 using System.Configuration;
-using log4net;
 using System.Text.RegularExpressions;
 using Tvinci.Configuration;
 using Tvinci.MultiClient;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Localization
 {
@@ -51,7 +51,7 @@ namespace Tvinci.Localization
             Culture = culture;
             CultureInfo = CultureInfo.GetCultureInfo(culture);
             Data = data;
-            
+
             Data.CaseSensitive = false;
             Data.DefaultView.Sort = "titleID";
         }
@@ -90,7 +90,7 @@ namespace Tvinci.Localization
 
     public abstract class LanguageManager : IDisposable
     {
-        private static readonly ILog logger = LogManager.GetLogger("Site.Language");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public eLanguageScope LanguageScope { get; private set; }
         ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
         protected LanguagesDefinition m_LanguageDefinitions;

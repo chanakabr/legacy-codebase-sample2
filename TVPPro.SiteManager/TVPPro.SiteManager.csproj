@@ -80,6 +80,9 @@
     <Reference Include="Facebook.Web, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.Web.dll</HintPath>
     </Reference>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\log4net.dll</HintPath>
@@ -451,10 +454,6 @@
       <Project>{6409da6b-d48d-43a2-9217-02b25d4ed5e3}</Project>
       <Name>Tvinci.Web.Controls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
@@ -498,10 +497,6 @@
     <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
       <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
       <Name>Tvinci.Data.TVMDataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TVPCommonObjects\TVPCommonObjects.csproj">
-      <Project>{c6e794b0-4370-464e-9aa2-f69d6cfc6174}</Project>
-      <Name>TVPCommonObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>

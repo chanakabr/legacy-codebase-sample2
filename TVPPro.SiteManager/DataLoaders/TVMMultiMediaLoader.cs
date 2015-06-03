@@ -14,12 +14,15 @@ using TVPPro.SiteManager.CatalogLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class TVMMultiMediaLoader : TVMAdapter<dsItemInfo>
-    {        
+    {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #region Load properties
 
         /// <summary>
@@ -204,12 +207,12 @@ namespace TVPPro.SiteManager.DataLoaders
                 {
                     mediaIDs.Add(int.Parse(id));
                 }
-               return new MediaLoader(mediaIDs, TvmUser, SiteHelper.GetClientIP(), PicSize)
-                {
-                    Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
-                    OnlyActiveMedia = true,
-                    SiteGuid = SiteGuid
-                }.Execute() as dsItemInfo;
+                return new MediaLoader(mediaIDs, TvmUser, SiteHelper.GetClientIP(), PicSize)
+                 {
+                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
+                     OnlyActiveMedia = true,
+                     SiteGuid = SiteGuid
+                 }.Execute() as dsItemInfo;
             }
             else
             {
@@ -371,8 +374,10 @@ namespace TVPPro.SiteManager.DataLoaders
                         copyObject.Metas.Clear();
                         copyObject.Metas.Merge(dtMetasSorted, true);
                     }
-                    catch
-                    { }
+                    catch (Exception ex)
+                    {
+                        logger.Error("", ex);
+                    }
                 }
                 else
                 {

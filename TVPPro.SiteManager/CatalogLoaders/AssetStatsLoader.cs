@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class AssetStatsLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGSearchLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public List<int> AssetIDs { get; set; }
         public DateTime StartTime { get; set; }
@@ -22,19 +23,19 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         #region Constructors
 
-            public AssetStatsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
-                : base(groupID, userIP, pageSize, pageIndex)
-            {
-                AssetIDs = assetIDs;
-                StartTime = startTime;
-                EndTime = endTime;
-                AssetType = assetType;
-            }
+        public AssetStatsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+            : base(groupID, userIP, pageSize, pageIndex)
+        {
+            AssetIDs = assetIDs;
+            StartTime = startTime;
+            EndTime = endTime;
+            AssetType = assetType;
+        }
 
-            public AssetStatsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
-                : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, assetIDs, assetType, startTime, endTime)
-            {
-            }
+        public AssetStatsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> assetIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, assetIDs, assetType, startTime, endTime)
+        {
+        }
 
         #endregion
 

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class MediaHitLoader : CatalogRequestManager, ILoaderAdapter
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaHitLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int AvgBitRate { get; set; }
         public int CurrentBitRate { get; set; }
@@ -100,7 +101,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 switch (obj.GetType().ToString())
                 {
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaHitRequest":
-                        sText.AppendFormat("MediaHitRequest: groupID = {0}, userIP = {1}, siteGuid = {2}, udid = {3}, mediaID = {4}, mediaFileID = {5}, avgBitRate = {6}, currentBitRate = {7}, location = {8}, totalBitRate = {9}, action = {10}, mediaDuration = {11}", 
+                        sText.AppendFormat("MediaHitRequest: groupID = {0}, userIP = {1}, siteGuid = {2}, udid = {3}, mediaID = {4}, mediaFileID = {5}, avgBitRate = {6}, currentBitRate = {7}, location = {8}, totalBitRate = {9}, action = {10}, mediaDuration = {11}",
                             GroupID, m_sUserIP, SiteGuid, UDID, MediaID, MediaFileID, AvgBitRate, CurrentBitRate, Location, TotalBitRate, Action, MediaDuration);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaHitResponse":

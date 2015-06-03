@@ -13,62 +13,62 @@ namespace Tvinci.Web.Controls
         {
             base.AddAttributesToRender(writer);
             return;
-            if (this.Page != null)
-            {
-                this.Page.VerifyRenderingInServerForm(this);
-            }
+            //if (this.Page != null)
+            //{
+            //    this.Page.VerifyRenderingInServerForm(this);
+            //}
 
-            string onClick = EnsureEndWithSemiColon(this.OnClientClick);
+            //string onClick = EnsureEndWithSemiColon(this.OnClientClick);
             
-            if (base.HasAttributes)
-            {
-                string str2 = base.Attributes["onclick"];
-                if (str2 != null)
-                {
-                    onClick = onClick + EnsureEndWithSemiColon(str2);
-                    base.Attributes.Remove("onclick");
-                }
-            }
+            //if (base.HasAttributes)
+            //{
+            //    string str2 = base.Attributes["onclick"];
+            //    if (str2 != null)
+            //    {
+            //        onClick = onClick + EnsureEndWithSemiColon(str2);
+            //        base.Attributes.Remove("onclick");
+            //    }
+            //}
            
-            bool isEnabled = base.IsEnabled;
-            if (this.Enabled && !isEnabled)
-            {
-                writer.AddAttribute(HtmlTextWriterAttribute.Disabled, "disabled");
-            }
+            //bool isEnabled = base.IsEnabled;
+            //if (this.Enabled && !isEnabled)
+            //{
+            //    writer.AddAttribute(HtmlTextWriterAttribute.Disabled, "disabled");
+            //}
             
-            if (isEnabled && (this.Page != null))
-            {
-                PostBackOptions postBackOptions = this.GetPostBackOptions();
-                string postBackEventReference = null;
-                if (postBackOptions != null)
-                {
-                    postBackEventReference = this.Page.ClientScript.GetPostBackEventReference(postBackOptions, true);
-                }
+            //if (isEnabled && (this.Page != null))
+            //{
+            //    PostBackOptions postBackOptions = this.GetPostBackOptions();
+            //    string postBackEventReference = null;
+            //    if (postBackOptions != null)
+            //    {
+            //        postBackEventReference = this.Page.ClientScript.GetPostBackEventReference(postBackOptions, true);
+            //    }
 
-                writer.AddAttribute(HtmlTextWriterAttribute.Href, "javascript:void(0)");
+            //    writer.AddAttribute(HtmlTextWriterAttribute.Href, "javascript:void(0)");
 
-                if (string.IsNullOrEmpty(postBackEventReference))
-                {
-                    //postBackEventReference = "javascript:void(0)";
-                    postBackEventReference = "";
-                }
-                else
-                {
-                    if (postBackEventReference.StartsWith("javascript:"))
-                    {
-                        postBackEventReference = postBackEventReference.Remove(0, 11);
-                    }
+            //    if (string.IsNullOrEmpty(postBackEventReference))
+            //    {
+            //        //postBackEventReference = "javascript:void(0)";
+            //        postBackEventReference = "";
+            //    }
+            //    else
+            //    {
+            //        if (postBackEventReference.StartsWith("javascript:"))
+            //        {
+            //            postBackEventReference = postBackEventReference.Remove(0, 11);
+            //        }
 
-                    onClick = string.Format("{0}{1}",onClick,EnsureEndWithSemiColon(postBackEventReference));
-                }
-            }
+            //        onClick = string.Format("{0}{1}",onClick,EnsureEndWithSemiColon(postBackEventReference));
+            //    }
+            //}
 
-            if (onClick.Length > 0)
-            {
-                writer.AddAttribute(HtmlTextWriterAttribute.Onclick, onClick);
-            }
+            //if (onClick.Length > 0)
+            //{
+            //    writer.AddAttribute(HtmlTextWriterAttribute.Onclick, onClick);
+            //}
 
-            base.AddAttributesToRender(writer);
+            //base.AddAttributesToRender(writer);
         }
 
         private static string EnsureEndWithSemiColon(string value)

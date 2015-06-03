@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using ODBCWrapper;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.Objects;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace TVPPro.SiteManager.Helper
@@ -17,7 +18,7 @@ namespace TVPPro.SiteManager.Helper
         /// <summary>
         /// Holds the logger
         /// </summary>
-        public static ILog logger = LogManager.GetLogger("VotesHelper");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #endregion
 
         [Flags]
@@ -170,9 +171,9 @@ namespace TVPPro.SiteManager.Helper
                         dic = GetMediasByRating(fromWhen);
                     }
                     catch { }
-                    
+
                     selectQuery.Finish();
-                    
+
                 }
             }
 
@@ -239,7 +240,7 @@ namespace TVPPro.SiteManager.Helper
             string qOperator = "<";
             DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select  * from dbo.UserVoteCycle where ";
-            
+
             if (IsInFuture)
                 qOperator = "> ";
 
@@ -251,27 +252,28 @@ namespace TVPPro.SiteManager.Helper
                 int nCount = selectQuery.Table("UserVoteCycle").DefaultView.Count;
                 if (nCount > 0)
                 {
-                    
-                    
+
+
                     for (int i = 0; i < nCount; i++)
                     {
-                        list.Add(new VoteCycleEntity() {
-                            ResetDate = DateTime.Parse( selectQuery.Table("UserVoteCycle").DefaultView[i].Row["ResetDate"].ToString()),
+                        list.Add(new VoteCycleEntity()
+                        {
+                            ResetDate = DateTime.Parse(selectQuery.Table("UserVoteCycle").DefaultView[i].Row["ResetDate"].ToString()),
                             CreateDate = DateTime.Parse(selectQuery.Table("UserVoteCycle").DefaultView[i].Row["CreateDate"].ToString()),
                             ID = selectQuery.Table("UserVoteCycle").DefaultView[i].Row["ID"].ToString()
                         });
                     }
                 }
             }
-            
+
             return list;
         }
 
         public static bool StartNewVoteCycle(DateTime when)
         {
             bool res = true;
-            
-            
+
+
             InsertQuery query = new InsertQuery("UserVoteCycle");
             query += ODBCWrapper.Parameter.NEW_PARAM("CreateDate", DateTime.UtcNow);
             query += ODBCWrapper.Parameter.NEW_PARAM("ResetDate", when);
@@ -296,5 +298,5 @@ namespace TVPPro.SiteManager.Helper
             delete = null;
         }
     }
-   
+
 }

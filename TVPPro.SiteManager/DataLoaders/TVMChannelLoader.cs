@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using log4net;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using Tvinci.Data.TVMDataLoader;
@@ -16,6 +15,8 @@ using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -24,23 +25,23 @@ namespace TVPPro.SiteManager.DataLoaders
     {
         private ChannelMediaLoader m_oCatalogChannelLoader;
         private bool m_bShouldUseCache;
-        
-        private static readonly ILog performanceLogger = log4net.LogManager.GetLogger("Performances.Data");
-		private string m_tvmUser;
-		private string m_tvmPass;
 
-		#region Loader properties
-		public bool IsPosterPic
-		{
-			get
-			{
-				return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", false);
-			}
-			set
-			{
-				Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
-			}
-		}
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private string m_tvmUser;
+        private string m_tvmPass;
+
+        #region Loader properties
+        public bool IsPosterPic
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", false);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
+            }
+        }
 
         public int GroupID
         {
@@ -55,7 +56,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         }
 
-		public string PicSize
+        public string PicSize
         {
             get
             {
@@ -77,7 +78,7 @@ namespace TVPPro.SiteManager.DataLoaders
             {
                 Parameters.SetParameter<long>(eParameterType.Retrieve, "ChannelID", value);
             }
-		}
+        }
 
         public OrderObj OrderObj
         {
@@ -173,18 +174,18 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<string>(eParameterType.Filter, "SiteGuid", value);
             }
         }
-		#endregion
+        #endregion
 
-		public TVMChannelLoader(long channelID, string picSize) 
-			: this(string.Empty, string.Empty, channelID, picSize)
-		{
-			// Do nothing.
-		}
-
-		public TVMChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
+        public TVMChannelLoader(long channelID, string picSize)
+            : this(string.Empty, string.Empty, channelID, picSize)
         {
-			m_tvmUser = TVMUser;
-			m_tvmPass = TVMPass;
+            // Do nothing.
+        }
+
+        public TVMChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
+        {
+            m_tvmUser = TVMUser;
+            m_tvmPass = TVMPass;
 
             if (string.IsNullOrEmpty(picSize))
             {
@@ -231,7 +232,7 @@ namespace TVPPro.SiteManager.DataLoaders
             newChannel.number_of_items = PageSize;
             newChannel.start_index = PageIndex;
 
-             switch (OrderBy)
+            switch (OrderBy)
             {
                 case Enums.eOrderBy.ABC:
                     newChannel.order_values.name.order_dir = order_dir.desc;
@@ -249,23 +250,23 @@ namespace TVPPro.SiteManager.DataLoaders
                     break;
                 default:
                     throw new Exception("Unknown order by value");
-            }        
+            }
 
             result.root.request.channelCollection.Add(newChannel);
 
-			result.root.flashvars.player_un = m_tvmUser;
-			result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = m_tvmUser;
+            result.root.flashvars.player_pass = m_tvmPass;
 
             result.root.flashvars.pic_size1 = PicSize;
 
-			if (IsPosterPic)
-			{
-				result.root.flashvars.pic_size1_format = "POSTER";
-				result.root.flashvars.pic_size1_quality = "HIGH";
-			}
+            if (IsPosterPic)
+            {
+                result.root.flashvars.pic_size1_format = "POSTER";
+                result.root.flashvars.pic_size1_quality = "HIGH";
+            }
 
             result.root.flashvars.use_start_date = GetFutureStartDate;
-			result.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
 
             result.root.flashvars.device_udid = DeviceUDID;
@@ -300,7 +301,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
             bool handleSingleTypeOnly = string.IsNullOrEmpty(PicSize);
             ChannelsMedia data = retrievedData as ChannelsMedia;
-            
+
             if (data == null)
             {
                 throw new Exception("");
@@ -323,7 +324,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
                         dsItemInfo.ItemRow itemRow = result.Item.NewItemRow();
                         itemRow.ID = media.id;
-                        
+
                         itemRow.MediaType = media.type.value;
                         itemRow.MediaTypeID = media.type.id;
                         itemRow.Title = media.title;
@@ -332,13 +333,13 @@ namespace TVPPro.SiteManager.DataLoaders
                         itemRow.ImageLink = media.pic_size1;
                         itemRow.FileID = media.file_id;
                         itemRow.ViewCounter = Convert.ToInt32(media.views.count);
-						itemRow.Duration = media.duration;
+                        itemRow.Duration = media.duration;
                         itemRow.URL = media.url;
                         itemRow.Likes = media.like_counter.ToString();
-                        
-						//Add create date.
-						try
-						{
+
+                        //Add create date.
+                        try
+                        {
                             // For backward compatability
                             if (GetFutureStartDate.ToLower().Equals("true"))
                             {
@@ -349,9 +350,11 @@ namespace TVPPro.SiteManager.DataLoaders
                             {
                                 itemRow.AddedDate = DateTime.ParseExact(media.date, "dd/MM/yyyy HH:mm:ss", null);
                             }
-						}
-						catch
-						{ }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("", ex);
+                        }
 
                         // add sub file format info
                         if (media.inner_medias.Count > 0)
@@ -377,9 +380,9 @@ namespace TVPPro.SiteManager.DataLoaders
                         if (WithInfo)
                         {
                             DataHelper.CollectMetasInfo(ref result, media);
-                            
+
                             DataHelper.CollectTagsInfo(ref result, media);
-                            
+
                             /*dsItemInfo.TagsRow rowTag = result.Tags.AddTagsRow(media.id);
 
                             foreach (tags_collectionstag_type tagType in media.tags_collections)
@@ -399,7 +402,8 @@ namespace TVPPro.SiteManager.DataLoaders
                                     }
                                 }
                             }
-                            *///
+                            */
+                            //
                         }
 
                         //// Add external IDs
@@ -432,16 +436,16 @@ namespace TVPPro.SiteManager.DataLoaders
                 channelRow.Title = channel.title;
                 channelRow.Description = channel.description;
                 channelRow.EnableRssFeed = channel.rss;
-                
+
                 result.Channel.AddChannelRow(channelRow);
             }
 
             DateTime dtEnd = DateTime.Now;
             TimeSpan span = dtEnd - dtStart;
-            
-            
 
-            performanceLogger.Info("Tag Reflaction - ChannelID: " + ChannelID + ", Tags: " + result.Tags.Rows.Count + ", Total Time: " + span.TotalMilliseconds.ToString() + "ms");
+
+
+            logger.Info("Tag Reflaction - ChannelID: " + ChannelID + ", Tags: " + result.Tags.Rows.Count + ", Total Time: " + span.TotalMilliseconds.ToString() + "ms");
 
             return result;
         }
@@ -521,9 +525,9 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		protected override Guid UniqueIdentifier
-		{
-			get { return new Guid("{C90246A5-0A45-4f18-8762-37C29BCE35AD}"); }
-		}
+        protected override Guid UniqueIdentifier
+        {
+            get { return new Guid("{C90246A5-0A45-4f18-8762-37C29BCE35AD}"); }
+        }
     }
 }
