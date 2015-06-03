@@ -15,6 +15,7 @@ namespace ConditionalAccess
         public DateTime m_dEndDate;
         public DateTime m_dCurrentDate;
         public DateTime m_dPurchaseDate;
+        public DateTime m_dLastViewDate;
         public PaymentMethod m_purchaseMethod;
         public string m_sDeviceUDID;
         public string m_sDeviceName;
@@ -37,7 +38,7 @@ namespace ConditionalAccess
         }
 
         public void Initialize(Int32 nMediaID, Int32 nMediaFileID, Int32 nMaxUses, Int32 nCurrentUses,
-            DateTime dEndTime, DateTime dCurrentDate, DateTime dPurchaseDate, PaymentMethod payMethod, string sDevicUDID, bool bCancelWindow = false)
+            DateTime dEndTime, DateTime dCurrentDate, DateTime dLastViewDate, DateTime dPurchaseDate, PaymentMethod payMethod, string sDevicUDID, bool bCancelWindow = false)
         {
             m_nMediaID = nMediaID;
             m_nMediaFileID = nMediaFileID;
@@ -48,6 +49,7 @@ namespace ConditionalAccess
             m_dPurchaseDate = dPurchaseDate;
             m_purchaseMethod = payMethod;
             m_bCancelWindow = bCancelWindow;
+            m_dLastViewDate = dLastViewDate;
 
             if (!string.IsNullOrEmpty(sDevicUDID))
             {
