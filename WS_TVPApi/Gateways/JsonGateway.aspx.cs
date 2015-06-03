@@ -9,11 +9,11 @@ using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using TVPApi;
-using log4net;
+using KLogMonitor;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
-    private readonly ILog m_logger = LogManager.GetLogger(typeof(Gateways_JsonGateway));
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -45,13 +45,13 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = GetInitObj2();
                 else if (TargetParameter.ParameterType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
                     CallParameters[i] = parseAction(RawParameter);
-                else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))
+                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))
                     CallParameters[i] = parseSocialAction(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialAction))
                     CallParameters[i] = parseApiSocialAction(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform))
                     CallParameters[i] = (TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform), RawParameter);
-                else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
+                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
                     CallParameters[i] = parseSocialPlatform(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
                     CallParameters[i] = parseActionType(RawParameter);
@@ -60,7 +60,7 @@ public partial class Gateways_JsonGateway : BaseGateway
                 else if (TargetParameter.ParameterType == typeof(TVPApi.OrderBy))
                     CallParameters[i] = parseOrderByType(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
-                
+
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
                 else
                     CallParameters[i] = RawParameter;
@@ -69,7 +69,7 @@ public partial class Gateways_JsonGateway : BaseGateway
             }
             object JSONMethodReturnValue = WSMethod.Invoke(webservice, CallParameters);
             string SerializedReturnValue = JSONSerialize(JSONMethodReturnValue);
-            Context.Response.HeaderEncoding=
+            Context.Response.HeaderEncoding =
             Context.Response.ContentEncoding = System.Text.Encoding.UTF8;
             Context.Response.Charset = "utf-8";
             Context.Response.Write(SerializedReturnValue);
@@ -140,16 +140,16 @@ public partial class Gateways_JsonGateway : BaseGateway
     private object TypeDeSerialize(string DeserializationTarget, Type TargetType)
     {
         object Product = new object();
-        
+
         using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
         {
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
             Product = serializer.ReadObject(ms);
         }
-        
+
         return Product;
     }
-    
+
     private string JSONSerialize(object SerializationTarget)
     {
         string Product = string.Empty;
@@ -223,7 +223,7 @@ public partial class Gateways_JsonGateway : BaseGateway
             }
         }
         retVal.SiteGuid = Request.QueryString["SiteGuid"];
-        if(Request.QueryString["DomainID"] != null)
+        if (Request.QueryString["DomainID"] != null)
             retVal.DomainID = int.Parse(Request.QueryString["DomainID"]);
 
         return retVal;

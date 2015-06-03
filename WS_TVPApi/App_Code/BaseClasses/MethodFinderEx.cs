@@ -96,7 +96,7 @@ public partial class MethodFinder
                     }
                     catch (Exception ex)
                     {
-
+                        logger.Error("", ex);
                     }
                 }
                 else
@@ -109,8 +109,9 @@ public partial class MethodFinder
                             Product = serializer.ReadObject(ms);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        logger.Error("", ex);
                         //XmlSerializer serializer = new XmlSerializer(TargetType);
                         //using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(DeserializationTarget)))
                         //{

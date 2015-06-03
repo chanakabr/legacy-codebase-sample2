@@ -869,7 +869,7 @@ namespace TVPApi
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo;
-            bool isPaged = false;
+            //bool isPaged;
             switch (loaderType)
             {
                 case LoaderType.Channel:
@@ -897,7 +897,7 @@ namespace TVPApi
 
                     mediaInfo = channelLoader.Execute();
                     channelLoader.TryGetItemsCount(out mediaCount);
-                    isPaged = true;
+                    //isPaged = true;
                     break;
                 case LoaderType.Related:
                     APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) 
@@ -917,7 +917,7 @@ namespace TVPApi
                     };
                     mediaInfo = relatedLoader.Execute();
                     relatedLoader.TryGetItemsCount(out mediaCount);
-                    isPaged = true;
+                    //isPaged = true;
                     break;
                 case LoaderType.PeopleWhoWatched:
                     mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { 
@@ -929,14 +929,14 @@ namespace TVPApi
                         SiteGuid = initObj.SiteGuid,
                         DomainID = initObj.DomainID
                     }).Execute();
-                    isPaged = true;
+                    //isPaged = true;
                     break;
                 case LoaderType.LastWatched:
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
                     APILastWatchedLoader lastWatchedLoader = new APILastWatchedLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, Language = initObj.Locale.LocaleLanguage };
                     mediaInfo = lastWatchedLoader.Execute();
                     lastWatchedLoader.TryGetItemsCount(out mediaCount);
-                    isPaged = true;
+                    //isPaged = true;
                     break;
                 case LoaderType.Recommended:
                     mediaInfo = new TVPApiModule.DataLoaders.APIPersonalRecommendedLoader(user, pass) 
@@ -952,11 +952,11 @@ namespace TVPApi
                         Language = initObj.Locale.LocaleLanguage, 
                         DomainID = initObj.DomainID
                     }.Execute();
-                    isPaged = true;
+                    //isPaged = true;
                     break;
                 default:
                     mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
-                    isPaged = true;
+                    //isPaged = true;
                     break;
             }
 

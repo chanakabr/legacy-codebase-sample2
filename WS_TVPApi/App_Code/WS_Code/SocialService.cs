@@ -13,13 +13,14 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using System.Web;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace TVPApiServices
@@ -30,7 +31,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class SocialService : System.Web.Services.WebService, ISocialService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(SocialService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod(EnableSession = true, Description = "Get all medias that user's friends watched")]
         [PrivateMethod]
@@ -537,8 +538,9 @@ namespace TVPApiServices
                                 }
 
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                logger.Error("", ex);
                                 resSocialFeed.Error = socialFeedStr;
                             }
 
@@ -659,9 +661,9 @@ namespace TVPApiServices
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (AuthorizationManager.IsTokenizationEnabled() && responseData.status != null && responseData.status.Code == 1 &&
-                       responseData.user != null && responseData.user.m_RespStatus != null && responseData.user.m_user != null && (responseData.user.m_RespStatus != ResponseStatus.OK || 
+                       responseData.user != null && responseData.user.m_RespStatus != null && responseData.user.m_user != null && (responseData.user.m_RespStatus != ResponseStatus.OK ||
                        responseData.user.m_RespStatus != ResponseStatus.UserNotActivated || responseData.user.m_RespStatus != ResponseStatus.DeviceNotRegistered ||
-                       responseData.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || responseData.user.m_RespStatus != ResponseStatus.UserNotIndDomain || 
+                       responseData.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || responseData.user.m_RespStatus != ResponseStatus.UserNotIndDomain ||
                        responseData.user.m_RespStatus != ResponseStatus.UserWithNoDomain || responseData.user.m_RespStatus != ResponseStatus.UserSuspended))
                     {
                         APIToken accessToken = AuthorizationManager.Instance.GenerateAccessToken(responseData.user.m_user.m_sSiteGUID, groupId, false, false);

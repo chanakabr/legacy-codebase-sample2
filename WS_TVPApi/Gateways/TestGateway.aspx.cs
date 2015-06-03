@@ -28,7 +28,7 @@ public partial class Gateways_TestGateway : System.Web.UI.Page
     public class ResponseObj
     {
         public string KeyStr;
-        string siteMap;
+        //string siteMap;
     }
 
     private string CreateJson(object obj)

@@ -8,7 +8,6 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
-using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
@@ -18,6 +17,8 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -28,7 +29,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class DomainService : System.Web.Services.WebService, IDomainService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(DomainService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod(EnableSession = true, Description = "Reset Domain")]
         public DomainResponseObject ResetDomain(InitializationObject initObj)
@@ -739,7 +740,7 @@ namespace TVPApiServices
                     if (int.TryParse(initObj.SiteGuid, out siteGuid))
                         domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SubmitAddDeviceToDomainRequest(initObj.UDID, initObj.DomainID, siteGuid, deviceName, brandId);
                     else
-                        logger.WarnFormat("Illegal site-guid for device name: {0}, barndId: {1}", deviceName, brandId);
+                        logger.WarnFormat("Illegal site-guid for device name: {0}, barndId: {1}", true, null, deviceName, brandId);
                 }
                 catch (Exception ex)
                 {

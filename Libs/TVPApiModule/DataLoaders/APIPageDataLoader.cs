@@ -6,13 +6,14 @@ using Tvinci.Data.DataLoader.PredefinedAdapters;
 using Tvinci.Helpers;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApi
 {
     public class APIPageDataLoader : TVPPro.SiteManager.DataLoaders.PageDataLoader
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(APIPageDataLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int GroupID
         {

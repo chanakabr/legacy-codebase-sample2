@@ -9,10 +9,10 @@ using TVPApi.Configuration.PlatformServices;
 using TVPApi.Configuration.Technical;
 using TVPApi.Configuration.Site;
 using TVPApi.Configuration.Media;
-
 using TVPPro.Configuration.PlatformServices;
-using log4net;
 using TVPApi.Configuration.OrcaConfiguration;
+using KLogMonitor;
+using System.Reflection;
 
 
 /// <summary>
@@ -24,10 +24,8 @@ namespace TVPApi
 {
     public class ConfigManager
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(PageDataHelper));
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static ConfigManager m_instance = null;
-
         private Dictionary<string, ConfigType> m_configs = new Dictionary<string, ConfigType>();
         private static ReaderWriterLockSlim m_ConfigManagerLocker = new ReaderWriterLockSlim();
 
@@ -83,7 +81,7 @@ namespace TVPApi
                                  ? ServiceGetConfig(groupID, platform)
                                  : FileGetConfig(groupID, platform);
                 }
-                else {configType =  FileGetConfig(groupID, platform);}
+                else { configType = FileGetConfig(groupID, platform); }
 
 
                 if (m_ConfigManagerLocker.TryEnterWriteLock(1000))
@@ -115,7 +113,7 @@ namespace TVPApi
         {
             ConfigType configType = new ConfigType();
             string sEnvironment = ConfigurationManager.AppSettings["DomainEnv"];
-            
+
             configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.TechnichalConfiguration = new ApiTechnichalConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.MediaConfiguration = new ApiMediaConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);

@@ -9,9 +9,13 @@ using System.IO;
 using System.Text;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using System.Reflection;
+using KLogMonitor;
 
 public partial class Gateways_DeviceInit : System.Web.UI.Page
 {
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         // Get querystring values for device bundle ID and device UDID
@@ -23,7 +27,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
                 sUDID = Request.QueryString["udid"].ToString();
                 sBundleID = Request.QueryString["bid"].ToString();
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { logger.Error("", ex); }
 
             // change to check if method is post or get
             if (string.IsNullOrEmpty(sUDID) && string.IsNullOrEmpty(sBundleID))
@@ -127,9 +131,9 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
 
             //if (sBundleID.ToLower().Equals("com.mediacorp.toggle"))
-                retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
+            retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
             //else
-              //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";            
+            //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";            
             retDeviceInit.MainMenuID = "45";
             retDeviceInit.AllowBrowseMode = "false";
 
@@ -164,9 +168,9 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
 
             //if (sBundleID.ToLower().Equals("com.mediacorp.toggle.ipad"))
-                retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
+            retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
             //else
-              //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
+            //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
 
             retDeviceInit.MainMenuID = "46";
             retDeviceInit.AllowBrowseMode = "false";

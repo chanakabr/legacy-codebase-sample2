@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApiModule.Objects;
-using log4net;
 using ODBCWrapper;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
@@ -12,21 +11,22 @@ using TVPApiModule.Services;
 using Tvinci.Data.DataLoader.PredefinedAdapters;
 using Tvinci.Helpers;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Helper
 {
     public static class VotesHelper
     {
-        #region Fields
         /// <summary>
         /// Holds the logger
         /// </summary>
-        public static ILog logger = LogManager.GetLogger("VotesHelper");
-        #endregion
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public static string UserVote(string mediaId, string siteGuid, PlatformType platform, int groupID)
         {
-            string res = "Failure";
+            string res = string.Empty;
 
             try
             {
@@ -75,7 +75,7 @@ namespace TVPApiModule.Helper
                 throw ex;
             }
 
-            return res;
+            //return res;
         }
 
         public static bool IsAlreadyVoted(string mediaId, string siteGuid, int groupID, PlatformType platform)

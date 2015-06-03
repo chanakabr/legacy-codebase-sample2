@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using TVPApi;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 
 namespace TVPApiModule.Services
@@ -11,7 +12,7 @@ namespace TVPApiModule.Services
     public class ApiPricingService : ApiBase
     {
         #region Variables
-        private static ILog logger = LogManager.GetLogger(typeof(ApiPricingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule m_Module;
 
@@ -62,9 +63,9 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (int media in mediaFiles)                
+                foreach (int media in mediaFiles)
                     sb.Append(media + ",");
-                
+
                 logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleListForMediaFiles, Error Message: {0} Parameters: Medias: {1}", ex.Message, sb.ToString());
             }
 
@@ -126,24 +127,24 @@ namespace TVPApiModule.Services
 
             try
             {
-                couponData  = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                couponData = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetCouponStatus, Error Message: {0}", ex.Message);
             }
 
-            return couponData ;
+            return couponData;
         }
 
         public CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID)
         {
             CouponsStatus couponStatus = CouponsStatus.NotExists;
-            
+
             try
             {
-                couponStatus = m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
-            } 
+                couponStatus = m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID);
+            }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SetCouponUsed, Error Message: {0}", ex.Message);
@@ -190,7 +191,7 @@ namespace TVPApiModule.Services
             string sUserTypesIDs = string.Empty;
 
             try
-            {                
+            {
                 subscriptions = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
             }
             catch (Exception ex)

@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiApiService : ApiBase
     {
         #region Variables
-        private static ILog logger = LogManager.GetLogger(typeof(ApiService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.api.API m_Module;
 
@@ -189,7 +190,7 @@ namespace TVPApiModule.Services
         //    try
         //    {
         //        objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-                
+
         //    }
         //    catch (Exception ex)
         //    {
@@ -258,7 +259,7 @@ namespace TVPApiModule.Services
         {
             bool res = false;
             try
-            {                
+            {
                 res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
             }
             catch (Exception ex)
@@ -304,7 +305,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}", 
+                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}",
                     ex.Message, siteGuid, domainID, ruleID, isActive);
             }
             return res;
@@ -414,7 +415,7 @@ namespace TVPApiModule.Services
                 {
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
-                
+
             }
             catch (Exception ex)
             {

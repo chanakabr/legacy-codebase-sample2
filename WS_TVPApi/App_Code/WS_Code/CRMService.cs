@@ -8,7 +8,6 @@ using ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
@@ -19,6 +18,8 @@ using TVPApiModule.Helper;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Objects.CRM;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -27,7 +28,7 @@ namespace TVPApiServices
     /// </summary>
     public class CRMService : ICRMService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(CRMService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private string m_apiUserName = string.Empty;
         private string m_apiPassword = string.Empty;
@@ -57,8 +58,7 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     response.status_code = CRMResponseStatus.UnexpectedError;
-
-                    logger.ErrorFormat("CRMGateway Exception, Error Message: {0}", ex.Message);
+                    logger.Error("CRMGateway Exception", ex);
                 }
             }
             else
@@ -84,8 +84,7 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     response.status_code = CRMResponseStatus.UnexpectedError;
-
-                    logger.ErrorFormat("CRMGateway Exception, Error Message: {0}", ex.Message);
+                    logger.Error("CRMGateway Exception", ex);
                 }
             }
             else
@@ -152,8 +151,7 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     response.status_code = CRMResponseStatus.UnexpectedError;
-
-                    logger.ErrorFormat("CRMGateway Exception, Error Message: {0}", ex.Message);
+                    logger.Error("CRMGateway Exception", ex);
                 }
             }
             else

@@ -8,17 +8,16 @@ using TVPApiServices;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
 using System.Text;
-using log4net;
 
-public class CRMGateway : IHttpHandler {
+public class CRMGateway : IHttpHandler
+{
+    private static readonly KLogMonitor.KLogger logger = new KLogMonitor.KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-    private readonly ILog logger = LogManager.GetLogger(typeof(CRMService));
-    
-    public void ProcessRequest (HttpContext context) {
-        
+    public void ProcessRequest(HttpContext context)
+    {
+
         context.Response.ContentType = "application/json; charset=utf-8";
         context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
 
@@ -78,7 +77,7 @@ public class CRMGateway : IHttpHandler {
                 {
                     ((CRMResponse)response).status_code = TVPApiModule.Objects.CRM.CRMResponseStatus.CredentialsNotAuthorized;
                 }
-                
+
             }
             catch (JsonSerializationException ex)
             {
@@ -89,7 +88,7 @@ public class CRMGateway : IHttpHandler {
             catch (Exception ex)
             {
                 logger.ErrorFormat("CRMGateway Exception, Error Message: {0}", ex.Message);
-                
+
                 ((CRMResponse)response).status_code = TVPApiModule.Objects.CRM.CRMResponseStatus.UnexpectedError;
             }
         }
@@ -102,9 +101,11 @@ public class CRMGateway : IHttpHandler {
 
         HttpContext.Current.Response.Write(sResponse);
     }
- 
-    public bool IsReusable {
-        get {
+
+    public bool IsReusable
+    {
+        get
+        {
             return false;
         }
     }

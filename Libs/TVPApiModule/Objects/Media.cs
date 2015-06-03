@@ -7,9 +7,10 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
 using TVPApiModule.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using KLogMonitor;
+using System.Reflection;
 
 /// <summary>
 /// Summary description for Media
@@ -20,9 +21,7 @@ namespace TVPApi
 {
     public class Media
     {
-        #region Properties
-
-        private readonly ILog logger = LogManager.GetLogger(typeof(Media));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public string MediaID;
         public string MediaName;
@@ -158,9 +157,7 @@ namespace TVPApi
                 return m_externalIDs;
             }
         }
-        #endregion
 
-        #region Constructors
         public Media()
         {
 
@@ -175,9 +172,7 @@ namespace TVPApi
         {
             InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
         }
-        #endregion
 
-        #region private functions
 
         private string GetMediaWebLink(int groupID, PlatformType platform)
         {
@@ -223,7 +218,7 @@ namespace TVPApi
                                     var tag = Tags.Where(t => t.Key == "Extra Virtual Media Link").FirstOrDefault();
                                     if (!string.IsNullOrEmpty(tag.Value))
                                     {
-                                        
+
                                         retVal = string.Format("{0}/series/{1}/{2}/{3}", baseUrl, sMediaName, extraTag.Value, MediaID);
                                     }
                                     else
@@ -259,7 +254,7 @@ namespace TVPApi
             }
             return retVal;
         }
-        //Fill properies according to media row
+        //Fill properties according to media row
         private void InitMediaObj(dsItemInfo.ItemRow row, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
         {
             MediaID = row.ID;
@@ -356,7 +351,7 @@ namespace TVPApi
             {
                 LastWatchDate = row.LastWatchedDate;
             }
-            
+
             BuildTagMetas(groupID, row, initObj.Platform);
 
             buildFiles(row);
@@ -697,6 +692,5 @@ namespace TVPApi
             return retVal;
         }
 
-        #endregion
     }
 }

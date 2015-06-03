@@ -13,7 +13,6 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using log4net;
 using TVPApiModule.Helper;
 using TVPApiModule.yes.tvinci.ITProxy;
 using System.Configuration;
@@ -21,12 +20,15 @@ using TVPApiModule.Objects.ORCARecommendations;
 using System.Text.RegularExpressions;
 using TVPPro.Configuration.OrcaRecommendations;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Objects
 {
     public class ImplementationYes : ImplementationBase
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(ImplementationYes));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public ImplementationYes(int nGroupID, InitializationObject initObj)
             : base(nGroupID, initObj)
@@ -252,8 +254,8 @@ namespace TVPApiModule.Objects
                 retVal.ContentType = eContentType.Live;
                 retVal.Content = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
             }
-            if (retVal == null || 
-                retVal.Content == null || 
+            if (retVal == null ||
+                retVal.Content == null ||
                 (retVal.Content is List<EPGChannelProgrammeObject> && (retVal.Content as List<EPGChannelProgrammeObject>).Count == 0) ||
                 (retVal.Content is List<Media> && (retVal.Content as List<Media>).Count == 0))
             {
@@ -686,7 +688,7 @@ namespace TVPApiModule.Objects
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
                     Message = eulaResMsg,
                     StatusCode = eulaResCode
-                   
+
                 };
             }
             else

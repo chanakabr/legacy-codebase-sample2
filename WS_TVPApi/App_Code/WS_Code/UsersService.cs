@@ -7,7 +7,6 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
@@ -19,6 +18,8 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -28,7 +29,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class UsersService : System.Web.Services.WebService, IUsersService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(BillingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region public methods
 
@@ -232,7 +233,7 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string sClearPassword = siteSvc.GetSiteGuidFromSecured(initObj,sEncryptedPassword);
+                    string sClearPassword = siteSvc.GetSiteGuidFromSecured(initObj, sEncryptedPassword);
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
 
                     // if sign in successful and tokenization enabled - generate access token and add to headers
@@ -240,7 +241,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);                    
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
@@ -266,7 +267,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);                    
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
@@ -296,17 +297,17 @@ namespace TVPApiServices
                     }
                     else
                     {
-                        HttpContext.Current.Items.Add("Error", "Temporary token is invalid Protocol CheckTemporaryToken");                        
+                        HttpContext.Current.Items.Add("Error", "Temporary token is invalid Protocol CheckTemporaryToken");
                     }
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);                    
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");                
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -612,8 +613,8 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
-        
-            return retVal; 
+
+            return retVal;
         }
 
         [WebMethod(EnableSession = true, Description = "GenerateLoginPIN")]
@@ -664,9 +665,9 @@ namespace TVPApiServices
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&
-                       response.Result != null && response.Result.user != null && response.Result.user.m_user != null && 
-                       (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated || 
-                       response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved || 
+                       response.Result != null && response.Result.user != null && response.Result.user.m_user != null &&
+                       (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated ||
+                       response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved ||
                        response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||
                        response.Result.user.m_RespStatus != ResponseStatus.UserSuspended))
                     {

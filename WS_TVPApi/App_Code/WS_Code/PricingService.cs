@@ -7,12 +7,13 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -26,7 +27,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class PricingService : System.Web.Services.WebService, IPricingService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(PricingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region public methods
 
@@ -110,7 +111,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get Coupon status according to coupon code")]
         public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
-        {        
+        {
             TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData couponData = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCouponStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -146,7 +147,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    couponStatus = new ApiPricingService(groupId, initObj.Platform).SetCouponUsed(sCouponCode, initObj.SiteGuid); 
+                    couponStatus = new ApiPricingService(groupId, initObj.Platform).SetCouponUsed(sCouponCode, initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -157,7 +158,7 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
-            
+
             return couponStatus;
         }
 
@@ -172,7 +173,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    campaigns = new ApiPricingService(groupId, initObj.Platform).GetCampaignsByType(trigger, isAlsoInactive, initObj.UDID);  
+                    campaigns = new ApiPricingService(groupId, initObj.Platform).GetCampaignsByType(trigger, isAlsoInactive, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -275,6 +276,6 @@ namespace TVPApiServices
         }
 
         #endregion
-        
+
     }
 }

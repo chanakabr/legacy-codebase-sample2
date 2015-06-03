@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiDomainsService : ApiBase
     {
         #region Variables
-        private static ILog logger = LogManager.GetLogger(typeof(ApiDomainsService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         private TVPPro.SiteManager.TvinciPlatform.Domains.module m_Module;
 
