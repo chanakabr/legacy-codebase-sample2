@@ -4932,10 +4932,6 @@ namespace ConditionalAccess
 
                         // get last view date
                         DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
-                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
-                        {
-                            dEnd = dLastViewDate;
-                        }
 
                         DateTime dCurrent = DateTime.UtcNow;
                         if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
@@ -7669,13 +7665,38 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Subscription Dates
         /// </summary>
-        protected void GetSubscriptionDates(Int32 nPurchaseID, ref DateTime dStartDate, ref DateTime dEndDate)
+        protected void GetPurchaseItemDates(Int32 nPurchaseID, ref DateTime dStartDate, ref DateTime dEndDate, BillingItemsType billingType)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
+
+            string tableName = string.Empty;
+            switch (billingType)
+            {
+
+                case BillingItemsType.PPV:
+                    tableName = "ppv_purchases";
+                    break;
+
+                case BillingItemsType.PrePaid:
+                case BillingItemsType.PrePaidExpired:
+                    tableName = "pre_paid_purchases";
+                    break;
+
+                case BillingItemsType.Collection:
+                    tableName = "collections_purchases";
+                    break;
+
+                case BillingItemsType.Unknown:
+                case BillingItemsType.Subscription:
+                default:
+                    tableName = "subscriptions_purchases";
+                    break;
+            }
+
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select START_DATE, END_DATE from subscriptions_purchases with (nolock) where ";
+                selectQuery += string.Format("select START_DATE, END_DATE from {0} with (nolock) where ", tableName);
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -7912,9 +7933,8 @@ namespace ConditionalAccess
                     int nBILLING_PROVIDER = ODBCWrapper.Utils.GetIntSafeVal(dvBillHistory[i].Row["BILLING_PROVIDER"]);
                     int nBILLING_PROVIDER_REFFERENCE = ODBCWrapper.Utils.GetIntSafeVal(dvBillHistory[i].Row["BILLING_PROVIDER_REFFERENCE"]);
                     int nPURCHASE_ID = ODBCWrapper.Utils.GetIntSafeVal(dvBillHistory[i].Row["PURCHASE_ID"]);
-
                     string sPrePaidCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["pre_paid_code"]);
-
+                    string collectionCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["COLLECTION_CODE"]);
 
 
                     if (nBILLING_PROVIDER == -1)
@@ -7992,7 +8012,6 @@ namespace ConditionalAccess
                     }
 
                     // check if transaction is a collection type
-                    string collectionCode = ODBCWrapper.Utils.GetSafeStr(dvBillHistory[i].Row["COLLECTION_CODE"]);
                     if (!string.IsNullOrEmpty(collectionCode))
                     {
                         // update type
@@ -8004,21 +8023,8 @@ namespace ConditionalAccess
                         collection = m.GetCollectionData(sWSUserName, sWSPass, collectionCode, string.Empty, string.Empty, string.Empty, true);
 
                         // get collection name
-                        string sMainLang = string.Empty;
-                        string sMainLangCode = string.Empty;
-                        GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
-                        if (collection.m_sName != null)
-                        {
-                            Int32 nNameLangLength = collection.m_sName.Length;
-                            for (int j = 0; j < nNameLangLength; j++)
-                            {
-                                string sLang = collection.m_sName[j].m_sLanguageCode3;
-                                string sVal = collection.m_sName[j].m_sValue;
-
-                                if (sLang == sMainLangCode)
-                                    theResp.m_Transactions[i].m_sPurchasedItemName = sVal;
-                            }
-                        }
+                        if (collection != null)
+                            theResp.m_Transactions[i].m_sPurchasedItemName = ((PPVModule)collection).m_sObjectVirtualName;
 
                         theResp.m_Transactions[i].m_sPurchasedItemCode = collectionCode;
                     }
@@ -8053,22 +8059,20 @@ namespace ConditionalAccess
                     theResp.m_Transactions[i].m_nPurchaseID = nPURCHASE_ID;
                     theResp.m_Transactions[i].m_sRemarks = sRemarks;
 
-                    //actin date
+                    //action date
                     theResp.m_Transactions[i].m_dtActionDate = dActionDate;
 
                     //Subscription dates
                     if (nPurchaseID != 0)
                     {
-                        GetSubscriptionDates(nPurchaseID, ref theResp.m_Transactions[i].m_dtStartDate, ref theResp.m_Transactions[i].m_dtEndDate);
+                        GetPurchaseItemDates(nPurchaseID, ref theResp.m_Transactions[i].m_dtStartDate, ref theResp.m_Transactions[i].m_dtEndDate, theResp.m_Transactions[i].m_eItemType);
                     }
 
                     if (!string.IsNullOrEmpty(sCurrencyCode))
                     {
                         theResp.m_Transactions[i].m_Price = new ConditionalAccess.TvinciPricing.Price();
                         theResp.m_Transactions[i].m_Price.m_dPrice = dPrice;
-
                         theResp.m_Transactions[i].m_Price.m_oCurrency = m.GetCurrencyValues(sWSUserName, sWSPass, sCurrencyCode);
-
                     }
                 } // for
             }
