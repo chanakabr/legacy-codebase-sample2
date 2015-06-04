@@ -3,14 +3,17 @@ using System.Data;
 using System.Data.Odbc;
 using System.Web;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
-	public class Connection 
-	{
+    public class Connection
+    {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public delegate string GetConnectionStringDelegate();
 
-        #region Fields        
+        #region Fields
         public string CustomConnectionString { get; set; }
         public static GetConnectionStringDelegate GetDefaultConnectionStringMethod { get; set; }
         public GetConnectionStringDelegate GetConnectionStringMethod { get; set; }
@@ -29,41 +32,42 @@ namespace ODBCWrapper
             {
                 return GetConnectionStringMethod();
             }
-            else  if (GetDefaultConnectionStringMethod != null)
-                {
-                    return GetDefaultConnectionStringMethod();
-                }
+            else if (GetDefaultConnectionStringMethod != null)
+            {
+                return GetDefaultConnectionStringMethod();
+            }
 
             throw new Exception("One of the mothods must be assigned before use");
         }
 
-	    #region Constructor
-	    static Connection()
-	    {
-            GetDefaultConnectionStringMethod = defaultConnectionString;
-	    }
-	    #endregion
-
-        public Connection() : this(null)
+        #region Constructor
+        static Connection()
         {
-            
+            GetDefaultConnectionStringMethod = defaultConnectionString;
+        }
+        #endregion
+
+        public Connection()
+            : this(null)
+        {
+
         }
 
         public Connection(GetConnectionStringDelegate getConnectionStringMethod)
         {
             GetConnectionStringMethod = getConnectionStringMethod;
         }
-        
+
         private static string defaultConnectionString()
         {
-            return string.Concat("Driver={SQL Server};Server=",HttpContext.Current.Application["MSSQL_SERVER_NAME"].ToString(),
-            ";Database=",HttpContext.Current.Application["DB_NAME"].ToString(),
-            ";Uid=",HttpContext.Current.Application["UN"].ToString(),
-            ";Pwd=",HttpContext.Current.Application["PS"].ToString(),
-            ";");    
+            return string.Concat("Driver={SQL Server};Server=", HttpContext.Current.Application["MSSQL_SERVER_NAME"].ToString(),
+            ";Database=", HttpContext.Current.Application["DB_NAME"].ToString(),
+            ";Uid=", HttpContext.Current.Application["UN"].ToString(),
+            ";Pwd=", HttpContext.Current.Application["PS"].ToString(),
+            ";");
         }
-	    
-	    #region Public Methods
+
+        #region Public Methods
         public void Finish()
         {
             try
@@ -80,9 +84,8 @@ namespace ODBCWrapper
             }
             catch (Exception ex)
             {
-                string sMes = "While closing connection Exception occured: " + ex.Message;
-                Logger.Logger.Log("connection", sMes, "ODBC_Net");
-                Logger.Logger.Log("connection", sMes, "ODBC_Connections");
+                string message = "While closing connection Exception occurred: " + ex.Message;
+                logger.Error(message, ex);
             }
         }
 
@@ -105,18 +108,18 @@ namespace ODBCWrapper
                 m_conn.Open();
             }
 
-             return m_conn;
+            return m_conn;
         }
 
-	    public void GetConnection(ref OdbcConnection conn)
-	    {
-            conn = GetConnection();	        
-	    }
+        public void GetConnection(ref OdbcConnection conn)
+        {
+            conn = GetConnection();
+        }
 
         public void GetConnection(ref OdbcCommand conn)
         {
             conn.Connection = GetConnection();
         }
-	    #endregion
-	}
+        #endregion
+    }
 }

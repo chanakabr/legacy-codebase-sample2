@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class MediaCommentLoader : CatalogRequestManager, ILoaderAdapter
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaCommentLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public DateTime PublishDate { get; set; }
         public int MediaID { get; set; }
@@ -25,7 +26,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string Writer { get; set; }
         public bool AutoActive { get; set; }
 
-         #region Constructors
+        #region Constructors
         public MediaCommentLoader(int groupID, string userIP, int language, string siteGuid, string udid, int mediaID, string contentText, string country, string header, string subHeader, string writer, bool autoActive)
             : base(groupID, userIP, 0, 0)
         {
@@ -63,7 +64,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sHeader = Header,
                 m_sSubHeader = SubHeader,
                 m_sUDID = UDID,
-                m_sWriter = Writer, 
+                m_sWriter = Writer,
                 m_bAutoActive = AutoActive
             };
         }

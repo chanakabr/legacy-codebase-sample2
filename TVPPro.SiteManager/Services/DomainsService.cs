@@ -2,17 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.Manager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
     public class DomainsService
     {
         #region Fields
-        private readonly ILog logger = LogManager.GetLogger(typeof(DomainsService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static object instanceLock = new object();
 
         private static DomainsService m_Instance;
@@ -173,7 +174,7 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 domainId = UsersService.Instance.GetDomainID();
-                device = m_Module.RegisterDeviceToDomainWithPIN(wsUserName, wsPassword, pinCode, domainId, string.Empty);                
+                device = m_Module.RegisterDeviceToDomainWithPIN(wsUserName, wsPassword, pinCode, domainId, string.Empty);
             }
             catch (Exception e)
             {
@@ -186,15 +187,15 @@ namespace TVPPro.SiteManager.Services
 
         public bool SetDeviceInfo(string udid, string deviceName)
         {
-            bool bRes = false;            
+            bool bRes = false;
 
             try
-            {                
+            {
                 bRes = m_Module.SetDeviceInfo(wsUserName, wsPassword, udid, deviceName);
             }
             catch (Exception e)
             {
-                logger.ErrorFormat("Error occured in SetDeviceInfo, Error : {0} Parameters : Device UDID: {1}, Device Name {2}", e.Message, udid, deviceName);                
+                logger.ErrorFormat("Error occured in SetDeviceInfo, Error : {0} Parameters : Device UDID: {1}, Device Name {2}", e.Message, udid, deviceName);
             }
 
             return bRes;
@@ -222,7 +223,7 @@ namespace TVPPro.SiteManager.Services
             DomainResponseObject device = null;
 
             try
-            {                
+            {
                 domainId = UsersService.Instance.GetDomainID();
                 device = m_Module.AddDeviceToDomain(wsUserName, wsPassword, domainId, udid, deviceName, 22);
             }
@@ -232,7 +233,7 @@ namespace TVPPro.SiteManager.Services
             }
 
             return device;
-        }       
-        
+        }
+
     }
 }

@@ -13,15 +13,18 @@ using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class TVMMediaLoader : TVMAdapter<dsItemInfo>
-    {        
+    {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private FlashLoadersParams m_FlashLoadersParams;
 
-		#region properties
+        #region properties
 
         public string SiteGuid
         {
@@ -35,66 +38,66 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		public string MediaID
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "MediaID", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "MediaID", value);
-			}
-		}
+        public string MediaID
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "MediaID", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "MediaID", value);
+            }
+        }
 
-		public string PicSize
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "PicSize", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "PicSize", value);
-			}
-		}
+        public string PicSize
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "PicSize", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "PicSize", value);
+            }
+        }
 
-		public string BrandingFileFormat
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "BrandingFileFormat", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "BrandingFileFormat", value);
-			}
-		}
+        public string BrandingFileFormat
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "BrandingFileFormat", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "BrandingFileFormat", value);
+            }
+        }
 
-		public string BrandingPicSize
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "BrandingPicSize", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "BrandingPicSize", value);
-			}
-		}
-        
+        public string BrandingPicSize
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "BrandingPicSize", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "BrandingPicSize", value);
+            }
+        }
 
-		public string RepeatBrandingPicFormat
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "RepeatBrandingPicFormat", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "RepeatBrandingPicFormat", value);
-			}
-		}
+
+        public string RepeatBrandingPicFormat
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "RepeatBrandingPicFormat", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "RepeatBrandingPicFormat", value);
+            }
+        }
 
         public string UseFinalEndDate
         {
@@ -205,14 +208,15 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		#endregion
+        #endregion
 
         protected override bool ShouldStoreInCache(LoaderAdapterItem result)
         {
             return (result != null);
         }
 
-        public TVMMediaLoader(string mediaID) : this(string.Empty, string.Empty, mediaID)
+        public TVMMediaLoader(string mediaID)
+            : this(string.Empty, string.Empty, mediaID)
         {
         }
 
@@ -224,7 +228,7 @@ namespace TVPPro.SiteManager.DataLoaders
         }
 
         public TVMMediaLoader(string tvmUn, string tvmPass, string mediaID, FlashLoadersParams FlashLoadersParams)
-            :this(tvmUn,tvmPass,mediaID)
+            : this(tvmUn, tvmPass, mediaID)
         {
             this.m_FlashLoadersParams = FlashLoadersParams;
         }
@@ -291,25 +295,25 @@ namespace TVPPro.SiteManager.DataLoaders
 
             result.root.flashvars.device_udid = DeviceUDID;
             result.root.flashvars.platform = (int)Platform;
-            
-			//Set the response info_struct
+
+            //Set the response info_struct
             result.root.request.@params.info_struct.statistics = true;
-			result.root.request.@params.info_struct.name.MakeSchemaCompliant();
+            result.root.request.@params.info_struct.name.MakeSchemaCompliant();
             result.root.request.@params.info_struct.description.MakeSchemaCompliant();
-            result.root.request.@params.info_struct.type.MakeSchemaCompliant();            
-           
-			string[] MetaNames = MediaConfiguration.Instance.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
-			string[] TagNames = MediaConfiguration.Instance.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+            result.root.request.@params.info_struct.type.MakeSchemaCompliant();
 
-			foreach (string meta in MetaNames)
-			{
-				result.root.request.@params.info_struct.metaCollection.Add(new meta { name = meta });
-			}
+            string[] MetaNames = MediaConfiguration.Instance.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+            string[] TagNames = MediaConfiguration.Instance.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
 
-			foreach (string tagName in TagNames)
-			{
-				result.root.request.@params.info_struct.tags.Add(new tag_type { name = tagName });
-			}
+            foreach (string meta in MetaNames)
+            {
+                result.root.request.@params.info_struct.metaCollection.Add(new meta { name = meta });
+            }
+
+            foreach (string tagName in TagNames)
+            {
+                result.root.request.@params.info_struct.tags.Add(new tag_type { name = tagName });
+            }
 
             return result;
         }
@@ -317,7 +321,7 @@ namespace TVPPro.SiteManager.DataLoaders
         protected override dsItemInfo PreCacheHandling(object retrievedData)
         {
             SingleMedia data = retrievedData as SingleMedia;
-            
+
             if (data == null)
             {
                 throw new Exception("");
@@ -325,7 +329,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
             dsItemInfo result = new dsItemInfo();
             //result.Reset();
-            
+
             if (data.response.mediaCollection.Count == 1)
             {
                 responsemedia mediaInfo = data.response.mediaCollection[0];
@@ -334,10 +338,10 @@ namespace TVPPro.SiteManager.DataLoaders
                 {
                     // Metas DateTable
                     DataHelper.CollectMetasInfo(ref result, mediaInfo);
-                    
+
                     // Tags DataTable
                     DataHelper.CollectTagsInfo(ref result, ref mediaInfo);
-                    
+
                     // Info DataTable
                     dsItemInfo.ItemRow row = result.Item.NewItemRow();
                     row.ID = mediaInfo.id;
@@ -348,7 +352,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     row.ViewCounter = Convert.ToInt32(mediaInfo.views.count);
                     row.Name = mediaInfo.title;
                     row.Title = mediaInfo.title;
-                    row.Brief = !string.IsNullOrEmpty(mediaInfo.description.value) ? System.Web.HttpUtility.HtmlDecode(mediaInfo.description.value).Replace(@"\","/") : string.Empty;
+                    row.Brief = !string.IsNullOrEmpty(mediaInfo.description.value) ? System.Web.HttpUtility.HtmlDecode(mediaInfo.description.value).Replace(@"\", "/") : string.Empty;
                     row.DescriptionShort = !string.IsNullOrEmpty(mediaInfo.description.value) ? mediaInfo.description.value : string.Empty;
                     row.Rate = Convert.ToDouble(mediaInfo.rating.avg);
                     row.FileID = mediaInfo.file_id;
@@ -362,10 +366,10 @@ namespace TVPPro.SiteManager.DataLoaders
                     row.LastWatchedDeviceName = mediaInfo.last_watched_device_name;
                     row.GeoBlock = mediaInfo.block;
                     row.Likes = mediaInfo.like_counter.ToString();
-                    
+
                     //Add create date.
-					try
-					{
+                    try
+                    {
                         // For backward compatability
                         if (GetFutureStartDate.ToLower().Equals("true"))
                         {
@@ -374,11 +378,13 @@ namespace TVPPro.SiteManager.DataLoaders
                         }
                         else
                         {
-                            row.AddedDate = DateTime.ParseExact(mediaInfo.date, "dd/MM/yyyy HH:mm:ss",null);
+                            row.AddedDate = DateTime.ParseExact(mediaInfo.date, "dd/MM/yyyy HH:mm:ss", null);
                         }
-					}
-					catch
-					{ }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("", ex);
+                    }
 
                     // add sub file format info
                     if (mediaInfo.inner_medias.Count > 0)
@@ -428,9 +434,9 @@ namespace TVPPro.SiteManager.DataLoaders
             return result;
         }
 
-		protected override Guid UniqueIdentifier
-		{
-			get { return new Guid("{3B5420B3-16A4-43e2-A873-56282B63CE82}"); }
-		}
+        protected override Guid UniqueIdentifier
+        {
+            get { return new Guid("{3B5420B3-16A4-43e2-A873-56282B63CE82}"); }
+        }
     }
 }

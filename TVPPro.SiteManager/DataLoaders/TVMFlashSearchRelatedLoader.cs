@@ -16,7 +16,7 @@ namespace TVPPro.SiteManager.DataLoaders
     {
         private string m_tvmUser;
         private string m_tvmPass;
-		private FlashLoadersParams m_FlashLoadersParams;
+		//private FlashLoadersParams m_FlashLoadersParams;
 
 		#region Loader properties
 		public long MediaID

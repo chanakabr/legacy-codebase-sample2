@@ -2,14 +2,15 @@
 using System.Web;
 using Tvinci.Helpers;
 using Tvinci.Localization;
-using log4net;
 using iucon.web.Controls;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Projects.Orange.TVS.HttpModule
 {
     public sealed class LocalizationHttpModule : IHttpModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(LocalizationHttpModule));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public void Init(HttpApplication application)
         {

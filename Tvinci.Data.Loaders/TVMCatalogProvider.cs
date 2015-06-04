@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using System.Net;
-using log4net;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 using TVPPro.Configuration.PlatformServices;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace Tvinci.Data.Loaders
@@ -16,14 +17,14 @@ namespace Tvinci.Data.Loaders
     [Serializable]
     public class TVMCatalogProvider : Provider
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(TVMCatalogProvider));        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static TvinciPlatform.Catalog.IserviceClient m_oClient = null;
         private string m_EndPoint;
 
         public TVMCatalogProvider(string endPointAddress)
         {
             if (!string.IsNullOrEmpty(endPointAddress))
-            {                
+            {
                 if (m_oClient == null)
                 {
                     try
@@ -40,20 +41,20 @@ namespace Tvinci.Data.Loaders
                     FailOverManager.Instance.SafeModeStarted += () => { if (m_oClient != null) m_oClient.Close(); m_oClient = null; };
                     FailOverManager.Instance.SafeModeEnded += () => { if (m_oClient == null) m_oClient = new IserviceClient(string.Empty, m_EndPoint); };
                 }
-            }            
+            }
         }
 
         public override eProviderResult TryExecuteGetMediasByIDs(MediasProtocolRequest request, out MediaResponse response)
-        {            
+        {
             try
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    DateTime start = DateTime.Now;                    
+                    DateTime start = DateTime.Now;
                     response = m_oClient.GetMediasByIDs(request);
                     TimeSpan span = DateTime.Now - start;
-                    
-                    logger.InfoFormat("TryExecuteGetMediasByIDs-> Total time: {0}ms", span.TotalMilliseconds);                
+
+                    logger.InfoFormat("TryExecuteGetMediasByIDs-> Total time: {0}ms", span.TotalMilliseconds);
 
                     FailOverManager.Instance.AddRequest(true);
                     return eProviderResult.Success;
@@ -74,12 +75,12 @@ namespace Tvinci.Data.Loaders
                 if (ex is TimeoutException)
                     return eProviderResult.TimeOut;
                 return eProviderResult.Fail;
-            }           
+            }
 
         }
 
         public override eProviderResult TryExecuteGetBaseResponse(BaseRequest request, out BaseResponse response)
-        {            
+        {
             try
             {
                 if (!FailOverManager.Instance.SafeMode)
@@ -108,11 +109,11 @@ namespace Tvinci.Data.Loaders
                 if (ex is TimeoutException)
                     return eProviderResult.TimeOut;
                 return eProviderResult.Fail;
-            }          
+            }
         }
 
         public override eProviderResult TryExecuteGetProgramsByIDs(EpgProgramDetailsRequest request, out EpgProgramResponse response)
-        {            
+        {
             try
             {
                 if (!FailOverManager.Instance.SafeMode)
@@ -141,7 +142,7 @@ namespace Tvinci.Data.Loaders
                 if (ex is TimeoutException)
                     return eProviderResult.TimeOut;
                 return eProviderResult.Fail;
-            }          
+            }
         }
     }
 }

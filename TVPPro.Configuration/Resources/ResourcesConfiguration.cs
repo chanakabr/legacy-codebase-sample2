@@ -5,13 +5,14 @@ using System.Text;
 using Tvinci.Configuration;
 using System.Threading;
 using System.Configuration;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.Configuration.ResourcesConfiguration
 {
     public class ResourcesConfiguration : ConfigurationManager<ResourceConfiguration>
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(ResourcesConfiguration));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
 
@@ -19,10 +20,10 @@ namespace TVPPro.Configuration.ResourcesConfiguration
         static object instanceLock = new object();
 
         private ResourcesConfiguration()
-		{
+        {
             base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.ResourcesConfiguration"], true);
             m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.ResourcesConfiguration"];
-		}
+        }
 
         private ResourcesConfiguration(string syncFile)
         {

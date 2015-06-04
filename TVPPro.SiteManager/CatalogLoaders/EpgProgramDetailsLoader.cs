@@ -1,8 +1,9 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -12,23 +13,23 @@ namespace TVPPro.SiteManager.CatalogLoaders
 {
     public class EpgProgramDetailsLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EpgProgramDetailsLoader));        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public List<int> PIDs { get; set; }        
+        public List<int> PIDs { get; set; }
 
         #region Constructors
 
         public EpgProgramDetailsLoader(int groupID, string userIP, int pageSize, int pageIndex, List<int> pids)
             : base(groupID, userIP, pageSize, pageIndex)
         {
-            PIDs = pids;            
+            PIDs = pids;
 
         }
 
         public EpgProgramDetailsLoader(string userName, string userIP, int pageSize, int pageIndex, List<int> pids)
             : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, pids)
         {
-        }       
+        }
 
         #endregion
 
@@ -36,7 +37,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             m_oRequest = new EpgProgramDetailsRequest()
             {
-                m_lProgramsIds = PIDs                                           
+                m_lProgramsIds = PIDs
             };
         }
 
@@ -73,7 +74,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramsResponse":
                         EpgProgramsResponse response = obj as EpgProgramsResponse;
                         sText.AppendFormat("EpgProgramsResponse: TotalItems = {0}, ", response.m_nTotalItems);
-                        
+
                         break;
                     default:
                         break;

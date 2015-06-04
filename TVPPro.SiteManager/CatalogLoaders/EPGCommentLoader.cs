@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class EPGCommentLoader : CatalogRequestManager, ILoaderAdapter
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGCommentLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int EpgProgramID { get; set; }
         public string ContentText { get; set; }
@@ -22,7 +23,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string SubHeader { get; set; }
         public string UDID { get; set; }
         public string Writer { get; set; }
-        public bool AutoActive { get; set; }    
+        public bool AutoActive { get; set; }
 
         #region Constructors
         public EPGCommentLoader(int groupID, string userIP, int language, string siteGuid, string udid, int epgProgramID, string contentText, string country, string header, string subHeader, string writer, bool autoActive)
@@ -64,7 +65,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sSubHeader = SubHeader,
                 m_sUDID = UDID,
                 m_sWriter = Writer,
-                m_bAutoActive = AutoActive, 
+                m_bAutoActive = AutoActive,
             };
         }
 

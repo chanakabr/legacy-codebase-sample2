@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using System.Configuration;
-using log4net;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using System.Collections.Generic;
@@ -9,6 +8,8 @@ using System.Text;
 using Tvinci.Helpers.Link.Configuration;
 using Tvinci.Web.HttpModules.Configuration;
 using TVPPro.Configuration.Technical;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Helpers
 {
@@ -35,7 +36,7 @@ namespace Tvinci.Helpers
                 UsePermanentURL = TechnicalConfiguration.Instance.Data.Site.ApplicativeBaseUri.UsePermanentURL;
                 logger.Info(string.Format("'UsePermanentURL' value is '{0}'", UsePermanentURL));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 logger.Info(string.Format("'UsePermanentURL' value is '{0}'", UsePermanentURL));
             }
@@ -101,7 +102,7 @@ namespace Tvinci.Helpers
         #endregion
 
         #region Fields
-        private static readonly ILog logger = LogManager.GetLogger(typeof(LinkHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Uri applicativeBaseUri = null;
         private static readonly Uri applicativeSecureBaseUri = null;
         #endregion
@@ -473,7 +474,7 @@ namespace Tvinci.Helpers
 
                             queryParameters.Add(GetNameValueCollectionFromQueryString(convertedFromBase64));
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             throw new Exception("Failed Converting:" + queryString);
                         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class EPGAutoCompleteLoader : CatalogRequestManager, ILoaderAdapter
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGAutoCompleteLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

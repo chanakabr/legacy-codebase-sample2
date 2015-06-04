@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.Configuration.PlatformServices;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
     public class BillingService
     {
-        #region Fields
-        private readonly ILog logger = LogManager.GetLogger(typeof(BillingService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private TvinciPlatform.Billing.module Billing;
 
         private string wsUserName;
@@ -19,7 +19,6 @@ namespace TVPPro.SiteManager.Services
 
         static volatile BillingService instance;
         static object instanceLock = new object();
-        #endregion
 
         [Serializable]
         public struct BillingUserData

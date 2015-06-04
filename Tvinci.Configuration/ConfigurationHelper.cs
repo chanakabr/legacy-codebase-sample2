@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using System.IO;
-using log4net;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Configuration
 {
     internal static class ConfigurationHelper
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ConfigurationHelper));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         /// <summary>
         /// Creates configuration from xml file. If not exists or error occured default value will be returned
@@ -19,7 +21,7 @@ namespace Tvinci.Configuration
         /// <typeparam name="TConfiguration"></typeparam>
         /// <param name="filePath"></param>
         /// <returns>Deserialized instance of configuration from xml file. Null will be returned on error</returns>
-        public static TConfiguration ExtractFromFile<TConfiguration>(string filePath, bool isEncrypted) where TConfiguration:class
+        public static TConfiguration ExtractFromFile<TConfiguration>(string filePath, bool isEncrypted) where TConfiguration : class
         {
             // create absolute file path and store for later use
             if (!Path.IsPathRooted(filePath))
@@ -71,7 +73,7 @@ namespace Tvinci.Configuration
             {
                 logger.ErrorFormat("Configuration file not found '{0}'", filePath);
                 return null;
-            }           
+            }
         }
     }
 }

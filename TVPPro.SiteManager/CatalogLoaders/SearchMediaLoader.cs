@@ -6,14 +6,15 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.Helper;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class SearchMediaLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(SearchMediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public bool Exact { get; set; }
         public bool And { get; set; } //(cut_with)
@@ -39,9 +40,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             OrList = orList;
             AndList = andList;
         }
-        
+
         public SearchMediaLoader(int groupID, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
-            string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags) 
+            string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags)
             : base(groupID, userIP, pageSize, pageIndex, picSize)
         {
             Exact = exact;
@@ -167,7 +168,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 key.AppendFormat("_n={0}", Name);
             if (!string.IsNullOrEmpty(Description))
                 key.AppendFormat("_d={0}", Description);
-            if (MediaIDs != null && MediaIDs.Count > 0) 
+            if (MediaIDs != null && MediaIDs.Count > 0)
                 key.AppendFormat("_ids={0}", string.Join(",", MediaIDs.Select(id => id.ToString()).ToArray()));
             if (MediaTypes != null && MediaTypes.Count > 0)
                 key.AppendFormat("_mt={0}", string.Join(",", MediaTypes.Select(type => type.ToString()).ToArray()));

@@ -9,8 +9,9 @@ using System.IO;
 using System.Threading;
 using System.Web;
 using Tvinci.Configuration.ConfigSvc;
-using log4net;
 using System.Security;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Configuration
 {
@@ -36,7 +37,8 @@ namespace Tvinci.Configuration
 
         public delegate void DataModifiedDelegate(TConfiguration data);
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ConfigurationManager<TConfiguration>));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         FileSystemWatcher m_watcher = null;
         Timer m_timer = null;
         string m_file = string.Empty;
@@ -171,7 +173,7 @@ namespace Tvinci.Configuration
                     }
                 }                
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //logger.Error(string.Format("Failed to save current configuration to file. user '{0}'",System.Security.Principal.WindowsIdentity.GetCurrent().Name),ex);                
             }
@@ -201,7 +203,7 @@ namespace Tvinci.Configuration
             {                
                 sync(configuration);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //logger.ErrorFormat("failed handling sync request from configuration object.",ex);                
             }            
@@ -263,7 +265,7 @@ namespace Tvinci.Configuration
                     sync(configFromFile);
                 }                
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 //logger.Error("Failed to perform the configuration sync from file");
             }
@@ -334,7 +336,7 @@ namespace Tvinci.Configuration
                         //logger.Info("Executing 'DataModified' finished sucessfully");
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //logger.Error("Executing 'DataModified' finished sucessfully failed", ex);
                     throw;                    

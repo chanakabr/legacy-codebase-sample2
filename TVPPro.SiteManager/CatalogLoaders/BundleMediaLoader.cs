@@ -1,8 +1,9 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 
@@ -11,7 +12,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class BundleMediaLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(BundleMediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int bundleId { get; set; }
         public string mediaType { get; set; }
@@ -27,7 +28,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             this.mediaType = mediaType;
             this.orderObj = order;
             this.bundleType = bundleType;
-            
+
         }
 
         public BundleMediaLoader(int bundleId, string mediaType, OrderObj order, string userName, string userIP, int pageSize, int pageIndex, string picSize, eBundleType bundleType)
@@ -76,10 +77,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public override string GetLoaderCachekey()
         {
-                
-            return string.Format("bundle_media_bundleId{0}mediaType{1}orderDir{2}orderBy{3}orderValue{4}index{5}size{6}group{7}", 
-                                    bundleId, mediaType, orderObj.m_eOrderDir, orderObj.m_eOrderBy, 
-                                    string.IsNullOrEmpty(orderObj.m_sOrderValue) ? string.Empty : orderObj.m_sOrderValue, 
+
+            return string.Format("bundle_media_bundleId{0}mediaType{1}orderDir{2}orderBy{3}orderValue{4}index{5}size{6}group{7}",
+                                    bundleId, mediaType, orderObj.m_eOrderDir, orderObj.m_eOrderBy,
+                                    string.IsNullOrEmpty(orderObj.m_sOrderValue) ? string.Empty : orderObj.m_sOrderValue,
                                     PageIndex, PageSize, GroupID);
         }
     }

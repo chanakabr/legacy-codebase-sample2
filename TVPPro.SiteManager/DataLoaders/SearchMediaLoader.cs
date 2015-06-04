@@ -14,12 +14,15 @@ using System.Configuration;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class SearchMediaLoader : TVMAdapter<dsItemInfo>
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private TVPPro.SiteManager.CatalogLoaders.SearchMediaLoader m_oCatalogSearchLoader;
         private bool m_bShouldUseCache;
 
@@ -38,7 +41,7 @@ namespace TVPPro.SiteManager.DataLoaders
         #endregion
 
         #region Members
-        protected Dictionary<string, string> m_dictTags = null;        
+        protected Dictionary<string, string> m_dictTags = null;
         #endregion Members
 
         #region Public Properties
@@ -367,7 +370,7 @@ namespace TVPPro.SiteManager.DataLoaders
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
                 m_oCatalogSearchLoader = new TVPPro.SiteManager.CatalogLoaders.SearchMediaLoader(TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize, Name)
-                {                    
+                {
                     And = CutType == eCutType.And ? true : false,
                     Exact = ExactSearch,
                     Metas = CatalogHelper.GetCatalogMetasTags(dictMetas),
@@ -380,7 +383,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    DeviceId = DeviceUDID,  
+                    DeviceId = DeviceUDID,
                     UserTypeID = this.UserTypeID,
                     SiteGuid = SiteGuid
                 };
@@ -527,7 +530,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     break;
                 default:
                     throw new Exception("Unknown order by value");
-            }           
+            }
 
             return protocol;
         }
@@ -584,7 +587,7 @@ namespace TVPPro.SiteManager.DataLoaders
                 //Add create date.
                 try
                 {
-                    // For backward compatability
+                    // For backward compatibility
                     if (GetFutureStartDate.ToLower().Equals("true"))
                     {
                         string[] date = resMedia.date.Split('/');
@@ -605,8 +608,10 @@ namespace TVPPro.SiteManager.DataLoaders
                         //newRow.AddedDate = DateTime.ParseExact(resMedia.date, "dd/MM/yyyy", null);
                     }
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
 
                 // Add external IDs
                 foreach (System.Reflection.PropertyInfo property in resMedia.external_ids.GetType().GetProperties())
@@ -644,7 +649,7 @@ namespace TVPPro.SiteManager.DataLoaders
         //}
 
         protected override dsItemInfo FormatResults(dsItemInfo originalObject)
-        {            
+        {
             dsItemInfo copyObj = (dsItemInfo)originalObject.Copy();
 
             if (copyObj.Item.Rows.Count > 0)
@@ -673,7 +678,7 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-        
+
 
         protected override bool TryGetItemsCountInSource(object retrievedData, out long count)
         {

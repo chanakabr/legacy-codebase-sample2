@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using System.Threading;
-using log4net;
 using System.Xml.Serialization;
 using System.IO;
 using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -17,7 +18,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
     public class MediaCache : CatalogRequestManager
     {
         private const string CACHE_KEY_PREFIX = "media";
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaCache));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public List<SearchResult> MediaIDs { get; set; }
 

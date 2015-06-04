@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Data;
-using log4net;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Data.DataLoader
 {
@@ -14,7 +15,7 @@ namespace Tvinci.Data.DataLoader
         ForceRetrieve = 2
     }
 
-    
+
     public class LoaderAdapterItem
     {
         public object Item { get; set; }
@@ -71,8 +72,8 @@ namespace Tvinci.Data.DataLoader
     {
 
 
-        private static readonly ILog logger = LogManager.GetLogger("Tvinci.Data.Loader");
-        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private object LanguageID
         {
             get
@@ -221,11 +222,11 @@ namespace Tvinci.Data.DataLoader
         static LoaderAdapter()
         {
             string value = ConfigurationManager.AppSettings["Tvinci.DataLoader.LoaderAdapter.BackwardCompotability"];
-            shouldsupportBackwardCompetability = string.IsNullOrEmpty(value) ? false : (value.ToLower() == "true");                
+            shouldsupportBackwardCompetability = string.IsNullOrEmpty(value) ? false : (value.ToLower() == "true");
         }
 
         private static readonly bool shouldsupportBackwardCompetability;
-        
+
         #region ILoaderAdapter Members
         public abstract bool IsPersist();
 
@@ -255,7 +256,7 @@ namespace Tvinci.Data.DataLoader
                             {
                                 string message = string.Format("loader expected source of type '{0}'. actual type returned '{1}' (RequestKey '{2}').", typeof(TSourceResult).FullName, result.Item.GetType().FullName, cacheKey);
                                 logger.Error(message);
-                                throw new Exception(message);                                
+                                throw new Exception(message);
                             }
                         }
                     }
@@ -276,10 +277,10 @@ namespace Tvinci.Data.DataLoader
                 object sourceData = GetProvider().GetDataFromSource(this);
 
                 if (sourceData == null && shouldsupportBackwardCompetability)
-                {                    
-                    logger.WarnFormat("The loader source returned with null value. cache key '{0}'. The loader will try to load data from source again next time being executed", cacheKey);                    
+                {
+                    logger.WarnFormat("The loader source returned with null value. cache key '{0}'. The loader will try to load data from source again next time being executed", cacheKey);
                 }
-                
+
                 result = new LoaderAdapterItem();
                 result.Item = PreCacheHandling(sourceData);
 
@@ -356,7 +357,7 @@ namespace Tvinci.Data.DataLoader
                 m_tryGetItemsCountMethod = value;
             }
         }
-        
+
         protected virtual bool TryGetItemsCountInSource(object retrievedData, out long count)
         {
             if (m_tryGetItemsCountMethod != null)
@@ -367,7 +368,7 @@ namespace Tvinci.Data.DataLoader
             {
                 count = 0;
                 return false;
-            }            
+            }
         }
 
         public bool m_shouldExtractItemsCountInSource = false;
@@ -426,7 +427,7 @@ namespace Tvinci.Data.DataLoader
         public virtual object BCExecute(eExecuteBehaivor behaivor)
         {
             return execute(behaivor);
-        }        
+        }
 
         object ILoaderAdapter.Execute()
         {

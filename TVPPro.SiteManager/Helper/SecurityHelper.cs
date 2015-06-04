@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using Tvinci.Helpers;
 using System.Web;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Helper
 {
     public class SecurityHelper
     {
-        private static ILog logger = LogManager.GetLogger("SCRFLog");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static void SetSecurityParams(string SessionId, string Ip)
         {
@@ -69,7 +70,7 @@ namespace TVPPro.SiteManager.Helper
 
             //    HttpContext.Current.Session.Clear();
             //    HttpContext.Current.Session.Abandon();
-                
+
             //    HttpContext.Current.Response.Redirect(LinkHelper.ParseURL("~/index.aspx"));
             //}
         }
@@ -92,13 +93,13 @@ namespace TVPPro.SiteManager.Helper
 
             foreach (char item in ForbiddenChars)
             {
-                if(InputUserName.Contains(item))
+                if (InputUserName.Contains(item))
                 {
                     retVal = true;
                     break;
                 }
             }
-            
+
             return retVal;
         }
 
@@ -121,7 +122,7 @@ namespace TVPPro.SiteManager.Helper
                 {
                     break;
                 }
-                
+
             }
 
             return retVal;

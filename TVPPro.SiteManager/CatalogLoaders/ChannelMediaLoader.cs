@@ -7,15 +7,16 @@ using System.Data;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders;
-using log4net;
 using TVPPro.SiteManager.Helper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class ChannelMediaLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(ChannelMediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string userIP;
         private List<KeyValue> tagsMetas;
         private CutWith cutWith;
@@ -37,7 +38,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         }
 
         public ChannelMediaLoader(int channelID, int groupID, string userIP, int pageSize, int pageIndex, string picSize, List<KeyValue> tagsMetas, CutWith cutWith, OrderObj orderObj)
-             : this(channelID, groupID, userIP, pageSize, pageIndex, picSize, orderObj)
+            : this(channelID, groupID, userIP, pageSize, pageIndex, picSize, orderObj)
         {
             // TODO: Complete member initialization
             this.ChannelID = channelID;
@@ -59,7 +60,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_nChannelID = ChannelID,
                 m_oOrderObj = OrderObj,
                 m_eFilterCutWith = cutWith,
-                m_lFilterTags = tagsMetas,  
+                m_lFilterTags = tagsMetas,
             };
         }
 

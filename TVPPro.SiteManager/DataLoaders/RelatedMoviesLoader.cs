@@ -13,51 +13,54 @@ using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class RelatedMoviesLoader : TVMAdapter<dsItemInfo>
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private RelatedMediaLoader m_oCatalogRelatedLoader;
         private bool m_bShouldUseCache;
 
-		#region Properties
-		public long MediaID
-		{
-			get
-			{
-				return Parameters.GetParameter<long>(eParameterType.Retrieve, "MediaID", 0);
-			}
-			set
-			{
-				Parameters.SetParameter<long>(eParameterType.Retrieve, "MediaID", value);
-			}
-		}
+        #region Properties
+        public long MediaID
+        {
+            get
+            {
+                return Parameters.GetParameter<long>(eParameterType.Retrieve, "MediaID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<long>(eParameterType.Retrieve, "MediaID", value);
+            }
+        }
 
-		public bool IsPosterPic
-		{
-			get
-			{
-				return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", true);
-			}
-			set
-			{
-				Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
-			}
-		}
+        public bool IsPosterPic
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", true);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
+            }
+        }
 
-		public string PicSize
-		{
-			get
-			{
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "PicSize", string.Empty);
-			}
-			set
-			{
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "PicSize", value);
-			}
-		}
+        public string PicSize
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "PicSize", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "PicSize", value);
+            }
+        }
 
         public string SiteGuid
         {
@@ -71,17 +74,17 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		public bool WithInfo
-		{
-			get
-			{
-				return Parameters.GetParameter<bool>(eParameterType.Retrieve, "WithInfo", false);
-			}
-			set
-			{
-				Parameters.SetParameter<bool>(eParameterType.Retrieve, "WithInfo", value);
-			}
-		}
+        public bool WithInfo
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "WithInfo", false);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "WithInfo", value);
+            }
+        }
 
         protected string TvmUser
         {
@@ -130,9 +133,10 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<Enums.ePlatform>(eParameterType.Retrieve, "Platform", value);
             }
         }
-		#endregion
+        #endregion
 
-        public RelatedMoviesLoader(long mediaID) : this(mediaID, string.Empty, string.Empty)
+        public RelatedMoviesLoader(long mediaID)
+            : this(mediaID, string.Empty, string.Empty)
         {
         }
 
@@ -228,7 +232,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     {
                         // Info DataTable
                         dsItemInfo.ItemRow mediasRow = result.Item.NewItemRow();
-                        
+
                         mediasRow.ID = media.id.ToString();
                         mediasRow.Title = media.title;
                         mediasRow.ImageLink = media.pic_size1;
@@ -255,8 +259,10 @@ namespace TVPPro.SiteManager.DataLoaders
                             string[] date = media.date.Split('/');
                             mediasRow.AddedDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
                         }
-                        catch
-                        { }
+                        catch (Exception ex)
+                        {
+                            logger.Error("", ex);
+                        }
                         //if (WithInfo)
                         //{
                         //    mediasRow.DescriptionShort = media.META5_STR_NAME.value;

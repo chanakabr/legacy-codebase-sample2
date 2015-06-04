@@ -5,13 +5,15 @@ using System.Text;
 using Tvinci.Configuration;
 using System.Threading;
 using System.Configuration;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.Configuration.Media
 {
     public class MediaConfiguration : ConfigurationManager<MediaData>
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaConfiguration));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
 
@@ -19,10 +21,10 @@ namespace TVPPro.Configuration.Media
         static object instanceLock = new object();
 
         private MediaConfiguration()
-		{
-			base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
+        {
+            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
             m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.Media"];
-		}
+        }
 
         private MediaConfiguration(string syncFile)
         {

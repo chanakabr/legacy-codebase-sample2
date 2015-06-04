@@ -7,13 +7,15 @@ using Tvinci.Helpers;
 using Tvinci.Web.HttpModules.Configuration;
 using System.Text.RegularExpressions;
 using System.Configuration;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Helpers.Link
 {
     public class MappingModule : IHttpModule
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MappingModule));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public delegate bool HandleMappingDelegate(string token);
 
@@ -42,7 +44,7 @@ namespace Tvinci.Helpers.Link
             //}
 
             string url = urlToken.Groups[1].Value;
-            
+
             if (string.IsNullOrEmpty(url))
             {
                 return false;
@@ -77,7 +79,7 @@ namespace Tvinci.Helpers.Link
                                     return;
                                 }
                             }
-                            
+
                             context.Response.Clear();
                             context.Response.StatusCode = 404;
                             context.Response.End();
@@ -118,7 +120,7 @@ namespace Tvinci.Helpers.Link
             if (QueryConfigManager.Instance.SyncMode == Tvinci.Configuration.eMode.NotSynced)
             {
                 logger.ErrorFormat("This module requires 'QueryConfigManager' instance to be synced. Ignoring requests");
-                m_ignoreRequests =true;
+                m_ignoreRequests = true;
                 return;
             }
 
@@ -132,7 +134,7 @@ namespace Tvinci.Helpers.Link
             {
                 if (shouldHandleMappingRequest(context))
                 {
-                    handleMappingRequest(context);                    
+                    handleMappingRequest(context);
                 }
             }
         }

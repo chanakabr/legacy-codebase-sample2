@@ -937,15 +937,15 @@ namespace TVPPro.SiteManager.Helper
                 {
                     sTypeName = (from r in m_Types.MediaTypes where r["TvmTypeID"].ToString() == sMediaType select r).First()["TvmTypeID"].ToString();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                 }
 
-                switch (sTypeName)
-                {
+                //switch (sTypeName)
+                //{
 
-                }
+                //}
                 return (sTypeName.ToLower().Equals("show")) ? String.Format("~/ShowPage.aspx?MediaID={0}&MediaType={1}", sID, sMediaType) :
                     (sTypeName.ToLower().Equals("stars")) ? String.Format("~/MetaPage.aspx?MediaID={0}&MediaType={1}", sID, sMediaType) :
                     (sTypeName.ToLower().Equals("package")) ? String.Format("~/Package.aspx?MediaID={0}&MediaType={1}", sID, sMediaType) :
@@ -1232,7 +1232,7 @@ namespace TVPPro.SiteManager.Helper
                     bRet = DateTime.Now.CompareTo(DateTime.Parse(sMediaTime).AddDays(iDays)) < 0;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -1251,7 +1251,7 @@ namespace TVPPro.SiteManager.Helper
 
                 bRet = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 bRet = false;
             }

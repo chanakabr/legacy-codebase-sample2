@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -14,7 +15,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class EPGCommentsListLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGCommentsListLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int EpgProgramID { get; set; }
 
@@ -27,7 +28,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         }
 
         public EPGCommentsListLoader(int epgProgramID, int language, string userName, string userIP, int pageSize, int pageIndex)
-            : this(epgProgramID, language,PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex)
+            : this(epgProgramID, language, PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex)
         {
         }
 

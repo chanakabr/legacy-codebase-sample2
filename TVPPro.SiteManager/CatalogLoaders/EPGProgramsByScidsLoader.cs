@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -13,7 +14,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class EPGProgramsByScidsLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGProgramsByScidsLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public List<string> SCIDs { get; set; }
         public int Duration { get; set; }
@@ -43,7 +44,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             {
                 duration = Duration,
                 eLang = Lang,
-                scids = SCIDs 
+                scids = SCIDs
             };
         }
 
@@ -80,7 +81,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramsResponse":
                         EpgProgramsResponse response = obj as EpgProgramsResponse;
                         sText.AppendFormat("EpgProgramsResponse: TotalItems = {0}, ", response.m_nTotalItems);
-                        
+
                         break;
                     default:
                         break;

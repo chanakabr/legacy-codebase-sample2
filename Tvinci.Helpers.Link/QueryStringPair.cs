@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web;
+using KLogMonitor;
 using Tvinci.Web.HttpModules.Configuration;
-using log4net;
 
 namespace Tvinci.Helpers
 {
@@ -19,7 +20,7 @@ namespace Tvinci.Helpers
             Base64 = 8
         }
 
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(QueryStringCollection));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public QueryStringCollection() :base(new CompareCaseInSensitive())
         {            

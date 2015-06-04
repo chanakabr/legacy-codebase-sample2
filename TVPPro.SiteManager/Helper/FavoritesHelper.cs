@@ -7,8 +7,9 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader.PredefinedAdapters;
 using System.Data;
-using log4net;
 using TVPPro.SiteManager.Context;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Helper
 {
@@ -18,7 +19,7 @@ namespace TVPPro.SiteManager.Helper
         /// <summary>
         /// Holds the logger
         /// </summary>
-        public static ILog logger = LogManager.GetLogger("Site.Favorite");
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #endregion
 
         #region Add to favorite

@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using System.Web;
 using Tvinci.Helpers;
 using System.Web.SessionState;
 using Tvinci.MultiClient.Configuration;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.MultiClient
 {
-    public class MultiClientModule : IHttpModule, IRequiresSessionState 
+    public class MultiClientModule : IHttpModule, IRequiresSessionState
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(MultiClientModule));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region IHttpModule Members
 
@@ -27,17 +28,17 @@ namespace Tvinci.MultiClient
             context.AcquireRequestState += new EventHandler(context_AcquireRequestState);
 
             try
-            {                
-                Tvinci.MultiClient.MultiClientHelper.Instance.Sync();       
+            {
+                Tvinci.MultiClient.MultiClientHelper.Instance.Sync();
             }
             catch (Exception ex)
             {
-                logger.Error("Failed to sync clients list", ex);                
+                logger.Error("Failed to sync clients list", ex);
             }
-            
+
         }
 
-        void context_AcquireRequestState(object sender, EventArgs e)        
+        void context_AcquireRequestState(object sender, EventArgs e)
         {
             HttpRequest request = ((HttpApplication)sender).Request;
             HttpContext context = ((HttpApplication)sender).Context;
@@ -62,9 +63,9 @@ namespace Tvinci.MultiClient
                 if (MultiClientHelper.Instance.TryLoginClient(valueFromCookie))
                 {
                     // no implementation needed here
-                }                                
+                }
             }
-            
+
             if (!MultiClientHelper.Instance.ValidateConfigurationRestriction())
             {
                 string redirectTo = LinkHelper.ParseURL(MultiClientHelper.Instance.Data.Pages.NoClientURL);
@@ -75,7 +76,7 @@ namespace Tvinci.MultiClient
                     context.Response.End();
 
                 }
-            }                                    
+            }
         }
 
         private bool shouldRedirect(HttpContext context, string redirectTo)
@@ -84,7 +85,7 @@ namespace Tvinci.MultiClient
             {
                 return false;
             }
-                        
+
             redirectTo = LinkHelper.GetLinkWithoutQuerystring(redirectTo).ToLower();
             string currentPageURL = context.Request.Url.GetLeftPart(UriPartial.Path).ToLower();
 
@@ -92,18 +93,18 @@ namespace Tvinci.MultiClient
             {
                 return false;
             }
-            
+
             foreach (string url in MultiClientHelper.Instance.Data.Pages.IgnoredPages)
             {
                 if (currentPageURL == LinkHelper.ParseURL(url).ToLower())
                 {
-                    return false;                    
+                    return false;
                 }
             }
 
-            return true;            
+            return true;
         }
-        
+
         #endregion
     }
 }

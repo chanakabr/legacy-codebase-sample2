@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Threading;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
+
 
 namespace Tvinci.Data.Loaders
 {
     public class FailOverManager
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(FailOverManager));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private int m_nMaxTotalRequests;
         private int m_nMinTotalrequests;
@@ -128,7 +130,7 @@ namespace Tvinci.Data.Loaders
         {
             logger.Debug("Stoping Safe Mode");
             m_tSafeModeTimer.Stop();
-            
+
             if (SafeModeEnded != null)
             {
                 SafeModeEnded();

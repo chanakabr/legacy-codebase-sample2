@@ -5,13 +5,14 @@ using System.Text;
 using Tvinci.Configuration;
 using System.Threading;
 using System.Configuration;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.Configuration.PageStruct
 {
     public class PageConfiguration : ConfigurationManager<PageStruct>
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PageConfiguration));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
 
@@ -19,10 +20,10 @@ namespace TVPPro.Configuration.PageStruct
         static object instanceLock = new object();
 
         private PageConfiguration()
-		{
-			base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.PageStruct"], true);
+        {
+            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.PageStruct"], true);
             m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.PageStruct"];
-		}
+        }
 
         private PageConfiguration(string syncFile)
         {

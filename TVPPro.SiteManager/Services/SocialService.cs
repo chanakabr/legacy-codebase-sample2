@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 
@@ -11,7 +12,7 @@ namespace TVPPro.SiteManager.Services
     public class SocialService
     {
         #region Fields
-        private readonly ILog logger = LogManager.GetLogger(typeof(SocialService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static object instanceLock = new object();
 
         private static SocialService m_Instance;

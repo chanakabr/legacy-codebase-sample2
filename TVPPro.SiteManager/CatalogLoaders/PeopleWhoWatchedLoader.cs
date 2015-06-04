@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class PeopleWhoWatchedLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(PeopleWhoWatchedLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int MediaID { get; set; }
         public int CountryID { get; set; }
@@ -68,6 +69,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
             //logger.Info(sText.ToString());
         }
 
-        
+
     }
 }

@@ -8,13 +8,14 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Net;
 using Tvinci.Data.TVMDataLoader.Protocols;
-using log4net;
 using System.Xml;
 using Tvinci.Performance;
 using ICSharpCode.SharpZipLib.Zip;
 using System.IO.Compression;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Tvinci.Data.TVMDataLoader.Protocols.TVMMenu;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace Tvinci.Data.TVMDataLoader
@@ -29,10 +30,7 @@ namespace Tvinci.Data.TVMDataLoader
         #endregion
 
         #region Fields
-        public static ILog logger = log4net.LogManager.GetLogger(typeof(TVMProvider));
-        
-        private static readonly ILog performanceLogger = log4net.LogManager.GetLogger("Performances.Data");
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static Encoding responseEncoding = Encoding.UTF8;
 
         public static GetTVMUrlDelegate GetTVMUrlMethod { get; set; }
@@ -67,17 +65,17 @@ namespace Tvinci.Data.TVMDataLoader
 
             string serializedRequest = getSerializedRequest(request);
             string serializedResponse;
-            using (TvinciStopwatch timer = new TvinciStopwatch(ePerformanceSource.Site, string.Concat("TVM Request - ", requestGuid.ToString())))
+           // using (TvinciStopwatch timer = new TvinciStopwatch(ePerformanceSource.Site, string.Concat("TVM Request - ", requestGuid.ToString())))
             {
                 serializedResponse = getResponse(serializedRequest, request.ProtocolUseZip, request.IsWriteProtocol, request.GetType().ToString());
             }
 
             serializedResponse = request.PreResponseProcess(serializedResponse);
 
-            if (logger.IsDebugEnabled)
+           /* if (logger.IsDebugEnabled)
             {
                 logger.Debug(string.Format("Request - {3}{0}{1}{0}{0}Response{0}{2} ", "\r\n", serializedRequest, serializedResponse, requestGuid.ToString()));
-            }
+            }*/
 
             // de-serialize response instance
             XmlSerializer xs = new XmlSerializer(request.GetType());
@@ -92,7 +90,7 @@ namespace Tvinci.Data.TVMDataLoader
             
             result = xs.Deserialize(new StringReader(response));
 
-            performanceLogger.InfoFormat("TVM TOTAL request time - {0}", DateTime.Now.Subtract(allTimer));
+            //performanceLogger.InfoFormat("TVM TOTAL request time - {0}", DateTime.Now.Subtract(allTimer));
 
             return result;
         }
@@ -194,7 +192,7 @@ namespace Tvinci.Data.TVMDataLoader
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex);
+                    logger.Error("", ex);
                 }
                 finally
                 {

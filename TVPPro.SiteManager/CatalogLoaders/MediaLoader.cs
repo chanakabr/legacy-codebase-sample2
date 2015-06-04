@@ -6,8 +6,9 @@ using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using Tvinci.Data.Loaders;
-using log4net;
 using TVPPro.SiteManager.Helper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -16,7 +17,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     {
         public List<int> MediaIDs { get; set; }
 
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MediaCache m_oMediaCache;
 
         #region Constructors

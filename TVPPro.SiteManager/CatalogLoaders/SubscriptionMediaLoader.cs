@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataEntities;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class SubscriptionMediaLoader : MultiMediaLoader
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(SubscriptionMediaLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int SubscriptionID { get; set; }
         public OrderBy OrderBy { get; set; }
@@ -21,7 +22,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string OrderMetaMame { get; set; }
         public string Name { get; set; }
         public List<int> MediaTypes { get; set; }
-      
+
         #region Constructors
         public SubscriptionMediaLoader(int subscriptionID, string userName, string userIP, int pageSize, int pageIndex, string picSize, OrderBy orderBy, OrderDir orderDir, string orderValue)
             : this(subscriptionID, PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, picSize, orderBy, orderDir, orderValue)
@@ -68,7 +69,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             }
         }
 
-        
+
         public override string GetLoaderCachekey()
         {
             //MediaType = mt,

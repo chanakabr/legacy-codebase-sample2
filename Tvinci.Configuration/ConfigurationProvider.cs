@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tvinci.Configuration.ProvideConfiguration;
-using log4net;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Configuration
 {
@@ -14,13 +15,13 @@ namespace Tvinci.Configuration
         public TItem Item { get; set; }
     }
 
-    public class InstanceProvider<TItem> 
+    public class InstanceProvider<TItem>
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(InstanceProvider<TItem>));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         Dictionary<string, TItem> m_items = new Dictionary<string, TItem>(new Tvinci.Helpers.CompareCaseInSensitive());
 
-        public EventHandler<ItemAddedEventArgs<TItem>> ItemAddedEvent {get;set;}
+        public EventHandler<ItemAddedEventArgs<TItem>> ItemAddedEvent { get; set; }
 
         public TItem this[string identifier]
         {
@@ -43,7 +44,7 @@ namespace Tvinci.Configuration
             if (m_items.ContainsKey(identifier))
             {
                 string message = string.Format("item with identifier '{0}' already exists. operation aborted", identifier);
-                logger.ErrorFormat("Error occured while adding new Item to provider. {0}",message);
+                logger.ErrorFormat("Error occured while adding new Item to provider. {0}", message);
                 throw new Exception(message);
             }
 
@@ -51,7 +52,7 @@ namespace Tvinci.Configuration
 
             if (ItemAddedEvent != null)
             {
-                ItemAddedEvent(this,new ItemAddedEventArgs<TItem>{ Identifier = identifier, Item = item});
+                ItemAddedEvent(this, new ItemAddedEventArgs<TItem> { Identifier = identifier, Item = item });
             }
         }
     }
@@ -59,10 +60,10 @@ namespace Tvinci.Configuration
 
     public class ConfigurationProvider<TConfiguration> : InstanceProvider<TConfiguration> where TConfiguration : class, ISupportProvider
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ConfigurationProvider<TConfiguration>));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         bool m_isSynced = false;
-                
+
         public void SyncFromIndexFile(string configurationPath, bool isIndexEncrypted, bool isItemsEncrypted)
         {
             if (m_isSynced)
@@ -74,7 +75,7 @@ namespace Tvinci.Configuration
             m_isSynced = true;
 
             logger.InfoFormat("Start syncing provider from index file '{0}'", configurationPath);
-            
+
             ProvideConfiguration.ProviderConfiguration configuration = ConfigurationHelper.ExtractFromFile<ProvideConfiguration.ProviderConfiguration>(configurationPath, isIndexEncrypted);
 
             if (configuration != null)
@@ -86,10 +87,10 @@ namespace Tvinci.Configuration
                     try
                     {
                         TConfiguration instance = Activator.CreateInstance(typeof(TConfiguration), true) as TConfiguration;
-                        
+
                         if (instance != null)
-                        {                                                       
-                            logger.DebugFormat("Syncing configuration of item '{0}' from path '{1}", item.ID,item.VirtualPath);
+                        {
+                            logger.DebugFormat("Syncing configuration of item '{0}' from path '{1}", item.ID, item.VirtualPath);
                             instance.SyncFromConfigurationFile(item.VirtualPath);
 
                             base.AddItem(item.ID, instance);
@@ -97,7 +98,7 @@ namespace Tvinci.Configuration
                         }
                         else
                         {
-                            string message = string.Format("Failed to create instance of type '{0}'. Make sure the class implement interface '{1}'. operation aborted", typeof(TConfiguration),typeof(ISupportProvider));
+                            string message = string.Format("Failed to create instance of type '{0}'. Make sure the class implement interface '{1}'. operation aborted", typeof(TConfiguration), typeof(ISupportProvider));
                             logger.ErrorFormat("Error occured while syncing from index file '{0}'. {1}", configurationPath, message);
                             throw new Exception(message);
                         }
@@ -115,6 +116,6 @@ namespace Tvinci.Configuration
                 logger.ErrorFormat("Error occured while syncing from index file '{0}'. {1}", configurationPath, message);
                 throw new Exception(message);
             }
-        } 
+        }
     }
 }

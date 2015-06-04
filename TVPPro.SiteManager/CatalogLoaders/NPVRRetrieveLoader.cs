@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -12,7 +13,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 {
     public class NPVRRetrieveLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(NPVRRetrieveLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public NPVRSearchBy NPVRSearchBy { get; set; }
         public int EPGChannelID { get; set; }
@@ -27,18 +28,18 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public NPVRRetrieveLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
-                : base(groupID, userIP, pageSize, pageIndex)
-            {
-                NPVRSearchBy = searchBy;
-                EPGChannelID = epgChannelID;
-                RecordingStatus = recordingStatus;
-                RecordingIDs = recordingIDs;
-                ProgramIDs = programIDs;
-                StartDate = startDate;
-                RecordedEPGOrderObj = recordedEPGOrderObj;
-                SiteGuid = siteGuid;
-                SeriesIDs = seriesIDs;
-            }
+            : base(groupID, userIP, pageSize, pageIndex)
+        {
+            NPVRSearchBy = searchBy;
+            EPGChannelID = epgChannelID;
+            RecordingStatus = recordingStatus;
+            RecordingIDs = recordingIDs;
+            ProgramIDs = programIDs;
+            StartDate = startDate;
+            RecordedEPGOrderObj = recordedEPGOrderObj;
+            SiteGuid = siteGuid;
+            SeriesIDs = seriesIDs;
+        }
 
 
         #endregion
@@ -53,7 +54,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_lRecordingIDs = RecordingIDs,
                 m_lProgramIDs = ProgramIDs,
                 m_dtStartDate = StartDate,
-                m_oOrderObj = RecordedEPGOrderObj, 
+                m_oOrderObj = RecordedEPGOrderObj,
                 m_sSiteGuid = SiteGuid,
                 m_lSeriesIDs = SeriesIDs
             };

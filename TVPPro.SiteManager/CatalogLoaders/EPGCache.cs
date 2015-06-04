@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Helper;
@@ -17,7 +18,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
         private const string CACHE_KEY_PREFIX = "epg";
         private static int Duration;
 
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGCache));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public List<SearchResult> ProgramIDs { get; set; }
 
@@ -38,7 +40,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             m_oRequest = new EpgProgramDetailsRequest()
             {
-                m_lProgramsIds = ProgramIDs.Select(program => program.assetID).ToList()                
+                m_lProgramsIds = ProgramIDs.Select(program => program.assetID).ToList()
             };
 
         }
@@ -49,7 +51,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             List<long> programIdsForCatalog = null;
 
             // Build the List of CacheKeys from the ProgramRes List
-            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID.ToString(), UpdateDate = programRes.UpdateDate}).ToList();
+            List<CacheKey> cacheKeys = ProgramIDs.Select(programRes => new CacheKey() { ID = programRes.assetID.ToString(), UpdateDate = programRes.UpdateDate }).ToList();
 
             // Get programs from cache
             Log("Trying to get programIDs", ProgramIDs);

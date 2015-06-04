@@ -2,22 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPPro.SiteManager.DataLoaders;
 using System.Data;
 using TVPPro.Configuration.Technical;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager
 {
     public class MediaTypes
     {
-        #region Variables
-        private readonly ILog logger = LogManager.GetLogger(typeof(MediaTypes));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static volatile MediaTypes m_instance;
         static object m_oLock = new object();
         private Dictionary<string, MediaTypeInfo> m_dictMediaTypesByID = new Dictionary<string, MediaTypeInfo>();
         private MLMediaType<string, MediaTypeInfo> m_dictMediaTypesByName = new MLMediaType<string, MediaTypeInfo>(StringComparer.InvariantCultureIgnoreCase);
-        #endregion
 
         public struct MediaTypeInfo
         {
@@ -117,7 +116,7 @@ namespace TVPPro.SiteManager.Manager
             {
                 get
                 {
-                    return m_Dict.Where(x => TextLocalization.Instance[x.Key].ToLower() == key.ToLower()).First().Value;                    
+                    return m_Dict.Where(x => TextLocalization.Instance[x.Key].ToLower() == key.ToLower()).First().Value;
                 }
                 set
                 {
@@ -232,9 +231,9 @@ namespace TVPPro.SiteManager.Manager
         {
             MediaTypeInfo mtiRet = new MediaTypeInfo();
 
-            if (m_dictMediaTypesByID.Keys.Contains(sMediaType)) 
+            if (m_dictMediaTypesByID.Keys.Contains(sMediaType))
                 mtiRet = m_dictMediaTypesByID[sMediaType];
-            else if (m_dictMediaTypesByName.Keys.Select(x=> x.ToLower()).Contains(sMediaType.ToLower())) 
+            else if (m_dictMediaTypesByName.Keys.Select(x => x.ToLower()).Contains(sMediaType.ToLower()))
                 mtiRet = m_dictMediaTypesByName[sMediaType];
 
             return mtiRet;

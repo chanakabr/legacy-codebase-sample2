@@ -8,14 +8,15 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataEntities;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
     [Serializable]
     public class MediaCommentsListLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaCommentsListLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public int MediaID { get; set; }
         public eOrderComments OrderBy { get; set; }
@@ -86,7 +87,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     comment.m_sHeader,
                     comment.m_sSubHeader,
                     comment.m_sContentText,
-                    comment.m_nAssetID.ToString(), 
+                    comment.m_nAssetID.ToString(),
                     comment.m_sUserPicURL);
 
                 retVal.commentsList.Add(context);
@@ -122,7 +123,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 default:
                     retVal.commentsList.Reverse();
                     break;
-            }            
+            }
             return retVal;
         }
 

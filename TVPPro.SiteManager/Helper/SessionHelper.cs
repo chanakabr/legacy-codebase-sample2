@@ -432,7 +432,7 @@ namespace TVPPro.SiteManager.Helper
                     retVal = true;
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
 
             return retVal;
         }

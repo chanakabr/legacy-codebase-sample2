@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using log4net;
+using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -14,8 +15,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
     [Serializable]
     public class EPGSearchLoader : CatalogRequestManager, ILoaderAdapter, ISupportPaging
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(EPGSearchLoader));
-        
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected EPGCache m_oEPGCache;
 
         public DateTime StartTime { get; set; }
@@ -60,12 +61,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            
+
             m_oRequest = new EpgSearchRequest()
             {
                 m_sSearch = SearchText,
                 m_dEndDate = EndTime,
-                m_dStartDate = StartTime, 
+                m_dStartDate = StartTime,
                 m_oEPGChannelIDs = EPGChannelIDs,
                 m_AndList = AndList,
                 m_OrList = OrList,

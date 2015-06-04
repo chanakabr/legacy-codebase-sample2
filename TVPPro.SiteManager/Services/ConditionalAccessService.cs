@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using log4net;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Context;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Services
 {
@@ -18,7 +19,7 @@ namespace TVPPro.SiteManager.Services
         private TvinciPlatform.ConditionalAccess.module m_Module;
         private string wsUserName = string.Empty;
         private string wsPassword = string.Empty;
-        private static ILog logger = LogManager.GetLogger(typeof(ConditionalAccessService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         enum eWSMethodName
         {
@@ -91,7 +92,7 @@ namespace TVPPro.SiteManager.Services
             // Get user and password for method
             string wsUser;
             string wsPassword;
-            PermittedMediaContainer[] res = null;
+            //PermittedMediaContainer[] res = null;
             GetWSMethodUserPass(eWSMethodName.GetUserPermittedItems, out wsUser, out wsPassword);
 
             string sLocaleLanguage = string.Empty;
@@ -462,7 +463,7 @@ namespace TVPPro.SiteManager.Services
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Handle Error
             }
@@ -669,7 +670,7 @@ namespace TVPPro.SiteManager.Services
             sReceiptCode = response.m_sRecieptCode;
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
-        
+
         public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCouponCode)
         {
             BillingResponse response = null;
@@ -704,7 +705,7 @@ namespace TVPPro.SiteManager.Services
         {
             return DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, sUserIP, couponCode, string.Empty);
         }
-        
+
         public string DummyChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string couponCode, string sExtraParameters)
         {
             string result = string.Empty;
@@ -830,7 +831,7 @@ namespace TVPPro.SiteManager.Services
                 {
                     response = m_Module.CC_ChargeUserForSubscription(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParams, sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
                 }
-                
+
 
             }
             catch (Exception ex)
@@ -845,7 +846,7 @@ namespace TVPPro.SiteManager.Services
             }
             return response;
         }
-        
+
         public BillingResponse ChargeUser_ForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sUserIP, string sCouponCode, string sCCVariant, ref string sExternalCode, ref string sReceiptCode)
         {
             return ChargeUser_ForSubscription(iPrice, sCurrency, sSubscriptionID, sUserIP, sCouponCode, sCCVariant, ref sExternalCode, ref sReceiptCode, string.Empty);
@@ -854,7 +855,7 @@ namespace TVPPro.SiteManager.Services
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sUserIP, string sCouponCode, ref string sExternalCode, ref string sReceiptCode)
         {
             string result = string.Empty;
-            BillingResponse response = ChargeUser_ForSubscription(iPrice, sCurrency, sSubscriptionID, sUserIP, sCouponCode, string.Empty,  ref sExternalCode, ref sReceiptCode);
+            BillingResponse response = ChargeUser_ForSubscription(iPrice, sCurrency, sSubscriptionID, sUserIP, sCouponCode, string.Empty, ref sExternalCode, ref sReceiptCode);
 
             if (response != null)
             {
@@ -864,7 +865,7 @@ namespace TVPPro.SiteManager.Services
             }
             return result;
         }
-        
+
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sUserIP, string sCouponCode)
         {
             BillingResponse response = null;
@@ -892,7 +893,7 @@ namespace TVPPro.SiteManager.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFile, Error Message: {0}, Parameters :  User: {1}", ex.Message, UsersService.Instance.GetUserID());
             }
 
-            return response.m_oStatus.ToString();        
+            return response.m_oStatus.ToString();
         }
 
         public string ChargeUserForPrepaid(double iPrice, string sCurrency, string sPrepaidId, string sUserIP, string sCouponCode)
@@ -933,7 +934,7 @@ namespace TVPPro.SiteManager.Services
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sUserIP, string couponCode, string sExtraParameters)
         {
             string result = string.Empty;
-            BillingResponse response = null;            
+            BillingResponse response = null;
             response = Dummy_ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sUserIP, couponCode, sExtraParameters);
             if (response != null)
             {
@@ -1013,7 +1014,7 @@ namespace TVPPro.SiteManager.Services
             // Get user and password for method
             string wsUser;
             string wsPassword;
-            PermittedMediaContainer[] res = null;
+            //PermittedMediaContainer[] res = null;
             GetWSMethodUserPass(eWSMethodName.GetUserPermittedItems, out wsUser, out wsPassword);
 
             string sLocaleLanguage = string.Empty;
@@ -1214,15 +1215,15 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                return m_Module.ChangeSubscription(wsUser, wsPassword,sSiteGuid,nOldSubscription,nNewSubscription);
+                return m_Module.ChangeSubscription(wsUser, wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : ChangeSubscription, Error Message: {0}, Parameters :  sSiteGuid : {1}, nOldSubscription : {2}, nNewSubscription : {3}", ex.Message, sSiteGuid,nOldSubscription,nNewSubscription);
+                logger.ErrorFormat("Error calling webservice protocol : ChangeSubscription, Error Message: {0}, Parameters :  sSiteGuid : {1}, nOldSubscription : {2}, nNewSubscription : {3}", ex.Message, sSiteGuid, nOldSubscription, nNewSubscription);
             }
 
             return ChangeSubscriptionStatus.Error;
-        } 
+        }
 
 
         #endregion

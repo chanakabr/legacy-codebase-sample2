@@ -13,12 +13,15 @@ using TVPPro.Configuration.Site;
 using System.Configuration;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class ShowsEpisodeLoader : TVMAdapter<dsItemInfo>, ISupportPaging
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #region Enums
         public enum eOrderDirection
         {
@@ -158,43 +161,43 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		public string OrderByMeta
+        public string OrderByMeta
         {
             get
             {
-				return Parameters.GetParameter<string>(eParameterType.Retrieve, "OrderByMeta", string.Empty);
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "OrderByMeta", string.Empty);
             }
             set
             {
-				Parameters.SetParameter<string>(eParameterType.Retrieve, "OrderByMeta", value);
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "OrderByMeta", value);
             }
         }
 
 
 
-		public string[] TagsList
-		{
-			get
-			{
-				return Parameters.GetParameter<string[]>(eParameterType.Retrieve, "TagsList", new string[] { });
-			}
-			set
-			{
-				Parameters.SetParameter<string[]>(eParameterType.Retrieve, "TagsList", value);
-			}
-		}
+        public string[] TagsList
+        {
+            get
+            {
+                return Parameters.GetParameter<string[]>(eParameterType.Retrieve, "TagsList", new string[] { });
+            }
+            set
+            {
+                Parameters.SetParameter<string[]>(eParameterType.Retrieve, "TagsList", value);
+            }
+        }
 
-		public string[] MetasList
-		{
-			get
-			{
-				return Parameters.GetParameter<string[]>(eParameterType.Retrieve, "MetasList", new string[] { });
-			}
-			set
-			{
-				Parameters.SetParameter<string[]>(eParameterType.Retrieve, "MetasList", value);
-			}
-		}
+        public string[] MetasList
+        {
+            get
+            {
+                return Parameters.GetParameter<string[]>(eParameterType.Retrieve, "MetasList", new string[] { });
+            }
+            set
+            {
+                Parameters.SetParameter<string[]>(eParameterType.Retrieve, "MetasList", value);
+            }
+        }
 
         public string GetFutureStartDate
         {
@@ -312,22 +315,22 @@ namespace TVPPro.SiteManager.DataLoaders
             {
                 protocol.root.request.search_data.cut_values.metaCollection.Add(new cut_valuesmeta() { name = FirstSeasonEpisodeMeta, value = "1" });
             }
-            
+
             protocol.root.request.search_data.cut_values.exact = true;
 
             protocol.root.request.@params.info_struct.metaCollection.Add(new meta() { name = m_SeasonNumerMeta });
             protocol.root.request.@params.info_struct.metaCollection.Add(new meta() { name = m_EpisodeNumberMeta });
             protocol.root.request.@params.info_struct.tags.Add(new tag_type { name = m_ShowNameMeta });
 
-			foreach (string meta in MetasList)
-			{
-				protocol.root.request.@params.info_struct.metaCollection.Add(new meta { name = meta });
-			}
+            foreach (string meta in MetasList)
+            {
+                protocol.root.request.@params.info_struct.metaCollection.Add(new meta { name = meta });
+            }
 
-			foreach (string tagName in TagsList)
-			{
-				protocol.root.request.@params.info_struct.tags.Add(new tag_type { name = tagName });
-			}
+            foreach (string tagName in TagsList)
+            {
+                protocol.root.request.@params.info_struct.tags.Add(new tag_type { name = tagName });
+            }
 
             if (MediaType.HasValue)
                 protocol.root.request.search_data.cut_values.type.value = (MediaType.Value).ToString();
@@ -348,10 +351,10 @@ namespace TVPPro.SiteManager.DataLoaders
                     break;
                 case Enums.eOrderBy.None:
                     break;
-				case Enums.eOrderBy.Meta:
-					protocol.root.request.search_data.order_values.meta.name = OrderByMeta.ToString();
-					protocol.root.request.search_data.order_values.meta.order_dir = eOrderDirection.Asc.ToString();
-					break;
+                case Enums.eOrderBy.Meta:
+                    protocol.root.request.search_data.order_values.meta.name = OrderByMeta.ToString();
+                    protocol.root.request.search_data.order_values.meta.order_dir = eOrderDirection.Asc.ToString();
+                    break;
                 default:
                     throw new Exception("Unknown order by value");
             }
@@ -359,15 +362,15 @@ namespace TVPPro.SiteManager.DataLoaders
             return protocol;
         }
 
-		//public override eCacheMode GetCacheMode()
-		//{
-		//    return eCacheMode.Never;
-		//}
+        //public override eCacheMode GetCacheMode()
+        //{
+        //    return eCacheMode.Never;
+        //}
 
-		protected override int CustomCacheDuration()
-		{
-			return 5;
-		}
+        protected override int CustomCacheDuration()
+        {
+            return 5;
+        }
 
         protected override dsItemInfo PreCacheHandling(object retrievedData)
         {
@@ -402,8 +405,10 @@ namespace TVPPro.SiteManager.DataLoaders
                         newRow.AddedDate = DateTime.ParseExact(resMedia.date, "dd/MM/yyyy HH:mm:ss", null);
                     }
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
 
                 ret.Item.AddItemRow(newRow);
                 DataHelper.CollectMetasInfo(ref ret, resMedia);
@@ -446,10 +451,10 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-		protected override Guid UniqueIdentifier
-		{
-			get { return new Guid("{B34519E1-5401-4c67-B742-E89462F4DE96}"); }
-		}
+        protected override Guid UniqueIdentifier
+        {
+            get { return new Guid("{B34519E1-5401-4c67-B742-E89462F4DE96}"); }
+        }
 
         #region ISupportPaging method
 
