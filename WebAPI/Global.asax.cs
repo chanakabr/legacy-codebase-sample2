@@ -29,30 +29,27 @@ namespace WebAPI
 
         protected void Application_BeginRequest()
         {
-            if (HttpContext.Current.Items != null)
+            // get group ID
+            NameValueCollection queryParams = Request.Url.ParseQueryString();
+            if (queryParams["group_id"] != null)
+                HttpContext.Current.Items.Add(Constants.GROUP_ID, queryParams["group_id"]);
+
+            if (queryParams["user_id"] != null)
+                HttpContext.Current.Items.Add(Constants.USER_ID, queryParams["user_id"]);
+
+            if (HttpContext.Current.Request != null)
             {
-                // get group ID
-                NameValueCollection queryParams = Request.Url.ParseQueryString();
-                if (queryParams["group_id"] != null)
-                    HttpContext.Current.Items.Add(Constants.GROUP_ID, queryParams["group_id"]);
+                // get user agent
+                if (HttpContext.Current.Request.UserAgent != null)
+                    HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
 
-                if (queryParams["user_id"] != null)
-                    HttpContext.Current.Items.Add(Constants.USER_ID, queryParams["user_id"]);
+                // get host IP
+                if (HttpContext.Current.Request.UserHostAddress != null)
+                    HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
 
-                if (HttpContext.Current.Request != null)
-                {
-                    // get user agent
-                    if (HttpContext.Current.Request.UserAgent != null)
-                        HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
-
-                    // get host IP
-                    if (HttpContext.Current.Request.UserHostAddress != null)
-                        HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
-
-                    // get action name
-                    if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
-                        HttpContext.Current.Items.Add(Constants.ACTION, HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath);
-                }
+                // get action name
+                if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
+                    HttpContext.Current.Items.Add(Constants.ACTION, HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath);
             }
         }
     }
