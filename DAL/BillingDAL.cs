@@ -852,7 +852,68 @@ namespace DAL
 
             return res;
         }
-        
+
+        public static int Insert_SmartSunTransaction(int nGroupID, string sSiteGUID, int nItemType, string sMsisdn, double dPrice, int nCustomDataID, 
+            int nReferenceTransactionID, int nStatus)
+        {
+            ODBCWrapper.StoredProcedure spInsertSmartSunTransaction = new ODBCWrapper.StoredProcedure("Insert_SmartSunTransaction");
+            spInsertSmartSunTransaction.SetConnectionKey("CONNECTION_STRING");
+            spInsertSmartSunTransaction.AddParameter("@GroupID", nGroupID);
+            spInsertSmartSunTransaction.AddParameter("@SiteGuid", sSiteGUID);
+            spInsertSmartSunTransaction.AddParameter("@ItemType", nItemType);
+            spInsertSmartSunTransaction.AddParameter("@Msisdn", sMsisdn);
+            spInsertSmartSunTransaction.AddParameter("@ReferenceTransactionID", nReferenceTransactionID);
+            spInsertSmartSunTransaction.AddParameter("@Price", dPrice);
+            spInsertSmartSunTransaction.AddParameter("@CustomDataID", nCustomDataID);
+            spInsertSmartSunTransaction.AddParameter("@Status", nStatus);
+
+            int newTransactionID = spInsertSmartSunTransaction.ExecuteReturnValue<int>();
+            return newTransactionID;
+        }
+
+        public static void UpdateSmartSunTransactionStatus(int nGroupID, int nTransactionID, int nStatus)
+        {
+            ODBCWrapper.StoredProcedure spUpdateSmartSunTransactions = new ODBCWrapper.StoredProcedure("Update_SmartSunTransaction");
+            spUpdateSmartSunTransactions.SetConnectionKey("BILLING_CONNECTION_STRING");
+            spUpdateSmartSunTransactions.AddParameter("@GroupID", nGroupID);
+            spUpdateSmartSunTransactions.AddParameter("@TransactionID", nTransactionID);
+            spUpdateSmartSunTransactions.AddParameter("@Status", nStatus);
+
+            spUpdateSmartSunTransactions.ExecuteNonQuery();
+        }
+
+        public static string GetClientIDFromGroupParams(int groupID)
+        {
+            string sRet = String.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += "SELECT ID, CLIENT_ID FROM GROUPS_OPERATORS WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sRet = selectQuery.Table("query").DefaultView[0].Row["CLIENT_ID"].ToString();
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+
+            return sRet;
+        }
+
     }
 }
-
