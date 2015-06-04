@@ -97,12 +97,15 @@ namespace ODBCWrapper
 
                 try
                 {
-                    DataTable dataTable = new DataTable(sVirtualTableName);
-                    dataTable.BeginLoadData();
-                    adapter.Fill(dataTable);
-                    dataTable.EndLoadData();
-                    m_myDataSet.EnforceConstraints = false;
-                    m_myDataSet.Tables.Add(dataTable);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = Events.eDBQueryType.UPDATE })
+                    {
+                        DataTable dataTable = new DataTable(sVirtualTableName);
+                        dataTable.BeginLoadData();
+                        adapter.Fill(dataTable);
+                        dataTable.EndLoadData();
+                        m_myDataSet.EnforceConstraints = false;
+                        m_myDataSet.Tables.Add(dataTable);
+                    }
                 }
                 catch (Exception ex)
                 {
