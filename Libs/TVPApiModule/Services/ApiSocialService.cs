@@ -12,22 +12,13 @@ namespace TVPApiModule.Services
 {
     public class ApiSocialService : ApiBase
     {
-        #region Fields
-
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object instanceLock = new object();
-
         private int m_groupID;
         private PlatformType m_platform;
-
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-
         private TVPPro.SiteManager.TvinciPlatform.Social.module m_Module;
-
-        #endregion
-
-        #region C'tor
 
         public ApiSocialService(int groupID, PlatformType platform)
         {
@@ -48,8 +39,6 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-
-        #endregion
 
         public TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
@@ -81,9 +70,13 @@ namespace TVPApiModule.Services
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
-                DoSocialActionResponse response = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
-                if (response != null)
-                    eRes = response;
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    DoSocialActionResponse response = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                    if (response != null)
+                        eRes = response;
+                }
 
             }
             catch (Exception ex)
@@ -118,7 +111,11 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+                    }
                 }
                 else
                 {
@@ -130,7 +127,11 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
+
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
+                    }
                 }
             }
             catch (Exception ex)
@@ -151,7 +152,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, sGuid, maxResult);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, sGuid, maxResult);
+                }
             }
             catch (Exception ex)
             {
@@ -169,7 +173,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, sGuid, mediaId);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, sGuid, mediaId);
+                }
             }
             catch (Exception ex)
             {
@@ -186,8 +193,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, iSiteGuid, iMediaID, iPlatform,
-                                                  bOnlyFriends, iStartIndex, iPageSize);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, iSiteGuid, iMediaID, iPlatform,
+                                                      bOnlyFriends, iStartIndex, iPageSize);
+                }
             }
             catch (Exception ex)
             {
@@ -204,7 +214,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetUserFriends(m_wsUserName, m_wsPassword, sGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserFriends(m_wsUserName, m_wsPassword, sGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -220,7 +233,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg);
+                }
             }
             catch (Exception ex)
             {
@@ -236,7 +252,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                }
             }
             catch (Exception ex)
             {
@@ -252,7 +271,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                }
             }
             catch (Exception ex)
             {
@@ -268,7 +290,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                }
             }
             catch (Exception ex)
             {
@@ -284,7 +309,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction);
+                }
             }
             catch (Exception ex)
             {
@@ -300,7 +328,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, sGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, sGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -316,7 +347,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
+                }
             }
             catch (Exception ex)
             {
@@ -344,7 +378,10 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid
                 };
 
-                res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
+                }
             }
             catch (Exception ex)
             {
@@ -377,7 +414,10 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid,
                 };
 
-                res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+                }
             }
             catch (Exception ex)
             {
@@ -406,7 +446,10 @@ namespace TVPApiModule.Services
 
                 };
 
-                res = m_Module.DoUserAction(m_wsUserName, m_wsPassword, request);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.DoUserAction(m_wsUserName, m_wsPassword, request);
+                }
             }
             catch (Exception ex)
             {
@@ -424,7 +467,12 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                    }
+                }
                 else
                     throw new Exception("siteGuid not in the right format");
             }
@@ -444,7 +492,12 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                    }
+                }
                 else
                     throw new Exception("siteGuid not in the right format");
             }
@@ -464,7 +517,12 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                    }
+                }
                 else
                     throw new Exception("siteGuid not in the right format");
             }
@@ -484,7 +542,12 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        res = m_Module.SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                    }
+                }
                 else
                     throw new Exception("siteGuid not in the right format");
             }
@@ -502,7 +565,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+                }
             }
             catch (Exception ex)
             {
@@ -518,7 +584,10 @@ namespace TVPApiModule.Services
             SocialActivityDoc[] response = null;
             try
             {
-                response = m_Module.GetUserActivityFeed(m_wsUserName, m_wsPassword, siteGuid, nPageSize, nPageIndex, sPicDimension);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserActivityFeed(m_wsUserName, m_wsPassword, siteGuid, nPageSize, nPageIndex, sPicDimension);
+                }
             }
             catch (Exception ex)
             {
@@ -534,7 +603,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBTokenValidation(m_wsUserName, m_wsPassword, sToken);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBTokenValidation(m_wsUserName, m_wsPassword, sToken);
+                }
             }
             catch (Exception e)
             {
@@ -550,7 +622,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserSignin(m_wsUserName, m_wsPassword, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.FBUserSignin(m_wsUserName, m_wsPassword, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
+                }
             }
             catch (Exception e)
             {
