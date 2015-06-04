@@ -625,6 +625,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get from Secured SiteGuid")]
+        [PrivateMethod]
         public string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid)
         {
             string sRet = string.Empty;
@@ -1208,6 +1209,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set Domain Group Rule")]
+        [PrivateMethod]
         public bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
         {
             bool response = false;
@@ -1381,6 +1383,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Account STBs")]
+        [PrivateMethod]
         public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId)
         {
             TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
@@ -1584,6 +1587,12 @@ namespace TVPApiServices
 
         #region Parental Rules
 
+        /// <summary>
+        /// Gets all of the parental rules for the account.
+        /// Includes specification of what of which is the default rule/s for the account
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <returns>List of parental rules</returns>
         [WebMethod(EnableSession = true, Description = "Get Group Parental Rules")]
         public ParentalRulesResponse GetParentalRules(InitializationObject initObj)
         {
@@ -1610,6 +1619,12 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Gets the parental rules that applies for the domain
+        /// Includes distinction if rule was defined at account or HH level
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <returns>List of parental rules</returns>        
         [WebMethod(EnableSession = true, Description = "Get Domain Parental Rules")]
         public ParentalRulesResponse GetDomainParentalRules(InitializationObject initObj)
         {
@@ -1636,6 +1651,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Gets the parental rules that applies for the domain
+        /// Includes distinction if rule was defined at account, HH or user level
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user which the rules are applied for</param>
+        /// <returns>List of parental rules</returns>        
         [WebMethod(EnableSession = true, Description = "Get User Parental Rules")]
         public ParentalRulesResponse GetUserParentalRules(InitializationObject initObj, string siteGuid)
         {
@@ -1664,6 +1686,14 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Enable or disable a parental rule for the user
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user which the rule is applied for</param>
+        /// <param name="ruleId">Rule identification</param>
+        /// <param name="isActive">Whether the rule is enabled or disabled</param>
+        /// <returns>Success / Fail and reason</returns>
         public TVPApiModule.Objects.Responses.Status SetUserParentalRules(InitializationObject initObj, string siteGuid, long ruleId, int isActive)
         {
             TVPApiModule.Objects.Responses.Status response = null;
@@ -1689,6 +1719,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Enable or disable a parental rule for the domain
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="ruleId">Rule identification</param>
+        /// <param name="isActive">Whether the rule is enabled or disabled</param>
+        /// <returns>Success / Fail and reason</returns>
         public TVPApiModule.Objects.Responses.Status SetDomainParentalRules(InitializationObject initObj, long ruleId, int isActive)
         {
             TVPApiModule.Objects.Responses.Status response = null;
@@ -1714,6 +1751,12 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve the parental PIN that applies for the domain or user. Includes specification of where the PIN was defined at – account, household or user.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to retrieve parental PIN of user and not of domain</param>
+        /// <returns>The parental PIN of the HH/User</returns>
         [WebMethod(EnableSession = true, Description = "Gets Parental PIN")]
         public PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid)
         {
@@ -1742,6 +1785,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Sets the parental PIN for the domain or user
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to set parental PIN of user and not of domain</param>
+        /// <param name="pin">The new PIN</param>
+        /// <returns>Success / Fail and reason</returns>
         [WebMethod(EnableSession = true, Description = "Sets Parental PIN")]
         public TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin)
         {
@@ -1768,6 +1818,12 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve the purchase settings that applies for the domain or user. Includes specification of where the setting was defined at – account, household or user.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to retrieve purchase settings of user and not of domain</param>
+        /// <returns>The purchase settings of the HH/User</returns>
         [WebMethod(EnableSession = true, Description = "Gets Purchase Settings")]
         public PurchaseSettingsResponse GetPurchaseSettings(InitializationObject initObj, string siteGuid)
         {
@@ -1796,6 +1852,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        ///  Sets the purchase settings for the domain or user.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to set purhase settings of user and not of domain</param>
+        /// <param name="setting">The new purchase settings</param>
+        /// <returns>Fail / Success and reason</returns>
         [WebMethod(EnableSession = true, Description = "Sets Purchase Settings")]
         public TVPApiModule.Objects.Responses.Status SetPurchaseSettings(InitializationObject initObj, string siteGuid, int setting)
         {
@@ -1822,6 +1885,12 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve the Purchase PIN that applies for the domain or user. Includes specification of where the PIN was defined at – account, household or user.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to retrieve Purchase PIN of user and not of domain</param>
+        /// <returns>The Purchase PIN of the HH/User</returns>
         [WebMethod(EnableSession = true, Description = "Gets Purchase PIN")]
         public PurchaseSettingsResponse GetPurchasePIN(InitializationObject initObj, string siteGuid)
         {
@@ -1850,6 +1919,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Sets the Purchase PIN for the domain or user
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to set Purchase PIN of user and not of domain</param>
+        /// <param name="pin">The new PIN</param>
+        /// <returns>Success / Fail and reason</returns>
         [WebMethod(EnableSession = true, Description = "Sets Purchase PIN")]
         public TVPApiModule.Objects.Responses.Status SetPurchasePIN(InitializationObject initObj, string siteGuid, string pin)
         {
@@ -1875,7 +1951,14 @@ namespace TVPApiServices
 
             return response;
         }
-
+        
+        /// <summary>
+        /// Validate that a given parental PIN for a user is valid.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user we validate its PIN</param>
+        /// <param name="pin">The given PIN</param>
+        /// <returns>Success if PINs match, fail if otherwise</returns>
         [WebMethod(EnableSession = true, Description = "Validates Parental PIN")]
         public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin)
         {
@@ -1904,6 +1987,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Validate that a given purhcase PIN for a user is valid.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user we validate its PIN</param>
+        /// <param name="pin">The given PIN</param>
+        /// <returns>Success if PINs match, fail if otherwise</returns>
         [WebMethod(EnableSession = true, Description = "Validates Purchase PIN")]
         public TVPApiModule.Objects.Responses.Status ValidatePurchasePIN(InitializationObject initObj, string siteGuid, string pin)
         {
@@ -1932,6 +2022,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user we retrieve its rules</param>
+        /// <param name="mediaId">The media which the rules are applied for</param>
+        /// <returns>List of rules that are applied for this media and user</returns>
         [WebMethod(EnableSession = true, Description = "Gets Parental rules that apply to media")]
         public ParentalRulesResponse GetParentalMediaRules(InitializationObject initObj, string siteGuid, long mediaId)
         {
@@ -1960,6 +2057,13 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve all the parental rules that applies for a specific program and a specific user according to the user parental settings.
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">The user we retrieve its rules</param>
+        /// <param name="mediaId">The program which the rules are applied for</param>
+        /// <returns>List of rules that are applied for this program and user</returns>
         [WebMethod(EnableSession = true, Description = "Gets Parental rules that apply to program")]
         public ParentalRulesResponse GetParentalEPGRules(InitializationObject initObj, string siteGuid, long epgId)
         {

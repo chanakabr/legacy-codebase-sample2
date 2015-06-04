@@ -42,37 +42,40 @@ namespace TVPApiModule.Services
             List<Notification> res = new List<Notification>();
             try
             {
-                var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
-                if (notificationMessages != null)
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    foreach (var message in notificationMessages)
+                    var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+                    if (notificationMessages != null)
                     {
-                        res.Add(new Notification()
+                        foreach (var message in notificationMessages)
                         {
-                            Actions = message.Actions != null ? message.Actions : null,
-                            AppName = message.AppName,
-                            DeviceID = message.DeviceID,
-                            ID = message.ID,
-                            MessageText = message.MessageText,
-                            nGroupID = message.nGroupID,
-                            NotificationID = message.NotificationID,
-                            NotificationMessageID = message.NotificationMessageID,
-                            Status = message.Status,
-                            Title = message.Title,
-                            Type = message.Type,
-                            UdID = message.UdID,
-                            UserID = message.UserID,
-                            TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                            res.Add(new Notification()
                             {
-                                mediaID = message.TagNotificationParams.mediaIDk__BackingField,
-                                mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
-                                TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
-                                templateEmail = message.TagNotificationParams.templateEmailk__BackingField
-                            } : null,
-                            PublishDate = message.PublishDate,
-                            ViewStatus = message.ViewStatus,
-                            NotificationRequestID = message.NotificationRequestID
-                        });
+                                Actions = message.Actions != null ? message.Actions : null,
+                                AppName = message.AppName,
+                                DeviceID = message.DeviceID,
+                                ID = message.ID,
+                                MessageText = message.MessageText,
+                                nGroupID = message.nGroupID,
+                                NotificationID = message.NotificationID,
+                                NotificationMessageID = message.NotificationMessageID,
+                                Status = message.Status,
+                                Title = message.Title,
+                                Type = message.Type,
+                                UdID = message.UdID,
+                                UserID = message.UserID,
+                                TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                                {
+                                    mediaID = message.TagNotificationParams.mediaIDk__BackingField,
+                                    mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
+                                    TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
+                                    templateEmail = message.TagNotificationParams.templateEmailk__BackingField
+                                } : null,
+                                PublishDate = message.PublishDate,
+                                ViewStatus = message.ViewStatus,
+                                NotificationRequestID = message.NotificationRequestID
+                            });
+                        }
                     }
                 }
             }
@@ -89,7 +92,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Client.SetNotificationMessageViewStatus(m_wsUserName, m_wsPassword, sGuid, notificationRequestID, notificationMessageID, viewStatus);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Client.SetNotificationMessageViewStatus(m_wsUserName, m_wsPassword, sGuid, notificationRequestID, notificationMessageID, viewStatus);
+                }
             }
             catch (Exception e)
             {
@@ -104,7 +110,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, sGuid, triggerType, mediaId);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, sGuid, triggerType, mediaId);
+                }
             }
             catch (Exception e)
             {
@@ -120,7 +129,10 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
-                res = m_Client.SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Client.SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                }
             }
             catch (Exception e)
             {
@@ -136,7 +148,10 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
-                res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                }
             }
             catch (Exception e)
             {
@@ -152,7 +167,10 @@ namespace TVPApiModule.Services
             List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
             try
             {
-                clientRes = m_Client.GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    clientRes = m_Client.GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);
+                }
 
                 // convert to list
                 if (clientRes != null)

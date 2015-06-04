@@ -16,13 +16,11 @@ namespace TVPApiModule.Services
 {
     public class ApiUsersService : ApiBase
     {
-        #region Variables
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
 
         private string m_wsUserName;
         private string m_wsPassword;
-
         private int m_groupID;
         private PlatformType m_platform;
 
@@ -34,9 +32,7 @@ namespace TVPApiModule.Services
             public ResponseStatus LoginStatus;
             public User UserData;
         }
-        #endregion
 
-        #region C'tor
         public ApiUsersService(int groupID, PlatformType platform)
         {
             m_Module = new TVPPro.SiteManager.TvinciPlatform.Users.UsersService();
@@ -47,15 +43,16 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-        #endregion C'tor
 
-        #region Public methods
         public UserResponseObject ValidateUser(string userName, string password, bool isDoubleLogin)
         {
             UserResponseObject response = null;
             try
             {
-                response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+                }
             }
             catch (Exception ex)
             {
@@ -71,18 +68,21 @@ namespace TVPApiModule.Services
 
             try
             {
-                UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);
 
-                if (response != null && response.m_user != null)
-                {
-                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
-                    loginData.DomainID = response.m_user.m_domianID;
-                    loginData.LoginStatus = response.m_RespStatus;
-                    loginData.UserData = response.m_user;
-                }
-                else if (response != null)
-                {
-                    loginData.LoginStatus = response.m_RespStatus;
+                    if (response != null && response.m_user != null)
+                    {
+                        loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                        loginData.DomainID = response.m_user.m_domianID;
+                        loginData.LoginStatus = response.m_RespStatus;
+                        loginData.UserData = response.m_user;
+                    }
+                    else if (response != null)
+                    {
+                        loginData.LoginStatus = response.m_RespStatus;
+                    }
                 }
             }
             catch (Exception ex)
@@ -98,7 +98,10 @@ namespace TVPApiModule.Services
             UserResponseObject response = null;
             try
             {
-                response = m_Module.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                }
             }
             catch (Exception ex)
             {
@@ -112,7 +115,10 @@ namespace TVPApiModule.Services
         {
             try
             {
-                UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                }
             }
             catch (Exception ex)
             {
@@ -125,11 +131,15 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
-                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) ||
-                    (!bPreventDoubleLogin && (response == UserState.SingleSignIn || response == UserState.DoubleSignIn)))
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = true;
+                    UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
+
+                    if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) ||
+                        (!bPreventDoubleLogin && (response == UserState.SingleSignIn || response == UserState.DoubleSignIn)))
+                    {
+                        bRet = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -146,8 +156,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
-                IsRemoved = true;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                    IsRemoved = true;
+                }
             }
             catch (Exception ex)
             {
@@ -163,7 +176,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                }
             }
             catch (Exception ex)
             {
@@ -178,7 +194,10 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                bRet = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                }
             }
             catch (Exception ex)
             {
@@ -192,7 +211,10 @@ namespace TVPApiModule.Services
         {
             try
             {
-                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                }
             }
             catch (Exception ex)
             {
@@ -206,18 +228,21 @@ namespace TVPApiModule.Services
 
             try
             {
-                UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
 
-                if (response != null && response.m_user != null)
-                {
-                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
-                    loginData.DomainID = response.m_user.m_domianID;
-                    loginData.LoginStatus = response.m_RespStatus;
-                    loginData.UserData = response.m_user;
-                }
-                else if (response != null)
-                {
-                    loginData.LoginStatus = response.m_RespStatus;
+                    if (response != null && response.m_user != null)
+                    {
+                        loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                        loginData.DomainID = response.m_user.m_domianID;
+                        loginData.LoginStatus = response.m_RespStatus;
+                        loginData.UserData = response.m_user;
+                    }
+                    else if (response != null)
+                    {
+                        loginData.LoginStatus = response.m_RespStatus;
+                    }
                 }
             }
             catch (Exception ex)
@@ -234,7 +259,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                }
             }
             catch (Exception ex)
             {
@@ -250,7 +278,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                }
             }
             catch (Exception ex)
             {
@@ -266,7 +297,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -282,7 +316,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids);
+                }
             }
             catch (Exception ex)
             {
@@ -298,7 +335,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                }
             }
             catch (Exception ex)
             {
@@ -314,7 +354,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                }
             }
             catch (Exception ex)
             {
@@ -330,7 +373,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                }
             }
             catch (Exception ex)
             {
@@ -340,15 +386,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        #endregion
-
         public UserOfflineObject[] GetUserOfflineList(string sSiteGuid)
         {
             UserOfflineObject[] response = null;
 
             try
             {
-                response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -364,7 +411,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -380,7 +430,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -396,7 +449,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -410,16 +466,19 @@ namespace TVPApiModule.Services
         {
             try
             {
-                UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName);
-                if (uro.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", true, UserName);
-                    return true;
-                }
-                else
-                {
-                    logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", true, UserName);
-                    return false;
+                    UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName);
+                    if (uro.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                    {
+                        logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", true, UserName);
+                        return true;
+                    }
+                    else
+                    {
+                        logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", true, UserName);
+                        return false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -435,8 +494,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
-                sRet = response.m_sCountryName;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                    sRet = response.m_sCountryName;
+                }
             }
             catch (Exception ex)
             {
@@ -515,7 +577,10 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                bRet = m_Module.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                }
             }
             catch (Exception ex)
             {
@@ -531,7 +596,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+                }
             }
             catch (Exception ex)
             {
@@ -546,7 +614,10 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                bRet = m_Module.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+                }
             }
             catch (Exception ex)
             {
@@ -561,7 +632,10 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                bRet = m_Module.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+                }
             }
             catch (Exception ex)
             {
@@ -576,7 +650,10 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                bRet = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+                }
             }
             catch (Exception ex)
             {
@@ -592,7 +669,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                }
             }
             catch (Exception ex)
             {
@@ -606,7 +686,10 @@ namespace TVPApiModule.Services
         {
             try
             {
-                m_Module.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    m_Module.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -619,7 +702,10 @@ namespace TVPApiModule.Services
             Country[] bRet = null;
             try
             {
-                bRet = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+                }
             }
             catch (Exception ex)
             {
@@ -634,7 +720,10 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                bRet = m_Module.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+                }
             }
             catch (Exception ex)
             {
@@ -644,13 +733,15 @@ namespace TVPApiModule.Services
             return bRet;
         }
 
-
         public UserType[] GetGroupUserTypes()
         {
             UserType[] bRet = null;
             try
             {
-                //bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                }
             }
             catch (Exception ex)
             {
@@ -665,7 +756,10 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                bRet = m_Module.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+                }
             }
             catch (Exception ex)
             {
@@ -681,7 +775,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                bRet = m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                }
             }
             catch (Exception ex)
             {
@@ -699,7 +796,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                }
             }
             catch (Exception ex)
             {
@@ -716,7 +816,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+                }
             }
             catch (Exception ex)
             {
@@ -741,7 +844,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+                }
             }
             catch (Exception ex)
             {
@@ -766,7 +873,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                }
             }
             catch (Exception ex)
             {
@@ -791,7 +902,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+                }
             }
             catch (Exception ex)
             {
@@ -816,7 +931,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                }
             }
             catch (Exception ex)
             {
@@ -841,7 +960,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                }
             }
             catch (Exception ex)
             {
@@ -857,7 +980,10 @@ namespace TVPApiModule.Services
             ResponseStatus bRet = ResponseStatus.OK;
             try
             {
-                bRet = m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                }
             }
             catch (Exception ex)
             {
@@ -872,18 +998,21 @@ namespace TVPApiModule.Services
             LogInResponseData loginData = new LogInResponseData();
             try
             {
-                UserResponseObject response = m_Module.SignInWithToken(m_wsUserName, m_wsPassword, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    UserResponseObject response = m_Module.SignInWithToken(m_wsUserName, m_wsPassword, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
 
-                if (response != null && response.m_user != null)
-                {
-                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
-                    loginData.DomainID = response.m_user.m_domianID;
-                    loginData.LoginStatus = response.m_RespStatus;
-                    loginData.UserData = response.m_user;
-                }
-                else if (response != null)
-                {
-                    loginData.LoginStatus = response.m_RespStatus;
+                    if (response != null && response.m_user != null)
+                    {
+                        loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                        loginData.DomainID = response.m_user.m_domianID;
+                        loginData.LoginStatus = response.m_RespStatus;
+                        loginData.UserData = response.m_user;
+                    }
+                    else if (response != null)
+                    {
+                        loginData.LoginStatus = response.m_RespStatus;
+                    }
                 }
             }
             catch (Exception ex)
@@ -893,14 +1022,16 @@ namespace TVPApiModule.Services
             return loginData;
         }
 
-
         public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(string siteGuid, string secret)
         {
             TVPApiModule.Objects.Responses.PinCodeResponse response = null;
             try
             {
-                var result = m_Module.GenerateLoginPIN(m_wsUserName, m_wsPassword, siteGuid, secret);
-                response = new TVPApiModule.Objects.Responses.PinCodeResponse(result);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.GenerateLoginPIN(m_wsUserName, m_wsPassword, siteGuid, secret);
+                    response = new TVPApiModule.Objects.Responses.PinCodeResponse(result);
+                }
             }
             catch (Exception ex)
             {
@@ -917,8 +1048,11 @@ namespace TVPApiModule.Services
             try
             {
                 string sessionID = "0";
-                var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null, secret);
-                response = new TVPApiModule.Objects.Responses.LoginResponse(result);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null, secret);
+                    response = new TVPApiModule.Objects.Responses.LoginResponse(result);
+                }
             }
             catch (Exception ex)
             {
@@ -936,8 +1070,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                result = m_Module.SetLoginPIN(m_wsUserName, m_wsPassword, siteGuid, PIN, secret);
-                clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    result = m_Module.SetLoginPIN(m_wsUserName, m_wsPassword, siteGuid, PIN, secret);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -955,8 +1092,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                result = m_Module.ClearLoginPIN(m_wsUserName, m_wsPassword, siteGuid);
-                clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    result = m_Module.ClearLoginPIN(m_wsUserName, m_wsPassword, siteGuid);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                }
             }
             catch (Exception ex)
             {
