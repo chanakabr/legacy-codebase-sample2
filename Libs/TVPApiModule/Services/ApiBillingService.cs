@@ -14,19 +14,14 @@ namespace TVPApiModule.Services
 {
     public class ApiBillingService : ApiBase
     {
-        #region Variables
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.Billing.module m_Module;
-
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-
         private int m_groupID;
         private PlatformType m_platform;
-        #endregion
 
-        #region C'tor
         public ApiBillingService(int groupID, PlatformType platform)
         {
             m_Module = new TVPPro.SiteManager.TvinciPlatform.Billing.module();
@@ -37,15 +32,16 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-        #endregion C'tor
 
-        #region Public methods
         public AdyenBillingDetail GetLastBillingUserInfo(string siteGuid, int billingMethod)
         {
             AdyenBillingDetail response = null;
             try
             {
-                response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                }
             }
             catch (Exception ex)
             {
@@ -60,7 +56,10 @@ namespace TVPApiModule.Services
             string response = null;
             try
             {
-                response = m_Module.GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
+                }
             }
             catch (Exception ex)
             {
@@ -75,7 +74,10 @@ namespace TVPApiModule.Services
             TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail lastBillingInfo = null;
             try
             {
-                lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -84,7 +86,5 @@ namespace TVPApiModule.Services
 
             return lastBillingInfo;
         }
-
-        #endregion
     }
 }
