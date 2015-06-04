@@ -14,19 +14,14 @@ namespace TVPApiModule.Services
 {
     public class ApiConditionalAccessService : ApiBase
     {
-        #region Variables
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
-
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-
         private int m_groupID;
         private PlatformType m_platform;
-        #endregion
 
-        #region C'tor
         public ApiConditionalAccessService(int groupID, PlatformType platform)
         {
             m_Module = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module();
@@ -37,16 +32,17 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-        #endregion
 
-        #region Public methods
         public string DummyChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID)
         {
             BillingResponse response = null;
 
             try
             {
-                response = m_Module.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                }
             }
             catch (Exception ex)
             {
@@ -62,7 +58,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                }
             }
             catch (Exception ex)
             {
@@ -78,7 +77,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                }
             }
             catch (Exception ex)
             {
@@ -94,7 +96,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                }
             }
             catch (Exception ex)
             {
@@ -110,7 +115,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                }
             }
             catch (Exception ex)
             {
@@ -126,7 +134,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                }
             }
             catch (Exception ex)
             {
@@ -142,7 +153,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+                }
             }
             catch (Exception ex)
             {
@@ -158,7 +172,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                }
             }
             catch (Exception ex)
             {
@@ -174,7 +191,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -190,7 +210,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, sUDID, SiteHelper.GetClientIP());
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, sUDID, SiteHelper.GetClientIP());
+                }
             }
             catch (Exception ex)
             {
@@ -211,7 +234,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -227,8 +253,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
-
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+                }
             }
             catch (Exception ex)
             {
@@ -243,8 +271,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
-
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+                }
             }
             catch (Exception ex)
             {
@@ -259,8 +289,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
-
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+                }
             }
             catch (Exception ex)
             {
@@ -275,7 +307,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    returnObject = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                }
             }
             catch (Exception ex)
             {
@@ -305,7 +340,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    returnObject = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+                }
             }
             catch (Exception ex)
             {
@@ -321,7 +359,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                }
             }
             catch (Exception ex)
             {
@@ -337,7 +378,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    returnObject = m_Module.GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                }
             }
             catch (Exception ex)
             {
@@ -357,9 +401,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    retVal = m_Module.GetUserCAStatus(wsUser, wsPass, siteGuid);
-                    logger.InfoFormat("Protocol: GetUserStatus, Parameters : SiteGuid : {0}", siteGuid);
-
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.GetUserCAStatus(wsUser, wsPass, siteGuid);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -387,8 +432,10 @@ namespace TVPApiModule.Services
                     m_status = status,
                     m_voucherReceipents = voucherReceipents
                 };
-                campaignActionInfo = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
-                logger.InfoFormat("Protocol: ActivateCampaignWithInfo, Parameters : campID : {0}", campID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    campaignActionInfo = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
+                }
             }
             catch (Exception ex)
             {
@@ -416,36 +463,24 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.AD_GetCustomDataID(m_wsUserName,
-                                                  m_wsPassword,
-                                                  siteGuid,
-                                                  price,
-                                                  currencyCode3,
-                                                  assetId,
-                                                  ppvModuleCode,
-                                                  campaignCode,
-                                                  couponCode,
-                                                  paymentMethod,
-                                                  userIp,
-                                                  countryCd2,
-                                                  languageCode3,
-                                                  deviceName,
-                                                  assetType);
-
-                logger.InfoFormat("Protocol: AD_GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}",
-                                  siteGuid,
-                                  price,
-                                  currencyCode3,
-                                  assetId,
-                                  ppvModuleCode,
-                                  campaignCode,
-                                  couponCode,
-                                  paymentMethod,
-                                  userIp,
-                                  countryCd2,
-                                  languageCode3,
-                                  deviceName,
-                                  assetType);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.AD_GetCustomDataID(m_wsUserName,
+                                                      m_wsPassword,
+                                                      siteGuid,
+                                                      price,
+                                                      currencyCode3,
+                                                      assetId,
+                                                      ppvModuleCode,
+                                                      campaignCode,
+                                                      couponCode,
+                                                      paymentMethod,
+                                                      userIp,
+                                                      countryCd2,
+                                                      languageCode3,
+                                                      deviceName,
+                                                      assetType);
+                }
             }
             catch (Exception ex)
             {
@@ -488,39 +523,26 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetCustomDataID(m_wsUserName,
-                                                  m_wsPassword,
-                                                  siteGuid,
-                                                  price,
-                                                  currencyCode3,
-                                                  assetId,
-                                                  ppvModuleCode,
-                                                  campaignCode,
-                                                  couponCode,
-                                                  paymentMethod,
-                                                  userIp,
-                                                  countryCd2,
-                                                  languageCode3,
-                                                  deviceName,
-                                                  assetType,
-                                                  overrideEndDate,
-                                                  sPreviewModelID);
-
-                logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
-                                  siteGuid,
-                                  price,
-                                  currencyCode3,
-                                  assetId,
-                                  ppvModuleCode,
-                                  campaignCode,
-                                  couponCode,
-                                  paymentMethod,
-                                  userIp,
-                                  countryCd2,
-                                  languageCode3,
-                                  deviceName,
-                                  assetType,
-                                  overrideEndDate);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetCustomDataID(m_wsUserName,
+                                                      m_wsPassword,
+                                                      siteGuid,
+                                                      price,
+                                                      currencyCode3,
+                                                      assetId,
+                                                      ppvModuleCode,
+                                                      campaignCode,
+                                                      couponCode,
+                                                      paymentMethod,
+                                                      userIp,
+                                                      countryCd2,
+                                                      languageCode3,
+                                                      deviceName,
+                                                      assetType,
+                                                      overrideEndDate,
+                                                      sPreviewModelID);
+                }
             }
             catch (Exception ex)
             {
@@ -564,40 +586,27 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetCustomDataID(m_wsUserName,
-                                                  m_wsPassword,
-                                                  siteGuid,
-                                                  price,
-                                                  currencyCode3,
-                                                  assetId,
-                                                  ppvModuleCode,
-                                                  campaignCode,
-                                                  couponCode,
-                                                  paymentMethod,
-                                                  userIp,
-                                                  countryCd2,
-                                                  languageCode3,
-                                                  deviceName,
-                                                  assetType,
-                                                  overrideEndDate,
-                                                  sPreviewModuleID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetCustomDataID(m_wsUserName,
+                                                      m_wsPassword,
+                                                      siteGuid,
+                                                      price,
+                                                      currencyCode3,
+                                                      assetId,
+                                                      ppvModuleCode,
+                                                      campaignCode,
+                                                      couponCode,
+                                                      paymentMethod,
+                                                      userIp,
+                                                      countryCd2,
+                                                      languageCode3,
+                                                      deviceName,
+                                                      assetType,
+                                                      overrideEndDate,
+                                                      sPreviewModuleID);
 
-                logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}, sPreviewModuleID - {14}",
-                                  siteGuid,
-                                  price,
-                                  currencyCode3,
-                                  assetId,
-                                  ppvModuleCode,
-                                  campaignCode,
-                                  couponCode,
-                                  paymentMethod,
-                                  userIp,
-                                  countryCd2,
-                                  languageCode3,
-                                  deviceName,
-                                  assetType,
-                                  overrideEndDate,
-                                  sPreviewModuleID);
+                }
             }
             catch (Exception ex)
             {
@@ -631,8 +640,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("ActivateCampaign, Parameters : SiteGuid : {0} campaignID : {1} actionInfo : {2}", siteGuid, campaignID, actionInfo.ToString());
-                    retVal = m_Module.ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -651,8 +662,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    retVal = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -671,8 +684,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    retVal = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -691,8 +706,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
-                    retVal = m_Module.IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -711,8 +728,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", siteGuid, customerId);
-                    retVal = m_Module.GetGoogleSignature(wsUser, wsPass, customerId);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.GetGoogleSignature(wsUser, wsPass, customerId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -731,11 +750,11 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("IsPermittedSubscription, Parameters : SiteGuid : {0} subId : {1}", siteGuid, subId);
-
-                    string reason = string.Empty;
-
-                    retVal = m_Module.IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        string reason = string.Empty;
+                        retVal = m_Module.IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -754,8 +773,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -774,8 +795,10 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    retVal = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        retVal = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -791,8 +814,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
-
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
+                }
             }
             catch (Exception ex)
             {
@@ -807,8 +832,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
-
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+                }
             }
             catch (Exception ex)
             {
@@ -823,7 +850,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                }
             }
             catch (Exception ex)
             {
@@ -838,7 +868,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+                }
             }
             catch (Exception ex)
             {
@@ -853,7 +886,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.Cellular_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, mediaFileID, ppvModuleCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.Cellular_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, mediaFileID, ppvModuleCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+                }
             }
             catch (Exception ex)
             {
@@ -868,7 +904,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.Cellular_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, subscriptionCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.Cellular_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, subscriptionCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+                }
             }
             catch (Exception ex)
             {
@@ -881,7 +920,10 @@ namespace TVPApiModule.Services
         {
             try
             {
-                return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+                }
             }
             catch (Exception ex)
             {
@@ -897,7 +939,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionCode, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionCode, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceName);
+                }
             }
             catch (Exception ex)
             {
@@ -913,7 +958,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName);
+                }
             }
             catch (Exception ex)
             {
@@ -928,7 +976,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, clientIp);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, clientIp);
+                }
             }
             catch (Exception ex)
             {
@@ -943,7 +994,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUserPermittedCollections(m_wsUserName, m_wsPassword, siteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetUserPermittedCollections(m_wsUserName, m_wsPassword, siteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -958,7 +1012,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetDomainPermittedCollections(m_wsUserName, m_wsPassword, domainId);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.GetDomainPermittedCollections(m_wsUserName, m_wsPassword, domainId);
+                }
             }
             catch (Exception ex)
             {
@@ -973,8 +1030,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.CC_ChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode3, collectionCode, couponCode, userIP, extraParameters, countryCode2,
-                                                            languageCode3, deviceName, paymentMethodId, encryptedCvv);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    retVal = m_Module.CC_ChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode3, collectionCode, couponCode, userIP, extraParameters, countryCode2,
+                                                                languageCode3, deviceName, paymentMethodId, encryptedCvv);
+                }
             }
             catch (Exception ex)
             {
@@ -990,8 +1050,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                isTransactionCancelled = false;
-                m_Module.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType, bIsForce);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    isTransactionCancelled = false;
+                    m_Module.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType, bIsForce);
+                }
             }
             catch (Exception ex)
             {
@@ -1007,7 +1070,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                isWaiverTransactionSucceeded = m_Module.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    isWaiverTransactionSucceeded = m_Module.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                }
             }
             catch (Exception ex)
             {
@@ -1039,7 +1105,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetLicensedLinks(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetLicensedLinks(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                }
             }
             catch (Exception ex)
             {
@@ -1064,7 +1133,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend) as RecordResponse;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend) as RecordResponse;
+                }
             }
             catch (Exception ex)
             {
@@ -1090,7 +1162,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1116,7 +1191,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1141,7 +1219,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend) as QuotaResponse;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend) as QuotaResponse;
+                }
             }
             catch (Exception ex)
             {
@@ -1167,7 +1248,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1193,7 +1277,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1219,7 +1306,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1245,7 +1335,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1272,7 +1365,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
             }
             catch (Exception ex)
             {
@@ -1308,7 +1404,10 @@ namespace TVPApiModule.Services
                     wsUsername = m_wsUserName
                 };
 
-                res = m_Module.GetNPVRResponse(commend) as LicensedLinkNPVRResponse;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend) as LicensedLinkNPVRResponse;
+                }
             }
             catch (Exception ex)
             {
@@ -1326,8 +1425,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                result = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
-                clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    result = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -1345,8 +1447,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                result = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
-                clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    result = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -1363,8 +1468,11 @@ namespace TVPApiModule.Services
             ServicesResponse response;
             try
             {
-                var result = m_Module.GetDomainServices(m_wsUserName, m_wsPassword, domainId);
-                response = new ServicesResponse(result.Services, result.Status);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.GetDomainServices(m_wsUserName, m_wsPassword, domainId);
+                    response = new ServicesResponse(result.Services, result.Status);
+                }
             }
             catch (Exception ex)
             {
@@ -1377,7 +1485,6 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        #endregion
 
         public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceUDID, int formatType)
         {
@@ -1387,8 +1494,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var result = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceUDID, formatType);
-                response = new TVPApiModule.Objects.Responses.LicensedLinkResponse(result);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceUDID, formatType);
+                    response = new TVPApiModule.Objects.Responses.LicensedLinkResponse(result);
+                }
             }
             catch (Exception ex)
             {
