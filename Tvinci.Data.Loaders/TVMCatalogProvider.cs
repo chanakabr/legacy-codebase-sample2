@@ -50,11 +50,10 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    DateTime start = DateTime.Now;
-                    response = m_oClient.GetMediasByIDs(request);
-                    TimeSpan span = DateTime.Now - start;
-
-                    logger.InfoFormat("TryExecuteGetMediasByIDs-> Total time: {0}ms", span.TotalMilliseconds);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        response = m_oClient.GetMediasByIDs(request);
+                    }
 
                     FailOverManager.Instance.AddRequest(true);
                     return eProviderResult.Success;
@@ -85,11 +84,10 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    DateTime start = DateTime.Now;
-                    response = m_oClient.GetResponse(request);
-                    TimeSpan span = DateTime.Now - start;
-
-                    logger.InfoFormat("TryExecuteGetMediasByIDs-> Total time: {0}ms", span.TotalMilliseconds);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        response = m_oClient.GetResponse(request);
+                    }
 
                     FailOverManager.Instance.AddRequest(true);
                     return eProviderResult.Success;
@@ -118,11 +116,10 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    DateTime start = DateTime.Now;
-                    response = m_oClient.GetProgramsByIDs(request);
-                    TimeSpan span = DateTime.Now - start;
-
-                    logger.InfoFormat("TryExecuteGetMediasByIDs-> Total time: {0}ms", span.TotalMilliseconds);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        response = m_oClient.GetProgramsByIDs(request);
+                    }
 
                     FailOverManager.Instance.AddRequest(true);
                     return eProviderResult.Success;

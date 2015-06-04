@@ -47,7 +47,7 @@ namespace Tvinci.Configuration
                             }
                             catch (Exception ex)
                             {
-                                logger.Error(string.Format("Failed to decrypt file content (Did you remeber to encrypt the information?). File '{0}'", filePath), ex);
+                                logger.Error(string.Format("Failed to decrypt file content (Did you remember to encrypt the information?). File '{0}'", filePath), ex);
                                 return null;
                             }
 

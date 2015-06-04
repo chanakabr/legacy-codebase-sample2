@@ -30,7 +30,10 @@ namespace ODBCWrapper
             oraStr = m_sOraStr;
             try
             {
-                command.ExecuteNonQuery();
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr })
+                {
+                    command.ExecuteNonQuery();
+                }
             }
             catch (Exception ex)
             {
