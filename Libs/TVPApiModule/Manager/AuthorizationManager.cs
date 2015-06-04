@@ -243,7 +243,7 @@ namespace TVPApiModule.Manager
             apiToken = new APIToken(apiToken, groupConfig.AccessTokenExpirationSeconds);
 
             // Store new access + refresh tokens pair
-            if (_client.Add<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
+            if (_client.Add<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(apiToken.IsLongRefreshExpiration ? groupConfig.RefreshExpirationForPinLoginSeconds : groupConfig.RefreshTokenExpirationSeconds)))
             {
                 // delete the old one
                 _client.Remove(apiTokenId);
