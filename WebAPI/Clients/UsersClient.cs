@@ -12,7 +12,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models.General;
 using KLogMonitor;
 using System.Reflection;
-using WebAPI.Models.User;
+using WebAPI.Models.Users;
 using System.ServiceModel;
 using System.Net;
 
@@ -34,9 +34,9 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.User.ClientUser SignIn(int groupId, string userName, string password)
+        public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
         {
-            WebAPI.Models.User.ClientUser user = null;
+            WebAPI.Models.Users.ClientUser user = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -48,7 +48,7 @@ namespace WebAPI.Clients
                     response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
                 }
 
-                user = Mapper.Map<WebAPI.Models.User.ClientUser>(response);
+                user = Mapper.Map<WebAPI.Models.Users.ClientUser>(response);
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public LoginPin GenerateLoginPin(int groupId, string userId)
+        public LoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
             LoginPin pinCode = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -68,7 +68,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GenerateLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                    response = Users.GenerateLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, secret);
                 }
             }
             catch (Exception ex)
@@ -93,6 +93,43 @@ namespace WebAPI.Clients
             pinCode = Mapper.Map<LoginPin>(response);
 
             return pinCode;
+        }
+
+        public WebAPI.Models.Users.User LoginWithPin(int groupId, string deviceId, string pin, string secret)
+        {
+            WebAPI.Models.Users.User user = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            LoginResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.LoginWithPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, pin, string.Empty, Utils.Utils.GetClientIP(), deviceId, false, null, secret);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}", true, ex,
+                        Users.Url                          // 0
+                        );
+
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.resp.Code, response.resp.Message);
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+
+            return user;
         }
     }
 }

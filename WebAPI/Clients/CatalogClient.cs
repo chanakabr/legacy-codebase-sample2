@@ -84,7 +84,7 @@ namespace WebAPI.Clients
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid,
-                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language),
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
@@ -159,7 +159,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language),
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                     m_sDeviceId = udid
                 },
                 m_nGroupID = groupId,
@@ -222,7 +222,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_nLanguage = CatalogUtils.GetLanguageId(groupId, language)
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language)
                 },
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,

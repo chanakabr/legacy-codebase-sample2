@@ -136,6 +136,7 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="ClassDiagram1.cd" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -577,7 +578,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\User\LoginPin.cs" />
+    <Compile Include="Models\Users\Country.cs" />
+    <Compile Include="Models\Users\LoginPin.cs" />
+    <Compile Include="Models\Users\User.cs" />
+    <Compile Include="Models\Users\UserBasicData.cs" />
+    <Compile Include="Models\Users\DomainSuspentionState.cs" />
+    <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
@@ -633,8 +639,8 @@
     <Compile Include="Models\Catalog\Image.cs" />
     <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
     <Compile Include="Models\General\Status.cs" />
-    <Compile Include="Models\User\SignIn.cs" />
-    <Compile Include="Models\User\ClientUser.cs" />
+    <Compile Include="Models\Users\SignIn.cs" />
+    <Compile Include="Models\Users\ClientUser.cs" />
     <Compile Include="Models\Catalog\WatchHistory.cs" />
     <Compile Include="Models\Catalog\WatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\WatchStatus.cs" />
@@ -662,6 +668,7 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
+    <Compile Include="Utils\Utils.cs" />
     <Compile Include="Web References\Api\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -701,6 +708,9 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Web References\Users\module.wsdl" />
+    <Content Include="Web References\Users\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

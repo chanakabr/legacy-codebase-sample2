@@ -36,7 +36,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                         result = WebAPI.Catalog.StatsType.EPG;
                         break;
                     default:
-                        throw new InternalServerErrorException((int)StatusCode.Error, "Unknown asset type");
+                        throw new ClientException((int)StatusCode.Error, "Unknown asset type");
                 }
                 return result;
             });

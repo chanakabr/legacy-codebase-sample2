@@ -29,10 +29,9 @@ namespace WebAPI.Utils
             }
         }
 
-
+        // additionalBadRequestStatusCodes - might be WS statuses pointing on bad request 
         public static void HandleClientException(ClientException ex, List<int> additionalBadRequestStatusCodes = null)
         {
-
             if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (additionalBadRequestStatusCodes != null && additionalBadRequestStatusCodes.Contains(ex.Code)))
             {
                 throw new BadRequestException(ex.Code, ex.ExceptionMessage);

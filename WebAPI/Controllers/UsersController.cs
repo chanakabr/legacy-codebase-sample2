@@ -9,7 +9,7 @@ using WebAPI.Exceptions;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Utils;
-using WebAPI.Models.User;
+using WebAPI.Models.Users;
 using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
@@ -27,12 +27,13 @@ namespace WebAPI.Controllers
         /// <param name="search_assets">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
+        /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("signup/pin"), HttpPost]
-        public LoginPin PostGenerateLoginPin([FromUri] string group_id, [FromUri] string user_id)
+        [Route("{user_id}/pin"), HttpPost]
+        public LoginPin PostGenerateLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             LoginPin response = null;
 
@@ -51,7 +52,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, user_id);
+                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, user_id, secret);
             }
             catch (ClientException ex)
             {
@@ -61,16 +62,62 @@ namespace WebAPI.Controllers
             return response;
         }
 
-
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("signup/pin"), HttpGet]
-        public LoginPin GetGenerateLoginPin(string group_id, string user_id)
+        [Route("{user_id}/pin"), HttpGet]
+        public LoginPin GetGenerateLoginPin(string group_id, string user_id, string secret = null)
         {
-            return PostGenerateLoginPin(group_id, user_id);
+            return PostGenerateLoginPin(group_id, user_id, secret);
         }
 
+        /// <summary>
+        /// User sign-in via a time-expired sign-in PIN.
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
+        /// </summary>
+        /// <param name="search_assets">The search asset request parameter</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="secret">Additional security parameter to validate the login</param>
+        /// <param name="device_id">Device Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("signin/pin"), HttpPost]
+        public User PostSignInWithPin([FromUri] string group_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
+        {
+            User response = null;
 
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
 
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().LoginWithPin(groupId, device_id, pin, secret);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("signin/pin"), HttpGet]
+        public User GetSignInWithPin(string group_id, string pin, string device_id, string secret = null)
+        {
+            return PostSignInWithPin(group_id, pin, device_id, secret);
+        }
 
         /// <summary>
         /// Retrieving users' data
@@ -158,7 +205,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
 
-            WebAPI.Models.User.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+            WebAPI.Models.Users.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
 
             if (user == null)
             {

@@ -98,7 +98,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.Epg));
         }
 
         private static int GetPictureWidth(string size)

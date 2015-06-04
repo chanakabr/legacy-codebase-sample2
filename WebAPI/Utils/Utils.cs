@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using WebAPI.ClientManagers;
+
+namespace WebAPI.Utils
+{
+    public class Utils
+    {
+        internal static int GetLanguageId(int groupId, string language)
+        {
+            // get all group languages
+            var languages = GroupsManager.GetGroup(groupId).Languages;
+
+            // get default/specific language
+            Models.Language langModel = new Models.Language();
+            if (string.IsNullOrEmpty(language))
+                langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
+            else
+                langModel = languages.Where(l => l.Code == language).FirstOrDefault();
+
+            if (langModel != null)
+                return langModel.Id;
+            else
+                return 0;
+        }
+
+        public static string GetClientIP()
+        {
+            string ip = string.Empty;
+            string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (!string.IsNullOrEmpty(retIp))
+            {
+                string[] ipRange = retIp.Split(',');
+                ip = ipRange[ipRange.Length - 1];
+            }
+            else
+            {
+                ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+            }
+
+            if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
+            //if (ip.Equals("81.218.199.175")) ip = "127.0.0.1";
+
+            return ip.Trim();
+        }
+    }
+}

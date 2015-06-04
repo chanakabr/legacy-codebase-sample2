@@ -157,6 +157,10 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback LoginWithPINOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetLoginPINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ClearLoginPINOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -386,6 +390,12 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event LoginWithPINCompletedEventHandler LoginWithPINCompleted;
+        
+        /// <remarks/>
+        public event SetLoginPINCompletedEventHandler SetLoginPINCompleted;
+        
+        /// <remarks/>
+        public event ClearLoginPINCompletedEventHandler ClearLoginPINCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2614,28 +2624,30 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GenerateLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PinCodeResponse GenerateLoginPIN(string sWSUserName, string sWSPassword, string siteGuid) {
+        public PinCodeResponse GenerateLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string secret) {
             object[] results = this.Invoke("GenerateLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid});
+                        siteGuid,
+                        secret});
             return ((PinCodeResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GenerateLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid) {
-            this.GenerateLoginPINAsync(sWSUserName, sWSPassword, siteGuid, null);
+        public void GenerateLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string secret) {
+            this.GenerateLoginPINAsync(sWSUserName, sWSPassword, siteGuid, secret, null);
         }
         
         /// <remarks/>
-        public void GenerateLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+        public void GenerateLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string secret, object userState) {
             if ((this.GenerateLoginPINOperationCompleted == null)) {
                 this.GenerateLoginPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGenerateLoginPINOperationCompleted);
             }
             this.InvokeAsync("GenerateLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid}, this.GenerateLoginPINOperationCompleted, userState);
+                        siteGuid,
+                        secret}, this.GenerateLoginPINOperationCompleted, userState);
         }
         
         private void OnGenerateLoginPINOperationCompleted(object arg) {
@@ -2647,7 +2659,7 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/LoginWithPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public LoginResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
+        public LoginResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, string secret) {
             object[] results = this.Invoke("LoginWithPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -2656,17 +2668,18 @@ namespace WebAPI.Users {
                         sIP,
                         deviceID,
                         bPreventDoubleLogins,
-                        keyValueList});
+                        keyValueList,
+                        secret});
             return ((LoginResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList) {
-            this.LoginWithPINAsync(sWSUserName, sWSPassword, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, null);
+        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, string secret) {
+            this.LoginWithPINAsync(sWSUserName, sWSPassword, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, secret, null);
         }
         
         /// <remarks/>
-        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, object userState) {
+        public void LoginWithPINAsync(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] keyValueList, string secret, object userState) {
             if ((this.LoginWithPINOperationCompleted == null)) {
                 this.LoginWithPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnLoginWithPINOperationCompleted);
             }
@@ -2678,13 +2691,84 @@ namespace WebAPI.Users {
                         sIP,
                         deviceID,
                         bPreventDoubleLogins,
-                        keyValueList}, this.LoginWithPINOperationCompleted, userState);
+                        keyValueList,
+                        secret}, this.LoginWithPINOperationCompleted, userState);
         }
         
         private void OnLoginWithPINOperationCompleted(object arg) {
             if ((this.LoginWithPINCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.LoginWithPINCompleted(this, new LoginWithPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
+            object[] results = this.Invoke("SetLoginPIN", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid,
+                        PIN,
+                        secret});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
+            this.SetLoginPINAsync(sWSUserName, sWSPassword, siteGuid, PIN, secret, null);
+        }
+        
+        /// <remarks/>
+        public void SetLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret, object userState) {
+            if ((this.SetLoginPINOperationCompleted == null)) {
+                this.SetLoginPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetLoginPINOperationCompleted);
+            }
+            this.InvokeAsync("SetLoginPIN", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid,
+                        PIN,
+                        secret}, this.SetLoginPINOperationCompleted, userState);
+        }
+        
+        private void OnSetLoginPINOperationCompleted(object arg) {
+            if ((this.SetLoginPINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetLoginPINCompleted(this, new SetLoginPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ClearLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ClearLoginPIN(string sWSUserName, string sWSPassword, string siteGuid) {
+            object[] results = this.Invoke("ClearLoginPIN", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid) {
+            this.ClearLoginPINAsync(sWSUserName, sWSPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+            if ((this.ClearLoginPINOperationCompleted == null)) {
+                this.ClearLoginPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnClearLoginPINOperationCompleted);
+            }
+            this.InvokeAsync("ClearLoginPIN", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid}, this.ClearLoginPINOperationCompleted, userState);
+        }
+        
+        private void OnClearLoginPINOperationCompleted(object arg) {
+            if ((this.ClearLoginPINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ClearLoginPINCompleted(this, new ClearLoginPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5550,6 +5634,58 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((LoginResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void SetLoginPINCompletedEventHandler(object sender, SetLoginPINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetLoginPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetLoginPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void ClearLoginPINCompletedEventHandler(object sender, ClearLoginPINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ClearLoginPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ClearLoginPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

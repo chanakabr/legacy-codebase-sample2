@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace WebAPI.Models.User
+namespace WebAPI.Models.Users
 {
     /// <summary>
     /// SignIn

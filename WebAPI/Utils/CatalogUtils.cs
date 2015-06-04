@@ -219,23 +219,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        internal static int GetLanguageId(int groupId, string language)
-        {
-            // get all group languages
-            var languages = GroupsManager.GetGroup(groupId).Languages;
-
-            // get default/specific language
-            Models.Language langModel = new Models.Language();
-            if (string.IsNullOrEmpty(language))
-                langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
-            else
-                langModel = languages.Where(l => l.Code == language).FirstOrDefault();
-
-            if (langModel != null)
-                return langModel.Id;
-            else
-                return 0;
-        }
+        
 
         internal static List<IAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<With> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
