@@ -31,10 +31,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.
+        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
-        /// <param name="search_assets">The search asset request parameter</param>
+        /// <param name="request">The search asset request parameter</param>
         /// <param name="group_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
+        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
@@ -135,7 +135,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get recently watched media for user, ordered by recently watched first.
+        /// Get recently watched media for user, ordered by recently watched first.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>

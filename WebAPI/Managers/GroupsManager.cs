@@ -38,7 +38,7 @@ namespace WebAPI.ClientManagers
             }
             catch (Exception ex)
             {
-                log.Error("Error while initiating groups manager", true, ex);
+                log.Error("Error while initiating groups manager", ex);
                 throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
             }
         }
@@ -69,7 +69,7 @@ namespace WebAPI.ClientManagers
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}", true, ex, groupKey, groupId);
+                        log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception: {2}", groupKey, groupId, ex);
                         throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                     }
                     finally
@@ -92,7 +92,7 @@ namespace WebAPI.ClientManagers
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}", true, ex, groupKey, groupId);
+                    log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception {2}", groupKey, groupId, ex);
                     throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Group configuration not found");
                 }
                 finally
@@ -115,7 +115,7 @@ namespace WebAPI.ClientManagers
 
             if (group == null)
             {
-                log.Warning("failed to get group cache from Couchbase");
+                log.Warn("failed to get group cache from Couchbase");
                 throw new Exception();
             }
 
