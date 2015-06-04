@@ -71,10 +71,10 @@ namespace TVPApi
         public static Category GetFullCategoryTree(int categoryID, string picSize, int groupID, PlatformType platformType, string language)
         {
             Category retVal = null;
-            if (false && m_dataCaching.TryGetData<Category>(GetUniqueCacheKey(categoryID, groupID), out retVal))
-            {
-                return retVal;
-            }
+            //if (false && m_dataCaching.TryGetData<Category>(GetUniqueCacheKey(categoryID, groupID), out retVal))
+            //{
+            //    return retVal;
+            //}
             CategoryResponse categoryResponse = new APICategoryLoader(groupID, platformType.ToString(), SiteHelper.GetClientIP(), categoryID, language).Execute() as CategoryResponse;
             
             if (categoryResponse != null)

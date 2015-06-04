@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,6 +57,7 @@ namespace TVPApiModule.Objects.Responses
             set;
         }
 
+        [JsonProperty(PropertyName = "pin", NullValueHandling = NullValueHandling.Ignore)]
         public string pin
         {
             get;

@@ -1,5 +1,4 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -10,12 +9,14 @@ using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIWatchHistoryLoader : CatalogRequestManager
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(APIWatchHistoryLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";

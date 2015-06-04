@@ -8,12 +8,13 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace TVPApiServices
@@ -24,7 +25,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class NotificationService : System.Web.Services.WebService, INotificationService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(NotificationService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod(EnableSession = true, Description = "Gets device notifications")]
         [PrivateMethod]

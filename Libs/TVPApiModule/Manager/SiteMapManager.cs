@@ -5,7 +5,8 @@ using System.Web;
 using TVPApi;
 using Tvinci.Data.DataLoader;
 using System.Threading;
-using log4net;
+using System.Reflection;
+using KLogMonitor;
 
 /// <summary>
 /// Summary description for SiteMapManager
@@ -16,8 +17,7 @@ namespace TVPApi
 {
     public class SiteMapManager
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(SiteMapManager));
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private Dictionary<string, SiteMap> m_siteMapInstances = null;
         private Dictionary<long, Profile> m_Profiles = new Dictionary<long, Profile>();
         private Dictionary<string, PageData> m_pageData = new Dictionary<string, PageData>();
@@ -26,9 +26,9 @@ namespace TVPApi
         private static ReaderWriterLockSlim m_ProfilesLocker = new ReaderWriterLockSlim();
         private static ReaderWriterLockSlim m_PageDataLocker = new ReaderWriterLockSlim();
 
-        private static string m_currentGroupID;
-        
-        private SiteMap m_UnifiedSiteMap;
+        private static string m_currentGroupID = null;
+
+        private SiteMap m_UnifiedSiteMap = null;
         private static SiteMapManager m_siteMapManager = null;
 
         static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
@@ -40,7 +40,7 @@ namespace TVPApi
             {
                 if (m_siteMapManager == null)
                     m_siteMapManager = new SiteMapManager();
-                
+
                 return m_siteMapManager;
             }
         }
@@ -112,7 +112,7 @@ namespace TVPApi
         public SiteMap GetSiteMapInstance(int groupID, PlatformType platform, Locale locale)
         {
             SiteMap tempMap = null;
-            
+
             logger.InfoFormat("Start Site Map : {0} {1}", groupID, platform);
 
             string keyStr = GetKey(groupID, platform);
@@ -157,8 +157,8 @@ namespace TVPApi
                     m_SiteMapsLocker.ExitWriteLock();
                 }
             }
-            
-            
+
+
             // If item already exist
 
             if (m_SiteMapsLocker.TryEnterReadLock(1000))
@@ -176,8 +176,8 @@ namespace TVPApi
                     m_SiteMapsLocker.ExitReadLock();
                 }
             }
-            
-            
+
+
             if (locale != null)
             {
                 foreach (PageContext page in tempMap.GetPages())
@@ -294,7 +294,7 @@ namespace TVPApi
             SiteMap siteMap = null;
 
             PageData pageData = GetPageData(groupID, platform);
-            
+
             Dictionary<string, Dictionary<long, PageContext>> pages = pageData.GetPageContextsIDDict();
             if (pages != null)
             {
@@ -351,12 +351,12 @@ namespace TVPApi
             Dictionary<string, Dictionary<long, List<MenuItem>>> footers;
 
             // get all relevent menues/footers from Menu manager singleton
-            
-                menues = MenuBuilder.GetInstance(groupID, platform).GetMenuLangDict();
-                string keyStr = string.Concat(groupID.ToString(), platform.ToString());
-            
-                footers = MenuBuilder.GetInstance(groupID, platform).GetFooterLangDict();
-            
+
+            menues = MenuBuilder.GetInstance(groupID, platform).GetMenuLangDict();
+            string keyStr = string.Concat(groupID.ToString(), platform.ToString());
+
+            footers = MenuBuilder.GetInstance(groupID, platform).GetFooterLangDict();
+
 
             if (menues != null)
             {
@@ -364,7 +364,7 @@ namespace TVPApi
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in menues)
                 {
                     logger.InfoFormat("Add menu to site map->", menuLangPair.Key);
-                    
+
                     //if (!m_siteMapInstances.ContainsKey(keyStr))
                     //{
                     //    continue;
@@ -388,7 +388,7 @@ namespace TVPApi
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in footers)
                 {
                     logger.InfoFormat("Add footer menu to site map->", menuLangPair.Key);
-                    
+
                     //if (!m_siteMapInstances.ContainsKey(keyStr))//menuLangPair.Key))
                     //{
                     //    //m_siteMapInstances.Add(menuLangPair.Key, new SiteMap());

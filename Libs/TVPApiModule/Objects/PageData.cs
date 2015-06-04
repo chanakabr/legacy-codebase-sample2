@@ -13,20 +13,15 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
+
 
 namespace TVPApi
 {
     public class PageData
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(PageData));
-
-        //static PageData()
-        //{
-        //    m_Instance = new PageData();
-        //}
-
-       
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public PageData(int groupID, PlatformType platform)
         {
@@ -38,7 +33,6 @@ namespace TVPApi
         }
 
         #region Fields
-        //public static ILog m_Logger = log4net.LogManager.GetLogger("TVPApi.PageData");
 
         private const string REQUEST_PAGE_KEY = "REQUESTPAGEKEY";
 
@@ -253,7 +247,7 @@ namespace TVPApi
         #region Private Methods
         public void Init(int groupID, PlatformType platfrom)
         {
-            logger.InfoFormat("Init-> [{0}, {1}] - Started intializing page information", groupID, platfrom.ToString());
+            logger.InfoFormat("Init-> [{0}, {1}] - Started initializing page information", groupID, platfrom.ToString());
 
             // Load pages dataset]
             try
@@ -265,7 +259,6 @@ namespace TVPApi
                 if (DataOnPage == null)
                 {
                     logger.ErrorFormat("Init-> [{0}, {1}] - Page data returned null", groupID, platfrom.ToString());
-                    
                     return;
                 }
             }
@@ -312,7 +305,7 @@ namespace TVPApi
                         // Check if page id exists for language
                         if (m_LanguageTokenPages[culture].ContainsKey(page.PageToken))
                         {
-                           // m_Logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
+                            // m_Logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
                             //throw new Exception(string.Format("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture));
                         }
                         else
@@ -348,7 +341,7 @@ namespace TVPApi
                 }
             }
 
-           // m_Logger.Info("Finished intializing page information, found: " + DataOnPage.Pages.Count + " pages");
+            // m_Logger.Info("Finished intializing page information, found: " + DataOnPage.Pages.Count + " pages");
         }
 
         //public PageContext[] GetPagesByLanguage(string langID)
@@ -397,9 +390,9 @@ namespace TVPApi
             if (!page.IsPageTokenNull())
             {
                 //Check if page exists
-				if (Enum.IsDefined(typeof(Pages), page.PageToken))
-					pg.PageToken = (Pages) Enum.Parse(typeof(Pages), page.PageToken, true);
-				else
+                if (Enum.IsDefined(typeof(Pages), page.PageToken))
+                    pg.PageToken = (Pages)Enum.Parse(typeof(Pages), page.PageToken, true);
+                else
                     pg.PageToken = Pages.UnKnown;
             }
             else
@@ -570,18 +563,18 @@ namespace TVPApi
         private string GetLanguageString(string cultureCode)
         {
             return cultureCode;
-            try
-            {
-                Tvinci.Localization.LanguageContext lc;
-                TextLocalization.Instance.TryGetLanguageByCulture(cultureCode, out lc);
-                string culture = lc.CultureInfo.DisplayName;
-                return culture;
-            }
-            catch (Exception ex)
-            {
-                int i = 0;
-            }
-            return string.Empty;
+            //try
+            //{
+            //    Tvinci.Localization.LanguageContext lc;
+            //    TextLocalization.Instance.TryGetLanguageByCulture(cultureCode, out lc);
+            //    string culture = lc.CultureInfo.DisplayName;
+            //    return culture;
+            //}
+            //catch (Exception ex)
+            //{
+            //    int i = 0;
+            //}
+            //return string.Empty;
         }
 
         private void AddGalleriesToPage(PageContext page, dsPageData.PagesRow pageRow)

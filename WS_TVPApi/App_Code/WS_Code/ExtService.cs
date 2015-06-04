@@ -9,7 +9,8 @@ using TVPApiModule.Services;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.Helper;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -20,7 +21,7 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class ExtService : System.Web.Services.WebService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(ExtService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod]
         public List<DeviceInfo> GetAccountDevices(string sUsername, string sPassword, int sAccountID)
@@ -46,12 +47,12 @@ namespace TVPApiServices
                     if (selectQuery.Execute("query", true) != null)
                     {
                         Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                        logger.Error(selectQuery.Table("query").DefaultView.Table.Columns[0].ColumnName);
+                        logger.DebugFormat(selectQuery.Table("query").DefaultView.Table.Columns[0].ColumnName);
 
                         if (nCount > 0)
                         {
                             sAccUuid = selectQuery.Table("query").DefaultView[0].Row["Data_Value"].ToString();
-                            logger.Error(sAccUuid);
+                            logger.DebugFormat(sAccUuid);
                         }
                     }
                     selectQuery.Finish();
@@ -60,7 +61,7 @@ namespace TVPApiServices
                     int iDomainID = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainIDByCoGuid(sAccUuid);
                     domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
                 }
-                catch (Exception ex) { logger.Error(ex.ToString()); }
+                catch (Exception ex) { logger.Error("", ex); }
                 if (domain != null && domain.m_deviceFamilies.Length > 0)
                 {
                     foreach (DeviceContainer dc in domain.m_deviceFamilies)
@@ -91,9 +92,9 @@ namespace TVPApiServices
                 bool bDeviceName = false;
                 if (!string.IsNullOrEmpty(sDeviceName))
                     bDeviceName = new ApiDomainsService(groupId, PlatformType.iPad).SetDeviceInfo(sUDID, sDeviceName);
-                
+
                 Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
-                
+
                 DomainResponseObject res = new DomainResponseObject();
                 if (domain != null && domain.Length > 0)
                 {
@@ -113,7 +114,7 @@ namespace TVPApiServices
                 retStat.Code = "401";
                 retStat.Description = "No permission";
             }
-            
+
             return retStat;
         }
 
@@ -126,12 +127,12 @@ namespace TVPApiServices
             if (groupId != 0)
             {
                 Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
-                
+
                 DomainResponseObject res = new DomainResponseObject();
                 if (domain != null && domain.Length > 0)
                 {
                     res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain[0].m_nDomainID, sUDID);
-                    retStat.Code = (res.m_oDomainResponseStatus.ToString().ToLower().Equals("ok")? "0" : res.m_oDomainResponseStatus.ToString());
+                    retStat.Code = (res.m_oDomainResponseStatus.ToString().ToLower().Equals("ok") ? "0" : res.m_oDomainResponseStatus.ToString());
                     retStat.Description = res.m_oDomainResponseStatus.ToString();
                 }
                 else
@@ -170,12 +171,12 @@ namespace TVPApiServices
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    logger.Error(selectQuery.Table("query").DefaultView.Table.Columns[0].ColumnName);
+                    logger.DebugFormat(selectQuery.Table("query").DefaultView.Table.Columns[0].ColumnName);
 
                     if (nCount > 0)
                     {
                         sAccUuid = selectQuery.Table("query").DefaultView[0].Row["Data_Value"].ToString();
-                        logger.Error(sAccUuid);
+                        logger.DebugFormat(sAccUuid);
                     }
                 }
                 selectQuery.Finish();

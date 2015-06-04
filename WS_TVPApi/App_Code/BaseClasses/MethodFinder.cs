@@ -10,14 +10,15 @@ using System.Xml;
 using System.Web.Services.Protocols;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
-using Logger;
+using KLogMonitor;
 
 /// <summary>
 /// Finds the Method By Reflection
 /// </summary>
 public partial class MethodFinder
 {
-    #region Method Info
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     /// <summary>
     /// Operator service - The service the request currently uses
     /// </summary>
@@ -25,11 +26,12 @@ public partial class MethodFinder
     private System.Web.Services.WebService[] BackWebservice { get; set; }
     private MethodInfo m_MetodInfo { get; set; }
     private ParameterInfo[] MethodParameters { get; set; }
+
     /// <summary>
     /// Indicates the request type from client
     /// </summary>
     private bool IsPost { get; set; }
-    #endregion
+
     /// <summary>
     /// Gets a set of web services to retrieve functions from
     /// </summary>
@@ -47,47 +49,36 @@ public partial class MethodFinder
         {
             if (VerifyAllParametersCheck())
             {
-                using (BaseLog log = new BaseLog(eLogType.SoapRequest, DateTime.UtcNow, false))
+                string SerializedReturnValue = String.Empty;
+
+                // get the strategy to use to handle request
+                ParameterInitBase executer = GetExecuter();
+
+                object[] CallParameters = new object[MethodParameters.Length];
+                for (int i = 0; i < MethodParameters.Length; i++)
                 {
-                    log.Id = HttpContext.Current.ApplicationInstance.Session.SessionID;
-                    log.IP = HttpContext.Current.Request.UserHostAddress;
-                    log.UserAgent = HttpContext.Current.Request.UserAgent;
-                    log.Method = HttpContext.Current.Request.QueryString["m"];
-                    log.Info(sJsonFormatInput.Replace('\n', ' '), false);
+                    ParameterInfo TargetParameter = MethodParameters[i];
 
-                    string SerializedReturnValue = String.Empty;
-
-                    // get the strategy to use to handle request
-                    ParameterInitBase executer = GetExecuter();
-
-                    object[] CallParameters = new object[MethodParameters.Length];
-                    for (int i = 0; i < MethodParameters.Length; i++)
-                    {
-                        ParameterInfo TargetParameter = MethodParameters[i];
-
-                        // get the object value of the parameter
-                        CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
-                    }
-
-                    // post handle request
-                    SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
-                    log.Type = eLogType.SoapResponse;
-                    if (!string.IsNullOrEmpty(SerializedReturnValue))
-                    {
-                        log.Info(SerializedReturnValue, false);
-                    }
-                    else
-                    {
-                        log.Info("No results found or null object returned", false);
-                    }
-
-                    WriteResponseBackToClient(SerializedReturnValue);
+                    // get the object value of the parameter
+                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
                 }
+
+                // post handle request
+                SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
+
+                // log response
+                if (!string.IsNullOrEmpty(SerializedReturnValue))
+                    logger.DebugFormat("API Response - \n{0}", SerializedReturnValue);
+                else
+                    logger.DebugFormat("No results found or null object returned");
+
+                WriteResponseBackToClient(SerializedReturnValue);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            ErrorHandler(String.Format("Exception Generated. Reason: {0}", e.Message));
+            logger.Error("Error while processing request", ex);
+            ErrorHandler(String.Format("Exception Generated. Reason: {0}", ex.Message));
         }
     }
 

@@ -6,28 +6,30 @@ using Tvinci.Configuration;
 using System.Threading;
 using System.Configuration;
 using Tvinci.Configuration.ConfigSvc;
-using log4net;
 using TVPPro.Configuration.Media;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApi.Configuration.Media
 {
     public class ApiMediaConfiguration : ConfigurationManager<MediaData>
     {
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(MediaConfiguration));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public ApiMediaConfiguration()
-		{
-			base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
+        {
+            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
             m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.Media"];
-		}
+        }
 
         public ApiMediaConfiguration(string syncFile)
         {
             base.SyncFromFile(syncFile, true);
             m_syncFile = syncFile;
-        }        
-        
-        public ApiMediaConfiguration(int nGroupID, string sPlatform, string sEnvironment) : base(eSource.Service)
+        }
+
+        public ApiMediaConfiguration(int nGroupID, string sPlatform, string sEnvironment)
+            : base(eSource.Service)
         {
             SyncFromService(nGroupID, sPlatform, sEnvironment, eConfigType.Media, CreateMediaConfig);
         }

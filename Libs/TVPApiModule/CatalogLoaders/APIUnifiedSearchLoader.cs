@@ -1,9 +1,10 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
@@ -19,7 +20,8 @@ namespace TVPApiModule.CatalogLoaders
         protected const string EPG_CACHE_KEY_PREFIX = "epg";
         protected const string CACHE_KEY_FORMAT = "{0}_lng{1}";
 
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(APIUnifiedSearchLoader));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public List<int> AssetTypes { get; set; }
         public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }

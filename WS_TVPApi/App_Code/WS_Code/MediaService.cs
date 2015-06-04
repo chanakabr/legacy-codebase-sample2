@@ -9,7 +9,6 @@ using ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
@@ -32,6 +31,8 @@ using RecordedEPGOrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedE
 using System.Data;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects.Authorization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiServices
 {
@@ -45,7 +46,8 @@ namespace TVPApiServices
     [System.Web.Script.Services.ScriptService]
     public class MediaService : System.Web.Services.WebService, IMediaService
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(MediaService));
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         #region Get media
 
@@ -640,7 +642,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get (ORCA) recommended medias by gallery")]
         public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType, string coGuid)
         {
-            logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
+            logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", true, galleryType);
 
             OrcaResponse retVal = null;
 

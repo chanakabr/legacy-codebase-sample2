@@ -5,9 +5,13 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Collections;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class ClearCache : System.Web.UI.Page
 {
+    private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -41,6 +45,7 @@ public partial class ClearCache : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            logger.Error("", ex);
             Response.Write("failed to clear site cache");
         }
     }

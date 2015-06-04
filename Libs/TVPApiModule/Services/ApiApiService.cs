@@ -2,31 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPApiModule.Services
 {
     public class ApiApiService : ApiBase
     {
-        #region Variables
-        private static ILog logger = LogManager.GetLogger(typeof(ApiService));
-
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private TVPPro.SiteManager.TvinciPlatform.api.API m_Module;
-
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-
         private int m_groupID;
         private PlatformType m_platform;
-        #endregion
 
-        #region C'tor
         public ApiApiService(int groupID, PlatformType platform)
         {
             m_Module = new TVPPro.SiteManager.TvinciPlatform.api.API();
@@ -37,15 +32,16 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-        #endregion C'tor
 
-        #region Public methods
         public GroupOperator[] GetGroupOperators(string scope)
         {
             GroupOperator[] response = null;
             try
             {
-                response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
+                }
             }
             catch (Exception ex)
             {
@@ -85,13 +81,16 @@ namespace TVPApiModule.Services
         public MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
         {
             MediaMarkObject mediaMark = null;
-            try
+            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
             {
-                mediaMark = m_Module.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
+                try
+                {
+                    mediaMark = m_Module.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
+                }
             }
 
             return mediaMark;
@@ -189,7 +188,7 @@ namespace TVPApiModule.Services
         //    try
         //    {
         //        objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-                
+
         //    }
         //    catch (Exception ex)
         //    {
@@ -258,7 +257,7 @@ namespace TVPApiModule.Services
         {
             bool res = false;
             try
-            {                
+            {
                 res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
             }
             catch (Exception ex)
@@ -304,7 +303,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}", 
+                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}",
                     ex.Message, siteGuid, domainID, ruleID, isActive);
             }
             return res;
@@ -394,7 +393,6 @@ namespace TVPApiModule.Services
             }
             return res;
         }
-        #endregion
 
         public TVPApiModule.Objects.Responses.RegionsResponse GetRegions(int[] regionIds)
         {
@@ -414,7 +412,7 @@ namespace TVPApiModule.Services
                 {
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -452,8 +450,6 @@ namespace TVPApiModule.Services
 
             return response;
         }
-
-        #region Parental Rules
 
         public TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalRules()
         {
@@ -736,8 +732,5 @@ namespace TVPApiModule.Services
 
             return response;
         }
-
-        #endregion
-
     }
 }
