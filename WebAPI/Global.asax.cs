@@ -37,20 +37,17 @@ namespace WebAPI
             if (queryParams["user_id"] != null)
                 HttpContext.Current.Items.Add(Constants.USER_ID, queryParams["user_id"]);
 
-            if (HttpContext.Current.Request != null)
-            {
-                // get user agent
-                if (HttpContext.Current.Request.UserAgent != null)
-                    HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
+            // get user agent
+            if (HttpContext.Current.Request.UserAgent != null)
+                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
 
-                // get host IP
-                if (HttpContext.Current.Request.UserHostAddress != null)
-                    HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
+            // get host IP
+            if (HttpContext.Current.Request.UserHostAddress != null)
+                HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
 
-                // get action name
-                if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
-                    HttpContext.Current.Items.Add(Constants.ACTION, HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath);
-            }
+            // get action name
+            if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
+                HttpContext.Current.Items.Add(Constants.ACTION, HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath);
         }
     }
 }
