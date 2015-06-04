@@ -1773,7 +1773,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
 
             return rules;
         }
@@ -1842,7 +1842,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
 
             return rules;
         }
