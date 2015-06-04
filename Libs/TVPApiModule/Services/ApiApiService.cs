@@ -56,7 +56,10 @@ namespace TVPApiModule.Services
             GroupOperator[] operators = null;
             try
             {
-                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                }
                 string _plat = platform == PlatformType.ConnectedTV ? "CTV" : platform.ToString();
                 foreach (var menu in operators)
                 {
@@ -81,16 +84,17 @@ namespace TVPApiModule.Services
         public MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
         {
             MediaMarkObject mediaMark = null;
-            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+
+            try
             {
-                try
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     mediaMark = m_Module.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
                 }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
             }
 
             return mediaMark;
@@ -101,7 +105,10 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                bRet = m_Module.AddUserSocialAction(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid, Action, socialPlatform);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bRet = m_Module.AddUserSocialAction(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid, Action, socialPlatform);
+                }
             }
             catch (Exception ex)
             {
@@ -116,7 +123,10 @@ namespace TVPApiModule.Services
             RateMediaObject res = null;
             try
             {
-                res = m_Module.RateMedia(m_wsUserName, m_wsPassword, mediaId, siteGuid, rating);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.RateMedia(m_wsUserName, m_wsPassword, mediaId, siteGuid, rating);
+                }
             }
             catch (Exception ex)
             {
@@ -131,7 +141,10 @@ namespace TVPApiModule.Services
             string geo = string.Empty;
             try
             {
-                geo = m_Module.CheckGeoBlockMedia(m_wsUserName, m_wsPassword, iMediaID, UserIP);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    geo = m_Module.CheckGeoBlockMedia(m_wsUserName, m_wsPassword, iMediaID, UserIP);
+                }
             }
             catch (Exception ex)
             {
@@ -145,7 +158,10 @@ namespace TVPApiModule.Services
             EPGChannelObject[] objEPGRes = null;
             try
             {
-                objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                }
             }
             catch (Exception ex)
             {
@@ -202,7 +218,10 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                }
             }
             catch (Exception ex)
             {
@@ -216,7 +235,10 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupRules(m_wsUserName, m_wsPassword);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetGroupRules(m_wsUserName, m_wsPassword);
+                }
             }
             catch (Exception ex)
             {
@@ -230,7 +252,10 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+                }
             }
             catch (Exception ex)
             {
@@ -244,7 +269,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.SetUserGroupRule(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN, isActive);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SetUserGroupRule(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN, isActive);
+                }
             }
             catch (Exception ex)
             {
@@ -258,7 +286,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
+                }
             }
             catch (Exception ex)
             {
@@ -272,20 +303,23 @@ namespace TVPApiModule.Services
             string[] res = null;
             try
             {
-                res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new RequestObj()
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    m_InfoStruct = new InfoStructObj()
+                    res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new RequestObj()
                     {
-                        m_MediaTypes = mediaTypes,
-                        m_Metas = metas,
-                        m_Tags = tags,
-                        m_sPrefix = prefix
-                    },
-                    m_eRuleType = eCutType.Or,
-                    m_sLanguage = lang,
-                    m_iPageIndex = pageIdx,
-                    m_iPageSize = pageSize
-                });
+                        m_InfoStruct = new InfoStructObj()
+                        {
+                            m_MediaTypes = mediaTypes,
+                            m_Metas = metas,
+                            m_Tags = tags,
+                            m_sPrefix = prefix
+                        },
+                        m_eRuleType = eCutType.Or,
+                        m_sLanguage = lang,
+                        m_iPageIndex = pageIdx,
+                        m_iPageSize = pageSize
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -299,7 +333,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.SetRuleState(m_wsUserName, m_wsPassword, domainID, siteGuid, ruleID, isActive);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SetRuleState(m_wsUserName, m_wsPassword, domainID, siteGuid, ruleID, isActive);
+                }
             }
             catch (Exception ex)
             {
@@ -314,7 +351,10 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+                }
             }
             catch (Exception ex)
             {
@@ -328,7 +368,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.SetDomainGroupRule(m_wsUserName, m_wsPassword, domainID, ruleID, PIN, isActive);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SetDomainGroupRule(m_wsUserName, m_wsPassword, domainID, ruleID, PIN, isActive);
+                }
             }
             catch (Exception ex)
             {
@@ -343,7 +386,10 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
+                }
             }
             catch (Exception ex)
             {
@@ -357,7 +403,10 @@ namespace TVPApiModule.Services
             string[] res = null;
             try
             {
-                res = m_Module.GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+                }
             }
             catch (Exception ex)
             {
@@ -371,7 +420,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+                }
             }
             catch (Exception ex)
             {
@@ -385,7 +437,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Module.SendToFriend(m_wsUserName, m_wsPassword, senderName, senderMail, mailTo, nameTo, mediaID);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.SendToFriend(m_wsUserName, m_wsPassword, senderName, senderMail, mailTo, nameTo, mediaID);
+                }
             }
             catch (Exception ex)
             {
@@ -400,19 +455,22 @@ namespace TVPApiModule.Services
 
             try
             {
-                var result = m_Module.GetRegions(m_wsUserName, m_wsPassword, regionIds);
+                TVPPro.SiteManager.TvinciPlatform.api.RegionsResponse regionsResult = new TVPPro.SiteManager.TvinciPlatform.api.RegionsResponse();
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    regionsResult = m_Module.GetRegions(m_wsUserName, m_wsPassword, regionIds);
+                }
                 response = new TVPApiModule.Objects.Responses.RegionsResponse();
-                if (result != null && result.Regions != null)
+                if (regionsResult != null && regionsResult.Regions != null)
                 {
                     response.Regions = new List<Objects.Responses.Region>();
-                    result.Regions.ToList().ForEach(r => response.Regions.Add(new Objects.Responses.Region(r)));
-                    response.Status = new TVPApiModule.Objects.Responses.Status(result.Status.Code, result.Status.Message);
+                    regionsResult.Regions.ToList().ForEach(r => response.Regions.Add(new Objects.Responses.Region(r)));
+                    response.Status = new TVPApiModule.Objects.Responses.Status(regionsResult.Status.Code, regionsResult.Status.Message);
                 }
                 else
                 {
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
-
             }
             catch (Exception ex)
             {
@@ -428,9 +486,13 @@ namespace TVPApiModule.Services
         {
             AdminUserResponse response = new TVPApiModule.Objects.Responses.AdminUserResponse(); ;
 
+            AdminAccountUserResponse result = new AdminAccountUserResponse();
             try
             {
-                var result = m_Module.AdminSignIn(m_wsUserName, m_wsPassword, username, password);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    result = m_Module.AdminSignIn(m_wsUserName, m_wsPassword, username, password);
+                }
                 if (result != null && result.m_status == AdminUserStatus.OK)
                 {
                     response.AdminUser = new AdminUser(result);
@@ -440,7 +502,6 @@ namespace TVPApiModule.Services
                 {
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
-
             }
             catch (Exception ex)
             {
@@ -457,9 +518,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalRules(m_wsUserName, m_wsPassword);
-
-                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetParentalRules(m_wsUserName, m_wsPassword);
+                    response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -476,9 +539,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetDomainParentalRules(m_wsUserName, m_wsPassword, domainId);
-
-                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetDomainParentalRules(m_wsUserName, m_wsPassword, domainId);
+                    response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -495,9 +560,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid);
-
-                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid);
+                    response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -516,17 +583,21 @@ namespace TVPApiModule.Services
             {
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
-                    var webServiceRespone = m_Module.SetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid, ruleId, isActive);
-
-                    status.Code = webServiceRespone.Code;
-                    status.Message = webServiceRespone.Message;
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        var webServiceRespone = m_Module.SetUserParentalRules(m_wsUserName, m_wsPassword, siteGuid, ruleId, isActive);
+                        status.Code = webServiceRespone.Code;
+                        status.Message = webServiceRespone.Message;
+                    }
                 }
                 else
                 {
-                    var webServiceRespone = m_Module.SetDomainParentalRules(m_wsUserName, m_wsPassword, domainID, ruleId, isActive);
-
-                    status.Code = webServiceRespone.Code;
-                    status.Message = webServiceRespone.Message;
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        var webServiceRespone = m_Module.SetDomainParentalRules(m_wsUserName, m_wsPassword, domainID, ruleId, isActive);
+                        status.Code = webServiceRespone.Code;
+                        status.Message = webServiceRespone.Message;
+                    }
                 }
             }
             catch (Exception ex)
@@ -544,9 +615,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalPIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
-
-                response = new Objects.Responses.PinResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetParentalPIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
+                    response = new Objects.Responses.PinResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -563,10 +636,12 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceRespone = m_Module.SetParentalPIN(m_wsUserName, m_wsPassword, domainID, siteGuid, pin);
-
-                status.Code = webServiceRespone.Code;
-                status.Message = webServiceRespone.Message;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceRespone = m_Module.SetParentalPIN(m_wsUserName, m_wsPassword, domainID, siteGuid, pin);
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
             }
             catch (Exception ex)
             {
@@ -583,9 +658,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid);
-
-                response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid);
+                    response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -602,10 +679,12 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceRespone = m_Module.SetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid, setting);
-
-                status.Code = webServiceRespone.Code;
-                status.Message = webServiceRespone.Message;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceRespone = m_Module.SetPurchaseSettings(m_wsUserName, m_wsPassword, domainId, siteGuid, setting);
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
             }
             catch (Exception ex)
             {
@@ -622,9 +701,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
-
-                response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
+                    response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -641,10 +722,12 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceRespone = m_Module.SetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid, pin);
-
-                status.Code = webServiceRespone.Code;
-                status.Message = webServiceRespone.Message;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceRespone = m_Module.SetPurchasePIN(m_wsUserName, m_wsPassword, domainId, siteGuid, pin);
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
             }
             catch (Exception ex)
             {
@@ -661,10 +744,12 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceRespone = m_Module.ValidateParentalPIN(m_wsUserName, m_wsPassword, siteGuid, pin);
-
-                status.Code = webServiceRespone.Code;
-                status.Message = webServiceRespone.Message;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceRespone = m_Module.ValidateParentalPIN(m_wsUserName, m_wsPassword, siteGuid, pin);
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
             }
             catch (Exception ex)
             {
@@ -681,10 +766,12 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceRespone = m_Module.ValidatePurchasePIN(m_wsUserName, m_wsPassword, siteGuid, pin);
-
-                status.Code = webServiceRespone.Code;
-                status.Message = webServiceRespone.Message;
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceRespone = m_Module.ValidatePurchasePIN(m_wsUserName, m_wsPassword, siteGuid, pin);
+                    status.Code = webServiceRespone.Code;
+                    status.Message = webServiceRespone.Message;
+                }
             }
             catch (Exception ex)
             {
@@ -701,9 +788,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId);
-
-                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetParentalMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId);
+                    response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
@@ -720,9 +809,11 @@ namespace TVPApiModule.Services
 
             try
             {
-                var webServiceResponse = m_Module.GetParentalEPGRules(m_wsUserName, m_wsPassword, siteGuid, epgId, domainId);
-
-                response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetParentalEPGRules(m_wsUserName, m_wsPassword, siteGuid, epgId, domainId);
+                    response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
+                }
             }
             catch (Exception ex)
             {
