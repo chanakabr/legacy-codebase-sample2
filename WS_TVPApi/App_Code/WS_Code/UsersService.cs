@@ -340,6 +340,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Renews user PIN")]
+        [PrivateMethod]
         public string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID)
         {
             ResponseStatus response = ResponseStatus.OK;
@@ -559,6 +560,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
+        [PrivateMethod]
         public string SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID)
         {
             ResponseStatus response = ResponseStatus.OK;

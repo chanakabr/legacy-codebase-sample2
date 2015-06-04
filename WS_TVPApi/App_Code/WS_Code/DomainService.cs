@@ -99,6 +99,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add device to domain")]
+        [PrivateMethod]
         public DomainResponseObject AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
         {
             DomainResponseObject resDomain = null;
@@ -780,6 +781,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Adds Home network to domain")]
+        [PrivateMethod]
         public NetworkResponseObject AddHomeNetworkToDomain(InitializationObject initObj, string networkId, string networkName, string networkDesc)
         {
             NetworkResponseObject network = null;

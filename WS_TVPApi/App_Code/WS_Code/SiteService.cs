@@ -625,6 +625,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get from Secured SiteGuid")]
+        [PrivateMethod]
         public string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid)
         {
             string sRet = string.Empty;
@@ -1208,6 +1209,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set Domain Group Rule")]
+        [PrivateMethod]
         public bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
         {
             bool response = false;
@@ -1381,6 +1383,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Account STBs")]
+        [PrivateMethod]
         public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId)
         {
             TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;

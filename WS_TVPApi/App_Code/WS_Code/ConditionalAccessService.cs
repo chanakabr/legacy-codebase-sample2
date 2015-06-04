@@ -30,6 +30,7 @@ namespace TVPApiServices
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [WebMethod(EnableSession = true, Description = "Activate Campaign with information")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
                                                                                                                 string senderEmail, string senderName, CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
         {
@@ -53,6 +54,7 @@ namespace TVPApiServices
             return campaignActionInfo;
         }
         [WebMethod(EnableSession = true, Description = "Get customer data")]
+        [PrivateMethod]
         public int AD_GetCustomDataID(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType)
         {
             int res = 0;
@@ -100,6 +102,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Create Purchase Token")]
+        [PrivateMethod]
         public int CreatePurchaseToken(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID)
         {
             int res = 0;
@@ -124,6 +127,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate Campaign")]
+        [PrivateMethod]
         public bool ActivateCampaign(InitializationObject initObj, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
         {
@@ -220,6 +224,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is permitted item")]
+        [PrivateMethod]
         public bool IsPermittedItem(InitializationObject initObj, int mediaId)
         {
             bool res = false;
@@ -243,6 +248,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is permitted subscription")]
+        [PrivateMethod]
         public bool IsPermittedSubscription(InitializationObject initObj, int subId)
         {
             bool res = false;
@@ -266,6 +272,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Google signature")]
+        [PrivateMethod]
         public string GetGoogleSignature(InitializationObject initObj, int customerId)
         {
             string res = string.Empty;
@@ -894,6 +901,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Waiver Transaction")]
+        [PrivateMethod]
         public bool WaiverTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType)
         {
             bool isWaiverTransactionSucceeded = false;
