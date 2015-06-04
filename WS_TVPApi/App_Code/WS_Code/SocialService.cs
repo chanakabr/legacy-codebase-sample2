@@ -224,7 +224,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Merges FB user")]
-        [PrivateMethod]
         public FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass,
@@ -457,6 +456,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Facebook Action Privacy")]
+        [PrivateMethod]
         public bool SetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -498,6 +498,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
+        [PrivateMethod]
         public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
         {
             SocialFeed resSocialFeed = new SocialFeed();
@@ -563,7 +564,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes data stored in Kaltura's DB which makes Facebook actions (login, share, like, etc) on the customer site feasible. The user will still be able to see the actions he performed as these are logged as 'Tvinci actions'. However, all his friends won't be able to view his actions as they'll be deleted from social feed")]
-        [PrivateMethod]
         public FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password)
         {
             FacebookResponseObject response = null;
