@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("signin/pin"), HttpPost]
+        [Route("login/pin"), HttpPost]
         public User PostSignInWithPin([FromUri] string group_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
         {
             User response = null;
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("signin/pin"), HttpGet]
+        [Route("login/pin"), HttpGet]
         public User GetSignInWithPin(string group_id, string pin, string device_id, string secret = null)
         {
             return PostSignInWithPin(group_id, pin, device_id, secret);
