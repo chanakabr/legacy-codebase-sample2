@@ -499,6 +499,15 @@
     <Content Include="Web References\Api\LanguageObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\ParentalRulesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PurchaseSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -538,6 +547,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Web References\Users\LoginResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Users\module.disco" />
@@ -583,6 +595,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\General\ParentalRule.cs" />
     <Compile Include="Models\Users\Country.cs" />
     <Compile Include="Models\Users\LoginPin.cs" />
     <Compile Include="Models\Users\User.cs" />
@@ -733,10 +746,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://localhost:82/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Api\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/ws_api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
