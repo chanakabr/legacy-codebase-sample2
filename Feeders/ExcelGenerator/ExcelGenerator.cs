@@ -758,7 +758,7 @@ namespace ExcelGenerator
 
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
-            selectQuery += "select  media_files.* , sc.streaming_company_name , lu_player_descriptions.[DESCRIPTION], altsc.STREAMING_COMPANY_NAME as 'ALT_STREAMING_COMPANY_NAME'";
+            selectQuery += "select  media_files.* , sc.streaming_company_name , lu_player_descriptions.[DESCRIPTION], altsc.STREAMING_COMPANY_NAME as 'ASCN'"; //'ALT_STREAMING_COMPANY_NAME'";
             selectQuery += "from media_files left join streaming_companies sc";
             selectQuery += "on media_files.streaming_suplier_id = sc.id left join lu_player_descriptions";
             selectQuery += "on media_files.override_player_type_id = lu_player_descriptions.id";
@@ -822,11 +822,11 @@ namespace ExcelGenerator
                     string sLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "LANGUAGE", i);
                     string sIsDefaultLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "IS_DEFAULT_LANGUAGE", i);
 
-                    DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);                       
+                    DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);
                     DateTime dFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", i);
 
                     string sAltCDNCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ALT_STREAMING_CODE", i);
-                    string sAltCDNName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ALT_STREAMING_COMPANY_NAME", i);
+                    string sAltCDNName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ASCN", i);
                     string sAltFileCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "alt_co_guid", i);
 
                     string sExtra = (i + 1).ToString();
