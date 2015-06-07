@@ -38,6 +38,7 @@ public partial class adm_parental_rules_values : System.Web.UI.Page
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RULE_ID", "=", (int)Session["rule_id"]);
                     updateQuery += " AND ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+                    updateQuery += " AND ASSET_TYPE IS NULL";
                     updateQuery.Execute();
                     updateQuery.Finish();
                 }
