@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -22,6 +23,8 @@ namespace KLogMonitor
         public string UserID { get; set; }
         private string Server { get; set; }
         public string IPAddress { get; set; }
+        public string MethodName { get; set; }
+
 
         private List<LogEvent> logs;
 
@@ -39,6 +42,14 @@ namespace KLogMonitor
 
         private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
         {
+
+            StackTrace stackTrace = new StackTrace();           // get call stack
+            StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
+
+            StackFrame callingFrame = stackFrames[2];
+            this.MethodName = callingFrame.GetMethod().Name;
+
+
             if (args != null && ex != null)
                 throw new Exception("Args and Exception cannot co exist");
 
@@ -79,17 +90,18 @@ namespace KLogMonitor
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("{0} - class: {1} server:{2} ip:{3} reqid:{4} partner:{5} action:{6} client:{7} uid:{8} msg:{9}",
+            return string.Format("{0} - class: {1}, method {2}, server:{3} ip:{4} reqid:{5} partner:{6} action:{7} client:{8} uid:{9} msg:{10}",
                 creationDate,                                  // 0
                 ClassName != null ? ClassName : string.Empty,  // 1
-                Server != null ? Server : string.Empty,        // 2
-                IPAddress != null ? IPAddress : string.Empty,  // 3
-                UniqueID != null ? UniqueID : string.Empty,    // 4
-                PartnerID != null ? PartnerID : string.Empty,  // 5
-                Action != null ? Action : string.Empty,        // 6
-                ClientTag != null ? ClientTag : string.Empty,  // 7
-                UserID != null ? UserID : "0",                 // 8
-                msg != null ? msg : string.Empty);             // 9
+                MethodName != null ? MethodName : string.Empty,// 2
+                Server != null ? Server : string.Empty,        // 3
+                IPAddress != null ? IPAddress : string.Empty,  // 4
+                UniqueID != null ? UniqueID : string.Empty,    // 5
+                PartnerID != null ? PartnerID : string.Empty,  // 6
+                Action != null ? Action : string.Empty,        // 7
+                ClientTag != null ? ClientTag : string.Empty,  // 8
+                UserID != null ? UserID : "0",                 // 9
+                msg != null ? msg : string.Empty);             // 10
         }
 
         private void sendLog(LogEvent logEvent)
@@ -233,3 +245,4 @@ namespace KLogMonitor
         }
     }
 }
+
