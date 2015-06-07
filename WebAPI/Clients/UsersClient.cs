@@ -128,5 +128,65 @@ namespace WebAPI.Clients
 
             return user;
         }
+
+        public void SetLoginPin(int groupId, string userId, string pin, string secret)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Users.Status response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.SetLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pin, secret);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        public bool ClearLoginPIN(int groupId, string userId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Users.Status response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.ClearLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }

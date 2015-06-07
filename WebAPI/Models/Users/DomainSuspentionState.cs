@@ -7,7 +7,7 @@ namespace WebAPI.Models.Users
 {
     public enum DomainSuspentionState
     {
-        NotSuspended = 0,
-        Suspended = 1
+        not_suspended = 0,
+        suspended = 1
     }
 }

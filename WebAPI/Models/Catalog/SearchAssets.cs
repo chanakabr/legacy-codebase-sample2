@@ -22,6 +22,7 @@ namespace WebAPI.Models.Catalog
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
         /// Comparison operators: for numerical fields =, >, >=, <![CDATA[<]]>, <![CDATA[<=]]>. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or.
+        /// (maximum length of 1024 characters)
         /// </summary>
         [DataMember(Name = "filter")]
         [JsonProperty(PropertyName = "filter")]
