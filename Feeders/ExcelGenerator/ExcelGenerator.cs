@@ -758,15 +758,16 @@ namespace ExcelGenerator
 
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
-            selectQuery += "select  media_files.* , streaming_companies.streaming_company_name , lu_player_descriptions.[DESCRIPTION]";
-            selectQuery += "from media_files left join streaming_companies";
-            selectQuery += "on media_files.streaming_suplier_id = streaming_companies.id left join lu_player_descriptions";
-            selectQuery += "on media_files.override_player_type_id = lu_player_descriptions.id where media_files.status=1 and media_files.ref_id=0";
-            selectQuery += "and";
+            selectQuery += "select  media_files.* , sc.streaming_company_name , lu_player_descriptions.[DESCRIPTION], altsc.STREAMING_COMPANY_NAME as 'ASCN'"; //'ALT_STREAMING_COMPANY_NAME'";
+            selectQuery += "from media_files left join streaming_companies sc";
+            selectQuery += "on media_files.streaming_suplier_id = sc.id left join lu_player_descriptions";
+            selectQuery += "on media_files.override_player_type_id = lu_player_descriptions.id";
+            selectQuery += "left join streaming_companies altsc";
+            selectQuery += "on media_files.ALT_STREAMING_SUPLIER_ID = altsc.id";
+            selectQuery += "where media_files.status=1 and media_files.ref_id=0 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_files.group_id", "=", nGroupID);
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_files.media_id", "=", nMediaID);
-
             if (selectQuery.Execute("query", true) != null)
             {
                 int nCount = selectQuery.Table("query").DefaultView.Count;
@@ -785,21 +786,15 @@ namespace ExcelGenerator
                     int nQualityID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "media_quality_id", i);
                     string sQuality = (nQualityID == 0) ? string.Empty : ODBCWrapper.Utils.GetTableSingleVal("lu_media_quality", "DESCRIPTION", nQualityID).ToString();
 
-                    int nCDNID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "streaming_suplier_id", i);
                     string sCDNName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_COMPANY_NAME", i);
-
-
+                    string sCDNCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_CODE", i);
 
                     string sPPVModule = GetPPVModuleName(nMediaFileID);
 
                     int nStreamingTypeID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "OVERRIDE_PLAYER_TYPE_ID", i);
                     string sStreamingType = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "DESCRIPTION", i);
 
-
-                    string sCDNCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_CODE", i);
-
                     string sDuration = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "duration", i);
-
 
                     int nPreRule = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "COMMERCIAL_TYPE_PRE_ID", i);
                     string sPreRule = GetAdCompName(nPreRule, nGroupID);
@@ -827,8 +822,12 @@ namespace ExcelGenerator
                     string sLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "LANGUAGE", i);
                     string sIsDefaultLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "IS_DEFAULT_LANGUAGE", i);
 
-                    DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);                       
+                    DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);
                     DateTime dFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", i);
+
+                    string sAltCDNCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ALT_STREAMING_CODE", i);
+                    string sAltCDNName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ASCN", i);
+                    string sAltFileCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "alt_co_guid", i);
 
                     string sExtra = (i + 1).ToString();
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["handling_type"], 0, sExtra)] = sHandlingType;
@@ -863,6 +862,10 @@ namespace ExcelGenerator
 
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_start_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileStartDate.ToString("dd/MM/yyyy HH:mm:ss");
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_end_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileEndDate.ToString("dd/MM/yyyy HH:mm:ss");
+
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["alt_cdn_name"], 0, sExtra)] = sAltCDNName;
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["alt_cdn_code"], 0, sExtra)] = sAltCDNCode;
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["alt_co_guid"], 0, sExtra)] = sAltFileCoGuid;
                 }
 
                 lock (objLockDataTable)
