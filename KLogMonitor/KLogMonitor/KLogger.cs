@@ -90,7 +90,7 @@ namespace KLogMonitor
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("{0} - class: {1}, method {2}, server:{3} ip:{4} reqid:{5} partner:{6} action:{7} client:{8} uid:{9} msg:{10}",
+            return string.Format("{0} - class: {1}, method: {2}, server:{3} ip:{4} reqid:{5} partner:{6} action:{7} client:{8} uid:{9} msg:{10}",
                 creationDate,                                  // 0
                 ClassName != null ? ClassName : string.Empty,  // 1
                 MethodName != null ? MethodName : string.Empty,// 2
