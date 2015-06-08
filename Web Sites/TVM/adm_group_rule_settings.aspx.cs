@@ -112,7 +112,7 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
         dr_default_pin.Initialize("Default parental rule PIN", "adm_table_header_nbg", "FormInput", "DEFAULT_PARENTAL_PIN", true);
         theRecord.AddRecord(dr_default_pin);
 
-        DataRecordDropDownField dr_default_purchase_settings = new DataRecordDropDownField("parental_rules", "NAME", "id", "", null, 60, true);
+        DataRecordDropDownField dr_default_purchase_settings = new DataRecordDropDownField("parental_rules", "NAME", "id", "", null, 60, false);
         dr_default_purchase_settings.SetSelectsQuery(purchaseSettingsQuery);
         dr_default_purchase_settings.Initialize("Default purchase rules", "adm_table_header_nbg", "FormInput", "DEFAULT_PURCHASE_SETTINGS", true);
         theRecord.AddRecord(dr_default_purchase_settings);
