@@ -55,6 +55,17 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => src.ruleType));
+
+            // PinResponse
+            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.General.PinResponse>()
+                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
+                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin));
+
+            // Purchase Settings
+            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.General.PurchaseSettingsResponse>()
+                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
+                .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));
         }
     }
 }

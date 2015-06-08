@@ -219,6 +219,121 @@ namespace WebAPI.Controllers
             return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         }
 
+        #region Parental Rules
+
+        /// <summary>
+        /// Return the parental rules that applies to the user. Can include rules that have been associated in account, domain, or user level.
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>List of parental rules applied to the user</returns>
+        public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] string user_id)
+        {
+            List<ParentalRule> response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetUserParentalRules(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Enabled a parental rule for a specific user
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="rule_id">Rule Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>Success or failure and reason</returns>
+        public bool EnableParentalRule([FromUri] string group_id, [FromUri] string user_id, long rule_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 1);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Disables a parental rule for a specific user
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="rule_id">Rule Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>Success or failure and reason</returns>
+        public bool DisableParentalRule([FromUri] string group_id, [FromUri] string user_id, long rule_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 0);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+        #endregion
 
     }
 }
