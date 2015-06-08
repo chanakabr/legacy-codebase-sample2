@@ -711,12 +711,15 @@ namespace Users
                 bool bIsDeviceActivated = false;
                 Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
-                if (!bIsDeviceActivated)
-                {
-                    retObj.m_RespStatus = ResponseStatus.DeviceNotRegistered;
-                    return retObj;
-                }
-                else
+                
+                //Ignore device check for now (token issue)
+                //if (!bIsDeviceActivated)
+                //{
+                //    retObj.m_RespStatus = ResponseStatus.DeviceNotRegistered;
+                //    return retObj;
+                //}
+                //else
+                
                 {
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;

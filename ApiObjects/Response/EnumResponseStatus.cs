@@ -10,6 +10,7 @@ namespace ApiObjects.Response
         OK = 0,
         Error = 1,
         InternalError = 2,
+       
         // Domain Section 1000 - 1999
 
         DomainAlreadyExists = 1000,
@@ -31,14 +32,33 @@ namespace ApiObjects.Response
         DeviceExistsInOtherDomains = 1016,
         
         // User Section 2000 - 2999
-        UserNotExists = 2000,
+        UserNotExists = 2000, // don't use this one (use UserDoesNotExist)
         UserSuspended = 2001,
         GenerateNewLoginPIN = 2002, 
         PinNotExists = 2003,
         PinExpired = 2004,
         ValidPin = 2005,
         NoValidPin = 2006,
-
+        MissingSecurityParameter = 2007,
+        SecretIsWrong = 2008,
+        LoginViaPinNotAllowed = 2009,
+        PinNotInTheRightLength = 2010,
+        PinExists = 2011,
+        PinMustBeDigitsOnly = 2012,
+        PinCanNotStartWithZero = 2013,
+        UserExists = 2014, 
+        InsideLockTime = 2015,
+        UserNotActivated = 2016,
+        UserAllreadyLoggedIn = 2017,
+        UserDoubleLogIn = 2018,
+        DeviceNotRegistered = 2019,
+        NotActivated = 2020,
+        ErrorOnInitUser = 2021,        
+        Activated = 2022,
+        UserNotMasterApproved = 2023,
+        UserWIthNoDomain = 2024,
+        UserDoesNotExist = 2025,
+        
 
         // CAS Section 3000 - 3999
 

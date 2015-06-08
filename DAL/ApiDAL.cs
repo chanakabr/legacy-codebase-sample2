@@ -1763,16 +1763,17 @@ namespace DAL
             return newId;   
         }
 
-        public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId)
+        public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
         {
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@MediaID", mediaId);
+            storedProcedure.AddParameter("@DomainID", domainId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
 
             return rules;
         }
@@ -1831,16 +1832,17 @@ namespace DAL
             return rules.Values.ToList();
         }
 
-        public static List<ParentalRule> Get_ParentalEPGRules(int groupId, string siteGuid, long epgId)
+        public static List<ParentalRule> Get_ParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
         {
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalEPGRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@EpgID", epgId);
+            storedProcedure.AddParameter("@DomainID", domainId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            List<ParentalRule> rules = CreateParentalRulesFromSingleTable(dataSet);
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
 
             return rules;
         }

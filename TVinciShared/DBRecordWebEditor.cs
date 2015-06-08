@@ -1984,6 +1984,7 @@ namespace TVinciShared
         protected string m_sExtraWhere = "";
         protected string m_sJoinCondition = string.Empty;
         protected bool m_bAddExtra;
+        protected string m_sMiddleTableType;
 
         public void SetJoinCondition(string sJoinCondition)
         {
@@ -1993,6 +1994,11 @@ namespace TVinciShared
         public void SetExtraWhere(string sExtraWhere)
         {
             m_sExtraWhere = sExtraWhere;
+        }
+
+        public void SetMiddleTableType(string middleTableType)
+        {
+            this.m_sMiddleTableType = middleTableType;
         }
 
         public override void SetValue(string sTable, string sIndexFieldName, object oIndexFieldVal)
@@ -2203,6 +2209,9 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_middle_ref_collection_field' value='" + m_sMiddleCollFieldName + "'/>";
             //The main pointer field
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_main_pointer_field' value='" + m_sMainPointerField + "'/>";
+
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_middle_table_type' value='" + m_sMiddleTableType + "'/>";
+
             string sExtraFieldName = "";
             string sExtraFieldVal = "";
             string sExtraFieldType = "";

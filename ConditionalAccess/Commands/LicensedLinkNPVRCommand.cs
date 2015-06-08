@@ -22,7 +22,7 @@ namespace ConditionalAccess
         {
             LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
             LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd, udid, couponCode);
-            if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(res.mainUrl))
+            if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(licensedLinkResponse.mainUrl))
             {
                 res.status = NPVRStatus.OK.ToString();
                 res.mainUrl = licensedLinkResponse.mainUrl;
