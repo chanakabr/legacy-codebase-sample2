@@ -114,7 +114,7 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
 
         DataRecordDropDownField dr_default_purchase_settings = new DataRecordDropDownField("parental_rules", "NAME", "id", "", null, 60, true);
         dr_default_purchase_settings.SetSelectsQuery(purchaseSettingsQuery);
-        dr_default_purchase_settings.Initialize("Default purchase rules", "adm_table_header_nbg", "FormInput", "DEFAULT_PURCHASE_SETTINGS", false);
+        dr_default_purchase_settings.Initialize("Default purchase rules", "adm_table_header_nbg", "FormInput", "DEFAULT_PURCHASE_SETTINGS", true);
         theRecord.AddRecord(dr_default_purchase_settings);
 
         string sTable = theRecord.GetTableHTML("adm_group_rule_settings.aspx?submited=1");
