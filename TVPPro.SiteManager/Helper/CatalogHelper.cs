@@ -61,6 +61,9 @@ namespace TVPPro.SiteManager.Helper
                         oRow.Likes = media.m_nLikeCounter.ToString();
 
                         oRow.CatalogStartDate = media.m_dCatalogStartDate;
+                        
+                        //EntryId
+                        oRow.EntryId = media.EntryId;
 
                         //Personal 
                         if (media.m_dLastWatchedDate != null)

@@ -54,6 +54,7 @@
               <xs:element name="Likes" msprop:Generator_ColumnVarNameInTable="columnLikes" msprop:Generator_ColumnPropNameInRow="Likes" msprop:Generator_ColumnPropNameInTable="LikesColumn" msprop:Generator_UserColumnName="Likes" type="xs:string" default="0" />
               <xs:element name="LastWatchedDate" msprop:Generator_ColumnVarNameInTable="columnLastWatchedDate" msprop:Generator_ColumnPropNameInRow="LastWatchedDate" msprop:Generator_ColumnPropNameInTable="LastWatchedDateColumn" msprop:Generator_UserColumnName="LastWatchedDate" type="xs:dateTime" minOccurs="0" />
               <xs:element name="CatalogStartDate" msprop:nullValue="_throw" msprop:Generator_ColumnPropNameInRow="CatalogStartDate" msprop:Generator_ColumnVarNameInTable="columnCatalogStartDate" msprop:Generator_ColumnPropNameInTable="CatalogStartDateColumn" msprop:Generator_UserColumnName="CatalogStartDate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="EntryId" msprop:Generator_ColumnVarNameInTable="columnEntryId" msprop:Generator_ColumnPropNameInRow="EntryId" msprop:Generator_ColumnPropNameInTable="EntryIdColumn" msprop:Generator_UserColumnName="EntryId" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -90,7 +91,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Files" msprop:Generator_TableClassName="FilesDataTable" msprop:Generator_TableVarName="tableFiles" msprop:Generator_TablePropName="Files" msprop:Generator_RowDeletingName="FilesRowDeleting" msprop:Generator_RowChangingName="FilesRowChanging" msprop:Generator_RowEvHandlerName="FilesRowChangeEventHandler" msprop:Generator_RowDeletedName="FilesRowDeleted" msprop:Generator_UserTableName="Files" msprop:Generator_RowChangedName="FilesRowChanged" msprop:Generator_RowEvArgName="FilesRowChangeEvent" msprop:Generator_RowClassName="FilesRow">
+        <xs:element name="Files" msprop:Generator_TableClassName="FilesDataTable" msprop:Generator_TableVarName="tableFiles" msprop:Generator_RowChangedName="FilesRowChanged" msprop:Generator_TablePropName="Files" msprop:Generator_RowDeletingName="FilesRowDeleting" msprop:Generator_RowChangingName="FilesRowChanging" msprop:Generator_RowEvHandlerName="FilesRowChangeEventHandler" msprop:Generator_RowDeletedName="FilesRowDeleted" msprop:Generator_RowClassName="FilesRow" msprop:Generator_UserTableName="Files" msprop:Generator_RowEvArgName="FilesRowChangeEvent">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ID" msprop:Generator_ColumnVarNameInTable="columnID" msprop:Generator_ColumnPropNameInRow="ID" msprop:Generator_ColumnPropNameInTable="IDColumn" msprop:Generator_UserColumnName="ID" type="xs:string" minOccurs="0" />
@@ -114,14 +115,14 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="ExtIDs" msprop:Generator_TableClassName="ExtIDsDataTable" msprop:Generator_TableVarName="tableExtIDs" msprop:Generator_TablePropName="ExtIDs" msprop:Generator_RowDeletingName="ExtIDsRowDeleting" msprop:Generator_RowChangingName="ExtIDsRowChanging" msprop:Generator_RowEvHandlerName="ExtIDsRowChangeEventHandler" msprop:Generator_RowDeletedName="ExtIDsRowDeleted" msprop:Generator_UserTableName="ExtIDs" msprop:Generator_RowChangedName="ExtIDsRowChanged" msprop:Generator_RowEvArgName="ExtIDsRowChangeEvent" msprop:Generator_RowClassName="ExtIDsRow">
+        <xs:element name="ExtIDs" msprop:Generator_TableClassName="ExtIDsDataTable" msprop:Generator_TableVarName="tableExtIDs" msprop:Generator_RowChangedName="ExtIDsRowChanged" msprop:Generator_TablePropName="ExtIDs" msprop:Generator_RowDeletingName="ExtIDsRowDeleting" msprop:Generator_RowChangingName="ExtIDsRowChanging" msprop:Generator_RowEvHandlerName="ExtIDsRowChangeEventHandler" msprop:Generator_RowDeletedName="ExtIDsRowDeleted" msprop:Generator_RowClassName="ExtIDsRow" msprop:Generator_UserTableName="ExtIDs" msprop:Generator_RowEvArgName="ExtIDsRowChangeEvent">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ID" msprop:Generator_ColumnVarNameInTable="columnID" msprop:Generator_ColumnPropNameInRow="ID" msprop:Generator_ColumnPropNameInTable="IDColumn" msprop:Generator_UserColumnName="ID" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Pictures" msprop:Generator_TableClassName="PicturesDataTable" msprop:Generator_TableVarName="tablePictures" msprop:Generator_RowChangedName="PicturesRowChanged" msprop:Generator_TablePropName="Pictures" msprop:Generator_RowDeletingName="PicturesRowDeleting" msprop:Generator_RowChangingName="PicturesRowChanging" msprop:Generator_RowEvHandlerName="PicturesRowChangeEventHandler" msprop:Generator_RowDeletedName="PicturesRowDeleted" msprop:Generator_RowClassName="PicturesRow" msprop:Generator_UserTableName="Pictures" msprop:Generator_RowEvArgName="PicturesRowChangeEvent">
+        <xs:element name="Pictures" msprop:Generator_TableClassName="PicturesDataTable" msprop:Generator_TableVarName="tablePictures" msprop:Generator_TablePropName="Pictures" msprop:Generator_RowDeletingName="PicturesRowDeleting" msprop:Generator_RowChangingName="PicturesRowChanging" msprop:Generator_RowEvHandlerName="PicturesRowChangeEventHandler" msprop:Generator_RowDeletedName="PicturesRowDeleted" msprop:Generator_UserTableName="Pictures" msprop:Generator_RowChangedName="PicturesRowChanged" msprop:Generator_RowEvArgName="PicturesRowChangeEvent" msprop:Generator_RowClassName="PicturesRow">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ID" msprop:Generator_ColumnVarNameInTable="columnID" msprop:Generator_ColumnPropNameInRow="ID" msprop:Generator_ColumnPropNameInTable="IDColumn" msprop:Generator_UserColumnName="ID" type="xs:string" minOccurs="0" />
@@ -135,11 +136,11 @@
   </xs:element>
   <xs:annotation>
     <xs:appinfo>
-      <msdata:Relationship name="Item_Tags" msdata:parent="Item" msdata:child="Tags" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Tags" msprop:Generator_ChildPropName="GetTagsRows" msprop:Generator_UserRelationName="Item_Tags" msprop:Generator_RelationVarName="relationItem_Tags" msprop:Generator_UserParentTable="Item" msprop:Generator_ParentPropName="ItemRow" />
-      <msdata:Relationship name="Item_Metas" msdata:parent="Item" msdata:child="Metas" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Metas" msprop:Generator_ChildPropName="GetMetasRows" msprop:Generator_UserRelationName="Item_Metas" msprop:Generator_RelationVarName="relationItem_Metas" msprop:Generator_UserParentTable="Item" msprop:Generator_ParentPropName="ItemRow" />
-      <msdata:Relationship name="Item_Files" msdata:parent="Item" msdata:child="Files" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Files" msprop:Generator_ChildPropName="GetFilesRows" msprop:Generator_UserRelationName="Item_Files" msprop:Generator_ParentPropName="ItemRow" msprop:Generator_RelationVarName="relationItem_Files" msprop:Generator_UserParentTable="Item" />
-      <msdata:Relationship name="Item_ExtIDs" msdata:parent="Item" msdata:child="ExtIDs" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="ExtIDs" msprop:Generator_ChildPropName="GetExtIDsRows" msprop:Generator_UserRelationName="Item_ExtIDs" msprop:Generator_ParentPropName="ItemRow" msprop:Generator_RelationVarName="relationItem_ExtIDs" msprop:Generator_UserParentTable="Item" />
-      <msdata:Relationship name="Pictures_Item" msdata:parent="Item" msdata:child="Pictures" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Pictures" msprop:Generator_ChildPropName="GetPicturesRows" msprop:Generator_UserRelationName="Pictures_Item" msprop:Generator_RelationVarName="relationPictures_Item" msprop:Generator_UserParentTable="Item" msprop:Generator_ParentPropName="ItemRow" />
+      <msdata:Relationship name="Item_Tags" msdata:parent="Item" msdata:child="Tags" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Tags" msprop:Generator_ChildPropName="GetTagsRows" msprop:Generator_UserRelationName="Item_Tags" msprop:Generator_ParentPropName="ItemRow" msprop:Generator_RelationVarName="relationItem_Tags" msprop:Generator_UserParentTable="Item" />
+      <msdata:Relationship name="Item_Metas" msdata:parent="Item" msdata:child="Metas" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Metas" msprop:Generator_ChildPropName="GetMetasRows" msprop:Generator_UserRelationName="Item_Metas" msprop:Generator_ParentPropName="ItemRow" msprop:Generator_RelationVarName="relationItem_Metas" msprop:Generator_UserParentTable="Item" />
+      <msdata:Relationship name="Item_Files" msdata:parent="Item" msdata:child="Files" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Files" msprop:Generator_ChildPropName="GetFilesRows" msprop:Generator_UserRelationName="Item_Files" msprop:Generator_RelationVarName="relationItem_Files" msprop:Generator_UserParentTable="Item" msprop:Generator_ParentPropName="ItemRow" />
+      <msdata:Relationship name="Item_ExtIDs" msdata:parent="Item" msdata:child="ExtIDs" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="ExtIDs" msprop:Generator_ChildPropName="GetExtIDsRows" msprop:Generator_UserRelationName="Item_ExtIDs" msprop:Generator_RelationVarName="relationItem_ExtIDs" msprop:Generator_UserParentTable="Item" msprop:Generator_ParentPropName="ItemRow" />
+      <msdata:Relationship name="Pictures_Item" msdata:parent="Item" msdata:child="Pictures" msdata:parentkey="ID" msdata:childkey="ID" msprop:Generator_UserChildTable="Pictures" msprop:Generator_ChildPropName="GetPicturesRows" msprop:Generator_UserRelationName="Pictures_Item" msprop:Generator_ParentPropName="ItemRow" msprop:Generator_RelationVarName="relationPictures_Item" msprop:Generator_UserParentTable="Item" />
     </xs:appinfo>
   </xs:annotation>
 </xs:schema>
