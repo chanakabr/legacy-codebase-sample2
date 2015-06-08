@@ -13,6 +13,8 @@ namespace ExcelFeeder
 {
     public class Feeder
     {
+        public const int COLUMN_MAX = 254;
+        public const int ROW_MAX = 500;
 
         private int nGroupID;
         private string sPath;
@@ -254,7 +256,7 @@ namespace ExcelFeeder
                                 return string.Empty;
                             }
                         }
-                    }
+                    }                  
                     else
                     {
                         Logger.Logger.Log("Excel Format Error", "Col :(" + (i + 1) + ") " + dd.Columns[i].ColumnName.ToString(), "ExcelFeeder");
@@ -542,6 +544,17 @@ namespace ExcelFeeder
         {
             try
             {
+                List<string> rangeColumns = new List<string>();
+                int rowNum = TVinciShared.WS_Utils.GetTcmIntValue("EXCEL_MAX_ROW");               
+                if (rowNum == 0)
+                {
+                    rowNum = ROW_MAX;
+                }
+                rangeColumns.Add(string.Format("{0}1:{1}{2}","A","IT", rowNum));
+                rangeColumns.Add(string.Format("{0}1:{1}{2}", "IU", "SN", rowNum));
+                rangeColumns.Add(string.Format("{0}1:{1}{2}", "SO", "ACH", rowNum));
+                rangeColumns.Add(string.Format("{0}1:{1}{2}", "ACI", "AMB", rowNum));
+
                 OleDbConnection ExcelConnection = new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + pathName + @"\" + fileName + ";Extended Properties=\"Excel 12.0 Xml;HDR=YES;IMEX=1\"");
                 OleDbCommand ExcelCommand = new OleDbCommand();
                 ExcelCommand.Connection = ExcelConnection;
@@ -549,13 +562,57 @@ namespace ExcelFeeder
 
                 ExcelConnection.Open();
                 DataTable ExcelSheets = ExcelConnection.GetOleDbSchemaTable(System.Data.OleDb.OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-                string SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + "]";
 
+                string SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumns[0] + "]";
                 DataSet ExcelDataSet = new DataSet();
-                ExcelCommand.CommandText = @"SELECT * FROM " + SpreadSheetName;
-                ExcelAdapter.Fill(ExcelDataSet);
-
+                bool keepRead = true;
+                int i = 0;
+                while (keepRead)
+                {
+                    ExcelCommand.CommandText = @"SELECT * FROM " + SpreadSheetName;
+                    DataTable dt = new DataTable();
+                    dt.TableName = i.ToString();
+                    try
+                    {
+                        ExcelAdapter.Fill(dt);
+                        dt.Columns.Add("primeryKey", typeof(string));                        
+                        for (int rowIndex = 1;  rowIndex < dt.Rows.Count; rowIndex++)
+                        {
+                            dt.Rows[rowIndex]["primeryKey"] = rowIndex.ToString();
+                        }
+                        if (!ExcelDataSet.Tables.Contains(dt.TableName))
+                            ExcelDataSet.Tables.Add(dt);
+                        if (dt == null || dt.Columns == null || dt.Columns.Count == 0 || dt.Columns.Count < COLUMN_MAX)
+                        {
+                            keepRead = false;
+                        }
+                        else
+                        {
+                            // get ranges 
+                            i++;
+                            SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumns[i] + "]"; 
+                        }
+                    }
+                    catch (OleDbException oleException)
+                    {
+                        keepRead = false;
+                        Logger.Logger.Log("Excel Feeder Error", "stop reading excel file - no more columns  " + oleException.Message, "ExcelReader");
+                    }
+                }
                 ExcelConnection.Close();
+            
+               // merge all dt to one table in dateset
+                DataTable mergeDT = new DataTable();
+                List<DataTable> tables = new List<DataTable>();
+                foreach (DataTable table in ExcelDataSet.Tables)
+                {
+                    tables.Add(table);
+                }                
+                mergeDT = MergeAll(tables, "primeryKey");
+
+                ExcelDataSet = new DataSet();
+                ExcelDataSet.Tables.Add(mergeDT);
+
                 return ExcelDataSet;
             }
             catch (Exception ex)
@@ -564,6 +621,72 @@ namespace ExcelFeeder
                 return null;
             }
         }
+
+        public static DataTable MergeAll(IList<DataTable> tables, String primaryKeyColumn)
+        {
+            try
+            {
+                DataTable table = new DataTable("TblUnion");
+
+                if (!tables.Any())
+                    throw new ArgumentException("Tables must not be empty", "tables");
+                if (primaryKeyColumn != null)
+                    foreach (DataTable t in tables)
+                        if (!t.Columns.Contains(primaryKeyColumn))
+                            throw new ArgumentException("All tables must have the specified primarykey column " + primaryKeyColumn, "primaryKeyColumn");
+
+                if (tables.Count == 1)
+                {
+                    // remove primaryKeyColumn                    
+                    table = tables[0];
+                    table.Columns.Remove(primaryKeyColumn);
+                    return table;
+                }
+
+                
+                table.BeginLoadData(); // Turns off notifications, index maintenance, and constraints while loading data
+                foreach (DataTable t in tables)
+                {
+                    table.Merge(t); // same as table.Merge(t, false, MissingSchemaAction.Add);
+                }
+                table.EndLoadData();
+
+                if (primaryKeyColumn != null)
+                {
+                    // since we might have no real primary keys defined, the rows now might have repeating fields
+                    // so now we're going to "join" these rows ...
+                    var pkGroups = table.AsEnumerable()
+                        .GroupBy(r => r[primaryKeyColumn]);
+                    var dupGroups = pkGroups.Where(g => g.Count() > 1);
+                    foreach (var grpDup in dupGroups)
+                    {
+                        // use first row and modify it
+                        DataRow firstRow = grpDup.First();
+                        foreach (DataColumn c in table.Columns)
+                        {
+                            if (firstRow.IsNull(c))
+                            {
+                                DataRow firstNotNullRow = grpDup.Skip(1).FirstOrDefault(r => !r.IsNull(c));
+                                if (firstNotNullRow != null)
+                                    firstRow[c] = firstNotNullRow[c];
+                            }
+                        }
+                        // remove all but first row
+                        var rowsToRemove = grpDup.Skip(1);
+                        foreach (DataRow rowToRemove in rowsToRemove)
+                            table.Rows.Remove(rowToRemove);
+                    }
+                    // remove primaryKeyColumn
+                    table.Columns.Remove(primaryKeyColumn);
+                }
+                return table;
+            }
+            catch (Exception)
+            {
+                return new DataTable();
+            }
+        }
+
 
         static protected string GetMetaSection(string sMetaName, string sValue)
         {
