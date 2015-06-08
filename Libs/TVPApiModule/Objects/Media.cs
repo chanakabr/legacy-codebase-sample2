@@ -373,7 +373,10 @@ namespace TVPApi
 
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
 
-            EntryId = row.EntryId;
+            if (!row.IsEntryIdNull())
+            {
+                EntryId = row.EntryId;
+            }
         }
 
         private void builtExternalIDs(dsItemInfo.ItemRow row)
