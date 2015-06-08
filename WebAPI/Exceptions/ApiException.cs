@@ -13,13 +13,21 @@ namespace WebAPI.Exceptions
     public class ApiException : HttpResponseException
     {
         public StatusCode Code { get; set; }
+        public class ExceptionPayload
+        {
+            public int code { get; set; }
+            public HttpError error { get; set; }
+        }
 
         protected ApiException(HttpStatusCode httpCode, int code, string msg)
             : base(new HttpResponseMessage()
-            {
-                ReasonPhrase = msg,
+            {                
                 StatusCode = httpCode,
-                Content = new ObjectContent(typeof(HttpError), new HttpError(new Exception(msg), true),
+                Content = new ObjectContent(typeof(ExceptionPayload), new ExceptionPayload()
+                {
+                    error = new HttpError(new Exception(msg), true),
+                    code = code                    
+                },
             new JsonMediaTypeFormatter())
             })
         {

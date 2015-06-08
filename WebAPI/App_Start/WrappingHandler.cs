@@ -46,42 +46,39 @@ namespace WebAPI.App_Start
 
             object content = null;
             string message = "";
-            StatusCode subCode = StatusCode.OK;
+            int subCode = (int)StatusCode.OK;
 
-            if (response.TryGetContentValue(out content) && !response.IsSuccessStatusCode)
+            if (response.TryGetContentValue(out content) && content is HttpError && !response.IsSuccessStatusCode)
             {
                 //This is a global unintentional error
 
                 HttpError error = content as HttpError;
+                subCode = (int)StatusCode.Error;
 
-                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                    subCode = StatusCode.Forbidden;
-                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                    subCode = StatusCode.Unauthorized;
-                else
-                    subCode = StatusCode.Error;
-
-                string errMsg = string.Concat(message, error.ExceptionMessage, error.StackTrace);
                 if (error != null)
                 {
-                    log.ErrorFormat("{0}", errMsg);
-
                     content = null;
-                    message = error.ExceptionMessage;
-#if DEBUG
-                    message = errMsg;
-#endif
+                    message = handleError(error.ExceptionMessage, error.StackTrace);
                 }
             }
-            else if (!response.IsSuccessStatusCode)
+            else if (!response.IsSuccessStatusCode && content != null)
             {
-                message = response.ReasonPhrase;
-                string status = await response.Content.ReadAsStringAsync();
+                WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
-                subCode = (StatusCode)Enum.Parse(typeof(StatusCode), status);
+                subCode = payload.code;
+                message = handleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                content = null;
+            }
+            else if (response.IsSuccessStatusCode)
+            {
+                message = "success";
             }
             else
-                message = "success";
+            {
+                content = null;
+                subCode = (int)StatusCode.Error;
+                message = handleError("Unknown error", "");
+            }
 
             Guid reqID = request.GetCorrelationId();
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, content, message));
@@ -92,6 +89,18 @@ namespace WebAPI.App_Start
             }
 
             return newResponse;
+        }
+
+        private static string handleError(string errorMsg, string stack)
+        {
+            string message = "";
+            string errMsg = string.Concat(errorMsg, stack);
+#if DEBUG
+            message = errMsg;
+#endif
+            log.ErrorFormat("{0}", errMsg);
+
+            return message;
         }
     }
 }

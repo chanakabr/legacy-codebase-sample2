@@ -73,10 +73,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 switch (type)
                 {
                     case WebAPI.Users.DomainSuspentionStatus.OK:
-                        result = DomainSuspentionState.NotSuspended;
+                        result = DomainSuspentionState.not_suspended;
                         break;
                     case WebAPI.Users.DomainSuspentionStatus.Suspended:
-                        result = DomainSuspentionState.Suspended;
+                        result = DomainSuspentionState.suspended;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
