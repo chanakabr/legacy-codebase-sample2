@@ -32,6 +32,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("is_admin")]
         public bool IsAdmin { get; set; }
 
+        [JsonProperty("is_long_refresh_expiration")]
+        public bool IsLongRefreshExpiration { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
@@ -42,28 +45,32 @@ namespace TVPApiModule.Objects.Authorization
         {
         }
 
-        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isSTB)
+        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isLongRefreshExpiration)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
-            RefreshTokenExpiration = isSTB ? 
+            RefreshTokenExpiration = isLongRefreshExpiration ? 
                 (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) : 
                 (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
             SiteGuid = siteGuid;
             IsAdmin = isAdmin;
+            IsLongRefreshExpiration = isLongRefreshExpiration;
         }
 
-        public APIToken(APIToken token, long accessExpiration)
+        public APIToken(APIToken token, GroupConfiguration groupConfig)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshToken;
-            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(accessExpiration));
-            RefreshTokenExpiration = token.RefreshTokenExpiration;
+            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
+                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
+                token.RefreshTokenExpiration;
             GroupID = token.GroupID;
             SiteGuid = token.SiteGuid;
             IsAdmin = token.IsAdmin;
+            IsLongRefreshExpiration = token.IsLongRefreshExpiration;
         }
 
         public static string GetAPITokenId(string accessToken)

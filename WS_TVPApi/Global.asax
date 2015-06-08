@@ -58,16 +58,13 @@
         if (HttpContext.Current.Request.QueryString["m"] != null)
             HttpContext.Current.Items.Add(KLogMonitor.Constants.ACTION, HttpContext.Current.Request.QueryString["m"]);
 
-        if (HttpContext.Current.Request != null)
-        {
-            // get user agent
-            if (HttpContext.Current.Request.UserAgent != null)
-                HttpContext.Current.Items.Add(KLogMonitor.Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
+        // get user agent
+        if (HttpContext.Current.Request.UserAgent != null)
+            HttpContext.Current.Items.Add(KLogMonitor.Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
 
-            // get host IP
-            if (HttpContext.Current.Request.UserHostAddress != null)
-                HttpContext.Current.Items.Add(KLogMonitor.Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
-        }
+        // get host IP
+        if (HttpContext.Current.Request.UserHostAddress != null)
+            HttpContext.Current.Items.Add(KLogMonitor.Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
     }
 
     void Application_End(object sender, EventArgs e)

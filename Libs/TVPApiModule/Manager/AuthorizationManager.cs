@@ -240,10 +240,10 @@ namespace TVPApiModule.Manager
             }
 
             // generate new access token with the old refresh token
-            apiToken = new APIToken(apiToken, groupConfig.AccessTokenExpirationSeconds);
+            apiToken = new APIToken(apiToken, groupConfig);
 
             // Store new access + refresh tokens pair
-            if (_client.Add<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds)))
+            if (_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
             {
                 // delete the old one
                 _client.Remove(apiTokenId);
