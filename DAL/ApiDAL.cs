@@ -1714,9 +1714,10 @@ namespace DAL
             return newId;       
         }
 
-        public static string Get_PurchasePin(int groupId, int domainId, string siteGuid, out eRuleLevel level, bool getUserDomain)
+        public static bool Get_PurchasePin(int groupId, int domainId, string siteGuid, out eRuleLevel level, out string pin, bool getUserDomain)
         {
-            string pin = null;
+            bool success = false;
+            pin = null;
             level = eRuleLevel.User;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_UserDomainPIN");
@@ -1740,10 +1741,12 @@ namespace DAL
 
                     pin = ODBCWrapper.Utils.ExtractString(row, "PIN");
                     level = (eRuleLevel)ODBCWrapper.Utils.ExtractInteger(row, "PIN_LEVEL");
+
+                    success = true;
                 }
             }
 
-            return pin;
+            return success;
         }
 
         public static int Set_PurchasePIN(int groupId, string siteGuid, int domainId, string pin)
