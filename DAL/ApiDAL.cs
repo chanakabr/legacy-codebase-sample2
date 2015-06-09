@@ -1461,65 +1461,76 @@ namespace DAL
         /// <returns></returns>
         private static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
         {
-            Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
+            List<ParentalRule> result = null;
 
             // Validate tables count
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 2)
+            if (dataSet != null && dataSet.Tables != null)
             {
-                DataTable rulesTable = dataSet.Tables[0];
-                DataTable tagsTable = dataSet.Tables[1];
-
-                // Run on first table and create initial list of parental rules, without tag values
-                if (rulesTable != null && rulesTable.Rows != null && rulesTable.Rows.Count > 0)
+                if (dataSet.Tables.Count == 1)
                 {
-                    foreach (DataRow row in rulesTable.Rows)
-                    {
-                        ParentalRule newRule = CreateParentalRuleFromRow(row);
-
-                        // Map in dictionary for easy access
-                        rules.Add(newRule.id, newRule);
-                    }
+                    result= CreateParentalRulesFromSingleTable(dataSet);
                 }
-
-                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
+                else if (dataSet.Tables.Count == 2)
                 {
-                    foreach (DataRow row in tagsTable.Rows)
+                    Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
+
+                    DataTable rulesTable = dataSet.Tables[0];
+                    DataTable tagsTable = dataSet.Tables[1];
+
+                    // Run on first table and create initial list of parental rules, without tag values
+                    if (rulesTable != null && rulesTable.Rows != null && rulesTable.Rows.Count > 0)
                     {
-                        ParentalRule currentRule;
-
-                        long ruleId = ODBCWrapper.Utils.ExtractValue<long>(row, "RULE_ID");
-
-                        // Try to get the rule from the dictionary (should always succeed though)
-                        if (rules.TryGetValue(ruleId, out currentRule))
+                        foreach (DataRow row in rulesTable.Rows)
                         {
-                            // Asset type in database should match the enum!
-                            eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
-                            string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                            ParentalRule newRule = CreateParentalRuleFromRow(row);
 
-                            // According to asset, update the relevant list
-                            switch (assetType)
+                            // Map in dictionary for easy access
+                            rules.Add(newRule.id, newRule);
+                        }
+                    }
+
+                    if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow row in tagsTable.Rows)
+                        {
+                            ParentalRule currentRule;
+
+                            long ruleId = ODBCWrapper.Utils.ExtractValue<long>(row, "RULE_ID");
+
+                            // Try to get the rule from the dictionary (should always succeed though)
+                            if (rules.TryGetValue(ruleId, out currentRule))
                             {
-                                case eAssetTypes.EPG:
+                                // Asset type in database should match the enum!
+                                eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+                                string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+
+                                // According to asset, update the relevant list
+                                switch (assetType)
                                 {
-                                    currentRule.epgTagValues.Add(value);
-                                    break;
-                                }
-                                case eAssetTypes.MEDIA:
-                                {
-                                    currentRule.mediaTagValues.Add(value);
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
+                                    case eAssetTypes.EPG:
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
+                                    case eAssetTypes.MEDIA:
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+
+                    result = rules.Values.ToList();
                 }
             }
 
-            return rules.Values.ToList();
+            return result;
         }
 
         /// <summary>
@@ -1776,6 +1787,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
+
             List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
 
             return rules;
