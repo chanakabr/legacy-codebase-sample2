@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
-        public LoginPin PostGenerateLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string secret = null)
+        public LoginPin GenerateLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             LoginPin response = null;
 
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/pin"), HttpGet]
         public LoginPin GetGenerateLoginPin(string group_id, string user_id, string secret = null)
         {
-            return PostGenerateLoginPin(group_id, user_id, secret);
+            return GenerateLoginPin(group_id, user_id, secret);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login/pin"), HttpPost]
-        public User PostLogInWithPin([FromUri] string group_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
+        public User LogInWithPin([FromUri] string group_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
         {
             User response = null;
 
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
         [Route("login/pin"), HttpGet]
         public User GetLogInWithPin(string group_id, string pin, string device_id, string secret = null)
         {
-            return PostLogInWithPin(group_id, pin, device_id, secret);
+            return LogInWithPin(group_id, pin, device_id, secret);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin/{pin}"), HttpPost]
-        public bool PostSetLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
+        public bool SetLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             // parameters validation
             int groupId;
@@ -174,7 +174,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpDelete]
-        public bool DeleteClearLoginPin([FromUri] string group_id, [FromUri] string user_id)
+        public bool ClearLoginPin([FromUri] string group_id, [FromUri] string user_id)
         {
             // parameters validation
             int groupId;

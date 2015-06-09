@@ -161,7 +161,7 @@ namespace WebAPI.Clients
         public bool ClearLoginPIN(int groupId, string userId)
         {
             Group group = GroupsManager.GetGroup(groupId);
-
+            
             WebAPI.Users.Status response = null;
             try
             {

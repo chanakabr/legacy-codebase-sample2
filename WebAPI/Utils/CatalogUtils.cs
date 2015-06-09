@@ -287,5 +287,50 @@ namespace WebAPI.Utils
 
             return finalResult;
         }
+
+        public static AssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<With> with)
+        {
+            AssetInfoWrapper result = new AssetInfoWrapper();
+
+            // fire request
+            MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(client, request, out mediaIdsResponse, true, key))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            {
+
+                result.Assets = CatalogUtils.GetMediaByIds(client, mediaIdsResponse, request, cacheDuration, with);
+                result.TotalItems = mediaIdsResponse.m_nTotalItems;
+            }
+            return result;
+        }
+
+        public static List<AssetInfo> GetMediaByIds(IserviceClient client, MediaIdsResponse mediaIdsResponse, BaseRequest request, int cacheDuration, List<With> with)
+        {
+            List<AssetInfo> result = null;
+
+            // get base objects list
+            List<BaseObject> assetsBaseDataList = mediaIdsResponse.m_nMediaIds.Select(x => new BaseObject()
+            {
+                AssetId = x.assetID.ToString(),
+                AssetType = eAssetTypes.MEDIA,
+                m_dUpdateDate = x.UpdateDate
+            }).ToList();
+
+            // get assets from catalog/cache
+            List<IAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+
+            // build AssetInfoWrapper response
+            if (assetsInfo != null)
+            {
+                result = assetsInfo.Select(a => (AssetInfo)a).ToList();
+            }
+
+            return result;
+        }
     }
 }
