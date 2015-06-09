@@ -911,6 +911,9 @@ namespace ElasticSearch.Searcher
             if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
                 sSort.Append(", \"_score\"");
 
+            // Always add sort by _uid to avoid ES weirdness of same sort-value 
+            sSort.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+
             sSort.Append(" ]");
 
             return sSort.ToString();

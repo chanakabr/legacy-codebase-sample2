@@ -687,6 +687,9 @@ namespace ElasticSearch.Searcher
             if (bOrderByScore)
                 sSort.Append(", \"_score\"");
 
+            // Always add sort by _uid to avoid ES weirdness of same sort-value 
+            sSort.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+
             sSort.Append(" ]");
 
             return sSort.ToString();
