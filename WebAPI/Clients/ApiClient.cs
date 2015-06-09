@@ -52,5 +52,782 @@ namespace WebAPI.Clients
             Group group = GroupsManager.GetGroup(groupId);
             return GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
         }
+
+        #region Parental Rules
+
+        internal List<Models.General.ParentalRule> GetUserParentalRules(int groupId, string userId)
+        {
+            ParentalRulesResponse response = null;
+            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+
+            return rules;
+        }
+
+        internal List<Models.General.ParentalRule> GetDomainParentalRules(int groupId, int domainId)
+        {
+            ParentalRulesResponse response = null;
+            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+
+            return rules;
+        }
+
+        internal bool SetUserParentalRule(int groupId, string userId, long ruleId, int isActive)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, ruleId, isActive);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, ruleId, isActive);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal WebAPI.Models.General.PinResponse GetUserParentalPIN(int groupId, string userId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PinResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PinResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PinResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal WebAPI.Models.General.PinResponse GetDomainParentalPIN(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PinResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PinResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PinResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal bool SetUserParentalPIN(int groupId, string userId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool SetDomainParentalRules(int groupId, int domainId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool SetUserPurchaseSettings(int groupId, string userId, int settings)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, settings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool SetDomainPurchaseSettings(int groupId, int domainId, int settings)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, settings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal WebAPI.Models.General.PurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal WebAPI.Models.General.PurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal WebAPI.Models.General.PurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal WebAPI.Models.General.PurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+
+            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+
+            return response;
+        }
+
+        internal bool SetUserPurchasePIN(int groupId, string userId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool SetDomainPurchasePIN(int groupId, int domainId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal List<Models.General.ParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)
+        {
+            ParentalRulesResponse response = null;
+            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetParentalMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+
+            return rules;
+        }
+
+        internal List<Models.General.ParentalRule> GetUserEPGParentalRules(int groupId, string userId, long epgId)
+        {
+            ParentalRulesResponse response = null;
+            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetParentalEPGRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+
+            return rules;
+        }
+
+        internal bool ValidateParentalPIN(int groupId, string userId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.ValidateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool ValidatePurchasePIN(int groupId, string userId, string pin)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.ValidatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        #endregion
+
     }
 }

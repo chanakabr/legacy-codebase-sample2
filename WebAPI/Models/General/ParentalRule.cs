@@ -104,9 +104,9 @@ namespace WebAPI.Models.General
     /// </summary>
     public enum eParentalRuleType
     {
-        All = 0,
-        Movies = 1,
-        TVSeries = 2
+        all = 0,
+        movies = 1,
+        tv_series = 2
     }
 
     /// <summary>
@@ -114,8 +114,8 @@ namespace WebAPI.Models.General
     /// </summary>
     public enum eRuleLevel
     {
-        User = 1,
-        Domain = 2,
-        Group = 3
+        user = 1,
+        domain = 2,
+        account = 3
     }
 }

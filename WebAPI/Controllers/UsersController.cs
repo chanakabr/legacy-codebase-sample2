@@ -364,6 +364,498 @@ namespace WebAPI.Controllers
             return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         }
 
+        #region Parental Rules
+
+        /// <summary>
+        /// Return the parental rules that applies to the user. Can include rules that have been associated in account, domain, or user level.
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="group_id">Partner identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>List of parental rules applied to the user</returns>
+        [Route("{user_id}/parental_rules"), HttpGet]
+        public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] string user_id)
+        {
+            List<ParentalRule> response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetUserParentalRules(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Enabled a parental rule for a specific user
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="rule_id">Rule Identifier</param>
+        /// <param name="group_id">Partner identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>Success or failure and reason</returns>
+        [Route("{user_id}/parental_rules/{rule_id}"), HttpPost]
+        public bool EnableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 1);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Disables a parental rule for a specific user
+        /// </summary>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="rule_id">Rule Identifier</param>
+        /// <param name="group_id">Partner identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <returns>Success or failure and reason</returns>
+        [Route("{user_id}/parental_rules/{rule_id}"), HttpDelete]
+        public bool DisableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 0);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Retrieve the parental PIN that applies for the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <returns>The PIN that applies for the user</returns>
+        [Route("{user_id}/parental_pin/"), HttpGet]
+        public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] string user_id)
+        {
+            PinResponse pinResponse = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().GetUserParentalPIN(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return pinResponse;
+        }
+
+        /// <summary>
+        /// Set the parental PIN that applies for the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="pin">New PIN to set</param>
+        /// <returns>Success / Fail</returns>
+        [Route("{user_id}/parental_pin/"), HttpPost]
+        public bool SetParentalPIN([FromUri] string group_id, [FromUri] string user_id, string pin)
+        {
+            bool success = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, user_id, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Set the purchase settings that applies for the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="setting">New settings to apply</param>
+        /// <returns>Success / Fail</returns>
+        [Route("{user_id}/purchase_setting/"), HttpPost]
+        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id, int setting)
+        {
+            bool success = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, user_id, setting);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Retrieve the purchase PIN that applies for the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <returns>The PIN that applies for the user</returns>
+        [Route("{user_id}/purchase_pin/"), HttpGet]
+        public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] string user_id)
+        {
+            PinResponse pinResponse = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                var response = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return pinResponse;
+        }
+
+        /// <summary>
+        /// Set the purchase PIN that applies for the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="pin">New PIN to apply</param>
+        /// <returns>Success / Fail</returns>
+        [Route("{user_id}/purchase_pin/"), HttpPost]
+        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] string user_id, string pin)
+        {
+            bool success = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, user_id, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="media_id">Media identifier</param>
+        /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
+        [Route("{user_id}/parental_rules/media/{media_id}"), HttpGet]
+        public List<ParentalRule> GetParentalMediaRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long media_id)
+        {
+            List<ParentalRule> response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetUserMediaParentalRules(groupId, user_id, media_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrieve all the parental rules that applies for a specific EPG and a specific user according to the user parental settings.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="epg_id">EPG identifier</param>
+        /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
+        [Route("{user_id}/parental_rules/epg/{epg_id}"), HttpGet]
+        public List<ParentalRule> GetParentalEPGRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long epg_id)
+        {
+            List<ParentalRule> response = null;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+            if (epg_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetUserEPGParentalRules(groupId, user_id, epg_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Validate that a given parental PIN for a user is valid.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="pin">PIN to validate</param>
+        /// <returns>Success / fail</returns>
+        [Route("{user_id}/parental_pin/{pin}"), HttpGet]
+        public bool ValidateParentalPIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        {
+            bool success = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, user_id, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Validate that a given purchase PIN for a user is valid.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="pin">PIN to validate</param>
+        /// <returns>Success / fail</returns>
+        [Route("{user_id}/purchase_pin/{pin}"), HttpGet]
+        public bool ValidatePurchasePIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        {
+            bool success = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().ValidatePurchasePIN(groupId, user_id, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        #endregion
 
     }
 }
