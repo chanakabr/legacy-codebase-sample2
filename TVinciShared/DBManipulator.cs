@@ -790,7 +790,12 @@ namespace TVinciShared
                 string sMiddleFieldRefToMain = coll[nCounter.ToString() + "_middle_ref_main_field"].ToString();
                 string sMiddleFieldRefToCollection = coll[nCounter.ToString() + "_middle_ref_collection_field"].ToString();
                 string sAddExtra = coll[nCounter.ToString() + "_collection_auto_add"].ToString();
-                string sMiddleTableType = coll[nCounter.ToString() + "_middle_table_type"].ToString();
+                string sMiddleTableType = string.Empty;
+
+                if (coll[nCounter.ToString() + "_middle_table_type"] != null)
+                {
+                    sMiddleTableType = coll[nCounter.ToString() + "_middle_table_type"].ToString();
+                }
                 
 
                 object mainPointerValue = null;
@@ -835,7 +840,8 @@ namespace TVinciShared
                 // The tag (collection) table is on CHILD group
                 // Therefore we will look for the group of the TYPE of the tags
                 // And this will be the CORRECT GROUP ID
-                if (sCollectionTable.ToLower() == "tags" || sCollectionTable.ToLower() == "epg_tags")
+                if (!string.IsNullOrEmpty(sMiddleTableType) && 
+                    (sCollectionTable.ToLower() == "tags" || sCollectionTable.ToLower() == "epg_tags"))
                 {
                     object correctGroup = ODBCWrapper.Utils.GetTableSingleVal(sMiddleTableType, "GROUP_ID", int.Parse(sExtraFieldVal));
 
