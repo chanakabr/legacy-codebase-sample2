@@ -41,6 +41,56 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 return result;
             });
 
+            #region Parental Rules
+
+            // Parental rule type
+            Mapper.CreateMap<WebAPI.Api.eParentalRuleType, WebAPI.Models.General.eParentalRuleType>().ConstructUsing((WebAPI.Api.eParentalRuleType type) =>
+            {
+                WebAPI.Models.General.eParentalRuleType result;
+
+                switch (type)
+                {
+                    case WebAPI.Api.eParentalRuleType.All:
+                    result = Models.General.eParentalRuleType.all;
+                    break;
+                    case WebAPI.Api.eParentalRuleType.Movies:
+                    result = Models.General.eParentalRuleType.movies;
+                    break;
+                    case WebAPI.Api.eParentalRuleType.TVSeries:
+                    result = Models.General.eParentalRuleType.tv_series;
+                    break;
+                    default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                }
+
+                return result;
+            });
+
+
+            // Rule level
+            Mapper.CreateMap<WebAPI.Api.eRuleLevel, WebAPI.Models.General.eRuleLevel>().ConstructUsing((WebAPI.Api.eRuleLevel type) =>
+            {
+                WebAPI.Models.General.eRuleLevel result;
+
+                switch (type)
+                {
+                    case WebAPI.Api.eRuleLevel.User:
+                    result = Models.General.eRuleLevel.user;
+                    break;
+                    case WebAPI.Api.eRuleLevel.Domain:
+                    result = Models.General.eRuleLevel.domain;
+                    break;
+                    case WebAPI.Api.eRuleLevel.Group:
+                    result = Models.General.eRuleLevel.account;
+                    break;
+                    default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+
+                }
+
+                return result;
+            });
+
             // ParentalRule
             Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.General.ParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
@@ -65,7 +115,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.General.PurchaseSettingsResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
                 .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type));
+                .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type)); 
+
+            #endregion
+
         }
     }
 }

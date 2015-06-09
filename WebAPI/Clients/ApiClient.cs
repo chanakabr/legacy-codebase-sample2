@@ -66,7 +66,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetUserParentalRules(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                    response = Api.GetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId);
                 }
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetDomainParentalRules(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId);
+                    response = Api.GetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId);
                 }
             }
             catch (Exception ex)
@@ -137,7 +137,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetUserParentalRules(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, ruleId, isActive);
+                    response = Api.SetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, ruleId, isActive);
                 }
             }
             catch (Exception ex)
@@ -175,7 +175,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetDomainParentalRules(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, ruleId, isActive);
+                    response = Api.SetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, ruleId, isActive);
                 }
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
                 }
             }
             catch (Exception ex)
@@ -255,7 +255,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -297,7 +297,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetParentalPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId, pin);
+                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -335,7 +335,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetParentalPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty, pin);
+                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
                 }
             }
             catch (Exception ex)
@@ -373,7 +373,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchaseSettings(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId, settings);
+                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, settings);
                 }
             }
             catch (Exception ex)
@@ -411,7 +411,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchaseSettings(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty, settings);
+                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, settings);
                 }
             }
             catch (Exception ex)
@@ -449,7 +449,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
                 }
             }
             catch (Exception ex)
@@ -491,7 +491,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -533,7 +533,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
                 }
             }
             catch (Exception ex)
@@ -575,7 +575,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -617,7 +617,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchasePIN(group.UsersCredentials.Username, group.UsersCredentials.Password, 0, userId, pin);
+                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -655,7 +655,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchasePIN(group.UsersCredentials.Username, group.UsersCredentials.Password, domainId, string.Empty, pin);
+                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
                 }
             }
             catch (Exception ex)
@@ -692,7 +692,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetParentalMediaRules(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaId, 0);
+                    response = Api.GetParentalMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, 0);
                 }
             }
             catch (Exception ex)
@@ -727,7 +727,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetParentalEPGRules(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, epgId, 0);
+                    response = Api.GetParentalEPGRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0);
                 }
             }
             catch (Exception ex)
@@ -763,7 +763,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ValidateParentalPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pin);
+                    response = Api.ValidateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -801,7 +801,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ValidatePurchasePIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pin);
+                    response = Api.ValidatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin);
                 }
             }
             catch (Exception ex)

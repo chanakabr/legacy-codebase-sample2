@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// Purchase settings and PIN
     /// </summary>
     [Serializable]
-    class PurchaseSettingsResponse
+    public class PurchaseSettingsResponse
     {
         /// <summary>
         /// Purchase settings type - block, ask or allow
