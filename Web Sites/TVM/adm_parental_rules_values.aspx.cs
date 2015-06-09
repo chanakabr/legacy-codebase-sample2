@@ -38,6 +38,7 @@ public partial class adm_parental_rules_values : System.Web.UI.Page
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RULE_ID", "=", (int)Session["rule_id"]);
                     updateQuery += " AND ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+                    updateQuery += " AND ASSET_TYPE IS NULL";
                     updateQuery.Execute();
                     updateQuery.Finish();
                 }
@@ -115,6 +116,7 @@ public partial class adm_parental_rules_values : System.Web.UI.Page
         string tagTypeIdColumn = string.Empty;
         string assetName = string.Empty;
 
+        // This is defined in core enum: MEDIA = 2, EPG = 0
         if (assetTypeId == 2)
         {
             tagsTypesTable = "media_tags_types";
@@ -143,11 +145,13 @@ public partial class adm_parental_rules_values : System.Web.UI.Page
                 tagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
                 tagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
 
-                DataRecordMultiField dr_tags = new DataRecordMultiField(tagsTable, "id", "id", "parental_rule_tag_values", "rule_id", "TAG_ID", true, "ltr", 60, "tags");
+                DataRecordMultiField dr_tags = new DataRecordMultiField(tagsTable, "id", "id", "parental_rule_tag_values", "rule_id", "TAG_ID", false, "ltr", 60, "tags");
                 dr_tags.SetCollectionLength(20);
                 dr_tags.SetExtraWhere(tagTypeIdColumn + "=" + tagTypeID);
-                dr_tags.SetCollectionQuery(string.Format("SELECT TOP 20 value as txt, ID as val from {0} where {1} =", tagsTable, tagTypeIdColumn) + tagTypeID);
-                
+                dr_tags.SetCollectionQuery(
+                    string.Format("SELECT TOP 20 value as txt, ID as val from {0} where {1} = {2} AND STATUS = 1", 
+                    tagsTable, tagTypeIdColumn, tagTypeID));
+                dr_tags.SetMiddleTableType(tagsTypesTable);
                 dr_tags.Initialize(tagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
 
                 theRecord.AddRecord(dr_tags);

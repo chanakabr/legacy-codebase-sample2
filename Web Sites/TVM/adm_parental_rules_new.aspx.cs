@@ -120,7 +120,17 @@ public partial class adm_parental_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_description);
 
         DataRecordDropDownField dr_media_tag_type = new DataRecordDropDownField("media_tags_types", "NAME", "id", "", null, 60, true);
-        string mediaTagTypeQuery = "select name as txt,id as id from media_tags_types where status=1 and group_id IN (" + groups + ")";
+        string mediaTagTypeQuery = string.Format(
+            @"SELECT    t.NAME AS txt, 
+                        t.id   AS id 
+            FROM   groups g 
+                   LEFT JOIN media_tags_types t 
+                          ON ( t.group_id = g.id ) 
+            WHERE  t.status = 1 
+                   AND g.id IN ({0}) 
+                   AND g.id != g.commerce_group_id 
+                   AND g.id != g.fictivic_group_id", 
+             groups);
         dr_media_tag_type.SetSelectsQuery(mediaTagTypeQuery);
         dr_media_tag_type.Initialize("Media Tag Type", "adm_table_header_nbg", "FormInput", "media_tag_type_id", false);
         theRecord.AddRecord(dr_media_tag_type);

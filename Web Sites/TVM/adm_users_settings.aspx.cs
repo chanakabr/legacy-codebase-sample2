@@ -63,6 +63,15 @@ public partial class adm_users_settings : System.Web.UI.Page
         DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", tableID, sBack, "");
         theRecord.SetConnectionKey("users_connection_string");
         
+        DataRecordCheckBoxField dr_LoginViaPin = new DataRecordCheckBoxField(true);
+        dr_LoginViaPin.Initialize("Enable log-in via PIN", "adm_table_header_nbg", "FormInput", "login_via_pin", false);
+        theRecord.AddRecord(dr_LoginViaPin);
+
+        DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
+        dr_SecurityQuestion.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
+        theRecord.AddRecord(dr_SecurityQuestion);
+
+
         DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
         dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
         theRecord.AddRecord(dr_pin_must_hours);
