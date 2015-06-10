@@ -53,5 +53,12 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "suspention_state")]
         [JsonProperty("suspention_state")]
         public DomainSuspentionState SuspentionState { get; set; }
+
+        /// <summary>
+        /// User state
+        /// </summary>
+        [DataMember(Name = "user_state")]
+        [JsonProperty("user_state")]
+        public UserState UserState { get; set; }
     }
 }

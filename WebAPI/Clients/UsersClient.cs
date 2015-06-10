@@ -65,7 +65,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
 
             return user;
         }
@@ -102,7 +102,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
 
             return user;
         }
@@ -257,12 +257,12 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
 
             return user;
         }
 
-        public void SetLoginPin(int groupId, string userId, string pin, string secret)
+        public bool SetLoginPin(int groupId, string userId, string pin, string secret)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -289,6 +289,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+
+            return true;
         }
 
         public bool ClearLoginPIN(int groupId, string userId)

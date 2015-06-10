@@ -57,13 +57,14 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User
-            Mapper.CreateMap<Users.User, User>()
-                .ForMember(dest => dest.BasicDate, opt => opt.MapFrom(src => src.m_oBasicData))
-                .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.m_domianID))
-                .ForMember(dest => dest.DynamicDate, opt => opt.MapFrom(src => ConvertDynamicData(src.m_oDynamicData)))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
-                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => src.m_eSuspendState))
-                .ForMember(dest => dest.IsDomainMaster, opt => opt.MapFrom(src => src.m_isDomainMaster));
+            Mapper.CreateMap<Users.UserResponseObject, User>()
+                .ForMember(dest => dest.BasicDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
+                .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.m_user.m_domianID))
+                .ForMember(dest => dest.DynamicDate, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
+                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => src.m_user.m_eSuspendState))
+                .ForMember(dest => dest.IsDomainMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
+                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => src.m_RespStatus));
 
 
             //DomainSuspentionStatus to DomainSuspentionState
@@ -80,6 +81,24 @@ namespace WebAPI.Mapping.ObjectsConvertor
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
+                }
+                return result;
+            });
+
+             //DomainSuspentionStatus to DomainSuspentionState
+            Mapper.CreateMap<WebAPI.Users.ResponseStatus, UserState>().ConstructUsing((WebAPI.Users.ResponseStatus type) =>
+            {
+                UserState result;
+                switch (type)
+                {
+                    case WebAPI.Users.ResponseStatus.OK:
+                        result = UserState.ok;
+                        break;
+                    case WebAPI.Users.ResponseStatus.UserWithNoDomain:
+                        result = UserState.user_with_no_domain;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown user state");
                 }
                 return result;
             });

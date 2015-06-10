@@ -595,6 +595,8 @@
     <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
+    <Compile Include="Models\Catalog\Category.cs" />
+    <Compile Include="Models\Catalog\Channel.cs" />
     <Compile Include="Models\Catalog\ChannelMedia.cs" />
     <Compile Include="Models\Catalog\RelatedMedia.cs" />
     <Compile Include="Controllers\DomainsController.cs" />
@@ -607,8 +609,7 @@
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />
-    <Compile Include="Models\Users\UserDynamicData.cs" />
-    <Compile Include="Models\Users\UserDynamicDataContainer.cs" />
+    <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
@@ -749,6 +750,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\Domains\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
