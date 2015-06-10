@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Web.Services;
 using System.Web;
-using Logger;
 using System.Web.Services.Protocols;
 using System.Threading;
 using System.ServiceModel.Web;
 
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
+using Logger;
 
 namespace ServiceExtensions
 {
@@ -21,6 +23,8 @@ namespace ServiceExtensions
     /// </summary>
     internal class TraceExtensionStream : Stream
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Fields
 
         private Stream innerStream;
@@ -225,6 +229,7 @@ namespace ServiceExtensions
     #endregion
     public class WSExtension : SoapExtension
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         TraceExtensionStream traceStream;
 
         public override Stream ChainStream(Stream stream)
@@ -234,7 +239,7 @@ namespace ServiceExtensions
         }
 
         public override object GetInitializer(LogicalMethodInfo methodInfo, SoapExtensionAttribute attribute)
-        {            
+        {
             return methodInfo.Name;
         }
 
@@ -247,14 +252,14 @@ namespace ServiceExtensions
                 retVal = true;
             }
             return retVal;
-           
+
         }
 
         public override void Initialize(object initializer)
         {
             if (string.IsNullOrEmpty(Thread.CurrentThread.Name))
-            {                
-                Thread.CurrentThread.Name = Guid.NewGuid().ToString();                
+            {
+                Thread.CurrentThread.Name = Guid.NewGuid().ToString();
             }
         }
 
@@ -298,48 +303,47 @@ namespace ServiceExtensions
             {
                 try
                 {
-                    
-                        switch (message.Stage)
-                        {
-                            case SoapMessageStage.BeforeSerialize:
-                                traceStream.SwitchToNewStream();
-                                break;
-                            case SoapMessageStage.AfterSerialize:
-                                {
-                                    if (traceStream.IsNewStream)
-                                    {
-                                        traceStream.Position = 0;
-                                        WriteOutput(message);
-                                        traceStream.Position = 0;
-                                        traceStream.CopyNewToOld();
-                                    }
-                                    break;
-                                }
-                            case SoapMessageStage.BeforeDeserialize:
-                                {
 
-                                    if (!string.IsNullOrEmpty(Thread.CurrentThread.Name))
-                                    {
-                                        if (HttpContext.Current.Items != null && !HttpContext.Current.Items.Contains(Thread.CurrentThread.Name))
-                                        {
-                                            HttpContext.Current.Items.Add(Thread.CurrentThread.Name, DateTime.UtcNow);
-                                        }
-                                    }
-                                    traceStream.SwitchToNewStream();
-                                    traceStream.CopyOldToNew();
-                                    WriteInput(message);
+                    switch (message.Stage)
+                    {
+                        case SoapMessageStage.BeforeSerialize:
+                            traceStream.SwitchToNewStream();
+                            break;
+                        case SoapMessageStage.AfterSerialize:
+                            {
+                                if (traceStream.IsNewStream)
+                                {
                                     traceStream.Position = 0;
-
-                                    break;
+                                    WriteOutput(message);
+                                    traceStream.Position = 0;
+                                    traceStream.CopyNewToOld();
                                 }
-                            case SoapMessageStage.AfterDeserialize:
                                 break;
-                        }
-                    
+                            }
+                        case SoapMessageStage.BeforeDeserialize:
+                            {
+
+                                if (!string.IsNullOrEmpty(Thread.CurrentThread.Name))
+                                {
+                                    if (HttpContext.Current.Items != null && !HttpContext.Current.Items.Contains(Thread.CurrentThread.Name))
+                                    {
+                                        HttpContext.Current.Items.Add(Thread.CurrentThread.Name, DateTime.UtcNow);
+                                    }
+                                }
+                                traceStream.SwitchToNewStream();
+                                traceStream.CopyOldToNew();
+                                WriteInput(message);
+                                traceStream.Position = 0;
+
+                                break;
+                            }
+                        case SoapMessageStage.AfterDeserialize:
+                            break;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
+                    log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
                 }
             }
         }
@@ -364,13 +368,13 @@ namespace ServiceExtensions
                     if (logObject != null)
                     {
                         Log(header, traceStream, logObject);
-                        
+
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
             }
 
         }
@@ -381,7 +385,7 @@ namespace ServiceExtensions
             {
                 BaseLog logObject = CreateLogObject(message);
 
-               // Copy(oldStream, newStream);
+                // Copy(oldStream, newStream);
 
                 if (logObject != null)
                 {
@@ -393,11 +397,10 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
             }
-
         }
-        
+
 
         private BaseLog CreateLogObject(SoapMessage message)
         {
@@ -422,7 +425,7 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
                 return null;
             }
         }
@@ -446,10 +449,9 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
                 return DateTime.Now;
             }
-           
         }
 
         void Log(string header, Stream stream, BaseLog logObject, Exception e = null)
@@ -491,8 +493,7 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
-               
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
             }
         }
 
@@ -506,8 +507,7 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
-                
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
             }
         }
 
@@ -522,11 +522,8 @@ namespace ServiceExtensions
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
-             
+                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
             }
         }
-
-
     }
 }

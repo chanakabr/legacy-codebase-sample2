@@ -4,25 +4,24 @@ using System.Data.SqlClient;
 using System.Web;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
     public class Connection
     {
-        #region Constructor
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public Connection()
         {
         }
-        #endregion
 
-        #region Fields
         private SqlConnection m_conn = null;
 
         static private string m_sConnectionStr = "";
         protected object m_crit_sec = new object();
-        #endregion
 
-        #region Static Methods
         static public void ClearConnection()
         {
             m_sConnectionStr = "";
@@ -32,7 +31,7 @@ namespace ODBCWrapper
         static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
             string sRet = "";
-            
+
             if (Utils.GetTcmConfigValue(sKey) != string.Empty)
             {
                 sRet = Utils.GetTcmConfigValue(sKey).Replace("Driver={SQL Server};", "");
@@ -172,9 +171,7 @@ namespace ODBCWrapper
             }
             return true;
         }
-        #endregion
 
-        #region Public Methods
         public void Finish()
         {
             //lock(m_sConnectionStr)
@@ -193,9 +190,8 @@ namespace ODBCWrapper
             }
             catch (Exception ex)
             {
-                string sMes = "While closing connection Exception accured: " + ex.Message;
-                Logger.Logger.Log("connection", sMes, "ODBC_Net");
-                Logger.Logger.Log("connection", sMes, "ODBC_Connections");
+                string sMes = "While closing connection Exception occurred: " + ex.Message;
+                log.Error(sMes, ex);
             }
             //}
         }
@@ -221,8 +217,8 @@ namespace ODBCWrapper
                     }
                     catch (Exception ex)
                     {
-                        string sMes = "While openning connection Exception accured: " + ex.Message;
-                        Logger.Logger.Log("connection", sMes, "ODBC_Net");
+                        string sMes = "While opening connection Exception occurred: " + ex.Message;
+                        log.Error(sMes, ex);
                         return;
                     }
                     conn = m_conn;
@@ -253,8 +249,8 @@ namespace ODBCWrapper
                     }
                     catch (Exception ex)
                     {
-                        string sMes = "While openning connection Exception accured (" + m_sConnectionStr + "): " + ex.Message;
-                        Logger.Logger.Log("Connection", sMes, "ODBC_Net");
+                        string sMes = "While opening connection Exception occurred (" + m_sConnectionStr + "): " + ex.Message;
+                        log.Error(sMes, ex);
                         return;
                     }
                     conn.Connection = m_conn;
@@ -275,11 +271,14 @@ namespace ODBCWrapper
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.CommandText = "SP_Reset_Connection";
                         command.Connection = con;
-                        int res = command.ExecuteNonQuery();
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.UPDATE, Table = "SP_Reset_Connection" })
+                        {
+                            int res = command.ExecuteNonQuery();
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Connection", ex.ToString(), "ODBC_Net");
+                        log.Error("Error while opening connection to DB", ex);
 
                         // clear current connection pool
                         System.Data.SqlClient.SqlConnection.ClearPool(con);
@@ -289,6 +288,5 @@ namespace ODBCWrapper
 
             return con;
         }
-        #endregion
     }
 }

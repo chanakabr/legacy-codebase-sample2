@@ -10,14 +10,18 @@ using System.ServiceModel.Configuration;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
-using Logger;
 using System.Text.RegularExpressions;
 using System.Xml;
+using KLogMonitor;
+using System.Reflection;
+using Logger;
 
 namespace ServiceExtensions
 {
     public class LoggerWCFInspector : IDispatchMessageInspector
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public object AfterReceiveRequest(ref Message request, IClientChannel channel, InstanceContext instanceContext)
         {
             string messageStr;
@@ -26,9 +30,9 @@ namespace ServiceExtensions
 
             MessageState messageState = new MessageState(ref request);
 
-            BaseLog log = createLoggerObject(messageState.ID, messageState.MethodName, eLogType.WcfRequest, messageState.CreationDate, ref messageStr);
+            BaseLog oldLog = createLoggerObject(messageState.ID, messageState.MethodName, eLogType.WcfRequest, messageState.CreationDate, ref messageStr);
 
-            log.Info(messageStr, true);
+            log.Info(messageStr);
 
             return messageState;
         }
@@ -50,7 +54,7 @@ namespace ServiceExtensions
                 methodName = msgState.MethodName;
                 messageID = msgState.ID;
                 creationDate = msgState.CreationDate;
-                
+
             }
 
             BaseLog log = createLoggerObject(messageID, methodName, eLogType.WcfResponse, creationDate, ref messageStr);
@@ -142,10 +146,10 @@ namespace ServiceExtensions
         {
             foreach (ChannelDispatcher cDispatcher in host.ChannelDispatchers)
                 foreach (EndpointDispatcher eDispatcher in cDispatcher.Endpoints)
-                    eDispatcher.DispatchRuntime.MessageInspectors.Add(new LoggerWCFInspector() );
+                    eDispatcher.DispatchRuntime.MessageInspectors.Add(new LoggerWCFInspector());
         }
 
-        #region IServiceBehavior Members 
+        #region IServiceBehavior Members
         public void Validate(ServiceDescription desc, ServiceHostBase host)
         {
             //foreach (ServiceEndpoint se in desc.Endpoints)
@@ -156,7 +160,7 @@ namespace ServiceExtensions
 
         public void AddBindingParameters(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase, Collection<ServiceEndpoint> endpoints, BindingParameterCollection bindingParameters)
         {
-            
+
         }
     }
 
@@ -171,7 +175,4 @@ namespace ServiceExtensions
             return new LoggerMessageTracingElement();
         }
     }
-
-    
-
 }

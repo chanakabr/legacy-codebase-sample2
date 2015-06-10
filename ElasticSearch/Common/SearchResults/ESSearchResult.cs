@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearch.Common.SearchResults
 {
     public class ESSearchResult
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private HitStatus m_hits;
 
         public ESSearchResult(string jsonResult)
@@ -39,9 +42,9 @@ namespace ElasticSearch.Common.SearchResults
                         }
                     }
                 }
-                catch (System.Exception e)
+                catch (Exception ex)
                 {
-
+                    log.Error("", ex);
                 }
 
             }
@@ -97,7 +100,7 @@ namespace ElasticSearch.Common.SearchResults
         }
         internal Dictionary<string, string> _hightlights;
 
-     
+
 
 
 

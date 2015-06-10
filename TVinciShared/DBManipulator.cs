@@ -11,6 +11,8 @@ using System.Threading;
 using System.IO;
 using System.Collections.Generic;
 using Uploader;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -19,6 +21,9 @@ namespace TVinciShared
     /// </summary>
     public class DBManipulator
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+
         public DBManipulator()
         {
             //
@@ -245,18 +250,18 @@ namespace TVinciShared
                         {
                             ratioIndex = coll[nCounter.ToString() + "_ratioIndex"].ToString();
                         }
-                        Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
+                        log.Debug("Ratio index found - Ratio index is " + ratioIndex);
                         string selectedRatioVal = string.Empty;
 
 
                         if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
                         {
                             selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
-                            Logger.Logger.Log("Selected Ratio Found", "Selected Ratio is :" + selectedRatioVal, "Ratio");
+                            log.Debug("Selected Ratio Found - Selected Ratio is :" + selectedRatioVal);
                         }
                         else
                         {
-                            Logger.Logger.Log("Selected Ratio Not Found", "ratio index is :" + ratioIndex, "Ratio");
+                            log.Debug("Selected Ratio Not Found - ratio index is :" + ratioIndex);
                         }
                         bool bIsImage = false;
                         if (sIsImage.Trim().ToUpper() == "TRUE")
@@ -360,20 +365,20 @@ namespace TVinciShared
                                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                                 {
                                                     sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                                    log.Debug("Ratio found - Ratio is :" + sRatio);
                                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                                     {
-                                                        Logger.Logger.Log("Ratio un-matched", selectedRatioVal, "Ratio");
+                                                        log.Debug("Ratio un-matched - " + selectedRatioVal);
                                                         isResize = false;
                                                     }
                                                     else
                                                     {
-                                                        Logger.Logger.Log("Ratio matched", "for: " + sDirectory + "/" + sPicBaseName + sEndName, "Ratio");
+                                                        log.Debug("Ratio matched - for: " + sDirectory + "/" + sPicBaseName + sEndName);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    Logger.Logger.Log("Ratio not found", "for: " + sDirectory + "/" + sPicBaseName + sEndName, "Ratio");
+                                                    log.Debug("Ratio not found - for: " + sDirectory + "/" + sPicBaseName + sEndName);
                                                 }
                                                 if (isResize)
                                                 {
@@ -477,20 +482,20 @@ namespace TVinciShared
                                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                                 {
                                                     sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                                    log.Debug("Ratio found - Ratio is :" + sRatio);
                                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                                     {
-                                                        Logger.Logger.Log("Ratio un-matched", sTmpImage, "Ratio");
+                                                        log.Debug("Ratio un-matched - " + sTmpImage);
                                                         isResize = false;
                                                     }
                                                     else
                                                     {
-                                                        Logger.Logger.Log("Ratio matched", sTmpImage, "Ratio");
+                                                        log.Debug("Ratio matched - " + sTmpImage);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    Logger.Logger.Log("Ratio not found", sTmpImage, "Ratio");
+                                                    log.Debug("Ratio not found - " + sTmpImage);
                                                 }
                                                 if (isResize)
                                                 {
@@ -791,7 +796,7 @@ namespace TVinciShared
                 string sMiddleFieldRefToCollection = coll[nCounter.ToString() + "_middle_ref_collection_field"].ToString();
                 string sAddExtra = coll[nCounter.ToString() + "_collection_auto_add"].ToString();
                 string sMiddleTableType = coll[nCounter.ToString() + "_middle_table_type"].ToString();
-                
+
 
                 object mainPointerValue = null;
                 if (selectQuery != null)
@@ -804,7 +809,7 @@ namespace TVinciShared
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception", "On function: mainPointerValue = int.Parse(coll[nCounter.ToString() + '_value_to_enter'].ToString());", "XTI_Export");
+                        log.Error("On function: mainPointerValue = int.Parse(coll[nCounter.ToString() + '_value_to_enter'].ToString());", ex);
                     }
                 }
                 //char[] t = { ';', ',', ':' };
@@ -812,7 +817,7 @@ namespace TVinciShared
                 char[] t = { ';' };
                 string[] splitedStr = sVal.Split(t);
                 Int32 nGroupID = LoginManager.GetLoginGroupID();
-                
+
                 if (nGroupID == 0)
                 {
                     if (coll[nCounter.ToString() + "_group"] != null)
@@ -823,7 +828,7 @@ namespace TVinciShared
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", "On function: nGroupID = int.Parse(coll[nCounter.ToString() + '_group'].ToString().Trim());", "XTI_Export");
+                            log.Error("On function: nGroupID = int.Parse(coll[nCounter.ToString() + '_group'].ToString().Trim());", ex);
                             return;
                         }
                     }
@@ -869,7 +874,7 @@ namespace TVinciShared
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Exception", "On function: selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sCollectionFieldName, ' = ', int.Parse(sText)); stext=" + sText, "XTI_Export");
+                                log.Error("On function: selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sCollectionFieldName, ' = ', int.Parse(sText)); stext=" + sText, ex);
                                 return;
                             }
                         }
@@ -894,7 +899,7 @@ namespace TVinciShared
                             sCollectionTable != "lu_languages" && sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands")
                         {
                             selectQuery1 += " and ";
-                            
+
                             if (collectionTableGroupId != nGroupID)
                             {
                                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", collectionTableGroupId);
@@ -982,7 +987,7 @@ namespace TVinciShared
                                         sXML += "<tag type=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTagType, true) + "\" value=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sText, true) + "\">";
                                         sXML += "</tag>";
                                         sXML += "</notification>";
-                                        Logger.Logger.Log("Notification", sURL + " : " + sXML, "XTI_Export");
+                                        log.Debug("Notification - " + sURL + " : " + sXML);
                                         //Notify here
                                         Notifier tt = new Notifier(sURL, sXML);
                                         ThreadStart job = new ThreadStart(tt.Notify);
@@ -1198,7 +1203,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || On function: BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nGroupID, string sOldText):" + sTagType + " | " + sNewText + " | " + nGroupID.ToString() + "|" + sOldText, "Exceptions");
+                log.Error("Exception - " + ex.Message + " || On function: BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nGroupID, string sOldText):" + sTagType + " | " + sNewText + " | " + nGroupID.ToString() + "|" + sOldText, ex);
             }
             return retVal;
         }

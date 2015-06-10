@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
-namespace ScheduledTasks 
+namespace ScheduledTasks
 {
     abstract public class BaseTask
-    {    
-        
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected Int32 m_nIntervalInSec;
         protected Int32 m_nTaskID;
         protected string m_sParameters;
-        public BaseTask(Int32 nTaskID , Int32 nIntervalInSec , string sParameters)
+        public BaseTask(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
         {
             m_nIntervalInSec = nIntervalInSec;
             m_nTaskID = nTaskID;
@@ -73,7 +75,7 @@ namespace ScheduledTasks
             if (nTaskOrigRunDate < tNow)
                 nTaskOrigRunDate = tNow;
 
-           
+
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_DATE", "=", nTaskOrigRunDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_STATUS", "=", 0);
@@ -97,10 +99,11 @@ namespace ScheduledTasks
 
         virtual public bool DoTheTask()
         {
-            Logger.Logger.Log("message", GetType().ToString() + " started", "TVM_Tasker");
+            log.Debug("message - " + GetType().ToString() + " started");
+
             bool b = DoTheTaskInner();
             CreateNewTaskLine();
-            Logger.Logger.Log("message", GetType().ToString() + " finished", "TVM_Tasker");
+            log.Debug("message - " + GetType().ToString() + " finished");
             return b;
         }
 

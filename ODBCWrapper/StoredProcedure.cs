@@ -7,12 +7,15 @@ using System.Configuration;
 using System.Data;
 using System.Collections.Specialized;
 using Microsoft.SqlServer.Server;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
     public class StoredProcedure
     {
-        #region Constructor
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public StoredProcedure(string sProcedureName)
         {
             m_sProcedureName = sProcedureName;
@@ -25,19 +28,15 @@ namespace ODBCWrapper
             m_bIsWritable = bIsWritable;
         }
 
-        ~StoredProcedure() { } 
-        #endregion
+        ~StoredProcedure() { }
 
-        #region Private Fields
         private string m_sProcedureName;
         private Dictionary<string, object> m_Parameters;
         private int m_nTimeout;
 
         protected string m_sConnectionKey;
         protected bool m_bIsWritable;
-        #endregion
 
-        #region Private Properties
         private int LongQueryTime
         {
             get
@@ -46,8 +45,7 @@ namespace ODBCWrapper
                 //    return int.Parse(Utils.GetTcmConfigValue("QUERY_LONG"));
                 return 2000;
             }
-        } 
-        #endregion      
+        }
 
 
         public void AddParameter(string sKey, object oValue)
@@ -70,7 +68,7 @@ namespace ODBCWrapper
             else
             {
                 m_Parameters.Add(sKey, DBNull.Value);
-            }                       
+            }
         }
 
         public void AddXMLParameter<T>(string sKey, List<T> oListValue, string colName)
@@ -79,12 +77,12 @@ namespace ODBCWrapper
         }
 
 
-        public void AddIDListParameter<T>(string sKey, List<T> oListValue , string colName)
+        public void AddIDListParameter<T>(string sKey, List<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateDataTable<T>(oListValue, colName));
         }
 
-        public void AddKeyValueListParameter<T1,T2>(string sKey, Dictionary<T1,List<T2>> oListKeyValue, string colNameKey, string colNameValue)
+        public void AddKeyValueListParameter<T1, T2>(string sKey, Dictionary<T1, List<T2>> oListKeyValue, string colNameKey, string colNameValue)
         {
             m_Parameters.Add(sKey, CreateDataTable<T1, T2>(oListKeyValue, colNameKey, colNameValue));
         }
@@ -92,7 +90,7 @@ namespace ODBCWrapper
         public void AddDataTableParameter<T1, T2>(string sKey, DataTable oDictValue, string colNameKey, string colNameValue)
         {
             m_Parameters.Add(sKey, CreateDataTable<T1, T2>(oDictValue, colNameKey, colNameValue));
-        }   
+        }
 
         private object CreateDataTable(IEnumerable<int> ids, string colName)
         {
@@ -131,9 +129,9 @@ namespace ODBCWrapper
                     table.Rows.Add(dr);
                 }
             }
-            
 
-            
+
+
             return table;
         }
 
@@ -144,12 +142,12 @@ namespace ODBCWrapper
             table.Columns.Add(colNameValue, typeof(T2));
 
             foreach (DataRow oRow in oDictValue.Rows)
-            {   
-                    DataRow dr = table.NewRow();
-                    dr[colNameKey] = oRow[colNameKey];
-                    dr[colNameValue] = oRow[colNameValue];
-                    table.Rows.Add(dr);
-                
+            {
+                DataRow dr = table.NewRow();
+                dr[colNameKey] = oRow[colNameKey];
+                dr[colNameValue] = oRow[colNameValue];
+                table.Rows.Add(dr);
+
             }
             return table;
         }
@@ -183,6 +181,7 @@ namespace ODBCWrapper
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return string.Empty;
             }
         }
@@ -216,7 +215,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));               
+                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
@@ -227,35 +226,25 @@ namespace ODBCWrapper
                 {
                     con.Open();
                     SetLockTimeOut(con);
-
                     command.Connection = con;
 
-                    DateTime dStart = DateTime.Now;
-
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
-                    }
-                    else
-                    {
+                        SqlDataReader reader = command.ExecuteReader();
+
                         if (reader.HasRows)
                         {
                             result = new DataTable();
                             result.Load(reader);
                         }
+                        reader.Close();
+                        reader.Dispose();
                     }
-
-                    reader.Close();
-                    reader.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return null;
                 }
             }
@@ -264,17 +253,17 @@ namespace ODBCWrapper
 
         public DataSet ExecuteDataSet()
         {
-            DataSet result = new DataSet(); 
+            DataSet result = new DataSet();
             SqlDataAdapter da = new SqlDataAdapter();
-            
+
             SqlCommand command = new SqlCommand();
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = m_sProcedureName;
 
             foreach (string item in m_Parameters.Keys)
-            {   
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));             
+            {
+                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
@@ -283,28 +272,21 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    DateTime dStart = DateTime.Now;
-                    command.Connection = con;
-
-                    da.SelectCommand = command;
-                    da.Fill(result);
-                    con.Close();                 
-
-
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        da.SelectCommand = command;
+                        da.Fill(result);
+                        con.Close();
                     }
                 }
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return null;
                 }
             }
@@ -329,9 +311,9 @@ namespace ODBCWrapper
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
 
-            SqlParameter sqlReturnedValueParam = new SqlParameter();        
+            SqlParameter sqlReturnedValueParam = new SqlParameter();
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
-            command.Parameters.Add(sqlReturnedValueParam); 
+            command.Parameters.Add(sqlReturnedValueParam);
 
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
@@ -340,28 +322,21 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    DateTime dStart = DateTime.Now;
-                    command.Connection = con;
-                    object dbRes = command.ExecuteScalar();
-                    result = (T)Convert.ChangeType(sqlReturnedValueParam.Value, typeof(T));
-
-                    con.Close();
-
-
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        object dbRes = command.ExecuteScalar();
+                        result = (T)Convert.ChangeType(sqlReturnedValueParam.Value, typeof(T));
+                        con.Close();
                     }
                 }
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return result;
                 }
             }
@@ -397,28 +372,20 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    DateTime dStart = DateTime.Now;
-                    command.Connection = con;
-                    result = command.ExecuteScalar();
-                    //result = (T)Convert.ChangeType(sqlReturnedValueParam.Value, typeof(T));
-
-                    con.Close();
-
-
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        result = command.ExecuteScalar();
+                        con.Close();
                     }
                 }
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return result;
                 }
             }
@@ -426,12 +393,12 @@ namespace ODBCWrapper
             return result;
         }
 
-        
+
         /// <summary>
-        /// Execute stored prcoedure that execute some sql without return value or resultset.
+        /// Execute stored procedure that execute some sql without return value or result set.
         /// </summary>
         public void ExecuteNonQuery()
-        {        
+        {
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = m_sProcedureName;
@@ -448,24 +415,20 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    DateTime dStart = DateTime.Now;
-                    command.Connection = con;
-                    command.ExecuteNonQuery(); 
-                    con.Close();
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        command.ExecuteNonQuery();
+                        con.Close();
                     }
                 }
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);   
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                 }
             }
         }
@@ -485,7 +448,7 @@ namespace ODBCWrapper
             {
                 Type type = m_Parameters[item].GetType();
                 if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
-                    || type.FullName == typeof(System.DateTime).FullName )
+                    || type.FullName == typeof(System.DateTime).FullName)
                 {
                     command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }
@@ -496,7 +459,7 @@ namespace ODBCWrapper
                     UrlParam.SqlDbType = SqlDbType.Structured;
                     UrlParam.TypeName = "dbo.IDList";
                 }
-               
+
 
             }
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
@@ -507,36 +470,30 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    DateTime dStart = DateTime.Now;
-                    command.Connection = con;
-
-                    da.SelectCommand = command;
-                    DataTable dataTable = new DataTable();
-                    dataTable.BeginLoadData();
-                    da.Fill(dataTable);
-                    dataTable.EndLoadData();
-                    result.EnforceConstraints = false;
-                    result.Tables.Add(dataTable);
-                    con.Close();
-
-
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > LongQueryTime)
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
                     {
-                        string sMes = string.Format("Stored Procedure '{0}' Run Took {1} ms", m_sProcedureName, t.TotalMilliseconds);
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+
+                        da.SelectCommand = command;
+                        DataTable dataTable = new DataTable();
+                        dataTable.BeginLoadData();
+                        da.Fill(dataTable);
+                        dataTable.EndLoadData();
+                        result.EnforceConstraints = false;
+                        result.Tables.Add(dataTable);
+                        con.Close();
                     }
                 }
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return null;
                 }
-            }          
+            }
             return result;
         }
 

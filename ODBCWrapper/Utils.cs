@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
 
@@ -473,13 +476,13 @@ namespace ODBCWrapper
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
                 if (string.IsNullOrEmpty(result))
                 {
-                    throw new Exception("miising key");
+                    throw new Exception("missing key");
                 }
             }
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("ODBCWRapper", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("Key=" + sKey, ex);
             }
             return result;
         }
@@ -511,7 +514,7 @@ namespace ODBCWrapper
             catch
             {
                 return res;
-            }          
+            }
         }
 
         /// <summary>

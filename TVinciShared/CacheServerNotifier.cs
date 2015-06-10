@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Xml;
+using KLogMonitor;
 
 namespace TVinciShared
 {
-    public class CacheServerNotifier: Notifier
+    public class CacheServerNotifier : Notifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected Int32 m_nGroupID;
         protected string m_sProtocol;
         protected string m_sRequest;
@@ -21,7 +24,7 @@ namespace TVinciShared
             m_sResponse = sResponse;
         }
 
-        static protected string RemoveUnWantedParameters(string sXML , string sTag)
+        static protected string RemoveUnWantedParameters(string sXML, string sTag)
         {
             try
             {
@@ -53,12 +56,12 @@ namespace TVinciShared
                     attr.OwnerElement.RemoveAttribute("debug");
                 }
                 XmlNode theRequest = theDoc.SelectSingleNode(sTag);
-                string sNewXML = ProtocolsFuncs.ConvertXMLToString(ref theRequest , false);
+                string sNewXML = ProtocolsFuncs.ConvertXMLToString(ref theRequest, false);
                 return sNewXML;
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Logger.Log("exception", sXML, "notifier_exception");
+                log.Error("exception - " + sXML, ex);
                 return sXML;
             }
         }
@@ -77,7 +80,7 @@ namespace TVinciShared
                 return;
             CachingManager.CachingManager.SetCachedData(sReq, "---", 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
             string sCachingSeverXML = "<root><req>" + sReq + "</req>";
-            sCachingSeverXML += "<res>" + RemoveUnWantedParameters(m_sResponse , "/") + "</res></root>";
+            sCachingSeverXML += "<res>" + RemoveUnWantedParameters(m_sResponse, "/") + "</res></root>";
             m_sXML = sCachingSeverXML;
             base.Notify();
         }

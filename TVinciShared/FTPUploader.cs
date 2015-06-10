@@ -11,6 +11,8 @@ using System.Net;
 using System.IO;
 using System.Collections.Generic;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -19,6 +21,8 @@ namespace TVinciShared
     /// </summary>
     public class FTPUploader
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected string m_sFileToUpload;
         protected bool m_isDelete;
         protected string m_directoryString;
@@ -31,7 +35,7 @@ namespace TVinciShared
         static public List<string> m_currentlyUploadedGroups = new List<string>();
         protected int m_nGroupID = 0;
         private static ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
-        
+
         public FTPUploader(string sFile, string sFTPServerIP, string sFTPUN, string sFTPPass)
         {
             m_sFileToUpload = sFile;
@@ -102,15 +106,15 @@ namespace TVinciShared
             while (m_nNumberOfRuningUploads > 10)
             {
                 System.Threading.Thread.Sleep(500);
-                Logger.Logger.Log("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "waiting - more then 10 uploads parallel", "FTPUpload");
+                log.Debug("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " waiting - more then 10 uploads parallel");
             }
             m_nNumberOfRuningUploads++;
-            Logger.Logger.Log("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "start", "FTPUpload");
+            log.Debug("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " start");
             FileInfo fileInf = new FileInfo(m_sFileToUpload);
             string uri = "ftp://" + m_sFTPServerIP + "/" + fileInf.Name;
             FtpWebRequest reqFTP;
             reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
-           
+
             //reqFTP.EnableSsl = true;
             //reqFTP.RequestUri.Port
             reqFTP.Credentials = new NetworkCredential(m_sFTPUserName, m_sFTPPass);
@@ -134,17 +138,17 @@ namespace TVinciShared
                 }
                 strm.Close();
                 fs.Close();
-                Logger.Logger.Log("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "finished", "FTPUpload");
+                log.Debug("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " finished");
                 //System.IO.File.Delete(m_sFileToUpload);
                 if (m_isDelete)
                 {
                     fileInf.Delete();
-                    Logger.Logger.Log("DeleteFile from UploadFile: ", m_sFTPServerIP + m_sFileToUpload, "UploadedPics");
+                    log.Debug("DeleteFile from UploadFile: " + m_sFTPServerIP + m_sFileToUpload);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Upload pic: " + m_sFileToUpload, "exception" + ex.Message + " || " + ex.StackTrace, "FTPUpload");
+                log.Error("Upload pic: " + m_sFileToUpload + " exception" + ex.Message + " || " + ex.StackTrace);
             }
             m_nNumberOfRuningUploads--;
         }
@@ -154,12 +158,12 @@ namespace TVinciShared
             if (m_sFTPServerIP.Trim() == "")
                 return;
 
-            
-           // m_nNumberOfRuningUploads++;
-            Logger.Logger.Log("upload directory to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "start", "FTPUpload");
+
+            // m_nNumberOfRuningUploads++;
+            log.Debug("upload directory to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " start");
             if (!Directory.Exists(m_directoryString))
             {
-                Logger.Logger.Log("Directory does not exist: " + m_directoryString, "Directory does not exist: " + m_directoryString, "FTPUpload");
+                log.Debug("Directory does not exist: " + m_directoryString + " Directory does not exist: " + m_directoryString);
                 return;
             }
 
@@ -174,7 +178,7 @@ namespace TVinciShared
                 //}
                 files = Directory.GetFiles(m_directoryString);
                 AddUploadGroup();
-                Logger.Logger.Log("Start Uploading Files " + files.Length + " to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "start", "DirectoryUpload");
+                log.Debug("Start Uploading Files " + files.Length + " to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " start");
                 foreach (string file in files)
                 {
                     Stream strm = null;
@@ -183,12 +187,12 @@ namespace TVinciShared
                     {
                         if (failCount > 3)
                         {
-                            Logger.Logger.Log("Fail Count: ", "Fail Count from directory " + m_directoryString, "FTPUpload");
+                            log.Debug("Fail Count: Fail Count from directory " + m_directoryString);
                             RemoveUploadGroup();
 
                             break;
                         }
-                        Logger.Logger.Log("Start upload file: ", m_sFTPServerIP + file, "FTPUpload");
+                        log.Debug("Start upload file: " + m_sFTPServerIP + file);
                         FileInfo fileInf = new FileInfo(file);
                         string uri = "ftp://" + m_sFTPServerIP + "/" + fileInf.Name;
                         FtpWebRequest reqFTP = null;
@@ -223,7 +227,7 @@ namespace TVinciShared
                             }
                             //strm.Close();
                             //fs.Close();
-                            Logger.Logger.Log("upload file " + file + " to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "finished", "FTPUpload");
+                            log.Debug("upload file " + file + " to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass + " finished");
                             //fileInf.Delete();
 
 
@@ -233,7 +237,7 @@ namespace TVinciShared
                         catch (Exception ex)
                         {
                             failCount++;
-                            Logger.Logger.Log("Upload file: " + m_sFileToUpload, "exception" + ex.Message + " || " + ex.StackTrace, "FTPUpload", "FTP Upload exception on file " + file + " server " + m_sFTPServerIP + " " + ex.Message);
+                            log.Error("Upload file: " + m_sFileToUpload + " exception" + ex.Message + " || " + ex.StackTrace, ex);
                             if (failCount > 3)
                             {
 
@@ -244,17 +248,17 @@ namespace TVinciShared
                             if (strm != null)
                             {
                                 strm.Close();
-                                Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
+                                log.Debug("Stream Closed: " + file);
                             }
                             if (fs != null)
                             {
                                 fs.Close();
-                                Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
+                                log.Debug("File Stream Closed: " + file);
                             }
                             if (fileInf != null)
                             {
                                 fileInf.Delete();
-                                Logger.Logger.Log("DeleteFile: ", m_sFTPServerIP + file, "UploadedPics");
+                                log.Debug("DeleteFile: " + m_sFTPServerIP + file);
                             }
 
                         }
@@ -262,35 +266,29 @@ namespace TVinciShared
                     catch (Exception ex)
                     {
                         failCount++;
-                        Logger.Logger.Log("Exception: ", "Timeout On file " + file + " on ftp " + m_sFTPServerIP + ex.Message, "UploadedPics", "FTP Connection timeout on server " + m_sFTPServerIP + " " + ex.Message);
+                        log.Error("Exception: - Timeout On file " + file + " on ftp " + m_sFTPServerIP + ex.Message + " UploadedPics", ex);
                     }
                     finally
                     {
                         if (strm != null)
                         {
                             strm.Close();
-                            Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
+                            log.Debug("Stream Closed: " + file);
                         }
                         if (fs != null)
                         {
                             fs.Close();
-                            Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
+                            log.Debug("File Stream Closed: " + file);
                         }
-
                     }
-
-
-
 
                     //m_nNumberOfRuningUploads--;
                 }
 
                 RemoveUploadGroup();
-                
-
             }
-           // RemoveUploadGroup();
-            
+            // RemoveUploadGroup();
+
         }
 
         private bool IsGroupUploading()
@@ -333,7 +331,7 @@ namespace TVinciShared
             {
                 m_locker.ExitWriteLock();
             }
-           
+
         }
 
         private void RemoveUploadGroup()
@@ -371,6 +369,6 @@ namespace TVinciShared
             StreamReader reader = new StreamReader(responseStream);
 
             return reader.ReadToEnd();
-        }       
+        }
     }
 }

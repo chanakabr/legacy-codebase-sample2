@@ -8,6 +8,8 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -16,6 +18,8 @@ namespace TVinciShared
     /// </summary>
     public class Menu
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public Menu()
         {
         }
@@ -79,7 +83,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static protected void GetMenuLevel(Int32 nMenuID , ref Int32 nLevel)
+        static protected void GetMenuLevel(Int32 nMenuID, ref Int32 nLevel)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select parent_menu_id from admin_menu where ";
@@ -101,14 +105,14 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static protected Int32 GetOriginalMenuIDByURL(Int32 nParentID , string sURL , bool bRemoveQuery)
+        static protected Int32 GetOriginalMenuIDByURL(Int32 nParentID, string sURL, bool bRemoveQuery)
         {
             if (sURL == "")
                 sURL = HttpContext.Current.Request.Url.PathAndQuery;
             Int32 nL = sURL.LastIndexOf("/");
             if (nL != -1)
                 sURL = sURL.Substring(nL + 1);
-            
+
             sURL = sURL.Replace("_new", "");
             sURL = sURL.Replace("_translate", "");
             if (bRemoveQuery == true)
@@ -117,7 +121,7 @@ namespace TVinciShared
                 if (sQuery != "")
                     sURL = sURL.Replace(sQuery, "");
             }
-            
+
             Int32 nRet = 0;
             Int32 nLevel = 0;
             Int32 nAcctID = LoginManager.GetLoginID();
@@ -128,16 +132,16 @@ namespace TVinciShared
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("aap.account_id", "=", nAcctID);
             //string sLike = " (am.menu_href like ('" + sURL + "%') or am.menu_href like ('" + sOldURL + "%'))";
             selectQuery += " and ";
-            
+
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("am.menu_href", "=", sURL);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                for (int i = 0; i < nCount; i++ )
+                for (int i = 0; i < nCount; i++)
                 {
                     Int32 nCurrent = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
                     Int32 nCurrentLevel = 0;
-                    GetMenuLevel(nCurrent , ref nCurrentLevel);
+                    GetMenuLevel(nCurrent, ref nCurrentLevel);
                     if (nCurrentLevel > nLevel && nCurrent != 0)
                     {
                         nRet = nCurrent;
@@ -210,11 +214,11 @@ namespace TVinciShared
             return GetMainMenu(nMenuID, bAdmin, ref nSelID, "");
         }
 
-        static public string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID , string sPageURL)
+        static public string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0 , sPageURL) + "</root>";
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
 
-            StringBuilder sTemp = new StringBuilder();  
+            StringBuilder sTemp = new StringBuilder();
 
             sTemp.Append("<script type=\"text/javascript\" src=\"js/SWFObj.js\"></script><script  type=\"text/javascript\">");
             sTemp.Append("function menuXML()");
@@ -283,13 +287,13 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID , string sPageURL)
+        static public string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID, string sPageURL)
         {
             //Logger.Logger.Log("TVM Menu", "Enter Get Menu", "TVMStagingMenu");
             if (nParentID == 0)
             {
                 nSelID = 0;
-                nMenuID = GetOriginalMenuIDByURL(nParentID, sPageURL , false);
+                nMenuID = GetOriginalMenuIDByURL(nParentID, sPageURL, false);
                 if (nMenuID == 0)
                     nMenuID = GetOriginalMenuIDByURL(nParentID, sPageURL, true);
             }
@@ -297,7 +301,7 @@ namespace TVinciShared
             Int32 nCount = 0;
             Int32 nAcctID = LoginManager.GetLoginID();
             Int32 nGroupID = LoginManager.GetLoginGroupID();
-            
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select aap.view_permit,am.* from admin_menu am,admin_accounts_permissions aap where aap.menu_id=am.id and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("parent_menu_id", "=", nParentID);
@@ -307,7 +311,7 @@ namespace TVinciShared
             if (selectQuery.Execute("query", true) != null)
             {
                 nCount = selectQuery.Table("query").DefaultView.Count;
-               // Logger.Logger.Log("TVM Menu", "After select - count is " + nCount.ToString(), "TVMStagingMenu");
+                // Logger.Logger.Log("TVM Menu", "After select - count is " + nCount.ToString(), "TVMStagingMenu");
                 for (Int32 i = 0; i < nCount; i++)
                 {
                     Int32 nGroupHeader = int.Parse(selectQuery.Table("query").DefaultView[i].Row["IS_GROUP_HEADER"].ToString());
@@ -351,7 +355,7 @@ namespace TVinciShared
                         sXML.Append(GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
                         sXML.Append("</node>");
                     }
-                   // Logger.Logger.Log("TVM Menu", "Menu Item :" + nAMID.ToString() + " " + bVisible.ToString(), "TVMStagingMenu");
+                    // Logger.Logger.Log("TVM Menu", "Menu Item :" + nAMID.ToString() + " " + bVisible.ToString(), "TVMStagingMenu");
                 }
             }
             else
@@ -366,58 +370,58 @@ namespace TVinciShared
         static public string GetSubMenu(Int32 nTopOrder, Int32 nSubOrder, bool bAdmin)
         {
             return "";
-            try
-            {
-                //nSubOrder = GetOriginalSubOrderID(nTopOrder, nSubOrder);
-                Int32 nParent = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("admin_menu" , "parent_menu_id" , nTopOrder).ToString());
-                StringBuilder sTemp = new StringBuilder();
-                Int32 nCount = 0;
-                Int32 nAcctID = LoginManager.GetLoginID();
-                Int32 nGroupID = LoginManager.GetLoginGroupID();
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select am.*,aap.view_permit from admin_menu am,admin_accounts_permissions aap where aap.menu_id=am.id and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("aap.account_id", "=", nAcctID);
-                selectQuery += "and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("am.parent_menu_id", "=", nParent);
-                selectQuery += " order by menu_order_vis";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    nCount = selectQuery.Table("query").DefaultView.Count;
-                    for (Int32 i = 0; i < nCount; i++)
-                    {
-                        if (int.Parse(selectQuery.Table("query").DefaultView[i].Row["view_permit"].ToString()) == 0)
-                            continue;
-                        Int32 nOnlyTV = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_TVINCI"].ToString());
-                        Int32 nOnlyCO = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_CO"].ToString());
-                        if (nGroupID > 1 && nOnlyTV == 1)
-                            continue;
-                        if (nGroupID == 1 && nOnlyCO == 1)
-                            continue;
-                        //if (nSubOrder == int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString()))
-                        if (nTopOrder == int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString()))
-                        {
-                            sTemp.Append("<li><a class=\"on\" href=\"");
-                        }
-                        else
-                        {
-                            sTemp.Append("<li><a href=\"");
-                        }
-                        sTemp.Append(selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString());
-                        sTemp.Append("\"><span>");
-                        sTemp.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
-                        sTemp.Append("</span></a></li>");
-                    }
-                    //sTemp += "<li class=\"red\">* Requiered fields</li>";
-                }
-                selectQuery.Finish();
-                selectQuery = null;
-                return sTemp.ToString();
-            }
-            catch
-            {
-                HttpContext.Current.Response.Redirect("login.aspx");
-                return "";
-            }
+            //try
+            //{
+            //    //nSubOrder = GetOriginalSubOrderID(nTopOrder, nSubOrder);
+            //    Int32 nParent = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("admin_menu", "parent_menu_id", nTopOrder).ToString());
+            //    StringBuilder sTemp = new StringBuilder();
+            //    Int32 nCount = 0;
+            //    Int32 nAcctID = LoginManager.GetLoginID();
+            //    Int32 nGroupID = LoginManager.GetLoginGroupID();
+            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //    selectQuery += "select am.*,aap.view_permit from admin_menu am,admin_accounts_permissions aap where aap.menu_id=am.id and ";
+            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("aap.account_id", "=", nAcctID);
+            //    selectQuery += "and ";
+            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("am.parent_menu_id", "=", nParent);
+            //    selectQuery += " order by menu_order_vis";
+            //    if (selectQuery.Execute("query", true) != null)
+            //    {
+            //        nCount = selectQuery.Table("query").DefaultView.Count;
+            //        for (Int32 i = 0; i < nCount; i++)
+            //        {
+            //            if (int.Parse(selectQuery.Table("query").DefaultView[i].Row["view_permit"].ToString()) == 0)
+            //                continue;
+            //            Int32 nOnlyTV = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_TVINCI"].ToString());
+            //            Int32 nOnlyCO = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_CO"].ToString());
+            //            if (nGroupID > 1 && nOnlyTV == 1)
+            //                continue;
+            //            if (nGroupID == 1 && nOnlyCO == 1)
+            //                continue;
+            //            //if (nSubOrder == int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString()))
+            //            if (nTopOrder == int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString()))
+            //            {
+            //                sTemp.Append("<li><a class=\"on\" href=\"");
+            //            }
+            //            else
+            //            {
+            //                sTemp.Append("<li><a href=\"");
+            //            }
+            //            sTemp.Append(selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString());
+            //            sTemp.Append("\"><span>");
+            //            sTemp.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
+            //            sTemp.Append("</span></a></li>");
+            //        }
+            //        //sTemp += "<li class=\"red\">* Requiered fields</li>";
+            //    }
+            //    selectQuery.Finish();
+            //    selectQuery = null;
+            //    return sTemp.ToString();
+            //}
+            //catch
+            //{
+            //    HttpContext.Current.Response.Redirect("login.aspx");
+            //    return "";
+            //}
         }
 
         static public string GetSubMenu(System.Collections.SortedList sortedMenu, Int32 nSubOrder, bool bFixSize)

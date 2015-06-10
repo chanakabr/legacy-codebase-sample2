@@ -7,6 +7,8 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using KLogMonitor;
+using System.Reflection;
 namespace TVinciShared
 {
     /// <summary>
@@ -14,6 +16,8 @@ namespace TVinciShared
     /// </summary>
     public class CookieUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public CookieUtils()
         {
             //
@@ -77,18 +81,19 @@ namespace TVinciShared
         {
             try
             {
-                HttpCookie objCookie = new HttpCookie(cookiename , cookievalue);
+                HttpCookie objCookie = new HttpCookie(cookiename, cookievalue);
                 DateTime dtExpiry = DateTime.Now.AddDays(iMinToExpire);
                 objCookie.Expires = dtExpiry;
                 objCookie.Domain = ".tvinci.com";
                 HttpContext.Current.Response.Cookies.Add(objCookie);
                 //Response.Cookies("UID").Domain = ".myserver.com"
-                
+
             }
             catch (Exception e)
             {
                 string s = e.Message;
-                Logger.Logger.Log("exception", s, "cookies");
+                log.Error("exception - " + s, e);
+
                 return false;
             }
             return true;
@@ -97,7 +102,7 @@ namespace TVinciShared
         static public string GetCookie(string cookiename)
         {
             string cookyval = "";
-            
+
             try
             {
                 if (HttpContext.Current.Request.Cookies[cookiename] == null)

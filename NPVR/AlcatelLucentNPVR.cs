@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace NPVR
 {
@@ -16,6 +18,8 @@ namespace NPVR
      */
     internal class AlcatelLucentNPVR : INPVRProvider
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly string ALU_LOG_FILE = "AlcatelLucent";
         private static readonly string LOG_HEADER_EXCEPTION = "Exception";
         private static readonly string LOG_HEADER_ERROR = "Error";
@@ -111,12 +115,12 @@ namespace NPVR
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.isOK = false;
                     response.msg = error.Description;
-                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Failed to create account. {0}", error != null ? error.ToString() : "generic failure response is null"), args, null), GetLogFilename());
+                    log.Error("Error - " + GetLogMsg(string.Format("Failed to create account. {0}", error != null ? error.ToString() : "generic failure response is null"), args, null));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetCreateAccountResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), ex);
                 throw;
             }
         }
@@ -128,7 +132,7 @@ namespace NPVR
             {
                 if (IsCreateInputValid(args))
                 {
-                    Logger.Logger.Log("CreateAccount", string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()), GetLogFilename());
+                    log.Debug("CreateAccount - " + string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
@@ -154,7 +158,7 @@ namespace NPVR
                     else
                     {
                         // log here the error. 
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("CreateAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("CreateAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.isOK = false;
                         res.msg = "An error occurred. Refer to server log files.";
                         res.quota = 0;
@@ -168,7 +172,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at CreateAccount.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at CreateAccount.", args, ex), ex);
                 throw;
             }
 
@@ -187,7 +191,7 @@ namespace NPVR
             {
                 if (IsDeleteInputValid(args))
                 {
-                    Logger.Logger.Log("DeleteAccount", string.Format("DeleteAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()), GetLogFilename());
+                    log.Debug("DeleteAccount - " + string.Format("DeleteAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
@@ -212,7 +216,7 @@ namespace NPVR
                     else
                     {
                         // log here the error
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("DeleteAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.isOK = false;
                         res.msg = "An error occurred. Refer to server log files.";
                         res.quota = 0;
@@ -226,7 +230,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteAccount.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at DeleteAccount.", args, ex), ex);
                 throw;
             }
 
@@ -252,12 +256,12 @@ namespace NPVR
                     response.quota = 0;
                     response.isOK = false;
 
-                    Logger.Logger.Log("Error", GetLogMsg(string.Format("Failed to delete account. Error resp: {0}", error != null ? error.ToString() : "generic failure response is null"), args, null), GetLogFilename());
+                    log.Error("Error - " + GetLogMsg(string.Format("Failed to delete account. Error resp: {0}", error != null ? error.ToString() : "generic failure response is null"), args, null));
 
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetDeleteAccountResponse. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetDeleteAccountResponse. Resp JSON: {0}", responseJson), args, ex), ex);
                     throw;
                 }
             }
@@ -312,7 +316,7 @@ namespace NPVR
                     else
                     {
                         // log here the error
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("GetQuotaData. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("GetQuotaData. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.isOK = false;
                         res.totalQuota = -1;
@@ -327,7 +331,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at GetQuotaData.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at GetQuotaData.", args, ex), ex);
                 throw;
             }
             return res;
@@ -362,7 +366,7 @@ namespace NPVR
                 response.entityID = args.EntityID;
                 response.totalQuota = 0;
                 response.usedQuota = 0;
-                Logger.Logger.Log("Error", GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), GetLogFilename());
+                log.Error("Error - " + GetLogMsg(string.Format("Exception in GetGetQuotaDataResponse. Json is not in a correct form. Inner catch block. JSON: {0}", responseJson), args, ex), ex);
                 throw;
             }
         }
@@ -407,7 +411,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RecordAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("RecordAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = string.Empty;
                         res.status = RecordStatus.Error;
@@ -422,7 +426,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RecordAsset", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at RecordAsset", args, ex), ex);
                 throw;
             }
 
@@ -441,13 +445,13 @@ namespace NPVR
             }
             else
             {
-                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);               
+                GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                 if (error != null)
                 {
                     response.entityID = args.EntityID;
                     response.recordingID = string.Empty;
                     switch (error.ResultCode)
-                    {  
+                    {
                         case 210:
                             response.status = RecordStatus.ResourceAlreadyExists;
                             response.msg = "Trying to create a resource that does already exist.";
@@ -480,7 +484,7 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
-                    
+
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
                     string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
@@ -502,7 +506,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("CancelAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("CancelAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = string.Empty;
                         res.status = CancelDeleteStatus.Error;
@@ -517,7 +521,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at CancelAsset.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at CancelAsset.", args, ex), ex);
                 throw;
             }
 
@@ -541,7 +545,7 @@ namespace NPVR
                 {
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     initializedResp.recordingID = args.AssetID;
-                    initializedResp.entityID = args.EntityID;               
+                    initializedResp.entityID = args.EntityID;
                     switch (error.ResultCode)
                     {
                         case 404:
@@ -576,7 +580,7 @@ namespace NPVR
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetCancelAssetResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetCancelAssetResponse. Response JSON: ", responseJson), null, ex), ex);
                     throw;
                 }
             }
@@ -613,7 +617,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("DeleteAsset. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = args.AssetID;
                         res.status = CancelDeleteStatus.Error;
@@ -627,7 +631,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteAsset.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at DeleteAsset.", args, ex), ex);
                 throw;
             }
 
@@ -665,7 +669,7 @@ namespace NPVR
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetDeleteAssetResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetDeleteAssetResponse. Response JSON: ", responseJson), null, ex), ex);
                     throw;
                 }
             }
@@ -709,7 +713,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("SetAssetProtectionStatus. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("SetAssetProtectionStatus. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.recordingID = args.AssetID;
                         res.status = ProtectStatus.Error;
                         res.entityID = args.EntityID;
@@ -725,7 +729,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at SetAssetProtectionStatus.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at SetAssetProtectionStatus.", args, ex), ex);
                 throw;
             }
 
@@ -762,7 +766,7 @@ namespace NPVR
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetProtectionStatusResponse. Response JSON: ", responseJson), null, ex), GetLogFilename());
+                    log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetProtectionStatusResponse. Response JSON: ", responseJson), null, ex), ex);
                     throw;
                 }
             }
@@ -770,7 +774,7 @@ namespace NPVR
 
         private bool IsRetrieveAssetsInputValid(NPVRRetrieveParamsObj args, ref ulong uniqueSearchBy)
         {
-            if (args != null &&  !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0))
+            if (args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0))
             {
                 bool seenUnique = false;
                 IEnumerable<SearchByField> distinct = args.GetUniqueSearchBy();
@@ -832,7 +836,7 @@ namespace NPVR
                     {
                         // Because ALU handles "page index" as "first entry", we will not send the regular page index we are used to,
                         // we will send index * size to get ALU bring us the correct assets
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, 
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM,
                                                                        (args.PageIndex * args.PageSize).ToString()));
                         urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
                     }
@@ -898,7 +902,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("RetrieveAssets. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         // add status fail to response obj.
                         res.isOK = false;
                         res.msg = "Failed to establise connection to ALU. Refer to Server logs.";
@@ -911,7 +915,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveAssets.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at RetrieveAssets.", args, ex), ex);
                 throw;
             }
 
@@ -1047,7 +1051,7 @@ namespace NPVR
                         response.totalItems = 0;
                         response.results = new List<RecordedEPGChannelProgrammeObject>(0);
 
-                        Logger.Logger.Log("Error", GetLogMsg(string.Format("An error occurred while trying to retrieve assets from ALU. Resp JSON: {0}", responseJson), args, null), GetLogFilename());
+                        log.Error("Error - " + GetLogMsg(string.Format("An error occurred while trying to retrieve assets from ALU. Resp JSON: {0}", responseJson), args, null));
 
                     }
                     catch (Exception ex)
@@ -1058,14 +1062,14 @@ namespace NPVR
                         response.msg = error.Description;
                         response.totalItems = 0;
                         response.results = new List<RecordedEPGChannelProgrammeObject>(0);
-                        Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                        log.Error("Exception - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), ex);
                         throw;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
+                log.Error("Exception - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetRetrieveAssetsResponse.Inner catch block. Response JSON: ", responseJson), args, ex), ex);
                 throw;
             }
         }
@@ -1115,7 +1119,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RecordSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("RecordSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = string.Empty;
                         res.status = RecordStatus.Error;
@@ -1130,7 +1134,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RecordSeries.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at RecordSeries.", args, ex), ex);
                 throw;
             }
 
@@ -1171,9 +1175,9 @@ namespace NPVR
                 }
             }
             catch (Exception ex)
-            {               
-                    Logger.Logger.Log("Exception", GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Inner catch block. Response JSON: ", responseJson), args, ex), GetLogFilename());
-                    throw;                
+            {
+                log.Error("Exception - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetRecordSeriesResponse.Inner catch block. Response JSON: ", responseJson), args, ex), ex);
+                throw;
             }
         }
 
@@ -1215,7 +1219,7 @@ namespace NPVR
                     break;
             }
         }
-        
+
         public NPVRCancelDeleteResponse CancelSeries(NPVRParamsObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
@@ -1248,7 +1252,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("CancelSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("CancelSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = string.Empty;
                         res.status = CancelDeleteStatus.Error;
@@ -1262,7 +1266,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at CancelSeries.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at CancelSeries.", args, ex), ex);
                 throw;
             }
 
@@ -1300,7 +1304,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("DeleteSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("DeleteSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.entityID = args.EntityID;
                         res.recordingID = string.Empty;
                         res.status = CancelDeleteStatus.Error;
@@ -1314,7 +1318,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at DeleteSeries.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at DeleteSeries.", args, ex), ex);
                 throw;
             }
 
@@ -1365,7 +1369,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("GetNPVRLicensedLink. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("GetNPVRLicensedLink. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.isOK = false;
                         res.licensedLink = string.Empty;
                         res.msg = "An error occurred. Refer to server log files.";
@@ -1380,7 +1384,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at GetNPVRLicensedLink.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at GetNPVRLicensedLink.", args, ex), ex);
                 throw;
             }
 
@@ -1415,11 +1419,11 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetGetNPVRLicensedLinkResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), ex);
                 throw;
             }
         }
-        
+
         private bool IsRetrieveSeriesInputValid(NPVRRetrieveParamsObj args)
         {
             return args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0);
@@ -1471,7 +1475,7 @@ namespace NPVR
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Exception", GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), GetLogFilename());
+                    log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetRetrieveSeriesResponse. Inner catch block. Resp JSON: {0}", responseJson), args, ex), ex);
                     throw;
                 }
             }
@@ -1491,7 +1495,7 @@ namespace NPVR
                     if (args.PageSize > 0)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_PAGE_SIZE_URL_PARAM, args.PageSize.ToString()));
-                        urlParams.Add(new KeyValuePair<string,string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
                     }
 
                     string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
@@ -1513,7 +1517,7 @@ namespace NPVR
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("RetrieveSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg), GetLogFilename());
+                        log.Error(LOG_HEADER_ERROR + string.Format("RetrieveSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                     }
                 }
                 else
@@ -1524,7 +1528,7 @@ namespace NPVR
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception at RetrieveSeries.", args, ex), GetLogFilename());
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at RetrieveSeries.", args, ex), ex);
                 throw;
             }
 

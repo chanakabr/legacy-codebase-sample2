@@ -12,17 +12,19 @@ using System.Data;
 using System.Threading;
 using DAL;
 using ApiObjects;
-using Logger;
 using System.Reflection;
 using System.ServiceModel.Channels;
 using System.ServiceModel;
 using ApiObjects.DRM;
 using Newtonsoft.Json;
+using KLogMonitor;
+using Logger;
 
 namespace TvinciImporter
 {
     public class ImporterImpl
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
@@ -833,7 +835,7 @@ namespace TvinciImporter
                 categoryID = GetCategoryIDByCoGuid(nGroupID, sCoGuid);
 
                 int nPicID = DownloadPic(sThumb, sName, nGroupID, categoryID, sMainLang, "THUMBNAIL", true, 0);
-                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                log.Debug("TespIngest - EndDownloadPic");
                 if (nPicID != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("categories");
@@ -888,9 +890,9 @@ namespace TvinciImporter
                 {
                     deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Logger.Logger.Log("File ProcessChannelItems", "Error in desiralization of the xml", "ImporterImpl");
+                    log.Error("File ProcessChannelItems - Error in desiralization of the xml", ex);
                     return false;
                 }
 
@@ -1025,7 +1027,7 @@ namespace TvinciImporter
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("File ProcessChannelItems", "Exception during parsing the xml:" + exc.Message, "ImporterImpl");
+                log.Error("File ProcessChannelItems - Exception during parsing the xml", exc);
                 return false;
             }
         }
@@ -1480,7 +1482,7 @@ namespace TvinciImporter
                 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
 
                 int nPicID = DownloadPic(sThumb, sName, nGroupID, channelID, sMainLang, "THUMBNAIL", true, 0);
-                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                log.Debug("TespIngest - EndDownloadPic");
                 if (nPicID != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
@@ -1529,7 +1531,7 @@ namespace TvinciImporter
 
         static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
         {
-            Logger.Logger.Log("TespIngest", "Start", "TempIngest");
+            log.Debug("TespIngest - Start");
             bool bOK = true;
             sErrorMessage = "";
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
@@ -1635,7 +1637,7 @@ namespace TvinciImporter
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
                     ref theItemDesc, sIsActive, dCreate);
-                Logger.Logger.Log("TespIngest", "InserRatiosStart", "TempIngest");
+                log.Debug("TespIngest - InserRatiosStart");
                 if (thePicRatios != null)
                 {
                     int ratiosCount = thePicRatios.Count;
@@ -1666,7 +1668,7 @@ namespace TvinciImporter
 
                 }
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
-                Logger.Logger.Log("TespIngest", "InserMetaStart", "TempIngest");
+                log.Debug("TespIngest - InserMetaStart");
                 UpdateStringMainLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
 
@@ -1750,9 +1752,9 @@ namespace TvinciImporter
             selectQuery = null;
             return nRet;
         }
-     
+
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
-        {   
+        {
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
@@ -1761,11 +1763,10 @@ namespace TvinciImporter
             else
             {
                 return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
-            }           
+            }
         }
 
         public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
-
         {
             try
             {
@@ -1774,9 +1775,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertNewEPGMultiPic",               
-                    string.Format("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID), 
-                    "DownloadEPGPic");
+                log.ErrorFormat("fail to insert picid to epg multi pictures ex={0}, epgIdentifier={1}, picID={2}, ratioID={3}, nChannelID={4},nGroupID ={5}, exception: {6}", ex.Message, epgIdentifier, picID, ratioID, nChannelID, nGroupID, ex);
                 return false;
             }
         }
@@ -1987,14 +1986,14 @@ namespace TvinciImporter
 
         static public Int32 DownloadPic_old(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
-            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
             if (sPic.Trim() == "")
             {
                 return 0;
             }
             string sBasePath = GetBasePath(nGroupID);
 
-            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+            log.Debug("File download - Base Path is " + sBasePath);
 
             object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
             string sPicsBasePath = string.Empty;
@@ -2034,12 +2033,12 @@ namespace TvinciImporter
 
             string sPicName = sMediaName;
             bool doesPicExist = true;
-            Logger.Logger.Log("TespIngest", "Directory Creation Started " + sBasePath + "/pics/" + nGroupID.ToString(), "TempIngest");
+            log.Debug("TespIngest - Directory Creation Started " + sBasePath + "/pics/" + nGroupID.ToString());
             if (!Directory.Exists(sBasePath + "/pics/" + nGroupID.ToString() + "/"))
             {
                 Directory.CreateDirectory(sBasePath + "/pics/" + nGroupID.ToString() + "/");
             }
-            Logger.Logger.Log("TespIngest", "Directory Creation Finished " + sBasePath + "/pics/" + nGroupID.ToString(), "TempIngest");
+            log.Debug("TespIngest - Directory Creation Finished " + sBasePath + "/pics/" + nGroupID.ToString());
             if (nPicID == 0)
             {
                 doesPicExist = false;
@@ -2116,7 +2115,7 @@ namespace TvinciImporter
                             bOverride = true;
                         }
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, bOverride);
-                        Logger.Logger.Log("File download", "Resized Image " + sTmpImage1 + " from " + sBasePath + "/pics/" + sUploadedFile, "DownloadFile");
+                        log.Debug("File download - Resized Image " + sTmpImage1 + " from " + sBasePath + "/pics/" + sUploadedFile);
 
                         UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                     }
@@ -2130,15 +2129,16 @@ namespace TvinciImporter
             {
                 if (doesPicExist)
                 {
-                    Logger.Logger.Log("Pic exists downloading again start: ", sPic, "ImporterPics");
+
+                    log.Debug("Pic exists downloading again start: " + sPic);
                     string sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPic, sBasePath);
-                    Logger.Logger.Log("Pic exists downloading again end: ", sUploadedFile, "ImporterPics");
+                    log.Debug("Pic exists downloading again end: " + sUploadedFile);
                     if (sUploadedFile == "")
                     {
                         sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPicsBasePath + "/" + sPic, sBasePath);
                         if (sUploadedFile == "")
                         {
-                            Logger.Logger.Log("Cant download pic from FTP: ", sPic, "ImporterPics");
+                            log.Debug("Cant download pic from FTP: " + sPic);
                             return 0;
                         }
                     }
@@ -2148,7 +2148,7 @@ namespace TvinciImporter
                         sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
 
                     string sPicBaseName = GetPicBaseName(nPicID, nGroupID);
-                    Logger.Logger.Log("Start re cropping: ", sPicBaseName, "ImporterPics");
+                    log.Debug("Start re cropping: " + sPicBaseName);
                     string sTmpImage = sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt;
                     bool bExists = System.IO.File.Exists(sTmpImage);
 
@@ -2165,11 +2165,11 @@ namespace TvinciImporter
                         Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
 
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true, true);
-                        Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_tn" + sUploadedFileExt, "ImporterPics");
+                        log.Debug("Re cropping: " + sBasePath + "/pics/" + sPicBaseName + "_tn" + sUploadedFileExt);
                         UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
 
                         TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_full" + sUploadedFileExt);
-                        Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt, "ImporterPics");
+                        log.Debug("Re cropping: " + sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt);
                         UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
 
                         for (int nI = 0; nI < nCount1; nI++)
@@ -2184,13 +2184,12 @@ namespace TvinciImporter
                                 bCrop = false;
 
                             TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, true);
-                            Logger.Logger.Log("Re cropping: ", sTmpImage1, "ImporterPics");
+                            log.Debug("Re cropping: - ImporterPics");
                             UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                         }
                     }
                     selectQuery.Finish();
                     selectQuery = null;
-
                 }
 
 
@@ -2230,7 +2229,7 @@ namespace TvinciImporter
         {
             //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
 
-            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
             if (sPic.Trim() == "")
             {
                 return 0;
@@ -2238,7 +2237,7 @@ namespace TvinciImporter
             string sBasePath = GetBasePath(nGroupID);
             sBasePath = string.Format("{0}\\pics\\{1}", sBasePath, nGroupID);
 
-            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+            log.Debug("File download - Base Path is " + sBasePath);
 
             string sPicsBasePath = string.Empty;
 
@@ -2369,10 +2368,10 @@ namespace TvinciImporter
         static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             int nPicID = 0;
-            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
             if (sPic.Trim() == "")
             {
-                Logger.Logger.Log("File download", "picture name is empty. mediaID: " + nMediaID.ToString(), "DownloadFile");
+                log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
                 return 0;
             }
 
@@ -2553,6 +2552,7 @@ namespace TvinciImporter
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         if (string.IsNullOrEmpty(sBasePath))
                         {
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -2563,7 +2563,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return sBasePath;
@@ -2578,7 +2578,7 @@ namespace TvinciImporter
             //DBManipulator.UploadDirectoryToGroup(nGroupID, sBasePath + "/pics/" + nGroupID.ToString() + "/");
             //Logger.Logger.Log("Finish Load to directory -  Running Uploads = " + BaseUploader.m_nNumberOfRuningUploads.ToString(), "Finished loading : " + nGroupID.ToString(), "DirectoryUpload");
 
-            Logger.Logger.Log("UploadDirectory", "Group : " + nGroupID.ToString(), "Importer");
+            log.Debug("UploadDirectory - Group : " + nGroupID.ToString());
         }
 
         static protected Int32 GetBillingCodeIDByName(string sName)
@@ -2996,7 +2996,7 @@ namespace TvinciImporter
                         {
                             if (!string.IsNullOrEmpty(postResponse) && postResponse.ToLower().Trim() == "true")
                             {
-                                Logger.Logger.Log("SUCCESS", string.Format("group:{0}, co_guid:{1}, OPL:{2}", parentGroupID, coGuid, outputProtectionLevel), "OPL");
+                                log.Debug("SUCCESS - " + string.Format("group:{0}, co_guid:{1}, OPL:{2}", parentGroupID, coGuid, outputProtectionLevel));
                                 return;
                             }
                         }
@@ -3006,7 +3006,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ERROR", string.Format("group:{0}, co_guid:{1}, OPL:{2}, msg:{3}", groupId, coGuid, outputProtectionLevel, ex.Message), "OPL");
+                log.Error("ERROR - " + string.Format("group:{0}, co_guid:{1}, OPL:{2}, msg:{3}", groupId, coGuid, outputProtectionLevel, ex.Message), ex);
             }
         }
 
@@ -3422,7 +3422,7 @@ namespace TvinciImporter
                             Int32 nMetaID = GetStringMetaIDByMetaName(nGroupID, sName);
                             if (nMetaID == 0)
                             {
-                                Logger.Logger.Log("Ingest String data", "can not find the name: " + sName.ToString(), "TempIngest");
+                                log.Debug("Ingest String data - can not find the name: " + sName.ToString());
                                 continue;
                             }
 
@@ -3749,6 +3749,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -3943,9 +3944,9 @@ namespace TvinciImporter
                 insertQuery.Finish();
                 insertQuery = null;
                 nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
-                Logger.Logger.Log("TespIngest", "StartDownloadPic", "TempIngest");
+                log.Debug("TespIngest - StartDownloadPic");
                 Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true);
-                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                log.Debug("TespIngest - EndDownloadPic");
                 if (nPicID != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
@@ -3956,7 +3957,6 @@ namespace TvinciImporter
                     updateQuery.Finish();
                     updateQuery = null;
                 }
-
             }
             else
             {
@@ -3998,7 +3998,7 @@ namespace TvinciImporter
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
                 bool res = updateQuery.Execute();
-                Logger.Logger.Log("Update", string.Format("Media:{0} - {1}", nMediaID, res), "IngestLog");
+                log.Debug("Update " + string.Format("Media:{0} - {1}", nMediaID, res));
 
                 updateQuery.Finish();
                 updateQuery = null;
@@ -4174,7 +4174,7 @@ namespace TvinciImporter
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
                     bool bProcess = ProcessItem(theItems[i], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID);
-                    Logger.Logger.Log("Import finished", "Index: " + i.ToString(), "importer");
+                    log.Debug("Import finished - Index: " + i.ToString());
                     if (bProcess == false)
                     {
                         sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
@@ -4308,11 +4308,11 @@ namespace TvinciImporter
                     {
                         service.Url = url;
                         bUpdate = service.UpdateRecord(groupid, nMediaID);
-                        Logger.Logger.Log("UpdateRecordInLucene", string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bUpdate), "LuceneUpdate");
+                        log.Debug("UpdateRecordInLucene " + string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bUpdate));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception (UpdateRecordInLucene)", string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), "LuceneUpdate");
+                        log.Error("Exception (UpdateRecordInLucene) " + string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), ex);
                     }
                 }
             }
@@ -4335,11 +4335,11 @@ namespace TvinciImporter
                     {
                         service.Url = url;
                         bremove = service.RemoveRecord(groupid, nMediaID);
-                        Logger.Logger.Log("RemoveRecordInLucene", string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bremove), "LuceneUpdate");
+                        log.Debug("RemoveRecordInLucene " + string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bremove));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception (RemoveRecordInLucene)", string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), "LuceneUpdate");
+                        log.Error("Exception (RemoveRecordInLucene) " + string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), ex);
                         return false;
                     }
                 }
@@ -4362,11 +4362,11 @@ namespace TvinciImporter
                     {
                         service.Url = url;
                         bUpdate = service.UpdateChannel(groupid, nChannelID);
-                        Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", groupid, nChannelID, url, bUpdate), "LuceneUpdate");
+                        log.Debug("UpdateChannelInLucene " + string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", groupid, nChannelID, url, bUpdate));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, url, ex.Message), "LuceneUpdate");
+                        log.Error("Exception (UpdateChannelInLucene) " + string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, url, ex.Message), ex);
                         return false;
                     }
                 }
@@ -4399,21 +4399,21 @@ namespace TvinciImporter
                             {
                                 bUpdate = wsCatalog.UpdateChannel(nGroupId, nChannelID);
 
-                                Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, sEndPointAddress, bUpdate), "LuceneUpdate");
+                                log.Debug("UpdateChannelInLucene " + string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, sEndPointAddress, bUpdate));
 
                                 wsCatalog.Close();
                             }
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, sEndPointAddress, ex.Message), "LuceneUpdate");
+                            log.Error("Exception (UpdateChannelInLucene) " + string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, sEndPointAddress, ex.Message), ex);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Error:{0}", ex.Message), "LuceneUpdate");
+                log.Error("Exception (UpdateChannelInLucene)", ex);
             }
             finally
             {
@@ -4440,7 +4440,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetLuceneUrl", "GroupID : " + nGroupID + ", error : " + ex.Message, "Lucene");
+                log.Error("GetLuceneUrl - GroupID : " + nGroupID + ", error : " + ex.Message, ex);
             }
 
             return sLuceneURL;
@@ -4466,7 +4466,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetCatalogUrl", "GroupID : " + nGroupID + ", error : " + ex.Message, "Catalog");
+                log.Error("GetCatalogUrl GroupID : " + nGroupID, ex);
             }
 
             return sCatalogURL;
@@ -4516,8 +4516,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("Exception (UpdateNotificationRequest)", string.Format("Media:{0}, groupID:{1}, ex:{2}", nMediaID, groupid, ex.Message), "notifications");
+                log.Error("Exception (UpdateNotificationRequest) " + string.Format("Media:{0}, groupID:{1}, ex:{2}", nMediaID, groupid, ex.Message), ex);
                 return false;
             }
             return bUpdate;
@@ -4613,7 +4612,7 @@ namespace TvinciImporter
                                             isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
 
                                             string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                            Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", sEndPointAddress, sInfo), "UpdateIndex");
+                                            log.Debug("UpdateIndex " + string.Format("{0} res {1}", sEndPointAddress, sInfo));
                                             updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
 
                                             wsCatalog.Close();
@@ -4772,7 +4771,7 @@ namespace TvinciImporter
                 sb.Append(String.Concat(" Channel ID: ", lChannelID));
                 sb.Append(String.Concat(" Operator Event: ", oe.ToString().ToLower()));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                Logger.Logger.Log("UpdateOperator", sb.ToString(), "ImporterImpl");
+                log.Debug("UpdateOperator " + sb.ToString());
                 #endregion
                 res = false;
             }
@@ -4858,7 +4857,7 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-      
+
         public static DateTime? ExtractDate(string sDate, string format)
         {
             DateTime? result = null;

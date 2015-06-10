@@ -5,11 +5,14 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Uploader
 {
     public class FTPUploader : BaseUploader
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected Int32 m_nFTPPort;
 
         public FTPUploader(int nGroupID, string sAddress, string sUN, string sPass, string sPrefix)
@@ -28,7 +31,7 @@ namespace Uploader
         }
 
         public override bool Upload(string fileToUpload, bool deleteFileAfterUpload)
-        {  
+        {
             if (m_sAddress.Trim() == "")
                 return false;
 
@@ -38,13 +41,13 @@ namespace Uploader
             {
                 System.Threading.Thread.Sleep(500);
 
-                Logger.Logger.Log("Upload - Waiting (more then 10 uploads parallel).", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                log.Debug("Upload - Waiting (more then 10 uploads parallel). - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
             }
 
             m_nNumberOfRuningUploads++;
 
-            Logger.Logger.Log("Upload - Start.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
-            
+            log.Debug("Upload - Start. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
+
             FileInfo fileInf = new FileInfo(fileToUpload);
 
             string uri = string.Empty;
@@ -59,7 +62,7 @@ namespace Uploader
             }
 
             FtpWebRequest reqFTP = null;
-            
+
             reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
             reqFTP.Credentials = new NetworkCredential(m_sUserName, m_sPass);
             reqFTP.UsePassive = true;
@@ -87,20 +90,19 @@ namespace Uploader
                     contentLen = fs.Read(buff, 0, buffLength);
                 }
 
-                Logger.Logger.Log("Upload - Finish.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                log.Debug("Upload - Finish. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                 if (deleteFileAfterUpload)
                 {
                     fileInf.Delete();
 
-                    Logger.Logger.Log("Upload - Delete.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                    log.Debug("Upload - Delete. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
                 }
             }
             catch (Exception ex)
             {
                 res = false;
-
-                Logger.Logger.Log("Upload - Error.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+                log.Error("Upload - Error. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, ex);
             }
             finally
             {
@@ -128,7 +130,7 @@ namespace Uploader
 
             if (!Directory.Exists(directoryToUpload))
             {
-                Logger.Logger.Log("UploadDirectory - Dirctory does not exist.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                log.Debug("UploadDirectory - Directory does not exist. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                 return;
             }
@@ -143,8 +145,8 @@ namespace Uploader
 
                 AddUploadGroup();
 
-                Logger.Logger.Log("UploadDirectory - Start.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
-                
+                log.Debug("UploadDirectory - Start. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
+
                 foreach (string file in files)
                 {
                     Stream strm = null;
@@ -154,14 +156,14 @@ namespace Uploader
                     {
                         if (failCount > 3)
                         {
-                            Logger.Logger.Log("UploadDirectory - Fail Count Limit Exceeded.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
-                            
+                            log.Debug("UploadDirectory - Fail Count Limit Exceeded. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
+
                             RemoveUploadGroup();
 
                             break;
                         }
 
-                        Logger.Logger.Log("UploadDirectory - Start.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                        log.Debug("UploadDirectory - Start. - Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                         FileInfo fileInf = new FileInfo(file);
 
@@ -206,13 +208,13 @@ namespace Uploader
                                 contentLen = fs.Read(buff, 0, buffLength);
                             }
 
-                            Logger.Logger.Log("UploadDirectory - Finish.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                            log.Debug("UploadDirectory - Finish. - Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
                         }
                         catch (Exception ex)
                         {
                             failCount++;
 
-                            Logger.Logger.Log("UploadDirectory - Error.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+                            log.Error("UploadDirectory - Error. - Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, ex);
 
                             if (failCount > 3)
                             {
@@ -243,7 +245,7 @@ namespace Uploader
                     {
                         failCount++;
 
-                        Logger.Logger.Log("UploadDirectory - Error.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+                        log.Error("UploadDirectory - Error. - Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, ex);
                     }
                     finally
                     {
@@ -271,13 +273,13 @@ namespace Uploader
 
             Stream strm = null;
             FileStream fs = null;
-            
+
             try
             {
-                Logger.Logger.Log("ProccessJob - Start.", "Job: " + job.ToString(), "FTPUploader");
+                log.Debug("ProccessJob - Start. - Job: " + job.ToString());
 
                 FileInfo fileInf = new FileInfo(file);
-                
+
                 if (!fileInf.Exists)
                 {
                     throw new Exception("File does not exist : " + file);
@@ -319,11 +321,11 @@ namespace Uploader
                     reqFTP.Timeout = 240000;
                     strm = reqFTP.GetRequestStream();
                     reqFTP.ContentLength = fileInf.Length;
-                    
+
                     int buffLength = 2048;
                     byte[] buff = new byte[buffLength];
                     int contentLen;
-                    
+
                     fs = fileInf.OpenRead();
 
                     try
@@ -338,7 +340,7 @@ namespace Uploader
 
                         job.upload_status = UploadJobStatus.FINISHED;
 
-                        Logger.Logger.Log("ProccessJob - Finish.", "Job: " + job.ToString(), "FTPUploader");
+                        log.Debug("ProccessJob - Finish. - Job: " + job.ToString());
                     }
                     catch (Exception ex)
                     {
@@ -346,7 +348,7 @@ namespace Uploader
 
                         job.fail_count++;
 
-                        Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "FTPUploader");
+                        log.Error("ProccessJob - Error. - Job: " + job.ToString() + ", Exception: " + ex.Message, ex);
                     }
                     finally
                     {
@@ -375,7 +377,7 @@ namespace Uploader
 
                 job.fail_count++;
 
-                Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "FTPUploader");
+                log.Error("ProccessJob - Error. - Job: " + job.ToString() + ", Exception: " + ex.Message, ex);
             }
             finally
             {

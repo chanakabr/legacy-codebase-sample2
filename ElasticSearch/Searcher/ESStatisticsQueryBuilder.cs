@@ -5,11 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearch.Searcher
 {
     public class ESStatisticsQueryBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string AND_CONDITION = "AND";
         public static readonly string OR_CONDITION = "OR";
 
@@ -104,7 +108,7 @@ namespace ElasticSearch.Searcher
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), ex);
             }
 
             return documents;

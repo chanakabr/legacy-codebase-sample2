@@ -8,6 +8,8 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -16,6 +18,8 @@ namespace TVinciShared
     /// </summary>
     public class LoginManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public enum PAGE_PERMISION_TYPE
         {
             VIEW = 0,
@@ -72,7 +76,7 @@ namespace TVinciShared
             {
                 //string sURL = HttpContext.Current.Request.Url.ToString().ToLower();
                 //if (sURL.IndexOf("404;") != -1)
-                    //sURL = sURL.Substring(sURL.IndexOf("404;") + 4);
+                //sURL = sURL.Substring(sURL.IndexOf("404;") + 4);
                 //HttpContext.Current.Session["RequestedURL"] = sURL;
                 Int32 nAcctID = GetLoginID();
                 if (nAcctID == 0)
@@ -123,7 +127,7 @@ namespace TVinciShared
             return IsActionPermittedOnPage(GetCurrentPageURL(), actionType);
         }
 
-        static public bool CheckParentPermitted(Int32 nAcctID, ref Int32 nParent , string sField)
+        static public bool CheckParentPermitted(Int32 nAcctID, ref Int32 nParent, string sField)
         {
             bool bRet = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -298,7 +302,7 @@ namespace TVinciShared
         static public void LogoutFromSite(string sFileToTransferTo)
         {
             string sBaseURL = "http://admin.tvinci.com";
-            if (WS_Utils.GetTcmConfigValue("BASE_URL") != string.Empty) 
+            if (WS_Utils.GetTcmConfigValue("BASE_URL") != string.Empty)
                 sBaseURL = WS_Utils.GetTcmConfigValue("BASE_URL");
             try
             {
@@ -311,9 +315,9 @@ namespace TVinciShared
                 updateQuery.Execute();
                 updateQuery.Finish();
                 updateQuery = null;
-                
+
                 HttpContext.Current.Session.RemoveAll();
-                if (HttpContext.Current.Request.Url != null && HttpContext.Current.Request.Url.PathAndQuery.IndexOf("logout") == -1 && 
+                if (HttpContext.Current.Request.Url != null && HttpContext.Current.Request.Url.PathAndQuery.IndexOf("logout") == -1 &&
                     HttpContext.Current.Request.Url.PathAndQuery.IndexOf("login") == -1)
                     HttpContext.Current.Session["LOGOUT_FROM_PAGE"] = HttpContext.Current.Request.Url.PathAndQuery;
                 HttpContext.Current.Response.Write("<script>document.location.href='" + sBaseURL + sFileToTransferTo + "';</script>");
@@ -369,7 +373,7 @@ namespace TVinciShared
                                 HttpContext.Current.Session.Remove("LoginGroup");
                                 HttpContext.Current.Session.Remove("username");
                                 HttpContext.Current.Session.Remove("groupname");
-                                Logger.Logger.Log("ACOUNT_LOCK", "UN: " + sUserName + " || Pass: " + sPassword, "login_errors");
+                                log.Debug("ACOUNT_LOCK - UN: " + sUserName + " || Pass: " + sPassword);
                                 sErrMessage = "ACOUNT_LOCK";
                                 selectQuery.Finish();
                                 selectQuery = null;
@@ -409,7 +413,7 @@ namespace TVinciShared
                         HttpContext.Current.Session.Remove("LoginGroup");
                         HttpContext.Current.Session.Remove("username");
                         HttpContext.Current.Session.Remove("groupname");
-                        Logger.Logger.Log("WRONG_PASSWORD", "UN: " + sUserName + " || Pass: " + sPassword, "login_errors");
+                        log.Debug("WRONG_PASSWORD - UN: " + sUserName + " || Pass: " + sPassword);
                         sErrMessage = "WRONG_USERNAME_PASS";
 
                         ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
@@ -432,7 +436,7 @@ namespace TVinciShared
                     HttpContext.Current.Session.Remove("LoginGroup");
                     HttpContext.Current.Session.Remove("username");
                     HttpContext.Current.Session.Remove("groupname");
-                    Logger.Logger.Log("WRONG_USERNAME", "UN: " + sUserName + " || Pass: " + sPassword, "login_errors");
+                    log.Debug("WRONG_USERNAME - UN: " + sUserName + " || Pass: " + sPassword);
                     sErrMessage = "WRONG_USERNAME_PASS";
                 }
             }
@@ -692,7 +696,7 @@ namespace TVinciShared
                 HttpContext.Current.Session.Remove("LoginGroup");
                 HttpContext.Current.Session.Remove("username");
                 HttpContext.Current.Session.Remove("groupname");
-                Logger.Logger.Log("ACOUNT_LOGOUT_LOCK", "UN: " + sUserName + " || Pass: " + sPassword, "login_errors");
+                log.Debug("ACOUNT_LOGOUT_LOCK - UN: " + sUserName + " || Pass: " + sPassword);
                 sErrMessage = "ACOUNT_LOGOUT_LOCK";
                 return false;
             }
@@ -709,7 +713,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty && 
+                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty &&
                     WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK").ToLower() == "true")
                 {
                     //Logger.Logger.Log("SKIP_LOGIN_IP_CHECK", "UN: " + sUserName + " || Pass: " + sPassword + " || IP: " + sIP, "login_errors");
@@ -717,7 +721,7 @@ namespace TVinciShared
                 else
                 {
                     bool bAllowedIP = false;
-                    
+
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery.SetCachedSec(3600);
                     selectQuery += "select * from groups_ips(nolock) where ADMIN_OPEN=1 and status=1 and is_active=1 and (end_date is null or end_date>getdate()) and ";
@@ -735,12 +739,12 @@ namespace TVinciShared
                     //}
                     if (bAllowedIP == false)
                     {
-                        Logger.Logger.Log("IP_NOT_ALLOWED", "UN: " + sUserName + " || Pass: " + sPassword + " || IP: " + sIP, "login_errors");
+                        log.Debug("IP_NOT_ALLOWED - UN: " + sUserName + " || Pass: " + sPassword + " || IP: " + sIP);
                         sErrMessage = "IP_NOT_ALLOWED";
                         return false;
                     }
                 }
-                    
+
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("admin_login");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.Now);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.SessionID.ToString());

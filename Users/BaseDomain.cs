@@ -7,11 +7,14 @@ using System.Text;
 using Users.Cache;
 using ApiObjects;
 using ApiObjects.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
     public abstract class BaseDomain
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected int m_nGroupID;
 
         protected BaseDomain() { }
@@ -149,7 +152,7 @@ namespace Users
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Debug("Exception " + sb.ToString());
                 throw;
             }
 
@@ -169,7 +172,7 @@ namespace Users
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
-                Logger.Logger.Log("AddDeviceToDomain", string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID), "TvinciDomain");
+                log.Debug("AddDeviceToDomain - " + string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID));
                 oDomainResponseObject.m_oDomain = null;
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
@@ -416,7 +419,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDeviceDomains", string.Format("Failed ex={0}, sUDID={1}", ex.Message, sUDID), "BaseDomain");
+                log.Error("GetDeviceDomains - " + string.Format("Failed ex={0}, sUDID={1}", ex.Message, sUDID), ex);
                 return null;
             }
         }
@@ -507,7 +510,7 @@ namespace Users
                 // failed to extract data from DB.
                 // log and return err
 
-                Logger.Logger.Log("AddHomeNetworkToDomain", GetUpdateHomeNetworkErrMsg("Failed to extract data from DB", lDomainID, candidate, 0, numOfAllowedNetworks, numOfActiveNetworks), "TvinciDomain");
+                log.Debug("AddHomeNetworkToDomain - " + GetUpdateHomeNetworkErrMsg("Failed to extract data from DB", lDomainID, candidate, 0, numOfAllowedNetworks, numOfActiveNetworks));
                 res.eReason = NetworkResponseStatus.Error;
                 res.bSuccess = false;
 
@@ -543,8 +546,7 @@ namespace Users
                 res.bSuccess = false;
 
                 // log
-                Logger.Logger.Log("AddHomeNetworkToDomain", String.Concat("Failed to add to domain: ", lDomainID, " the home network: ", candidate.ToString()), "TvinciDomains");
-
+                log.Debug("AddHomeNetworkToDomain - " + String.Concat("Failed to add to domain: ", lDomainID, " the home network: ", candidate.ToString()));
             }
             else
             {
@@ -885,8 +887,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("IsDevicePlayValid", string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, sSiteGUID, sDEVICE_NAME, userDomain != null ? userDomain.m_nDomainID : 0),
-                    "BaseDomain");
+                log.Error("IsDevicePlayValid - " + string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, sSiteGUID, sDEVICE_NAME, userDomain != null ? userDomain.m_nDomainID : 0), ex);
                 isDeviceRecognized = false;
             }
 
@@ -1072,7 +1073,7 @@ namespace Users
             if (!DomainDal.Get_ProximityDetectionDataForUpdating(m_nGroupID, lDomainID, sNetworkID, ref numOfAllowedNetworks, ref frequency, ref dtLastDeactivationDate, ref dt))
             {
                 // failed to extract data from db. log and return err
-                Logger.Logger.Log("UpdateRemoveHomeNetworkCommon", GetUpdateHomeNetworkErrMsg("DomainDal.Get_ProximityDetectionDataForUpdating failed.", lDomainID, nullifiedCandidate, frequency, numOfAllowedNetworks, numOfActiveNetworks), "BaseDomain");
+                log.Debug("UpdateRemoveHomeNetworkCommon - " + GetUpdateHomeNetworkErrMsg("DomainDal.Get_ProximityDetectionDataForUpdating failed.", lDomainID, nullifiedCandidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
                 res.eReason = NetworkResponseStatus.Error;
                 res.bSuccess = false;
@@ -1122,7 +1123,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UsersFullListFromDomain", string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), "BaseDomain");
+                log.Error("UsersFullListFromDomain - " + string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), ex);
                 return false;
             }
         }
@@ -1145,7 +1146,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveDLM", string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), "BaseDomain");
+                log.Error("RemoveDLM - " + string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), ex);
                 resp.Code = (int)eResponseStatus.InternalError;
                 return resp;
             }
@@ -1191,7 +1192,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ChangeDLM", string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), "BaseDomain");
+                log.Error("ChangeDLM - " + string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), ex);
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return oChangeDLMObj;
             }
@@ -1221,7 +1222,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDLM", string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), "BaseDomain");
+                log.Error("GetDLM - " + string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), ex);
                 oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
                 return oDLMResponse;
             }
@@ -1253,7 +1254,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), "BaseDomain");
+                log.Error("SetDomainRegion - " + string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), ex);
                 status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, "Internal Error");
                 return status;
             }
@@ -1272,7 +1273,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDomainByUser", string.Format("failed to GetDomainByUser siteGuid = {0}, ex = {1}", siteGuid, ex.Message), "BaseDomain");
+                log.Error("GetDomainByUser - " + string.Format("failed to GetDomainByUser siteGuid = {0}, ex = {1}", siteGuid, ex.Message), ex);
             }
             return domain;
         }

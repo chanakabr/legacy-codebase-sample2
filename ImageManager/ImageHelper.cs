@@ -5,22 +5,26 @@ using System.Text;
 using ImageResizer;
 using System.Net;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ImageManager
 {
     public class ImageHelper
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static public bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
         {
-            Logger.Logger.Log("DownloadAndCropImage", string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count), "ImageManager");
-            
+            log.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count));
+
             string name = string.Format("{0}_original.{1}", sPicBaseName, sUploadedFileExt.Replace(".", string.Empty));
             string originalPath = string.Format("{0}\\{1}", sBasePath, name);
 
             bool res = DownloadImage(sURL, originalPath);
             if (!res)
             {
-                Logger.Logger.Log("DownloadAndCropImage", string.Format("Error : Exception while download img"), "ImageManager");
+                log.Debug("DownloadAndCropImage - " + string.Format("Error : Exception while download img"));
                 return res;
             }
 
@@ -35,9 +39,9 @@ namespace ImageManager
                 catch (Exception ex)
                 {
                     image.eResizeStatus = ResizeStatus.FAILED;
-                    Logger.Logger.Log("DownloadAndCropImage", string.Format("(Resize) Exception:{0}", ex.Message), "ImageManager");
+                    log.Error("DownloadAndCropImage - " + string.Format("(Resize) Exception:{0}", ex.Message), ex);
                 }
-                Logger.Logger.Log("DownloadAndCropImage", string.Format("GroupID:{0}, Image:{1}, {2}", nGroupID, image.ToString(), image.eResizeStatus), "ImageManager");
+                log.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, Image:{1}, {2}", nGroupID, image.ToString(), image.eResizeStatus));
             }
 
             RemoveImage(originalPath);
@@ -49,7 +53,7 @@ namespace ImageManager
             bool res = false;
             try
             {
-                Logger.Logger.Log("DownloadOriginlImage", string.Format("url:{0}, dest:{1}", sURL, dest), "ImageManager");
+                log.Debug("DownloadOriginlImage - " + string.Format("url:{0}, dest:{1}", sURL, dest));
 
                 Uri uri = new Uri(sURL);
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
@@ -66,7 +70,7 @@ namespace ImageManager
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("DownloadOriginlImage", string.Format("(imageStream) Exception:{0}", ex.Message), "ImageManager");
+                        log.Error("DownloadOriginlImage - " + string.Format("(imageStream) Exception:{0}", ex.Message), ex);
                         dest = string.Empty;
                     }
                     finally
@@ -77,7 +81,7 @@ namespace ImageManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DownloadOriginlImage", string.Format("Exception:{0}", ex.Message), "ImageManager");
+                log.Error("DownloadOriginlImage - " + string.Format("Exception:{0}", ex.Message), ex);
                 res = false;
             }
 
@@ -94,11 +98,11 @@ namespace ImageManager
                     throw new Exception("File does not exist : " + sImagePath);
                 }
                 fileInf.Delete();
-                Logger.Logger.Log("RemoveOriginalImage", string.Format("Delete:{0}", sImagePath), "ImageManager");
+                log.Debug("RemoveOriginalImage - " + string.Format("Delete:{0}", sImagePath));
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveOriginalImage", string.Format("(Delete) Exception:{0}", ex.Message), "ImageManager");
+                log.Error("RemoveOriginalImage - " + string.Format("(Delete) Exception:{0}", ex.Message), ex);
             }
         }
     }

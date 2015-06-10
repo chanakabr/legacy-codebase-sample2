@@ -11,6 +11,8 @@ using System.Web.UI.HtmlControls;
 using System.Text;
 using System.Collections.Generic;
 using DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -19,6 +21,8 @@ namespace TVinciShared
     /// </summary>
     public class PageUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public PageUtils()
         {
             //
@@ -71,18 +75,18 @@ namespace TVinciShared
         static public void GetTitle()
         {
             return;
-            string sHeader = "";
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select header from site_configuration where id=1";
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    sHeader = selectQuery.Table("query").DefaultView[0].Row["HEADER"].ToString();
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            HttpContext.Current.Response.Write(sHeader);
+            //string sHeader = "";
+            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += "select header from site_configuration where id=1";
+            //if (selectQuery.Execute("query", true) != null)
+            //{
+            //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            //    if (nCount > 0)
+            //        sHeader = selectQuery.Table("query").DefaultView[0].Row["HEADER"].ToString();
+            //}
+            //selectQuery.Finish();
+            //selectQuery = null;
+            //HttpContext.Current.Response.Write(sHeader);
         }
 
         static public string ReWriteTableValue(string sVal)
@@ -262,18 +266,18 @@ namespace TVinciShared
         static public void GetKeyWords()
         {
             return;
-            string sHeader = "";
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select key_words from site_configuration where id=1";
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    sHeader = selectQuery.Table("query").DefaultView[0].Row["key_words"].ToString();
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            HttpContext.Current.Response.Write(sHeader);
+            //string sHeader = "";
+            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += "select key_words from site_configuration where id=1";
+            //if (selectQuery.Execute("query", true) != null)
+            //{
+            //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            //    if (nCount > 0)
+            //        sHeader = selectQuery.Table("query").DefaultView[0].Row["key_words"].ToString();
+            //}
+            //selectQuery.Finish();
+            //selectQuery = null;
+            //HttpContext.Current.Response.Write(sHeader);
         }
 
         static public void GetErrorMsg(Int32 nCollspan)
@@ -453,21 +457,20 @@ namespace TVinciShared
                         if (dt.Rows[i]["id"] != null)
                             sRet.Append(dt.Rows[i]["id"].ToString());
                         else
-                            Logger.Logger.Log("GetAllGroupTreeStr", "GetAllGroupTreeStr: null in iteration: " + i + " in Group ID: " + nGroupID + " Connection key: " + sConnectionKey, "GetAllGroupTreeStr");
-
+                            log.Debug("GetAllGroupTreeStr - GetAllGroupTreeStr: null in iteration: " + i + " in Group ID: " + nGroupID + " Connection key: " + sConnectionKey);
                     }
                     else
                     {
-                        if(dt.Rows[i]["id"] != null)
+                        if (dt.Rows[i]["id"] != null)
                             sRet.Append(String.Concat(",", dt.Rows[i]["id"].ToString()));
                         else
-                            Logger.Logger.Log("GetAllGroupTreeStr", "GetAllGroupTreeStr: null in iteration: " + i + " in Group ID: " + nGroupID + " Connection key: " + sConnectionKey, "GetAllGroupTreeStr");
+                            log.Debug("GetAllGroupTreeStr - GetAllGroupTreeStr: null in iteration: " + i + " in Group ID: " + nGroupID + " Connection key: " + sConnectionKey);
                     }
                 }
             }
             sRet.Append(")");
             string strRetVal = sRet.ToString();
-            if(!strRetVal.Contains("null"))
+            if (!strRetVal.Contains("null"))
                 SetCachedData("GetAllGroupTreeStr", nGroupID, strRetVal, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
             return strRetVal;
         }
@@ -531,7 +534,7 @@ namespace TVinciShared
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select mps.width, mps.height, mps.TO_CROP, mps.ratio_id from media_pics_sizes mps where mps.status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mps.GROUP_ID", "=", LoginManager.GetLoginGroupID());
-           //dr_upload.AddPicDimension(90, 65, "tn", true);
+            //dr_upload.AddPicDimension(90, 65, "tn", true);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -564,7 +567,7 @@ namespace TVinciShared
                 int nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    Int32 nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "width", i); 
+                    Int32 nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "width", i);
                     Int32 nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "height", i);
                     Int32 nCrop = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "TO_CROP", i);
                     string sRatio = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ratio_id", i);
@@ -667,7 +670,7 @@ namespace TVinciShared
             if (nParentGroupID == 0)
                 return "";
 
-            string groups = string.Empty ;
+            string groups = string.Empty;
             List<string> lGroups = new List<string>();
             DataTable dt = DAL.TvmDAL.GetChildGroupTreeStr(nParentGroupID);
             if (dt != null && dt.DefaultView.Count > 0)
@@ -681,12 +684,12 @@ namespace TVinciShared
                     groups = string.Format(" in ( {0} ) ", string.Join(",", lGroups.ToArray()));
                 }
                 else
-                {  
-                        groups = " in (0) ";
+                {
+                    groups = " in (0) ";
                 }
-                
+
             }
-            return groups;           
+            return groups;
         }
         static public string GetConcatGroupsStrByParent(Int32 nParentGroupID)
         {
@@ -1005,7 +1008,7 @@ namespace TVinciShared
                 }
 
                 return GetIPCountry2NoCache(sIP);
-                return nCountry;
+                //return nCountry;
             }
         }
 
@@ -1225,7 +1228,7 @@ namespace TVinciShared
             string sHost = "";
             if (HttpContext.Current.Request.ServerVariables["REMOTE_HOST"] != null)
                 sHost = HttpContext.Current.Request.ServerVariables["REMOTE_HOST"].ToLower();
-            Logger.Logger.Log("Domain", sHost, "domain_finder");
+            log.Debug("Domain - " + sHost);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(86400);
             selectQuery += "select group_id from groups_domains (nolock) where is_active=1 and status=1 and";
@@ -1590,6 +1593,6 @@ namespace TVinciShared
             return groups;
         }
 
-       
+
     }
 }

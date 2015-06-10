@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace ElasticSearch.Common
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string ES_STATS_TYPE = "stats";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
@@ -21,7 +25,7 @@ namespace ElasticSearch.Common
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("ElasticSearch.Common", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("ElasticSearch.Common - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }

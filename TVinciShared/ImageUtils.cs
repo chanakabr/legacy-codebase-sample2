@@ -13,6 +13,8 @@ using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using QueueWrapper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -21,6 +23,8 @@ namespace TVinciShared
     /// </summary>
     public class ImageUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public ImageUtils()
         {
             //
@@ -110,14 +114,14 @@ namespace TVinciShared
                         if (retVal.IndexOf('.') > 0)
                         {
                             retVal = retVal.Substring(0, retVal.IndexOf('.'));
-                            Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                            log.Debug("BaseURL - " + string.Format("media:{0}, base:{1}", mediaID, retVal));
                         }
                     }
                 }
                 selectQuery.Finish();
                 selectQuery = null;
             }
-            
+
             if (string.IsNullOrEmpty(retVal))
             {
                 retVal = GetDateImageName();
@@ -143,7 +147,7 @@ namespace TVinciShared
                     if (retVal.IndexOf('.') > 0)
                     {
                         retVal = retVal.Substring(0, retVal.IndexOf('.'));
-                        Logger.Logger.Log("BaseURL", string.Format("epg Pic ID:{0}, base:{1}", epgPicID, retVal), "GetDateImageName");
+                        log.Debug("BaseURL - " + string.Format("epg Pic ID:{0}, base:{1}", epgPicID, retVal));
                     }
                 }
             }
@@ -221,7 +225,7 @@ namespace TVinciShared
             return bmPhoto;
         }
 
-        static public void RenameImage(string sOld , string sNew)
+        static public void RenameImage(string sOld, string sNew)
         {
             try
             {
@@ -245,11 +249,11 @@ namespace TVinciShared
                 if (File.Exists(sNew) == false)
                     fullSizeImg.Save(sNew, oCodec, encoderParams);
                 fullSizeImg.Dispose();
-                */ 
+                */
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RenameImage", "old:"+sOld+", new:"+sNew+", ex:" + ex.Message, "PicResize");
+                log.Error("RenameImage - old:" + sOld + ", new:" + sNew + ", ex:" + ex.Message);
             }
         }
         /*
@@ -310,7 +314,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Domain", "error resizing image " + sFullImageURL, "proxy");
+                log.Error("error resizing image " + sFullImageURL, ex);
             }
         }
 
@@ -353,7 +357,7 @@ namespace TVinciShared
                 if (File.Exists(sResizablePath) == false || isOverride)
                 {
                     bmp.Save(sResizablePath, oCodec, encoderParams);
-                    Logger.Logger.Log("Pic Resize", "Pic " + sResizablePath + " saved ", "PicResize");
+                    log.Debug("Pic Resize - Pic " + sResizablePath + " saved ");
                 }
                 //bmp.Save(sResizablePath);
                 //bmp.Save(sResizablePath, ImageFormat.Png);
@@ -366,7 +370,7 @@ namespace TVinciShared
                 if (bmp != null)
                 {
                     bmp.Dispose();
-                    Logger.Logger.Log("Pic Resize", "Pic " + sResizablePath + " not saved " + ex.Message, "PicResize");
+                    log.Error("Pic Resize - Pic " + sResizablePath + " not saved " + ex.Message, ex);
                 }
             }
         }
@@ -375,7 +379,7 @@ namespace TVinciShared
         {
             ResizeImageAndSave(sFullImagePath, sResizablePath, nNewWidth, nNewHeight, bCrop, false);
         }
-        
+
         static public string GetEncoderType(string sFileName)
         {
             ImageFormat oImageFormat = GetFileFormat(sFileName);
@@ -429,7 +433,7 @@ namespace TVinciShared
         static private void setGraphicsQuality(ref Graphics g)
         {
             //g.InterpolationMode =
-                //System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
+            //System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
             g.PixelOffsetMode =
                 System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
             g.SmoothingMode =
@@ -443,7 +447,7 @@ namespace TVinciShared
 
         static public string DownloadWebImage(string sURL, string sDirectory)
         {
-            Logger.Logger.Log("File downloaded", "Start Download Url:" + " " + sURL, "DownloadFile");
+            log.Debug("File downloaded - Start Download Url:" + " " + sURL);
             try
             {
                 string sBasePath = "";
@@ -461,31 +465,31 @@ namespace TVinciShared
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                     }
 
-                    Logger.Logger.Log("Web path", sBasePath, "DownloadFile");
+                    log.Debug("Web path - " + sBasePath);
                 }
                 else
                 {
                     sBasePath = sDirectory;
-                }               
+                }
                 char[] delim = { '/' };
                 Uri uri = new Uri(sURL);
                 string[] splited = sURL.Split(delim);
                 string sPicBaseName = splited[splited.Length - 1];
                 if (sPicBaseName.IndexOf("?") != -1 && sPicBaseName.IndexOf("uuid") != -1)
                 {
-                    Int32 nStart = sPicBaseName.IndexOf("uuid=" , 0) + 5;
-                    Int32 nEnd = sPicBaseName.IndexOf("&" , nStart);
+                    Int32 nStart = sPicBaseName.IndexOf("uuid=", 0) + 5;
+                    Int32 nEnd = sPicBaseName.IndexOf("&", nStart);
                     if (nEnd != 4)
                         sPicBaseName = sPicBaseName.Substring(nStart, nEnd - nStart);
                     else
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
-                }                
-                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;                
+                }
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
 
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
                 HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                
+
                 using (Stream inputStream = httpResponse.GetResponseStream())
                 using (Stream outputStream = File.OpenWrite(sTmpImage))
                 {
@@ -499,16 +503,12 @@ namespace TVinciShared
                 }
                 httpResponse.Close();
 
-                Logger.Logger.Log("File downloaded", "Url:" + " " + sURL + " " + "File:" + " " + sPicBaseName, "DownloadFile");
+                log.Debug("File downloaded - Url:" + " " + sURL + " " + "File:" + " " + sPicBaseName);
                 return sPicBaseName;
             }
             catch (Exception ex)
             {
-                if (sURL.Contains("http"))
-                {
-                    Logger.Logger.Log("Exception", sURL + " " + ex.Message + " " + ex.InnerException, "DownloadFile", "Exception on download image " + sURL + " " + ex.Message);
-                }
-                Logger.Logger.Log("Exception", sURL + " " + ex.Message + " " + ex.InnerException, "DownloadFile");
+                log.Error("Exception - " + sURL + " " + ex.Message + " " + ex.InnerException, ex);
                 return "";
             }
         }
@@ -524,7 +524,7 @@ namespace TVinciShared
         }
 
 
-        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string [] sPicSizes, int nGroupID)
+        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string[] sPicSizes, int nGroupID)
         {
             bool bIsUpdateSucceeded = false;
             List<object> args = new List<object>();
@@ -537,11 +537,11 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("group:{0}, msg:{1}", nGroupID, ex.Message), "SendPictureDataToQueue");
+                log.Error("Exception - " + string.Format("group:{0}, msg:{1}", nGroupID, ex.Message), ex);
                 return false;
             }
 
-      
+
             args.Add(nParentGroupID.ToString());
 
             //check for Http and if it is missing, insert the the remotePicsURL
@@ -562,18 +562,18 @@ namespace TVinciShared
             args.Add(sBasePath);
 
             string id = Guid.NewGuid().ToString();
-            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");  
+            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");
             ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
-            Logger.Logger.Log("Queue", string.Format("{0}, {1}, {2}", nParentGroupID, id, task), "SendPictureDataToQueue");
+            log.Debug("Queue - " + string.Format("{0}, {1}, {2}", nParentGroupID, id, task));
 
             //update the Queue with picture data
             if (data != null)
             {
                 BaseQueue queue = new PictureQueue();
                 string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");
-                bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);                
+                bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
             }
-            Logger.Logger.Log("Res", bIsUpdateSucceeded.ToString(), "SendPictureDataToQueue");
+            log.Debug("Res - " + bIsUpdateSucceeded.ToString());
             return bIsUpdateSucceeded;
         }
 
@@ -624,7 +624,7 @@ namespace TVinciShared
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", sPicDescription);
             //selectQuery += " and ";
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
-            
+
             //selectQuery.SetCachedSec(0);
             //if (selectQuery.Execute("query", true) != null)
             //{

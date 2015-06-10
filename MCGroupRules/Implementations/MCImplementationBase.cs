@@ -5,11 +5,14 @@ using System.Text;
 using System.Web.Script.Serialization;
 using TVinciShared;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace MCGroupRules
 {
     public abstract class MCImplementationBase
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public int RuleID { get; internal set; }
         public int GroupID { get; internal set; }
         public int RuleType { get; internal set; }
@@ -50,7 +53,8 @@ namespace MCGroupRules
                     JavaScriptSerializer jsSer = new JavaScriptSerializer();
                     string json = jsSer.Serialize(mcObj);
                     string sResp = WS_Utils.SendXMLHttpReq("https://mandrillapp.com/api/1.0/messages/send-template.json", json, null);
-                    Logger.Logger.Log("Mail Response", sResp, "MailRules");
+                    log.DebugFormat("Mail Response: {0}", sResp);
+
                     MarkRuleAsHandled();
                     return true;
                 }

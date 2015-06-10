@@ -6,11 +6,15 @@ using System.Net;
 using System.IO;
 using System.Web.Script.Serialization;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
     class YesUsers : TvinciUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public YesUsers(int nGroupID)
             : base(nGroupID)
         {
@@ -85,10 +89,10 @@ namespace Users
             UserResponseObject o = null;
 
             string sUN = string.Empty;
-            
+
             // we are assuming the user name is in the yesUserData      
             GetUserContentInfo(ref sUN, "userName", yesUserData);
-            Logger.Logger.Log("SignInYes", "sUN = " + sUN, "Users");
+            log.Debug("SignInYes - sUN = " + sUN);
 
             if (string.IsNullOrEmpty(sUN))
             {
@@ -97,7 +101,6 @@ namespace Users
                 return o;
             }
 
-            
             // Get user permissions
             yesUserData["USER_PERMISSIONS"] = GetUserPermission(yesUserData);
 
@@ -126,7 +129,7 @@ namespace Users
 
             // Check recommendation flag, if 'Y' - do ORCA SignIn
             char recommendflag;
-            if ((yesUserData.ContainsKey("recommendflag_rac")) && 
+            if ((yesUserData.ContainsKey("recommendflag_rac")) &&
                 (!string.IsNullOrEmpty(yesUserData["recommendflag_rac"])) &&
                 (char.TryParse(yesUserData["recommendflag_rac"], out recommendflag)) &&
                 (recommendflag == 'Y'))
@@ -161,7 +164,7 @@ namespace Users
                     yesUserData["orcaToken"] = "OrcaLoginError";
                 }
             }
-           
+
 
             // Check if user exists in the DB
             UserResponseObject userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
@@ -174,7 +177,7 @@ namespace Users
                 userInfo = base.AddNewUser(userBasic, userDynamic, sUN.ToLower());
                 if (userInfo.m_RespStatus != ResponseStatus.OK)
                 {
-                    Logger.Logger.Log("Creating User Error", "sUN = " + sUN + " Response = " + userInfo.m_RespStatus.ToString(), "Users");
+                    log.Error("Creating User Error - sUN = " + sUN + " Response = " + userInfo.m_RespStatus.ToString());
                     o = new UserResponseObject();
                     o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                     return o;
@@ -207,7 +210,7 @@ namespace Users
 
             if (t == null)
             {
-                Logger.Logger.Log("Creating Domain_WS Error", "Domain = " + t.ToString(), "Domains");
+                log.Error("Creating Domain_WS Error - Domain = " + t.ToString());
                 o = new UserResponseObject();
                 o.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 return o;
@@ -263,7 +266,7 @@ namespace Users
             // Tvinci signIn. password = username 
             return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-        
+
         //in case of Yes - the new domain is added seperatly, this is a dummy function
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
@@ -347,7 +350,7 @@ namespace Users
             }
 
             udd.m_sUserData = udd.m_sUserData.Where(d => d != null).ToArray();
-                
+
             return udd;
         }
 
@@ -363,7 +366,7 @@ namespace Users
                 ushort.TryParse(yesUserData["tvestatus_rac"], out tveStatus);
 
                 ushort satstatus = 0;
-                ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);               
+                ushort.TryParse(yesUserData["satstatus_rac"], out satstatus);
 
                 if ((satstatus == 3) &&
                     ((!yesUserData.ContainsKey("AccountUuid")) ||
@@ -411,7 +414,7 @@ namespace Users
                         case 1:
                             sRet = "LOGIN_MSG_1031";
                             return sRet;
-                            
+
                         case 2:
                             sRet = "LOGIN_MSG_1041";
                             return sRet;

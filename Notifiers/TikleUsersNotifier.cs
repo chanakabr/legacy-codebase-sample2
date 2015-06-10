@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Notifiers
 {
-    public class TikleUsersNotifier: BaseUsersNotifier
+    public class TikleUsersNotifier : BaseUsersNotifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TikleUsersNotifier(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -19,8 +23,7 @@ namespace Notifiers
             string sTikleWSURL = Utils.GetWSURL("tikle_ws");
             t.Url = sTikleWSURL;
             tikle_ws.Response resp = t.NotifyCustomer(sSiteGUID);
-            Logger.Logger.Log("Notify", sSiteGUID + " : " + resp.ResultDetail, "users_notifier");
-            
+            log.Debug("Notify sSiteGUID: " + sSiteGUID + " : " + resp.ResultDetail);
         }
     }
 }

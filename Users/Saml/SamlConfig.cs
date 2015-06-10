@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
+using KLogMonitor;
 
 namespace Users.Saml
 {
     public class SamlConfig : ConfigurationSection
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         class Nested
         {
@@ -35,14 +38,14 @@ namespace Users.Saml
         }
 
         public SAML GetSaml(int nGroupID)
-        {   
+        {
             if (!m_saml.ContainsKey(nGroupID))
             {
                 SAML tempsaml = BuildSaml(nGroupID);
                 if (tempsaml != null)
                 {
                     m_saml.Add(nGroupID, tempsaml);
-                }               
+                }
             }
             if (m_saml != null && m_saml.ContainsKey(nGroupID))
             {
@@ -64,7 +67,7 @@ namespace Users.Saml
                 string samlConfigFile = TVinciShared.WS_Utils.GetTcmConfigValue("SAML_CONFIG_FILE");
                 doc.Load(@samlConfigFile + nGroupID + ".config"); //TO DO savefile path ????
 
-               // doc.Load(@"J:\\ODE_Regular\\TVM\\Web Services\\WS_Users\\\SamlConfig\\" + nGroupID + ".config"); //TO DO savefile path ????
+                // doc.Load(@"J:\\ODE_Regular\\TVM\\Web Services\\WS_Users\\\SamlConfig\\" + nGroupID + ".config"); //TO DO savefile path ????
                 SAML saml = new SAML();
                 saml.entityID = doc.GetElementsByTagName("EntityDescriptor")[0].Attributes["entityID"].Value; // doc.ChildNodes[1].Attributes[0].Value;
                 saml.keyInfo = doc.GetElementsByTagName("ds:KeyInfo")[0].Attributes["xmlns:ds"].Value; // doc.ChildNodes[1].ChildNodes[0].ChildNodes[0].ChildNodes[0].NamespaceURI;
@@ -78,7 +81,7 @@ namespace Users.Saml
                         break;
                     }
                 }
-	
+
                 saml.x509 = doc.GetElementsByTagName("ds:X509Certificate")[0].InnerText; //doc.ChildNodes[1].ChildNodes[0].ChildNodes[0].ChildNodes[0].InnerText;
                 if (doc.GetElementsByTagName("PrivateKey") != null && doc.GetElementsByTagName("PrivateKey")[0] != null)
                 {
@@ -89,6 +92,7 @@ namespace Users.Saml
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return null;
             }
         }
