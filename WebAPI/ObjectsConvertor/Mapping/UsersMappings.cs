@@ -83,6 +83,40 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 }
                 return result;
             });
+
+
+
+            // Rest UserBasicData ==> WS_Users UserBasicData
+            Mapper.CreateMap<UserBasicData, Users.UserBasicData>()
+                .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
+                .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.m_Country, opt => opt.MapFrom(src => src.Country))
+                .ForMember(dest => dest.m_sEmail, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.m_CoGuid, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.m_sFacebookID, opt => opt.MapFrom(src => src.FacebookId))
+                .ForMember(dest => dest.m_sFacebookImage, opt => opt.MapFrom(src => src.FacebookImage))
+                .ForMember(dest => dest.m_sFacebookToken, opt => opt.MapFrom(src => src.FacebookToken))
+                .ForMember(dest => dest.m_sFirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.m_sLastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.m_sPhone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.m_sUserName, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.m_UserType, opt => opt.MapFrom(src => src.UserType))
+                .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
+
+            // Country
+            Mapper.CreateMap<Country, Users.Country>()
+                .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.m_sCountryName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.m_sCountryCode, opt => opt.MapFrom(src => src.Code));
+
+            // UserType
+            Mapper.CreateMap<UserType, Users.UserType>()
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            Mapper.CreateMap<Dictionary<string, string>, Users.UserDynamicData>()
+                .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
         }
 
         private static Dictionary<string,string> ConvertDynamicData(Users.UserDynamicData userDynamicData)
@@ -104,5 +138,32 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
+        private static Users.UserDynamicData ConvertDynamicData(Dictionary<string, string> userDynamicData)
+        {
+            Users.UserDynamicData result = null;
+
+            if (userDynamicData != null && userDynamicData.Count > 0)
+            {
+                result = new Users.UserDynamicData();
+                List<Users.UserDynamicDataContainer> udc = new List<Users.UserDynamicDataContainer>();
+                Users.UserDynamicDataContainer ud;
+                foreach (KeyValuePair<string,string> data in userDynamicData)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        ud = new Users.UserDynamicDataContainer();
+                        ud.m_sDataType = data.Key;
+                        ud.m_sValue = data.Value;
+                        udc.Add(ud);
+                    }
+                }
+                if (udc != null && udc.Count > 0)
+                {
+                    result.m_sUserData = udc.ToArray();
+                }
+            }
+
+            return result;
+        }      
     }
 }

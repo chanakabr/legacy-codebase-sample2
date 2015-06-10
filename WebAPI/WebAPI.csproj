@@ -546,9 +546,6 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Web References\Users\LoginResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Api\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -603,11 +600,15 @@
     <Compile Include="Controllers\DomainsController.cs" />
     <Compile Include="Models\API\ParentalRule.cs" />
     <Compile Include="Models\Users\Country.cs" />
+    <Compile Include="Models\Users\LogIn.cs" />
     <Compile Include="Models\Users\LoginPin.cs" />
     <Compile Include="Models\API\PinResponse.cs" />
+    <Compile Include="Models\Users\SignUp.cs" />
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />
+    <Compile Include="Models\Users\UserDynamicData.cs" />
+    <Compile Include="Models\Users\UserDynamicDataContainer.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
@@ -736,6 +737,9 @@
     <Content Include="Web References\Users\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Users\UserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -819,10 +823,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

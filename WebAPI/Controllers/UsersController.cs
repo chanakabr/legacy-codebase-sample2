@@ -72,7 +72,10 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// User sign-in via a time-expired sign-in PIN.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// LoginViaPinNotAllowed = 2009, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
         /// </summary>
         /// <param name="group_id">Group Identifier</param>
         /// <param name="pin">pin code</param>
@@ -330,39 +333,188 @@ namespace WebAPI.Controllers
         {
 
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="request">Credentials</param>
-        /// <param name="group_id">Group ID</param>
-        [Route("sign_in"), HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
-        {
-            //TODO: add parameters
 
-            // TODO: change to something later
-            string data = string.Empty;
+
+
+        /// <summary>
+        /// login with user name and password.<br />
+        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="LogIn">LogIn Object</param>
+        /// <param name="device_id">device identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("login"), HttpPost]
+        public User Login([FromUri] string group_id, [FromBody] LogIn request, [FromUri] string device_id = null)
+        {
+            User response = null;
 
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
+            if (request == null)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignIn is null");
+            }
+            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().Login(groupId, request.Username, request.Password, device_id, request.keyValues);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-            WebAPI.Models.Users.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
-
-            if (user == null)
+            if (response == null)
             {
                 throw new InternalServerErrorException();
             }
+            return response;
+        }
 
-            string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
 
-            //TODO: get real value
-            int expiration = 1462543601;
 
-            return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
+        
+        /// <summary>
+        /// SignUp (for new user).<br />
+        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="sign_up">SignUp Object</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("signup"), HttpPost]
+        public User SignUp([FromUri] string group_id, [FromBody] SignUp sign_up)
+        {
+            User response = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (sign_up == null || sign_up.userBasicData == null)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignUp or UserBasicData is null");
+            }
+            if (string.IsNullOrEmpty(sign_up.userBasicData.Username) || string.IsNullOrEmpty(sign_up.password))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().SignUp(groupId, sign_up.userBasicData, sign_up.userDynamicData, sign_up.password, sign_up.affiliateCode);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+        
+        /// <summary>
+        /// SendNewPassword by user name.<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="user_name">user name</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("password"), HttpPost]
+        public bool SendNewPassword([FromUri] string group_id, [FromUri] string user_name)
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (string.IsNullOrEmpty(user_name))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
+            }          
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().SendNewPassword(groupId, user_name);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+        
+        /// <summary>
+        /// RenewPassword get user name and new password.<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="user_name">user name</param>
+        /// <param name="password">new password</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("reset_password"), HttpPost]
+        public bool RenewPassword([FromUri] string group_id, [FromUri] string user_name, [FromUri] string password)
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(password))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().RenewPassword(groupId, user_name, password);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
         }
 
         #region Parental Rules
@@ -900,5 +1052,39 @@ namespace WebAPI.Controllers
 
         #endregion
 
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="request">Credentials</param>
+        ///// <param name="group_id">Group ID</param>
+        //[Route("sign_in"), HttpPost]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
+        //{
+        //    //TODO: add parameters
+
+        //    // TODO: change to something later
+        //    string data = string.Empty;
+
+        //    int groupId;
+        //    if (!int.TryParse(group_id, out groupId))
+        //    {
+        //        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+        //    }
+
+        //    WebAPI.Models.Users.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
+
+        //    if (user == null)
+        //    {
+        //        throw new InternalServerErrorException();
+        //    }
+
+        //    string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
+
+        //    //TODO: get real value
+        //    int expiration = 1462543601;
+
+        //    return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
+        //}
     }
 }

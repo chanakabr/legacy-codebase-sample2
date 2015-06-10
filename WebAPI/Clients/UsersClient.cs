@@ -34,29 +34,162 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
+        public WebAPI.Models.Users.User Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> keyValueList)
         {
-            WebAPI.Models.Users.ClientUser user = null;
+            WebAPI.Models.Users.User user = null;
+            UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
-                //TODO: add parameters
-                UserResponseObject response;
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
+                    string ip = Utils.Utils.GetClientIP();
+                    List<KeyValuePair> lKeyvalue = keyValueList.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
+                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, ip, deviceId, group.ShouldSupportSingleLogin, lKeyvalue.ToArray());
                 }
-
-                user = Mapper.Map<WebAPI.Models.Users.ClientUser>(response);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName, ex);
-                throw new ClientException((int)StatusCode.InternalConnectionIssue);
+                log.ErrorFormat("Error while signing in. Username: {0}, PAssword: {1}, exception: {2}", userName, password,ex);
+                ErrorUtils.HandleWSException(ex);
             }
+           
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+
             return user;
         }
+
+
+        public Models.Users.User SignUp(int groupId, Models.Users.UserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data, string password, string affiliateCode)
+        {
+            WebAPI.Models.Users.User user = null;
+            UserResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
+                    WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
+                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, affiliateCode);                     
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while signing in.  Password: {0}, exception: {1}",  password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+
+            return user;
+        }
+
+        public bool SendNewPassword(int groupId, string userName)
+        {
+            WebAPI.Users.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);              
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.SendRenewalPasswordMail(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName,  ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool RenewPassword(int groupId, string userName, string password)
+        {
+            WebAPI.Users.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.RenewPassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while signing in. Username: {0}, password : {1}, exception: {2}", userName, password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        //public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
+        //{
+        //    WebAPI.Models.Users.ClientUser user = null;
+        //    Group group = GroupsManager.GetGroup(groupId);
+
+        //    try
+        //    {
+        //        //TODO: add parameters
+        //        UserResponseObject response;
+        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+        //        {
+        //            response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
+        //        }
+
+        //        user = Mapper.Map<WebAPI.Models.Users.ClientUser>(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName, ex);
+        //        throw new ClientException((int)StatusCode.InternalConnectionIssue);
+        //    }
+        //    return user;
+        //}
 
         public LoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
@@ -97,7 +230,7 @@ namespace WebAPI.Clients
             WebAPI.Models.Users.User user = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            LoginResponse response = null;
+            UserResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -188,5 +321,8 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+
+
     }
 }

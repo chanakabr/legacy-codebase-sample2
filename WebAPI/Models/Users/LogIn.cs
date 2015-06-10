@@ -7,12 +7,12 @@ using System.Runtime.Serialization;
 using System.Web;
 
 namespace WebAPI.Models.Users
-{
+{  
     /// <summary>
-    /// SignIn
+    /// LogIn
     /// </summary>
-    public class SignIn
-    {
+    public class LogIn
+    {  
         /// <summary>
         /// Username
         /// </summary>
@@ -28,6 +28,12 @@ namespace WebAPI.Models.Users
         [JsonProperty("password")]
         [Required]
         public string Password { get; set; }
-      
+
+        /// <summary>
+        /// keyValues
+        /// </summary>        
+        [DataMember(Name = "keyValues")]
+        [JsonProperty("keyValues")]        
+        public Dictionary<string, string> keyValues { get; set; }
     }
 }
