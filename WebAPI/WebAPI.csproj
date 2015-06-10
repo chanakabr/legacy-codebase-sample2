@@ -595,6 +595,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\ChannelMedia.cs" />
