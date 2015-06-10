@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper GetSearch(string group_id, [FromUri] SearchAssets search_assets, string language = null)
+        public AssetInfoWrapper SearchAssets(string group_id, [FromUri] SearchAssets search_assets, string language = null)
         {
             return PostSearch(group_id, search_assets);
         }
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
-        /// <param name="request">The search asset request parameter</param>
+        /// <param name="request">The search asset request parameters</param>
         /// <param name="group_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
@@ -129,11 +129,160 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper GetAutocomplete(string group_id, [FromUri] Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper Autocomplete(string group_id, [FromUri] Autocomplete request, string language = null)
         {
             return PostAutocomplete(group_id, request);
         }
 
-        
+        /// <summary>
+        /// Returns related media by media identifier<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="request">The related media request parameters</param>
+        /// <param name="media_id">Media Identifier</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("media/{media_id}/related"), HttpGet]
+        public AssetInfoWrapper GetRelatedMedia(string group_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int domain_id = 0)
+        {
+            AssetInfoWrapper response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be 0");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            {
+                request.page_size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, media_id, request.media_types, request.with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns all channel media<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="request">The channel media request parameters</param>
+        /// <param name="channel_id">Channel Identifier</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("channels/{channel_id}/media"), HttpGet]
+        public AssetInfoWrapper GetChannelMedia(string group_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int domain_id = 0)
+        {
+            AssetInfoWrapper response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (channel_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "channel_id cannot be 0");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            {
+                request.page_size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, channel_id, request.order_by.Value, request.with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns media by media identifiers<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="request">The channel media request parameters</param>
+        /// <param name="media_ids">Media Identifiers separated by , </param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("media/{media_ids}/media"), HttpGet]
+        public AssetInfoWrapper GetMediaByIds(string group_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int domain_id = 0)
+        {
+            AssetInfoWrapper response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (string.IsNullOrEmpty(media_ids))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_ids cannot be empty");
+            }
+
+            List<int> mediaIds;
+            try
+            {
+                mediaIds = media_ids.Split(',').Select(m => int.Parse(m)).ToList();
+            }
+            catch
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each media id must be int");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            {
+                request.page_size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

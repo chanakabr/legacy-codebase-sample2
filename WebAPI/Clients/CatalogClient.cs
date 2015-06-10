@@ -86,6 +86,7 @@ namespace WebAPI.Clients
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
+                m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
@@ -102,7 +103,7 @@ namespace WebAPI.Clients
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -162,6 +163,7 @@ namespace WebAPI.Clients
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                     m_sDeviceId = udid
                 },
+                m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 m_nPageIndex = 0,
                 m_nPageSize = size.Value,
@@ -178,7 +180,7 @@ namespace WebAPI.Clients
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -224,6 +226,7 @@ namespace WebAPI.Clients
                 {
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language)
                 },
+                m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
@@ -289,6 +292,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_sSiteGuid = siteGuid,
                 m_nGroupID = groupID,
+                m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nAssetIDs = assetIds,
                 m_dStartDate = startTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(startTime) : DateTime.MinValue,
                 m_dEndDate = endTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(endTime) : DateTime.MaxValue,
@@ -308,6 +312,126 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        public AssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<With> with)
+        {
+            AssetInfoWrapper result = new AssetInfoWrapper();
+
+            // build request
+            MediaRelatedRequest request = new MediaRelatedRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nMediaID = mediaId,
+                m_nMediaTypes = mediaTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}", 
+                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
+
+            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+
+            return result;
+        }
+
+        public AssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, Order? orderBy, List<With> with)
+        {
+            AssetInfoWrapper result = new AssetInfoWrapper();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            // build request
+            ChannelRequestMultiFiltering request = new ChannelRequestMultiFiltering()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nChannelID = channelId,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_oOrderObj = order, 
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("channel_id={0}_pi={1}_pz={2}_g={3}_l={4}_o_{5}",
+                channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
+
+            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+            
+            return result;
+        }
+
+        public AssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<With> with)
+        {
+            AssetInfoWrapper result = new AssetInfoWrapper();
+
+            // build request
+            MediaUpdateDateRequest request = new MediaUpdateDateRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_lMediaIds = mediaIds,
+            };
+
+            MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(CatalogClientModule, request, out mediaIdsResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            {
+
+                result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse, request, CacheDuration, with);
+                result.TotalItems = mediaIdsResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)

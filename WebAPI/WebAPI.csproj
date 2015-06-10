@@ -596,6 +596,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
+    <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
+    <Compile Include="Models\Catalog\ChannelMedia.cs" />
+    <Compile Include="Models\Catalog\RelatedMedia.cs" />
     <Compile Include="Controllers\DomainsController.cs" />
     <Compile Include="Models\API\ParentalRule.cs" />
     <Compile Include="Models\Users\Country.cs" />
