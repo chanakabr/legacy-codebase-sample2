@@ -1042,22 +1042,22 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(string PIN, string secret, string deviceID)
+        public TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(string PIN, string secret, string deviceID)
         {
-            TVPApiModule.Objects.Responses.LoginResponse response = null;
+            TVPApiModule.Objects.Responses.UserResponse response = null;
             try
             {
                 string sessionID = "0";
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null, secret);
-                    response = new TVPApiModule.Objects.Responses.LoginResponse(result);
+                    response = new TVPApiModule.Objects.Responses.UserResponse(result);
                 }
             }
             catch (Exception ex)
             {
                 logger.Error("Error while trying to get regions.", ex);
-                response = new TVPApiModule.Objects.Responses.LoginResponse();
+                response = new TVPApiModule.Objects.Responses.UserResponse();
                 response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
             return response;
