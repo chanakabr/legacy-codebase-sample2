@@ -595,12 +595,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\General\PurchaseSettingsResponse.cs" />
+    <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Controllers\DomainsController.cs" />
-    <Compile Include="Models\General\ParentalRule.cs" />
+    <Compile Include="Models\API\ParentalRule.cs" />
     <Compile Include="Models\Users\Country.cs" />
     <Compile Include="Models\Users\LoginPin.cs" />
-    <Compile Include="Models\General\PinResponse.cs" />
+    <Compile Include="Models\API\PinResponse.cs" />
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />

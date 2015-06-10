@@ -43,56 +43,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             #region Parental Rules
 
-            // Parental rule type
-            Mapper.CreateMap<WebAPI.Api.eParentalRuleType, WebAPI.Models.General.eParentalRuleType>().ConstructUsing((WebAPI.Api.eParentalRuleType type) =>
-            {
-                WebAPI.Models.General.eParentalRuleType result;
-
-                switch (type)
-                {
-                    case WebAPI.Api.eParentalRuleType.All:
-                    result = Models.General.eParentalRuleType.all;
-                    break;
-                    case WebAPI.Api.eParentalRuleType.Movies:
-                    result = Models.General.eParentalRuleType.movies;
-                    break;
-                    case WebAPI.Api.eParentalRuleType.TVSeries:
-                    result = Models.General.eParentalRuleType.tv_series;
-                    break;
-                    default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
-                }
-
-                return result;
-            });
-
-
-            // Rule level
-            Mapper.CreateMap<WebAPI.Api.eRuleLevel, WebAPI.Models.General.eRuleLevel>().ConstructUsing((WebAPI.Api.eRuleLevel type) =>
-            {
-                WebAPI.Models.General.eRuleLevel result;
-
-                switch (type)
-                {
-                    case WebAPI.Api.eRuleLevel.User:
-                    result = Models.General.eRuleLevel.user;
-                    break;
-                    case WebAPI.Api.eRuleLevel.Domain:
-                    result = Models.General.eRuleLevel.domain;
-                    break;
-                    case WebAPI.Api.eRuleLevel.Group:
-                    result = Models.General.eRuleLevel.account;
-                    break;
-                    default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
-
-                }
-
-                return result;
-            });
-
             // ParentalRule
-            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.General.ParentalRule>()
+            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.ParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -103,22 +55,90 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => src.ruleType));
+                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
-            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.General.PinResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
+            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.PinResponse>()
+                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.General.PurchaseSettingsResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => src.level))
+            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.PurchaseSettingsResponse>()
+                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type)); 
+                .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type))); 
 
             #endregion
 
+        }
+
+        private static Models.API.eParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
+        {
+            WebAPI.Models.API.eParentalRuleType result;
+
+            switch (type)
+            {
+                case WebAPI.Api.eParentalRuleType.All:
+                result = Models.API.eParentalRuleType.all;
+                break;
+                case WebAPI.Api.eParentalRuleType.Movies:
+                result = Models.API.eParentalRuleType.movies;
+                break;
+                case WebAPI.Api.eParentalRuleType.TVSeries:
+                result = Models.API.eParentalRuleType.tv_series;
+                break;
+                default:
+                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+            }
+
+            return result;
+        }
+
+        private static Models.API.eRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel type)
+        {
+            WebAPI.Models.API.eRuleLevel result;
+
+            switch (type)
+            {
+                case WebAPI.Api.eRuleLevel.User:
+                result = Models.API.eRuleLevel.user;
+                break;
+                case WebAPI.Api.eRuleLevel.Domain:
+                result = Models.API.eRuleLevel.domain;
+                break;
+                case WebAPI.Api.eRuleLevel.Group:
+                result = Models.API.eRuleLevel.account;
+                break;
+                default:
+                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+
+            }
+
+            return result;
+        }
+
+        private static Models.API.ePurchaeSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType type)
+        {
+            WebAPI.Models.API.ePurchaeSettingsType result;
+
+            switch (type)
+            {
+                case WebAPI.Api.ePurchaeSettingsType.Allow:
+                result = Models.API.ePurchaeSettingsType.allow;
+                break;
+                case WebAPI.Api.ePurchaeSettingsType.Ask:
+                result = Models.API.ePurchaeSettingsType.ask;
+                break;
+                case WebAPI.Api.ePurchaeSettingsType.Block:
+                result = Models.API.ePurchaeSettingsType.block;
+                break;
+                default:
+                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+
+            }
+
+            return result;
         }
     }
 }

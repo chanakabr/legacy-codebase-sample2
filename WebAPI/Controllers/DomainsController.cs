@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 

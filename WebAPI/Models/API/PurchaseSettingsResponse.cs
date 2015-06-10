@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// Purchase settings and PIN
@@ -54,8 +54,8 @@ namespace WebAPI.Models.General
     /// </summary>
     public enum ePurchaeSettingsType
     {
-        Block = 0,
-        Ask = 1,
-        Allow = 2
+        block = 0,
+        ask = 1,
+        allow = 2
     }
 }

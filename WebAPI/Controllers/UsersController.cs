@@ -12,6 +12,7 @@ using WebAPI.Utils;
 using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.API;
 
 namespace WebAPI.Controllers
 {
@@ -435,7 +436,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 1);
+                success = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 1);
             }
             catch (ClientException ex)
             {
@@ -475,7 +476,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                var response = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 0);
+                success = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 0);
             }
             catch (ClientException ex)
             {
@@ -513,7 +514,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                var response = ClientsManager.ApiClient().GetUserParentalPIN(groupId, user_id);
+                pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, user_id);
             }
             catch (ClientException ex)
             {
@@ -563,6 +564,45 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Retrieve the purchase settings that applies for the user.
+        /// Possible status codes:
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <returns>The PIN that applies for the user</returns>
+        [Route("{user_id}/purchase_settings/"), HttpGet]
+        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id)
+        {
+            PurchaseSettingsResponse purchaseResponse = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+            }
+
+            if (string.IsNullOrEmpty(user_id))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return purchaseResponse;
+        }
+
+        /// <summary>
         /// Set the purchase settings that applies for the user.
         /// </summary>
         /// <response code="200">OK</response>
@@ -603,6 +643,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase PIN that applies for the user.
+        /// Possible status codes: 5001 = No PIN defined
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -611,9 +652,9 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase_pin/"), HttpGet]
-        public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] string user_id)
+        public PurchaseSettingsResponse GetPurchasePIN([FromUri] string group_id, [FromUri] string user_id)
         {
-            PinResponse pinResponse = null;
+            PurchaseSettingsResponse pinResponse = null;
 
             int groupId;
             if (!int.TryParse(group_id, out groupId))
@@ -629,7 +670,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                var response = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, user_id);
+                pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, user_id);
             }
             catch (ClientException ex)
             {
@@ -769,6 +810,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
+        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -813,6 +855,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given purchase PIN for a user is valid.
+        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>

@@ -55,10 +55,10 @@ namespace WebAPI.Clients
 
         #region Parental Rules
 
-        internal List<Models.General.ParentalRule> GetUserParentalRules(int groupId, string userId)
+        internal List<Models.API.ParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
-            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -85,15 +85,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
 
             return rules;
         }
 
-        internal List<Models.General.ParentalRule> GetDomainParentalRules(int groupId, int domainId)
+        internal List<Models.API.ParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
             ParentalRulesResponse response = null;
-            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -120,7 +120,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
 
             return rules;
         }
@@ -201,7 +201,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.General.PinResponse GetUserParentalPIN(int groupId, string userId)
+        internal WebAPI.Models.API.PinResponse GetUserParentalPIN(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -236,14 +236,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PinResponse response = null;
+            WebAPI.Models.API.PinResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PinResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PinResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.General.PinResponse GetDomainParentalPIN(int groupId, int domainId)
+        internal WebAPI.Models.API.PinResponse GetDomainParentalPIN(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -278,9 +278,9 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PinResponse response = null;
+            WebAPI.Models.API.PinResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PinResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PinResponse>(webServiceResponse);
 
             return response;
         }
@@ -437,7 +437,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.General.PurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
+        internal WebAPI.Models.API.PurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -472,14 +472,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.PurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.General.PurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
+        internal WebAPI.Models.API.PurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -514,14 +514,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.PurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.General.PurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
+        internal WebAPI.Models.API.PurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -556,14 +556,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.PurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.General.PurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
+        internal WebAPI.Models.API.PurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -598,9 +598,9 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.General.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.PurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.General.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
@@ -681,10 +681,10 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.General.ParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)
+        internal List<Models.API.ParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)
         {
             ParentalRulesResponse response = null;
-            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -711,15 +711,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
 
             return rules;
         }
 
-        internal List<Models.General.ParentalRule> GetUserEPGParentalRules(int groupId, string userId, long epgId)
+        internal List<Models.API.ParentalRule> GetUserEPGParentalRules(int groupId, string userId, long epgId)
         {
             ParentalRulesResponse response = null;
-            List<Models.General.ParentalRule> rules = new List<Models.General.ParentalRule>();
+            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -746,7 +746,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.General.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
 
             return rules;
         }

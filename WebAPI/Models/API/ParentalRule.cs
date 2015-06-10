@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// Parental rule
@@ -86,8 +86,8 @@ namespace WebAPI.Models.General
         /// <summary>
         /// Is the rule the default rule of the account
         /// </summary>
-        [DataMember(Name = "is_Default")]
-        [JsonProperty("is_Default")]
+        [DataMember(Name = "is_default")]
+        [JsonProperty("is_default")]
         public bool isDefault;
 
         /// <summary>
@@ -114,6 +114,7 @@ namespace WebAPI.Models.General
     /// </summary>
     public enum eRuleLevel
     {
+        invalid = 0,
         user = 1,
         domain = 2,
         account = 3

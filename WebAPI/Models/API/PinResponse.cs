@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// PIN and its origin of definition
