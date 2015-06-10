@@ -340,7 +340,7 @@ namespace WebAPI.Controllers
         /// login with user name and password.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="LogIn">LogIn Object</param>
@@ -391,7 +391,7 @@ namespace WebAPI.Controllers
         /// SignUp (for new user).<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="sign_up">SignUp Object</param>
@@ -436,7 +436,7 @@ namespace WebAPI.Controllers
         
         /// <summary>
         /// SendNewPassword by user name.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="user_name">user name</param>
@@ -444,7 +444,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("password"), HttpPost]
+        [Route("send_password"), HttpPost]
         public bool SendNewPassword([FromUri] string group_id, [FromUri] string user_name)
         {
             bool response = false;
@@ -516,6 +516,93 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// CheckPasswordToken .<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="token">token</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("toke/{token}"), HttpGet]
+        public User CheckPasswordToken([FromUri] string group_id, [FromUri] string token)
+        {
+            User response = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "token is empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().CheckPasswordToken(groupId, token);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// ChangeUserPassword chnage old password with new one for get user name.<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="user_name">user name</param>
+        /// <param name="old_password">old password</param>
+        /// <param name="new_password">new password</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("password"), HttpPut]
+        public bool ChangeUserPassword([FromUri] string group_id, [FromUri] string user_name, [FromUri] string old_password, [FromUri] string new_password)
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password  is empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, user_name, old_password, new_password);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+
+
 
         #region Parental Rules
 

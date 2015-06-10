@@ -169,6 +169,10 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback RenewPasswordOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ReplacePasswordOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback CheckPasswordTokenOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -416,6 +420,12 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event RenewPasswordCompletedEventHandler RenewPasswordCompleted;
+        
+        /// <remarks/>
+        public event ReplacePasswordCompletedEventHandler ReplacePasswordCompleted;
+        
+        /// <remarks/>
+        public event CheckPasswordTokenCompletedEventHandler CheckPasswordTokenCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2941,6 +2951,76 @@ namespace WebAPI.Users {
             if ((this.RenewPasswordCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.RenewPasswordCompleted(this, new RenewPasswordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ReplacePassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ReplacePassword(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword) {
+            object[] results = this.Invoke("ReplacePassword", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userName,
+                        oldPassword,
+                        newPassword});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ReplacePasswordAsync(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword) {
+            this.ReplacePasswordAsync(sWSUserName, sWSPassword, userName, oldPassword, newPassword, null);
+        }
+        
+        /// <remarks/>
+        public void ReplacePasswordAsync(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword, object userState) {
+            if ((this.ReplacePasswordOperationCompleted == null)) {
+                this.ReplacePasswordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnReplacePasswordOperationCompleted);
+            }
+            this.InvokeAsync("ReplacePassword", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userName,
+                        oldPassword,
+                        newPassword}, this.ReplacePasswordOperationCompleted, userState);
+        }
+        
+        private void OnReplacePasswordOperationCompleted(object arg) {
+            if ((this.ReplacePasswordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ReplacePasswordCompleted(this, new ReplacePasswordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckPasswordToken", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserResponse CheckPasswordToken(string sWSUserName, string sWSPassword, string token) {
+            object[] results = this.Invoke("CheckPasswordToken", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        token});
+            return ((UserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPasswordTokenAsync(string sWSUserName, string sWSPassword, string token) {
+            this.CheckPasswordTokenAsync(sWSUserName, sWSPassword, token, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPasswordTokenAsync(string sWSUserName, string sWSPassword, string token, object userState) {
+            if ((this.CheckPasswordTokenOperationCompleted == null)) {
+                this.CheckPasswordTokenOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPasswordTokenOperationCompleted);
+            }
+            this.InvokeAsync("CheckPasswordToken", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        token}, this.CheckPasswordTokenOperationCompleted, userState);
+        }
+        
+        private void OnCheckPasswordTokenOperationCompleted(object arg) {
+            if ((this.CheckPasswordTokenCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPasswordTokenCompleted(this, new CheckPasswordTokenCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5962,6 +6042,58 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ReplacePasswordCompletedEventHandler(object sender, ReplacePasswordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ReplacePasswordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ReplacePasswordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPasswordTokenCompletedEventHandler(object sender, CheckPasswordTokenCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPasswordTokenCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPasswordTokenCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserResponse)(this.results[0]));
             }
         }
     }

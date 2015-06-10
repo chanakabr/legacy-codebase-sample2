@@ -51,7 +51,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in. Username: {0}, PAssword: {1}, exception: {2}", userName, password,ex);
+                log.ErrorFormat("Error while Login. Username: {0}, PAssword: {1}, exception: {2}", userName, password, ex);
                 ErrorUtils.HandleWSException(ex);
             }
            
@@ -88,7 +88,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in.  Password: {0}, exception: {1}",  password, ex);
+                log.ErrorFormat("Error while SignUp.  Password: {0}, exception: {1}", password, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -120,7 +120,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName,  ex);
+                log.ErrorFormat("Error while SendNewPassword. Username: {0}, exception: {1}", userName, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -150,7 +150,37 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while signing in. Username: {0}, password : {1}, exception: {2}", userName, password, ex);
+                log.ErrorFormat("Error while RenewPassword. Username: {0}, password : {1}, exception: {2}", userName, password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)
+        {
+            WebAPI.Users.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.ReplacePassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, oldPassword, newPassword);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ChangeUserPassword. Username: {0}, oldPassword : {1}, newPassword: {2}, exception : {3}", userName, oldPassword, newPassword, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -262,6 +292,39 @@ namespace WebAPI.Clients
             return user;
         }
 
+        public Models.Users.User CheckPasswordToken(int groupId, string token)
+        {            
+            UserResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            WebAPI.Models.Users.User user = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {   
+                    response = Users.CheckPasswordToken(group.UsersCredentials.Username, group.UsersCredentials.Password, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while signing in.  token: {0}, exception: {1}", token, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+
+            return user;
+        }
+
         public void SetLoginPin(int groupId, string userId, string pin, string secret)
         {
             Group group = GroupsManager.GetGroup(groupId);
@@ -324,5 +387,9 @@ namespace WebAPI.Clients
 
 
 
+
+
+
+        
     }
 }

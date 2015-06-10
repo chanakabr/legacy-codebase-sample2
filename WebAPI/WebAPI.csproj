@@ -607,8 +607,6 @@
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />
-    <Compile Include="Models\Users\UserDynamicData.cs" />
-    <Compile Include="Models\Users\UserDynamicDataContainer.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
