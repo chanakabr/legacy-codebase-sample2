@@ -56,7 +56,7 @@ namespace ApiObjects.Response
         ErrorOnInitUser = 2021,        
         Activated = 2022,
         UserNotMasterApproved = 2023,
-        UserWIthNoDomain = 2024,
+        UserWithNoDomain = 2024,
         UserDoesNotExist = 2025,
         
 

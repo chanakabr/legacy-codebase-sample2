@@ -865,15 +865,15 @@ namespace Users
             response = new ApiObjects.Response.Status();
             return true;
         }
-        
+
         /*
          * Get: groupID , PIN , secret
-         * return LoginResponse
+         * return UserResponse
          * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
          */
-        public LoginResponse LoginWithPIN(int groupID, string PIN, string secret)
+        public UserResponse LoginWithPIN(int groupID, string PIN, string secret)
         {
-            LoginResponse response = new LoginResponse();
+            UserResponse response = new UserResponse();
             try
             {
                 //Try to get users by PIN from DB 
@@ -920,7 +920,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                response = new LoginResponse();
+                response = new UserResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
                 Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
             }
