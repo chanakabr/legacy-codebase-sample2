@@ -1796,13 +1796,14 @@ namespace DAL
             }
         }
 
-        public static bool PinCodeExsits(int groupID, string newPIN)
+        public static bool PinCodeExsits(int groupID, string newPIN, DateTime expired_date)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("PinCodeExsits");
+                StoredProcedure sp = new StoredProcedure("PinCodeExsits");  
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@newPIN", newPIN);
+                sp.AddParameter("@expired_date", expired_date);
                 bool res = sp.ExecuteReturnValue<bool>();
                 return res;
             }

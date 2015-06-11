@@ -816,7 +816,7 @@ namespace Users
                     //The generated PIN should always be 10 digits (number only)
                     sNewPIN = AddUniqueCode(length);
                     //The PIN should be unique - if exsits create NEW one
-                    codeExsits = UsersDal.PinCodeExsits(groupID, sNewPIN);
+                    codeExsits = UsersDal.PinCodeExsits(groupID, sNewPIN, DateTime.UtcNow);
                 }
                 finally
                 {
@@ -1009,7 +1009,7 @@ namespace Users
                 if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                 {
                     //The PIN should be verified to be unique (among all active PINs)
-                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN);
+                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);  
                     if (codeExsits)
                     {                        
                         response = new ApiObjects.Response.Status((int)eResponseStatus.PinExists, "PinExists Try new PIN code");
@@ -1071,7 +1071,7 @@ namespace Users
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exsits for user");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exists for user");
                 }
             }
             catch (Exception ex)
