@@ -2425,6 +2425,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2443,6 +2444,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="ruleId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2605,6 +2607,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2622,6 +2625,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3669,6 +3673,7 @@
     <wsdl:part name="userName" type="s:string" />
     <wsdl:part name="password" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserParentalRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
@@ -3679,6 +3684,7 @@
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="ruleId" type="s:string" />
     <wsdl:part name="isActive" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetUserParentalRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
@@ -3755,6 +3761,7 @@
     <wsdl:part name="password" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="pin" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ValidateParentalPINHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
@@ -3764,6 +3771,7 @@
     <wsdl:part name="password" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="pin" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ValidatePurchasePINHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />

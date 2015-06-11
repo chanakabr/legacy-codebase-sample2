@@ -3243,28 +3243,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetUserParentalRules(string userName, string password, string siteGuid) {
+        public ParentalRulesResponse GetUserParentalRules(string userName, string password, string siteGuid, int domainId) {
             object[] results = this.Invoke("GetUserParentalRules", new object[] {
                         userName,
                         password,
-                        siteGuid});
+                        siteGuid,
+                        domainId});
             return ((ParentalRulesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid) {
-            this.GetUserParentalRulesAsync(userName, password, siteGuid, null);
+        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId) {
+            this.GetUserParentalRulesAsync(userName, password, siteGuid, domainId, null);
         }
         
         /// <remarks/>
-        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, object userState) {
+        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId, object userState) {
             if ((this.GetUserParentalRulesOperationCompleted == null)) {
                 this.GetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserParentalRulesOperationCompleted);
             }
             this.InvokeAsync("GetUserParentalRules", new object[] {
                         userName,
                         password,
-                        siteGuid}, this.GetUserParentalRulesOperationCompleted, userState);
+                        siteGuid,
+                        domainId}, this.GetUserParentalRulesOperationCompleted, userState);
         }
         
         private void OnGetUserParentalRulesOperationCompleted(object arg) {
@@ -3276,23 +3278,24 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetUserParentalRules(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive) {
+        public Status SetUserParentalRules(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
             object[] results = this.Invoke("SetUserParentalRules", new object[] {
                         userName,
                         webServicePassword,
                         siteGuid,
                         ruleId,
-                        isActive});
+                        isActive,
+                        domainId});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive) {
-            this.SetUserParentalRulesAsync(userName, webServicePassword, siteGuid, ruleId, isActive, null);
+        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
+            this.SetUserParentalRulesAsync(userName, webServicePassword, siteGuid, ruleId, isActive, domainId, null);
         }
         
         /// <remarks/>
-        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, object userState) {
+        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId, object userState) {
             if ((this.SetUserParentalRulesOperationCompleted == null)) {
                 this.SetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserParentalRulesOperationCompleted);
             }
@@ -3301,7 +3304,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         webServicePassword,
                         siteGuid,
                         ruleId,
-                        isActive}, this.SetUserParentalRulesOperationCompleted, userState);
+                        isActive,
+                        domainId}, this.SetUserParentalRulesOperationCompleted, userState);
         }
         
         private void OnSetUserParentalRulesOperationCompleted(object arg) {
@@ -3566,22 +3570,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidateParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ValidateParentalPIN(string userName, string password, string siteGuid, string pin) {
+        public Status ValidateParentalPIN(string userName, string password, string siteGuid, string pin, int domainId) {
             object[] results = this.Invoke("ValidateParentalPIN", new object[] {
                         userName,
                         password,
                         siteGuid,
-                        pin});
+                        pin,
+                        domainId});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin) {
-            this.ValidateParentalPINAsync(userName, password, siteGuid, pin, null);
+        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
+            this.ValidateParentalPINAsync(userName, password, siteGuid, pin, domainId, null);
         }
         
         /// <remarks/>
-        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, object userState) {
+        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
             if ((this.ValidateParentalPINOperationCompleted == null)) {
                 this.ValidateParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateParentalPINOperationCompleted);
             }
@@ -3589,7 +3594,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         userName,
                         password,
                         siteGuid,
-                        pin}, this.ValidateParentalPINOperationCompleted, userState);
+                        pin,
+                        domainId}, this.ValidateParentalPINOperationCompleted, userState);
         }
         
         private void OnValidateParentalPINOperationCompleted(object arg) {
@@ -3601,22 +3607,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidatePurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin) {
+        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin, int domainId) {
             object[] results = this.Invoke("ValidatePurchasePIN", new object[] {
                         userName,
                         password,
                         siteGuid,
-                        pin});
+                        pin,
+                        domainId});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin) {
-            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, null);
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
+            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, domainId, null);
         }
         
         /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, object userState) {
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
             if ((this.ValidatePurchasePINOperationCompleted == null)) {
                 this.ValidatePurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidatePurchasePINOperationCompleted);
             }
@@ -3624,7 +3631,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         userName,
                         password,
                         siteGuid,
-                        pin}, this.ValidatePurchasePINOperationCompleted, userState);
+                        pin,
+                        domainId}, this.ValidatePurchasePINOperationCompleted, userState);
         }
         
         private void OnValidatePurchasePINOperationCompleted(object arg) {
