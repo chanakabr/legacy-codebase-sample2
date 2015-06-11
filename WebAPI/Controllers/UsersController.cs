@@ -655,7 +655,10 @@ namespace WebAPI.Controllers
         }
 
 
-        /// <summary>SetUserData</summary>
+        /// <summary>SetUserData </br>
+        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025
+        /// 
+        /// </summary>
         /// <param name="group_id">Group ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
         /// <remarks></remarks>
