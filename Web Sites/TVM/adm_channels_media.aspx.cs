@@ -112,7 +112,7 @@ public partial class adm_channels_media : System.Web.UI.Page
 
         if (!isAutoChannel)
         {
-            theTable += "and cm.media_id=m.ID";
+            theTable += " and m.id = cm.MEDIA_ID ";
         }
 
         string s_orderBy = GetOrderByStr(orderBy);
@@ -331,8 +331,6 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     private string GetMediaIdsFromCatalog(int channelID)
     {
-        
-
         string mediaIDs = "0";
         try
         {
