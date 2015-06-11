@@ -57,6 +57,8 @@ namespace Catalog.Response
         public string m_sLastWatchedDevice;
         [DataMember]
         public string m_sSiteUserGuid;
+        [DataMember]
+        public string EntryId;
         
         public MediaObj() : base()
         {

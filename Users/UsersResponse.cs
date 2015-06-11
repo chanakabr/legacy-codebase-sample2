@@ -6,22 +6,21 @@ using System.Text;
 
 namespace Users
 {
-    public class LoginResponse
+    public class UsersResponse
     {
         public ApiObjects.Response.Status resp { get; set; }
-        public UserResponseObject user { get; set; }
+        public List<UserResponseObject> users { get; set; }
 
-        public LoginResponse()
+        public UsersResponse()
         {
             resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
-            user = new UserResponseObject();
+            users = new List<UserResponseObject>();
         }
 
-        public LoginResponse(ApiObjects.Response.Status resp, UserResponseObject user)
+        public UsersResponse(ApiObjects.Response.Status resp, List<UserResponseObject> users)
         {
             this.resp = resp;
-            this.user = user;
+            this.users = users;
         }
-
     }
 }

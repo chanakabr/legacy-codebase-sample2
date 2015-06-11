@@ -4,17 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using DAL;
+using Logger;
 using ApiObjects;
 using ApiObjects.Statistics;
 using ApiObjects.Response;
-using KLogMonitor;
-using System.Reflection;
 
 namespace Users
 {
     public abstract class BaseUsers
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const int PIN_NUMBER_OF_DIGITS = 10;
         public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
         public const int PIN_MAX_NUMBER_OF_DIGITS = 10;
@@ -90,7 +88,6 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
                 return false;
             }
         }
@@ -113,14 +110,14 @@ namespace Users
                     bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
                     if (!bRes)
-                        log.Debug("WriteFavoriteToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
+                        Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
                 }
 
                 return bRes;
             }
             catch (Exception ex)
             {
-                log.Error("WriteFavoriteToES" + string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
+                Logger.Logger.Log("WriteFavoriteToES", string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), "Users");
                 return false;
             }
         }
@@ -495,7 +492,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("AddItemToList exception = " + ex.Message, ex);
+                Logger.Logger.Log("AddItemToList", "exception =  " + ex.Message, "BaseUsers");
                 return false;
             }
         }
@@ -535,7 +532,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("RemoveItemFromList - exception =  " + ex.Message, ex);
+                Logger.Logger.Log("RemoveItemFromList", "exception =  " + ex.Message, "BaseUsers");
                 return false;
             }
         }
@@ -576,7 +573,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("UpdateItemInList - exception =  " + ex.Message, ex);
+                Logger.Logger.Log("UpdateItemInList", "exception =  " + ex.Message, "BaseUsers");
                 return false;
             }
         }
@@ -637,7 +634,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("GetItemFromList - exception =  " + ex.Message, ex);
+                Logger.Logger.Log("GetItemFromList", "exception =  " + ex.Message, "BaseUsers");
                 return null;
             }
         }
@@ -673,7 +670,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("IsItemExists - exception =  " + ex.Message, ex);
+                Logger.Logger.Log("IsItemExists", "exception =  " + ex.Message, "BaseUsers");
                 return null;
             }
         }
@@ -769,12 +766,12 @@ namespace Users
                 else
                 {
                     response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GetUserData return null");
-                }
+                }   
             }
             catch (Exception ex)
             {
                 response = new PinCodeResponse();
-                log.Error("GenerateLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), ex);
+                Logger.Logger.Log("GenerateLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), "Users");
             }
             return response;
         }
@@ -819,7 +816,7 @@ namespace Users
                     //The generated PIN should always be 10 digits (number only)
                     sNewPIN = AddUniqueCode(length);
                     //The PIN should be unique - if exsits create NEW one
-                    codeExsits = UsersDal.PinCodeExsits(groupID, sNewPIN);
+                    codeExsits = UsersDal.PinCodeExsits(groupID, sNewPIN, DateTime.UtcNow);
                 }
                 finally
                 {
@@ -868,15 +865,61 @@ namespace Users
             response = new ApiObjects.Response.Status();
             return true;
         }
-
+        private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
+        {   
+            int userId = 0;            
+            bool parse = int.TryParse(siteGuid, out userId);
+            bool isUserValid = false;
+            UserActivationState activStatus = new UserActivationState();            
+            
+            if (parse)
+            {
+                List<int> groupIdList = UtilsDal.GetAllRelatedGroups(groupID);
+                List<int> groupIdArray = groupIdList.Select(g => g).ToList();
+                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
+            }
+            if (userId <= 0)
+                response = new ApiObjects.Response.Status((int)eResponseStatus.WrongPasswordOrUserName, "user not valid");
+            else
+            {
+                switch (activStatus)
+                {
+                    case UserActivationState.Activated:
+                    case UserActivationState.UserWIthNoDomain:
+                    case UserActivationState.UserRemovedFromDomain:
+                    case UserActivationState.NotActivated: 
+                    case UserActivationState.NotActivatedByMaster:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "user valid");
+                        isUserValid = true;
+                        break;
+                    case UserActivationState.Error:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        break;
+                    case UserActivationState.UserDoesNotExist:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "user not valid");
+                        break;                    
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "user not valid");
+                        //break;                   
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotMasterApproved, "user not valid");
+                        //break;
+                    case UserActivationState.UserSuspended:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "user not valid");
+                        break;
+                    default:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        break;
+                }
+            }
+            return isUserValid;
+        }
         /*
          * Get: groupID , PIN , secret
-         * return LoginResponse
+         * return UserResponse
          * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
          */
-        public LoginResponse LoginWithPIN(int groupID, string PIN, string secret)
+        public UserResponse LoginWithPIN(int groupID, string PIN, string secret)
         {
-            LoginResponse response = new LoginResponse();
+            UserResponse response = new UserResponse();
             try
             {
                 //Try to get users by PIN from DB 
@@ -923,9 +966,9 @@ namespace Users
             }
             catch (Exception ex)
             {
-                response = new LoginResponse();
+                response = new UserResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
-                log.Error("SignInWithPIN - " + string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), ex);
+                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
             }
             return response;
         }
@@ -946,6 +989,13 @@ namespace Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
+                // check if user is valid 
+                string userName = string.Empty;
+                bool userStatus = IsUserValid(groupID, siteGuid, out response);
+                if (!userStatus)
+                {
+                    return response;
+                }
                 // chaeck validation of PIN code
                 bool isValidPin = isValidPIN(PIN, out response);
                 if (!isValidPin)
@@ -959,9 +1009,9 @@ namespace Users
                 if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                 {
                     //The PIN should be verified to be unique (among all active PINs)
-                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN);
+                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);  
                     if (codeExsits)
-                    {
+                    {                        
                         response = new ApiObjects.Response.Status((int)eResponseStatus.PinExists, "PinExists Try new PIN code");
                     }
                     else
@@ -981,7 +1031,7 @@ namespace Users
                 }
                 else if (!loginViaPin)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "LoginViaPinNotAllowed");
+                  response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "LoginViaPinNotAllowed");
                 }
                 else // security must be provided
                 {
@@ -991,7 +1041,7 @@ namespace Users
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
-                log.Error("SetLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, PIN={2}, groupID ={3}, ", ex.Message, siteGuid, PIN, groupID), ex);
+                Logger.Logger.Log("SetLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, PIN={2}, groupID ={3}, ", ex.Message, siteGuid, PIN, groupID), "Users");
             }
             return response;
         }
@@ -1006,6 +1056,14 @@ namespace Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
+                // check if user is valid 
+                string userName = string.Empty;
+                bool userStatus = IsUserValid(groupID, siteGuid, out response);
+                if (!userStatus)
+                {
+                    return response;
+                }
+
                 bool expirePIN = UsersDal.ExpirePINByUserID(groupID, siteGuid);
                 if (expirePIN)
                 {
@@ -1013,13 +1071,13 @@ namespace Users
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exsits for user");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exists for user");
                 }
             }
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
-                log.Error("ClearLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), ex);
+                Logger.Logger.Log("ClearLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), "Users");
             }
             return response;
         }

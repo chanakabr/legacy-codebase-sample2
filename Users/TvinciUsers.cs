@@ -502,6 +502,13 @@ namespace Users
         {
             UserResponseObject resp = new UserResponseObject();
             User u = new User();
+            // if username or password empty return with WrongPasswordOrUserName response
+            if (string.IsNullOrEmpty(oBasicData.m_sUserName) || string.IsNullOrEmpty(sPassword))
+            {
+                resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
+                return resp;
+            }
+
             if (!string.IsNullOrEmpty(oBasicData.m_sUserName) && oBasicData.m_sUserName.ToLower().Contains("anonymous"))
             {
                 oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());

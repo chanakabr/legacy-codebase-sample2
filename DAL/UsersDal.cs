@@ -1796,13 +1796,14 @@ namespace DAL
             }
         }
 
-        public static bool PinCodeExsits(int groupID, string newPIN)
+        public static bool PinCodeExsits(int groupID, string newPIN, DateTime expired_date)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("PinCodeExsits");
+                StoredProcedure sp = new StoredProcedure("PinCodeExsits");  
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@newPIN", newPIN);
+                sp.AddParameter("@expired_date", expired_date);
                 bool res = sp.ExecuteReturnValue<bool>();
                 return res;
             }
@@ -1920,6 +1921,54 @@ namespace DAL
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// GetUserActivationState
+        /// </summary>
+        /// <param name="arrGroupIDs"></param>
+        /// <param name="nActivationMustHours"></param>
+        /// <param name="sUserName"></param>
+        /// <param name="nUserID"></param>
+        /// <param name="nActivateStatus"></param>
+        /// <param name="dCreateDate"></param>
+        /// <param name="dNow"></param>
+        /// <returns>
+        ///     -2 - error
+        ///     -1 - user does not exist or was removed/deactivated   
+        ///      0 - user activated 
+        ///      1 - user not activated 
+        ///      2 - user not activated by master
+        ///      3 - user removed from domain
+        ///      
+        /// </returns>
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, List<int> lGroupIDs, int nActivationMustHours, int nUserID)
+        {
+            DALUserActivationState res = DALUserActivationState.Error;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");                
+                sp.AddParameter("@Id", nUserID);
+                sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");
+                sp.AddParameter("@ActivationMustHours", nActivationMustHours);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int nSPReault = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATE");
+                    if (Enum.IsDefined(typeof(DALUserActivationState), nSPReault))
+                    {
+                        res = (DALUserActivationState)nSPReault;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return res;
         }
     } 
 }

@@ -927,6 +927,9 @@ namespace ElasticSearch.Searcher
 
             sortBuilder.Append(", \"_uid\"");
 
+            // Always add sort by _uid to avoid ES weirdness of same sort-value 
+            sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+
             sortBuilder.Append(" ]");
 
             return sortBuilder.ToString();

@@ -467,6 +467,7 @@ namespace Catalog
                     {
                         result = true;
                         oMediaObj.AssetId = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID").ToString();
+                        oMediaObj.EntryId = Utils.GetStrSafeVal(dtMedia.Rows[0], "ENTRY_ID");
                         if (!bIsMainLang)
                         {
                             oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateName");
