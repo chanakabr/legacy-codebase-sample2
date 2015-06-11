@@ -592,7 +592,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\GroupController.cs" />
+    <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\Category.cs" />
@@ -609,6 +609,7 @@
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />
+    <Compile Include="Models\Users\UserData.cs" />
     <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
@@ -739,6 +740,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Users\UserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UsersResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
