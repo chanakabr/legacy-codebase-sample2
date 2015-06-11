@@ -422,11 +422,41 @@ namespace WebAPI.Clients
             return users;
         }
 
+        public Models.Users.User SetUserData(int groupId, string siteGuid, Models.Users.UserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data)
+        {
+            WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
+            WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
 
+            WebAPI.Models.Users.User user = null;
+            UserResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
 
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.SetUser(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuid, userBasicData, userDynamicData);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Login. siteGuid: {0}, exception: {1}", siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
 
-        
+            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
+
+            return user;
+        }
     }
 }

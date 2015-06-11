@@ -654,6 +654,51 @@ namespace WebAPI.Controllers
           
         }
 
+
+        /// <summary>SetUserData</summary>
+        /// <param name="group_id">Group ID</param>
+        /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
+        /// <remarks></remarks>
+        /// <returns>WebAPI.Models.User</returns>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route(""), HttpPut]
+        //[ApiAuthorize()]       
+        public User SetUserData([FromUri] string group_id, UserData user_data)
+        {           
+            User response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no data to set");
+            }
+            if (string.IsNullOrEmpty(user_data.siteGuid))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no siteGuid");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().SetUserData(groupId, user_data.siteGuid ,user_data.userBasicData, user_data.userDynamicData);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+
+        }
+
         #region Parental Rules
 
         /// <summary>

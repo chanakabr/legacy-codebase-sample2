@@ -609,6 +609,7 @@
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\DomainSuspentionState.cs" />
+    <Compile Include="Models\Users\UserData.cs" />
     <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />

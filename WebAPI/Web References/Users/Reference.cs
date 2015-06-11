@@ -175,6 +175,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback GetUsersOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetUserOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -431,6 +433,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event GetUsersCompletedEventHandler GetUsersCompleted;
+        
+        /// <remarks/>
+        public event SetUserCompletedEventHandler SetUserCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3059,6 +3064,43 @@ namespace WebAPI.Users {
             if ((this.GetUsersCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUsersCompleted(this, new GetUsersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetUser", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserResponse SetUser(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData) {
+            object[] results = this.Invoke("SetUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        basicData,
+                        dynamicData});
+            return ((UserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetUserAsync(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData) {
+            this.SetUserAsync(sWSUserName, sWSPassword, siteGUID, basicData, dynamicData, null);
+        }
+        
+        /// <remarks/>
+        public void SetUserAsync(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData, object userState) {
+            if ((this.SetUserOperationCompleted == null)) {
+                this.SetUserOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserOperationCompleted);
+            }
+            this.InvokeAsync("SetUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        basicData,
+                        dynamicData}, this.SetUserOperationCompleted, userState);
+        }
+        
+        private void OnSetUserOperationCompleted(object arg) {
+            if ((this.SetUserCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetUserCompleted(this, new SetUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6191,6 +6233,32 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UsersResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetUserCompletedEventHandler(object sender, SetUserCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserResponse)(this.results[0]));
             }
         }
     }
