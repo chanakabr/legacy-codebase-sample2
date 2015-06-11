@@ -432,6 +432,33 @@ namespace WebAPI.Clients
             return result;
         }
 
+        
+        //public List<WebAPI.Models.Catalog.Channel> GetAssetsStats(int groupID, string siteGuid, int channelId)
+        //{
+        //    List<AssetStats> result = null;
+        //    ChannelRequest request = new ChannelRequest()
+        //    {
+        //        m_sSignature = Signature,
+        //        m_sSignString = SignString,
+        //        m_sSiteGuid = siteGuid,
+        //        m_nGroupID = groupID,
+        //        m_sUserIP = Utils.Utils.GetClientIP(),
+        //        m_nChannelID = channelId,
+        //    };
+
+        //    ChannelResponse response = null;
+        //    if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
+        //    {
+        //        result = response. != null ?
+        //            Mapper.Map<List<AssetStats>>(response.m_lAssetStat) : null;
+        //    }
+        //    else
+        //    {
+        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //    }
+
+        //    return result;
+        //}
 
         //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
         //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)

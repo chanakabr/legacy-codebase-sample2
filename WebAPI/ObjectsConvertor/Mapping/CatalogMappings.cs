@@ -99,6 +99,21 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.Epg));
+
+            //channelObj to Channel
+            Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.Channel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
+                .ForMember(dest => dest.EditorRemarks, opt => opt.MapFrom(src => src.m_sEditorRemarks))
+                .ForMember(dest => dest.LinearStartTime, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dLinearStartTime)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic));
+
+
+            //Channel (Catalog) to Channel
+            Mapper.CreateMap<WebAPI.Catalog.Channel, WebAPI.Models.Catalog.Channel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
         }
 
         private static int GetPictureWidth(string size)
