@@ -23,6 +23,7 @@ namespace KLogMonitor
 
         public enum eDBQueryType
         {
+            UNKNOWN,
             SELECT,
             UPDATE,
             INSERT,
