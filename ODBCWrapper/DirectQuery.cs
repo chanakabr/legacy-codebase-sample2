@@ -37,7 +37,13 @@ namespace ODBCWrapper
                 if (con.State != System.Data.ConnectionState.Open)
                     con.Open();
                 command.Connection = con;
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
+
+                string dbInfo = string.Format("{0}:{1}:{2}",
+                         command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
+                         command.CommandType.ToString(),                                                                                 // 1
+                         command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.UNKNOWN })
                 {
                     command.ExecuteNonQuery();
                 }
@@ -67,7 +73,13 @@ namespace ODBCWrapper
                     con.Open();
                     SetLockTimeOut(con);
                     command.Connection = con;
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.SELECT })
+
+                    string dbInfo = string.Format("{0}:{1}:{2}",
+                        command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
+                        command.CommandType.ToString(),                                                                                 // 1
+                        command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
+
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.UNKNOWN })
                     {
                         command.ExecuteNonQuery();
                     }

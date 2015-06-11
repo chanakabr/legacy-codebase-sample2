@@ -271,7 +271,13 @@ namespace ODBCWrapper
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.CommandText = "SP_Reset_Connection";
                         command.Connection = con;
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = command.Connection.Database, QueryType = Events.eDBQueryType.UPDATE, Table = "SP_Reset_Connection" })
+
+                        string dbInfo = string.Format("{0}:{1}:{2}",
+                              command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
+                              command.CommandType.ToString(),                                                                                 // 1
+                              command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
+
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.UNKNOWN })
                         {
                             int res = command.ExecuteNonQuery();
                         }
