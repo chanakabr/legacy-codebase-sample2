@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the parental rules that applies to the domain. Can include rules that have been associated in account or domain
         /// </summary>
-        /// <param name="user_id">Domain Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
         /// <param name="group_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -182,8 +182,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/parental_pin/"), HttpPost]
-        public bool SetParentalPIN([FromUri] string group_id, [FromUri] int domain_id, string pin)
+        [Route("{domain_id}/parental_pin/{pin}"), HttpPost]
+        public bool SetParentalPIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;
 
@@ -260,8 +260,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase_settings/"), HttpPost]
-        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, int setting)
+        [Route("{domain_id}/purchase_settings/{setting}"), HttpPost]
+        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int setting)
         {
             bool success = false;
 
@@ -338,8 +338,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase_pin/"), HttpPost]
-        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id, string pin)
+        [Route("{domain_id}/purchase_pin/{pin}"), HttpPost]
+        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;
 
