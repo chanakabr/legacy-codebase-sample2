@@ -865,7 +865,53 @@ namespace Users
             response = new ApiObjects.Response.Status();
             return true;
         }
-
+        private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
+        {   
+            int userId = 0;            
+            bool parse = int.TryParse(siteGuid, out userId);
+            bool isUserValid = false;
+            UserActivationState activStatus = new UserActivationState();            
+            
+            if (parse)
+            {
+                List<int> groupIdList = UtilsDal.GetAllRelatedGroups(groupID);
+                List<int> groupIdArray = groupIdList.Select(g => g).ToList();
+                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
+            }
+            if (userId <= 0)
+                response = new ApiObjects.Response.Status((int)eResponseStatus.WrongPasswordOrUserName, "user not valid");
+            else
+            {
+                switch (activStatus)
+                {
+                    case UserActivationState.Activated:
+                    case UserActivationState.UserWIthNoDomain:
+                    case UserActivationState.UserRemovedFromDomain:
+                    case UserActivationState.NotActivated: 
+                    case UserActivationState.NotActivatedByMaster:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "user valid");
+                        isUserValid = true;
+                        break;
+                    case UserActivationState.Error:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        break;
+                    case UserActivationState.UserDoesNotExist:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "user not valid");
+                        break;                    
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "user not valid");
+                        //break;                   
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotMasterApproved, "user not valid");
+                        //break;
+                    case UserActivationState.UserSuspended:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "user not valid");
+                        break;
+                    default:
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        break;
+                }
+            }
+            return isUserValid;
+        }
         /*
          * Get: groupID , PIN , secret
          * return UserResponse
@@ -943,6 +989,13 @@ namespace Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
+                // check if user is valid 
+                string userName = string.Empty;
+                bool userStatus = IsUserValid(groupID, siteGuid, out response);
+                if (!userStatus)
+                {
+                    return response;
+                }
                 // chaeck validation of PIN code
                 bool isValidPin = isValidPIN(PIN, out response);
                 if (!isValidPin)
@@ -1003,6 +1056,14 @@ namespace Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
+                // check if user is valid 
+                string userName = string.Empty;
+                bool userStatus = IsUserValid(groupID, siteGuid, out response);
+                if (!userStatus)
+                {
+                    return response;
+                }
+
                 bool expirePIN = UsersDal.ExpirePINByUserID(groupID, siteGuid);
                 if (expirePIN)
                 {
