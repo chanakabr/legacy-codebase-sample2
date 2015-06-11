@@ -173,6 +173,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback CheckPasswordTokenOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUsersOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -426,6 +428,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event CheckPasswordTokenCompletedEventHandler CheckPasswordTokenCompleted;
+        
+        /// <remarks/>
+        public event GetUsersCompletedEventHandler GetUsersCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3025,6 +3030,39 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUsers", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsersResponse GetUsers(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
+            object[] results = this.Invoke("GetUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUIDs});
+            return ((UsersResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
+            this.GetUsersAsync(sWSUserName, sWSPassword, sSiteGUIDs, null);
+        }
+        
+        /// <remarks/>
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, object userState) {
+            if ((this.GetUsersOperationCompleted == null)) {
+                this.GetUsersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsersOperationCompleted);
+            }
+            this.InvokeAsync("GetUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUIDs}, this.GetUsersOperationCompleted, userState);
+        }
+        
+        private void OnGetUsersOperationCompleted(object arg) {
+            if ((this.GetUsersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUsersCompleted(this, new GetUsersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3632,11 +3670,11 @@ namespace WebAPI.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class UserResponse {
+    public partial class UsersResponse {
         
         private Status respField;
         
-        private UserResponseObject userField;
+        private UserResponseObject[] usersField;
         
         /// <remarks/>
         public Status resp {
@@ -3649,12 +3687,12 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
-        public UserResponseObject user {
+        public UserResponseObject[] users {
             get {
-                return this.userField;
+                return this.usersField;
             }
             set {
-                this.userField = value;
+                this.usersField = value;
             }
         }
     }
@@ -3688,6 +3726,39 @@ namespace WebAPI.Users {
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserResponse {
+        
+        private Status respField;
+        
+        private UserResponseObject userField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserResponseObject user {
+            get {
+                return this.userField;
+            }
+            set {
+                this.userField = value;
             }
         }
     }
@@ -6094,6 +6165,32 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UserResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUsersCompletedEventHandler(object sender, GetUsersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUsersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUsersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsersResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsersResponse)(this.results[0]));
             }
         }
     }

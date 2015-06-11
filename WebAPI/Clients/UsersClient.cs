@@ -385,6 +385,41 @@ namespace WebAPI.Clients
             return true;
         }
 
+        public List<Models.Users.User> GetUsersData(int groupId, List<int> usersIds)
+        {
+            List<WebAPI.Models.Users.User> users = null;
+            UsersResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    List<string> siteGuids = usersIds.Select(x => x.ToString()).ToList();
+                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuids.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SignUp.  exception: {0}, ", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.users == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            users = Mapper.Map<List<WebAPI.Models.Users.User>>(response.users);
+
+            return users;
+        }
+
 
 
 

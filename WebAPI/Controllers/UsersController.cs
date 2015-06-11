@@ -267,41 +267,41 @@ namespace WebAPI.Controllers
             return PostWatchHistory(group_id, user_id, request, language);
         }
 
-        /// <summary>
-        /// Retrieving users' data
-        /// </summary>
-        /// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
-        /// <remarks></remarks>
-        /// <returns>WebAPI.Models.User</returns>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
-        [Route("{ids}"), HttpGet]
-        //[ApiAuthorize()]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public List<ClientUser> GetUsersData(string ids)
-        {
-            var c = new Users.UsersService();
+        ///// <summary>
+        ///// Retrieving users' data
+        ///// </summary>
+        ///// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        ///// <remarks></remarks>
+        ///// <returns>WebAPI.Models.User</returns>
+        ///// <response code="200">OK</response>
+        ///// <response code="400">Bad request</response>
+        ///// <response code="500">Internal Server Error</response>
+        //[Route("{ids}"), HttpGet]
+        ////[ApiAuthorize()]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //public List<ClientUser> GetUsersData(string ids)
+        //{
+        //    var c = new Users.UsersService();
 
-            //XXX: Example of using the unmasking
-            string[] unmaskedIds = null;
-            try
-            {
-                unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
-            }
-            catch
-            {
-                /*
-                 * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
-                 * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
-                */
-                throw new BadRequestException();
-            }
+        //    //XXX: Example of using the unmasking
+        //    string[] unmaskedIds = null;
+        //    try
+        //    {
+        //        unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
+        //    }
+        //    catch
+        //    {
+        //        /*
+        //         * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
+        //         * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
+        //        */
+        //        throw new BadRequestException();
+        //    }
 
-            var res = c.GetUsersData("users_215", "11111", unmaskedIds);
-            List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
-            return dto;
-        }
+        //    var res = c.GetUsersData("users_215", "11111", unmaskedIds);
+        //    List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
+        //    return dto;
+        //}
 
         /// <summary>
         /// Create new user
@@ -602,7 +602,57 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Retrieving users' data
+        /// </summary>
+        /// <param name="group_id">Group ID</param>
+        /// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        /// <remarks></remarks>
+        /// <returns>List<WebAPI.Models.User></returns>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("data/{ids}"), HttpGet]
+        //[ApiAuthorize()]       
+        public List<User> GetUsersData([FromUri] string group_id, string ids)
+        {
+            List<int> usersIds;
+            try
+            {
+                usersIds = ids.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
+            }
+            catch
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each user id must be int");
+            }
 
+            List<User> response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (usersIds == null || usersIds.Count == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user id in list");
+            }            
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().GetUsersData(groupId, usersIds);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+          
+        }
 
         #region Parental Rules
 
