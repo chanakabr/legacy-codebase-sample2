@@ -30,20 +30,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
-        /// <summary1>
-        /// Editor remarks for the channel
-        /// </summary>
-        [DataMember(Name = "editor_remarks")]
-        [JsonProperty(PropertyName = "editor_remarks")]
-        public string EditorRemarks { get; set; }
-
-        /// <summary1>
-        /// Linear start time
-        /// </summary>
-        [DataMember(Name = "linear_start_time")]
-        [JsonProperty(PropertyName = "linear_start_time")]
-        public long LinearStartTime { get; set; }
-
         /// <summary>
         /// Channel images 
         /// </summary>

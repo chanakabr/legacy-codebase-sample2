@@ -303,18 +303,18 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Assets = CatalogUtils.GetMediaByIds(client, mediaIdsResponse, request, cacheDuration, with);
+                result.Assets = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
                 result.TotalItems = mediaIdsResponse.m_nTotalItems;
             }
             return result;
         }
 
-        public static List<AssetInfo> GetMediaByIds(IserviceClient client, MediaIdsResponse mediaIdsResponse, BaseRequest request, int cacheDuration, List<With> with)
+        public static List<AssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<With> with)
         {
             List<AssetInfo> result = null;
 
             // get base objects list
-            List<BaseObject> assetsBaseDataList = mediaIdsResponse.m_nMediaIds.Select(x => new BaseObject()
+            List<BaseObject> assetsBaseDataList = mediaIds.Select(x => new BaseObject()
             {
                 AssetId = x.assetID.ToString(),
                 AssetType = eAssetTypes.MEDIA,

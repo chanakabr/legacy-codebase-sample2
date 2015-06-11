@@ -104,8 +104,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
             Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.Channel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
-                .ForMember(dest => dest.EditorRemarks, opt => opt.MapFrom(src => src.m_sEditorRemarks))
-                .ForMember(dest => dest.LinearStartTime, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dLinearStartTime)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic));
 
 
@@ -114,6 +112,15 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
+
+            //CategoryResponse to Category
+            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.Category>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
+                .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.m_nParentCategoryID))
+                .ForMember(dest => dest.ChildCategories, opt => opt.MapFrom(src => src.m_oChildCategories))
+                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_oChannels))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
         }
 
         private static int GetPictureWidth(string size)
