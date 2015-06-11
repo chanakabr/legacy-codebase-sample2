@@ -543,17 +543,12 @@ namespace ExcelFeeder
         private DataSet GetExcelWorkSheet(string pathName, string fileName, int workSheetNumber)
         {
             try
-            {
-                List<string> rangeColumns = new List<string>();
+            {  
                 int rowNum = TVinciShared.WS_Utils.GetTcmIntValue("EXCEL_MAX_ROW");               
                 if (rowNum == 0)
                 {
                     rowNum = ROW_MAX;
                 }
-                rangeColumns.Add(string.Format("{0}1:{1}{2}","A","IT", rowNum));
-                rangeColumns.Add(string.Format("{0}1:{1}{2}", "IU", "SN", rowNum));
-                rangeColumns.Add(string.Format("{0}1:{1}{2}", "SO", "ACH", rowNum));
-                rangeColumns.Add(string.Format("{0}1:{1}{2}", "ACI", "AMB", rowNum));
 
                 OleDbConnection ExcelConnection = new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + pathName + @"\" + fileName + ";Extended Properties=\"Excel 12.0 Xml;HDR=YES;IMEX=1\"");
                 OleDbCommand ExcelCommand = new OleDbCommand();
@@ -562,11 +557,13 @@ namespace ExcelFeeder
 
                 ExcelConnection.Open();
                 DataTable ExcelSheets = ExcelConnection.GetOleDbSchemaTable(System.Data.OleDb.OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-
-                string SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumns[0] + "]";
+                
+                int i = 0;
+                string rangeColumn = CalacRrangeColumns(i, rowNum);
+                string SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumn + "]";
                 DataSet ExcelDataSet = new DataSet();
                 bool keepRead = true;
-                int i = 0;
+                
                 while (keepRead)
                 {
                     ExcelCommand.CommandText = @"SELECT * FROM " + SpreadSheetName;
@@ -590,7 +587,8 @@ namespace ExcelFeeder
                         {
                             // get ranges 
                             i++;
-                            SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumns[i] + "]"; 
+                            rangeColumn = CalacRrangeColumns(i, rowNum);
+                            SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumn + "]"; 
                         }
                     }
                     catch (OleDbException oleException)
@@ -621,6 +619,38 @@ namespace ExcelFeeder
                 return null;
             }
         }
+        private static string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = String.Empty;
+            int modulo;
+
+            while (dividend > 0)
+            {
+                modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
+        }
+
+        private string CalacRrangeColumns(int index, int rowNum)
+        {
+            string range = string.Empty;
+            try
+            {
+                 int columnnum =  COLUMN_MAX;
+                 string from = GetExcelColumnName(index * columnnum + 1);
+                 string to = GetExcelColumnName((index * columnnum) + columnnum);
+                 range = string.Format("{0}1:{1}{2}", from, to, rowNum);                 
+            }
+            catch (Exception)
+            {
+                range = string.Empty;
+            }
+            return range;
+        }
 
         public static DataTable MergeAll(IList<DataTable> tables, String primaryKeyColumn)
         {
@@ -635,15 +665,6 @@ namespace ExcelFeeder
                         if (!t.Columns.Contains(primaryKeyColumn))
                             throw new ArgumentException("All tables must have the specified primarykey column " + primaryKeyColumn, "primaryKeyColumn");
 
-                if (tables.Count == 1)
-                {
-                    // remove primaryKeyColumn                    
-                    table = tables[0];
-                    table.Columns.Remove(primaryKeyColumn);
-                    return table;
-                }
-
-                
                 table.BeginLoadData(); // Turns off notifications, index maintenance, and constraints while loading data
                 foreach (DataTable t in tables)
                 {
