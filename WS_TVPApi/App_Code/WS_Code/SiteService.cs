@@ -1671,7 +1671,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserParentalRules(userGuid);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserParentalRules(userGuid, initObj.DomainID);
                 }
                 catch (Exception ex)
                 {
