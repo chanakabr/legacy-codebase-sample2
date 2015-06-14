@@ -256,7 +256,10 @@
     <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\module.disco" />
+    <Content Include="Web References\ConditionalAccess\Entitlement.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -383,7 +386,7 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </Content>
-    <Content Include="Web References\ConditionalAccess\module.wsdl" />
+    <None Include="Web References\ConditionalAccess\module.wsdl" />
     <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -405,10 +408,10 @@
     <Content Include="Web References\ConditionalAccess\PrePaidResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\Reference.map">
+    <None Include="Web References\ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\ConditionalAccess\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -601,9 +604,9 @@
     <Compile Include="Models\Catalog\RelatedMedia.cs" />
     <Compile Include="Controllers\DomainsController.cs" />
     <Compile Include="Models\API\ParentalRule.cs" />
-    <Compile Include="Models\Domains\Device.cs" />
-    <Compile Include="Models\Domains\DeviceFamily.cs" />
-    <Compile Include="Models\Domains\Domain.cs" />
+    <Compile Include="Models\ConditionalAccess\Entitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\PaymentMethod.cs" />
+    <Compile Include="Models\ConditionalAccess\TransactionType.cs" />
     <Compile Include="Models\Users\Country.cs" />
     <Compile Include="Models\Users\LogIn.cs" />
     <Compile Include="Models\Users\LoginPin.cs" />
@@ -623,6 +626,7 @@
     <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
     <Compile Include="Managers\ClientManager\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
@@ -757,6 +761,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\Domains\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -787,10 +792,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

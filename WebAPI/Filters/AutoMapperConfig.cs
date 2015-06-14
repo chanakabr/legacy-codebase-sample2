@@ -9,6 +9,7 @@ namespace WebAPI.Exceptions
             UsersMappings.RegisterMappings();
             CatalogMappings.RegisterMappings();
             ApiMappings.RegisterMappings();
+            ConditionalAccessMappings.RegisterMappings();
         }
     }
 }

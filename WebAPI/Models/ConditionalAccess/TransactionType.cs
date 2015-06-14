@@ -5,6 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    [Serializable]
     public enum TransactionType
     {  
         ppv,
