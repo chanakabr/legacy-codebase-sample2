@@ -931,17 +931,30 @@ namespace Users
 
                 if (loginViaPin && dr != null)
                 {
-                    int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
-                    DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
-                    if (DateTime.UtcNow >= expiredDate) // pincode is expired
+                    // check secret 
+                    bool isSecret = true;
+                    if (security)
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired at " + expiredDate.ToString());
+                        isSecret = ODBCWrapper.Utils.ExtractBoolean(dr, "secretValid");
+                    }
+                    if (isSecret)
+                    {
+                        int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
+                        DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+                        if (DateTime.UtcNow >= expiredDate) // pincode is expired
+                        {
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired at " + expiredDate.ToString());
+                        }
+                        else
+                        {
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
+                            response.user = new UserResponseObject();
+                            response.user.m_user = new User(groupID, userId);
+                        }
                     }
                     else
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
-                        response.user = new UserResponseObject();
-                        response.user.m_user = new User(groupID, userId);
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
                     }
                 }
                 else
@@ -949,14 +962,6 @@ namespace Users
                     if (!loginViaPin)
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
-                    }
-                    else if (security && expiredPIN == DateTime.MaxValue)
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
-                    }
-                    else if (expiredPIN != DateTime.MaxValue)
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired");
                     }
                     else
                     {

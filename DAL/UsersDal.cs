@@ -1835,18 +1835,26 @@ namespace DAL
                         security = (nSecurity == 1 ? true : false);
                         loginViaPin = (nLoginViaPin == 1 ? true : false);
                     }
-                    if (ds.Tables.Count > 2 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-                    {
-                        expiredPIN = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[2].Rows[0], "expired_date");
-                    }  
+                    // perfect matched 
                     if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
                         return ds.Tables[1].Rows[0];
                     }
-                    else
+
+                    if (security)
                     {
-                        expiredPIN = DateTime.MaxValue;
+                        //check secret
+                        if (ds.Tables.Count > 2 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                        {
+                            return ds.Tables[1].Rows[0];
+                        }
                     }
+                    //pin not valid
+                    else if (ds.Tables.Count > 3 && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                    {
+                        expiredPIN = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[2].Rows[0], "expired_date");
+                    }  
+                 
                 }
                 return null;
             }
