@@ -6,13 +6,14 @@ using TVinciShared;
 using System.Web;
 using ConditionalAccess.TvinciUsers;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ConditionalAccess
 {
-
-
     public class VoucherCampaignImpl : BaseCampaignActionImpl
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private string m_mailServer;
         private string m_mailPass;
@@ -35,7 +36,7 @@ namespace ConditionalAccess
                 {
                     m.Url = sWSURL;
                 }
-                Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass); 
+                Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 PasswordGenerator p = new PasswordGenerator();
                 p.Maximum = 16;
                 p.Minimum = 12;
@@ -68,11 +69,11 @@ namespace ConditionalAccess
                             {
                                 string voucherMailext = GetVoucherMailText(mediaID, ref mailFrom, ref mailTemplate, sPass, vri, cai, groupID);
                                 SendMail(voucherMailext, vri.m_emailAdd, groupID);
-                                Logger.Logger.Log("Campaigns", "Campaign ID " + camp.m_ID + " Voucher sent to email " + vri.m_emailAdd + " by user " + cai.m_siteGuid.ToString(), "Campaigns");
+                                log.Debug("Campaigns - Campaign ID " + camp.m_ID + " Voucher sent to email " + vri.m_emailAdd + " by user " + cai.m_siteGuid.ToString());
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Campaigns Error", "Campaign Voucher not sent to email " + vri.m_emailAdd, "Campaigns");
+                                log.Error("Campaigns Error - Campaign Voucher not sent to email " + vri.m_emailAdd, ex);
                             }
                         }
                     }
@@ -108,7 +109,7 @@ namespace ConditionalAccess
             }
             selectQuery.Finish();
             selectQuery = null;
-            
+
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("main_connection_string");
             selectQuery += "select mt.name as 'media_type', m.name from media_types mt, media m where mt.id = m.media_type_id and ";
@@ -126,10 +127,10 @@ namespace ConditionalAccess
             selectQuery = null;
 
             string sFirstName = string.Empty;
-           
+
             m_fromName = cai.m_senderName;
             TVinciShared.Mailer t = new TVinciShared.Mailer(0);
-            t.SetMailServer(m_mailServer, m_mailUser, m_mailPass, sFirstName , mailFromAdd);
+            t.SetMailServer(m_mailServer, m_mailUser, m_mailPass, sFirstName, mailFromAdd);
 
             TVinciShared.MailTemplateEngine mt = new TVinciShared.MailTemplateEngine();
             string sFilePath = HttpContext.Current.Server.MapPath("");
@@ -145,7 +146,7 @@ namespace ConditionalAccess
             return sMailData;
         }
 
-        protected void SendMail(string sText, string sEmail,  Int32 nGroupID)
+        protected void SendMail(string sText, string sEmail, Int32 nGroupID)
         {
             if (sText == "")
                 return;
@@ -153,7 +154,7 @@ namespace ConditionalAccess
             TVinciShared.Mailer t = new TVinciShared.Mailer(0);
             t.SetMailServer(m_mailServer, m_mailUser, m_mailPass, m_fromName, m_fromAdd);
             t.SendMail(sEmail, "", sMailData, m_voucherMailSubject);
-            Logger.Logger.Log("Voucher Email", "Sent Voucher Mail to " + sEmail, "Voucher Emails");
+            log.Debug("Voucher Email - Sent Voucher Mail to " + sEmail);
         }
     }
 }

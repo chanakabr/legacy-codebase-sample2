@@ -7,12 +7,16 @@ using System.Text;
 using DAL;
 using System.Net;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using System.Reflection;
 
 namespace M1BL
 {
     public class M1FilesManager
     {
-        private DataTable m_dtTransactions;        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private DataTable m_dtTransactions;
 
         private int m_nGroupID;
         private int m_nHoursOffset;
@@ -31,7 +35,7 @@ namespace M1BL
         private int m_nFilesMaxCounter;
         private double m_dGst;
 
-        
+
         private string m_sPPVFileNextCounter;
         private string m_sPPVHeaderRecordType;
         private string m_sPPVHeaderContentProviderID;
@@ -39,10 +43,10 @@ namespace M1BL
         private string m_sPPVBodyRecordType;
         private string m_sPPVBodyServiceType;
         private string m_sPPVBodyChargedNumberPrefix;
-        private string m_sPPVBodyTaxIndicator;        
+        private string m_sPPVBodyTaxIndicator;
         private int m_nPPVBodyChargeableUnits;
         private string m_sPPVTrailerRecordType;
-            
+
         private string m_sSubscriptionFileNextCounter;
         private string m_sSubscriptionHeaderRecordType;
         private string m_sSubscriptionHeaderContentProviderID;
@@ -58,12 +62,12 @@ namespace M1BL
             Initialize(nGroupID);
         }
 
-        public string ProcessCdrFile(M1ItemType  fileType)
+        public string ProcessCdrFile(M1ItemType fileType)
         {
             string sFileName = string.Empty;
             string sFolderPath = string.Empty;
             string sFtpFolder = string.Empty;
-            int nNextFileCounter = 0 ;
+            int nNextFileCounter = 0;
             string sData = string.Empty;
             string sNextCounter = string.Empty;
             List<int> transactionsIDsList = new List<int>();
@@ -89,7 +93,7 @@ namespace M1BL
                     int.TryParse(m_sSubscriptionFileNextCounter, out nNextFileCounter);
                     sData = GetSubscriptionFileData(dFileCreatedDate, m_sSubscriptionFileNextCounter, ref transactionsIDsList);
                     sNextCounter = m_sSubscriptionFileNextCounter;
-                    sContentProviderID = m_sSubscriptionHeaderContentProviderID.PadLeft(SubscriptionFileStructure.FILE_CONTENT_PROVIDER_ID , '0');
+                    sContentProviderID = m_sSubscriptionHeaderContentProviderID.PadLeft(SubscriptionFileStructure.FILE_CONTENT_PROVIDER_ID, '0');
                     sFolderPath = m_sSubscriptionFilesBasePath;
                     sFtpFolder = m_sFtp_subscription_folder;
                 }
@@ -107,7 +111,7 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error on processing m1 cdr file: " + sFileName, ",exception:" + ex.Message + " || " + ex.StackTrace, "M1_ProcessCdrFile");
+                log.Error("Error on processing m1 cdr file: " + sFileName + ", exception:" + ex.Message + " || " + ex.StackTrace, ex);
             }
 
             return sFileName;
@@ -115,13 +119,13 @@ namespace M1BL
 
         public int SaveFileHistoryRecord(M1ItemType fileType, int nFileCounter, string sFileName)
         {
-            int nFileID =  BillingDAL.Insert_M1FileHistoryRecord(m_nGroupID, (int)fileType, nFileCounter, sFileName);
+            int nFileID = BillingDAL.Insert_M1FileHistoryRecord(m_nGroupID, (int)fileType, nFileCounter, sFileName);
             return nFileID;
         }
 
         public void UpdateTransactionsStatus(int nGroupID, List<int> transactionsIDsList, M1TransactionStatus transactionStatus, int nFileID)
         {
-            if (transactionsIDsList !=null && transactionsIDsList.Count > 0)
+            if (transactionsIDsList != null && transactionsIDsList.Count > 0)
             {
                 BillingDAL.UpdateM1Transactions(nGroupID, transactionsIDsList, (int)transactionStatus, nFileID);
             }
@@ -134,7 +138,7 @@ namespace M1BL
             {
                 m_nGroupID = nGroupID;
                 m_nHoursOffset = 0;
-                
+
                 string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
                 //Logger.Logger.Log("GMTOffset", string.Format("sGMTOffset:{0}", sGMTOffset), "M1_ProcessCdrFile");
                 if (!string.IsNullOrEmpty(sGMTOffset))
@@ -156,8 +160,8 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error on initializing m1 files manager, group id:" + m_nGroupID.ToString(), ",exception:" + ex.Message + " || " + ex.StackTrace, "M1_Initialize");        
-            }           
+                log.Error("Error on initializing m1 files manager, group id:" + m_nGroupID.ToString() + ", exception:" + ex.Message + " || " + ex.StackTrace, ex);
+            }
         }
 
         private void ReadGroupParametersData(DataTable dtGroupParams)
@@ -170,9 +174,9 @@ namespace M1BL
                 m_sFtpUser = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ftp_user"]);
                 m_sFtpPassword = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ftp_password"]);
                 m_sFtp_ppv_folder = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ftp_ppv_folder"]);
-                m_sFtp_subscription_folder = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ftp_subscription_folder"]);           
-                m_sPPVFilesBasePath  = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ppv_base_path"]);
-                m_sSubscriptionFilesBasePath = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_subscription_base_path"]);                                                                                               
+                m_sFtp_subscription_folder = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ftp_subscription_folder"]);
+                m_sPPVFilesBasePath = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_ppv_base_path"]);
+                m_sSubscriptionFilesBasePath = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_subscription_base_path"]);
                 m_sFilePrefix = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_Prefix"]);
                 m_sFileExtension = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["cdrFiles_Extension"]);
                 m_nFilesStartCounter = ODBCWrapper.Utils.GetIntSafeVal(groupParameterRow["cdrFiles_start_counter"]);
@@ -186,10 +190,10 @@ namespace M1BL
                 m_sPPVBodyServiceType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ppv_body_service_type"]);
                 m_sPPVBodyChargedNumberPrefix = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ppv_body_charged_number_prefix"]);
                 m_sPPVBodyTaxIndicator = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ppv_body_tax_indictaor"]);
-                m_nPPVBodyChargeableUnits = ODBCWrapper.Utils.GetIntSafeVal(groupParameterRow["ppv_body_chargeable_units"]);               
+                m_nPPVBodyChargeableUnits = ODBCWrapper.Utils.GetIntSafeVal(groupParameterRow["ppv_body_chargeable_units"]);
                 m_sPPVTrailerRecordType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ppv_trailer_record_type"]);
 
-                m_sSubscriptionHeaderContentProviderID   = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_header_content_provider_id"]);
+                m_sSubscriptionHeaderContentProviderID = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_header_content_provider_id"]);
                 m_sSubscriptionHeaderContentProviderName = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_header_content_provider_name"]);
                 m_sSubscriptionHeaderRecordType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_header_record_type"]);
                 m_sSubscriptionBodyRecordType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_body_record_type"]);
@@ -197,39 +201,39 @@ namespace M1BL
                 m_sSubscriptionBodyUsageType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_body_usage_type"]);
                 m_sSubscriptionBodyChargedNumberPrefix = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_body_charged_number_prefix"]);
                 m_sSubscriptionTrailerRecordType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["subscription_trailer_record_type"]);
-            } 
+            }
         }
 
         private void ReadFilesCountersData(DataTable dtFilesCounters)
         {
-           if (dtFilesCounters != null && dtFilesCounters.Rows.Count > 0)
-           {
-               foreach (DataRow rowFile in dtFilesCounters.Rows)
-               {
-                   M1ItemType fileType = (M1ItemType)ODBCWrapper.Utils.GetIntSafeVal(rowFile["item_Type"]);
-                   if (fileType == M1ItemType.PPV)
-                   {
-                       int nCurrentPPVCounter = ODBCWrapper.Utils.GetIntSafeVal(rowFile["currentFileCounter"]);
-                       m_sPPVFileNextCounter = GetFormattedNextFileCounter(nCurrentPPVCounter, m_nFilesStartCounter, m_nFilesMaxCounter , PPVFileStructure.FILE_SEQUENCE_NUMBER);
+            if (dtFilesCounters != null && dtFilesCounters.Rows.Count > 0)
+            {
+                foreach (DataRow rowFile in dtFilesCounters.Rows)
+                {
+                    M1ItemType fileType = (M1ItemType)ODBCWrapper.Utils.GetIntSafeVal(rowFile["item_Type"]);
+                    if (fileType == M1ItemType.PPV)
+                    {
+                        int nCurrentPPVCounter = ODBCWrapper.Utils.GetIntSafeVal(rowFile["currentFileCounter"]);
+                        m_sPPVFileNextCounter = GetFormattedNextFileCounter(nCurrentPPVCounter, m_nFilesStartCounter, m_nFilesMaxCounter, PPVFileStructure.FILE_SEQUENCE_NUMBER);
 
-                   }
-                   else if (fileType == M1ItemType.Subscription)
-                   {
-                       int nCurrentSubscriptionCounter = ODBCWrapper.Utils.GetIntSafeVal(rowFile["currentFileCounter"]);
-                       m_sSubscriptionFileNextCounter = GetFormattedNextFileCounter(nCurrentSubscriptionCounter, m_nFilesStartCounter, m_nFilesMaxCounter, SubscriptionFileStructure.FILE_SEQUENCE_NUMBER); 
-                   }
-               }
-           }
+                    }
+                    else if (fileType == M1ItemType.Subscription)
+                    {
+                        int nCurrentSubscriptionCounter = ODBCWrapper.Utils.GetIntSafeVal(rowFile["currentFileCounter"]);
+                        m_sSubscriptionFileNextCounter = GetFormattedNextFileCounter(nCurrentSubscriptionCounter, m_nFilesStartCounter, m_nFilesMaxCounter, SubscriptionFileStructure.FILE_SEQUENCE_NUMBER);
+                    }
+                }
+            }
 
-           if (string.IsNullOrEmpty(m_sPPVFileNextCounter))
-           {
-               m_sPPVFileNextCounter = GetFormattedNextFileCounter(0, m_nFilesStartCounter, m_nFilesMaxCounter, PPVFileStructure.FILE_SEQUENCE_NUMBER);
-           }
+            if (string.IsNullOrEmpty(m_sPPVFileNextCounter))
+            {
+                m_sPPVFileNextCounter = GetFormattedNextFileCounter(0, m_nFilesStartCounter, m_nFilesMaxCounter, PPVFileStructure.FILE_SEQUENCE_NUMBER);
+            }
 
-           if (string.IsNullOrEmpty(m_sSubscriptionFileNextCounter))
-           {
-               m_sSubscriptionFileNextCounter = GetFormattedNextFileCounter(0, m_nFilesStartCounter, m_nFilesMaxCounter, SubscriptionFileStructure.FILE_SEQUENCE_NUMBER);
-           }           
+            if (string.IsNullOrEmpty(m_sSubscriptionFileNextCounter))
+            {
+                m_sSubscriptionFileNextCounter = GetFormattedNextFileCounter(0, m_nFilesStartCounter, m_nFilesMaxCounter, SubscriptionFileStructure.FILE_SEQUENCE_NUMBER);
+            }
         }
 
         private string GetFormattedLongDateTime(DateTime dateToFormat)
@@ -243,10 +247,10 @@ namespace M1BL
         }
 
         private string GetFormattedNextFileCounter(int currentCounter, int startCounter, int maxCounter, int len)
-        {                      
-           //int nNextCounter = (currentCounter < maxCounter) ? ((currentCounter % maxCounter) + 1) : startCounter;
-           int nNextCounter = (currentCounter % maxCounter) + 1;
-           return nNextCounter.ToString().PadLeft(len, '0');
+        {
+            //int nNextCounter = (currentCounter < maxCounter) ? ((currentCounter % maxCounter) + 1) : startCounter;
+            int nNextCounter = (currentCounter % maxCounter) + 1;
+            return nNextCounter.ToString().PadLeft(len, '0');
         }
 
         private bool CreateAsciiFile(string sFolderPath, string sFileName, string sData)
@@ -263,12 +267,12 @@ namespace M1BL
 
                 using (StreamWriter sw = new StreamWriter(sFileName, false, asciiEncoding))
                 {
-                    sw.Write(sData);                    
+                    sw.Write(sData);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error on creating m1 cdr file: " + sFileName, ",exception:" + ex.Message + " || " + ex.StackTrace, "M1_CreateCdrFile");
+                log.Error("Error on creating m1 cdr file: " + sFileName + ", exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result = false;
             }
             return result;
@@ -281,7 +285,7 @@ namespace M1BL
 
             double totalPrice = 0;
             int totalRecords = 0;
-            
+
             sbData.Append(ParseStringToSize(m_sPPVHeaderRecordType, PPVFileStructure.HEADER_RECORD_TYPE));
             sbData.Append(m_sPPVHeaderContentProviderID.PadLeft(PPVFileStructure.HEADER_CONTENT_PROVIDER_ID, '0'));
             sbData.Append(m_sPPVHeaderContentProviderName.PadRight(PPVFileStructure.HEADER_CONTENT_PROVIDER_NAME, ' '));
@@ -303,34 +307,34 @@ namespace M1BL
                     DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]);
                     dCallDateTime = dCallDateTime.AddHours(m_nHoursOffset);
 
-                    string sServiceDescription =   ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
+                    string sServiceDescription = ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowPPV["price"]);
                     nPrice = nPrice / (1 + (m_dGst / 100));
 
                     string sFormattedChargedNumber = string.Empty;
                     string sRateCode = string.Empty;
-                    string sAnnotation= string.Empty;
+                    string sAnnotation = string.Empty;
                     string sSpareField = string.Empty;
                     string sFormattedBillDescription = GetFormattedBillDescription(nBillingTransactionID);
 
                     sbData.Append(ParseStringToSize(m_sPPVBodyRecordType, PPVFileStructure.BODY_RECORD_TYPE));
                     sbData.Append(ParseStringToSize(m_sPPVBodyServiceType, PPVFileStructure.BODY_SERVICE_TYPE));
                     sbData.Append(sFormattedChargedNumber.PadRight(PPVFileStructure.BODY_CHARGED_NUMBER, ' '));
-                    sbData.Append(GetFormattedLongDateTime(dCallDateTime));             
-                    sbData.Append(sFormattedBillDescription.PadRight(PPVFileStructure.BODY_SERVICE_DESC, ' '));     
+                    sbData.Append(GetFormattedLongDateTime(dCallDateTime));
+                    sbData.Append(sFormattedBillDescription.PadRight(PPVFileStructure.BODY_SERVICE_DESC, ' '));
                     sbData.Append(ParseStringToSize(m_sPPVBodyTaxIndicator, PPVFileStructure.BODY_TAX_INDICATOR));
                     sbData.Append(GetFormattedPrice(nPrice, PPVFileStructure.BODY_PRICE));
                     sbData.Append(m_nPPVBodyChargeableUnits.ToString().PadLeft(PPVFileStructure.BODY_CHARGEABLE_UNITS, '0'));
                     sbData.Append(GetFormattedPrice(nPrice, PPVFileStructure.BODY_UNIT_PRICE));
-                    sbData.Append(sRateCode.PadRight(PPVFileStructure.BODY_RATE_CODE, ' ')); 
-                    sbData.Append(sAnnotation.PadRight(PPVFileStructure.BODY_ANNOTATION , ' '));
-                    sbData.Append(sChargedNumber.PadRight(PPVFileStructure.BODY_SPARE_FIELD , ' ')); // Spare field
+                    sbData.Append(sRateCode.PadRight(PPVFileStructure.BODY_RATE_CODE, ' '));
+                    sbData.Append(sAnnotation.PadRight(PPVFileStructure.BODY_ANNOTATION, ' '));
+                    sbData.Append(sChargedNumber.PadRight(PPVFileStructure.BODY_SPARE_FIELD, ' ')); // Spare field
                     sbData.Append(Environment.NewLine);
 
                     totalPrice += Math.Round(nPrice, 2);
                     totalRecords++;
                     transactionsIDsList.Add(nM1TransactionID);
-                }            
+                }
             }
 
             sbData.Append(ParseStringToSize(m_sPPVTrailerRecordType, PPVFileStructure.TRAILER_RECORD_TYPE));
@@ -339,7 +343,7 @@ namespace M1BL
             sbData.Append(totalRecords.ToString().PadLeft(PPVFileStructure.TRAILER_TOTAL_RECORDS, '0'));
             sbData.Append(totalRecords.ToString().PadLeft(PPVFileStructure.TRAILER_TOTAL_CHARGEABLE_UNITS, '0'));
             sbData.Append(GetFormattedPrice(totalPrice, PPVFileStructure.TRAILER_TOTAL_PRICE));
- 
+
             return sbData.ToString();
         }
 
@@ -352,8 +356,8 @@ namespace M1BL
             int totalRecords = 0;
 
             sbData.Append(ParseStringToSize(m_sSubscriptionHeaderRecordType, SubscriptionFileStructure.HEADER_RECORD_TYPE));
-            sbData.Append(m_sSubscriptionHeaderContentProviderID.PadLeft(SubscriptionFileStructure.HEADER_CONTENT_PROVIDER_ID , '0'));
-            sbData.Append(m_sSubscriptionHeaderContentProviderName.PadRight(SubscriptionFileStructure.HEADER_CONTENT_PROVIDER_NAME , ' '));
+            sbData.Append(m_sSubscriptionHeaderContentProviderID.PadLeft(SubscriptionFileStructure.HEADER_CONTENT_PROVIDER_ID, '0'));
+            sbData.Append(m_sSubscriptionHeaderContentProviderName.PadRight(SubscriptionFileStructure.HEADER_CONTENT_PROVIDER_NAME, ' '));
             sbData.Append(sNextFileCounter);
             sbData.Append(sFileCreatedDate);
 
@@ -364,26 +368,26 @@ namespace M1BL
                 DataRow[] subscriptionTransactionsRows = m_dtTransactions.Select("item_type=" + (int)M1ItemType.Subscription);
                 foreach (DataRow rowSubscription in subscriptionTransactionsRows)
                 {
-                    int nTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["id"]);               
-                    long nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["BillingTransactionID"]); 
+                    int nTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["id"]);
+                    long nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowSubscription["BillingTransactionID"]);
                     string sChargedNumber = ODBCWrapper.Utils.GetSafeStr(rowSubscription["charged_mobile_number"]);
-                   // string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
+                    // string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
                     DateTime dTransactionDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["create_date"]);
-                    string sServiceDescription = Regex.Replace(ODBCWrapper.Utils.GetSafeStr(rowSubscription["item_description"]), "[^A-Za-z0-9 - + ( )]", ""); 
-                    DateTime dSubscriptionStartDate  = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_start_date"]);
+                    string sServiceDescription = Regex.Replace(ODBCWrapper.Utils.GetSafeStr(rowSubscription["item_description"]), "[^A-Za-z0-9 - + ( )]", "");
+                    DateTime dSubscriptionStartDate = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_start_date"]);
                     DateTime dSubscriptionEndDate = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_end_date"]);
 
                     dTransactionDateTime = dTransactionDateTime.AddHours(m_nHoursOffset);
                     dSubscriptionStartDate = dSubscriptionStartDate.AddHours(m_nHoursOffset);
                     dSubscriptionEndDate = dSubscriptionEndDate.AddHours(m_nHoursOffset);
-                    
+
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowSubscription["price"]);
-                    nPrice = nPrice / (1 +  (m_dGst / 100));
+                    nPrice = nPrice / (1 + (m_dGst / 100));
 
                     string sFormattedChargedNumber = string.Empty;
                     string sSpareField = string.Empty;
                     string sFormattedBillDescription = GetFormattedBillDescription(nBillingTransactionID);
-                   
+
 
                     sbData.Append(ParseStringToSize(m_sSubscriptionBodyRecordType, SubscriptionFileStructure.BODY_RECORD_TYPE));
                     sbData.Append(ParseStringToSize(m_sSubscriptionBodyServiceType, SubscriptionFileStructure.BODY_SERVICE_TYPE));
@@ -395,7 +399,7 @@ namespace M1BL
                     sbData.Append(GetFormattedShortDateTime(dSubscriptionStartDate));
                     sbData.Append(GetFormattedShortDateTime(dSubscriptionEndDate));
                     sbData.Append(GetFormattedPrice(nPrice, SubscriptionFileStructure.BODY_PRICE));
-                    sbData.Append(sSpareField.PadRight(SubscriptionFileStructure.BODY_SPARE_FIELD_1 , '0'));
+                    sbData.Append(sSpareField.PadRight(SubscriptionFileStructure.BODY_SPARE_FIELD_1, '0'));
                     sbData.Append(sChargedNumber.PadRight(SubscriptionFileStructure.BODY_SPARE_FIELD_2, ' '));
                     sbData.Append(Environment.NewLine);
 
@@ -415,7 +419,7 @@ namespace M1BL
         }
 
         private string GetFormattedPrice(double price, int len)
-        {          
+        {
             //string strNum = price.ToString("0.00#.##");
             double roundedPrice = Math.Round(price, 2);
             string strNum = roundedPrice.ToString("0.00#.##");
@@ -427,7 +431,7 @@ namespace M1BL
         private string GetFormattedBillDescription(long nBillingTransactionID)
         {
             string result = string.Format("Toggle Id:{0} (Tel:63883888)", nBillingTransactionID.ToString());  //ex: Toggle Id:123456 (Tel:63883888)
-            return result;                 
+            return result;
         }
 
         string DecimalPlaceNoRounding(double d, int decimalPlaces = 2)
@@ -437,8 +441,8 @@ namespace M1BL
             d = d / Math.Pow(10, decimalPlaces);
             return string.Format("{0:N" + Math.Abs(decimalPlaces) + "}", d);
         }
-        
-        private string GetFileName(M1ItemType fileType, string sContentProviderID,  string sDateTime, string sFileCounter)
+
+        private string GetFileName(M1ItemType fileType, string sContentProviderID, string sDateTime, string sFileCounter)
         {
             StringBuilder sbFileName = new StringBuilder();
 
@@ -475,7 +479,7 @@ namespace M1BL
             }
             return sResult;
         }
-        
+
         private bool SendFileViaFtp(string sFileName, string sFtpFolder)
         {
             bool result = true;
@@ -486,12 +490,12 @@ namespace M1BL
                 FileInfo fileInf = new FileInfo(sFileName);
                 string uri = m_sFtpDirectory + "/" + sFtpFolder + "/" + fileInf.Name;
 
-                Logger.Logger.Log("Start", string.Format("file:{0}, ftp:{1}", fileInf.Name, uri), "M1_FTPUpload");
+                log.Debug("Start - " + string.Format("file:{0}, ftp:{1}", fileInf.Name, uri));
 
                 if (!uri.StartsWith("ftp:"))
                 {
                     uri = "ftp://" + uri;
-                    Logger.Logger.Log("Add ftp", string.Format("ftp:{0}", uri), "M1_FTPUpload");
+                    log.Debug("Add ftp - " + string.Format("ftp:{0}", uri));
                 }
 
                 FtpWebRequest reqFTP;
@@ -519,12 +523,12 @@ namespace M1BL
                         strm.Write(buff, 0, contentLen);
                         contentLen = fs.Read(buff, 0, buffLength);
                     }
-                    Logger.Logger.Log("finished", string.Format("{0}", fileInf.Name), "M1_FTPUpload");
+                    log.Debug("finished - " + string.Format("{0}", fileInf.Name));
 
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Upload - Error", string.Format("file:{0}, ex:{1}", fileInf.Name, ex.Message), "M1_FTPUpload");
+                    log.Error("Upload - Error - " + string.Format("file:{0}, ex:{1}", fileInf.Name, ex.Message));
                     result = false;
                 }
 
@@ -542,17 +546,17 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SendFileViaFtp - Error", string.Format("ex:{0}", ex.Message), "M1_FTPUpload");
+                log.Error("SendFileViaFtp - Error - " + string.Format("ex:{0}", ex.Message));
             }
-            
+
             return result;
         }
 
         private struct PPVFileStructure
         {
-            public const int FILE_CONTENT_PROVIDER_ID = 8;            
+            public const int FILE_CONTENT_PROVIDER_ID = 8;
             public const int FILE_SEQUENCE_NUMBER = 4;
-            
+
             public const int HEADER_RECORD_TYPE = 3;
             public const int HEADER_CONTENT_PROVIDER_ID = 8;
             public const int HEADER_CONTENT_PROVIDER_NAME = 20;
@@ -571,20 +575,20 @@ namespace M1BL
             public const int BODY_RATE_CODE = 1;
             public const int BODY_ANNOTATION = 20;
             public const int BODY_SPARE_FIELD = 20;
-            
+
             public const int TRAILER_RECORD_TYPE = 3;
             public const int TRAILER_CREATED_DATE_TIME = 14;
-            public const int TRAILER_FILE_SEQUENCE_NUMBER = 4;   
-            public const int TRAILER_TOTAL_RECORDS = 8; 
-            public const int TRAILER_TOTAL_CHARGEABLE_UNITS = 10;           
-            public const int TRAILER_TOTAL_PRICE = 12;           
+            public const int TRAILER_FILE_SEQUENCE_NUMBER = 4;
+            public const int TRAILER_TOTAL_RECORDS = 8;
+            public const int TRAILER_TOTAL_CHARGEABLE_UNITS = 10;
+            public const int TRAILER_TOTAL_PRICE = 12;
         }
 
         private struct SubscriptionFileStructure
         {
             public const int FILE_CONTENT_PROVIDER_ID = 8;
             public const int FILE_SEQUENCE_NUMBER = 4;
-            
+
             public const int HEADER_RECORD_TYPE = 3;
             public const int HEADER_CONTENT_PROVIDER_ID = 8;
             public const int HEADER_CONTENT_PROVIDER_NAME = 20;
@@ -606,9 +610,9 @@ namespace M1BL
 
             public const int TRAILER_RECORD_TYPE = 3;
             public const int TRAILER_CREATED_DATE_TIME = 14;
-            public const int TRAILER_TAPE_SEQUENCE_NUMBER = 4;  
-            public const int TRAILER_TOTAL_RECORDS = 8; 
-            public const int TRAILER_TOTAL_PRICE = 12;        
+            public const int TRAILER_TAPE_SEQUENCE_NUMBER = 4;
+            public const int TRAILER_TOTAL_RECORDS = 8;
+            public const int TRAILER_TOTAL_PRICE = 12;
         }
 
         private string GetTcmConfigValue(string sKey)
@@ -621,10 +625,10 @@ namespace M1BL
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("M1FilesManager", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("M1FilesManager - Key=" + sKey + "," + ex.Message);
             }
             return result;
         }
-    
+
     }
 }

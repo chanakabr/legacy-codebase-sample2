@@ -6,11 +6,15 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ConditionalAccess
 {
     public class CinepolisConditionalAccess : TvinciConditionalAccess
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         internal const string CINEPOLIS_CA_LOG_FILE_NAME = "CinepolisConditionalAccess";
 
         public CinepolisConditionalAccess(Int32 nGroupID)
@@ -61,7 +65,7 @@ namespace ConditionalAccess
             if (!Int64.TryParse(sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
             {
                 #region Logging
-                Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg("Incorrect format of site guid. ", sSiteGuid, sUserIP, nCustomDataID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg("Incorrect format of site guid. ", sSiteGuid, sUserIP, nCustomDataID, dPrice, null));
                 #endregion
                 return false;
             }
@@ -69,7 +73,7 @@ namespace ConditionalAccess
             if (!UsersDal.Get_UserEmailBySiteGuid(lSiteGuid, "users_connection", ref sUserEmail) || !TVinciShared.Mailer.IsEmailAddressValid(sUserEmail))
             {
                 #region Logging
-                Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg("Failed to retrieve user email. ", sSiteGuid, sUserIP, nCustomDataID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg("Failed to retrieve user email. ", sSiteGuid, sUserIP, nCustomDataID, dPrice, null));
                 #endregion
                 return false;
             }
@@ -84,7 +88,7 @@ namespace ConditionalAccess
             {
                 // Failed to extracted security hash from DB. Cinepolis will not process our request.
                 #region Logging
-                Logger.Logger.Log("TryGetCinepolisToken", string.Format("Failed to extract security hash from DB. Site Guid: {0} , Custom Data ID: {1}", sSiteGuid, nCustomDataID), GetLogFilename());
+                log.Debug("TryGetCinepolisToken - " + string.Format("Failed to extract security hash from DB. Site Guid: {0} , Custom Data ID: {1}", sSiteGuid, nCustomDataID));
                 #endregion
             }
             lst.Add(new KeyValuePair<string, string>("sh", securityHash));
@@ -99,7 +103,7 @@ namespace ConditionalAccess
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 #region Logging
-                Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg("No address or content type at CA config.", sSiteGuid, sUserIP, nCustomDataID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg("No address or content type at CA config.", sSiteGuid, sUserIP, nCustomDataID, dPrice, null));
                 #endregion
                 return false;
             }
@@ -121,7 +125,7 @@ namespace ConditionalAccess
                     {
                         // log we didn't have ok or transaction token is invalid.
                         #region Logging
-                        Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg(string.Format("ok or transaccion_token in JSON corrupted. ok: {0} , transaccion_token: {1} , error msg: {2} , json: {3}", dict["status"] == null ? "null" : dict["status"], sTransactionToken, sErrorMsg, sResultJSON), sSiteGuid, sUserIP, nCustomDataID, dPrice, dict), CINEPOLIS_CA_LOG_FILE_NAME);
+                        log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg(string.Format("ok or transaccion_token in JSON corrupted. ok: {0} , transaccion_token: {1} , error msg: {2} , json: {3}", dict["status"] == null ? "null" : dict["status"], sTransactionToken, sErrorMsg, sResultJSON), sSiteGuid, sUserIP, nCustomDataID, dPrice, dict));
                         #endregion
                     }
                 }
@@ -129,7 +133,7 @@ namespace ConditionalAccess
                 {
                     // log. json wasn't parsed properly
                     #region Logging
-                    Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg(string.Format("JSON wasn't parsed properly. Error msg: {0} , json: {1}", sErrorMsg, sResultJSON), sSiteGuid, sUserIP, nCustomDataID, dPrice, dict), CINEPOLIS_CA_LOG_FILE_NAME);
+                    log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg(string.Format("JSON wasn't parsed properly. Error msg: {0} , json: {1}", sErrorMsg, sResultJSON), sSiteGuid, sUserIP, nCustomDataID, dPrice, dict));
                     #endregion
                 }
             }
@@ -137,7 +141,7 @@ namespace ConditionalAccess
             {
                 // log failed to send request to cinepolis
                 #region Logging
-                Logger.Logger.Log("TryGetCinepolisToken", GetTryGetCinepolisTokenStdErrMsg(string.Format("Failed to send request to Cinepolis. Address: {0} , error msg: {1} , request body: {2}", sAddress, sErrorMsg, sRequestBody), sSiteGuid, sUserIP, nCustomDataID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TryGetCinepolisToken - " + GetTryGetCinepolisTokenStdErrMsg(string.Format("Failed to send request to Cinepolis. Address: {0} , error msg: {1} , request body: {2}", sAddress, sErrorMsg, sRequestBody), sSiteGuid, sUserIP, nCustomDataID, dPrice, null));
                 #endregion
             }
 
@@ -196,7 +200,7 @@ namespace ConditionalAccess
             {
                 // either address or content type retrieved from config is empty
                 #region Logging
-                Logger.Logger.Log("TrySendOperationConfirm", GetTrySendOperationConfirmStdErrMsg(string.Format("address or content type is empty. Address: {0} , Content type: {1}", sAddress, sContentType), lPurchaseID, lBillingTransactionID, bit, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TrySendOperationConfirm - " + GetTrySendOperationConfirmStdErrMsg(string.Format("address or content type is empty. Address: {0} , Content type: {1}", sAddress, sContentType), lPurchaseID, lBillingTransactionID, bit, null));
                 #endregion
                 return false;
             }
@@ -209,7 +213,7 @@ namespace ConditionalAccess
             {
                 // Failed to extract security hash. Cinepolis will not process our request.
                 #region Logging
-                Logger.Logger.Log("TrySendOperationConfirm", string.Format("Failed to extract security hash from DB. Purchase ID: {0} , Billing transaction ID: {1}", lPurchaseID, lBillingTransactionID), GetLogFilename());
+                log.Debug("TrySendOperationConfirm - " + string.Format("Failed to extract security hash from DB. Purchase ID: {0} , Billing transaction ID: {1}", lPurchaseID, lBillingTransactionID));
                 #endregion
             }
             lst.Add(new KeyValuePair<string, string>("sh", securityHash));
@@ -244,7 +248,7 @@ namespace ConditionalAccess
                     // no status in json. 
                     res = false;
                     #region Logging
-                    Logger.Logger.Log("TrySendOperationConfirm", GetTrySendOperationConfirmStdErrMsg(string.Format("No status key in JSON. JSON: {0}", sResponseJSON), lPurchaseID, lBillingTransactionID, bit, dict), CINEPOLIS_CA_LOG_FILE_NAME);
+                    log.Debug("TrySendOperationConfirm - " + GetTrySendOperationConfirmStdErrMsg(string.Format("No status key in JSON. JSON: {0}", sResponseJSON), lPurchaseID, lBillingTransactionID, bit, dict));
                     #endregion
                 }
             }
@@ -253,7 +257,7 @@ namespace ConditionalAccess
                 // Failed to send request to cinepolis
                 res = false;
                 #region Logging
-                Logger.Logger.Log("TrySendOperationConfirm", GetTrySendOperationConfirmStdErrMsg(string.Format("Post request to Cinepolis failed. Address: {0} , Content type: {1} , Request data: {2}", sAddress, sContentType, sRequestData), lPurchaseID, lBillingTransactionID, bit, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TrySendOperationConfirm - " + GetTrySendOperationConfirmStdErrMsg(string.Format("Post request to Cinepolis failed. Address: {0} , Content type: {1} , Request data: {2}", sAddress, sContentType, sRequestData), lPurchaseID, lBillingTransactionID, bit, null));
                 #endregion
             }
 
@@ -329,7 +333,7 @@ namespace ConditionalAccess
                 // billing transaction id is corrupted
                 #region Logging
                 WriteToUserLog(sSiteGUID, string.Format("Billing transaction ID is corrupted. Purchase ID: {0} , Billing transaction ID: {1} , MPP Code: {2} , Price: {3}", lPurchaseID, sBillingTransactionID, sSubscriptionCode, dPrice));
-                Logger.Logger.Log("HandleMPPRenewalBillingSuccess", string.Format("Corrupted billing transaction ID. Site Guid: {0} , Purchase ID: {1} , Billing transaction ID: {2} , MPP Code: {3}", sSiteGUID, lPurchaseID, sBillingTransactionID, sSubscriptionCode), "TvinciRenewer");
+                log.Debug("HandleMPPRenewalBillingSuccess - " + string.Format("Corrupted billing transaction ID. Site Guid: {0} , Purchase ID: {1} , Billing transaction ID: {2} , MPP Code: {3}", sSiteGUID, lPurchaseID, sBillingTransactionID, sSubscriptionCode));
                 #endregion
             }
 
@@ -356,7 +360,7 @@ namespace ConditionalAccess
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 #region Logging
-                Logger.Logger.Log("TrySendRenewalDoneToCinepolis", GetTrySendRenewalDoneStdErrMsg(string.Format("Address or content type is empty. Address: {0} , Content type: {1}", sAddress, sContentType), sSiteGuid, lBillingTransactionID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TrySendRenewalDoneToCinepolis - " + GetTrySendRenewalDoneStdErrMsg(string.Format("Address or content type is empty. Address: {0} , Content type: {1}", sAddress, sContentType), sSiteGuid, lBillingTransactionID, dPrice, null));
                 #endregion
                 return false;
             }
@@ -367,7 +371,7 @@ namespace ConditionalAccess
             {
                 // Failed to extract security hash from DB. Cinepolis will not process out request.
                 #region Logging
-                Logger.Logger.Log("TrySendRenewalDoneToCinepolis", string.Format("Failed to extract security hash from DB. Site Guid: {0} , Billing transaction ID: {1}", sSiteGuid, lBillingTransactionID), GetLogFilename());
+                log.Debug("TrySendRenewalDoneToCinepolis - " + string.Format("Failed to extract security hash from DB. Site Guid: {0} , Billing transaction ID: {1}", sSiteGuid, lBillingTransactionID));
                 #endregion
             }
             lst.Add(new KeyValuePair<string, string>("sh", securityHash));
@@ -397,7 +401,7 @@ namespace ConditionalAccess
                     // no status in json. log and return false.
                     res = false;
                     #region Logging
-                    Logger.Logger.Log("TrySendRenewalDoneToCinepolis", GetTrySendRenewalDoneStdErrMsg(string.Format("No status in JSON. JSON: {0}, Error extracted: {1}", sResponseJSON, sErrorMsg), sSiteGuid, lBillingTransactionID, dPrice, dict), CINEPOLIS_CA_LOG_FILE_NAME);
+                    log.Debug("TrySendRenewalDoneToCinepolis - " + GetTrySendRenewalDoneStdErrMsg(string.Format("No status in JSON. JSON: {0}, Error extracted: {1}", sResponseJSON, sErrorMsg), sSiteGuid, lBillingTransactionID, dPrice, dict));
                     #endregion
                 }
 
@@ -407,7 +411,7 @@ namespace ConditionalAccess
                 // failed to send request to cinepolis
                 res = false;
                 #region Logging
-                Logger.Logger.Log("TrySendRenewalDoneToCinepolis", GetTrySendRenewalDoneStdErrMsg(string.Format("Failed to send http post request to Cinepolis. Error msg: {0} , Address: {1} , Content type: {2} , Request data: {3}", sErrorMsg, sAddress, sContentType, sRequestData), sSiteGuid, lBillingTransactionID, dPrice, null), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("TrySendRenewalDoneToCinepolis - " + GetTrySendRenewalDoneStdErrMsg(string.Format("Failed to send http post request to Cinepolis. Error msg: {0} , Address: {1} , Content type: {2} , Request data: {3}", sErrorMsg, sAddress, sContentType, sRequestData), sSiteGuid, lBillingTransactionID, dPrice, null));
                 #endregion
             }
             return res;
@@ -458,9 +462,9 @@ namespace ConditionalAccess
             return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domainID, TvinciPricing.Subscription theSub, 
-            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, 
-            string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, 
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domainID, TvinciPricing.Subscription theSub,
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
+            string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = base.HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domainID, theSub, dPrice, sCurrency,
@@ -484,7 +488,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Subscription Code: ", sSubscriptionCode));
                 sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                 sb.Append(String.Concat(" Custom data: ", sCustomData));
-                Logger.Logger.Log("HandleChargeUserForSubscriptionBillingSuccess", sb.ToString(), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + sb.ToString());
                 WriteToUserLog(sSiteGUID, string.Format("No billing transaction id or purchase id. Billing transaction ID: {0} , Purchase ID: {1}", lBillingTransactionID, lPurchaseID));
                 #endregion
             }
@@ -497,12 +501,12 @@ namespace ConditionalAccess
             return !isDummy || price != 0d;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,int domainID, TvinciPricing.Subscription relevantSub, 
-            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
-            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, 
+        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domainID, TvinciPricing.Subscription relevantSub,
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName,
+            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID,
             ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
-            bool res = base.HandleChargeUserForMediaFileBillingSuccess(sSiteGUID,domainID, relevantSub, dPrice, sCurrency,
+            bool res = base.HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, domainID, relevantSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, sCustomData, thePPVModule, lMediaFileID,
                 ref lBillingTransactionID, ref lPurchaseID, isDummy);
 
@@ -523,7 +527,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Media File ID: ", lMediaFileID));
                 sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                 sb.Append(String.Concat(" Custom data: ", sCustomData));
-                Logger.Logger.Log("HandleChargeUserForMediaFileBillingSuccess", sb.ToString(), CINEPOLIS_CA_LOG_FILE_NAME);
+                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + sb.ToString());
                 WriteToUserLog(sSiteGUID, string.Format("No billing transaction id or purchase id. Billing transaction ID: {0} , Purchase ID: {1}", lBillingTransactionID, lPurchaseID));
                 #endregion
             }

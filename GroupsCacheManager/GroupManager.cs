@@ -6,11 +6,14 @@ using ApiObjects;
 using DAL;
 using Tvinci.Core.DAL;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace GroupsCacheManager
 {
     public class GroupManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private GroupsCache cache;
         public GroupManager()
         {
@@ -41,7 +44,7 @@ namespace GroupsCacheManager
 
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("GetGroup - " + string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return null;
             }
         }
@@ -50,13 +53,13 @@ namespace GroupsCacheManager
         {
             bool bAdd = false;
             try
-            {               
+            {
                 bAdd = cache.AddChannelsToOperator(nOperatorID, subscriptionChannels, group);
                 return bAdd;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("AddChannelsToOperator", string.Format("failed AddChannelsToOperator nOperatorID={0}, ex={1}", nOperatorID, ex.Message), "Catalog");
+                log.Error("AddChannelsToOperator - " + string.Format("failed AddChannelsToOperator nOperatorID={0}, ex={1}", nOperatorID, ex.Message), ex);
                 return false;
             }
 
@@ -113,7 +116,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetSubGroup", string.Format("failed get subgroup List from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                log.Error("GetSubGroup - " + string.Format("failed get subgroup List from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return null;
             }
         }
@@ -130,7 +133,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                log.Error("GetGroup - " + string.Format("failed get group from IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -145,7 +148,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveGroup", string.Format("failed to delete Group with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                log.Error("RemoveGroup - " + string.Format("failed to delete Group with nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -154,7 +157,7 @@ namespace GroupsCacheManager
         {
             bool res = false;
             if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
-            {               
+            {
                 switch (oe)
                 {
                     case eOperatorEvent.ChannelAddedToSubscription:
@@ -191,7 +194,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("AddServices", string.Format("failed AddServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("AddServices - " + string.Format("failed AddServices nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -205,7 +208,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteServices", string.Format("failed DeleteServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("DeleteServices - " + string.Format("failed DeleteServices nGroupID={0}, ex={1}", nGroupID, ex.Message));
                 return false;
             }
         }
@@ -219,7 +222,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateServices", string.Format("failed UpdateServices nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateServices - " + string.Format("failed UpdateServices nGroupID={0}, ex={1}", nGroupID, ex.Message));
                 return false;
             }
         }
@@ -238,10 +241,10 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(
-                    "GetMediaTypesOfGroup", 
-                    string.Format("failed get media types of  groupID={0}, ex={1}, ST={2}", groupId, ex.Message, ex.StackTrace), 
-                    "GroupsCacheManager");
+                log.Error(
+                    "GetMediaTypesOfGroup - " +
+                    string.Format("failed get media types of  groupID={0}, ex={1}, ST={2}", groupId, ex.Message, ex.StackTrace),
+                    ex);
             }
 
             return mediaTypes;
@@ -297,9 +300,9 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel", 
+                log.Error("GetChannel - " +
                     string.Format("failed get channel with group ={0}, channel = {1}, ex={2}, ST={3}", group.m_nParentGroupID, channelId, ex.Message, ex.StackTrace),
-                    "GroupsCacheManager");
+                    ex);
             }
 
             return result;
@@ -333,7 +336,7 @@ namespace GroupsCacheManager
         {
             bool bUpdate = false;
             try
-            {   
+            {
                 {
                     bUpdate = cache.UpdateoOperatorChannels(nGroupID, nOperatorID, channelIDs, true);
                 }
@@ -341,7 +344,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "Catalog");
+                log.Error("UpdateoOperatorChannels - " + string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -357,7 +360,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteOperator", string.Format("failed to DeleteOperator nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupManager");
+                log.Error("DeleteOperator - " + string.Format("failed to DeleteOperator nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -372,7 +375,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupManager");
+                log.Error("UpdateoOperatorChannels - " + string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -405,7 +408,7 @@ namespace GroupsCacheManager
                 CatalogDAL.GetRegionalizationSettings(groupID, out isRegionalizationEnabled, out defaultRegion);
 
                 isUpdated = cache.UpdateRegionalizationData(isRegionalizationEnabled, defaultRegion, groupID);
-                
+
             }
             catch (Exception ex)
             {

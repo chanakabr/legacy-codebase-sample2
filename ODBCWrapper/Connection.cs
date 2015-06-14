@@ -277,7 +277,7 @@ namespace ODBCWrapper
                               command.CommandType.ToString(),                                                                                 // 1
                               command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
 
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.UNKNOWN })
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.EXECUTE })
                         {
                             int res = command.ExecuteNonQuery();
                         }

@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Collections;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ConditionalAccess
 {
     class FilmoConditionalAccess : TvinciConditionalAccess
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public FilmoConditionalAccess(Int32 nGroupID)
             : base(nGroupID)
@@ -50,7 +53,7 @@ namespace ConditionalAccess
                 }
                 string sFile = sFileSegments[sFileSegments.Length - 1];
                 string keyUrlStr = string.Empty;
-                    //m.GetURL(fileUrl.Scheme + "://" + fileUrl.Host + sPathWithoutFile + sFile + "_" + "04" + ".mp4");
+                //m.GetURL(fileUrl.Scheme + "://" + fileUrl.Host + sPathWithoutFile + sFile + "_" + "04" + ".mp4");
                 Uri keyUrl = new Uri(keyUrlStr);
                 string keyStr = HttpUtility.ParseQueryString(keyUrl.Query).Get("key");
                 if (!string.IsNullOrEmpty(keyStr))
@@ -61,7 +64,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("LicensedLink", "Exceptions :" + ex.Message, "LicensedLink");
+                log.Error("LicensedLink - Exceptions :" + ex.Message, ex);
             }
 
             return retVal;

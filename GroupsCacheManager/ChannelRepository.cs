@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using KLogMonitor;
 using Logger;
 using Tvinci.Core.DAL;
 
@@ -14,7 +15,7 @@ namespace GroupsCacheManager
 {
     public class ChannelRepository
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region CONSTS
         private static string META_END_SUFFIX = "_NAME";
@@ -63,7 +64,7 @@ namespace GroupsCacheManager
             bool isRegionalizationEnabled;
             int defaultRegion;
 
-            CatalogDAL.GetRegionalizationSettings(group.m_nParentGroupID, 
+            CatalogDAL.GetRegionalizationSettings(group.m_nParentGroupID,
                 out isRegionalizationEnabled, out defaultRegion);
 
             group.isRegionalizationEnabled = isRegionalizationEnabled;
@@ -152,7 +153,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Caugh exception when fetching EPG group tags and metas. Ex={0}", ex.Message), "ElasticSearch");
+                log.Error("Error - " + string.Format("Caught exception when fetching EPG group tags and metas. Ex={0}", ex.Message), ex);
             }
         }
 
@@ -351,19 +352,19 @@ namespace GroupsCacheManager
 
             List<Channel> channels = null;
 
-            _logger.Info("Getting channels for subscription");
+            log.Debug("Getting channels for subscription");
 
             DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(lChannelIds);
-            if (ds != null && ds.Tables!= null && ds.Tables.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable channelsData = ds.Tables[0];
-                if (channelsData.Rows!= null && channelsData.Rows.Count > 0)
+                if (channelsData.Rows != null && channelsData.Rows.Count > 0)
                 {
                     channels = new List<Channel>();
 
                     foreach (DataRow rowData in channelsData.Rows)
                     {
-                        _logger.Info("new channel");
+                        log.Debug("new channel");
 
                         Channel oChannel = new Channel();
                         int mediaType;
@@ -409,7 +410,7 @@ namespace GroupsCacheManager
                         oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
 
                         int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
-                        _logger.Info("Channel " + oChannel.m_nChannelID + " active: " + oChannel.m_nIsActive + " and status: " + oChannel.m_nStatus);
+                        log.Debug("Channel " + oChannel.m_nChannelID + " active: " + oChannel.m_nIsActive + " and status: " + oChannel.m_nStatus);
                         if (oChannel.m_nIsActive == 1 && oChannel.m_nStatus == 1)
                         {
                             if (nIsAnd == 1)
@@ -423,12 +424,12 @@ namespace GroupsCacheManager
                                 // Matching meta values against meta mapping dictionary
                                 if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
                                 {
-                                    _logger.Info("Got mapped value for group " + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
+                                    log.Info("Got mapped value for group " + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
                                     Dictionary<string, string> mappedValuesForGroupId = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID];
 
                                     if (mappedValuesForGroupId == null || mappedValuesForGroupId.Count == 0)
                                     {
-                                        _logger.Info("llll" + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
+                                        log.Info("llll" + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
                                     }
 
                                     foreach (KeyValuePair<string, string> mapping in mappedValuesForGroupId)
@@ -472,10 +473,10 @@ namespace GroupsCacheManager
                                 }
 
                                 // Collect all tags
-                                _logger.Info("Collecting tags in channel " + oChannel.m_nChannelID);
+                                log.Info("Collecting tags in channel " + oChannel.m_nChannelID);
 
                                 GetChannelTags(oChannel, group);
-                                _logger.Info("Finished Collecting tags in channel " + oChannel.m_nChannelID);
+                                log.Info("Finished Collecting tags in channel " + oChannel.m_nChannelID);
                             }
                             else // Manual Channel
                             {
@@ -657,7 +658,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
+                //log.Error(ex.Message, ex);
             }
         }
 
@@ -816,7 +817,7 @@ namespace GroupsCacheManager
                             parentId = parentId,
                             name = name
                         };
-                        
+
                         newMediaTypes.Add(newType);
                     }
                 }

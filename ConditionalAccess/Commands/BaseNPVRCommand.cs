@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace ConditionalAccess
 {
     public abstract class BaseNPVRCommand
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected static readonly string NPVR_LOG_FILE = "NPVR";
         protected static readonly string LOG_HEADER_EXCEPTION = "Exception";
         public string wsUsername;
@@ -37,7 +41,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Req: ", ToString()));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), NPVR_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
                 res = new NPVRResponse() { status = NPVRStatus.Error.ToString() };
             }
 

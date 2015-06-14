@@ -12,11 +12,14 @@ using System.Xml;
 using DAL;
 using ConditionalAccess.TvinciUsers;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ConditionalAccess
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
@@ -41,40 +44,40 @@ namespace ConditionalAccess
             switch (nImplID)
             {
                 case (1):
-                {
-                    oConditionalAccess = new ConditionalAccess.TvinciConditionalAccess(nGroupID, sConnKey);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.TvinciConditionalAccess(nGroupID, sConnKey);
+                        break;
+                    }
                 case (4):
-                {
-                    oConditionalAccess = new ConditionalAccess.FilmoConditionalAccess(nGroupID, sConnKey);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.FilmoConditionalAccess(nGroupID, sConnKey);
+                        break;
+                    }
 
                 case (6):
-                {
-                    oConditionalAccess = new ConditionalAccess.ElisaConditionalAccess(nGroupID, sConnKey);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.ElisaConditionalAccess(nGroupID, sConnKey);
+                        break;
+                    }
                 case (7):
-                {
-                    oConditionalAccess = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
+                        break;
+                    }
                 case (9):
-                {
-                    oConditionalAccess = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
+                        break;
+                    }
                 case (10):
-                {
-                    oConditionalAccess = new ConditionalAccess.VodafoneConditionalAccess(nGroupID);
-                    break;
-                }
+                    {
+                        oConditionalAccess = new ConditionalAccess.VodafoneConditionalAccess(nGroupID);
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
         }
 
@@ -838,7 +841,7 @@ namespace ConditionalAccess
                     sb.Append("File Types is null of empty");
                 }
 
-                Logger.Logger.Log("Error", sb.ToString(), "CAS.Utils");
+                log.Error("Error - " + sb.ToString());
                 #endregion
 
                 throw new Exception("Error occurred in GetUserValidBundlesFromListOptimized. Refer to CAS.Utils log file");
@@ -1620,7 +1623,7 @@ namespace ConditionalAccess
                 }
                 return lFiles;
             }
-            
+
             return new List<int>(0);
         }
 
@@ -1654,7 +1657,7 @@ namespace ConditionalAccess
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
-            }            
+            }
 
             theReason = PriceReason.UnKnown;
             TvinciPricing.Price price = null;
@@ -1887,7 +1890,7 @@ namespace ConditionalAccess
                 }
             } // end if site guid is not null or empty            
             else
-            {   
+            {
                 price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
 
@@ -2028,7 +2031,7 @@ namespace ConditionalAccess
                 }
             }
 
-             //change the user pending to users without (-1)
+            //change the user pending to users without (-1)
             lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
 
             return lDomainsUsers;
@@ -2091,7 +2094,20 @@ namespace ConditionalAccess
             }
             else
             {
-                Logger.Logger.Log("WS ignored", string.Format("user:{0}, pass:{1}, func:{2}", sWSPassword, sWSPassword, sFunctionName), "cas");
+                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}, func:{2}", sWSPassword, sWSPassword));
+            }
+
+            return nGroupID;
+        }
+
+        static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
+        {
+            Credentials wsc = new Credentials(sWSUserName, sWSPassword);
+            int nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.CONDITIONALACCESS, wsc);
+
+            if (nGroupID == 0)
+            {
+                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}, func:{2}", sWSPassword, sWSPassword));
             }
 
             return nGroupID;
@@ -2792,7 +2808,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 result = false;
-                Logger.Logger.Log("IsCouponValid", string.Format("Error on IsCouponValid(), group id:{0}, coupon code:{1}, errorMessage:{2}", nGroupID, sCouponCode, ex.ToString()), "ConditionalAccessUtils");
+                log.Error("IsCouponValid - " + string.Format("Error on IsCouponValid(), group id:{0}, coupon code:{1}, errorMessage:{2}", nGroupID, sCouponCode, ex.ToString()), ex);
             }
             finally
             {
@@ -2989,7 +3005,7 @@ namespace ConditionalAccess
             }
 
             return res;
-        }       
+        }
 
         /// <summary>
         /// Returns a full domain object for a given ID
@@ -3021,8 +3037,8 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", 
-                    string.Format("Failed getting domain info from WS. Domain Id = {0}, Group Id = {1}, Msg = {2}", p_nDomainId, p_nGroupId, ex.Message), "CAS.Utils");
+                log.Error("Exception - " +
+                    string.Format("Failed getting domain info from WS. Domain Id = {0}, Group Id = {1}, Msg = {2}", p_nDomainId, p_nGroupId, ex.Message), ex);
             }
             return (oDomain);
         }
@@ -3051,12 +3067,11 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception",
-                    string.Format("Failed changing DLM using Domains WS. domainId = {0}, dlmID = {1}, groupID = {2}, Msg = {3}", domainId, dlmID, groupID, ex.Message), "CAS.Utils");
+                log.Error("Exception - " + string.Format("Failed changing DLM using Domains WS. domainId = {0}, dlmID = {1}, groupID = {2}, Msg = {3}", domainId, dlmID, groupID, ex.Message), ex);
             }
             return changeDLMObj;
         }
 
-        
+
     }
 }
