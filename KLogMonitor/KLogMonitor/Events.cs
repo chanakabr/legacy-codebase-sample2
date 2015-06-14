@@ -27,7 +27,8 @@ namespace KLogMonitor
             SELECT,
             UPDATE,
             INSERT,
-            DELETE
+            DELETE,
+            EXECUTE
         }
 
         internal static string GetEventString(eEvent eventMonitor)
