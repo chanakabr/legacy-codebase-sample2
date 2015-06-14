@@ -387,8 +387,20 @@ namespace WebAPI.Clients
             key.AppendFormat("channel_id={0}_pi={1}_pz={2}_g={3}_l={4}_o_{5}",
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
-            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
-            
+            // fire request
+            ChannelResponse channelResponse = new ChannelResponse();
+            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(CatalogClientModule, request, out channelResponse, true, key.ToString()))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (channelResponse.m_nMedias != null && channelResponse.m_nMedias.Count > 0)
+            {
+
+                result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, channelResponse.m_nMedias, request, CacheDuration, with);
+                result.TotalItems = channelResponse.m_nTotalItems;
+            }
             return result;
         }
 
@@ -425,89 +437,75 @@ namespace WebAPI.Clients
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse, request, CacheDuration, with);
+                result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
                 result.TotalItems = mediaIdsResponse.m_nTotalItems;
             }
 
             return result;
         }
 
-        
-        //public List<WebAPI.Models.Catalog.Channel> GetAssetsStats(int groupID, string siteGuid, int channelId)
-        //{
-        //    List<AssetStats> result = null;
-        //    ChannelRequest request = new ChannelRequest()
-        //    {
-        //        m_sSignature = Signature,
-        //        m_sSignString = SignString,
-        //        m_sSiteGuid = siteGuid,
-        //        m_nGroupID = groupID,
-        //        m_sUserIP = Utils.Utils.GetClientIP(),
-        //        m_nChannelID = channelId,
-        //    };
 
-        //    ChannelResponse response = null;
-        //    if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
-        //    {
-        //        result = response. != null ?
-        //            Mapper.Map<List<AssetStats>>(response.m_lAssetStat) : null;
-        //    }
-        //    else
-        //    {
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
+        public WebAPI.Models.Catalog.Channel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
+        {
+            WebAPI.Models.Catalog.Channel result = null;
+            ChannelObjRequest request = new ChannelObjRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                ChannelId = channelId,
+            };
 
-        //    return result;
-        //}
+            ChannelObjResponse response = null;
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
+            {
+                result = response.ChannelObj != null ?
+                    Mapper.Map<WebAPI.Models.Catalog.Channel>(response.ChannelObj) : null;
+            }
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
-        //public string MediaMark(int groupID, PlatformType platform, string siteGuid, string udid, int language, int mediaId, int mediaFileId, int location,
-        //    string mediaCdn, string errorMessage, string errorCode, string mediaDuration, string action, int totalBitRate, int currentBitRate, int avgBitRate, string npvrId = null)
-        //{
-        //    string res = null;
+            return result;
+        }
 
-        //    MediaMarkRequest request = new MediaMarkRequest()
-        //    {
-        //        m_sSignature = Signature,
-        //        m_sSignString = SignString,
-        //        m_oMediaPlayRequestData = new MediaPlayRequestData()
-        //        {
-        //            m_nAvgBitRate = avgBitRate,
-        //            m_nCurrentBitRate = currentBitRate,
-        //            m_nLoc = location,
-        //            m_nMediaFileID = mediaFileId,
-        //            m_nMediaID = mediaId,
-        //            m_nTotalBitRate = totalBitRate,
-        //            m_sAction = action,
-        //            m_sMediaDuration = mediaDuration,
-        //            m_sSiteGuid = siteGuid,
-        //            m_sUDID = udid,
-        //            m_sNpvrID = npvrId
-        //        },
-        //        m_sErrorCode = errorCode,
-        //        m_sErrorMessage = errorMessage,
-        //        m_sMediaCDN = mediaCdn,
-        //        m_sSiteGuid = siteGuid,
-        //        m_nGroupID = groupID,
-        //        m_oFilter = new Filter()
-        //        {
-        //            m_sDeviceId = udid,
-        //            m_nLanguage = language,
-        //            m_sPlatform = platform.ToString(),
-        //        }
-        //    };
+        public Category GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
+        {
+            Category result = null;
+            CategoryRequest request = new CategoryRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                m_nCategoryID = categoryId,
+            };
 
-        //    var response = Catalog.GetResponse(request) as MediaMarkResponse;
+            CategoryResponse response = null;
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null)
+            {
+                result = Mapper.Map<Category>(response);
+            }
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
-        //    if (response != null)
-        //    {
-        //        res = response.m_sStatus;
-        //    }
-        //    else
-        //    {
-        //        throw new Exception("Failed to receive stats from catalog");
-        //    }
-
-        //    return res;
-        //}
+            return result;
+        }
     }
 }

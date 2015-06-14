@@ -15,5 +15,40 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         public long Id { get; set; }
+
+        /// <summary>
+        /// Category name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Category parent identifier 
+        /// </summary>
+        [DataMember(Name = "parent_category_id")]
+        [JsonProperty(PropertyName = "parent_category_id")]
+        public long ParentCategoryId { get; set; }
+
+        /// <summary>
+        /// Child categories 
+        /// </summary>
+        [DataMember(Name = "child_categories")]
+        [JsonProperty(PropertyName = "child_categories")]
+        public List<Category> ChildCategories { get; set; }
+
+        /// <summary>
+        /// Category channels
+        /// </summary>
+        [DataMember(Name = "channels")]
+        [JsonProperty(PropertyName = "channels")]
+        public List<Channel> Channels { get; set; }
+
+        /// <summary>
+        /// Category images
+        /// </summary>
+        [DataMember(Name = "images")]
+        [JsonProperty(PropertyName = "images")]
+        public List<Image> Images { get; set; }
     }
 }

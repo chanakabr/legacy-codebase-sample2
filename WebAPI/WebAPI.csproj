@@ -592,7 +592,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\GroupController.cs" />
+    <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\Category.cs" />
@@ -601,6 +601,9 @@
     <Compile Include="Models\Catalog\RelatedMedia.cs" />
     <Compile Include="Controllers\DomainsController.cs" />
     <Compile Include="Models\API\ParentalRule.cs" />
+    <Compile Include="Models\Domains\Device.cs" />
+    <Compile Include="Models\Domains\DeviceFamily.cs" />
+    <Compile Include="Models\Domains\Domain.cs" />
     <Compile Include="Models\Users\Country.cs" />
     <Compile Include="Models\Users\LogIn.cs" />
     <Compile Include="Models\Users\LoginPin.cs" />
@@ -754,7 +757,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\Domains\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

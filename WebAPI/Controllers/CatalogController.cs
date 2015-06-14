@@ -242,7 +242,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("media/{media_ids}/media"), HttpGet]
+        [Route("media/{media_ids}"), HttpGet]
         public AssetInfoWrapper GetMediaByIds(string group_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int domain_id = 0)
         {
             AssetInfoWrapper response = null;
@@ -276,6 +276,86 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns media by media identifiers<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="channel_id">Channel Identifier</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("channels/{channel_id}/"), HttpGet]
+        public Channel GetChannel(string group_id, int channel_id, string language = null, string user_id = null, int domain_id = 0)
+        {
+            Channel response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (channel_id == 0)
+            { 
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "channel_id cannot be 0");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, user_id, domain_id, language, channel_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns media by media identifiers<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>
+        /// <param name="category_id">Category Identifier</param>
+        /// <param name="group_id">Group Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="domain_id">Domain Identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("categories/{category_id}/"), HttpGet]
+        public Category GetCategory(string group_id, int category_id, string language = null, string user_id = null, int domain_id = 0)
+        {
+            Category response = null;
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (category_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "category_id cannot be 0");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetCategory(groupId, user_id, domain_id, language, category_id);
             }
             catch (ClientException ex)
             {
