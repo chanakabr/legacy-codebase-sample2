@@ -292,11 +292,9 @@ namespace ServiceExtensions
             //        oldPos = oldStream.Position;
             //    }
 
-            //    Logger.Logger.Log("SOapExtension", "Soap Type: " + soapType + " Method: " + message.MethodInfo.Name + " oldStream : " + oldPos.ToString() + " new stream :" + newPos.ToString(), "Soap Extension");
             //}
             //catch (Exception ex)
             //{
-            //     Logger.Logger.Log("SOapExtension", "Soap Exception :" + ex.Message, "Soap Extension");
             //}
 
             if (GetTraceable(message))

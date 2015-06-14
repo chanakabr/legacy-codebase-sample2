@@ -106,8 +106,6 @@ namespace Uploader
                 if (fs != null)
                 {
                     fs.Close();
-
-                    //Logger.Logger.Log("ProccessJob, File Stream Closed: ", fileToUpload, "AmazonUploader");
                 }
             }
 

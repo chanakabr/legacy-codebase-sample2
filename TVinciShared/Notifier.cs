@@ -162,7 +162,6 @@ namespace TVinciShared
                 else
                 {
                     oWebResponse.Close();
-                    //Logger.Logger.Log("Big Get", sUrl + " : " + oWebResponse.ContentLength.ToString(), "Notifier", "Try to get long contnet: " + sUrl + "(" + oWebResponse.ContentLength.ToString() + " bytes)");
                 }
 
                 oWebRequest = null;

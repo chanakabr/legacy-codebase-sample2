@@ -174,7 +174,6 @@ namespace TVinciShared
                 //while (IsGroupUploading())
                 //{
                 //    System.Threading.Thread.Sleep(500);
-                //    Logger.Logger.Log("upload pic to: " + m_sFTPServerIP + " with un: " + m_sFTPUserName + ", pass: " + m_sFTPPass, "Group ALready Uploading", "UploadedPics");
                 //}
                 files = Directory.GetFiles(m_directoryString);
                 AddUploadGroup();

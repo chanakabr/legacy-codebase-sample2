@@ -636,7 +636,6 @@ namespace TVinciShared
             //        if (retVal.IndexOf('.') > 0)
             //        {
             //            retVal = retVal.Substring(0, retVal.IndexOf('.'));
-            //            Logger.Logger.Log("BaseURL", string.Format("epg Pic ID:{0}, base:{1}", epgPicID, retVal), "GetDateImageName");
             //        }
             //    }
             //}

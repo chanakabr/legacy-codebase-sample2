@@ -52,8 +52,6 @@ namespace Users
                     }
                 }
 
-                //Logger.Logger.Log("WEB, http://192.116.126.212/fullauth response", sResponse.ToString(), "WebResp");
-
                 var jss = new JavaScriptSerializer();
                 sData = jss.Deserialize<Dictionary<string, string>>(sResponse);
 
@@ -232,7 +230,6 @@ namespace Users
                 if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     // Error adding to domain
-                    //Logger.Logger.Log("Add Domain Error", "Domain = " + t.ToString(), "Domains");
                     o = new UserResponseObject();
                     o.m_RespStatus = ResponseStatus.UserDoesNotExist;
                     return o;
@@ -249,7 +246,6 @@ namespace Users
                 if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     // Error join to domain
-                    //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
                     o = new UserResponseObject();
                     o.m_RespStatus = ResponseStatus.UserDoesNotExist;
                     return o;

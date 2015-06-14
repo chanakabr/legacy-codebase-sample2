@@ -182,7 +182,6 @@ namespace Logger
         /*Get or creat lof file by name*/
         //public static void GetOrCreateLogFile(string sLogFileName)
         //{
-        //  //  m_Logger.Logger. = "";
 
         //    string temp = log4net.GlobalContext.Properties["DebugLogFilePath"].ToString();
         //    temp = temp.Substring(0, temp.LastIndexOf('/') + 1) + sLogFileName + temp.Substring(temp.IndexOf('_'));

@@ -289,7 +289,6 @@ namespace TVinciShared
 
         static public string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID, string sPageURL)
         {
-            //Logger.Logger.Log("TVM Menu", "Enter Get Menu", "TVMStagingMenu");
             if (nParentID == 0)
             {
                 nSelID = 0;
@@ -311,7 +310,6 @@ namespace TVinciShared
             if (selectQuery.Execute("query", true) != null)
             {
                 nCount = selectQuery.Table("query").DefaultView.Count;
-                // Logger.Logger.Log("TVM Menu", "After select - count is " + nCount.ToString(), "TVMStagingMenu");
                 for (Int32 i = 0; i < nCount; i++)
                 {
                     Int32 nGroupHeader = int.Parse(selectQuery.Table("query").DefaultView[i].Row["IS_GROUP_HEADER"].ToString());
@@ -355,12 +353,10 @@ namespace TVinciShared
                         sXML.Append(GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
                         sXML.Append("</node>");
                     }
-                    // Logger.Logger.Log("TVM Menu", "Menu Item :" + nAMID.ToString() + " " + bVisible.ToString(), "TVMStagingMenu");
                 }
             }
             else
             {
-                //Logger.Logger.Log("TVM Menu", "Select error", "TVMStagingMenu");
             }
             selectQuery.Finish();
             selectQuery = null;

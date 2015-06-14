@@ -150,7 +150,6 @@ namespace Users
         //    selectquery = null;
 
         //    //Write Log
-        //    Logger.Logger.Log("Get User Offline Items ", " Get Media file ID by file type " + sFileType + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1", "users");
 
         //    return res;
         //}

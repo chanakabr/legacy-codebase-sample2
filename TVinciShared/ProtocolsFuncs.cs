@@ -4018,7 +4018,6 @@ namespace TVinciShared
                 userIP = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "user_ip");
                 sNoFileURL = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "no_file_url");
             }
-            //Logger.Logger.Log("Token Request", adminToken, "Token Requests");
             ApiObjects.MediaFileObject oMediaFile = null;
             ApiObjects.MediaInfoObject oMediaInfo = null;
             ApiObjects.MediaStatistics oMediaStatistics = null;
@@ -7712,8 +7711,6 @@ namespace TVinciShared
             Int32 nLangID, bool bIsLangMain, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics,
             ref ApiObjects.ChannelObject[] theChannels, Int32 nCountryID, Int32 nDeviceID)
         {
-            //Logger.Logger.Log("Exception", nCategoryID + ":"+nGroupID +":" + nLangID +":"+bIsLangMain +":" + bIsAdmin+":" + bWithCache, "odedira");
-
             string sPicSizeForCache = "";
             if (thePics == null)
                 sPicSizeForCache = GetPicSizeForCache(ref theDoc);
@@ -7769,13 +7766,10 @@ namespace TVinciShared
                     //if (nPicID != 0)
                     sPicsStr = GetPicSizesXMLPartsForChannel(ref theDoc, nPicID, nGroupID, int.Parse(sID), bIsAdmin, bWithCache, ref thePics, sPicSizeForCache);
 
-                    //Logger.Logger.Log("Exception", "BEFORECHANNEL", "odedira");
                     Channel c = new Channel(int.Parse(sID), bWithCache, nLangID, bIsLangMain, nCountryID, nDeviceID);
-                    //Logger.Logger.Log("Exception", "AFTERCHANEL", "odedira");
                     c.SetGroupID(nGroupID);
                     //Int32 nC = c.GetChannelMediaDT().DefaultView.Count;
                     Int32 nC = 0;
-                    //Logger.Logger.Log("Exception", "AFTERMEDIA", "odedira");
                     if (sTitle != "")
                     {
                         if (theDoc != null)
@@ -8993,7 +8987,6 @@ namespace TVinciShared
                     //il.co.mediazone.web11.Service theServ = new il.co.mediazone.web11.Service();
                     //sNewURL = "https://platform.tvinci.com/proxy.aspx?url=" + HttpContext.Current.Server.UrlEncode(theServ.getHashCode(sMediaURL));
                     sNewURL = sMediaURL;
-                    //Logger.Logger.Log("URL", sNewURL, "Webbycasting");
                     log.Info(String.Format("{0} {1} {2}", "URL", sNewURL, "Webbycasting"));
                 }
                 catch (Exception ex)
@@ -9276,7 +9269,6 @@ namespace TVinciShared
                 {
                     log.Error("", ex);
                 }
-                //Logger.Logger.Log("Exception", sNewURL, "Webbycasting");
 
                 if (theDoc != null)
                     sRet.Append("<link url=\"").Append(ProtocolsFuncs.XMLEncode(ProtocolsFuncs.GetSafeURL(sNewURL), true)).Append("\" block=\"").Append(sBlock).Append("\" />");
@@ -10113,7 +10105,6 @@ namespace TVinciShared
             //if (CachingManager.CachingManager.Exist("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()) == true && bWithCache == true)
             //{
             //    retVal = int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
-            //    Logger.Logger.Log("SearchCount", "Retrieve from cache " + retVal + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //    return int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
             //}
 
@@ -10185,11 +10176,9 @@ namespace TVinciShared
             //if (retVal > 0)
             //{
             //    CachingManager.CachingManager.SetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), retVal, 3600, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
-            //    Logger.Logger.Log("SearchCount", "Enter into cache value " + retVal + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //}
             //else
             //{
-            //    Logger.Logger.Log("SearchCount", "Count is 0 for"  + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //}
 
             return retVal;

@@ -109,12 +109,10 @@ namespace Uploader
                 if (strm != null)
                 {
                     strm.Close();
-                    //Logger.Logger.Log("Stream Closed: ", fileToUpload, "UploadedPics");
                 }
                 if (fs != null)
                 {
                     fs.Close();
-                    //Logger.Logger.Log("File Stream Closed: ", fileToUpload, "UploadedPics");
                 }
             }
 
@@ -226,17 +224,14 @@ namespace Uploader
                             if (strm != null)
                             {
                                 strm.Close();
-                                //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
                             }
                             if (fs != null)
                             {
                                 fs.Close();
-                                //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
                             }
                             if (fileInf != null)
                             {
                                 fileInf.Delete();
-                                //Logger.Logger.Log("DeleteFile: ", m_sAddress + file, "UploadedPics");
                             }
 
                         }
@@ -252,12 +247,10 @@ namespace Uploader
                         if (strm != null)
                         {
                             strm.Close();
-                            //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
                         }
                         if (fs != null)
                         {
                             fs.Close();
-                            //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
                         }
 
                     }
@@ -355,18 +348,14 @@ namespace Uploader
                         if (strm != null)
                         {
                             strm.Close();
-                            //Logger.Logger.Log("Stream Closed.", "File: " + file, "UploadedPics");
                         }
                         if (fs != null)
                         {
                             fs.Close();
-                            //Logger.Logger.Log("File Stream Closed.", "File: " + file, "UploadedPics");
                         }
                         if (fileInf != null && job.upload_status == UploadJobStatus.FINISHED)
                         {
                             fileInf.Delete();
-
-                            //Logger.Logger.Log("DeleteFile.", "File: " + file, "UploadedPics");
                         }
                     }
                 }
@@ -384,12 +373,10 @@ namespace Uploader
                 if (strm != null)
                 {
                     strm.Close();
-                    //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
                 }
                 if (fs != null)
                 {
                     fs.Close();
-                    //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
                 }
 
                 UploadHelper.UpdateJob(job);
