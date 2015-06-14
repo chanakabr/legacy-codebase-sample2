@@ -11921,6 +11921,44 @@ namespace ConditionalAccess
             return eservice;
         }
 
+        /// <summary>
+        /// Get User Subscriptions
+        /// </summary>
+        
+        
+        
+        public virtual Entitlement GetUserSubscriptions(string sSiteGUID)
+        {
+            Entitlement response = new Entitlement();
+
+            try
+            {
+                PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0);
+                if (psc != null && psc.Length > 0)
+                {
+                    // fill Entitlement object
+                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.entitelments = new List<Entitlements>();
+                    foreach (PermittedSubscriptionContainer item in psc)
+                    {
+                        Entitlements ent = new Entitlements(item);
+                        response.entitelments.Add(ent);
+                    }
+                }
+                else
+                {
+                    response = new Entitlement();
+                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                }                
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetUserSubscriptions", string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), "BaseConditionalAccess");
+                response = new Entitlement();
+                response.resp = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
     }
 
 }
