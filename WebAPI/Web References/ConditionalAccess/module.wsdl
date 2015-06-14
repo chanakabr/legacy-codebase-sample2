@@ -34,6 +34,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dCurrentDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dPurchaseDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dLastViewDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_purchaseMethod" type="tns:PaymentMethod" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
@@ -520,6 +521,7 @@
           <s:enumeration value="Subscription" />
           <s:enumeration value="PrePaid" />
           <s:enumeration value="PrePaidExpired" />
+          <s:enumeration value="Collection" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="BillingAction">

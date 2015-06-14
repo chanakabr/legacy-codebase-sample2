@@ -13,6 +13,7 @@ using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.API;
+using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Controllers
 {
@@ -612,8 +613,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("data/{ids}"), HttpGet]
-        //[ApiAuthorize()]       
+        [Route("data/{ids}"), HttpGet]            
         public List<User> GetUsersData([FromUri] string group_id, string ids)
         {
             List<int> usersIds;
@@ -1233,6 +1233,53 @@ namespace WebAPI.Controllers
             }
 
             return success;
+        }
+
+        #endregion
+
+
+        #region ConditionalAccess
+        /// <summary>
+        /// CancelServiceNow.<br />
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="user_name">user name</param>
+        /// <param name="old_password">old password</param>
+        /// <param name="new_password">new password</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("subscriptions/cancel"), HttpDelete]
+        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)             
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (domain_id == 0 || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password  is empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, user_name, old_password, new_password);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
         }
 
         #endregion
