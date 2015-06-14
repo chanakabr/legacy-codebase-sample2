@@ -1842,7 +1842,11 @@ namespace DAL
                     if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
                         return ds.Tables[1].Rows[0];
-                    }  
+                    }
+                    else
+                    {
+                        expiredPIN = DateTime.MaxValue;
+                    }
                 }
                 return null;
             }

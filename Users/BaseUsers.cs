@@ -950,7 +950,7 @@ namespace Users
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
                     }
-                    else if (security && dr == null)
+                    else if (security && expiredPIN == DateTime.MaxValue)
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
                     }
