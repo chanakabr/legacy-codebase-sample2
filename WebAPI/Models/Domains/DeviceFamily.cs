@@ -31,6 +31,13 @@ namespace WebAPI.Models.Domains
         public int DeviceLimit { get; set; }
 
         /// <summary>
+        /// Max number of streams allowed for this family
+        /// </summary>
+        [DataMember(Name = "concurrent_limit")]
+        [JsonProperty("concurrent_limit")]
+        public int ConcurrentLimit { get; set; }
+
+        /// <summary>
         /// List of all the devices in this family
         /// </summary>
         [DataMember(Name = "devices")]

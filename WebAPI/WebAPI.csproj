@@ -595,6 +595,14 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Domains\Device.cs" />
+    <Compile Include="Models\Domains\DeviceFamily.cs" />
+    <Compile Include="Models\Domains\DeviceState.cs" />
+    <Compile Include="Models\Domains\Domain.cs" />
+    <Compile Include="Models\Domains\DomainRestriction.cs" />
+    <Compile Include="Models\Domains\DomainState.cs" />
+    <Compile Include="Models\Domains\HomeNetwork.cs" />
+    <Compile Include="Models\Users\SlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
@@ -627,6 +635,7 @@
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
     <Compile Include="Managers\ClientManager\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
@@ -761,7 +770,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\Domains\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

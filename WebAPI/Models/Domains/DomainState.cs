@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace WebAPI.Models.Domains
+{
+    public enum DomainState
+    {
+        ok,
+        created_without_npvr_account,
+        suspended,
+    }
+}
