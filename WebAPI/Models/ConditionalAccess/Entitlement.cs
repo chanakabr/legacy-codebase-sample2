@@ -39,28 +39,28 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
-        public DateTime endDate { get; set; }
+        public long endDate { get; set; }
 
         /// <summary>
         ///Current Date
         /// </summary>
         [DataMember(Name = "current_date")]
         [JsonProperty("current_date")]
-        public DateTime currentDate;
+        public long currentDate;
 
         /// <summary>
         ///Last View Date
         /// </summary>
         [DataMember(Name = "last_view_date")]
         [JsonProperty("last_view_date")]
-        public DateTime lastViewDate;
+        public long lastViewDate;
 
         /// <summary>
         ///Purchase Date
         /// </summary>
         [DataMember(Name = "purchase_date")]
         [JsonProperty("purchase_date")]
-        public DateTime purchaseDate;
+        public long purchaseDate;
 
         /// <summary>
         ///Purchase ID (sunscription + collection)
@@ -109,7 +109,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "next_renewal_date")]
         [JsonProperty("next_renewal_date")]
-        public DateTime nextRenewalDate;
+        public long nextRenewalDate;
 
         /// <summary>
         ///Recurring Status (subscription)
