@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>The parental rules defined for the account</returns>
-        [Route("{group_id}/parental_rules"), HttpGet]
+        [Route("{group_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string group_id)
         {
             List<ParentalRule> response = null;
