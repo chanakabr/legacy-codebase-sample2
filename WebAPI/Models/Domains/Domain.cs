@@ -108,6 +108,27 @@ namespace WebAPI.Models.Domains
         public DomainState State { get; set; }
 
         /// <summary>
+        /// Is domain frequency enabled
+        /// </summary>
+        [DataMember(Name = "is_frequency_enabled")]
+        [JsonProperty("is_frequency_enabled")]
+        public bool IsFrequencyEnabled { get; set; }
+
+        /// <summary>
+        /// The next time a device is allowed to be removed from the domain (epoch)
+        /// </summary>
+        [DataMember(Name = "frequency_next_device_action")]
+        [JsonProperty("frequency_next_device_action")]
+        public long FrequencyNextDeviceAction { get; set; }
+
+        /// <summary>
+        /// The next time a user is allowed to be removed from the domain (epoch)
+        /// </summary>
+        [DataMember(Name = "frequency_next_user_action")]
+        [JsonProperty("frequency_next_user_action")]
+        public long FrequencyNextUserAction { get; set; }
+
+        /// <summary>
         /// Domain restriction
         /// </summary>
         [DataMember(Name = "restriction")]
