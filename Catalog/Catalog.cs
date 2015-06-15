@@ -914,7 +914,7 @@ namespace Catalog
         {
             isTagOrMeta = false;
 
-            string searchKey = originalKey;
+            string searchKey = originalKey.ToLower();
 
             foreach (string tag in group.m_oGroupTags.Values)
             {
