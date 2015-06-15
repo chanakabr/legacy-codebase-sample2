@@ -30,6 +30,9 @@ namespace ApiObjects.Response
         LimitationPeriod = 1014,//
         DeviceAlreadyExists = 1015, 
         DeviceExistsInOtherDomains = 1016,
+        NoUsersInDomain = 1017,
+        UserExistsInOtherDomains = 1018,
+
         
         // User Section 2000 - 2999
         UserNotExists = 2000, // don't use this one (use UserDoesNotExist)
