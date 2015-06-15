@@ -565,15 +565,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="user_name">user name</param>
+        /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("password"), HttpPut]
-        public bool ChangeUserPassword([FromUri] string group_id, [FromUri] string user_name, [FromUri] string old_password, [FromUri] string new_password)
+        [Route("{username}/password"), HttpPut]
+        public bool ChangeUserPassword([FromUri] string group_id, [FromUri] string username, [FromUri] string old_password, [FromUri] string new_password)
         {
             bool response = false;
 
@@ -582,14 +582,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
-            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password  is empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, user_name, old_password, new_password);
+                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, old_password, new_password);
             }
             catch (ClientException ex)
             {
@@ -613,7 +613,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("data/{ids}"), HttpGet]            
+        [Route("{ids}"), HttpGet]            
         public List<User> GetUsersData([FromUri] string group_id, string ids)
         {
             List<int> usersIds;
@@ -666,9 +666,9 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route(""), HttpPut]
+        [Route("{id}"), HttpPut]
         //[ApiAuthorize()]       
-        public User SetUserData([FromUri] string group_id, UserData user_data)
+        public User SetUserData([FromUri] string group_id, string id, UserData user_data)
         {           
             User response = null;
             int groupId;
@@ -687,7 +687,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SetUserData(groupId, user_data.siteGuid ,user_data.userBasicData, user_data.userDynamicData);
+                response = ClientsManager.UsersClient().SetUserData(groupId, id ,user_data.userBasicData, user_data.userDynamicData);
             }
             catch (ClientException ex)
             {
