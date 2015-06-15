@@ -383,15 +383,16 @@ namespace GracenoteFeeder
 
             foreach (var item in MetaFieldEntity)
             {
+                string itemNamel = item.Name.ToLower();
                 foreach (var value in item.Value)
                 {
-                    if (dMetas.ContainsKey(item.Name))
+                    if (dMetas.ContainsKey(itemNamel))
                     {
-                        dMetas[item.Name].AddRange(item.Value);
+                        dMetas[itemNamel].AddRange(item.Value);
                     }
                     else
                     {
-                        dMetas.Add(item.Name, item.Value);
+                        dMetas.Add(itemNamel, item.Value);
                     }
                 }
             }
@@ -408,13 +409,14 @@ namespace GracenoteFeeder
 
             foreach (var item in TagFieldEntity)
             {
-                if (dTags.ContainsKey(item.Name))
+                string itemNamel = item.Name.ToLower();
+                if (dTags.ContainsKey(itemNamel))
                 {
-                    dTags[item.Name].AddRange(item.Value);
+                    dTags[itemNamel].AddRange(item.Value);
                 }
                 else
                 {
-                    dTags.Add(item.Name, item.Value);
+                    dTags.Add(itemNamel, item.Value);
                 }
 
             }
@@ -428,7 +430,7 @@ namespace GracenoteFeeder
 
             foreach (string sTagName in epg.Tags.Keys)
             {
-                List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
+                List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name.ToLower() == sTagName).ToList();//get the tag_type_ID
                 int nTagTypeID = 0;
 
                 if (tagField != null && tagField.Count > 0)
@@ -533,7 +535,7 @@ namespace GracenoteFeeder
             List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
             foreach (string sMetaName in epg.Metas.Keys)
             {
-                metaField = FieldEntityMappingMetas.Where(x => x.Name == sMetaName).ToList();
+                metaField = FieldEntityMappingMetas.Where(x => x.Name.ToLower() == sMetaName).ToList();
                 int nID = 0;
                 if (metaField != null && metaField.Count > 0)
                 {
