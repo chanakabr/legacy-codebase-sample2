@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/pin"), HttpPost]
+        [Route("{user_id}/pin/generate"), HttpPost]
         public LoginPin GenerateLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             LoginPin response = null;
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/pin/{pin}"), HttpPost]
+        [Route("{user_id}/pin"), HttpPost]
         public bool SetLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             // parameters validation
@@ -528,7 +528,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("toke/{token}"), HttpGet]
+        [Route("token/{token}"), HttpGet]
         public User CheckPasswordToken([FromUri] string group_id, [FromUri] string token)
         {
             User response = null;
@@ -713,7 +713,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the user</returns>
-        [Route("{user_id}/parental_rules"), HttpGet]
+        [Route("{user_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
@@ -753,7 +753,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental_rules/{rule_id}"), HttpPost]
+        [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
         public bool EnableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -793,7 +793,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental_rules/{rule_id}"), HttpDelete]
+        [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -832,7 +832,7 @@ namespace WebAPI.Controllers
         /// <param name="group_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/parental_pin/"), HttpGet]
+        [Route("{user_id}/parental/pin/"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] string user_id)
         {
             PinResponse pinResponse = null;
@@ -871,7 +871,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/parental_pin/{pin}"), HttpPost]
+        [Route("{user_id}/parental/pin"), HttpPost]
         public bool SetParentalPIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -910,7 +910,7 @@ namespace WebAPI.Controllers
         /// <param name="group_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase_settings/"), HttpGet]
+        [Route("{user_id}/purchase/settings/"), HttpGet]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
@@ -949,7 +949,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase_setting/{setting}"), HttpPost]
+        [Route("{user_id}/purchase/settings/{setting}"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id, [FromUri] int setting)
         {
             bool success = false;
@@ -988,7 +988,7 @@ namespace WebAPI.Controllers
         /// <param name="group_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase_pin/"), HttpGet]
+        [Route("{user_id}/purchase/pin/"), HttpGet]
         public PurchaseSettingsResponse GetPurchasePIN([FromUri] string group_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse pinResponse = null;
@@ -1027,7 +1027,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase_pin/{pin}"), HttpPost]
+        [Route("{user_id}/purchase/pin"), HttpPost]
         public bool SetPurchasePIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -1066,7 +1066,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental_rules/media/{media_id}"), HttpGet]
+        [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
         public List<ParentalRule> GetParentalMediaRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
@@ -1111,7 +1111,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental_rules/epg/{epg_id}"), HttpGet]
+        [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
         public List<ParentalRule> GetParentalEPGRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
@@ -1156,7 +1156,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("{user_id}/parental_pin/{pin}"), HttpGet]
+        [Route("{user_id}/parental/pin/validate"), HttpPost]
         public bool ValidateParentalPIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -1201,7 +1201,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("{user_id}/purchase_pin/{pin}"), HttpGet]
+        [Route("{user_id}/purchase/pin/validate"), HttpPost]
         public bool ValidatePurchasePIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
