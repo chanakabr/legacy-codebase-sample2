@@ -59,7 +59,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 did = UsersService.Instance.GetDomainID();
-                domain = m_Module.GetDomainInfo(wsUserName, wsPassword, did);
+                var response = m_Module.GetDomainInfo(wsUserName, wsPassword, did);
+                if (response != null)
+                {
+                    domain = response.Domain;
+                }
             }
             catch (Exception ex)
             {

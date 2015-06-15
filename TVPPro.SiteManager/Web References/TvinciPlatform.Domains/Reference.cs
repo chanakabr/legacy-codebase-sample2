@@ -663,12 +663,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainInfo", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Domain GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
+        public DomainResponse GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainInfo", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((Domain)(results[0]));
+            return ((DomainResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2850,6 +2850,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DomainResponse {
+        
+        private Domain domainField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Domain Domain {
+            get {
+                return this.domainField;
+            }
+            set {
+                this.domainField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class HomeNetwork {
         
         private string nameField;
@@ -3304,10 +3337,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public Domain Result {
+        public DomainResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Domain)(this.results[0]));
+                return ((DomainResponse)(this.results[0]));
             }
         }
     }
