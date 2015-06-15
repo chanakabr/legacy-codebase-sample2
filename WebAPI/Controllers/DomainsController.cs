@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +8,9 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -386,7 +389,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{domainid}/subscriptions/{sub_id}/cancel"), HttpDelete]
+        [Route("{domain_id}/subscriptions/{sub_id}/cancel"), HttpDelete]
         public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domainid, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
         {
             bool response = false;
@@ -429,7 +432,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{domainid}/subscriptions/{sub_id}/renewal"), HttpDelete]
+        [Route("{domain_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
         public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string subscription_code)
         {
             bool response = false;
@@ -459,11 +462,81 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-       
-
-
         #endregion
+
+        /// <summary>
+        /// Returns the Domain model<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// DomainAlreadyExists = 1000, ExceededLimit = 1001, DeviceTypeNotAllowed = 1002, DeviceNotInDomin = 1003, MasterEmailAlreadyExists = 1004, UserNotInDomain = 1005, DomainNotExists = 1006, 
+        /// HouseholdUserFailed = 1007, UserExistsInOtherDomains = 1018
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="domain_id">Domain Id</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{domain_id}"), HttpGet]
+        public Domain GetDomain([FromUri] string group_id, [FromUri] int domain_id, [FromUri] List<With> with)
+        {
+            Domain response = null;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (domain_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id not valid");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, domain_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+
+            if (with != null && with.Contains(With.users))
+            {
+                // get users ids list
+                List<int> userIds = new List<int>();
+                userIds.AddRange(response.UsersIds);
+                userIds.AddRange(response.MasterUsersIds);
+                userIds.AddRange(response.DefaultUsersIds);
+                userIds.AddRange(response.PendingUsersIds);
+                
+                //get users
+                List<User> users = null;
+                if (userIds.Count > 0)
+                {
+                    users = ClientsManager.UsersClient().GetUsersData(groupId, userIds);
+                }
+
+                if (users != null)
+                {
+                    response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => response.UsersIds.Contains((int)u.Id)));
+                    response.UsersIds = null;
+                    response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.MasterUsersIds.Contains((int)u.Id)));
+                    response.MasterUsersIds = null;
+                    response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.DefaultUsersIds.Contains((int)u.Id)));
+                    response.DefaultUsersIds = null;
+                    response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.PendingUsersIds.Contains((int)u.Id)));
+                    response.PendingUsersIds = null;
+                }
+
+            }
+            return response;
+        }
 
     }
 }

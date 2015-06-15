@@ -10,7 +10,7 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using WebAPI.Models;
 
-namespace WebAPI.Exceptions
+namespace WebAPI.Filters
 {
     public class ExceptionFilter : ExceptionFilterAttribute
     {

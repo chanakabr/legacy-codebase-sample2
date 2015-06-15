@@ -281,7 +281,10 @@
     <Content Include="Web References\Domains\HomeNetwork.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Domains\module.disco" />
+    <Content Include="Web References\Domains\DomainResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -356,14 +359,14 @@
     <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Web References\Domains\module.wsdl" />
+    <None Include="Web References\Domains\module.wsdl" />
     <Content Include="Web References\Domains\NetworkResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Domains\Reference.map">
+    <None Include="Web References\Domains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Domains\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -602,6 +605,7 @@
     <Compile Include="Models\Domains\DomainRestriction.cs" />
     <Compile Include="Models\Domains\DomainState.cs" />
     <Compile Include="Models\Domains\HomeNetwork.cs" />
+    <Compile Include="Models\Domains\With.cs" />
     <Compile Include="Models\Users\SlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
@@ -688,7 +692,7 @@
     <Compile Include="Models\Catalog\WatchHistory.cs" />
     <Compile Include="Models\Catalog\WatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\WatchStatus.cs" />
-    <Compile Include="Models\With.cs" />
+    <Compile Include="Models\Catalog\With.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -811,10 +815,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/domains/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Domains\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

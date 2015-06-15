@@ -1,6 +1,6 @@
-﻿using WebAPI.Mapping.ObjectsConvertor;
+﻿using WebAPI.ObjectsConvertor.Mapping;
 
-namespace WebAPI.Exceptions
+namespace WebAPI.Filters
 {
     public class AutoMapperConfig
     {
@@ -10,6 +10,7 @@ namespace WebAPI.Exceptions
             CatalogMappings.RegisterMappings();
             ApiMappings.RegisterMappings();
             ConditionalAccessMappings.RegisterMappings();
+            DomainsMappings.RegisterMappings();
         }
     }
 }

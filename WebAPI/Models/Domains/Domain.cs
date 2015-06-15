@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Domains
 {
@@ -68,30 +69,58 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// List of users identifiers 
         /// </summary>
+        [DataMember(Name = "users_ids")]
+        [JsonProperty("users_ids")]
+        public List<int> UsersIds { get; set; }
+
+        /// <summary>
+        /// List of master users identifiers 
+        /// </summary>
+        [DataMember(Name = "master_users_ids")]
+        [JsonProperty("master_users_ids")]
+        public List<int> MasterUsersIds { get; set; }
+
+        /// <summary>
+        /// List of default users identifiers 
+        /// </summary>
+        [DataMember(Name = "default_users_ids")]
+        [JsonProperty("default_users_ids")]
+        public List<int> DefaultUsersIds { get; set; }
+
+        /// <summary>
+        /// List of pending users identifiers 
+        /// </summary>
+        [DataMember(Name = "pending_users_ids")]
+        [JsonProperty("pending_users_ids")]
+        public List<int> PendingUsersIds { get; set; }
+
+        /// <summary>
+        /// List of users identifiers 
+        /// </summary>
         [DataMember(Name = "users")]
         [JsonProperty("users")]
-        public List<int> Users { get; set; }
+        public List<SlimUser> Users { get; set; }
 
         /// <summary>
         /// List of master users identifiers 
         /// </summary>
         [DataMember(Name = "master_users")]
         [JsonProperty("master_users")]
-        public List<int> MasterUsers { get; set; }
+        public List<SlimUser> MasterUsers { get; set; }
 
         /// <summary>
         /// List of default users identifiers 
         /// </summary>
         [DataMember(Name = "default_users")]
         [JsonProperty("default_users")]
-        public List<int> DefaultUsers { get; set; }
+        public List<SlimUser> DefaultUsers { get; set; }
 
         /// <summary>
         /// List of pending users identifiers 
         /// </summary>
         [DataMember(Name = "pending_users")]
         [JsonProperty("pending_users")]
-        public List<int> PendingUsers { get; set; }
+        public List<SlimUser> PendingUsers { get; set; }
 
         /// <summary>
         /// The domains region identifier

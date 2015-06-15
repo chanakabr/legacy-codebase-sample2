@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using WebAPI.App_Start;
-using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 using System.Reflection;
