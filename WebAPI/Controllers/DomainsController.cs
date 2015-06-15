@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.API;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -366,5 +367,103 @@ namespace WebAPI.Controllers
 
             return success;
         }
+
+
+
+
+        #region ConditionalAccess
+        /// <summary>
+        /// CancelServiceNow.<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="domainid">Domain Id</param>
+        /// <param name="asset_id">Asset Id</param>
+        /// <param name="transaction_type">TransactionType Enum</param>
+        ///  <param name="bIsForce"Bbool parameter</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{domainid}/subscriptions/{sub_id}/cancel"), HttpDelete]
+        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domainid, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (domainid == 0 || asset_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id or asset_id not valid");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domainid, asset_id, transaction_type, bIsForce);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// CancelServiceNow.<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        ///  DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="domain_id">Domain Id</param>
+        /// <param name="subscription_code">Subscription Code</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{domainid}/subscriptions/{sub_id}/renewal"), HttpDelete]
+        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string subscription_code)
+        {
+            bool response = false;
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+            if (domain_id == 0 || string.IsNullOrEmpty(subscription_code))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id or subscription code not valid");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, domain_id, subscription_code);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+
+       
+
+
+        #endregion
+
     }
 }

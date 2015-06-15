@@ -384,12 +384,9 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-
-
-        
+                
         /// <summary>
-        /// SignUp (for new user).<br />
+        /// Sign up a new user.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
@@ -436,17 +433,17 @@ namespace WebAPI.Controllers
         }
         
         /// <summary>
-        /// SendNewPassword by user name.<br />
+        /// Send a new password by user name.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="user_name">user name</param>
+        /// <param name="username">user name</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("send_password"), HttpPost]
-        public bool SendNewPassword([FromUri] string group_id, [FromUri] string user_name)
+        [Route("{username}/reset_password"), HttpPost]
+        public bool SendNewPassword([FromUri] string group_id, [FromUri] string username)
         {
             bool response = false;
 
@@ -455,14 +452,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
-            if (string.IsNullOrEmpty(user_name))
+            if (string.IsNullOrEmpty(username))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
             }          
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SendNewPassword(groupId, user_name);
+                response = ClientsManager.UsersClient().SendNewPassword(groupId, username);
             }
             catch (ClientException ex)
             {
@@ -477,7 +474,7 @@ namespace WebAPI.Controllers
         }
         
         /// <summary>
-        /// RenewPassword get user name and new password.<br />
+        /// Renew the user's password without validating the existing password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
         /// </summary>        
         /// <param name="group_id">Group ID</param>
@@ -519,7 +516,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// CheckPasswordToken .<br />
+        /// Returns the user name associated with a temporary reset token .<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
@@ -561,7 +558,7 @@ namespace WebAPI.Controllers
 
 
         /// <summary>
-        /// ChangeUserPassword chnage old password with new one for get user name.<br />
+        /// Given a user name and existing password, change to a new password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
@@ -655,7 +652,7 @@ namespace WebAPI.Controllers
         }
 
 
-        /// <summary>SetUserData </br>
+        /// <summary>Edit user details info.</br>
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025
         /// 
         /// </summary>
@@ -666,8 +663,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{id}"), HttpPut]
-        //[ApiAuthorize()]       
+        [Route("{id}"), HttpPut]       
         public User SetUserData([FromUri] string group_id, string id, UserData user_data)
         {           
             User response = null;
@@ -1238,97 +1234,10 @@ namespace WebAPI.Controllers
         #endregion
 
 
-        #region ConditionalAccess
+     #region ConditionalAccess
+     
         /// <summary>
-        /// CancelServiceNow.<br/>
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
-        /// </summary>        
-        /// <param name="group_id">Group ID</param>
-        /// <param name="domain_id">Domain Id</param>
-        /// <param name="asset_id">Asset Id</param>
-        /// <param name="transaction_type">TransactionType Enum</param>
-        ///  <param name="bIsForce"Bbool parameter</param>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
-        [Route("subscriptions/cancel"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)             
-        {
-            bool response = false;
-
-            int groupId;
-            if (!int.TryParse(group_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
-            }
-            if (domain_id == 0 || asset_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id or asset_id not valid");
-            }
-            try
-            {
-                // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domain_id, asset_id, transaction_type, bIsForce);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            if (response == false)
-            {
-                throw new InternalServerErrorException();
-            }
-            return response;
-        }
-
-        /// <summary>
-        /// CancelServiceNow.<br/>
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        ///  DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
-        /// </summary>        
-        /// <param name="group_id">Group ID</param>
-        /// <param name="domain_id">Domain Id</param>
-        /// <param name="subscription_code">Subscription Code</param>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
-        [Route("subscriptions/renewal/cancel"), HttpDelete]
-        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string subscription_code)
-        {
-            bool response = false;
-
-            int groupId;
-            if (!int.TryParse(group_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
-            }
-            if (domain_id == 0 || string.IsNullOrEmpty(subscription_code))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id or subscription code not valid");
-            }
-            try
-            {
-                // call client
-                response = ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, domain_id, subscription_code);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            if (response == false)
-            {
-                throw new InternalServerErrorException();
-            }
-            return response;
-        }
-
-        /// <summary>
-        /// GetUserSubscriptions.<br/>
+        /// Gets list of Entitlement (subscriptions) by a given user.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
@@ -1337,7 +1246,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/subscriptions/permitted"), HttpGet]
+        [Route("{userid}/subscriptions/permitted"), HttpGet]
         public List<Entitlement> GetUserSubscriptions([FromUri] string group_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
@@ -1361,11 +1270,9 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            
+
             return response;
         }
-
-
 
         #endregion
 
