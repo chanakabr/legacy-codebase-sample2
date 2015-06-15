@@ -293,7 +293,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domain = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
+                    var response = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
+                    if (response != null)
+                    {
+                        domain = response.Domain;
+                    }
                 }
             }
             catch (Exception ex)
