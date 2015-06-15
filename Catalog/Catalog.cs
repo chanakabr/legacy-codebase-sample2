@@ -764,7 +764,7 @@ namespace Catalog
                             bool isTagOrMeta;
                             // Add prefix (meta/tag) e.g. metas.{key}
 
-                            string searchKey = GetFullSearchKey(leaf.field, ref group, out isTagOrMeta);
+                            string searchKey = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
                             leaf.field = searchKey;
 
                             string searchKeyLowered = searchKey.ToLower();
@@ -901,6 +901,70 @@ namespace Catalog
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        /// <summary>
+        /// Verifies that the search key is a tag or a meta of either EPG or media
+        /// </summary>
+        /// <param name="originalKey"></param>
+        /// <param name="group"></param>
+        /// <param name="isTagOrMeta"></param>
+        /// <returns></returns>
+        private static string GetUnifiedSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+        {
+            isTagOrMeta = false;
+
+            string searchKey = originalKey;
+
+            foreach (string tag in group.m_oGroupTags.Values)
+            {
+                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    isTagOrMeta = true;
+                    break;
+                }
+            }
+
+            if (!isTagOrMeta)
+            {
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
+                {
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        break;
+                    }
+                }
+
+            }
+
+            if (!isTagOrMeta)
+            {
+                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                {
+                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isTagOrMeta)
+            {
+                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                {
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        break;
+                    }
+                }
+            }
+
+            return searchKey;
         }
 
         private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
