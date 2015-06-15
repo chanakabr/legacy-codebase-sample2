@@ -289,7 +289,9 @@ namespace DAL
         }
 
 
-        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, 
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, 
+            ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule, ref bool shouldSendMail)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification");
@@ -318,6 +320,18 @@ namespace DAL
                     bIsPurchasedWithPreviewModule = lPreviewModuleID > 0;
                     res = true;
 
+                }
+
+                if (ds.Tables.Count > 1)
+                {
+                    DataTable secondTable = ds.Tables[1];
+
+                    if (secondTable != null && secondTable.Rows != null && secondTable.Rows.Count > 0)
+                    {
+                        bool wasMailSend = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(secondTable.Rows[0], "IS_MAIL_SENT"));
+
+                        shouldSendMail = bIsCreatedByAdyenCallback && !wasMailSend;
+                    }
                 }
             }
 
