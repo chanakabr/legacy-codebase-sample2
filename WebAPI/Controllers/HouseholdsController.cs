@@ -377,14 +377,15 @@ namespace WebAPI.Controllers
 
         #region ConditionalAccess
         /// <summary>
-        /// Immediately cancel a household subscription. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Immediately cancel a household subscription. 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <param name="sub_id">Subscription ID</param>        
-        ///  <param name="is_force">bool parameter</param>
+        ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -397,14 +398,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately cancel a household PPV. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Immediately cancel a household PPV. 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <param name="ppv_id">PPV ID</param>        
-        ///  <param name="is_force">bool parameter</param>
+        ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -417,14 +419,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately cancel a household Collection. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Immediately cancel a household Collection. 
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <param name="collection_id">Collection ID</param>        
-        ///  <param name="is_force">bool parameter</param>
+        ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
