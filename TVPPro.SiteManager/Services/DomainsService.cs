@@ -161,7 +161,13 @@ namespace TVPPro.SiteManager.Services
 
                 var domainName = string.Concat(UsersService.Instance.UserContext.UserResponse.m_user.m_oBasicData.m_sFirstName, "'s Domain'");
 
-                domain = m_Module.AddDomain(wsUserName, wsPassword, domainName, string.Empty, int.Parse(UsersService.Instance.GetUserID()));
+                var res = m_Module.AddDomain(wsUserName, wsPassword, domainName, string.Empty, int.Parse(UsersService.Instance.GetUserID()));
+
+                if (res != null)
+                {
+                    domain = res.DomainResponse;
+                }
+                
             }
             catch (Exception ex)
             {
