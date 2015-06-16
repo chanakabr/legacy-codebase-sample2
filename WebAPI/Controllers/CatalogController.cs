@@ -297,6 +297,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/"), HttpGet]
         public Channel GetChannel(string group_id, int channel_id, string language = null, string user_id = null, int domain_id = 0)
@@ -316,6 +317,9 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetChannelInfo(groupId, user_id, domain_id, language, channel_id);
+
+                if (response == null || response.Id == 0)
+                    throw new NotFoundException();
             }
             catch (ClientException ex)
             {

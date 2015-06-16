@@ -61,5 +61,6 @@ namespace WebAPI.Models.General
         Forbidden = 500004,
         Unauthorized = 500005,
         MissingConfiguration = 500006,
+        NotFound = 500007
     }
 }
