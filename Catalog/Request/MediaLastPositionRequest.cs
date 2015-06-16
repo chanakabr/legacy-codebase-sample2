@@ -13,13 +13,14 @@ using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class MediaLastPositionRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public MediaLastPositionRequestData data { get; set; }
@@ -76,7 +77,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaLastPositionRequest.GetResponse", ex);
+                log.Error("MediaLastPositionRequest.GetResponse", ex);
                 throw ex;
             }
         }

@@ -658,6 +658,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 //log.Error(ex.Message, ex);
             }
         }

@@ -7,6 +7,7 @@ using System.Text;
 using ApiObjects;
 using Catalog.Response;
 using EpgBL;
+using KLogMonitor;
 using Logger;
 
 namespace Catalog.Request
@@ -15,7 +16,8 @@ namespace Catalog.Request
     [DataContract]
     public class EPGProgramsByProgramsIdentefierRequest : BaseEpg, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         string[] pids { get; set; }
        
@@ -54,6 +56,7 @@ namespace Catalog.Request
              }
              catch (Exception ex)
              {
+                 log.Error("", ex);
                  return new BaseResponse();
              }
          }

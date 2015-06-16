@@ -7,10 +7,14 @@ using SimpleInjector.Extensions;
 using SimpleInjector.Integration.Wcf;
 using ApiObjects.SearchObjects;
 using Catalog.Searchers;
+using KLogMonitor;
+using System.Reflection;
 namespace Catalog
 {
     public static class Bootstrapper
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static Container container;
         private static bool isInitialized = false;
         public static void Bootstrap()
@@ -22,11 +26,11 @@ namespace Catalog
                     // Create the container
 
                     container = new Container();
-                    Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));                   
-                    
+                    Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
+
                     // Register your types, for instance:
-                    container.Register(typeof(ISearcher), searcherType);                   
-                    
+                    container.Register(typeof(ISearcher), searcherType);
+
                     // Register the container to the SimpleInjectorServiceHostFactory.
                     SimpleInjectorServiceHostFactory.SetContainer(container);
 
@@ -36,7 +40,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Catalog", String.Concat("Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "Bootstrapper");
+                log.Error("Catalog - " + String.Concat("Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
             }
         }
 

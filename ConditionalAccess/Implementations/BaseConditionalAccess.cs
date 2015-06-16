@@ -8327,7 +8327,6 @@ namespace ConditionalAccess
         string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
         string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
         {
-            //Logger.Logger.Log("Custom Data User IP", sUserIP + " " + sCountryCd + TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP), "ADCustomData");
             bool bIsFixed = thePrePaidModule.m_isFixedCredit;
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"prepaid\">");
@@ -8403,7 +8402,6 @@ namespace ConditionalAccess
            string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            //Logger.Logger.Log("Custom Data User IP", sUserIP + " " + sCountryCd + TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP), "ADCustomData");
             return GetCustomDataForPrePaid(thePrePaidModule, campaign, sPrePaidCode, sCampaignCode,
            sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
@@ -9684,7 +9682,6 @@ namespace ConditionalAccess
                             //    // If getting didn't succeed for any reason, write to log
                             //    if (!bIsSuccess)
                             //    {
-                            //        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCodeFromPrice, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
                             //            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
                             //    }
                             //}

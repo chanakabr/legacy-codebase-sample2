@@ -14,13 +14,14 @@ using System.Collections.Concurrent;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class BundleMediaRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public eBundleType m_eBundleType;
@@ -34,7 +35,7 @@ namespace Catalog.Request
         private const string SUB_DATA_TABLE = "subscriptions";
         private const string COL_DATA_TABLE = "collections";
 
-        public BundleMediaRequest() 
+        public BundleMediaRequest()
             : base()
         {
         }
@@ -44,8 +45,8 @@ namespace Catalog.Request
             try
             {
                 BundleMediaRequest request = (BundleMediaRequest)oBaseRequest;
-                List<SearchResult> lMedias     = new List<SearchResult>();
-                MediaIdsResponse response      = new MediaIdsResponse();
+                List<SearchResult> lMedias = new List<SearchResult>();
+                MediaIdsResponse response = new MediaIdsResponse();
 
                 if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
@@ -56,21 +57,21 @@ namespace Catalog.Request
                 switch (request.m_eBundleType)
                 {
                     case eBundleType.SUBSCRIPTION:
-                    {
-                        dataTable = SUB_DATA_TABLE;
-                        break;
-                    }
+                        {
+                            dataTable = SUB_DATA_TABLE;
+                            break;
+                        }
                     case eBundleType.COLLECTION:
-                    {
-                        dataTable = COL_DATA_TABLE;
-                        break;
-                    }
+                        {
+                            dataTable = COL_DATA_TABLE;
+                            break;
+                        }
                 }
 
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                Group groupInCache = groupManager.GetGroup(nParentGroupID); 
+                Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                 if (groupInCache != null)
                 {
@@ -134,7 +135,7 @@ namespace Catalog.Request
                                          }
                                          catch (Exception ex)
                                          {
-                                             _logger.Error(ex.Message, ex);
+                                             log.Error(ex.Message, ex);
                                          }
                                      }, searchObjectIndex);
                                 channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -144,7 +145,7 @@ namespace Catalog.Request
                             Task.WaitAll(channelsSearchObjectTasks);
 
                             List<MediaSearchObj> channelsSearchObjects = arrChannelSearchObjects.ToList();
-                            
+
                             for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
                             {
                                 if (channelsSearchObjectTasks[i] != null)
@@ -172,7 +173,7 @@ namespace Catalog.Request
                                             oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
                                             oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                                         }
-                                        
+
 
                                         // Getting all medias in bundle   
                                         List<SearchResult> lMediaRes = null;
@@ -196,19 +197,19 @@ namespace Catalog.Request
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.Error(ex.Message);
+                                    log.Error(ex.Message);
                                 }
                             }
                         }
                     }
                 }
 
-                Logger.Logger.Log("Info", "BundleMediaRequest - total returned items = " + response.m_nTotalItems, "Elasticsearch");
+                log.Debug("Info - BundleMediaRequest - total returned items = " + response.m_nTotalItems);
                 return (BaseResponse)response;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

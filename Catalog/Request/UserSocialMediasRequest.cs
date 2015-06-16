@@ -9,6 +9,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -19,7 +20,7 @@ namespace Catalog.Request
     [DataContract]
     public class UserSocialMediasRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public int m_nSocialAction;
@@ -70,7 +71,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

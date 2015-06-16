@@ -1459,6 +1459,7 @@ namespace NPVR
             {
                 try
                 {
+                    log.Error("", jsonEx);
                     GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
                     response.isOK = false;
                     response.results = new List<RecordedSeriesObject>(0);

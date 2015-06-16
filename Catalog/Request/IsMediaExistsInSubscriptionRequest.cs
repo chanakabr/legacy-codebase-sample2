@@ -10,6 +10,7 @@ using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
+using KLogMonitor;
 using Logger;
 using TVinciShared;
 
@@ -18,7 +19,7 @@ namespace Catalog.Request
     [DataContract]
     public class IsMediaExistsInSubscriptionRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public int m_nSubscriptionID;
@@ -92,7 +93,7 @@ namespace Catalog.Request
                                          }
                                          catch (Exception ex)
                                          {
-                                             _logger.Error(ex.Message, ex);
+                                             log.Error(ex.Message, ex);
                                          }
                                      }, searchObjectIndex);
                                 channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -126,7 +127,7 @@ namespace Catalog.Request
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.Error(ex.Message);
+                                    log.Error(ex.Message);
                                 }
                             }
                         }
@@ -150,7 +151,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

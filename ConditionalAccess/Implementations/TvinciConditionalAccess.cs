@@ -167,6 +167,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 throw;
             }
             finally

@@ -582,8 +582,6 @@ namespace GroupsCacheManager
         //    }
         //    catch (Exception ex)
         //    {
-        //        Logger.Logger.Log("InsertChannels",
-        //            string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", group.m_nParentGroupID, ex.Message), "GroupsCacheManager");
         //        inserted = false;
         //    }
 
@@ -782,7 +780,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return (mediaTypes);

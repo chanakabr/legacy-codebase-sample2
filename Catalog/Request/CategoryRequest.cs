@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Response;
+using KLogMonitor;
 
 
 namespace Catalog.Request
@@ -19,7 +20,7 @@ namespace Catalog.Request
     [DataContract]
     public class CategoryRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public int m_nCategoryID;
@@ -41,7 +42,7 @@ namespace Catalog.Request
 
             try
             {
-                CategoryRequest request = (CategoryRequest)oBaseRequest;    
+                CategoryRequest request = (CategoryRequest)oBaseRequest;
 
                 if (request == null || request.m_oFilter == null)
                     throw new Exception("request object is null or required variable is null");
@@ -96,9 +97,9 @@ namespace Catalog.Request
                                                 {
                                                     ID = (int)r.Field<long>("ID"),
                                                     m_sTitle = r.Field<string>("NAME"),
-                                                        //((nLanguage == 0 || nLanguage == groupLangID) ? 
-                                                        //            r.Field<string>("CATEGORY_NAME") :
-                                                        //            r.Field<string>("NAME")),
+                                                    //((nLanguage == 0 || nLanguage == groupLangID) ? 
+                                                    //            r.Field<string>("CATEGORY_NAME") :
+                                                    //            r.Field<string>("NAME")),
                                                     m_nParentCategoryID = (int)r.Field<long>("PARENT_CATEGORY_ID"),
                                                     m_sCoGuid = r.Field<string>("CO_GUID")
                                                 })
@@ -110,14 +111,14 @@ namespace Catalog.Request
                     Dictionary<int, List<Picture>> dCatPics = dtCat.AsEnumerable()
                         .Select(r => new
                         {
-                            ID = (int) r.Field<long>("ID"),
+                            ID = (int)r.Field<long>("ID"),
                             PicUrl = r.Field<string>("PIC_URL"),
                             PicSize = r.Field<string>("PIC_SIZE")
                         })
                         .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
                         .GroupBy(c => c.ID)
                         .ToDictionary(c => c.Key, c => c.ToList()
-                            .Select(cp => new Picture() {m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
+                            .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
 
 
                     // If requested category not found, return empty response
@@ -142,7 +143,7 @@ namespace Catalog.Request
                                 c.m_oChannels = catChannels[c.ID]
                                                 .Select(cc => new channelObj()
                                                                 {
-                                                                    m_nChannelID = (int) cc.ChannelID,
+                                                                    m_nChannelID = (int)cc.ChannelID,
                                                                     m_nGroupID = request.m_nGroupID,
                                                                     m_sDescription = cc.Description,
                                                                     m_sEditorRemarks = cc.EditorRemarks,
@@ -165,15 +166,15 @@ namespace Catalog.Request
                     return cRoot;
 
                 }
-                 
+
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("msg:{0}, st:{1}", ex.Message, ex.StackTrace), "CategoryRequest");
+                log.Error("Exception - " + string.Format("msg:{0}, st:{1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
 
-            return (BaseResponse) response;
+            return (BaseResponse)response;
         }
 
         private List<CategoryResponse> FindTreeChildren(List<CategoryResponse> cats, int parentCategoryID)

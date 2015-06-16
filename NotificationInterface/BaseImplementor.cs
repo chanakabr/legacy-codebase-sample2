@@ -9,25 +9,28 @@ using System.Web;
 using NotificationObj;
 using DAL;
 using Newtonsoft.Json;
+using KLogMonitor;
+using System.Reflection;
 namespace NotificationInterface
 {
-    
+
     /// <summary>
     /// Abstract class for all types of implementors to inherit from,
     /// provides common fuctionality for all types of implementors.
     /// </summary>
-    public abstract class BaseImplementor 
+    public abstract class BaseImplementor
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string BASE_IMPLEMENTOR_LOG_FILE = "BaseImplementor";
-        #region Consts     
+        #region Consts
         /// <summary>
         /// Define the key for fetching appname per group id from config file,
         /// Example:key="NOTIFICATION_BANDLE_APP_NAME_GROUP_ID_125" value="TvinciAppTest" 
         /// </summary>
-        private const string GROUP_APP_NAME_KEY_PREFIX = "NOTIFICATION_BANDLE_APP_NAME_GROUP_ID_"; 
+        private const string GROUP_APP_NAME_KEY_PREFIX = "NOTIFICATION_BANDLE_APP_NAME_GROUP_ID_";
         #endregion
-          
-        #region abstract Methods        
+
+        #region abstract Methods
         /// <summary>
         /// Abstract declaration of sending messgaes, each inherit implementor need to implement this method specifically.
         /// </summary>
@@ -35,7 +38,7 @@ namespace NotificationInterface
         protected abstract void SendMessages(List<NotificationMessage> messagesList, bool bIsInsertBulkOfMessagesToDB);
 
         //  protected abstract void SendEmailMessage(NotificationMessage emailMessage);
-        
+
         /// <summary>
         /// Abstract declaration of fetching the devices for each user,
         /// it can be per user or per group.
@@ -60,7 +63,7 @@ namespace NotificationInterface
             InitMessagesDataTable();
         }
         #endregion
-        
+
         #region virtual Methods
         protected virtual long SendOneMessage(NotificationMessage message)
         {
@@ -70,28 +73,26 @@ namespace NotificationInterface
             //{
             //    MessageBoxServiceWrapper messageBoxWrapper = new MessageBoxServiceWrapper();
             //    messageID = messageBoxWrapper.AddMessage(message);
-            //    Logger.Logger.Log("SendOneMessage- finished  messageBoxWrapper.AddMessage()", "MessageID=" + messageID.ToString(), "BaseImplementor");
 
             //}
             //catch (Exception ex)
             //{
             //    #region Logging
-            //    Logger.Logger.Log("SendOneMessage-SendOneMessage failed", "Exception=" + ex.ToString(), BASE_IMPLEMENTOR_LOG_FILE);
             //    #endregion
             //}
             return messageID;
         }
 
         protected virtual void ProcessOneMessage(NotificationMessage message)
-        {            
-            
+        {
+
             string sResult = string.Empty;
             string sErrorMsg = string.Empty;
             string sBaseDMSAddress = Utils.GetWSURL("DMSBaseAddress");
 
             try
             {
-                Logger.Logger.Log("ProcessOneMessage", string.Format("Entering ProcessOneMessage try block. Message: {0} , DMS Base Address: {1}", message.ToString(), sBaseDMSAddress), BASE_IMPLEMENTOR_LOG_FILE);
+                log.Debug("ProcessOneMessage - " + string.Format("Entering ProcessOneMessage try block. Message: {0} , DMS Base Address: {1}", message.ToString(), sBaseDMSAddress));
 
                 DMSPushRequest dpr = ConvertNotificationMessageToDMSPushRequest(message);
                 if (sBaseDMSAddress.Length == 0 || !TVinciShared.WS_Utils.TrySendHttpPostRequest(GetDMSAddressWithCredentials(sBaseDMSAddress), JsonConvert.SerializeObject(dpr), "application/json", Encoding.UTF8, ref sResult, ref sErrorMsg))
@@ -108,22 +109,22 @@ namespace NotificationInterface
                         else
                         {
                             message.Status = NotificationMessageStatus.Failed;
-                            Logger.Logger.Log("ProcessOneMessage", string.Format("Fail from DMS. Response string: {0} , Error msg: {1} , Status returned from DMS: {2} , Message returned from DMS: {3} , NotificationMessage obj: {4}", sResult, sErrorMsg, resp.Status, resp.Message, message.ToString()), BASE_IMPLEMENTOR_LOG_FILE);
+                            log.Debug("ProcessOneMessage - " + string.Format("Fail from DMS. Response string: {0} , Error msg: {1} , Status returned from DMS: {2} , Message returned from DMS: {3} , NotificationMessage obj: {4}", sResult, sErrorMsg, resp.Status, resp.Message, message.ToString()));
                         }
                     }
                     else
                     {
                         message.Status = NotificationMessageStatus.Failed;
-                        Logger.Logger.Log("ProcessOneMessage", string.Format("Response from DMS is null or empty. Error Msg: {0} , NotificationMessage obj: {1}", sErrorMsg, message.ToString()), BASE_IMPLEMENTOR_LOG_FILE);
+                        log.Debug("ProcessOneMessage - " + string.Format("Response from DMS is null or empty. Error Msg: {0} , NotificationMessage obj: {1}", sErrorMsg, message.ToString()));
                     }
                 }
             }
-            catch (Exception ex)                                
+            catch (Exception ex)
             {
-                Logger.Logger.Log("ProcessOneMessage", string.Format("Fail. Exception: {0} , NotificationMessage obj: {1}", ex.ToString(), message.ToString()), BASE_IMPLEMENTOR_LOG_FILE);
+                log.Error("ProcessOneMessage - " + string.Format("Fail. Exception: {0} , NotificationMessage obj: {1}", ex.ToString(), message.ToString()), ex);
                 message.Status = NotificationMessageStatus.Failed;
             }
-           
+
         }
 
         private string GetDMSAddressWithCredentials(string sBaseDMSAddress)
@@ -148,7 +149,7 @@ namespace NotificationInterface
             NotificationMessageType messageType = request.MessageType;
             NotificationRequestAction[] actions = request.Actions;
             string appName = GetAppNameFromConfig(request.GroupID);
-            NotificationMessage emailMessage = new NotificationMessage(messageType, request.NotificationID, request.ID, request.UserID, NotificationMessageStatus.NotStarted, request.MessageText, request.Title, appName, string.Empty, 0, request.Actions, request.oExtraParams, request.GroupID);          
+            NotificationMessage emailMessage = new NotificationMessage(messageType, request.NotificationID, request.ID, request.UserID, NotificationMessageStatus.NotStarted, request.MessageText, request.Title, appName, string.Empty, 0, request.Actions, request.oExtraParams, request.GroupID);
             return emailMessage;
         }
 
@@ -168,11 +169,11 @@ namespace NotificationInterface
                 {
                     insertMessagesBulk.InsertBulk("notifications_messages", m_MessagesDataTable);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     #region Logging
                     bool b = messagesList != null && messagesList.Count > 0 && messagesList[0].ID != null;
-                    Logger.Logger.Log("InsertMessagesBulkCopy", string.Format("Exception. Exception msg: {0} , First message guid: {1} First message user id: {2}", ex.Message, b ? messagesList[0].ID.ToString() : "null", messagesList[0].UserID.ToString()), BASE_IMPLEMENTOR_LOG_FILE);
+                    log.Error("InsertMessagesBulkCopy - " + string.Format("Exception. Exception msg: {0} , First message guid: {1} First message user id: {2}", ex.Message, b ? messagesList[0].ID.ToString() : "null", messagesList[0].UserID.ToString()), ex);
                     #endregion
                 }
                 finally
@@ -213,7 +214,7 @@ namespace NotificationInterface
             NotificationRequestAction[] actions = request.Actions;
             string appName = GetAppNameFromConfig(request.GroupID);
 
-            DataTable dtUsersDevices = GetUsersDevices(request.GroupID,(long?)request.UserID, NotificationMessageType.Push); //Concrete implementation for each implementor
+            DataTable dtUsersDevices = GetUsersDevices(request.GroupID, (long?)request.UserID, NotificationMessageType.Push); //Concrete implementation for each implementor
 
             int nBadge = 0;
             if (request.MessageType == NotificationMessageType.Push)
@@ -282,13 +283,13 @@ namespace NotificationInterface
                     row["status"] = message.Status;
                     row["messageVia"] = (int)NotificationMessageType.Push;
                     row["message"] = message.MessageText;
-                    
+
                     m_MessagesDataTable.Rows.Add(row);
                 }
             }
         }
         #endregion
 
-       
+
     }
 }

@@ -6,11 +6,14 @@ using CachingProvider;
 using DAL;
 using TvinciCache;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Cache
 {
     public class CatalogCache
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constants
         private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
@@ -94,6 +97,7 @@ namespace Catalog.Cache
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return nGroupID;
             }
         }

@@ -1932,6 +1932,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }

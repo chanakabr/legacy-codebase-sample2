@@ -412,6 +412,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
             return isUpdated;

@@ -2556,6 +2556,7 @@ namespace TvinciImporter
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         if (string.IsNullOrEmpty(sBasePath))
                         {
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -2566,7 +2567,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return sBasePath;
@@ -3750,6 +3751,7 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -4519,7 +4521,6 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
                 log.Error("Exception (UpdateNotificationRequest) - " + string.Format("Media:{0}, groupID:{1}, ex:{2}", nMediaID, groupid, ex.Message), ex);
                 return false;
             }

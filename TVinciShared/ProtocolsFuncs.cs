@@ -15500,7 +15500,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
             }
         }
         */

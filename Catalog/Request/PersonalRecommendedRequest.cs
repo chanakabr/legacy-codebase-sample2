@@ -11,6 +11,7 @@ using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -25,7 +26,7 @@ namespace Catalog.Request
     [DataContract]
     public class PersonalRecommendedRequest : BaseProtocolRequest, IRequestImp
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public PersonalRecommendedRequest()
             : base()
@@ -122,7 +123,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(this.ToString(), ex);
+                log.Error(this.ToString(), ex);
                 throw ex;
             }
 
@@ -138,7 +139,7 @@ namespace Catalog.Request
                 if (request == null)
                     throw new Exception("Request object is null");
 
-                _logger.Info(String.Concat(request.ToString(), "started at: ", DateTime.UtcNow));
+                log.Info(String.Concat(request.ToString(), "started at: ", DateTime.UtcNow));
 
                 GroupManager groupManager = new GroupManager();
                 CatalogCache catalogCache = CatalogCache.Instance();
@@ -166,7 +167,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(this.ToString(), ex);
+                log.Error(this.ToString(), ex);
                 throw ex;
             }
 

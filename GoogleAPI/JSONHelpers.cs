@@ -5,11 +5,15 @@ using System.Text;
 
 using System.Runtime.Serialization.Json;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 namespace Tvinic.GoogleAPI
 {
-  
+
     public static class JSONHelpers
-{
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /// <summary>
         /// Serialize to JSON string
         /// </summary>
@@ -20,7 +24,7 @@ namespace Tvinic.GoogleAPI
         {
             DataContractJsonSerializer _js = new DataContractJsonSerializer(o.GetType());
             string _str = string.Empty;
-            using (MemoryStream _ms  = new MemoryStream())
+            using (MemoryStream _ms = new MemoryStream())
             {
                 try
                 {
@@ -28,7 +32,7 @@ namespace Tvinic.GoogleAPI
                     _ms.Position = 0;
                     _str = new UTF8Encoding(true, true).GetString(_ms.ToArray());
                 }
-                catch( Exception ex)
+                catch (Exception ex)
                 {
                     throw new Exception(ex.Message);
                 }
@@ -37,7 +41,7 @@ namespace Tvinic.GoogleAPI
                     _ms.Close();
                 }
             }
-        
+
             return _str;
         }
 
@@ -60,6 +64,8 @@ namespace Tvinic.GoogleAPI
                 }
                 catch (Exception ex)
                 {
+                    log.Error("", ex);
+
                     o = null;
                 }
                 finally
@@ -73,5 +79,5 @@ namespace Tvinic.GoogleAPI
         }
 
 
-}
+    }
 }

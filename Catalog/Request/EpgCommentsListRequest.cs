@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
+using KLogMonitor;
 using Logger;
 using Tvinci.Core.DAL;
 
@@ -17,7 +18,7 @@ namespace Catalog.Request
     [DataContract]
     public class EpgCommentsListRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public Int32 m_nEpgProgramID;
@@ -110,7 +111,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

@@ -8,11 +8,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EpgIngest
 {
     internal static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         internal static List<LanguageObj> GetLanguages(int nGroupID)
         {
             List<LanguageObj> lLang = new List<LanguageObj>();
@@ -23,7 +27,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                //TO DO ADD LOGGER
+                log.Error("", ex);
                 return new List<LanguageObj>();
             }
         }
@@ -60,6 +64,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<FieldTypeEntity>();
             }
         }
@@ -88,7 +93,7 @@ namespace EpgIngest
                 catch (Exception ex)
                 {
                     #region Logging
-                    //insert Logs
+                    log.Error("", ex);
 
                     #endregion
                 }
@@ -116,7 +121,7 @@ namespace EpgIngest
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 

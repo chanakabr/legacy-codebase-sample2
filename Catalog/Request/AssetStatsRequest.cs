@@ -7,16 +7,18 @@ using System.Reflection;
 using Logger;
 using ApiObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class AssetStatsRequest : BaseRequest, IRequestImp
     {
-        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public StatsType m_type;
-        
+
         [DataMember]
         public DateTime m_dStartDate;
 
@@ -25,7 +27,7 @@ namespace Catalog.Request
 
         [DataMember]
         public List<int> m_nAssetIDs;
-              
+
 
         public AssetStatsRequest()
             : base()
@@ -55,14 +57,14 @@ namespace Catalog.Request
             {
                 CheckRequestValidness();
                 CheckSignature(this);
-                
+
                 response.m_lAssetStat = Catalog.GetAssetStatsResults(m_nGroupID, m_nAssetIDs.Distinct<int>().ToList<int>(), m_dStartDate, m_dEndDate, m_type);
                 response.m_nTotalItems = response.m_lAssetStat.Count;
-              
+
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", String.Concat("Req: ", ToString(), " Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "AssetStatsRequest");
+                log.Error("Exception - " + String.Concat("Req: ", ToString(), " Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
                 throw ex;
             }
 

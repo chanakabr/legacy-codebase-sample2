@@ -268,6 +268,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 priceValidationPassed = false;
                 return new List<int>();
             }

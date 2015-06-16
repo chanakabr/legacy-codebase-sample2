@@ -9,6 +9,8 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Web;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
@@ -18,6 +20,8 @@ namespace Catalog.Request
     [DataContract]
     public class UnifiedSearchRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Private Members
 
         private const string AND_TOKEN = "(and";
@@ -163,7 +167,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error - GetResponse",
+                log.Error("Error - GetResponse - " +
                     string.Format("Exception: group = {0} siteGuid = {1} filterPhrase = {2} message = {3}, ST = {4}",
                     baseRequest.m_nGroupID, // {0}
                     baseRequest.m_sSiteGuid, // {1}
@@ -171,7 +175,7 @@ namespace Catalog.Request
                     baseRequest is UnifiedSearchRequest ? (baseRequest as UnifiedSearchRequest).filterQuery : "", // {2}
                     ex.Message, // {3}
                     ex.StackTrace // {4}
-                    ), this.GetType().Name);
+                    ), ex);
 
                 if (ex is HttpException)
                 {

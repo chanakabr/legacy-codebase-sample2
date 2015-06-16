@@ -9,11 +9,14 @@ using ApiObjects.MediaMarks;
 using CouchbaseManager;
 using Newtonsoft.Json;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class ApiDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
@@ -611,6 +614,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 ret = new MediaMarkObject();
             }
         }
@@ -1054,6 +1058,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -1468,7 +1473,7 @@ namespace DAL
             {
                 if (dataSet.Tables.Count == 1)
                 {
-                    result= CreateParentalRulesFromSingleTable(dataSet);
+                    result = CreateParentalRulesFromSingleTable(dataSet);
                 }
                 else if (dataSet.Tables.Count == 2)
                 {
@@ -1508,19 +1513,19 @@ namespace DAL
                                 switch (assetType)
                                 {
                                     case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
+                                        {
+                                            currentRule.epgTagValues.Add(value);
+                                            break;
+                                        }
                                     case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
+                                        {
+                                            currentRule.mediaTagValues.Add(value);
+                                            break;
+                                        }
                                     default:
-                                    {
-                                        break;
-                                    }
+                                        {
+                                            break;
+                                        }
                                 }
                             }
                         }
@@ -1673,7 +1678,7 @@ namespace DAL
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
-            return newId;       
+            return newId;
         }
 
         public static bool Get_PurchaseSettings(int groupId, int domainId, string siteGuid, out eRuleLevel level, out ePurchaeSettingsType type)
@@ -1722,7 +1727,7 @@ namespace DAL
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
-            return newId;       
+            return newId;
         }
 
         public static bool Get_PurchasePin(int groupId, int domainId, string siteGuid, out eRuleLevel level, out string pin, bool getUserDomain)
@@ -1774,7 +1779,7 @@ namespace DAL
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
-            return newId;   
+            return newId;
         }
 
         public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
@@ -1826,19 +1831,19 @@ namespace DAL
                         switch (assetType)
                         {
                             case eAssetTypes.EPG:
-                            {
-                                currentRule.epgTagValues.Add(value);
-                                break;
-                            }
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
                             case eAssetTypes.MEDIA:
-                            {
-                                currentRule.mediaTagValues.Add(value);
-                                break;
-                            }
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
                             default:
-                            {
-                                break;
-                            }
+                                {
+                                    break;
+                                }
                         }
                     }
                 }

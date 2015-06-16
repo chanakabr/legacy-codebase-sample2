@@ -123,6 +123,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<int>();
             }
         }
@@ -189,6 +190,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return bRes;
             }
         }
@@ -213,6 +215,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -443,6 +446,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -487,7 +491,7 @@ namespace GroupsCacheManager
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1}", this.m_nParentGroupID, language.ID));
+                    log.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1} - " + this.m_nParentGroupID, language.ID), ex);
                 }
             }
 
@@ -547,7 +551,7 @@ namespace GroupsCacheManager
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("failed to add Service . groupID={0};", this.m_nParentGroupID));
+                    log.Error(string.Format("failed to add Service . groupID={0}; - " + this.m_nParentGroupID), ex);
                 }
             }
 
@@ -591,6 +595,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -613,6 +618,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
