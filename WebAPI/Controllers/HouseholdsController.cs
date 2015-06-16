@@ -390,7 +390,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{household_id}/subscriptions/{sub_id}/cancel"), HttpDelete]
+        [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
         public bool CancelServiceNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
         {
             bool response = false;
