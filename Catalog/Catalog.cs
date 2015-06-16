@@ -806,6 +806,56 @@ namespace Catalog
                                     throw exception;
                                 }
                             }
+
+                            #region IN operator
+
+                            // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
+                            if (leaf.operand == ComparisonOperator.In)
+                            {
+                                leaf.valueType = typeof(List<string>);
+                                string value = leaf.value.ToString().ToLower();
+
+                                string[] values = value.Split(new string[] { "\",\"" }, StringSplitOptions.RemoveEmptyEntries);
+
+                                // If there are 
+                                if (values.Length == 0)
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                    throw exception;
+                                }
+
+                                string first = values[0];
+                                string last = values[values.Length - 1];
+
+                                // If first and last entries are empty (it shouldn't happen but I don't want an exception)
+                                if (first.Length == 0 || last.Length == 0)
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                    throw exception;
+                                }
+
+                                // If the in-clause does not start and end with ""
+                                if (first[0] != '\"' || last[last.Length - 1] != '\"')
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                    throw exception;
+                                }
+
+                                // Remove opening "
+                                values[0] = first.Remove(0, 1);
+
+                                // Remove closing "
+                                values[values.Length - 1] = last.Remove(last.Length - 1);
+
+                                // Put new list of strings in boolean leaf
+                                leaf.value = values.ToList();
+                            } 
+
+                            #endregion
+
                         }
                         else if (node.type == BooleanNodeType.Parent)
                         {

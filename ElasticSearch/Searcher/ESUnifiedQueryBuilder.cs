@@ -708,6 +708,15 @@ namespace ElasticSearch.Searcher
                         Value = value
                     };
                 }
+                else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+                {
+                    term = new ESTerms(false)
+                    {
+                        Key = leaf.field
+                    };
+
+                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                }
                 // Other cases are "Range"
                 else
                 {
@@ -832,6 +841,15 @@ namespace ElasticSearch.Searcher
                     Value = value,
                     isNot = true
                 };
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+            {
+                term = new ESTerms(false)
+                {
+                    Key = leaf.field
+                };
+
+                (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
             }
             else
             {
