@@ -32,7 +32,7 @@ namespace WebAPI
                         // hold additional metadata for an API. Version and title are required but you can also provide
                         // additional fields by chaining methods off SingleApiVersion.
                         //
-                        c.SingleApiVersion("v1", "").Description("This OTT API Service...").TermsOfService("This is the terms of service");
+                        c.SingleApiVersion("v1", "").TermsOfService("This is the terms of service");
 
                         // If your API has multiple versions, use "MultipleApiVersions" instead of "SingleApiVersion".
                         // In this case, you must provide a lambda that tells Swashbuckle which actions should be
