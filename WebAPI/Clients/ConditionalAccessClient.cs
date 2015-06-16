@@ -130,5 +130,39 @@ namespace WebAPI.Clients
 
             return entitlements;
         }
+
+        public Models.ConditionalAccess.BillingTransactions GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
+        {
+            Models.ConditionalAccess.BillingTransactions transactions = null;
+            WebAPI.ConditionalAccess.BillingTransactions response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetUserBillingHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userid, page_number, page_size);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserSubscriptions.  user_id: {0}, exception: {1}", userid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.BillingTransactions>(response.transactions);
+
+            return transactions;
+        }
     }
 }

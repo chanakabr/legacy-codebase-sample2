@@ -54,6 +54,45 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.mediaFileID, opt => opt.MapFrom(src => src.mediaFileID))
                .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.paymentMethod));
+
+
+            //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, BillingTransaction>()
+               .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
+               .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
+               .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
+
+               .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
+               .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
+               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.m_ePaymentMethod))
+               .ForMember(dest => dest.isRecurring, opt => opt.MapFrom(src => src.m_bIsRecurring))
+               .ForMember(dest => dest.billingProviderRef, opt => opt.MapFrom(src => src.m_nBillingProviderRef))
+               .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.m_nPurchaseID))
+               .ForMember(dest => dest.purchasedItemName, opt => opt.MapFrom(src => src.m_sPurchasedItemName))
+               .ForMember(dest => dest.purchasedItemCode, opt => opt.MapFrom(src => src.m_sPurchasedItemCode))
+               .ForMember(dest => dest.recieptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
+               .ForMember(dest => dest.remarks, opt => opt.MapFrom(src => src.m_sRemarks))               
+               .ForMember(dest => dest.paymentMethodExtraDetails, opt => opt.MapFrom(src => src.m_sPaymentMethodExtraDetails))
+               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
+               ;
+
+            //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, BillingTransactions>()
+               .ForMember(dest => dest.transactionsCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
+               .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
+
+            
+            Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.Price>()
+               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_dPrice))
+               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency));
+
+            Mapper.CreateMap<ConditionalAccess.Currency, Models.Pricing.Currency>()
+               .ForMember(dest => dest.currencyCD2, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
+               .ForMember(dest => dest.currencyCD3, opt => opt.MapFrom(src => src.m_sCurrencyCD3))
+               .ForMember(dest => dest.currencySign, opt => opt.MapFrom(src => src.m_sCurrencySign))
+               .ForMember(dest => dest.currencyID, opt => opt.MapFrom(src => src.m_nCurrencyID));
+
+
         }
     }
 }

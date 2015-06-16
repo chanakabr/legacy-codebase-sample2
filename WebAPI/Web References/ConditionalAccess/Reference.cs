@@ -1177,14 +1177,14 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserBillingHistory", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public BillingTransactionsResponse GetUserBillingHistory(string sWSUserName, string sWSPassword, string sSiteGUID, int nStartIndex, int nNumberOfItems) {
+        public BillingTransactions GetUserBillingHistory(string sWSUserName, string sWSPassword, string sSiteGUID, int nStartIndex, int nNumberOfItems) {
             object[] results = this.Invoke("GetUserBillingHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGUID,
                         nStartIndex,
                         nNumberOfItems});
-            return ((BillingTransactionsResponse)(results[0]));
+            return ((BillingTransactions)(results[0]));
         }
         
         /// <remarks/>
@@ -7500,62 +7500,29 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DomainBillingTransactionsResponse {
+    public partial class BillingTransactions {
         
-        private int m_nDomainIDField;
+        private Status respField;
         
-        private UserBillingTransactionsResponse[] m_BillingTransactionResponsesField;
+        private BillingTransactionsResponse transactionsField;
         
         /// <remarks/>
-        public int m_nDomainID {
+        public Status resp {
             get {
-                return this.m_nDomainIDField;
+                return this.respField;
             }
             set {
-                this.m_nDomainIDField = value;
+                this.respField = value;
             }
         }
         
         /// <remarks/>
-        public UserBillingTransactionsResponse[] m_BillingTransactionResponses {
+        public BillingTransactionsResponse transactions {
             get {
-                return this.m_BillingTransactionResponsesField;
+                return this.transactionsField;
             }
             set {
-                this.m_BillingTransactionResponsesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UserBillingTransactionsResponse {
-        
-        private string m_sSiteGUIDField;
-        
-        private BillingTransactionsResponse m_BillingTransactionResponseField;
-        
-        /// <remarks/>
-        public string m_sSiteGUID {
-            get {
-                return this.m_sSiteGUIDField;
-            }
-            set {
-                this.m_sSiteGUIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingTransactionsResponse m_BillingTransactionResponse {
-            get {
-                return this.m_BillingTransactionResponseField;
-            }
-            set {
-                this.m_BillingTransactionResponseField = value;
+                this.transactionsField = value;
             }
         }
     }
@@ -7805,6 +7772,72 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         SubscriptionDateChanged,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainBillingTransactionsResponse {
+        
+        private int m_nDomainIDField;
+        
+        private UserBillingTransactionsResponse[] m_BillingTransactionResponsesField;
+        
+        /// <remarks/>
+        public int m_nDomainID {
+            get {
+                return this.m_nDomainIDField;
+            }
+            set {
+                this.m_nDomainIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserBillingTransactionsResponse[] m_BillingTransactionResponses {
+            get {
+                return this.m_BillingTransactionResponsesField;
+            }
+            set {
+                this.m_BillingTransactionResponsesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserBillingTransactionsResponse {
+        
+        private string m_sSiteGUIDField;
+        
+        private BillingTransactionsResponse m_BillingTransactionResponseField;
+        
+        /// <remarks/>
+        public string m_sSiteGUID {
+            get {
+                return this.m_sSiteGUIDField;
+            }
+            set {
+                this.m_sSiteGUIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingTransactionsResponse m_BillingTransactionResponse {
+            get {
+                return this.m_BillingTransactionResponseField;
+            }
+            set {
+                this.m_BillingTransactionResponseField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -8934,10 +8967,10 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public BillingTransactionsResponse Result {
+        public BillingTransactions Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((BillingTransactionsResponse)(this.results[0]));
+                return ((BillingTransactions)(this.results[0]));
             }
         }
     }
