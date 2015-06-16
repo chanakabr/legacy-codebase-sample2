@@ -9,7 +9,7 @@ using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
 
-namespace WebAPI.Mapping.ObjectsConvertor
+namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class UsersMappings
     {
@@ -66,6 +66,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.IsDomainMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => src.m_RespStatus));
 
+            // SlimUser
+            Mapper.CreateMap<User, SlimUser>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.BasicDate.Username))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicDate.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicDate.LastName));
 
             //DomainSuspentionStatus to DomainSuspentionState
             Mapper.CreateMap<WebAPI.Users.DomainSuspentionStatus, DomainSuspentionState>().ConstructUsing((WebAPI.Users.DomainSuspentionStatus type) =>

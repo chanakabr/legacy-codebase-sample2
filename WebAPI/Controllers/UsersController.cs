@@ -945,7 +945,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/settings/{setting}"), HttpPost]
+        [Route("{user_id}/purchase/settings"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id, [FromUri] int setting)
         {
             bool success = false;

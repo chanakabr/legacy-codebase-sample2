@@ -1,6 +1,7 @@
 ﻿using WebAPI.Mapping.ObjectsConvertor;
+using WebAPI.ObjectsConvertor.Mapping;
 
-namespace WebAPI.Exceptions
+namespace WebAPI.Filters
 {
     public class AutoMapperConfig
     {

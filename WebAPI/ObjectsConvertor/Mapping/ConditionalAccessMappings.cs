@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Exceptions;
 using WebAPI.Models.General;
 using WebAPI.Utils;
+using WebAPI.Exceptions;
 
-namespace WebAPI.Mapping.ObjectsConvertor
+namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class ConditionalAccessMappings
     {

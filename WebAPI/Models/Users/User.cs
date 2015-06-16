@@ -17,7 +17,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// Domain identifier
