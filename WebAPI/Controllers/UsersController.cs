@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// Generates a temporarily PIN that can allow a user to log-in.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
         /// </summary>        
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks></remarks>
@@ -35,15 +35,15 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin/generate"), HttpPost]
-        public LoginPin GenerateLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string secret = null)
+        public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             LoginPin response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -66,9 +66,9 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/pin"), HttpGet]
-        public LoginPin GetGenerateLoginPin(string group_id, string user_id, string secret = null)
+        public LoginPin GetGenerateLoginPin(string partner_id, string user_id, string secret = null)
         {
-            return GenerateLoginPin(group_id, user_id, secret);
+            return GenerateLoginPin(partner_id, user_id, secret);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
         /// </summary>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="pin">pin code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
@@ -88,15 +88,15 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login/pin"), HttpPost]
-        public User LogInWithPin([FromUri] string group_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
+        public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
         {
             User response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(pin))
@@ -119,16 +119,16 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("login/pin"), HttpGet]
-        public User GetLogInWithPin(string group_id, string pin, string device_id, string secret = null)
+        public User GetLogInWithPin(string partner_id, string pin, string device_id, string secret = null)
         {
-            return LogInWithPin(group_id, pin, device_id, secret);
+            return LogInWithPin(partner_id, pin, device_id, secret);
         }
 
         /// <summary>
         /// Set a temporarily PIN that can allow a user to log-in.
         /// Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011,PinMustBeDigitsOnly = 2012, PinCanNotStartWithZero = 2013
         /// </summary>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="pin">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
@@ -137,13 +137,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
-        public bool SetLoginPin([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
+        public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(pin))
@@ -172,20 +172,20 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately expires a pre-set login-PIN.
         /// </summary>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpDelete]
-        public bool ClearLoginPin([FromUri] string group_id, [FromUri] string user_id)
+        public bool ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -207,16 +207,16 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{user_id}/watch_history"), HttpPost]
-        public WatchHistoryAssetWrapper PostWatchHistory(string group_id, string user_id, WatchHistory request, string language = null)
+        [Route("{user_id}/views"), HttpPost]
+        public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, WatchHistory request, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             // page size - 5 <= size <= 50
@@ -255,17 +255,17 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="group_id" >Group Identifier</param>
+        /// <param name="partner_id" >Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/watch_history"), HttpGet]
-        public WatchHistoryAssetWrapper GetWatchHistory(string group_id, string user_id, [FromUri] WatchHistory request, string language = null)
+        [Route("{user_id}/views"), HttpGet]
+        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, [FromUri] WatchHistory request, string language = null)
         {
-            return PostWatchHistory(group_id, user_id, request, language);
+            return PostWatchHistory(partner_id, user_id, request, language);
         }
 
         ///// <summary>
@@ -312,7 +312,7 @@ namespace WebAPI.Controllers
         /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="LogIn">LogIn Object</param>
         /// <param name="device_id">device identifier</param>
         /// <remarks></remarks>
@@ -320,14 +320,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login"), HttpPost]
-        public User Login([FromUri] string group_id, [FromBody] LogIn request, [FromUri] string device_id = null)
+        public User Login([FromUri] string partner_id, [FromBody] LogIn request, [FromUri] string device_id = null)
         {
             User response = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (request == null)
             {
@@ -360,21 +360,21 @@ namespace WebAPI.Controllers
         /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="sign_up">SignUp Object</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("signup"), HttpPost]
-        public User SignUp([FromUri] string group_id, [FromBody] SignUp sign_up)
+        public User SignUp([FromUri] string partner_id, [FromBody] SignUp sign_up)
         {
             User response = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (sign_up == null || sign_up.userBasicData == null)
             {
@@ -405,21 +405,21 @@ namespace WebAPI.Controllers
         /// Send a new password by user name.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="username">user name</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{username}/reset_password"), HttpPost]
-        public bool SendNewPassword([FromUri] string group_id, [FromUri] string username)
+        public bool SendNewPassword([FromUri] string partner_id, [FromUri] string username)
         {
             bool response = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (string.IsNullOrEmpty(username))
             {
@@ -446,7 +446,7 @@ namespace WebAPI.Controllers
         /// Renew the user's password without validating the existing password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="user_name">user name</param>
         /// <param name="password">new password</param>
         /// <remarks></remarks>
@@ -454,14 +454,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("reset_password"), HttpPost]
-        public bool RenewPassword([FromUri] string group_id, [FromUri] string user_name, [FromUri] string password)
+        public bool RenewPassword([FromUri] string partner_id, [FromUri] string user_name, [FromUri] string password)
         {
             bool response = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(password))
             {
@@ -488,21 +488,21 @@ namespace WebAPI.Controllers
         /// Returns the user name associated with a temporary reset token .<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="token">token</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("token/{token}"), HttpGet]
-        public User CheckPasswordToken([FromUri] string group_id, [FromUri] string token)
+        public User CheckPasswordToken([FromUri] string partner_id, [FromUri] string token)
         {
             User response = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (string.IsNullOrEmpty(token))
             {
@@ -530,7 +530,7 @@ namespace WebAPI.Controllers
         /// Given a user name and existing password, change to a new password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
@@ -539,14 +539,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{username}/password"), HttpPut]
-        public bool ChangeUserPassword([FromUri] string group_id, [FromUri] string username, [FromUri] string old_password, [FromUri] string new_password)
+        public bool ChangeUserPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string old_password, [FromUri] string new_password)
         {
             bool response = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
@@ -572,14 +572,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieving users' data
         /// </summary>
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_ids}"), HttpGet]            
-        public List<User> GetUsersData([FromUri] string group_id, string user_ids)
+        public List<User> GetUsersData([FromUri] string partner_id, string user_ids)
         {
             List<int> usersIds;
             try
@@ -593,9 +593,9 @@ namespace WebAPI.Controllers
 
             List<User> response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (usersIds == null || usersIds.Count == 0)
             {
@@ -623,20 +623,20 @@ namespace WebAPI.Controllers
         /// <summary>Edit user details info.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025        
         /// </summary>
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
         /// <remarks></remarks>        
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}"), HttpPut]
-        public User SetUserData([FromUri] string group_id, string user_id, UserData user_data)
+        public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
         {           
             User response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
@@ -670,21 +670,21 @@ namespace WebAPI.Controllers
         /// Return the parental rules that applies to the user. Can include rules that have been associated in account, domain, or user level.
         /// </summary>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] string user_id)
+        public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -710,21 +710,21 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
-        public bool EnableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
+        public bool EnableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -750,21 +750,21 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
-        public bool DisableParentalRule([FromUri] string group_id, [FromUri] string user_id, [FromUri] long rule_id)
+        public bool DisableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -791,18 +791,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/parental/pin/"), HttpGet]
-        public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] string user_id)
+        public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PinResponse pinResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -829,19 +829,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -869,18 +869,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/settings/"), HttpGet]
-        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id)
+        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -907,19 +907,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/purchase/settings"), HttpPost]
-        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] string user_id, [FromUri] int setting)
+        public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int setting)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -947,18 +947,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/pin/"), HttpGet]
-        public PurchaseSettingsResponse GetPurchasePIN([FromUri] string group_id, [FromUri] string user_id)
+        public PurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse pinResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -985,19 +985,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/purchase/pin"), HttpPost]
-        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1024,20 +1024,20 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
-        public List<ParentalRule> GetParentalMediaRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long media_id)
+        public List<ParentalRule> GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1069,20 +1069,20 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
-        public List<ParentalRule> GetParentalEPGRules([FromUri] string group_id, [FromUri] string user_id, [FromUri] long epg_id)
+        public List<ParentalRule> GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1114,19 +1114,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/parental/pin/validate"), HttpPost]
-        public bool ValidateParentalPIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        public bool ValidateParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1159,19 +1159,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/purchase/pin/validate"), HttpPost]
-        public bool ValidatePurchasePIN([FromUri] string group_id, [FromUri] string user_id, [FromUri] string pin)
+        public bool ValidatePurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1206,21 +1206,21 @@ namespace WebAPI.Controllers
         /// Gets list of Entitlement (subscriptions) by a given user.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="user_id">User Id</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/subscriptions/permitted"), HttpGet]
-        public List<Entitlement> GetUserSubscriptions([FromUri] string group_id, [FromUri] string user_id)
+        public List<Entitlement> GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1244,7 +1244,7 @@ namespace WebAPI.Controllers
         /// Gets user transaction history.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="user_id">User Id</param>
         ///  <param name="page_number">page number</param>
         ///   <param name="page_size">page size</param>
@@ -1252,16 +1252,16 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/transaction_history"), HttpGet]
-        public BillingTransactions GetUserTransactionHistory([FromUri] string group_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
+        [Route("{user_id}/transactions"), HttpGet]
+        public BillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
             
         {
             BillingTransactions response = new BillingTransactions();
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (string.IsNullOrEmpty(user_id))
@@ -1287,10 +1287,10 @@ namespace WebAPI.Controllers
         ///// 
         ///// </summary>
         ///// <param name="request">Credentials</param>
-        ///// <param name="group_id">Group ID</param>
+        ///// <param name="partner_id">Group ID</param>
         //[Route("sign_in"), HttpPost]
         //[ApiExplorerSettings(IgnoreApi = true)]
-        //public string SignIn([FromUri] string group_id, [FromBody] SignIn request)
+        //public string SignIn([FromUri] string partner_id, [FromBody] SignIn request)
         //{
         //    //TODO: add parameters
 
@@ -1298,9 +1298,9 @@ namespace WebAPI.Controllers
         //    string data = string.Empty;
 
         //    int groupId;
-        //    if (!int.TryParse(group_id, out groupId))
+        //    if (!int.TryParse(partner_id, out groupId))
         //    {
-        //        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+        //        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
         //    }
 
         //    WebAPI.Models.Users.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);
@@ -1315,7 +1315,7 @@ namespace WebAPI.Controllers
         //    //TODO: get real value
         //    int expiration = 1462543601;
 
-        //    return new KS(userSecret, group_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
+        //    return new KS(userSecret, partner_id, user.ID, expiration, KS.eUserType.USER, data, string.Empty).ToString();
         //}
     }
 }

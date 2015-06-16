@@ -23,21 +23,21 @@ namespace WebAPI.Controllers
         /// Can include rules that have been associated in account or household
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the household</returns>
         [Route("{household_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] int household_id)
+        public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] int household_id)
         {
             List<ParentalRule> response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -63,21 +63,21 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpPost]
-        public bool EnableParentalRule([FromUri] string group_id, [FromUri] int household_id, [FromUri] long rule_id)
+        public bool EnableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
             bool success = false;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -103,21 +103,21 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpDelete]
-        public bool DisableParentalRule([FromUri] string group_id, [FromUri] int household_id, [FromUri] long rule_id)
+        public bool DisableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
             bool success = false;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
 
@@ -145,18 +145,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin/"), HttpGet]
-        public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] int household_id)
+        public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
         {
             PinResponse pinResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -183,19 +183,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string group_id, [FromUri] int household_id, [FromUri] string pin)
+        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -223,18 +223,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{household_id}/purchase/settings"), HttpGet]
-        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] int household_id)
+        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -261,19 +261,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/settings/"), HttpPost]
-        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int household_id, [FromUri] int setting)
+        public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int setting)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -301,18 +301,18 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin/"), HttpGet]
-        public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] int household_id)
+        public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
         {
             PinResponse pinResponse = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -339,19 +339,19 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="group_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/pin"), HttpPost]
-        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int household_id, [FromUri] string pin)
+        public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
         {
             bool success = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (household_id == 0)
@@ -381,7 +381,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <param name="asset_id">Asset Id</param>
         /// <param name="transaction_type">TransactionType Enum</param>
@@ -391,14 +391,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
+        public bool CancelServiceNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
         {
             bool response = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (household_id == 0 || asset_id == 0)
             {
@@ -426,7 +426,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///  HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <param name="subscription_code">Subscription Code</param>
         /// <remarks></remarks>
@@ -434,14 +434,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
-        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int household_id, [FromUri] string subscription_code)
+        public bool CancelSubscriptionRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string subscription_code)
         {
             bool response = false;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (household_id == 0 || string.IsNullOrEmpty(subscription_code))
             {
@@ -471,21 +471,21 @@ namespace WebAPI.Controllers
         /// HouseholdAlreadyExists = 1000, ExceededLimit = 1001, DeviceTypeNotAllowed = 1002, DeviceNotInHousehold = 1003, MasterEmailAlreadyExists = 1004, UserNotInHousehold = 1005, HouseholdNotExists = 1006, 
         /// HouseholdUserFailed = 1007, UserExistsInOtherHouseholds = 1018
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}"), HttpGet]
-        public Household GetHousehold([FromUri] string group_id, [FromUri] int household_id, [FromUri] List<With> with)
+        public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with)
         {
             Household response = null;
 
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
             if (household_id <= 0)
             {

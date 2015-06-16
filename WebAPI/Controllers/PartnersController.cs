@@ -20,21 +20,21 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return all of the parental rules defined for the account 
         /// </summary>
-        /// <param name="group_id">Partner identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>The parental rules defined for the account</returns>
-        [Route("{group_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string group_id)
+        [Route("{partner_id}/parental/rules"), HttpGet]
+        public List<ParentalRule> GetParentalRules([FromUri] string partner_id)
         {
             List<ParentalRule> response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             try

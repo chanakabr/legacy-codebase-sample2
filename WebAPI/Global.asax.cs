@@ -31,8 +31,8 @@ namespace WebAPI
         {
             // get group ID
             NameValueCollection queryParams = Request.Url.ParseQueryString();
-            if (queryParams["group_id"] != null)
-                HttpContext.Current.Items.Add(Constants.GROUP_ID, queryParams["group_id"]);
+            if (queryParams["partner_id"] != null)
+                HttpContext.Current.Items.Add(Constants.GROUP_ID, queryParams["partner_id"]);
 
             if (queryParams["user_id"] != null)
                 HttpContext.Current.Items.Add(Constants.USER_ID, queryParams["user_id"]);

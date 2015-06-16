@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper SearchAssets(string group_id, [FromUri] SearchAssets search_assets, string language = null)
+        public AssetInfoWrapper SearchAssets(string partner_id, [FromUri] SearchAssets search_assets, string language = null)
         {
-            return PostSearch(group_id, search_assets);
+            return PostSearch(partner_id, search_assets);
         }
 
         /// <summary>
@@ -35,22 +35,22 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper PostSearch(string group_id, SearchAssets request, string language = null)
+        public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
         {
             AssetInfoWrapper response = null;
 
             // parameters validation
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
@@ -89,13 +89,13 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]       
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper PostAutocomplete(string group_id, Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, Autocomplete request, string language = null)
         {
             SlimAssetInfoWrapper response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
@@ -122,16 +122,16 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
         /// <param name="request">The search asset request parameters</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper Autocomplete(string group_id, [FromUri] Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper Autocomplete(string partner_id, [FromUri] Autocomplete request, string language = null)
         {
-            return PostAutocomplete(group_id, request);
+            return PostAutocomplete(partner_id, request);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The related media request parameters</param>
         /// <param name="media_id">Media Identifier</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="domain_id">Domain Identifier</param>
@@ -149,13 +149,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string group_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int domain_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (media_id == 0)
@@ -187,7 +187,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="domain_id">Domain Identifier</param>
@@ -196,13 +196,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string group_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int domain_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (channel_id == 0)
@@ -234,7 +234,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="media_ids">Media Identifiers separated by , </param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="domain_id">Domain Identifier</param>
@@ -243,13 +243,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string group_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int domain_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (string.IsNullOrEmpty(media_ids))
@@ -290,7 +290,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="domain_id">Domain Identifier</param>
@@ -300,13 +300,13 @@ namespace WebAPI.Controllers
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/"), HttpGet]
-        public Channel GetChannel(string group_id, int channel_id, string language = null, string user_id = null, int domain_id = 0)
+        public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int domain_id = 0)
         {
             Channel response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (channel_id == 0)
@@ -334,7 +334,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="category_id">Category Identifier</param>
-        /// <param name="group_id">Group Identifier</param>
+        /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="domain_id">Domain Identifier</param>
@@ -343,13 +343,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("categories/{category_id}/"), HttpGet]
-        public Category GetCategory(string group_id, int category_id, string language = null, string user_id = null, int domain_id = 0)
+        public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int domain_id = 0)
         {
             Category response = null;
             int groupId;
-            if (!int.TryParse(group_id, out groupId))
+            if (!int.TryParse(partner_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
             if (category_id == 0)
