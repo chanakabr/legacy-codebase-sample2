@@ -1246,7 +1246,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{userid}/subscriptions/permitted"), HttpGet]
+        [Route("{user_id}/subscriptions/permitted"), HttpGet]
         public List<Entitlement> GetUserSubscriptions([FromUri] string group_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
@@ -1279,15 +1279,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="userid">User Id</param>
+        /// <param name="user_id">User Id</param>
         ///  <param name="page_number">page number</param>
         ///   <param name="page_size">page size</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{userid}/transaction_history"), HttpGet]
-        public BillingTransactions GetUserTransactionHistory([FromUri] string group_id, [FromUri] string userid, [FromUri] int page_number, [FromUri] int page_size)
+        [Route("{user_id}/transaction_history"), HttpGet]
+        public BillingTransactions GetUserTransactionHistory([FromUri] string group_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
             
         {
             BillingTransactions response = new BillingTransactions();
@@ -1298,14 +1298,14 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
 
-            if (string.IsNullOrEmpty(userid))
+            if (string.IsNullOrEmpty(user_id))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userid, page_number, page_size);
+                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, user_id, page_number, page_size);
             }
             catch (ClientException ex)
             {
