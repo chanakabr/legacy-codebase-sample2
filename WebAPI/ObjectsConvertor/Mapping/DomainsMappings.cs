@@ -8,7 +8,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
-namespace WebAPI.ObjectsConvertor.Mapping
+namespace WebAPI.Mapping.ObjectsConvertor
 {
     public class DomainsMappings
     {

@@ -1274,6 +1274,47 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Gets user transaction history.<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="userid">User Id</param>
+        ///  <param name="page_number">page number</param>
+        ///   <param name="page_size">page size</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{userid}/transaction_history"), HttpGet]
+        public BillingTransactions GetUserTransactionHistory([FromUri] string group_id, [FromUri] string userid, [FromUri] int page_number, [FromUri] int page_size)
+            
+        {
+            BillingTransactions response = new BillingTransactions();
+
+            int groupId;
+            if (!int.TryParse(group_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
+            }
+
+            if (string.IsNullOrEmpty(userid))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userid, page_number, page_size);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
         #endregion
 
         ///// <summary>

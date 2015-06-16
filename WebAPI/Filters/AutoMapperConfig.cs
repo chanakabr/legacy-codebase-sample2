@@ -1,4 +1,5 @@
-﻿using WebAPI.ObjectsConvertor.Mapping;
+﻿using WebAPI.Mapping.ObjectsConvertor;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Filters
 {
@@ -8,7 +9,8 @@ namespace WebAPI.Filters
         {
             UsersMappings.RegisterMappings();
             CatalogMappings.RegisterMappings();
-            ApiMappings.RegisterMappings();
+            ApiMappings.RegisterMappings();            
+            PricingMappings.RegisterMappings();
             ConditionalAccessMappings.RegisterMappings();
             DomainsMappings.RegisterMappings();
         }
