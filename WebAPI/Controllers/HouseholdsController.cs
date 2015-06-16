@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// Return the parental rules that applies to the household. 
         /// Can include rules that have been associated in account or household
         /// </summary>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Enabled a parental rule for a specific household
         /// </summary>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Disables a parental rule for a specific household
         /// </summary>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin/"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -184,7 +184,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
@@ -224,7 +224,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{household_id}/purchase/settings"), HttpGet]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
@@ -262,7 +262,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/settings/"), HttpPost]
@@ -302,7 +302,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin/"), HttpGet]
         public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -340,7 +340,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="household_id">Household IDentifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/pin"), HttpPost]
@@ -382,9 +382,9 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
-        /// <param name="household_id">Household ID</param>
-        /// <param name="sub_id">Subscription ID</param>        
+        /// <param name="partner_id">Group identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="sub_id">Subscription identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -403,9 +403,9 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
-        /// <param name="household_id">Household ID</param>
-        /// <param name="ppv_id">PPV ID</param>        
+        /// <param name="partner_id">Group identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="ppv_id">PPV identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -425,8 +425,8 @@ namespace WebAPI.Controllers
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="household_id">Household ID</param>
-        /// <param name="collection_id">Collection ID</param>        
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="collection_id">Collection identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -473,8 +473,8 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///  HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
-        /// <param name="household_id">Household ID</param>
+        /// <param name="partner_id">Group identifier</param>
+        /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -513,12 +513,12 @@ namespace WebAPI.Controllers
         #endregion
 
         /// <summary>
-        /// Returns the Household model<br/>
+        /// Returns the household model<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
         /// MasterEmailAlreadyExists = 1004, HouseholdNotExists = 1006, HouseholdUserFailed = 1007
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
-        /// <param name="household_id">Household ID</param>
+        /// <param name="partner_id">Group identifier</param>
+        /// <param name="household_id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -586,5 +586,47 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Creats a household for the user<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007
+        /// </summary>        
+        /// <param name="partner_id">Group identifier</param>
+        /// <param name="request">Request parameters</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route(""), HttpPost]
+        public Household AddHousehold([FromUri] string partner_id, [FromBody] AddHousehold request)
+        {
+            Household response = null;
+
+            int groupId;
+            if (!int.TryParse(partner_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
+            }
+            if (string.IsNullOrEmpty(request.MasterUserId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "master_user_id cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().AddDomain(groupId, request.Name, request.Description, request.MasterUserId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
     }
 }

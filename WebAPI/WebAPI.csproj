@@ -283,6 +283,9 @@
     <Content Include="Web References\Domains\DomainResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Domains\DomainStatusResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -601,6 +604,7 @@
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
+    <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />
     <Compile Include="Models\Domains\DeviceState.cs" />

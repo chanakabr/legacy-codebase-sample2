@@ -54,7 +54,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.Domain == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -64,7 +64,51 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
+            if (response.Domain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
             result = Mapper.Map<Household>(response.Domain);
+
+            return result;
+        }
+
+        internal Household AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)
+        {
+            Household result = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<Household>(response.DomainResponse.m_oDomain);
 
             return result;
         }
