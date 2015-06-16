@@ -3475,6 +3475,22 @@ namespace TVPApiServices
                         }
                     }
 
+                    HashSet<string> validWithValues = new HashSet<string>() { "images" };
+
+                    // validate with - make sure it contains only "stats" and/or "files"
+                    if (with != null)
+                    {
+                        foreach (var currentValue in with)
+                        {
+                            if (!validWithValues.Contains(currentValue))
+                            {
+                                response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                                return response;
+                            }
+                        }
+                    }
+
                     // Create our own filter - only search in title
                     string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
 
