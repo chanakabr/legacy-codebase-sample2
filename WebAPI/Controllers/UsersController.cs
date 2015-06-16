@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2000 });
             }
 
             return response;
@@ -126,7 +126,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set a temporarily PIN that can allow a user to log-in.
-        /// Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011,PinMustBeDigitsOnly = 2012, PinCanNotStartWithZero = 2013
+        /// Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011, PinMustBeDigitsOnly = 2012, PinCanNotStartWithZero = 2013
         /// </summary>
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="user_id">User Identifier</param>
@@ -573,7 +573,7 @@ namespace WebAPI.Controllers
         /// Retrieving users' data
         /// </summary>
         /// <param name="partner_id">Group ID</param>
-        /// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        /// <param name="user_ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -625,6 +625,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="partner_id">Group ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
+        /// <param name="user_id"> User identifiers</param>
         /// <remarks></remarks>        
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>

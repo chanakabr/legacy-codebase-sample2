@@ -30,11 +30,17 @@ namespace WebAPI.Utils
         }
 
         // additionalBadRequestStatusCodes - might be WS statuses pointing on bad request 
-        public static void HandleClientException(ClientException ex, List<int> additionalBadRequestStatusCodes = null)
+        // additionalNotFoundStatusCodes - might be WS statuses pointing on not found 
+        public static void HandleClientException(ClientException ex, List<int> additionalBadRequestStatusCodes = null, List<int> additionalNotFoundStatusCodes = null)
         {
             if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (additionalBadRequestStatusCodes != null && additionalBadRequestStatusCodes.Contains(ex.Code)))
             {
                 throw new BadRequestException(ex.Code, ex.ExceptionMessage);
+            }
+
+            if (ex.Code == (int)WebAPI.Models.General.StatusCode.NotFound || (additionalNotFoundStatusCodes != null && additionalNotFoundStatusCodes.Contains(ex.Code)))
+            {
+                throw new NotFoundException(ex.Code, ex.ExceptionMessage);
             }
 
             throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);

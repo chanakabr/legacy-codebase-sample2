@@ -458,7 +458,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
             }
 
             if (response == false)
@@ -501,7 +501,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
             }
 
             if (response == false)
@@ -515,17 +515,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the Household model<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// HouseholdAlreadyExists = 1000, ExceededLimit = 1001, DeviceTypeNotAllowed = 1002, DeviceNotInHousehold = 1003, MasterEmailAlreadyExists = 1004, UserNotInHousehold = 1005, HouseholdNotExists = 1006, 
-        /// HouseholdUserFailed = 1007, UserExistsInOtherHouseholds = 1018
+        /// MasterEmailAlreadyExists = 1004, HouseholdNotExists = 1006, HouseholdUserFailed = 1007
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users"</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}"), HttpGet]
-        public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with)
+        public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with = null)
         {
             Household response = null;
 
@@ -545,7 +545,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
             }
 
             if (response == null)

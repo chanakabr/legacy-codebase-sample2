@@ -143,13 +143,13 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="domain_id">Domain Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, media_id, request.media_types, request.with);
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, media_id, request.media_types, request.with);
             }
             catch (ClientException ex)
             {
@@ -190,13 +190,13 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="domain_id">Domain Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
@@ -218,7 +218,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, channel_id, request.order_by.Value, request.with);
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, channel_id, request.order_by.Value, request.with);
             }
             catch (ClientException ex)
             {
@@ -237,13 +237,13 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="domain_id">Domain Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int domain_id = 0)
+        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
             int groupId;
@@ -275,7 +275,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, domain_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+                
+                // if no response - return not found status 
+                if (response == null || response.Assets == null || response.Assets.Count == 0)
+                {
+                    throw new NotFoundException();
+                }
             }
             catch (ClientException ex)
             {
@@ -293,14 +299,14 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="domain_id">Domain Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/"), HttpGet]
-        public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int domain_id = 0)
+        public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
             Channel response = null;
             int groupId;
@@ -316,10 +322,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, user_id, domain_id, language, channel_id);
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, user_id, household_id, language, channel_id);
 
+                // if no response - return not found status 
                 if (response == null || response.Id == 0)
+                {
                     throw new NotFoundException();
+                }
             }
             catch (ClientException ex)
             {
@@ -337,13 +346,13 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
-        /// <param name="domain_id">Domain Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("categories/{category_id}/"), HttpGet]
-        public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int domain_id = 0)
+        public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             Category response = null;
             int groupId;
@@ -359,7 +368,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetCategory(groupId, user_id, domain_id, language, category_id);
+                response = ClientsManager.CatalogClient().GetCategory(groupId, user_id, household_id, language, category_id);
+
+                // if no response - return not found status 
+                if (response == null || response.Id == 0)
+                {
+                    throw new NotFoundException();
+                }
             }
             catch (ClientException ex)
             {
