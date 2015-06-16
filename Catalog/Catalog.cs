@@ -883,6 +883,23 @@ namespace Catalog
                 definitions.shouldSearchMedia = true;
             }
 
+            Dictionary<int, string> mediaTypeIdsToNames = null;
+            Dictionary<string, int> mediaTypeNamesToIds = null;
+
+            CatalogDAL.GetMediaTypes(request.m_nGroupID, out mediaTypeIdsToNames, out mediaTypeNamesToIds);
+
+            // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+            foreach (var mediaType in definitions.mediaTypes)
+            {
+                // If one of them doesn't exist, throw an exception that says the request is bad
+                if (!mediaTypeIdsToNames.ContainsKey(mediaType))
+                {
+                    var exception = new ArgumentException(string.Format("Invalid media type was sent: {0}", mediaType));
+                    exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                    throw exception;
+                }
+            }
+            
             #endregion
 
             #region Regions
