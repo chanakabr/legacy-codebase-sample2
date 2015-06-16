@@ -6,8 +6,7 @@ using System.Text;
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
-    {
-        //Hi AmiSHAI
+    {        
         OK = 0,
         Error = 1,
         InternalError = 2,
