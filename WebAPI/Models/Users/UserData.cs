@@ -13,27 +13,19 @@ namespace WebAPI.Models.Users
     /// </summary>
     public class UserData
     {
-
         /// <summary>
-        /// site guid
+        /// Basic Data
         /// </summary>
-        [DataMember(Name = "siteguid")]
-        [JsonProperty("siteguid")]
-        [Required]
-        public string siteGuid { get; set; }
-        /// <summary>
-        /// User Basic Data
-        /// </summary>
-        [DataMember(Name = "user_basic_data")]
-        [JsonProperty("user_basic_data")]
+        [DataMember(Name = "basic_data")]
+        [JsonProperty("basic_data")]
         [Required]
         public UserBasicData userBasicData { get; set; }
 
         /// <summary>
-        /// User Dynamic Data
+        /// Dynamic Data
         /// </summary>
-        [DataMember(Name = "user_dynamic_data")]
-        [JsonProperty("user_dynamic_data")]       
+        [DataMember(Name = "dynamic_data")]
+        [JsonProperty("dynamic_data")]       
         public Dictionary<string, string> userDynamicData { get; set; }
 
     }

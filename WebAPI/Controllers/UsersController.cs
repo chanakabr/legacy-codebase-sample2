@@ -313,14 +313,14 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
-        /// <param name="LogIn">LogIn Object</param>
+        /// <param name="details">LogIn Object</param>
         /// <param name="device_id">device identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login"), HttpPost]
-        public User Login([FromUri] string partner_id, [FromBody] LogIn request, [FromUri] string device_id = null)
+        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string device_id = null)
         {
             User response = null;
 
@@ -329,18 +329,18 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (request == null)
+            if (details == null)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignIn is null");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "Login details are null");
             }
-            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            if (string.IsNullOrEmpty(details.Username) || string.IsNullOrEmpty(details.Password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(groupId, request.Username, request.Password, device_id, request.keyValues);
+                response = ClientsManager.UsersClient().Login(groupId, details.Username, details.Password, device_id, details.keyValues);
             }
             catch (ClientException ex)
             {
@@ -351,6 +351,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
+
             return response;
         }
                 
@@ -411,7 +412,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{username}/reset_password"), HttpPost]
+        [Route("{username}/password/send"), HttpPost]
         public bool SendNewPassword([FromUri] string partner_id, [FromUri] string username)
         {
             bool response = false;
@@ -439,6 +440,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
+
             return response;
         }
         
@@ -453,8 +455,8 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("reset_password"), HttpPost]
-        public bool RenewPassword([FromUri] string partner_id, [FromUri] string user_name, [FromUri] string password)
+        [Route("{username}/password/reset"), HttpPost]
+        public bool RenewPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string password)
         {
             bool response = false;
 
@@ -463,14 +465,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().RenewPassword(groupId, user_name, password);
+                response = ClientsManager.UsersClient().RenewPassword(groupId, username, password);
             }
             catch (ClientException ex)
             {
@@ -522,9 +524,9 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
+
             return response;
         }
-
 
         /// <summary>
         /// Given a user name and existing password, change to a new password.<br />
@@ -643,9 +645,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no data to set");
             }
-            if (string.IsNullOrEmpty(user_data.siteGuid))
+            if (string.IsNullOrEmpty(user_id))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no siteGuid");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user_id");
             }
             try
             {
