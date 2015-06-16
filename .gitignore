@@ -11,3 +11,4 @@ obj/
 PrecompiledWeb/
 packages/
 WebAPI/Properties/AssemblyInfo.cs
+WebAPI/AutoMapper.xml
