@@ -666,7 +666,7 @@ namespace TVPApiServices
             {
                 // Tokenization: validate device                
                 if (AuthorizationManager.IsTokenizationEnabled() && bIsUDID &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, initObj.UDID, nGroupId, initObj.Platform))
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, sId, nGroupId, initObj.Platform))
                 {
                     return null;
                 }
