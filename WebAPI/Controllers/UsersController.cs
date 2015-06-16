@@ -304,37 +304,6 @@ namespace WebAPI.Controllers
         //    return dto;
         //}
 
-        /// <summary>
-        /// Create new user
-        /// </summary>
-        /// <param name="user">User details object</param>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
-        [Route(""), HttpPost]
-        [Authorize()]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public bool Post([FromBody]ClientUser user)
-        {
-
-            return true;
-        }
-
-        [Route("{id}")]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public void Put(int id, [FromBody]ClientUser value)
-        {
-
-        }
-
-        [Route("{id}")]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public void Delete(int id)
-        {
-
-        }
-
 
 
         /// <summary>
@@ -606,17 +575,16 @@ namespace WebAPI.Controllers
         /// <param name="group_id">Group ID</param>
         /// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
-        /// <returns>List<WebAPI.Models.User></returns>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{ids}"), HttpGet]            
-        public List<User> GetUsersData([FromUri] string group_id, string ids)
+        [Route("{user_ids}"), HttpGet]            
+        public List<User> GetUsersData([FromUri] string group_id, string user_ids)
         {
             List<int> usersIds;
             try
             {
-                usersIds = ids.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = user_ids.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
             }
             catch
             {
@@ -652,19 +620,17 @@ namespace WebAPI.Controllers
         }
 
 
-        /// <summary>Edit user details info.</br>
-        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025
-        /// 
+        /// <summary>Edit user details info.<br />
+        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025        
         /// </summary>
         /// <param name="group_id">Group ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
-        /// <remarks></remarks>
-        /// <returns>WebAPI.Models.User</returns>
+        /// <remarks></remarks>        
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{id}"), HttpPut]       
-        public User SetUserData([FromUri] string group_id, string id, UserData user_data)
+        [Route("{user_id}"), HttpPut]
+        public User SetUserData([FromUri] string group_id, string user_id, UserData user_data)
         {           
             User response = null;
             int groupId;
@@ -683,7 +649,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SetUserData(groupId, id ,user_data.userBasicData, user_data.userDynamicData);
+                response = ClientsManager.UsersClient().SetUserData(groupId, user_id, user_data.userBasicData, user_data.userDynamicData);
             }
             catch (ClientException ex)
             {

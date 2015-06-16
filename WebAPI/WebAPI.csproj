@@ -597,6 +597,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
