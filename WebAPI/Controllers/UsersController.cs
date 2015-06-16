@@ -74,9 +74,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// User sign-in via a time-expired sign-in PIN.
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
         /// LoginViaPinNotAllowed = 2009, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoDomain = 2024, UserDoesNotExist = 2025
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, UserDoesNotExist = 2025
         /// </summary>
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="pin">pin code</param>
@@ -309,7 +309,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// login with user name and password.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
@@ -357,7 +357,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Sign up a new user.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInDomain = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
@@ -668,7 +668,7 @@ namespace WebAPI.Controllers
         #region Parental Rules
 
         /// <summary>
-        /// Return the parental rules that applies to the user. Can include rules that have been associated in account, domain, or user level.
+        /// Return the parental rules that applies to the user. Can include rules that have been associated in account, household, or user level.
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
