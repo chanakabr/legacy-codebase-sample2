@@ -684,7 +684,7 @@
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {
   display: block;
   clear: none;
-  float: left;
+  float: none;
   width: auto;
   margin: 0;
   padding: 0;
@@ -726,7 +726,7 @@
   padding: 0;
   display: block;
   clear: none;
-  float: right;
+  float: none;
   margin: 6px 10px 0 0;
 }
 .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {
