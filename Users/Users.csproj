@@ -120,6 +120,7 @@
     <Compile Include="DLMResponse.cs" />
     <Compile Include="DomainInfo.cs" />
     <Compile Include="DomainResponse.cs" />
+    <Compile Include="DomainStatusResponse.cs" />
     <Compile Include="Encrypters\BaseEncrypter.cs" />
     <Compile Include="BaseMailImpl.cs" />
     <Compile Include="BaseNewsLetterImpl.cs" />

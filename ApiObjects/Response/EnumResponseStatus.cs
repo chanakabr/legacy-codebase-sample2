@@ -32,6 +32,23 @@ namespace ApiObjects.Response
         DeviceExistsInOtherDomains = 1016,
         NoUsersInDomain = 1017,
         UserExistsInOtherDomains = 1018,
+        DeviceNotExists = 1019,
+        UserNotExistsInDomain = 1020,
+        ActionUserNotMaster = 1021,
+        ExceededUserLimit = 1022,
+        DomainNotInitialized = 1023,
+        DeviceNotConfirmed = 1024,
+        RequestFailed = 1025,
+        InvalidUser = 1026,
+
+
+
+
+
+
+
+
+
 
         
         // User Section 2000 - 2999
