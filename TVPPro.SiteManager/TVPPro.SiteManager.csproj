@@ -754,10 +754,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

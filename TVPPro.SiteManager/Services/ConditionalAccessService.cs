@@ -793,7 +793,12 @@ namespace TVPPro.SiteManager.Services
             GetWSMethodUserPass(eWSMethodName.GetUserTransactionHistory, out wsUser, out wsPassword);
             try
             {
-                retVal = m_Module.GetUserBillingHistory(wsUser, wsPassword, UsersService.Instance.GetUserID(), startIndex, count);
+                BillingTransactions response = m_Module.GetUserBillingHistory(wsUser, wsPassword, UsersService.Instance.GetUserID(), startIndex, count);
+                if (response != null)
+                {
+                    retVal = response.transactions;
+                }
+                return retVal;
 
             }
             catch (Exception ex)
