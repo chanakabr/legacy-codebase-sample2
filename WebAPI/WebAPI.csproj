@@ -618,7 +618,7 @@
     <Compile Include="Models\Catalog\Channel.cs" />
     <Compile Include="Models\Catalog\ChannelMedia.cs" />
     <Compile Include="Models\Catalog\RelatedMedia.cs" />
-    <Compile Include="Controllers\DomainsController.cs" />
+    <Compile Include="Controllers\HouseholdsController.cs" />
     <Compile Include="Models\API\ParentalRule.cs" />
     <Compile Include="Models\ConditionalAccess\Entitlement.cs" />
     <Compile Include="Models\ConditionalAccess\PaymentMethod.cs" />

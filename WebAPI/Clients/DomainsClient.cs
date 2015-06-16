@@ -35,9 +35,9 @@ namespace WebAPI.Clients
         #endregion
 
 
-        internal Domain GetDomainInfo(int groupId, int domainId)
+        internal Household GetDomainInfo(int groupId, int domainId)
         {
-            Domain result = null;
+            Household result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             WebAPI.Domains.DomainResponse response = null;
@@ -64,7 +64,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<Domain>(response.Domain);
+            result = Mapper.Map<Household>(response.Domain);
 
             return result;
         }

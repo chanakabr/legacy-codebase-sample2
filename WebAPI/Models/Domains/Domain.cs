@@ -8,7 +8,7 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Domains
 {
-    public class Domain
+    public class Household
     {
         /// <summary>
         /// Domain identifier

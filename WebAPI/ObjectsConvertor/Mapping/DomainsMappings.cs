@@ -109,7 +109,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Devices, opt => opt.MapFrom(src => src.DeviceInstances));
 
             //Domain
-            Mapper.CreateMap<WebAPI.Domains.Domain, Domain>()
+            Mapper.CreateMap<WebAPI.Domains.Domain, Household>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nDomainID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
