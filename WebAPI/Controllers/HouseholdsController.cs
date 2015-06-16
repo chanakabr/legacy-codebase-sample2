@@ -19,14 +19,15 @@ namespace WebAPI.Controllers
     public class HouseholdsController : ApiController
     {
         /// <summary>
-        /// Return the parental rules that applies to the domain. Can include rules that have been associated in account or domain
+        /// Return the parental rules that applies to the household. 
+        /// Can include rules that have been associated in account or household
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="group_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <returns>List of parental rules applied to the domain</returns>
+        /// <returns>List of parental rules applied to the household</returns>
         [Route("{household_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] int household_id)
         {
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Enabled a parental rule for a specific domain
+        /// Enabled a parental rule for a specific household
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -98,7 +99,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables a parental rule for a specific Domain
+        /// Disables a parental rule for a specific household
         /// </summary>
         /// <param name="household_id">Household IDentifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -139,14 +140,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the parental PIN that applies for the Domain.
+        /// Retrieve the parental PIN that applies for the household.
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <param name="group_id">Partner identifier</param>
         /// <param name="household_id">Household IDentifier</param>
-        /// <returns>The PIN that applies for the domain</returns>
+        /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin/"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] int household_id)
         {
@@ -177,7 +178,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the parental PIN that applies for the Domain.
+        /// Set the parental PIN that applies for the household.
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -216,7 +217,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the purchase settings that applies for the domain.
+        /// Retrieve the purchase settings that applies for the household.
         /// Possible status codes:
         /// </summary>
         /// <response code="200">OK</response>
@@ -255,7 +256,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the purchase settings that applies for the Domain.
+        /// Set the purchase settings that applies for the household.
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -294,7 +295,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the purchase PIN that applies for the Domain.
+        /// Retrieve the purchase PIN that applies for the household.
         /// Possible status codes: 5001 = No PIN defined
         /// </summary>
         /// <response code="200">OK</response>
@@ -302,7 +303,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <param name="group_id">Partner identifier</param>
         /// <param name="household_id">Household IDentifier</param>
-        /// <returns>The PIN that applies for the domain</returns>
+        /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin/"), HttpGet]
         public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] int household_id)
         {
@@ -333,7 +334,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the purchase PIN that applies for the domain.
+        /// Set the purchase PIN that applies for the household.
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -378,10 +379,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// CancelServiceNow.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
+        /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="domainid">Household ID</param>
+        /// <param name="household_id">Household ID</param>
         /// <param name="asset_id">Asset Id</param>
         /// <param name="transaction_type">TransactionType Enum</param>
         ///  <param name="bIsForce"Bbool parameter</param>
@@ -390,7 +391,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}/subscriptions/{sub_id}/cancel"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domainid, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
+        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
         {
             bool response = false;
 
@@ -399,14 +400,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
-            if (domainid == 0 || asset_id == 0)
+            if (household_id == 0 || asset_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or asset_id not valid");
             }
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domainid, asset_id, transaction_type, bIsForce);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, household_id, asset_id, transaction_type, bIsForce);
             }
             catch (ClientException ex)
             {
@@ -423,7 +424,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// CancelServiceNow.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        ///  DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
+        ///  HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
@@ -465,10 +466,10 @@ namespace WebAPI.Controllers
         #endregion
 
         /// <summary>
-        /// Returns the Domain model<br/>
+        /// Returns the Household model<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// DomainAlreadyExists = 1000, ExceededLimit = 1001, DeviceTypeNotAllowed = 1002, DeviceNotInDomin = 1003, MasterEmailAlreadyExists = 1004, UserNotInDomain = 1005, DomainNotExists = 1006, 
-        /// HouseholdUserFailed = 1007, UserExistsInOtherDomains = 1018
+        /// HouseholdAlreadyExists = 1000, ExceededLimit = 1001, DeviceTypeNotAllowed = 1002, DeviceNotInHousehold = 1003, MasterEmailAlreadyExists = 1004, UserNotInHousehold = 1005, HouseholdNotExists = 1006, 
+        /// HouseholdUserFailed = 1007, UserExistsInOtherHouseholds = 1018
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
@@ -477,7 +478,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}"), HttpGet]
-        public Household GetDomain([FromUri] string group_id, [FromUri] int household_id, [FromUri] List<With> with)
+        public Household GetHousehold([FromUri] string group_id, [FromUri] int household_id, [FromUri] List<With> with)
         {
             Household response = null;
 
