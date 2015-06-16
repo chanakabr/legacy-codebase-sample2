@@ -933,6 +933,20 @@ namespace Catalog
                 definitions.shouldSearchMedia = true;
             }
 
+            HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+
+            // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+            foreach (var mediaType in definitions.mediaTypes)
+            {
+                // If one of them doesn't exist, throw an exception that says the request is bad
+                if (!mediaTypes.Contains(mediaType))
+                {
+                    var exception = new ArgumentException(string.Format("Invalid media type was sent: {0}", mediaType));
+                    exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                    throw exception;
+                }
+            }
+
             #endregion
 
             #region Regions
