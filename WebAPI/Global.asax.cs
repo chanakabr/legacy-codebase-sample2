@@ -10,7 +10,7 @@ using System.Web.Routing;
 using KLogMonitor;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
-
+using WebAPI.Filters;
 
 namespace WebAPI
 {
