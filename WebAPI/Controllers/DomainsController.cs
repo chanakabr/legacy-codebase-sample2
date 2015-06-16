@@ -264,7 +264,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase/settings/{setting}"), HttpPost]
+        [Route("{domain_id}/purchase/settings/"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int setting)
         {
             bool success = false;
