@@ -7846,7 +7846,11 @@ namespace ConditionalAccess
                 {
                     UserBillingTransactionsResponse userBillingTransactions = new UserBillingTransactionsResponse();
                     userBillingTransactions.m_sSiteGUID = arrUserGUIDs[i];
-                    userBillingTransactions.m_BillingTransactionResponse = GetUserBillingHistoryExt(arrUserGUIDs[i], dStartDate, dEndDate);
+                    BillingTransactions billingTransactions = GetUserBillingHistoryExt(arrUserGUIDs[i], dStartDate, dEndDate);
+                    if (billingTransactions != null)
+                    {
+                        userBillingTransactions.m_BillingTransactionResponse = billingTransactions.transactions;
+                    }
                     lUserBillingTransactions.Add(userBillingTransactions);
                 }
                 catch (Exception ex)
@@ -7871,9 +7875,11 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactionsResponse GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
         {
+            
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
+            BillingTransactions response = new BillingTransactions();
             TvinciPricing.mdoule m = null;
 
             try
@@ -7887,7 +7893,8 @@ namespace ConditionalAccess
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
-                    return theResp;
+                    response.resp = new Status((int)eResponseStatus.OK, "no history billing for user");
+                    return response;
                 }
 
                 int nCount = dvBillHistory.Count;
@@ -8075,6 +8082,14 @@ namespace ConditionalAccess
                         theResp.m_Transactions[i].m_Price.m_oCurrency = m.GetCurrencyValues(sWSUserName, sWSPass, sCurrencyCode);
                     }
                 } // for
+
+                response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.transactions = theResp;
+            }
+            catch(Exception ex)
+            {   
+                Logger.Logger.Log("GetUserBillingHistoryExt", string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID,dStartDate,dEndDate,nStartIndex,nNumberOfItems, ex.Message), GetLogFilename());
+                response.resp = new Status((int)eResponseStatus.Error, ex.Message);
             }
             finally
             {
@@ -8084,16 +8099,16 @@ namespace ConditionalAccess
                 }
             }
 
-            return theResp;
+            return response;
         }
 
 
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        public virtual BillingTransactionsResponse GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
+        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
         {
-            BillingTransactionsResponse res = null;
+            BillingTransactions res = null;
             try
             {
                 DateTime minDate = new DateTime(2000, 1, 1);
