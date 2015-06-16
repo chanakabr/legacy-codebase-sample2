@@ -377,7 +377,7 @@ namespace WebAPI.Controllers
 
         #region ConditionalAccess
         /// <summary>
-        /// CancelServiceNow.<br/>
+        /// Immediately cancel a household service. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
@@ -422,7 +422,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// CancelServiceNow.<br/>
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///  HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
