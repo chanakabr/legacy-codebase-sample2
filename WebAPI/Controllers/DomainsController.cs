@@ -376,12 +376,12 @@ namespace WebAPI.Controllers
 
         #region ConditionalAccess
         /// <summary>
-        /// CancelServiceNow.<br/>
+        /// Immediately cancel a household service. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
-        /// <param name="domainid">Domain Id</param>
+        /// <param name="domain_id">Domain Id</param>
         /// <param name="asset_id">Asset Id</param>
         /// <param name="transaction_type">TransactionType Enum</param>
         ///  <param name="bIsForce"Bbool parameter</param>
@@ -389,8 +389,8 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{domain_id}/subscriptions/{sub_id}/cancel"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domainid, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
+        [Route("{domain_id}/subscriptions/{sub_id}"), HttpDelete]
+        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool is_force = false)
         {
             bool response = false;
 
@@ -399,14 +399,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
-            if (domainid == 0 || asset_id == 0)
+            if (domain_id == 0 || asset_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "domain_id or asset_id not valid");
             }
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domainid, asset_id, transaction_type, bIsForce);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domain_id, asset_id, transaction_type, is_force);
             }
             catch (ClientException ex)
             {
@@ -421,7 +421,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// CancelServiceNow.<br/>
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///  DomainNotExists = 1006, DomainSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
