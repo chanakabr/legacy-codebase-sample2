@@ -8,7 +8,7 @@ using WebAPI.Models;
 using WebAPI.Utils;
 using WebAPI.Models.Catalog;
 
-namespace WebAPI.Mapping.ObjectsConvertor
+namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class CatalogMappings
     {

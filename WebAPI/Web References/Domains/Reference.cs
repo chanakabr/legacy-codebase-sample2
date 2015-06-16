@@ -105,6 +105,8 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback SetDomainRegionOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetDomainByUserOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -256,6 +258,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event SetDomainRegionCompletedEventHandler SetDomainRegionCompleted;
+        
+        /// <remarks/>
+        public event GetDomainByUserCompletedEventHandler GetDomainByUserCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -658,12 +663,12 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainInfo", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Domain GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
+        public DomainResponse GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainInfo", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((Domain)(results[0]));
+            return ((DomainResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1622,6 +1627,39 @@ namespace WebAPI.Domains {
             if ((this.SetDomainRegionCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SetDomainRegionCompleted(this, new SetDomainRegionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainByUser", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Domain GetDomainByUser(string sWSUserName, string sWSPassword, string siteGuid) {
+            object[] results = this.Invoke("GetDomainByUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid});
+            return ((Domain)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainByUserAsync(string sWSUserName, string sWSPassword, string siteGuid) {
+            this.GetDomainByUserAsync(sWSUserName, sWSPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainByUserAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+            if ((this.GetDomainByUserOperationCompleted == null)) {
+                this.GetDomainByUserOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainByUserOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainByUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid}, this.GetDomainByUserOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainByUserOperationCompleted(object arg) {
+            if ((this.GetDomainByUserCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainByUserCompleted(this, new GetDomainByUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2812,6 +2850,39 @@ namespace WebAPI.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DomainResponse {
+        
+        private Domain domainField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Domain Domain {
+            get {
+                return this.domainField;
+            }
+            set {
+                this.domainField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class HomeNetwork {
         
         private string nameField;
@@ -2919,6 +2990,12 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         DomainSuspended,
+        
+        /// <remarks/>
+        NoUsersInDomain,
+        
+        /// <remarks/>
+        UserExistsInOtherDomains,
     }
     
     /// <remarks/>
@@ -3260,10 +3337,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public Domain Result {
+        public DomainResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Domain)(this.results[0]));
+                return ((DomainResponse)(this.results[0]));
             }
         }
     }
@@ -3940,6 +4017,32 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetDomainByUserCompletedEventHandler(object sender, GetDomainByUserCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainByUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainByUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Domain Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Domain)(this.results[0]));
             }
         }
     }
