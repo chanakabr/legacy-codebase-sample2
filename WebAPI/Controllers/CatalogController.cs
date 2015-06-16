@@ -292,7 +292,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media by media identifiers<br />
+        /// Returns channel info<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>

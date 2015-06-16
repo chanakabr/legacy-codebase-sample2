@@ -7,6 +7,6 @@ namespace WebAPI.Models.Domains
 {
     public enum With
     {
-        users
+        users_info
     }
 }

@@ -20,39 +20,39 @@ namespace WebAPI.Models.Users
         public long Id { get; set; }
 
         /// <summary>
-        /// Domain identifier
+        /// Household identifier
         /// </summary>
-        [DataMember(Name = "domain_id")]
-        [JsonProperty("domain_id")]
-        public int DomainId { get; set; }
+        [DataMember(Name = "household_id")]
+        [JsonProperty("household_id")]
+        public int HouseholdID { get; set; }
 
         /// <summary>
-        /// User basic data
+        /// Basic data
         /// </summary>
         [DataMember(Name = "basic_data")]
         [JsonProperty("basic_data")]
         public UserBasicData BasicDate { get; set; }
 
         /// <summary>
-        /// User dynamic data
+        /// Dynamic data
         /// </summary>
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
         public Dictionary<string,string> DynamicDate { get; set; }
 
         /// <summary>
-        /// Is the user the domain master
+        /// Is the user the household master
         /// </summary>
-        [DataMember(Name = "is_domain_master")]
-        [JsonProperty("is_domain_master")]
-        public bool IsDomainMaster { get; set; }
+        [DataMember(Name = "is_household_master")]
+        [JsonProperty("is_household_master")]
+        public bool IsHouseholdMaster { get; set; }
 
         /// <summary>
         /// Suspention state
         /// </summary>
         [DataMember(Name = "suspention_state")]
         [JsonProperty("suspention_state")]
-        public DomainSuspentionState SuspentionState { get; set; }
+        public HouseholdSuspentionState SuspentionState { get; set; }
 
         /// <summary>
         /// User state

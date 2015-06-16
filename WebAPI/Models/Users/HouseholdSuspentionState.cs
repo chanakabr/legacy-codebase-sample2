@@ -5,7 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.Users
 {
-    public enum DomainSuspentionState
+    public enum HouseholdSuspentionState
     {
         not_suspended = 0,
         suspended = 1

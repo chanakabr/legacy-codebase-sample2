@@ -519,7 +519,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
-        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users"</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -554,7 +554,7 @@ namespace WebAPI.Controllers
             }
 
 
-            if (with != null && with.Contains(With.users))
+            if (with != null && with.Contains(With.users_info))
             {
                 // get users ids list
                 List<int> userIds = new List<int>();

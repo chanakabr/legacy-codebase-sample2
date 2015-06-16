@@ -21,11 +21,11 @@ namespace WebAPI.Models.Users
         public string ID { get; set; }
 
         /// <summary>
-        /// Domain ID
+        /// Household ID
         /// </summary>
-        [DataMember(Name = "domain_id")]
-        [JsonProperty("domain_id")]
-        public string DomainID { get; set; }
+        [DataMember(Name = "household_id")]
+        [JsonProperty("household_id")]
+        public string HouseholdID { get; set; }
 
         /// <summary>
         /// First name

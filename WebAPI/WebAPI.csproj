@@ -604,9 +604,9 @@
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />
     <Compile Include="Models\Domains\DeviceState.cs" />
-    <Compile Include="Models\Domains\Domain.cs" />
-    <Compile Include="Models\Domains\DomainRestriction.cs" />
-    <Compile Include="Models\Domains\DomainState.cs" />
+    <Compile Include="Models\Domains\Household.cs" />
+    <Compile Include="Models\Domains\HouseholdRestriction.cs" />
+    <Compile Include="Models\Domains\HouseholdState.cs" />
     <Compile Include="Models\Domains\HomeNetwork.cs" />
     <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
@@ -631,7 +631,7 @@
     <Compile Include="Models\Users\SignUp.cs" />
     <Compile Include="Models\Users\User.cs" />
     <Compile Include="Models\Users\UserBasicData.cs" />
-    <Compile Include="Models\Users\DomainSuspentionState.cs" />
+    <Compile Include="Models\Users\HouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\UserData.cs" />
     <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />

@@ -5,11 +5,11 @@ using System.Web;
 
 namespace WebAPI.Models.Domains
 {
-    public enum DomainState
+    public enum HouseholdState
     {
         ok,
         created_without_npvr_account,
         suspended,
-        no_users_in_domain
+        no_users_in_household
     }
 }

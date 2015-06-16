@@ -105,7 +105,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = Models.API.eRuleLevel.user;
                 break;
                 case WebAPI.Api.eRuleLevel.Domain:
-                result = Models.API.eRuleLevel.domain;
+                result = Models.API.eRuleLevel.household;
                 break;
                 case WebAPI.Api.eRuleLevel.Group:
                 result = Models.API.eRuleLevel.account;

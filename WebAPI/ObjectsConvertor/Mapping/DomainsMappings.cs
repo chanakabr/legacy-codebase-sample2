@@ -15,22 +15,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
         public static void RegisterMappings()
         {
             //DomainStatus to DomainState 
-            Mapper.CreateMap<WebAPI.Domains.DomainStatus, DomainState>().ConstructUsing((WebAPI.Domains.DomainStatus type) =>
+            Mapper.CreateMap<WebAPI.Domains.DomainStatus, HouseholdState>().ConstructUsing((WebAPI.Domains.DomainStatus type) =>
             {
-                DomainState result;
+                HouseholdState result;
                 switch (type)
                 {
                     case WebAPI.Domains.DomainStatus.OK:
-                        result = DomainState.ok;
+                        result = HouseholdState.ok;
                         break;
                     case WebAPI.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
-                        result = DomainState.created_without_npvr_account;
+                        result = HouseholdState.created_without_npvr_account;
                         break;
                     case WebAPI.Domains.DomainStatus.DomainSuspended:
-                        result = DomainState.suspended;
+                        result = HouseholdState.suspended;
                         break;
                     case WebAPI.Domains.DomainStatus.NoUsersInDomain:
-                        result = DomainState.no_users_in_domain;
+                        result = HouseholdState.no_users_in_household;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown domain state");
@@ -39,22 +39,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
             });
 
             //DomainRestriction 
-            Mapper.CreateMap<WebAPI.Domains.DomainRestriction, DomainRestriction>().ConstructUsing((WebAPI.Domains.DomainRestriction type) =>
+            Mapper.CreateMap<WebAPI.Domains.DomainRestriction, HouseholdRestriction>().ConstructUsing((WebAPI.Domains.DomainRestriction type) =>
             {
-                DomainRestriction result;
+                HouseholdRestriction result;
                 switch (type)
                 {
                     case WebAPI.Domains.DomainRestriction.Unrestricted:
-                        result = DomainRestriction.not_restricted;
+                        result = HouseholdRestriction.not_restricted;
                         break;
                     case WebAPI.Domains.DomainRestriction.DeviceMasterRestricted:
-                        result = DomainRestriction.device_master_restricted;
+                        result = HouseholdRestriction.device_master_restricted;
                         break;
                     case WebAPI.Domains.DomainRestriction.UserMasterRestricted:
-                        result = DomainRestriction.user_master_restricted;
+                        result = HouseholdRestriction.user_master_restricted;
                         break;
                     case WebAPI.Domains.DomainRestriction.DeviceUserMasterRestricted:
-                        result = DomainRestriction.device_user_master_restricted;
+                        result = HouseholdRestriction.device_user_master_restricted;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown domain_restriction value");

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.Domains
 {
-    public enum DomainRestriction
+    public enum HouseholdRestriction
     {
         not_restricted,
         user_master_restricted,

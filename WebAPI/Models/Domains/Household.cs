@@ -11,56 +11,56 @@ namespace WebAPI.Models.Domains
     public class Household
     {
         /// <summary>
-        /// Domain identifier
+        /// Household identifier
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         public long Id { get; set; }
 
         /// <summary>
-        /// Domain name
+        /// Household name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Domain description
+        /// Household description
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         public string Description { get; set; }
 
         /// <summary>
-        /// Domain external identifier
+        /// Household external identifier
         /// </summary>
         [DataMember(Name = "external_id")]
         [JsonProperty("external_id")]
         public string ExternalId { get; set; }
 
         /// <summary>
-        /// Domain limitation module identifier
+        /// Household limitation module identifier
         /// </summary>
         [DataMember(Name = "dlm_id")]
         [JsonProperty("dlm_id")]
         public int DlmId { get; set; }
 
         /// <summary>
-        /// The max number of the devices that can be added to the domain
+        /// The max number of the devices that can be added to the household
         /// </summary>
         [DataMember(Name = "devices_limit")]
         [JsonProperty("devices_limit")]
         public int DevicesLimit { get; set; }
 
         /// <summary>
-        /// The max number of the users that can be added to the domain
+        /// The max number of the users that can be added to the household
         /// </summary>
         [DataMember(Name = "users_limit")]
         [JsonProperty("users_limit")]
         public int UsersLimit { get; set; }
 
         /// <summary>
-        /// The max number of concurrent streams in the domain
+        /// The max number of concurrent streams in the household
         /// </summary>
         [DataMember(Name = "concurrent_limit")]
         [JsonProperty("concurrent_limit")]
@@ -130,42 +130,42 @@ namespace WebAPI.Models.Domains
         public int RegionId { get; set; }
 
         /// <summary>
-        /// Domain state
+        /// Household state
         /// </summary>
         [DataMember(Name = "state")]
         [JsonProperty("state")]
-        public DomainState State { get; set; }
+        public HouseholdState State { get; set; }
 
         /// <summary>
-        /// Is domain frequency enabled
+        /// Is household frequency enabled
         /// </summary>
         [DataMember(Name = "is_frequency_enabled")]
         [JsonProperty("is_frequency_enabled")]
         public bool IsFrequencyEnabled { get; set; }
 
         /// <summary>
-        /// The next time a device is allowed to be removed from the domain (epoch)
+        /// The next time a device is allowed to be removed from the household (epoch)
         /// </summary>
         [DataMember(Name = "frequency_next_device_action")]
         [JsonProperty("frequency_next_device_action")]
         public long FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
-        /// The next time a user is allowed to be removed from the domain (epoch)
+        /// The next time a user is allowed to be removed from the household (epoch)
         /// </summary>
         [DataMember(Name = "frequency_next_user_action")]
         [JsonProperty("frequency_next_user_action")]
         public long FrequencyNextUserAction { get; set; }
 
         /// <summary>
-        /// Domain restriction
+        /// Household restriction
         /// </summary>
         [DataMember(Name = "restriction")]
         [JsonProperty("restriction")]
-        public DomainRestriction Restriction { get; set; }
+        public HouseholdRestriction Restriction { get; set; }
 
         /// <summary>
-        /// Domain home networks
+        /// Household home networks
         /// </summary>
         [DataMember(Name = "home_networks")]
         [JsonProperty("home_networks")]

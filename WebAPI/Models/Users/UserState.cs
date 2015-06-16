@@ -8,6 +8,6 @@ namespace WebAPI.Models.Users
     public enum UserState
     {
         ok,
-        user_with_no_domain,
+        user_with_no_household,
     }
 }

@@ -18,7 +18,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //User 
             Mapper.CreateMap<Users.UserResponseObject, ClientUser>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_sSiteGUID)))
-                .ForMember(dest => dest.DomainID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
+                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName));
 
             // PinCode
@@ -59,11 +59,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // User
             Mapper.CreateMap<Users.UserResponseObject, User>()
                 .ForMember(dest => dest.BasicDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
-                .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.m_user.m_domianID))
+                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
                 .ForMember(dest => dest.DynamicDate, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
                 .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => src.m_user.m_eSuspendState))
-                .ForMember(dest => dest.IsDomainMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
+                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => src.m_RespStatus));
 
             // SlimUser
@@ -74,16 +74,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicDate.LastName));
 
             //DomainSuspentionStatus to DomainSuspentionState
-            Mapper.CreateMap<WebAPI.Users.DomainSuspentionStatus, DomainSuspentionState>().ConstructUsing((WebAPI.Users.DomainSuspentionStatus type) =>
+            Mapper.CreateMap<WebAPI.Users.DomainSuspentionStatus, HouseholdSuspentionState>().ConstructUsing((WebAPI.Users.DomainSuspentionStatus type) =>
             {
-                DomainSuspentionState result;
+                HouseholdSuspentionState result;
                 switch (type)
                 {
                     case WebAPI.Users.DomainSuspentionStatus.OK:
-                        result = DomainSuspentionState.not_suspended;
+                        result = HouseholdSuspentionState.not_suspended;
                         break;
                     case WebAPI.Users.DomainSuspentionStatus.Suspended:
-                        result = DomainSuspentionState.suspended;
+                        result = HouseholdSuspentionState.suspended;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
@@ -101,7 +101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result = UserState.ok;
                         break;
                     case WebAPI.Users.ResponseStatus.UserWithNoDomain:
-                        result = UserState.user_with_no_domain;
+                        result = UserState.user_with_no_household;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown user state");

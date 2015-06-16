@@ -91,7 +91,7 @@ namespace WebAPI.Models.API
         public bool isDefault;
 
         /// <summary>
-        /// Where was this rule defined account, domain or user
+        /// Where was this rule defined account, household or user
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
@@ -110,13 +110,13 @@ namespace WebAPI.Models.API
     }
 
     /// <summary>
-    /// Distinction if rule was defined at account, domain or user level
+    /// Distinction if rule was defined at account, household or user level
     /// </summary>
     public enum eRuleLevel
     {
         invalid = 0,
         user = 1,
-        domain = 2,
+        household = 2,
         account = 3
     }
 }
