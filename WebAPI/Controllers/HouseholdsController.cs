@@ -377,24 +377,68 @@ namespace WebAPI.Controllers
 
         #region ConditionalAccess
         /// <summary>
-        /// Immediately cancel a household service. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Immediately cancel a household subscription. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
-        /// <param name="asset_id">Asset Id</param>
-        /// <param name="transaction_type">TransactionType Enum</param>
-        ///  <param name="bIsForce"Bbool parameter</param>
+        /// <param name="sub_id">Subscription ID</param>        
+        ///  <param name="is_force">bool parameter</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool bIsForce = false)
+        public bool CancelSubscriptionNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int sub_id, [FromUri] bool is_force = false)
+        {         
+            TransactionType transaction_type = TransactionType.subscription;
+            return CancelServiceNow(group_id, household_id, sub_id, is_force,transaction_type);
+        }
+
+        /// <summary>
+        /// Immediately cancel a household PPV. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="household_id">Household ID</param>
+        /// <param name="ppv_id">PPV ID</param>        
+        ///  <param name="is_force">bool parameter</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/ppv/{ppv_id}"), HttpDelete]
+        public bool CancelPPVNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int ppv_id, [FromUri] bool is_force = false)
+        {
+            TransactionType transaction_type = TransactionType.ppv;
+            return CancelServiceNow(group_id, household_id, ppv_id, is_force, transaction_type);
+        }
+
+        /// <summary>
+        /// Immediately cancel a household Collection. Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
+        /// </summary>        
+        /// <param name="group_id">Group ID</param>
+        /// <param name="household_id">Household ID</param>
+        /// <param name="collection_id">Collection ID</param>        
+        ///  <param name="is_force">bool parameter</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/collection/{collection_id}"), HttpDelete]
+        public bool CancelCollectionNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int collection_id, [FromUri] bool is_force = false)
+        {
+            TransactionType transaction_type = TransactionType.collection;
+            return CancelServiceNow(group_id, household_id, collection_id, is_force, transaction_type);
+        }
+
+        private static bool CancelServiceNow(string group_id, int household_id, int asset_id, bool is_force,  TransactionType transaction_type)
         {
             bool response = false;
-
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
@@ -407,7 +451,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, household_id, asset_id, transaction_type, bIsForce);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, household_id, asset_id, transaction_type, is_force);
             }
             catch (ClientException ex)
             {
@@ -428,13 +472,13 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="group_id">Group ID</param>
         /// <param name="household_id">Household ID</param>
-        /// <param name="subscription_code">Subscription Code</param>
+        /// <param name="sub_id">Subscription Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
-        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int household_id, [FromUri] string subscription_code)
+        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
             bool response = false;
 
@@ -443,14 +487,14 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be int");
             }
-            if (household_id == 0 || string.IsNullOrEmpty(subscription_code))
+            if (household_id == 0 || string.IsNullOrEmpty(sub_id))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or subscription code not valid");
             }
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, subscription_code);
+                response = ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, sub_id);
             }
             catch (ClientException ex)
             {
