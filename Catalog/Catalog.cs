@@ -720,7 +720,8 @@ namespace Catalog
             HashSet<string> reservedStringFields = new HashSet<string>()
             {
                 "name",
-                "description"
+                "description",
+                "epg_channel_id"
             };
 
             HashSet<string> reservedNumericFields = new HashSet<string>()
