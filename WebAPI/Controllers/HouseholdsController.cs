@@ -409,7 +409,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{household_id}/ppv/{ppv_id}"), HttpDelete]
+        [Route("{household_id}/ppvs/{ppv_id}"), HttpDelete]
         public bool CancelPPVNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int ppv_id, [FromUri] bool is_force = false)
         {
             TransactionType transaction_type = TransactionType.ppv;
@@ -429,7 +429,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{household_id}/collection/{collection_id}"), HttpDelete]
+        [Route("{household_id}/collections/{collection_id}"), HttpDelete]
         public bool CancelCollectionNow([FromUri] string group_id, [FromUri] int household_id, [FromUri] int collection_id, [FromUri] bool is_force = false)
         {
             TransactionType transaction_type = TransactionType.collection;
