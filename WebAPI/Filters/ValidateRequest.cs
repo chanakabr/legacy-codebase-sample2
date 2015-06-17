@@ -6,14 +6,19 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using WebAPI.Exceptions;
 
-namespace WebAPI.Filters
+namespace WebAPI.App_Start
 {
-    public class PartnerFilterAttribute : ActionFilterAttribute
+    public class ValidateRequest : ActionFilterAttribute
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            string pID = (string) actionContext.ActionArguments["partner_id"];
-            
+            if (string.IsNullOrEmpty((string)actionContext.ActionArguments["user_id"]))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.UserIDInvalid, "no user_id");
+            }
+
+            string pID = (string)actionContext.ActionArguments["partner_id"];
+
             int groupId;
             if (!int.TryParse(pID, out groupId))
             {

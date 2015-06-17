@@ -27,7 +27,6 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>The parental rules defined for the account</returns>
         [Route("{partner_id}/parental/rules"), HttpGet]
-        [PartnerFilter]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id)
         {
             List<ParentalRule> response = null;

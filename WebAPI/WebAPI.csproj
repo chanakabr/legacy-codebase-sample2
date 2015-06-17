@@ -600,8 +600,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filters\UserFilter.cs" />
-    <Compile Include="Filters\PartnerFilter.cs" />
+    <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
