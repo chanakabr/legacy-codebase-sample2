@@ -229,6 +229,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("media/{media_ids}"), HttpGet]
         public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int household_id = 0)
         {
@@ -289,6 +290,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("channels/{channel_id}/"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
@@ -332,6 +334,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("categories/{category_id}/"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {

@@ -31,6 +31,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>List of parental rules applied to the household</returns>
         [Route("{household_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] int household_id)
@@ -63,6 +64,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpPost]
         public bool EnableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
@@ -95,6 +97,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
@@ -121,11 +124,12 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006
         /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <response code="404">Not Found</response>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -152,12 +156,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006
         /// </summary>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to set</param>
+        ///  /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
         public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromBody] string pin)
@@ -183,11 +188,12 @@ namespace WebAPI.Controllers
         /// Retrieve the purchase settings that applies for the household.
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <response code="404">Not Found</response>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{household_id}/purchase/settings"), HttpGet]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
@@ -214,12 +220,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006
         /// </summary>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="setting">New settings to apply</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/settings"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int setting)
@@ -246,11 +253,12 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// 5001 = No PIN defined, HouseholdNotExists = 1006
         /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <response code="404">Not Found</response>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin/"), HttpGet]
         public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -266,7 +274,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
             }
 
             return pinResponse;
@@ -277,12 +285,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///HouseholdNotExists = 1006
         /// </summary>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to apply</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/pin"), HttpPost]
         public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
@@ -322,9 +331,10 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
         public bool CancelSubscriptionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int sub_id, [FromUri] bool is_force = false)
-        {         
+        {
             TransactionType transaction_type = TransactionType.subscription;
             return CancelServiceNow(partner_id, household_id, sub_id, is_force, transaction_type);
         }
@@ -343,6 +353,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("{household_id}/ppvs/{ppv_id}"), HttpDelete]
         public bool CancelPPVNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int ppv_id, [FromUri] bool is_force = false)
         {
@@ -364,6 +375,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("{household_id}/collections/{collection_id}"), HttpDelete]
         public bool CancelCollectionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int collection_id, [FromUri] bool is_force = false)
         {
@@ -410,6 +422,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
         public bool CancelSubscriptionRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
@@ -451,6 +464,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("{household_id}"), HttpGet]
         public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with = null)
         {
@@ -473,7 +487,6 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-
             if (with != null && with.Contains(With.users_info))
             {
                 // get users ids lists
@@ -488,7 +501,7 @@ namespace WebAPI.Controllers
                 allUserIds.AddRange(masterUserIds);
                 allUserIds.AddRange(defaultUserIds);
                 allUserIds.AddRange(pendingUserIds);
-                
+
                 //get users
                 List<User> users = null;
                 if (allUserIds.Count > 0)
@@ -509,7 +522,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Creats a household for the user<br/>
+        /// Creates a household for the user<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007
         /// </summary>        
@@ -519,6 +532,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route(""), HttpPost]
         public Household AddHousehold([FromUri] string partner_id, [FromBody] AddHousehold request)
         {
@@ -547,5 +561,69 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Removes a user from household<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// Household not initialized = 1023, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
+        /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/users/{user_id}"), HttpDelete]
+        public bool RemoveUserFromHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id)
+        {
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        ///// <summary>
+        ///// Adds a user to household<br/>
+        ///// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        ///// Household not initialized = 1023, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
+        ///// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
+        ///// </summary>        
+        ///// <param name="partner_id">Partner identifier</param>
+        ///// <param name="household_id">Household identifier</param>
+        ///// <param name="user_id">User identifier</param>
+        ///// <param name="master_user_id">Identifier of household master</param>
+        ///// <param name="is_master">True if the new user should be set to be master</param>
+        ///// <remarks></remarks>
+        ///// <response code="200">OK</response>
+        ///// <response code="400">Bad request</response>
+        ///// <response code="500">Internal Server Error</response>
+        //[Route("{household_id}/users/{user_id}"), HttpPost]
+        //public bool AddUserToHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master)
+        //{
+        //    int groupId = int.Parse(partner_id);
+
+        //    try
+        //    {
+        //        // call client
+        //        return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, master_user_id, is_master);
+        //    }
+        //    catch (ClientException ex)
+        //    {
+        //        ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+        //    }
+
+        //    return true;
+        //}
     }
 }

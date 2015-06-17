@@ -112,5 +112,77 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal bool RemoveUserFromDomain(int groupId, int domainId, string userId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveUserFromDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return true;
+        }
+
+        internal bool AddUserToDomain(int groupId, int domainId, string userId, string masterUserId, bool isMaster)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.AddUserToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, int.Parse(userId), int.Parse(masterUserId), isMaster);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return true;
+        }
     }
 }
