@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
         /// <param name="request">The search asset request parameters</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The related media request parameters</param>
         /// <param name="media_id">Media Identifier</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -187,7 +187,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -234,7 +234,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="media_ids">Media Identifiers separated by , </param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -296,7 +296,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -343,7 +343,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="category_id">Category Identifier</param>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>

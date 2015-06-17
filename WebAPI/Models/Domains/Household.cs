@@ -123,7 +123,7 @@ namespace WebAPI.Models.Domains
         public List<SlimUser> PendingUsers { get; set; }
 
         /// <summary>
-        /// The domains region identifier
+        /// The households region identifier
         /// </summary>
         [DataMember(Name = "region_id")]
         [JsonProperty("region_id")]

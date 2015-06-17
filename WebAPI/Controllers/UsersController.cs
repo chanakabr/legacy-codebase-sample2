@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// Generates a temporarily PIN that can allow a user to log-in.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
         /// </summary>        
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks></remarks>
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, UserDoesNotExist = 2025
         /// </summary>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="device_id">Device Identifier</param>
@@ -127,7 +127,7 @@ namespace WebAPI.Controllers
         /// Set a temporarily PIN that can allow a user to log-in.
         /// Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011, PinMustBeDigitsOnly = 2012, PinCanNotStartWithZero = 2013
         /// </summary>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="pin">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
