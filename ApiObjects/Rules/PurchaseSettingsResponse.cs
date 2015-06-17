@@ -14,7 +14,7 @@ namespace ApiObjects
             set;
         }
 
-        public ePurchaeSettingsType type
+        public ePurchaeSettingsType? type
         {
             get;
             set;
@@ -26,7 +26,7 @@ namespace ApiObjects
             set;
         }
 
-        public eRuleLevel level
+        public eRuleLevel? level
         {
             get;
             set;
