@@ -23,8 +23,8 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
 
             // set monitor and log configuration files
-            KMonitor.Configure("log4net.config");
-            KLogger.Configure("log4net.config");
+            KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
+            KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
         }
 
         protected void Application_BeginRequest()
