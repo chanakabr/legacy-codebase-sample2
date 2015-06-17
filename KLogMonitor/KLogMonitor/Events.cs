@@ -21,16 +21,6 @@ namespace KLogMonitor
             EVENT_WS
         }
 
-        public enum eDBQueryType
-        {
-            UNKNOWN,
-            SELECT,
-            UPDATE,
-            INSERT,
-            DELETE,
-            EXECUTE
-        }
-
         internal static string GetEventString(eEvent eventMonitor)
         {
             switch (eventMonitor)

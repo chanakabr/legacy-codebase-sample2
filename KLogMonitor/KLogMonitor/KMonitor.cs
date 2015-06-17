@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.ServiceModel;
 using System.Text;
 using System.Web;
 using log4net;
@@ -15,6 +16,7 @@ namespace KLogMonitor
     public class KMonitor : IDisposable
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static KLogEnums.AppType AppType { get; set; }
 
         [Newtonsoft.Json.JsonProperty(PropertyName = "e")]
         [DataMember(Name = "e")]
@@ -57,7 +59,7 @@ namespace KLogMonitor
         public string QueryTypeString { get; private set; }
 
 
-        public Events.eDBQueryType QueryType
+        public KLogMonitor.KLogEnums.eDBQueryType QueryType
         {
             set { this.QueryTypeString = value.ToString(); }
         }
@@ -87,24 +89,54 @@ namespace KLogMonitor
             this.Event = Events.GetEventString(eventName);
             this.Server = Environment.MachineName;
 
-            // If used under WEB
-            if (HttpContext.Current != null &&
-                HttpContext.Current.Items != null)
+
+            // get monitor data
+            // WCF -> data is stored in IncomingMessageProperties
+            // WS  -> data is stored in OperationContext
+            switch (AppType)
             {
-                if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
-                    this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
+                case KLogEnums.AppType.WCF:
 
-                if (HttpContext.Current.Items[Constants.ACTION] != null)
-                    this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
+                    if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
+                    {
+                        if (OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] != null)
+                            this.PartnerID = OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID].ToString();
 
-                if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                    this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties[Constants.ACTION] != null)
+                            this.Action = OperationContext.Current.IncomingMessageProperties[Constants.ACTION].ToString();
 
-                if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
-                    this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
+                            this.UniqueID = OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString();
 
-                if (HttpContext.Current.Items[Constants.HOST_IP] != null)
-                    this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] != null)
+                            this.ClientTag = OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG].ToString();
+
+                        if (OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] != null)
+                            this.IPAddress = OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP].ToString();
+                    }
+                    break;
+
+                case KLogEnums.AppType.WS:
+                default:
+
+                    if (HttpContext.Current != null && HttpContext.Current.Items != null)
+                    {
+                        if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
+                            this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
+
+                        if (HttpContext.Current.Items[Constants.ACTION] != null)
+                            this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
+
+                        if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+                            this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
+
+                        if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
+                            this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
+
+                        if (HttpContext.Current.Items[Constants.HOST_IP] != null)
+                            this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
+                    }
+                    break;
             }
 
             if (groupID != null)
@@ -124,8 +156,9 @@ namespace KLogMonitor
                 logger.Monitor(this.ToString());
         }
 
-        public static void Configure(string logConfigFile)
+        public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
+            AppType = appType;
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
         }
 
