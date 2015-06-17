@@ -15,6 +15,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Filters;
+using System;
 
 namespace WebAPI.Controllers
 {
@@ -193,6 +194,19 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
+            List<int> filterTypes = null;
+            if (!string.IsNullOrEmpty(request.filter_types))
+            {
+                try
+                {
+                    filterTypes = request.filter_types.Split(',').Select(x => int.Parse(x)).ToList();
+                }
+                catch
+                {
+                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "invalid filter types");
+                }
+            }
+
             // days - default value 7
             if (request.days == 0)
                 request.days = 7;
@@ -200,7 +214,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, request.page_index, request.page_size,
-                                                                       request.filter_status, request.days, request.filter_types, request.with);
+                                                                       request.filter_status, request.days, filterTypes, request.with);
             }
             catch (ClientException ex)
             {

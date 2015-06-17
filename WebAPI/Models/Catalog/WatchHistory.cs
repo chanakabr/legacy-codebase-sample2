@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
-        public List<int> filter_types { get; set; }
+        public string filter_types { get; set; }
 
         /// <summary>
         /// Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
