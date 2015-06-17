@@ -43,7 +43,7 @@ namespace Users
 
             // get domain by domain id from Cache 
             DomainsCache oDomainCache = DomainsCache.Instance();
-            Domain domain = oDomainCache.GetDomain(nGroupID, nDomainID);
+            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID);
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
             return oDomainResponseObject;
