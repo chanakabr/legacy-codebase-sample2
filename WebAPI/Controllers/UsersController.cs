@@ -80,7 +80,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="partner_id">Group Identifier</param>
         /// <param name="pin">pin code</param>
-        /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="device_id">Device Identifier</param>
         /// <remarks></remarks>
@@ -449,7 +448,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
         /// </summary>        
         /// <param name="partner_id">Group ID</param>
-        /// <param name="user_name">user name</param>
+        /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
