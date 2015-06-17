@@ -82,13 +82,13 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
-        /// <param name="device_id">Device Identifier</param>
+        /// <param name="udid">Device UDID</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login/pin"), HttpPost]
-        public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string device_id = null, [FromUri] string secret = null)
+        public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
         {
             User response = null;
 
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().LoginWithPin(groupId, device_id, pin, secret);
+                response = ClientsManager.UsersClient().LoginWithPin(groupId, udid, pin, secret);
             }
             catch (ClientException ex)
             {
@@ -119,9 +119,9 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("login/pin"), HttpGet]
-        public User GetLogInWithPin(string partner_id, string pin, string device_id, string secret = null)
+        public User GetLogInWithPin(string partner_id, string pin, string udid, string secret = null)
         {
-            return LogInWithPin(partner_id, pin, device_id, secret);
+            return LogInWithPin(partner_id, pin, udid, secret);
         }
 
         /// <summary>
@@ -314,13 +314,13 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="details">LogIn Object</param>
-        /// <param name="device_id">device identifier</param>
+        /// <param name="udid">Device UDID</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login"), HttpPost]
-        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string device_id = null)
+        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string udid = null)
         {
             User response = null;
 
@@ -340,7 +340,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(groupId, details.Username, details.Password, device_id, details.keyValues);
+                response = ClientsManager.UsersClient().Login(groupId, details.Username, details.Password, udid, details.keyValues);
             }
             catch (ClientException ex)
             {
