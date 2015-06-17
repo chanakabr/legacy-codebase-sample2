@@ -43,11 +43,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -82,11 +77,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -125,12 +115,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -163,11 +147,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -205,11 +184,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -242,11 +216,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -284,11 +253,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -321,11 +285,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -363,11 +322,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -391,7 +345,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="partner_id">Group identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
@@ -412,7 +366,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="partner_id">Group identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="ppv_id">PPV identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
@@ -433,7 +387,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Partner ID</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="collection_id">Collection identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
@@ -456,9 +410,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id == 0 || asset_id == 0)
+            if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or asset_id not valid");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "asset_id not valid");
             }
             try
             {
@@ -482,7 +436,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         ///  HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, SubscriptionNotRenewable = 300
         /// </summary>        
-        /// <param name="partner_id">Group identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription Code</param>
         /// <remarks></remarks>
@@ -499,9 +453,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id == 0 || string.IsNullOrEmpty(sub_id))
+            if (string.IsNullOrEmpty(sub_id))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or subscription code not valid");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
@@ -526,7 +480,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
         /// MasterEmailAlreadyExists = 1004, HouseholdNotExists = 1006, HouseholdUserFailed = 1007
         /// </summary>        
-        /// <param name="partner_id">Group identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks></remarks>
@@ -543,10 +497,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id not valid");
-            }
+
             try
             {
                 // call client
@@ -600,7 +551,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007
         /// </summary>        
-        /// <param name="partner_id">Group identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="request">Request parameters</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>

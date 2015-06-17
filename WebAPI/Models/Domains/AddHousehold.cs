@@ -27,7 +27,7 @@ namespace WebAPI.Models.Domains
         public string Description { get; set; }
 
         /// <summary>
-        /// Identifier of the user that will become the master of the created domain
+        /// Identifier of the user that will become the master of the created household
         /// </summary>
         [DataMember(Name = "master_user_id")]
         [JsonProperty("master_user_id")]
