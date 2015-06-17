@@ -502,7 +502,7 @@ namespace TVinciShared
                                                 {
                                                     ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
 
-                                                    UploadPicToGroup(nGroupID, sTmpImage);
+                                                    UploadPicToGroup(nGroupID, sTmpImage1);
                                                 }
                                                 nI++;
                                             }
@@ -1726,7 +1726,7 @@ namespace TVinciShared
                                                 if (isResize)
                                                 {
                                                     ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName));
-                                                    UploadPicToGroup(nGroupID, sTmpImage);
+                                                    UploadPicToGroup(nGroupID, sTmpImage1);
                                                 }
                                                 nI++;
                                             }
