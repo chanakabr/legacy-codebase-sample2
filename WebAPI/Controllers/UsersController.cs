@@ -14,6 +14,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -367,15 +368,11 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("signup"), HttpPost]
+        [PartnerFilter]
         public User SignUp([FromUri] string partner_id, [FromBody] SignUp sign_up)
         {
             User response = null;
-
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            
             if (sign_up == null || sign_up.userBasicData == null)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignUp or UserBasicData is null");
@@ -387,7 +384,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SignUp(groupId, sign_up.userBasicData, sign_up.userDynamicData, sign_up.password, sign_up.affiliateCode);
+                response = ClientsManager.UsersClient().SignUp(int.Parse(partner_id), sign_up.userBasicData, sign_up.userDynamicData, sign_up.password, sign_up.affiliateCode);
             }
             catch (ClientException ex)
             {
