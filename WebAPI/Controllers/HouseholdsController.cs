@@ -433,7 +433,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
         /// HouseholdNotExists = 1006, HouseholdSuspended = 1009, InvalidPurchase = 3000, CancelationWindowPeriodExpired = 3001, ContentAlreadyConsumed = 3005
         /// </summary>        
-        /// <param name="group_id">Group ID</param>
+        /// <param name="partner_id">Partner ID</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="collection_id">Collection identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>

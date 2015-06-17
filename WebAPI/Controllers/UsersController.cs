@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately expires a pre-set login-PIN.
         /// </summary>
-        /// <param name="partner_id">Group Identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -254,7 +254,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="partner_id" >Group Identifier</param>
+        /// <param name="partner_id" >Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
@@ -311,7 +311,7 @@ namespace WebAPI.Controllers
         /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="details">LogIn Object</param>
         /// <param name="device_id">device identifier</param>
         /// <remarks></remarks>
@@ -360,7 +360,7 @@ namespace WebAPI.Controllers
         /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="sign_up">SignUp Object</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -405,7 +405,7 @@ namespace WebAPI.Controllers
         /// Send a new password by user name.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -447,7 +447,7 @@ namespace WebAPI.Controllers
         /// Renew the user's password without validating the existing password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks></remarks>
@@ -489,7 +489,7 @@ namespace WebAPI.Controllers
         /// Returns the user name associated with a temporary reset token .<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="token">token</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -531,7 +531,7 @@ namespace WebAPI.Controllers
         /// Given a user name and existing password, change to a new password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
@@ -573,7 +573,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieving users' data
         /// </summary>
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="user_ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -624,7 +624,7 @@ namespace WebAPI.Controllers
         /// <summary>Edit user details info.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025        
         /// </summary>
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
         /// <param name="user_id"> User identifiers</param>
         /// <remarks></remarks>        
@@ -1217,7 +1217,7 @@ namespace WebAPI.Controllers
         /// Gets list of Entitlement (subscriptions) by a given user.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="user_id">User Id</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -1255,7 +1255,7 @@ namespace WebAPI.Controllers
         /// Gets user transaction history.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
         /// </summary>        
-        /// <param name="partner_id">Group ID</param>
+        /// <param name="partner_id">Household ID</param>
         /// <param name="user_id">User Id</param>
         ///  <param name="page_number">page number</param>
         ///   <param name="page_size">page size</param>
@@ -1298,7 +1298,7 @@ namespace WebAPI.Controllers
         ///// 
         ///// </summary>
         ///// <param name="request">Credentials</param>
-        ///// <param name="partner_id">Group ID</param>
+        ///// <param name="partner_id">Household ID</param>
         //[Route("sign_in"), HttpPost]
         //[ApiExplorerSettings(IgnoreApi = true)]
         //public string SignIn([FromUri] string partner_id, [FromBody] SignIn request)
