@@ -24,6 +24,8 @@ namespace ServiceExtensions
 
         public object AfterReceiveRequest(ref Message request, IClientChannel channel, InstanceContext instanceContext)
         {
+            log.Debug("in LoggerWCFInspector");
+
             string messageStr;
 
             getMessageStr(ref request, out messageStr);

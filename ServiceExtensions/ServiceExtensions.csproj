@@ -57,6 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LoggerWCFDispatcher.cs" />
+    <Compile Include="MessageBehaviourExtension.cs" />
+    <Compile Include="MessageInspector.cs" />
+    <Compile Include="MyServerMessageInspector.cs" />
     <Compile Include="WSExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
