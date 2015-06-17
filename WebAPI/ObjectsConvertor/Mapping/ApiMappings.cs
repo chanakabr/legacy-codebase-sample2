@@ -134,7 +134,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = Models.API.ePurchaeSettingsType.block;
                 break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");
 
             }
 

@@ -1121,7 +1121,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
-        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1166,7 +1166,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given purchase PIN for a user is valid.
-        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
