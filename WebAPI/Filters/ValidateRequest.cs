@@ -30,9 +30,8 @@ namespace WebAPI.App_Start
             }
 
             if (actionContext.ActionArguments.ContainsKey("household_id"))
-            {
-                int hID;
-                if (!int.TryParse((string)actionContext.ActionArguments["household_id"], out hID) || hID <= 0)
+            {                
+                if ((int) actionContext.ActionArguments["household_id"] <= 0)
                 {
                     throw new BadRequestException((int)WebAPI.Models.General.StatusCode.HouseholdInvalid, "household_id is invalid");
                 }
