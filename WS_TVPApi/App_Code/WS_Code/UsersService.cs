@@ -653,9 +653,9 @@ namespace TVPApiServices
         #endregion
 
 
-        public TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret)
+        public TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret)
         {
-            TVPApiModule.Objects.Responses.LoginResponse response = null;
+            TVPApiModule.Objects.Responses.UserResponse response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -682,14 +682,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    response = new TVPApiModule.Objects.Responses.LoginResponse();
+                    response = new TVPApiModule.Objects.Responses.UserResponse();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                response = new TVPApiModule.Objects.Responses.LoginResponse();
+                response = new TVPApiModule.Objects.Responses.UserResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

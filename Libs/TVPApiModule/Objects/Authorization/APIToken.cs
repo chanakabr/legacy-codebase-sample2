@@ -59,12 +59,14 @@ namespace TVPApiModule.Objects.Authorization
             IsLongRefreshExpiration = isLongRefreshExpiration;
         }
 
-        public APIToken(APIToken token, long accessExpiration)
+        public APIToken(APIToken token, GroupConfiguration groupConfig)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshToken;
-            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(accessExpiration));
-            RefreshTokenExpiration = token.RefreshTokenExpiration;
+            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
+                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
+                token.RefreshTokenExpiration;
             GroupID = token.GroupID;
             SiteGuid = token.SiteGuid;
             IsAdmin = token.IsAdmin;

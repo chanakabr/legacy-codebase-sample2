@@ -16,33 +16,41 @@ namespace TVPApiModule.Objects.Responses
         public PurchaseSettingsResponse(TVPPro.SiteManager.TvinciPlatform.api.PurchaseSettingsResponse copy)
         {
             this.status = new Status(copy.status.Code, copy.status.Message);
-            
-            switch (copy.type)
-            {
-                case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Block:
-                {
-                    this.type = ePurchaeSettingsType.Block;
-                    break;
-                }
-                case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Ask:
-                {
-                    this.type = ePurchaeSettingsType.Ask;
-                    break;
-                }
-                case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Allow:
-                {
-                    this.type = ePurchaeSettingsType.Allow;
-                    break;
-                }
-                default:
-                {
-                    this.type = ePurchaeSettingsType.Block;
-                    break;
-                }
-            }
 
-            this.pin = copy.pin;
-            this.level = ParentalRule.ConvertRuleLevelEnum(copy.level);
+            if (this.status.Code != 0)
+            {
+                this.level = null;
+                this.type = null;
+            }
+            else
+            {
+                switch (copy.type)
+                {
+                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Block:
+                    {
+                        this.type = ePurchaeSettingsType.Block;
+                        break;
+                    }
+                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Ask:
+                    {
+                        this.type = ePurchaeSettingsType.Ask;
+                        break;
+                    }
+                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Allow:
+                    {
+                        this.type = ePurchaeSettingsType.Allow;
+                        break;
+                    }
+                    default:
+                    {
+                        this.type = ePurchaeSettingsType.Block;
+                        break;
+                    }
+                }
+
+                this.pin = copy.pin;
+                this.level = ParentalRule.ConvertRuleLevelEnum(copy.level);
+            }
         }
 
         public Status status
@@ -51,7 +59,8 @@ namespace TVPApiModule.Objects.Responses
             set;
         }
 
-        public ePurchaeSettingsType type
+        [JsonProperty(PropertyName = "type", NullValueHandling= NullValueHandling.Ignore)]
+        public ePurchaeSettingsType? type
         {
             get;
             set;
@@ -64,7 +73,8 @@ namespace TVPApiModule.Objects.Responses
             set;
         }
 
-        public eRuleLevel level
+        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
+        public eRuleLevel? level
         {
             get;
             set;

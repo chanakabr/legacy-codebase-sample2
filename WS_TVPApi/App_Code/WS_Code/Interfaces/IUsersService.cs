@@ -70,7 +70,7 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj, string secret);
         [OperationContract]
-        TVPApiModule.Objects.Responses.LoginResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret);
+        TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret);
         [OperationContract]
         TVPApiModule.Objects.Responses.ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret);
         [OperationContract]

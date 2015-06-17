@@ -57,6 +57,8 @@ namespace TVPApi
         public long TotalItems;
         public int? like_counter;
 
+        public string EntryId;
+
         public struct ExtIDPair
         {
             public string Key;
@@ -370,6 +372,11 @@ namespace TVPApi
             TotalItems = iMediaCount;
 
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
+
+            if (!row.IsEntryIdNull())
+            {
+                EntryId = row.EntryId;
+            }
         }
 
         private void builtExternalIDs(dsItemInfo.ItemRow row)

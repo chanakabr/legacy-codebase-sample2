@@ -3340,6 +3340,22 @@ namespace TVPApiServices
                         }
                     }
 
+                    HashSet<string> validWithValues = new HashSet<string>() { "stats", "files" };
+
+                    // validate with - make sure it contains only "stats" and/or "files"
+                    if (with != null)
+                    {
+                        foreach (var currentValue in with)
+                        {
+                            if (!validWithValues.Contains(currentValue))
+                            {
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                                return response;
+                            }
+                        }
+                    }
+
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         filter_types, filter, with)
                         {
@@ -3456,6 +3472,22 @@ namespace TVPApiServices
                             response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
                             response.Status = ResponseUtils.ReturnBadRequestStatus("invalid order_by value");
                             return response;
+                        }
+                    }
+
+                    HashSet<string> validWithValues = new HashSet<string>() { "images" };
+
+                    // validate with - make sure it contains only "stats" and/or "files"
+                    if (with != null)
+                    {
+                        foreach (var currentValue in with)
+                        {
+                            if (!validWithValues.Contains(currentValue))
+                            {
+                                response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                                return response;
+                            }
                         }
                     }
 
