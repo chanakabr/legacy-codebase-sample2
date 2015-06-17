@@ -75,7 +75,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static Models.API.eParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
         {
-            WebAPI.Models.API.eParentalRuleType result;
+            WebAPI.Models.API.eParentalRuleType result = Models.API.eParentalRuleType.all;
 
             switch (type)
             {
@@ -95,9 +95,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.eRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel type)
+        private static Models.API.eRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
         {
-            WebAPI.Models.API.eRuleLevel result;
+            WebAPI.Models.API.eRuleLevel result = Models.API.eRuleLevel.invalid;
 
             switch (type)
             {
@@ -111,16 +111,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = Models.API.eRuleLevel.account;
                 break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                throw new ClientException((int)StatusCode.Error, "Unknown rule level");
 
             }
 
             return result;
         }
 
-        private static Models.API.ePurchaeSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType type)
+        private static Models.API.ePurchaeSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
         {
-            WebAPI.Models.API.ePurchaeSettingsType result;
+            WebAPI.Models.API.ePurchaeSettingsType result = Models.API.ePurchaeSettingsType.block;
 
             switch (type)
             {
