@@ -752,7 +752,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Disables a parental rule for a specific user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -793,7 +794,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the parental PIN that applies for the user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -832,7 +834,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the parental PIN that applies for the user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -872,7 +875,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase settings that applies for the user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -911,7 +915,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase settings that applies for the user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -951,7 +956,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase PIN that applies for the user.
-        /// Possible status codes: 5001 = No PIN defined, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// 5001 = No PIN defined, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -990,7 +996,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase PIN that applies for the user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1030,7 +1037,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1076,7 +1084,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific EPG and a specific user according to the user parental settings.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1121,7 +1130,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
-        /// Possible status codes: No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1166,7 +1176,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given purchase PIN for a user is valid.
-        /// Possible status codes: No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001,
+        /// 
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
