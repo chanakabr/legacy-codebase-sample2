@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper SearchAssets(string partner_id, [FromUri] SearchAssets search_assets, string language = null)
+        public AssetInfoWrapper SearchAssets(string partner_id, [FromUri] SearchAssets search_assets, [FromUri] string language = null)
         {
             return PostSearch(partner_id, search_assets);
         }
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
+        public AssetInfoWrapper PostSearch(string partner_id, [FromBody] SearchAssets request, [FromBody] string language = null)
         {
             AssetInfoWrapper response = null;
 
@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]       
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, [FromBody] Autocomplete request, [FromBody] string language = null)
         {
             SlimAssetInfoWrapper response = null;
             int groupId;

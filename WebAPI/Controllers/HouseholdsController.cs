@@ -142,7 +142,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
-        [Route("{household_id}/parental/pin/"), HttpGet]
+        [Route("{household_id}/parental/pin"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
         {
             PinResponse pinResponse = null;
@@ -179,7 +179,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
+        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromBody] string pin)
         {
             bool success = false;
 
@@ -248,7 +248,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{household_id}/purchase/settings/"), HttpPost]
+        [Route("{household_id}/purchase/settings"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int setting)
         {
             bool success = false;
