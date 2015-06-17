@@ -816,7 +816,7 @@ namespace Catalog
                                 leaf.valueType = typeof(List<string>);
                                 string value = leaf.value.ToString().ToLower();
 
-                                string[] values = value.Split(new string[] { "\",\"" }, StringSplitOptions.RemoveEmptyEntries);
+                                string[] values = value.Split(',');
 
                                 // If there are 
                                 if (values.Length == 0)
@@ -826,30 +826,18 @@ namespace Catalog
                                     throw exception;
                                 }
 
-                                string first = values[0];
-                                string last = values[values.Length - 1];
-
-                                // If first and last entries are empty (it shouldn't happen but I don't want an exception)
-                                if (first.Length == 0 || last.Length == 0)
+                                foreach (var single in values)
                                 {
-                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
-                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                    throw exception;
+                                    int temporaryInteger;
+
+                                    if (!int.TryParse(single, out temporaryInteger))
+                                    {
+                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                        throw exception;
+                                    }
                                 }
-
-                                // If the in-clause does not start and end with ""
-                                if (first[0] != '\"' || last[last.Length - 1] != '\"')
-                                {
-                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
-                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                    throw exception;
-                                }
-
-                                // Remove opening "
-                                values[0] = first.Remove(0, 1);
-
-                                // Remove closing "
-                                values[values.Length - 1] = last.Remove(last.Length - 1);
+                                
 
                                 // Put new list of strings in boolean leaf
                                 leaf.value = values.ToList();
