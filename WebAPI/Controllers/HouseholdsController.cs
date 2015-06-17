@@ -18,9 +18,12 @@ namespace WebAPI.Controllers
     [RoutePrefix("households")]
     public class HouseholdsController : ApiController
     {
+        #region Parental and Purchase rules
+
         /// <summary>
         /// Return the parental rules that applies to the household. 
-        /// Can include rules that have been associated in account or household
+        /// Can include rules that have been associated in account or household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -59,7 +62,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Enabled a parental rule for a specific household
+        /// Enabled a parental rule for a specific household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -99,7 +103,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables a parental rule for a specific household
+        /// Disables a parental rule for a specific household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -140,7 +145,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the parental PIN that applies for the household.
+        /// Retrieve the parental PIN that applies for the household..
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -179,6 +185,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the parental PIN that applies for the household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -257,6 +264,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase settings that applies for the household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -296,7 +304,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase PIN that applies for the household.
-        /// Possible status codes: 5001 = No PIN defined
+        /// Possible status codes: 5001 = No PIN defined, DomainNotExists = 1006
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -335,6 +343,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase PIN that applies for the household.
+        /// Possible status codes: DomainNotExists = 1006
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -372,7 +381,7 @@ namespace WebAPI.Controllers
             return success;
         }
 
-
+        #endregion
 
 
         #region ConditionalAccess
