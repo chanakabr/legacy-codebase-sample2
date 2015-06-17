@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin/generate"), HttpPost]
-        public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
+        public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string secret = null)
         {
             LoginPin response = null;
 
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login/pin"), HttpPost]
-        public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
+        public User LogInWithPin([FromUri] string partner_id, [FromBody] string pin, [FromBody] string udid = null, [FromBody] string secret = null)
         {
             User response = null;
 
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
-        public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
+        public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string pin, [FromBody] string secret = null)
         {
             int groupId = int.Parse(partner_id);
 
@@ -153,7 +153,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/pin"), HttpDelete]       
+        [Route("{user_id}/pin"), HttpDelete]
         public bool ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
             int groupId = int.Parse(partner_id);
@@ -172,8 +172,8 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{user_id}/views"), HttpPost]       
-        public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, WatchHistory request, string language = null)
+        [Route("{user_id}/views"), HttpPost]
+        public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, [FromBody] WatchHistory request, [FromBody] string language = null)
         {
             WatchHistoryAssetWrapper response = null;
 
@@ -222,7 +222,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/views"), HttpGet]       
+        [Route("{user_id}/views"), HttpGet]
         public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, [FromUri] WatchHistory request, string language = null)
         {
             return PostWatchHistory(partner_id, user_id, request, language);
@@ -280,7 +280,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("login"), HttpPost]
-        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string udid = null)
+        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromBody] string udid = null)
         {
             User response = null;
 
@@ -405,7 +405,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{username}/password/reset"), HttpPost]
-        public bool RenewPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string password)
+        public bool RenewPassword([FromUri] string partner_id, [FromUri] string username, [FromBody] string password)
         {
             bool response = false;
 
@@ -572,7 +572,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}"), HttpPut]       
+        [Route("{user_id}"), HttpPut]
         public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
         {
             User response = null;
@@ -614,7 +614,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the user</returns>
-        [Route("{user_id}/parental/rules"), HttpGet]       
+        [Route("{user_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
@@ -651,7 +651,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]       
+        [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
         public bool EnableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -688,7 +688,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]       
+        [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -724,7 +724,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/parental/pin/"), HttpGet]       
+        [Route("{user_id}/parental/pin/"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PinResponse pinResponse = null;
@@ -761,7 +761,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
+        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string pin)
         {
             bool success = false;
 
@@ -789,7 +789,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase/settings/"), HttpGet]       
+        [Route("{user_id}/purchase/settings/"), HttpGet]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
@@ -825,8 +825,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/settings"), HttpPost]       
-        public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int setting)
+        [Route("{user_id}/purchase/settings"), HttpPost]
+        public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id, [FromBody] int setting)
         {
             bool success = false;
 
@@ -860,7 +860,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase/pin/"), HttpGet]       
+        [Route("{user_id}/purchase/pin/"), HttpGet]
         public PurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse pinResponse = null;
@@ -896,8 +896,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/pin"), HttpPost]       
-        public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
+        [Route("{user_id}/purchase/pin"), HttpPost]
+        public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string pin)
         {
             bool success = false;
 
@@ -932,7 +932,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]       
+        [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
         public List<ParentalRule> GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
@@ -974,7 +974,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]       
+        [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
         public List<ParentalRule> GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
@@ -1016,8 +1016,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("{user_id}/parental/pin/validate"), HttpPost]       
-        public bool ValidateParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
+        [Route("{user_id}/parental/pin/validate"), HttpPost]
+        public bool ValidateParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string pin)
         {
             bool success = false;
 
@@ -1058,8 +1058,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("{user_id}/purchase/pin/validate"), HttpPost]       
-        public bool ValidatePurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
+        [Route("{user_id}/purchase/pin/validate"), HttpPost]
+        public bool ValidatePurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromBody] string pin)
         {
             bool success = false;
 
@@ -1102,7 +1102,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/subscriptions/permitted"), HttpGet]       
+        [Route("{user_id}/subscriptions/permitted"), HttpGet]
         public List<Entitlement> GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
@@ -1138,7 +1138,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_id}/transactions"), HttpGet]       
+        [Route("{user_id}/transactions"), HttpGet]
         public BillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
         {
             BillingTransactions response = new BillingTransactions();
