@@ -8,16 +8,13 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Filters
 {
-    public class PartnerFilterAttribute : ActionFilterAttribute
+    public class UserFilterAttribute : ActionFilterAttribute
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            string pID = (string) actionContext.ActionArguments["partner_id"];
-            
-            int groupId;
-            if (!int.TryParse(pID, out groupId))
+            if (string.IsNullOrEmpty((string)actionContext.ActionArguments["user_id"]))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.PartnerInvalid, "partner_id must be int");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.UserIDInvalid, "no user_id");
             }
 
             base.OnActionExecuting(actionContext);

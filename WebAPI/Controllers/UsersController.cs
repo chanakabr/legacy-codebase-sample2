@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin/generate"), HttpPost]
+        [UserFilter]
         public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             LoginPin response = null;
@@ -46,12 +47,6 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -67,6 +62,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/pin"), HttpGet]
+        [UserFilter]
         public LoginPin GetGenerateLoginPin(string partner_id, string user_id, string secret = null)
         {
             return GenerateLoginPin(partner_id, user_id, secret);
@@ -137,6 +133,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
+        [UserFilter]
         public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             // parameters validation
@@ -151,11 +148,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
             }
 
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -163,7 +155,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, new List<int>() {2010, 2012, 2013});
+                ErrorUtils.HandleClientException(ex, new List<int>() { 2010, 2012, 2013 });
             }
 
             return true;
@@ -179,6 +171,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpDelete]
+        [UserFilter]
         public bool ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
             // parameters validation
@@ -186,11 +179,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -208,6 +196,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/views"), HttpPost]
+        [UserFilter]
         public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, WatchHistory request, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
@@ -263,6 +252,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/views"), HttpGet]
+        [UserFilter]
         public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, [FromUri] WatchHistory request, string language = null)
         {
             return PostWatchHistory(partner_id, user_id, request, language);
@@ -354,7 +344,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-                
+
         /// <summary>
         /// Sign up a new user.<br />
         /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
@@ -372,7 +362,7 @@ namespace WebAPI.Controllers
         public User SignUp([FromUri] string partner_id, [FromBody] SignUp sign_up)
         {
             User response = null;
-            
+
             if (sign_up == null || sign_up.userBasicData == null)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignUp or UserBasicData is null");
@@ -397,7 +387,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-        
+
         /// <summary>
         /// Send a new password by user name.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
@@ -421,7 +411,7 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(username))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
-            }          
+            }
             try
             {
                 // call client
@@ -439,7 +429,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Renew the user's password without validating the existing password.<br />
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
@@ -576,7 +566,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_ids}"), HttpGet]            
+        [Route("{user_ids}"), HttpGet]
         public List<User> GetUsersData([FromUri] string partner_id, string user_ids)
         {
             List<int> usersIds;
@@ -598,7 +588,7 @@ namespace WebAPI.Controllers
             if (usersIds == null || usersIds.Count == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user id in list");
-            }            
+            }
             try
             {
                 // call client
@@ -614,7 +604,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
             return response;
-          
+
         }
 
 
@@ -629,8 +619,9 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}"), HttpPut]
+        [UserFilter]
         public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
-        {           
+        {
             User response = null;
             int groupId;
             if (!int.TryParse(partner_id, out groupId))
@@ -641,10 +632,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no data to set");
             }
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user_id");
-            }
+
             try
             {
                 // call client
@@ -676,6 +664,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
+        [UserFilter]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
@@ -685,11 +674,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -717,6 +701,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
+        [UserFilter]
         public bool EnableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -726,11 +711,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -758,6 +738,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
+        [UserFilter]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -767,11 +748,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -798,6 +774,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/parental/pin/"), HttpGet]
+        [UserFilter]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PinResponse pinResponse = null;
@@ -806,11 +783,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -838,25 +810,16 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/parental/pin"), HttpPost]
+        [UserFilter]
+        [PartnerFilter]
         public bool SetParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
-
             try
             {
                 // call client
-                success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, user_id, pin);
+                success = ClientsManager.ApiClient().SetUserParentalPIN(int.Parse(partner_id), user_id, pin);
             }
             catch (ClientException ex)
             {
@@ -877,6 +840,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/settings/"), HttpGet]
+        [UserFilter]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
@@ -885,11 +849,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -917,6 +876,7 @@ namespace WebAPI.Controllers
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/purchase/settings"), HttpPost]
+        [UserFilter]
         public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int setting)
         {
             bool success = false;
@@ -925,11 +885,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -956,6 +911,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/pin/"), HttpGet]
+        [UserFilter]
         public PurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
         {
             PurchaseSettingsResponse pinResponse = null;
@@ -964,11 +920,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -996,6 +947,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("{user_id}/purchase/pin"), HttpPost]
+        [UserFilter]
         public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -1004,11 +956,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             try
@@ -1036,6 +983,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
+        [UserFilter]
         public List<ParentalRule> GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
@@ -1045,11 +993,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             if (media_id == 0)
@@ -1082,6 +1025,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
+        [UserFilter]
         public List<ParentalRule> GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
@@ -1093,10 +1037,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
             if (epg_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
@@ -1127,6 +1067,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/parental/pin/validate"), HttpPost]
+        [UserFilter]
         public bool ValidateParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -1135,11 +1076,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             if (string.IsNullOrEmpty(pin))
@@ -1172,6 +1108,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/purchase/pin/validate"), HttpPost]
+        [UserFilter]
         public bool ValidatePurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -1180,11 +1117,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
             }
 
             if (string.IsNullOrEmpty(pin))
@@ -1209,7 +1141,7 @@ namespace WebAPI.Controllers
 
 
         #region ConditionalAccess
-     
+
         /// <summary>
         /// Gets list of Entitlement (subscriptions) by a given user.<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
@@ -1221,6 +1153,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/subscriptions/permitted"), HttpGet]
+        [UserFilter]
         public List<Entitlement> GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
@@ -1231,10 +1164,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
             try
             {
                 // call client
@@ -1261,8 +1190,8 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/transactions"), HttpGet]
+        [UserFilter]
         public BillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
-            
         {
             BillingTransactions response = new BillingTransactions();
 
@@ -1272,10 +1201,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
 
-            if (string.IsNullOrEmpty(user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
             try
             {
                 // call client
