@@ -97,7 +97,7 @@ namespace ODBCWrapper
 
                 try
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = Events.eDBQueryType.UPDATE })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = KLogEnums.eDBQueryType.UPDATE })
                     {
                         DataTable dataTable = new DataTable(sVirtualTableName);
                         dataTable.BeginLoadData();

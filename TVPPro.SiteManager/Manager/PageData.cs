@@ -645,7 +645,7 @@ namespace TVPPro.SiteManager.Manager
 
         //Get the gallery that most matches the user's locale. The locale attributes are prioreterized 
         //From high to low : Device -> Country -> Language -> User State
-        private PageGallery GetPageGalleryByLocaleScore(List<PageGallery> galleries, Locale locale, Enums.eLocaleUserState localeUserState)
+        private PageGallery GetPageGalleryByLocaleScore(List<PageGallery> galleries, Locale locale, TVPPro.SiteManager.Context.Enums.eLocaleUserState localeUserState)
         {
             PageGallery retVal = null;
             double prevScore = 0;
@@ -799,11 +799,11 @@ namespace TVPPro.SiteManager.Manager
         {
             long pageID = 0;
             long.TryParse(IuconParams["PageID"], out pageID);
-            Enums.ePages PageToken = (Enums.ePages)Enum.Parse(typeof(Enums.ePages), IuconParams["PageToken"], true);
+            TVPPro.SiteManager.Context.Enums.ePages PageToken = (TVPPro.SiteManager.Context.Enums.ePages)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.ePages), IuconParams["PageToken"], true);
 
             if (pageID != 0)
                 SetCurrentPage(pageID);
-            else if (PageToken != Enums.ePages.UnKnown && PageToken != Enums.ePages.Dynamic)
+            else if (PageToken != TVPPro.SiteManager.Context.Enums.ePages.UnKnown && PageToken != Enums.ePages.Dynamic)
                 SetCurrentPage(PageToken);
         }
 
@@ -1032,7 +1032,7 @@ namespace TVPPro.SiteManager.Manager
                 return m_InActiveGalleries;
             }
         }
-        public void InitCustomLayout(Enums.eCustomLayoutItemType layoutItemType, long? itemID)
+        public void InitCustomLayout(TVPPro.SiteManager.Context.Enums.eCustomLayoutItemType layoutItemType, long? itemID)
         {
             CustomLayoutLoader layoutItem = new CustomLayoutLoader();
             layoutItem.ItemType = layoutItemType;

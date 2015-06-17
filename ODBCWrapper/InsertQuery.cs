@@ -51,7 +51,7 @@ namespace ODBCWrapper
             int_Execute();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr, QueryType = Events.eDBQueryType.INSERT })
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr, QueryType = KLogEnums.eDBQueryType.INSERT })
                 {
                     command.ExecuteNonQuery();
                 }
