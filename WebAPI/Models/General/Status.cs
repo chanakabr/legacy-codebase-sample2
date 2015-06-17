@@ -63,6 +63,7 @@ namespace WebAPI.Models.General
         MissingConfiguration = 500006,
         NotFound = 500007,
         PartnerInvalid = 500008,
-        UserIDInvalid = 500009
+        UserIDInvalid = 500009,
+        HouseholdInvalid = 500010
     }
 }

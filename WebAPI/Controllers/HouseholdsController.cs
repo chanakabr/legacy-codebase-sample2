@@ -43,11 +43,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -82,11 +77,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -125,12 +115,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -163,11 +147,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -205,11 +184,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -242,11 +216,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -284,11 +253,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
             }
 
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
-            }
-
             try
             {
                 // call client
@@ -321,11 +285,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -361,11 +320,6 @@ namespace WebAPI.Controllers
             if (!int.TryParse(partner_id, out groupId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
-
-            if (household_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id cannot be empty");
             }
 
             try
@@ -456,9 +410,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id == 0 || asset_id == 0)
+            if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or asset_id not valid");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "asset_id not valid");
             }
             try
             {
@@ -499,9 +453,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id == 0 || string.IsNullOrEmpty(sub_id))
+            if (string.IsNullOrEmpty(sub_id))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id or subscription code not valid");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
@@ -543,10 +497,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
             }
-            if (household_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "household_id not valid");
-            }
+
             try
             {
                 // call client
