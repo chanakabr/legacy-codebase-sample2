@@ -12,17 +12,21 @@ namespace WebAPI.App_Start
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            if (string.IsNullOrEmpty((string)actionContext.ActionArguments["user_id"]))
+            if (actionContext.ActionArguments.ContainsKey("user_id"))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.UserIDInvalid, "no user_id");
+                if (string.IsNullOrEmpty((string)actionContext.ActionArguments["user_id"]))
+                {
+                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.UserIDInvalid, "no user_id");
+                }
             }
 
-            string pID = (string)actionContext.ActionArguments["partner_id"];
-
-            int groupId;
-            if (!int.TryParse(pID, out groupId))
+            if (actionContext.ActionArguments.ContainsKey("partner_id"))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.PartnerInvalid, "partner_id must be int");
+                int groupId;
+                if (!int.TryParse((string)actionContext.ActionArguments["partner_id"], out groupId))
+                {
+                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.PartnerInvalid, "partner_id must be int");
+                }
             }
 
             base.OnActionExecuting(actionContext);
