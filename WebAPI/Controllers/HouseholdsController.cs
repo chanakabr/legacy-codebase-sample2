@@ -37,12 +37,7 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -74,12 +69,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -111,12 +101,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -147,11 +132,7 @@ namespace WebAPI.Controllers
         {
             PinResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -183,11 +164,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -217,11 +194,7 @@ namespace WebAPI.Controllers
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -253,12 +226,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -289,11 +257,7 @@ namespace WebAPI.Controllers
         {
             PinResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -325,11 +289,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -414,11 +374,9 @@ namespace WebAPI.Controllers
         private static bool CancelServiceNow(string partner_id, int household_id, int asset_id, bool is_force, TransactionType transaction_type)
         {
             bool response = false;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+
+            int groupId = int.Parse(partner_id);
+
             if (asset_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "asset_id not valid");
@@ -457,11 +415,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(sub_id))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscription code not valid");
@@ -501,11 +456,7 @@ namespace WebAPI.Controllers
         {
             Household response = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -525,30 +476,32 @@ namespace WebAPI.Controllers
 
             if (with != null && with.Contains(With.users_info))
             {
-                // get users ids list
-                List<int> userIds = new List<int>();
-                userIds.AddRange(response.UsersIds);
-                userIds.AddRange(response.MasterUsersIds);
-                userIds.AddRange(response.DefaultUsersIds);
-                userIds.AddRange(response.PendingUsersIds);
+                // get users ids lists
+                var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
+                var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<int>();
+                var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<int>();
+                var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<int>();
+
+                // marge all user ids to one list
+                List<int> allUserIds = new List<int>();
+                allUserIds.AddRange(userIds);
+                allUserIds.AddRange(masterUserIds);
+                allUserIds.AddRange(defaultUserIds);
+                allUserIds.AddRange(pendingUserIds);
                 
                 //get users
                 List<User> users = null;
-                if (userIds.Count > 0)
+                if (allUserIds.Count > 0)
                 {
-                    users = ClientsManager.UsersClient().GetUsersData(groupId, userIds);
+                    users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
                 }
 
                 if (users != null)
                 {
-                    response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => response.UsersIds.Contains((int)u.Id)));
-                    response.UsersIds = null;
-                    response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.MasterUsersIds.Contains((int)u.Id)));
-                    response.MasterUsersIds = null;
-                    response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.DefaultUsersIds.Contains((int)u.Id)));
-                    response.DefaultUsersIds = null;
-                    response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => response.PendingUsersIds.Contains((int)u.Id)));
-                    response.PendingUsersIds = null;
+                    response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
+                    response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
+                    response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
+                    response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
                 }
 
             }
@@ -571,11 +524,8 @@ namespace WebAPI.Controllers
         {
             Household response = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(request.MasterUserId))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "master_user_id cannot be empty");

@@ -114,7 +114,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_nConcurrentLimit))
-                .ForMember(dest => dest.DefaultUsersIds, opt => opt.MapFrom(src => src.m_DefaultUsersIDs))
+                .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_DefaultUsersIDs))
                 .ForMember(dest => dest.DevicesLimit, opt => opt.MapFrom(src => src.m_nDeviceLimit))
                 .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nLimit))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGuid))
@@ -122,12 +122,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.FrequencyNextUserAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextUserActionFreq)))
                 .ForMember(dest => dest.HomeNetworks, opt => opt.MapFrom(src => src.m_homeNetworks))
                 .ForMember(dest => dest.IsFrequencyEnabled, opt => opt.MapFrom(src => src.m_frequencyFlag))
-                .ForMember(dest => dest.MasterUsersIds, opt => opt.MapFrom(src => src.m_masterGUIDs))
-                .ForMember(dest => dest.PendingUsersIds, opt => opt.MapFrom(src => src.m_PendingUsersIDs))
+                .ForMember(dest => dest.MasterUsers, opt => opt.MapFrom(src => src.m_masterGUIDs))
+                .ForMember(dest => dest.PendingUsers, opt => opt.MapFrom(src => src.m_PendingUsersIDs))
                 .ForMember(dest => dest.RegionId, opt => opt.MapFrom(src => src.m_nRegion))
                 .ForMember(dest => dest.Restriction, opt => opt.MapFrom(src => src.m_DomainRestriction))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.m_DomainStatus))
-                .ForMember(dest => dest.UsersIds, opt => opt.MapFrom(src => src.m_UsersIDs))
+                .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit));
                 
 

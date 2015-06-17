@@ -73,6 +73,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicDate.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicDate.LastName));
 
+            // UserId to SlimUser
+            Mapper.CreateMap<int, SlimUser>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
+
             //DomainSuspentionStatus to DomainSuspentionState
             Mapper.CreateMap<WebAPI.Users.DomainSuspentionStatus, HouseholdSuspentionState>().ConstructUsing((WebAPI.Users.DomainSuspentionStatus type) =>
             {

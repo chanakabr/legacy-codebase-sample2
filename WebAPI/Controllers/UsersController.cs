@@ -40,12 +40,8 @@ namespace WebAPI.Controllers
         {
             LoginPin response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
+
             try
             {
                 // call client
@@ -86,12 +82,7 @@ namespace WebAPI.Controllers
         {
             User response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -133,12 +124,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/pin"), HttpPost]
         public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -170,12 +156,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/pin"), HttpDelete]       
         public bool ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -196,12 +177,7 @@ namespace WebAPI.Controllers
         {
             WatchHistoryAssetWrapper response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             // page size - 5 <= size <= 50
             if (request.page_size == null || request.page_size == 0)
@@ -308,11 +284,8 @@ namespace WebAPI.Controllers
         {
             User response = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (details == null)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "Login details are null");
@@ -396,11 +369,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(username))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
@@ -439,11 +409,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
@@ -480,11 +447,8 @@ namespace WebAPI.Controllers
         {
             User response = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(token))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "token is empty");
@@ -524,11 +488,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password  is empty");
@@ -615,11 +576,8 @@ namespace WebAPI.Controllers
         public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
         {
             User response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
+
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no data to set");
