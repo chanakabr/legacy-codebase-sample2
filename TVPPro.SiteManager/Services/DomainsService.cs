@@ -121,8 +121,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 did = UsersService.Instance.GetDomainID();
-                DomainResponseObject res = m_Module.RemoveDeviceFromDomain(wsUserName, wsPassword, did, udid);
-                resCode = res.m_oDomainResponseStatus;
+                DomainStatusResponse res = m_Module.RemoveDeviceFromDomain(wsUserName, wsPassword, did, udid);
+                if (res != null && res.DomainResponse != null)
+                {
+                    resCode = res.DomainResponse.m_oDomainResponseStatus;
+                }
             }
             catch (Exception ex)
             {
@@ -140,7 +143,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 did = UsersService.Instance.GetDomainID();
-                response = m_Module.RemoveDeviceFromDomain(wsUserName, wsPassword, did, udid);
+                var res = m_Module.RemoveDeviceFromDomain(wsUserName, wsPassword, did, udid);
+                if (res != null)
+                {
+                    response = res.DomainResponse;
+                }
             }
             catch (Exception ex)
             {
