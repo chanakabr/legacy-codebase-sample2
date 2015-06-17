@@ -720,7 +720,8 @@ namespace Catalog
             HashSet<string> reservedStringFields = new HashSet<string>()
             {
                 "name",
-                "description"
+                "description",
+                "epg_channel_id"
             };
 
             HashSet<string> reservedNumericFields = new HashSet<string>()
@@ -806,6 +807,44 @@ namespace Catalog
                                     throw exception;
                                 }
                             }
+
+                            #region IN operator
+
+                            // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
+                            if (leaf.operand == ComparisonOperator.In)
+                            {
+                                leaf.valueType = typeof(List<string>);
+                                string value = leaf.value.ToString().ToLower();
+
+                                string[] values = value.Split(',');
+
+                                // If there are 
+                                if (values.Length == 0)
+                                {
+                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                    throw exception;
+                                }
+
+                                foreach (var single in values)
+                                {
+                                    int temporaryInteger;
+
+                                    if (!int.TryParse(single, out temporaryInteger))
+                                    {
+                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
+                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                        throw exception;
+                                    }
+                                }
+                                
+
+                                // Put new list of strings in boolean leaf
+                                leaf.value = values.ToList();
+                            } 
+
+                            #endregion
+
                         }
                         else if (node.type == BooleanNodeType.Parent)
                         {
@@ -882,6 +921,20 @@ namespace Catalog
                 definitions.shouldSearchMedia = true;
             }
 
+            HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+
+            // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+            foreach (var mediaType in definitions.mediaTypes)
+            {
+                // If one of them doesn't exist, throw an exception that says the request is bad
+                if (!mediaTypes.Contains(mediaType))
+                {
+                    var exception = new ArgumentException(string.Format("Invalid media type was sent: {0}", mediaType));
+                    exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                    throw exception;
+                }
+            }
+
             #endregion
 
             #region Regions
@@ -916,7 +969,7 @@ namespace Catalog
         {
             isTagOrMeta = false;
 
-            string searchKey = originalKey;
+            string searchKey = originalKey.ToLower();
 
             foreach (string tag in group.m_oGroupTags.Values)
             {

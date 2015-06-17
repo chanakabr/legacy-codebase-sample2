@@ -6,13 +6,13 @@ using System.Text;
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
-    {
+    {        
         OK = 0,
         Error = 1,
         InternalError = 2,
        
         // Domain Section 1000 - 1999
-
+        
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
         DeviceTypeNotAllowed = 1002,

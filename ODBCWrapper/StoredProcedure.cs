@@ -483,21 +483,26 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                Type type = m_Parameters[item].GetType();
-                if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
-                    || type.FullName == typeof(System.DateTime).FullName )
+                if (m_Parameters[item] != null)
                 {
-                    command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                    Type type = m_Parameters[item].GetType();
+                    if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
+                        || type.FullName == typeof(System.DateTime).FullName)
+                    {
+                        command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                    }
+                    else
+                    {
+                        List<int> ids = (List<int>)m_Parameters[item];
+                        SqlParameter UrlParam = command.Parameters.AddWithValue(item, CreateDataTable(ids, "Id"));
+                        UrlParam.SqlDbType = SqlDbType.Structured;
+                        UrlParam.TypeName = "dbo.IDList";
+                    }
                 }
                 else
                 {
-                    List<int> ids = (List<int>)m_Parameters[item];
-                    SqlParameter UrlParam = command.Parameters.AddWithValue(item, CreateDataTable(ids, "Id"));
-                    UrlParam.SqlDbType = SqlDbType.Structured;
-                    UrlParam.TypeName = "dbo.IDList";
+                    command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }
-               
-
             }
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")

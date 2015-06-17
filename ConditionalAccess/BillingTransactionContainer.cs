@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace ConditionalAccess
         public BillingTransactionContainer[] m_Transactions;
         public Int32 m_nTransactionsCount;
         public BillingTransactionsResponse()
-        {
+        {     
             m_Transactions = null;
             m_nTransactionsCount = 0;
         }

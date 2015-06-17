@@ -21,7 +21,7 @@ namespace ApiObjects
             set;
         }
 
-        public eRuleLevel level
+        public eRuleLevel? level
         {
             get;
             set;
