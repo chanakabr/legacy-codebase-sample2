@@ -331,7 +331,7 @@ namespace DAL
             ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule, ref bool shouldSendMail)
         {
             bool res = false;
-            ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification");
+            ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification_And_HandleMail");
             spGetDataForAdyenNotification.SetConnectionKey("CONNECTION_STRING");
             spGetDataForAdyenNotification.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = spGetDataForAdyenNotification.ExecuteDataSet();
