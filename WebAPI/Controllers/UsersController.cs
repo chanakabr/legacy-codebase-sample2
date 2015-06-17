@@ -671,6 +671,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Return the parental rules that applies to the user. Can include rules that have been associated in account, household, or user level.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -709,7 +710,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Enabled a parental rule for a specific user
+        /// Enabled a parental rule for a specific user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -749,7 +751,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables a parental rule for a specific user
+        /// Disables a parental rule for a specific user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -790,6 +793,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the parental PIN that applies for the user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -828,6 +832,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the parental PIN that applies for the user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -867,7 +872,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase settings that applies for the user.
-        /// Possible status codes:
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -906,6 +911,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase settings that applies for the user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -945,7 +951,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase PIN that applies for the user.
-        /// Possible status codes: 5001 = No PIN defined
+        /// Possible status codes: 5001 = No PIN defined, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -984,6 +990,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase PIN that applies for the user.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1023,6 +1030,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1068,6 +1076,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific EPG and a specific user according to the user parental settings.
+        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1112,7 +1121,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
-        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch
+        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1157,7 +1166,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given purchase PIN for a user is valid.
-        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch
+        /// Possible status codes: 5001 = No PIN defined, 5002 = PIN mismatch, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1203,7 +1212,7 @@ namespace WebAPI.Controllers
         #endregion
 
 
-     #region ConditionalAccess
+        #region ConditionalAccess
      
         /// <summary>
         /// Gets list of Entitlement (subscriptions) by a given user.<br/>
