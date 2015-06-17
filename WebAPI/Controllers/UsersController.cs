@@ -647,7 +647,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Return the parental rules that applies to the user. Can include rules that have been associated in account, household, or user level.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -674,7 +675,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return response;
@@ -682,7 +683,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Enabled a parental rule for a specific user.
-        /// Possible status codes: UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -710,7 +712,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -747,7 +749,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -782,7 +784,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return pinResponse;
@@ -812,7 +814,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -847,7 +849,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return purchaseResponse;
@@ -883,7 +885,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -918,7 +920,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return pinResponse;
@@ -954,7 +956,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -996,7 +998,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return response;
@@ -1038,7 +1040,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return response;
@@ -1079,7 +1081,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
@@ -1121,7 +1123,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
             }
 
             return success;
