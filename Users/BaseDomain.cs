@@ -201,7 +201,8 @@ namespace Users
             if (!User.IsUserValid(nGroupID, userGuid))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.InvalidUser);
+                return oDomainResponseObject;
             }
 
             //Init The Domain
