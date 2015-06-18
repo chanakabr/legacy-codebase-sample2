@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("search"), HttpPost]
-        public AssetInfoWrapper PostSearch(string partner_id, [FromBody] SearchAssets request, [FromBody] string language = null)
+        public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
         {
             AssetInfoWrapper response = null;
 
@@ -87,9 +87,9 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)]       
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, [FromBody] Autocomplete request, [FromBody] string language = null)
+        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, Autocomplete request, string language = null)
         {
             SlimAssetInfoWrapper response = null;
             int groupId;
@@ -276,7 +276,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
-                
+
                 // if no response - return not found status 
                 if (response == null || response.Assets == null || response.Assets.Count == 0)
                 {
@@ -305,7 +305,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("channels/{channel_id}/"), HttpGet]
+        [Route("channels/{channel_id}"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
             Channel response = null;
@@ -316,7 +316,7 @@ namespace WebAPI.Controllers
             }
 
             if (channel_id == 0)
-            { 
+            {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "channel_id cannot be 0");
             }
 
@@ -351,7 +351,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("categories/{category_id}/"), HttpGet]
+        [Route("categories/{category_id}"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             Category response = null;
