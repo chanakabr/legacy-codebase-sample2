@@ -144,7 +144,7 @@ namespace ODBCWrapper
                      command.CommandType.ToString(),                                                                                 // 1
                      command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
 
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = Events.eDBQueryType.SELECT })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.SELECT })
                     {
                         m_myReader = command.ExecuteReader();
                     }

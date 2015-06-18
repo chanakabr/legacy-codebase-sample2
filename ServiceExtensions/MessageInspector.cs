@@ -9,6 +9,10 @@ using System.ServiceModel.Description;
 using System.Diagnostics.Eventing;
 using KLogMonitor;
 using System.ServiceModel;
+using TVinciShared;
+using System.Xml;
+using System.ServiceModel.Web;
+using System.Net;
 namespace ServiceExtensions
 {
     public class MessageInspector : IDispatchMessageInspector
@@ -17,19 +21,15 @@ namespace ServiceExtensions
           System.ServiceModel.IClientChannel channel,
           System.ServiceModel.InstanceContext instanceContext)
         {
-            OperationContext.Current.IncomingMessageProperties.Add(Constants.GROUP_ID, "bla");
-
-            // Logger.WriteLogEntry("Inside the AfterRecieveRequest");
+            // initialize monitor and logs parameters
+            MonitorLogsHelper.InitMonitorLogsDataWCF(request);
             return null;
         }
 
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
-
-            var t = OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID];
-
-
-            //   Logger.WriteLogEntry("Inside Before Send Reply");
+            // finalize monitor and logs
+            MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF);
         }
     }
 }
