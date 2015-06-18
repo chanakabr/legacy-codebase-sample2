@@ -99,20 +99,21 @@ namespace KLogMonitor
 
                     if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
                     {
-                        if (OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] != null)
-                            this.PartnerID = OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID].ToString();
+                        object temp;
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.GROUP_ID, out temp))
+                            this.PartnerID = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties[Constants.ACTION] != null)
-                            this.Action = OperationContext.Current.IncomingMessageProperties[Constants.ACTION].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.ACTION, out temp))
+                            this.Action = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
-                            this.UniqueID = OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
+                            this.UniqueID = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] != null)
-                            this.ClientTag = OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.CLIENT_TAG, out temp))
+                            this.ClientTag = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] != null)
-                            this.IPAddress = OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP].ToString();
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
+                            this.IPAddress = temp.ToString();
                     }
                     break;
 
