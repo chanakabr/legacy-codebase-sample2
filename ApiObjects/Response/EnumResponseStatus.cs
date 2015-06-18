@@ -41,16 +41,7 @@ namespace ApiObjects.Response
         RequestFailed = 1025,
         InvalidUser = 1026,
         UserNotAllowed = 1027,
-
-
-
-
-
-
-
-
-
-
+        DuplicatePin = 1028,
         
         // User Section 2000 - 2999
         UserNotExists = 2000, // don't use this one (use UserDoesNotExist)
@@ -79,10 +70,8 @@ namespace ApiObjects.Response
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
         UserDoesNotExist = 2025,
-        
 
         // CAS Section 3000 - 3999
-
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
         SubscriptionNotRenewable = 3002,
