@@ -40,6 +40,7 @@ namespace ApiObjects.Response
         DeviceNotConfirmed = 1024,
         RequestFailed = 1025,
         InvalidUser = 1026,
+        UserNotAllowed = 1027,
 
 
 
