@@ -23,7 +23,7 @@ namespace TVPPro.SiteManager.Helper
         #endregion
 
         #region Add to favorite
-        public static bool AddToFavorites(Enums.eFavoriteItemTypes ItemType, string ItemId)
+        public static bool AddToFavorites(TVPPro.SiteManager.Context.Enums.eFavoriteItemTypes ItemType, string ItemId)
         {
             return AddToFavorites((int)ItemType, ItemId);
         }
