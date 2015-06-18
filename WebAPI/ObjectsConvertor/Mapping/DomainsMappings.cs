@@ -89,7 +89,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
-                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => src.m_activationDate))
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.m_state));
 
             //HomeNetwork
@@ -129,16 +129,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.m_DomainStatus))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit));
-                
-
-
-
-
-
-
-
-
-
         }
     }
 }
