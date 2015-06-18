@@ -14,7 +14,8 @@ namespace KLogMonitor
             UPDATE,
             INSERT,
             DELETE,
-            EXECUTE
+            EXECUTE,
+            COMMAND
         }
 
         public enum AppType
