@@ -2616,7 +2616,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
             }
         }

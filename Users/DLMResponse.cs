@@ -15,7 +15,7 @@ namespace Users
 
         public DLMResponse()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             dlm = new LimitationsManager();
         }
 

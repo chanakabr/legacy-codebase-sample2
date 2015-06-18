@@ -13,7 +13,7 @@ namespace ConditionalAccess.Response
 
         public BillingTransactions()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             transactions = new BillingTransactionsResponse();
         }
 

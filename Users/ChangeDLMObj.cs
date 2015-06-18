@@ -17,7 +17,7 @@ namespace Users
 
         public ChangeDLMObj()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             devices = new List<string>();
             users = new List<string>();
         }

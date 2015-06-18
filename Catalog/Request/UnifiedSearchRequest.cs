@@ -233,7 +233,7 @@ namespace Catalog.Request
 
             if (status == null)
             {
-                return new Status((int)eResponseStatus.InternalError, string.Empty);
+                return new Status((int)eResponseStatus.Error, string.Empty);
             }
 
             if (status.Code != (int)eResponseStatus.OK)

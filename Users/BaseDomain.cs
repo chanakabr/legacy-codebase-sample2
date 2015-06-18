@@ -1147,7 +1147,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("RemoveDLM", string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), "BaseDomain");
-                resp.Code = (int)eResponseStatus.InternalError;
+                resp.Code = (int)eResponseStatus.Error;
                 return resp;
             }
 
@@ -1193,7 +1193,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("ChangeDLM", string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), "BaseDomain");
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oChangeDLMObj;
             }
         }
@@ -1223,7 +1223,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("GetDLM", string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), "BaseDomain");
-                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oDLMResponse;
             }
         }
@@ -1255,7 +1255,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("SetDomainRegion", string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), "BaseDomain");
-                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, "Internal Error");
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
                 return status;
             }
 

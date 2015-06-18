@@ -9,7 +9,6 @@ namespace ApiObjects.Response
     {        
         OK = 0,
         Error = 1,
-        InternalError = 2,
        
         // Domain Section 1000 - 1999
         

@@ -13,7 +13,7 @@ namespace ConditionalAccess.Response
 
         public Entitlement()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             entitelments = new List<Entitlements>();
         }
 
