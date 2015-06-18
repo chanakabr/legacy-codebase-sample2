@@ -96,12 +96,8 @@ namespace ODBCWrapper
                     SetLockTimeOut(con);
                     command.Connection = con;
 
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                       command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                       command.CommandType.ToString(),                                                                                 // 1
-                       command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.INSERT })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         command.ExecuteNonQuery();
                     }

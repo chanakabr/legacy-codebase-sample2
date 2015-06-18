@@ -4,6 +4,8 @@ using System.Text;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace ODBCWrapper
 {
@@ -11,6 +13,7 @@ namespace ODBCWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
 
         static public string GetSafeStr(object o)
@@ -699,6 +702,53 @@ namespace ODBCWrapper
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+        }
+
+        public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
+        {
+            SqlQueryInfo sqlInfo = new SqlQueryInfo();
+
+            if (command != null)
+            {
+                if (command.CommandType == System.Data.CommandType.StoredProcedure)
+                {
+                    // stored procedure
+                    sqlInfo.QueryType = KLogEnums.eDBQueryType.EXECUTE;
+                    sqlInfo.Database = command.CommandText != null ? command.CommandText : "stored_procedure_unknown";
+                    sqlInfo.Table = "table_unknown";
+                }
+                else
+                {
+                    string query = string.Empty;
+                    if (!string.IsNullOrEmpty(command.CommandText))
+                    {
+                        query = command.CommandText.Trim().ToLower();
+
+                        if (query.StartsWith("select"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.SELECT;
+                        else if (query.StartsWith("delete"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.DELETE;
+                        else if (query.StartsWith("insert"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.INSERT;
+                        else if (query.StartsWith("update"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
+
+                        sqlInfo.Database = "db_unknown";
+
+                        Regex tableNameReegx = new Regex(REGEX_TABLE_NAME, RegexOptions.Singleline);
+                        var allMatches = tableNameReegx.Matches(query);
+                        if (allMatches != null)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            foreach (var table in allMatches)
+                                sb.Append(table.ToString() + " ");
+
+                            sqlInfo.Table = sb.ToString();
+                        }
+                    }
+                }
+            }
+            return sqlInfo;
         }
     }
 }

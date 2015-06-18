@@ -228,12 +228,8 @@ namespace ODBCWrapper
                     SetLockTimeOut(con);
                     command.Connection = con;
 
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                        command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                        command.CommandType.ToString(),                                                                                 // 1
-                        command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE,  })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         SqlDataReader reader = command.ExecuteReader();
 
@@ -277,12 +273,8 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                        command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                        command.CommandType.ToString(),                                                                                 // 1
-                        command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -332,12 +324,8 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                       command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                       command.CommandType.ToString(),                                                                                 // 1
-                       command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -387,12 +375,8 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                       command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                       command.CommandType.ToString(),                                                                                 // 1
-                       command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -435,12 +419,8 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                      command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                      command.CommandType.ToString(),                                                                                 // 1
-                      command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -501,12 +481,8 @@ namespace ODBCWrapper
                     da.SelectCommand = command;
                     DataTable dataTable = new DataTable();
 
-                    string dbInfo = string.Format("{0}:{1}:{2}",
-                      command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-                      command.CommandType.ToString(),                                                                                 // 1
-                      command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = dbInfo, QueryType = KLogEnums.eDBQueryType.EXECUTE })
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
                         dataTable.BeginLoadData();
                         da.Fill(dataTable);

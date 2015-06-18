@@ -7,6 +7,7 @@ using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using KLogMonitor;
@@ -46,42 +47,6 @@ namespace TVinciShared
 
             return null;
         }
-
-        //public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command, ref KLogEnums.eDBQueryType queryType, ref string tableName)
-        //{
-        //    SqlQueryInfo sqlInfo = new SqlQueryInfo();
-
-        //    if (command != null)
-        //    {
-        //        if (command.CommandType == System.Data.CommandType.StoredProcedure)
-        //        {
-        //            sqlInfo.QueryType = KLogEnums.eDBQueryType.EXECUTE;
-        //            sqlInfo.Database = command.CommandText != null ? command.CommandText : "null";
-        //            sqlInfo.Table = "null";
-        //        }
-        //        else
-        //        {
-        //            string query = string.Empty;
-        //            if (!string.IsNullOrEmpty(command.CommandText))
-        //            {
-        //                if (query.StartsWith("select"))
-        //                    sqlInfo.QueryType = KLogEnums.eDBQueryType.SELECT;
-        //                else if (query.StartsWith("delete"))
-        //                    sqlInfo.QueryType = KLogEnums.eDBQueryType.DELETE;
-        //                else if (query.StartsWith("insert"))
-        //                    sqlInfo.QueryType = KLogEnums.eDBQueryType.INSERT;
-        //                else if (query.StartsWith("update"))
-        //                    sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
-
-        //            }
-        //            //dataMonitorString = string.Format("{0}:{1}:{2}",
-        //            //           command.Connection != null && command.Connection.Database != null ? command.Connection.Database : string.Empty, // 0
-        //            //           command.CommandType.ToString(),                                                                                 // 1
-        //            //           command.CommandText != null ? command.CommandText : string.Empty);                                              // 2
-        //        }
-        //    }
-        //    return sqlInfo;
-        //}
 
         public static void InitMonitorLogsDataWS(string requestString, string wsName)
         {

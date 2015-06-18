@@ -171,6 +171,7 @@
     <Compile Include="SelectQuery.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SqlQueryInfo.cs" />
     <Compile Include="StoredProcedure.cs" />
     <Compile Include="UpdateQuery.cs">
       <SubType>Code</SubType>
