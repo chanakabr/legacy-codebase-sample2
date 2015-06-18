@@ -705,7 +705,7 @@ namespace Users
 
             // validate domain
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
-            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
@@ -748,7 +748,7 @@ namespace Users
 
             // validate domain
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
-            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
