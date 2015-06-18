@@ -710,12 +710,14 @@ namespace ODBCWrapper
 
             if (command != null)
             {
+                // update db name
+                sqlInfo.Database = command.Connection != null ? command.Connection.Database : "unknown";
+
                 if (command.CommandType == System.Data.CommandType.StoredProcedure)
                 {
                     // stored procedure
                     sqlInfo.QueryType = KLogEnums.eDBQueryType.EXECUTE;
-                    sqlInfo.Database = command.CommandText != null ? command.CommandText : "stored_procedure_unknown";
-                    sqlInfo.Table = "table_unknown";
+                    sqlInfo.Table = command.CommandText != null ? command.CommandText : "stored_procedure_unknown";
                 }
                 else
                 {
@@ -724,6 +726,7 @@ namespace ODBCWrapper
                     {
                         query = command.CommandText.Trim().ToLower();
 
+                        // update query type
                         if (query.StartsWith("select"))
                             sqlInfo.QueryType = KLogEnums.eDBQueryType.SELECT;
                         else if (query.StartsWith("delete"))
@@ -732,9 +735,10 @@ namespace ODBCWrapper
                             sqlInfo.QueryType = KLogEnums.eDBQueryType.INSERT;
                         else if (query.StartsWith("update"))
                             sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
+                        else if (query.StartsWith("set"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.COMMAND;
 
-                        sqlInfo.Database = "db_unknown";
-
+                        // get table name
                         Regex tableNameReegx = new Regex(REGEX_TABLE_NAME, RegexOptions.Singleline);
                         var allMatches = tableNameReegx.Matches(query);
                         if (allMatches != null)

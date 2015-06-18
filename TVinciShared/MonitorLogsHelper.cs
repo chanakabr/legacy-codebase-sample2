@@ -129,8 +129,7 @@ namespace TVinciShared
                     OperationContext.Current.IncomingMessageProperties.Add(KLogMonitor.Constants.REQUEST_ID_KEY, requestMessage.Headers.MessageId.ToString().Replace(PREFIX_UNIQUE_ID, string.Empty));
 
                 // get user agent
-                if (HttpContext.Current.Request.UserAgent != null)
-                    OperationContext.Current.IncomingMessageProperties.Add(Constants.CLIENT_TAG, Dns.GetHostName());
+                OperationContext.Current.IncomingMessageProperties.Add(Constants.CLIENT_TAG, Dns.GetHostName());
 
                 // get host IP
                 OperationContext.Current.IncomingMessageProperties.Add(Constants.HOST_IP, (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address);
