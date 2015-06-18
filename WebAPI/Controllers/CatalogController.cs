@@ -46,13 +46,9 @@ namespace WebAPI.Controllers
         {
             AssetInfoWrapper response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "too long filter");
@@ -92,11 +88,8 @@ namespace WebAPI.Controllers
         public SlimAssetInfoWrapper PostAutocomplete(string partner_id, Autocomplete request, string language = null)
         {
             SlimAssetInfoWrapper response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+
+            int groupId = int.Parse(partner_id);
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (request.size == null || request.size > 10 || request.size < 1)
@@ -152,11 +145,8 @@ namespace WebAPI.Controllers
         public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            
+            int groupId = int.Parse(partner_id);
 
             if (media_id == 0)
             {
@@ -199,11 +189,8 @@ namespace WebAPI.Controllers
         public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+
+            int groupId = int.Parse(partner_id);
 
             if (channel_id == 0)
             {
@@ -242,15 +229,13 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("media/{media_ids}"), HttpGet]
         public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(media_ids))
             {
@@ -305,15 +290,13 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("channels/{channel_id}"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
             Channel response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+
+            int groupId = int.Parse(partner_id);
 
             if (channel_id == 0)
             {
@@ -351,15 +334,13 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [Route("categories/{category_id}"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             Category response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            
+            int groupId = int.Parse(partner_id);
 
             if (category_id == 0)
             {

@@ -108,7 +108,7 @@ namespace WebAPI.ClientManagers
         {
             Group group = null;
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = Events.eDBQueryType.SELECT })
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = KLogEnums.eDBQueryType.SELECT })
             {
                 group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
             }

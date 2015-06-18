@@ -410,7 +410,7 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddUserToDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject AddUserToDomain(string sWSUserName, string sWSPassword, int nDomainID, int nUserGuid, int nMasterUserGuid, bool bIsMaster) {
+        public DomainStatusResponse AddUserToDomain(string sWSUserName, string sWSPassword, int nDomainID, int nUserGuid, int nMasterUserGuid, bool bIsMaster) {
             object[] results = this.Invoke("AddUserToDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -418,7 +418,7 @@ namespace WebAPI.Domains {
                         nUserGuid,
                         nMasterUserGuid,
                         bIsMaster});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -517,13 +517,13 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveUserFromDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject RemoveUserFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string sUserGUID) {
+        public DomainStatusResponse RemoveUserFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string sUserGUID) {
             object[] results = this.Invoke("RemoveUserFromDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID,
                         sUserGUID});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -591,13 +591,13 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDeviceFromDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject RemoveDeviceFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid) {
+        public DomainStatusResponse RemoveDeviceFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid) {
             object[] results = this.Invoke("RemoveDeviceFromDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID,
                         udid});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3188,10 +3188,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3266,10 +3266,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3318,10 +3318,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
