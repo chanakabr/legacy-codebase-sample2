@@ -624,11 +624,11 @@ namespace EpgBL
                     if (!pictures.ContainsKey(group))
                     {
                         continue;
-                    }                   
+                    }    
+                    
+                    finalEpgPicture = new List<EpgPicture>();               
                     if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
                     {
-                        finalEpgPicture = new List<EpgPicture>();
-
                         foreach (EpgPicture pict in oProgram.EPG_PICTURES)
                         {
                             List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
@@ -656,7 +656,7 @@ namespace EpgBL
 
                     // complete the picURL for back support                
                     baseEpgPicUrl = string.Empty;
-                    if (oProgram != null && pictures[group] != null)
+                    if (oProgram != null &&  !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[group] != null)
                     {
                         EpgPicture pict = pictures[group].First();
                         if (pict != null && !string.IsNullOrEmpty(pict.Url))
