@@ -191,7 +191,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 domainId = UsersService.Instance.GetDomainID();
-                device = m_Module.RegisterDeviceToDomainWithPIN(wsUserName, wsPassword, pinCode, domainId, string.Empty);
+                var deviceRes = m_Module.RegisterDeviceToDomainWithPIN(wsUserName, wsPassword, pinCode, domainId, string.Empty);
+                if (deviceRes != null)
+                {
+                    device = deviceRes.Device;
+                }
             }
             catch (Exception e)
             {
