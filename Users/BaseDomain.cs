@@ -229,7 +229,7 @@ namespace Users
 
             if (domain == null)
             {
-                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
+                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotExists));
             }
 
             //Delete the User from Domain
