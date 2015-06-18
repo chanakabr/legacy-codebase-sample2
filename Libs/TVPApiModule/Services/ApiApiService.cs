@@ -823,5 +823,39 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public Objects.Responses.Status DisableDefaultParentalRule(string siteGuid, int domainId)
+        {
+            TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        var webServiceRespone = m_Module.DisableUserDefaultParentalRule(m_wsUserName, m_wsPassword, siteGuid, domainId);
+                        status.Code = webServiceRespone.Code;
+                        status.Message = webServiceRespone.Message;
+                    }
+                }
+                else
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        var webServiceRespone = m_Module.DisableDomainDefaultParentalRule(m_wsUserName, m_wsPassword, domainId);
+                        status.Code = webServiceRespone.Code;
+                        status.Message = webServiceRespone.Message;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to DisableDefaultParentalRule."), ex);
+                status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return status;
+        }
     }
 }
