@@ -11,6 +11,19 @@ namespace WebAPI.Utils
 {
     public class ErrorUtils
     {
+        private static Dictionary<int, HttpStatusCode> statuses = new Dictionary<int, HttpStatusCode>() { 
+            { 1006, HttpStatusCode.NotFound },
+            { 2000, HttpStatusCode.NotFound },
+            { 2025, HttpStatusCode.NotFound },
+            { 4002, HttpStatusCode.BadRequest },
+            { 4003, HttpStatusCode.BadRequest },
+            { 4004, HttpStatusCode.BadRequest },
+            { 4005, HttpStatusCode.BadRequest },
+            { 2010, HttpStatusCode.BadRequest },
+            { 2012, HttpStatusCode.BadRequest },
+            { 2013, HttpStatusCode.BadRequest },
+        };
+
         public static void HandleWSException(Exception ex)
         {
             if (ex is CommunicationException || ex is WebException)
@@ -31,19 +44,20 @@ namespace WebAPI.Utils
 
         // additionalBadRequestStatusCodes - might be WS statuses pointing on bad request 
         // additionalNotFoundStatusCodes - might be WS statuses pointing on not found 
-        public static void HandleClientException(ClientException ex, List<int> additionalBadRequestStatusCodes = null, List<int> additionalNotFoundStatusCodes = null)
+        public static void HandleClientException(ClientException ex)
         {
-            if (ex.Code == (int)WebAPI.Models.General.StatusCode.BadRequest || (additionalBadRequestStatusCodes != null && additionalBadRequestStatusCodes.Contains(ex.Code)))
+            if (!statuses.ContainsKey(ex.Code))
+                throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+            
+            switch (statuses[ex.Code])
             {
-                throw new BadRequestException(ex.Code, ex.ExceptionMessage);
-            }
-
-            if (ex.Code == (int)WebAPI.Models.General.StatusCode.NotFound || (additionalNotFoundStatusCodes != null && additionalNotFoundStatusCodes.Contains(ex.Code)))
-            {
-                throw new NotFoundException(ex.Code, ex.ExceptionMessage);
-            }
-
-            throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+                case HttpStatusCode.BadRequest:
+                    throw new BadRequestException(ex.Code, ex.ExceptionMessage);
+                case HttpStatusCode.NotFound:
+                    throw new NotFoundException(ex.Code, ex.ExceptionMessage);                    
+                default:
+                    throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);                    
+            }            
         }
     }
 }

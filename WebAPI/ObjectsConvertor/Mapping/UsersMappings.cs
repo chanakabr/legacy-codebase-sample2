@@ -62,9 +62,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
                 .ForMember(dest => dest.DynamicDate, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
-                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => src.m_user.m_eSuspendState))
+                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => src.m_RespStatus));
+                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // SlimUser
             Mapper.CreateMap<User, SlimUser>()
@@ -76,44 +76,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // UserId to SlimUser
             Mapper.CreateMap<int, SlimUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
-
-            //DomainSuspentionStatus to DomainSuspentionState
-            Mapper.CreateMap<WebAPI.Users.DomainSuspentionStatus, HouseholdSuspentionState>().ConstructUsing((WebAPI.Users.DomainSuspentionStatus type) =>
-            {
-                HouseholdSuspentionState result;
-                switch (type)
-                {
-                    case WebAPI.Users.DomainSuspentionStatus.OK:
-                        result = HouseholdSuspentionState.not_suspended;
-                        break;
-                    case WebAPI.Users.DomainSuspentionStatus.Suspended:
-                        result = HouseholdSuspentionState.suspended;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
-                }
-                return result;
-            });
-
-             //DomainSuspentionStatus to DomainSuspentionState
-            Mapper.CreateMap<WebAPI.Users.ResponseStatus, UserState>().ConstructUsing((WebAPI.Users.ResponseStatus type) =>
-            {
-                UserState result;
-                switch (type)
-                {
-                    case WebAPI.Users.ResponseStatus.OK:
-                        result = UserState.ok;
-                        break;
-                    case WebAPI.Users.ResponseStatus.UserWithNoDomain:
-                        result = UserState.user_with_no_household;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown user state");
-                }
-                return result;
-            });
-
-
 
             // Rest UserBasicData ==> WS_Users UserBasicData
             Mapper.CreateMap<UserBasicData, Users.UserBasicData>()
@@ -148,22 +110,37 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
         }
 
-        private static Dictionary<string,string> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        private static UserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type)
         {
-            Dictionary<string,string> result = null;
-
-            if (userDynamicData != null && userDynamicData.m_sUserData != null)
+            UserState result;
+            switch (type)
             {
-                result = new Dictionary<string, string>();
-                foreach (var data in userDynamicData.m_sUserData)
-                {
-                    if (!string.IsNullOrEmpty(data.m_sDataType))
-                    {
-                        result.Add(data.m_sDataType, data.m_sValue);
-                    }
-                }
+                case WebAPI.Users.ResponseStatus.OK:
+                    result = UserState.ok;
+                    break;
+                case WebAPI.Users.ResponseStatus.UserWithNoDomain:
+                    result = UserState.user_with_no_household;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user state");
             }
+            return result;
+        }
 
+        private static HouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Users.DomainSuspentionStatus type)
+        {
+            HouseholdSuspentionState result;
+            switch (type)
+            {
+                case WebAPI.Users.DomainSuspentionStatus.OK:
+                    result = HouseholdSuspentionState.not_suspended;
+                    break;
+                case WebAPI.Users.DomainSuspentionStatus.Suspended:
+                    result = HouseholdSuspentionState.suspended;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
+            }
             return result;
         }
 
@@ -193,6 +170,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }      
+        }
+
+        private static Dictionary<string, string> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        {
+            Dictionary<string,string> result = null;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null)
+            {
+                result = new Dictionary<string, string>();
+                foreach (var data in userDynamicData.m_sUserData)
+                {
+                    if (!string.IsNullOrEmpty(data.m_sDataType))
+                    {
+                        result.Add(data.m_sDataType, data.m_sValue);
+                    }
+                }
+            }
+            return result;
+        }
+
     }
 }

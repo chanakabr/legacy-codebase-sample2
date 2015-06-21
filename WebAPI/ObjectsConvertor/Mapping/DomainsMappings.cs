@@ -14,75 +14,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
     {
         public static void RegisterMappings()
         {
-            //DomainStatus to DomainState 
-            Mapper.CreateMap<WebAPI.Domains.DomainStatus, HouseholdState>().ConstructUsing((WebAPI.Domains.DomainStatus type) =>
-            {
-                HouseholdState result;
-                switch (type)
-                {
-                    case WebAPI.Domains.DomainStatus.OK:
-                        result = HouseholdState.ok;
-                        break;
-                    case WebAPI.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
-                        result = HouseholdState.created_without_npvr_account;
-                        break;
-                    case WebAPI.Domains.DomainStatus.DomainSuspended:
-                        result = HouseholdState.suspended;
-                        break;
-                    case WebAPI.Domains.DomainStatus.NoUsersInDomain:
-                        result = HouseholdState.no_users_in_household;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown domain state");
-                }
-                return result;
-            });
-
-            //DomainRestriction 
-            Mapper.CreateMap<WebAPI.Domains.DomainRestriction, HouseholdRestriction>().ConstructUsing((WebAPI.Domains.DomainRestriction type) =>
-            {
-                HouseholdRestriction result;
-                switch (type)
-                {
-                    case WebAPI.Domains.DomainRestriction.Unrestricted:
-                        result = HouseholdRestriction.not_restricted;
-                        break;
-                    case WebAPI.Domains.DomainRestriction.DeviceMasterRestricted:
-                        result = HouseholdRestriction.device_master_restricted;
-                        break;
-                    case WebAPI.Domains.DomainRestriction.UserMasterRestricted:
-                        result = HouseholdRestriction.user_master_restricted;
-                        break;
-                    case WebAPI.Domains.DomainRestriction.DeviceUserMasterRestricted:
-                        result = HouseholdRestriction.device_user_master_restricted;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown domain_restriction value");
-                }
-                return result;
-            });
-
-            //DeviceState 
-            Mapper.CreateMap<WebAPI.Domains.DeviceState, DeviceState>().ConstructUsing((WebAPI.Domains.DeviceState type) =>
-            {
-                DeviceState result;
-                switch (type)
-                {
-                    case WebAPI.Domains.DeviceState.Activated:
-                        result = DeviceState.activated;
-                        break;
-                    case WebAPI.Domains.DeviceState.Pending:
-                        result = DeviceState.pending;
-                        break;
-                    case WebAPI.Domains.DeviceState.UnActivated:
-                        result = DeviceState.not_activated;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown device state");
-                }
-                return result;
-            });
-
             //Device
             Mapper.CreateMap<WebAPI.Domains.Device, Device>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
@@ -90,7 +21,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.m_state));
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)));
 
             //HomeNetwork
             Mapper.CreateMap<WebAPI.Domains.HomeNetwork, HomeNetwork>()
@@ -125,10 +56,76 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.MasterUsers, opt => opt.MapFrom(src => src.m_masterGUIDs))
                 .ForMember(dest => dest.PendingUsers, opt => opt.MapFrom(src => src.m_PendingUsersIDs))
                 .ForMember(dest => dest.RegionId, opt => opt.MapFrom(src => src.m_nRegion))
-                .ForMember(dest => dest.Restriction, opt => opt.MapFrom(src => src.m_DomainRestriction))
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.m_DomainStatus))
+                .ForMember(dest => dest.Restriction, opt => opt.MapFrom(src => ConvertDomainRestriction(src.m_DomainRestriction)))
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDomainStatus(src.m_DomainStatus)))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit));
+        }
+
+        private static HouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)
+        {
+            HouseholdState result;
+            switch (type)
+            {
+                case WebAPI.Domains.DomainStatus.OK:
+                    result = HouseholdState.ok;
+                    break;
+                case WebAPI.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
+                    result = HouseholdState.created_without_npvr_account;
+                    break;
+                case WebAPI.Domains.DomainStatus.DomainSuspended:
+                    result = HouseholdState.suspended;
+                    break;
+                case WebAPI.Domains.DomainStatus.NoUsersInDomain:
+                    result = HouseholdState.no_users_in_household;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown domain state");
+            }
+            return result;
+        }
+
+        private static HouseholdRestriction ConvertDomainRestriction(WebAPI.Domains.DomainRestriction type)
+        {
+            HouseholdRestriction result;
+            switch (type)
+            {
+                case WebAPI.Domains.DomainRestriction.Unrestricted:
+                    result = HouseholdRestriction.not_restricted;
+                    break;
+                case WebAPI.Domains.DomainRestriction.DeviceMasterRestricted:
+                    result = HouseholdRestriction.device_master_restricted;
+                    break;
+                case WebAPI.Domains.DomainRestriction.UserMasterRestricted:
+                    result = HouseholdRestriction.user_master_restricted;
+                    break;
+                case WebAPI.Domains.DomainRestriction.DeviceUserMasterRestricted:
+                    result = HouseholdRestriction.device_user_master_restricted;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown domain_restriction value");
+            }
+            return result;
+        }
+
+        private static DeviceState ConvertDeviceState(WebAPI.Domains.DeviceState type)
+        {
+            DeviceState result;
+            switch (type)
+            {
+                case WebAPI.Domains.DeviceState.Activated:
+                    result = DeviceState.activated;
+                    break;
+                case WebAPI.Domains.DeviceState.Pending:
+                    result = DeviceState.pending;
+                    break;
+                case WebAPI.Domains.DeviceState.UnActivated:
+                    result = DeviceState.not_activated;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown device state");
+            }
+            return result;
         }
     }
 }

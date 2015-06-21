@@ -76,8 +76,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
-                ErrorUtils.HandleClientException(ex, new List<int>() { 4002, 4003, 4004, 4005 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return response;
@@ -103,8 +102,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                // Catalog possible error codes: BadSearchRequest = 4002, IndexMissing = 4003
-                ErrorUtils.HandleClientException(ex, new List<int>() { 4002, 4003 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return response;

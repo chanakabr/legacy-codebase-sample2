@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return response;
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return pinResponse;
@@ -178,7 +178,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
@@ -209,7 +209,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return purchaseResponse;
@@ -242,7 +242,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
@@ -274,7 +274,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return pinResponse;
@@ -307,7 +307,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
@@ -400,7 +400,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             if (response == false)
@@ -441,7 +441,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             if (response == false)
@@ -479,7 +479,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             if (response == null)
@@ -551,7 +551,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             if (response == null)
@@ -587,7 +587,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return true;
@@ -649,7 +649,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return true;
@@ -682,7 +682,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+                ErrorUtils.HandleClientException(ex);
             }
             return device;
         }
