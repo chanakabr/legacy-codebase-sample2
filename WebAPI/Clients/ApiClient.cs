@@ -862,6 +862,82 @@ namespace WebAPI.Clients
             return success;
         }
 
+        internal bool DisableUserDefaultParentalRule(int groupId, string userId)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DisableUserDefaultParentalRule(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool DisableDomainDefaultParentalRule(int groupId, int domainId)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DisableDomainDefaultParentalRule(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
         #endregion
 
     }
