@@ -186,7 +186,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase settings that applies for the household.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// HouseholdNotExists = 1006
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
