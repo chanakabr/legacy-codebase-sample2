@@ -37,7 +37,7 @@ namespace CDNTokenizers.Tokenizers
                 throw new Exception("video url is required.");
             }
 
-            string result = options.VideoUri.PathAndQuery;
+            string result = options.VideoUri.AbsoluteUri;
             string urlParams = string.Empty;
             string hash = string.Empty;
 
