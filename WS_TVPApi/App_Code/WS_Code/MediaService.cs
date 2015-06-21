@@ -2759,7 +2759,7 @@ namespace TVPApiServices
             {
                 // Tokenization: validate device
                 if (AuthorizationManager.IsTokenizationEnabled() &&
-                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, 0, initObj.UDID, groupId, initObj.Platform))
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupId, initObj.Platform))
                 {
                     return null;
                 }

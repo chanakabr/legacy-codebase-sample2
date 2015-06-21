@@ -155,9 +155,9 @@ namespace TVPApiModule.Manager
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
         {
             if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
-                (signInResponse.LoginStatus != ResponseStatus.OK || signInResponse.LoginStatus != ResponseStatus.UserNotActivated || signInResponse.LoginStatus != ResponseStatus.DeviceNotRegistered ||
-                signInResponse.LoginStatus != ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus != ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus != ResponseStatus.UserWithNoDomain ||
-                signInResponse.LoginStatus != ResponseStatus.UserSuspended))
+                (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
+                signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
+                signInResponse.LoginStatus == ResponseStatus.UserSuspended))
             {
                 var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
                 if (token != null)
@@ -414,6 +414,11 @@ namespace TVPApiModule.Manager
                 }
             }
             return true;
+        }
+
+        public void returnError(int statusCode)
+        {
+            returnError(statusCode, null);
         }
 
         public void returnError(int statusCode, string description = null)

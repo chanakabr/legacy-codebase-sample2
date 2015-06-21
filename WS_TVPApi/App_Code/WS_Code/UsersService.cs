@@ -20,6 +20,7 @@ using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
+using System.Configuration;
 
 namespace TVPApiServices
 {
@@ -233,11 +234,12 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string sClearPassword = siteSvc.GetSiteGuidFromSecured(initObj, sEncryptedPassword);
+                    string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
+                    string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string sClearPassword = SecurityHelper.DecryptSiteGuid(privateKey, IV, sEncryptedPassword);
+
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
 
-                    // if sign in successful and tokenization enabled - generate access token and add to headers
-                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID);
                 }
                 catch (Exception ex)
                 {

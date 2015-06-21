@@ -118,32 +118,37 @@ namespace TVPApiModule.Objects.Responses
             this.isDefault = rule.isDefault;
         }
 
-        public static eRuleLevel ConvertRuleLevelEnum(TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel originLevel)
+        public static eRuleLevel ConvertRuleLevelEnum(TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel? originLevel)
         {
             eRuleLevel outLevel = eRuleLevel.User;
-            switch (originLevel)
+
+            if (originLevel.HasValue)
             {
-                case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.User:
+                switch (originLevel)
                 {
-                    outLevel = eRuleLevel.User;
-                    break;
-                }
-                case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Domain:
-                {
-                    outLevel = eRuleLevel.Domain;
-                    break;
-                }
-                case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Group:
-                {
-                    outLevel = eRuleLevel.Group;
-                    break;
-                }
-                default:
-                {
-                    outLevel = eRuleLevel.User;
-                    break;
+                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.User:
+                    {
+                        outLevel = eRuleLevel.User;
+                        break;
+                    }
+                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Domain:
+                    {
+                        outLevel = eRuleLevel.Domain;
+                        break;
+                    }
+                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Group:
+                    {
+                        outLevel = eRuleLevel.Group;
+                        break;
+                    }
+                    default:
+                    {
+                        outLevel = eRuleLevel.User;
+                        break;
+                    }
                 }
             }
+
             return outLevel;
         }
 

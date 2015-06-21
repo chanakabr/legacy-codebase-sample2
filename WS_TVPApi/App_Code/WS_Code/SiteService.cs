@@ -2092,6 +2092,37 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Disable the default parental rule for the domain or user
+        /// </summary>
+        /// <param name="initObj">Initialization object</param>
+        /// <param name="siteGuid">Optional - if we want to disable the default rule of a user and not of domain</param>
+        /// <returns>Success / Fail and reason</returns>
+        public TVPApiModule.Objects.Responses.Status DisableDefaultParentalRule(InitializationObject initObj, string siteGuid)
+        {
+            TVPApiModule.Objects.Responses.Status response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "DisableDefaultParentalRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).DisableDefaultParentalRule(siteGuid, initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
         #endregion
 
     }
