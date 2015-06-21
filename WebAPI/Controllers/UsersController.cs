@@ -1131,7 +1131,7 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
+                ErrorUtils.HandleClientException(ex);
             }
 
             return success;
