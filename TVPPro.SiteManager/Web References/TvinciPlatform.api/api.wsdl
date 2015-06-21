@@ -90,6 +90,39 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="DisableUserDefaultParentalRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableUserDefaultParentalRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DisableUserDefaultParentalRuleResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableDomainDefaultParentalRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableDomainDefaultParentalRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DisableDomainDefaultParentalRuleResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -1515,6 +1548,18 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1564,18 +1609,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
         <s:complexType>
@@ -2494,7 +2527,7 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
+          <s:element minOccurs="1" maxOccurs="1" name="level" nillable="true" type="tns:eRuleLevel" />
         </s:sequence>
       </s:complexType>
       <s:element name="SetParentalPIN">
@@ -2535,9 +2568,9 @@
       <s:complexType name="PurchaseSettingsResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:ePurchaeSettingsType" />
+          <s:element minOccurs="1" maxOccurs="1" name="type" nillable="true" type="tns:ePurchaeSettingsType" />
           <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
+          <s:element minOccurs="1" maxOccurs="1" name="level" nillable="true" type="tns:eRuleLevel" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="ePurchaeSettingsType">
@@ -2637,6 +2670,7 @@
         </s:complexType>
       </s:element>
       <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2656,7 +2690,6 @@
       <s:element name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
       <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
       <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
     </s:schema>
@@ -2684,6 +2717,18 @@
   </wsdl:message>
   <wsdl:message name="GetParentalEPGRulesSoapOut">
     <wsdl:part name="parameters" element="tns:GetParentalEPGRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableUserDefaultParentalRule" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableUserDefaultParentalRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableDomainDefaultParentalRule" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableDomainDefaultParentalRuleResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -3214,6 +3259,23 @@
   </wsdl:message>
   <wsdl:message name="GetParentalEPGRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3785,6 +3847,14 @@
       <wsdl:input message="tns:GetParentalEPGRulesSoapIn" />
       <wsdl:output message="tns:GetParentalEPGRulesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <wsdl:input message="tns:DisableUserDefaultParentalRuleSoapIn" />
+      <wsdl:output message="tns:DisableUserDefaultParentalRuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <wsdl:input message="tns:DisableDomainDefaultParentalRuleSoapIn" />
+      <wsdl:output message="tns:DisableDomainDefaultParentalRuleSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -4135,6 +4205,14 @@
       <wsdl:input message="tns:GetParentalEPGRulesHttpPostIn" />
       <wsdl:output message="tns:GetParentalEPGRulesHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <wsdl:input message="tns:DisableUserDefaultParentalRuleHttpPostIn" />
+      <wsdl:output message="tns:DisableUserDefaultParentalRuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <wsdl:input message="tns:DisableDomainDefaultParentalRuleHttpPostIn" />
+      <wsdl:output message="tns:DisableDomainDefaultParentalRuleHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -4389,6 +4467,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetParentalEPGRules">
       <soap:operation soapAction="http://api.tvinci.com/GetParentalEPGRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <soap:operation soapAction="http://api.tvinci.com/DisableUserDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <soap:operation soapAction="http://api.tvinci.com/DisableDomainDefaultParentalRule" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5182,6 +5278,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <soap12:operation soapAction="http://api.tvinci.com/DisableUserDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <soap12:operation soapAction="http://api.tvinci.com/DisableDomainDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -5961,6 +6075,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetParentalEPGRules">
       <http:operation location="/GetParentalEPGRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <http:operation location="/DisableUserDefaultParentalRule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <http:operation location="/DisableDomainDefaultParentalRule" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
