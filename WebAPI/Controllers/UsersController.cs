@@ -1101,6 +1101,42 @@ namespace WebAPI.Controllers
             return success;
         }
 
+        /// <summary>
+        /// Disables the partner's default rule for this user
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001,
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <returns>Success / fail</returns>
+        [Route("{user_id}/parental/rules/default"), HttpDelete]
+        public bool DisableDefaultParentalRule([FromUri] string partner_id, [FromUri] string user_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(partner_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, user_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 2025 });
+            }
+
+            return success;
+        }
+
         #endregion
 
 

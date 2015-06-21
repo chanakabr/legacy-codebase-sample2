@@ -186,7 +186,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase settings that applies for the household.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// HouseholdNotExists = 1006
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -283,7 +284,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Set the purchase PIN that applies for the household.
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        ///HouseholdNotExists = 1006
+        /// HouseholdNotExists = 1006
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
@@ -308,6 +309,42 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// Disables the partner's default rule for this household
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
+        /// HouseholdNotExists = 1006
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <returns>Success / fail</returns>
+        [Route("{household_id}/parental/rules/default"), HttpDelete]
+        public bool DisableDefaultParentalRule([FromUri] string partner_id, [FromUri] int household_id)
+        {
+            bool success = false;
+
+            // parameters validation
+            int groupId;
+            if (!int.TryParse(partner_id, out groupId))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
+            }
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
             }
 
             return success;

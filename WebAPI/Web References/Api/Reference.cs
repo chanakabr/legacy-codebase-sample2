@@ -30,53 +30,13 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
-        private System.Threading.SendOrPostCallback GetNpvrRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback ChannelsContainingMediaOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetSubscriptionMediaIdsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetCollectionMediaIdsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetMediaChannelsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetProgramDetailsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetMediaConcurrencyRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetRegionsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetGroupLanguagesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetParentalRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetDomainParentalRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetUserParentalRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetUserParentalRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetDomainParentalRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetParentalPINOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetParentalPINOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetPurchaseSettingsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetPurchaseSettingsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetPurchasePINOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetPurchasePINOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback ValidateParentalPINOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback ValidatePurchasePINOperationCompleted;
-        
         private System.Threading.SendOrPostCallback GetParentalMediaRulesOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetParentalEPGRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DisableUserDefaultParentalRuleOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DisableDomainDefaultParentalRuleOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
@@ -204,6 +164,50 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetEPGProgramRulesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetNpvrRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ChannelsContainingMediaOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetSubscriptionMediaIdsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetCollectionMediaIdsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetMediaChannelsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetProgramDetailsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetMediaConcurrencyRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetRegionsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetGroupLanguagesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetParentalRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDomainParentalRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetUserParentalRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetUserParentalRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetDomainParentalRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetParentalPINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetParentalPINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPurchaseSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPurchaseSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPurchasePINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPurchasePINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ValidateParentalPINOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ValidatePurchasePINOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -243,76 +247,16 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public event GetNpvrRulesCompletedEventHandler GetNpvrRulesCompleted;
-        
-        /// <remarks/>
-        public event ChannelsContainingMediaCompletedEventHandler ChannelsContainingMediaCompleted;
-        
-        /// <remarks/>
-        public event GetSubscriptionMediaIdsCompletedEventHandler GetSubscriptionMediaIdsCompleted;
-        
-        /// <remarks/>
-        public event GetCollectionMediaIdsCompletedEventHandler GetCollectionMediaIdsCompleted;
-        
-        /// <remarks/>
-        public event GetMediaChannelsCompletedEventHandler GetMediaChannelsCompleted;
-        
-        /// <remarks/>
-        public event GetProgramDetailsCompletedEventHandler GetProgramDetailsCompleted;
-        
-        /// <remarks/>
-        public event GetMediaConcurrencyRulesCompletedEventHandler GetMediaConcurrencyRulesCompleted;
-        
-        /// <remarks/>
-        public event GetRegionsCompletedEventHandler GetRegionsCompleted;
-        
-        /// <remarks/>
-        public event GetGroupLanguagesCompletedEventHandler GetGroupLanguagesCompleted;
-        
-        /// <remarks/>
-        public event GetParentalRulesCompletedEventHandler GetParentalRulesCompleted;
-        
-        /// <remarks/>
-        public event GetDomainParentalRulesCompletedEventHandler GetDomainParentalRulesCompleted;
-        
-        /// <remarks/>
-        public event GetUserParentalRulesCompletedEventHandler GetUserParentalRulesCompleted;
-        
-        /// <remarks/>
-        public event SetUserParentalRulesCompletedEventHandler SetUserParentalRulesCompleted;
-        
-        /// <remarks/>
-        public event SetDomainParentalRulesCompletedEventHandler SetDomainParentalRulesCompleted;
-        
-        /// <remarks/>
-        public event GetParentalPINCompletedEventHandler GetParentalPINCompleted;
-        
-        /// <remarks/>
-        public event SetParentalPINCompletedEventHandler SetParentalPINCompleted;
-        
-        /// <remarks/>
-        public event GetPurchaseSettingsCompletedEventHandler GetPurchaseSettingsCompleted;
-        
-        /// <remarks/>
-        public event SetPurchaseSettingsCompletedEventHandler SetPurchaseSettingsCompleted;
-        
-        /// <remarks/>
-        public event GetPurchasePINCompletedEventHandler GetPurchasePINCompleted;
-        
-        /// <remarks/>
-        public event SetPurchasePINCompletedEventHandler SetPurchasePINCompleted;
-        
-        /// <remarks/>
-        public event ValidateParentalPINCompletedEventHandler ValidateParentalPINCompleted;
-        
-        /// <remarks/>
-        public event ValidatePurchasePINCompletedEventHandler ValidatePurchasePINCompleted;
-        
-        /// <remarks/>
         public event GetParentalMediaRulesCompletedEventHandler GetParentalMediaRulesCompleted;
         
         /// <remarks/>
         public event GetParentalEPGRulesCompletedEventHandler GetParentalEPGRulesCompleted;
+        
+        /// <remarks/>
+        public event DisableUserDefaultParentalRuleCompletedEventHandler DisableUserDefaultParentalRuleCompleted;
+        
+        /// <remarks/>
+        public event DisableDomainDefaultParentalRuleCompletedEventHandler DisableDomainDefaultParentalRuleCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -504,788 +448,70 @@ namespace WebAPI.Api {
         public event GetEPGProgramRulesCompletedEventHandler GetEPGProgramRulesCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetNpvrRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public GroupRule[] GetNpvrRules(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
-            object[] results = this.Invoke("GetNpvrRules", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        recordedProgram,
-                        siteGuid,
-                        sIP,
-                        deviceUdid});
-            return ((GroupRule[])(results[0]));
-        }
+        public event GetNpvrRulesCompletedEventHandler GetNpvrRulesCompleted;
         
         /// <remarks/>
-        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
-            this.GetNpvrRulesAsync(sWSUserName, sWSPassword, recordedProgram, siteGuid, sIP, deviceUdid, null);
-        }
+        public event ChannelsContainingMediaCompletedEventHandler ChannelsContainingMediaCompleted;
         
         /// <remarks/>
-        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid, object userState) {
-            if ((this.GetNpvrRulesOperationCompleted == null)) {
-                this.GetNpvrRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetNpvrRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetNpvrRules", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        recordedProgram,
-                        siteGuid,
-                        sIP,
-                        deviceUdid}, this.GetNpvrRulesOperationCompleted, userState);
-        }
+        public event GetSubscriptionMediaIdsCompletedEventHandler GetSubscriptionMediaIdsCompleted;
         
-        private void OnGetNpvrRulesOperationCompleted(object arg) {
-            if ((this.GetNpvrRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetNpvrRulesCompleted(this, new GetNpvrRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ChannelsContainingMedia", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public int[] ChannelsContainingMedia(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID) {
-            object[] results = this.Invoke("ChannelsContainingMedia", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        lChannels,
-                        nMediaID,
-                        nMediaFileID});
-            return ((int[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void ChannelsContainingMediaAsync(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID) {
-            this.ChannelsContainingMediaAsync(sWSUserName, sWSPassword, lChannels, nMediaID, nMediaFileID, null);
-        }
-        
-        /// <remarks/>
-        public void ChannelsContainingMediaAsync(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID, object userState) {
-            if ((this.ChannelsContainingMediaOperationCompleted == null)) {
-                this.ChannelsContainingMediaOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChannelsContainingMediaOperationCompleted);
-            }
-            this.InvokeAsync("ChannelsContainingMedia", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        lChannels,
-                        nMediaID,
-                        nMediaFileID}, this.ChannelsContainingMediaOperationCompleted, userState);
-        }
-        
-        private void OnChannelsContainingMediaOperationCompleted(object arg) {
-            if ((this.ChannelsContainingMediaCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.ChannelsContainingMediaCompleted(this, new ChannelsContainingMediaCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetSubscriptionMediaIds", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public int[] GetSubscriptionMediaIds(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice) {
-            object[] results = this.Invoke("GetSubscriptionMediaIds", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nSubscriptionCode,
-                        nFileTypeIDs,
-                        sDevice});
-            return ((int[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetSubscriptionMediaIdsAsync(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice) {
-            this.GetSubscriptionMediaIdsAsync(sWSUserName, sWSPassword, nSubscriptionCode, nFileTypeIDs, sDevice, null);
-        }
-        
-        /// <remarks/>
-        public void GetSubscriptionMediaIdsAsync(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice, object userState) {
-            if ((this.GetSubscriptionMediaIdsOperationCompleted == null)) {
-                this.GetSubscriptionMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSubscriptionMediaIdsOperationCompleted);
-            }
-            this.InvokeAsync("GetSubscriptionMediaIds", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nSubscriptionCode,
-                        nFileTypeIDs,
-                        sDevice}, this.GetSubscriptionMediaIdsOperationCompleted, userState);
-        }
-        
-        private void OnGetSubscriptionMediaIdsOperationCompleted(object arg) {
-            if ((this.GetSubscriptionMediaIdsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetSubscriptionMediaIdsCompleted(this, new GetSubscriptionMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCollectionMediaIds", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public int[] GetCollectionMediaIds(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice) {
-            object[] results = this.Invoke("GetCollectionMediaIds", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nCollectionCode,
-                        nFileTypeIDs,
-                        sDevice});
-            return ((int[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetCollectionMediaIdsAsync(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice) {
-            this.GetCollectionMediaIdsAsync(sWSUserName, sWSPassword, nCollectionCode, nFileTypeIDs, sDevice, null);
-        }
-        
-        /// <remarks/>
-        public void GetCollectionMediaIdsAsync(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice, object userState) {
-            if ((this.GetCollectionMediaIdsOperationCompleted == null)) {
-                this.GetCollectionMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCollectionMediaIdsOperationCompleted);
-            }
-            this.InvokeAsync("GetCollectionMediaIds", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nCollectionCode,
-                        nFileTypeIDs,
-                        sDevice}, this.GetCollectionMediaIdsOperationCompleted, userState);
-        }
-        
-        private void OnGetCollectionMediaIdsOperationCompleted(object arg) {
-            if ((this.GetCollectionMediaIdsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetCollectionMediaIdsCompleted(this, new GetCollectionMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaChannels", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public int[] GetMediaChannels(string sWSUserName, string sWSPassword, int nMediaId) {
-            object[] results = this.Invoke("GetMediaChannels", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nMediaId});
-            return ((int[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetMediaChannelsAsync(string sWSUserName, string sWSPassword, int nMediaId) {
-            this.GetMediaChannelsAsync(sWSUserName, sWSPassword, nMediaId, null);
-        }
-        
-        /// <remarks/>
-        public void GetMediaChannelsAsync(string sWSUserName, string sWSPassword, int nMediaId, object userState) {
-            if ((this.GetMediaChannelsOperationCompleted == null)) {
-                this.GetMediaChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaChannelsOperationCompleted);
-            }
-            this.InvokeAsync("GetMediaChannels", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nMediaId}, this.GetMediaChannelsOperationCompleted, userState);
-        }
-        
-        private void OnGetMediaChannelsOperationCompleted(object arg) {
-            if ((this.GetMediaChannelsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetMediaChannelsCompleted(this, new GetMediaChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetProgramDetails", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public EPGChannelProgrammeObject GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
-            object[] results = this.Invoke("GetProgramDetails", new object[] {
-                        sWSUserName,
-                        sWSPass,
-                        nProgramId});
-            return ((EPGChannelProgrammeObject)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetProgramDetailsAsync(string sWSUserName, string sWSPass, int nProgramId) {
-            this.GetProgramDetailsAsync(sWSUserName, sWSPass, nProgramId, null);
-        }
-        
-        /// <remarks/>
-        public void GetProgramDetailsAsync(string sWSUserName, string sWSPass, int nProgramId, object userState) {
-            if ((this.GetProgramDetailsOperationCompleted == null)) {
-                this.GetProgramDetailsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetProgramDetailsOperationCompleted);
-            }
-            this.InvokeAsync("GetProgramDetails", new object[] {
-                        sWSUserName,
-                        sWSPass,
-                        nProgramId}, this.GetProgramDetailsOperationCompleted, userState);
-        }
-        
-        private void OnGetProgramDetailsOperationCompleted(object arg) {
-            if ((this.GetProgramDetailsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetProgramDetailsCompleted(this, new GetProgramDetailsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaConcurrencyRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public MediaConcurrencyRule[] GetMediaConcurrencyRules(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
-            object[] results = this.Invoke("GetMediaConcurrencyRules", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nMediaID,
-                        sIP,
-                        bmID,
-                        eType});
-            return ((MediaConcurrencyRule[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
-            this.GetMediaConcurrencyRulesAsync(sWSUserName, sWSPassword, nMediaID, sIP, bmID, eType, null);
-        }
-        
-        /// <remarks/>
-        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType, object userState) {
-            if ((this.GetMediaConcurrencyRulesOperationCompleted == null)) {
-                this.GetMediaConcurrencyRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaConcurrencyRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetMediaConcurrencyRules", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        nMediaID,
-                        sIP,
-                        bmID,
-                        eType}, this.GetMediaConcurrencyRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetMediaConcurrencyRulesOperationCompleted(object arg) {
-            if ((this.GetMediaConcurrencyRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetMediaConcurrencyRulesCompleted(this, new GetMediaConcurrencyRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetRegions", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RegionsResponse GetRegions(string sWSUserName, string sWSPassword, int[] regionIds) {
-            object[] results = this.Invoke("GetRegions", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        regionIds});
-            return ((RegionsResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds) {
-            this.GetRegionsAsync(sWSUserName, sWSPassword, regionIds, null);
-        }
-        
-        /// <remarks/>
-        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds, object userState) {
-            if ((this.GetRegionsOperationCompleted == null)) {
-                this.GetRegionsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRegionsOperationCompleted);
-            }
-            this.InvokeAsync("GetRegions", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        regionIds}, this.GetRegionsOperationCompleted, userState);
-        }
-        
-        private void OnGetRegionsOperationCompleted(object arg) {
-            if ((this.GetRegionsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetRegionsCompleted(this, new GetRegionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupLanguages", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public LanguageObj[] GetGroupLanguages(string sWSUserName, string sWSPassword) {
-            object[] results = this.Invoke("GetGroupLanguages", new object[] {
-                        sWSUserName,
-                        sWSPassword});
-            return ((LanguageObj[])(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword) {
-            this.GetGroupLanguagesAsync(sWSUserName, sWSPassword, null);
-        }
-        
-        /// <remarks/>
-        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword, object userState) {
-            if ((this.GetGroupLanguagesOperationCompleted == null)) {
-                this.GetGroupLanguagesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupLanguagesOperationCompleted);
-            }
-            this.InvokeAsync("GetGroupLanguages", new object[] {
-                        sWSUserName,
-                        sWSPassword}, this.GetGroupLanguagesOperationCompleted, userState);
-        }
-        
-        private void OnGetGroupLanguagesOperationCompleted(object arg) {
-            if ((this.GetGroupLanguagesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetGroupLanguagesCompleted(this, new GetGroupLanguagesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetParentalRules(string userName, string password) {
-            object[] results = this.Invoke("GetParentalRules", new object[] {
-                        userName,
-                        password});
-            return ((ParentalRulesResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetParentalRulesAsync(string userName, string password) {
-            this.GetParentalRulesAsync(userName, password, null);
-        }
-        
-        /// <remarks/>
-        public void GetParentalRulesAsync(string userName, string password, object userState) {
-            if ((this.GetParentalRulesOperationCompleted == null)) {
-                this.GetParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetParentalRules", new object[] {
-                        userName,
-                        password}, this.GetParentalRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetParentalRulesOperationCompleted(object arg) {
-            if ((this.GetParentalRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetParentalRulesCompleted(this, new GetParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetDomainParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetDomainParentalRules(string userName, string password, int domainId) {
-            object[] results = this.Invoke("GetDomainParentalRules", new object[] {
-                        userName,
-                        password,
-                        domainId});
-            return ((ParentalRulesResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetDomainParentalRulesAsync(string userName, string password, int domainId) {
-            this.GetDomainParentalRulesAsync(userName, password, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void GetDomainParentalRulesAsync(string userName, string password, int domainId, object userState) {
-            if ((this.GetDomainParentalRulesOperationCompleted == null)) {
-                this.GetDomainParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainParentalRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetDomainParentalRules", new object[] {
-                        userName,
-                        password,
-                        domainId}, this.GetDomainParentalRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetDomainParentalRulesOperationCompleted(object arg) {
-            if ((this.GetDomainParentalRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDomainParentalRulesCompleted(this, new GetDomainParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetUserParentalRules(string userName, string password, string siteGuid, int domainId) {
-            object[] results = this.Invoke("GetUserParentalRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        domainId});
-            return ((ParentalRulesResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId) {
-            this.GetUserParentalRulesAsync(userName, password, siteGuid, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId, object userState) {
-            if ((this.GetUserParentalRulesOperationCompleted == null)) {
-                this.GetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserParentalRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetUserParentalRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        domainId}, this.GetUserParentalRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetUserParentalRulesOperationCompleted(object arg) {
-            if ((this.GetUserParentalRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetUserParentalRulesCompleted(this, new GetUserParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetUserParentalRules(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
-            object[] results = this.Invoke("SetUserParentalRules", new object[] {
-                        userName,
-                        webServicePassword,
-                        siteGuid,
-                        ruleId,
-                        isActive,
-                        domainId});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
-            this.SetUserParentalRulesAsync(userName, webServicePassword, siteGuid, ruleId, isActive, domainId, null);
-        }
-        
         /// <remarks/>
-        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId, object userState) {
-            if ((this.SetUserParentalRulesOperationCompleted == null)) {
-                this.SetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserParentalRulesOperationCompleted);
-            }
-            this.InvokeAsync("SetUserParentalRules", new object[] {
-                        userName,
-                        webServicePassword,
-                        siteGuid,
-                        ruleId,
-                        isActive,
-                        domainId}, this.SetUserParentalRulesOperationCompleted, userState);
-        }
+        public event GetCollectionMediaIdsCompletedEventHandler GetCollectionMediaIdsCompleted;
         
-        private void OnSetUserParentalRulesOperationCompleted(object arg) {
-            if ((this.SetUserParentalRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetUserParentalRulesCompleted(this, new SetUserParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetDomainParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetDomainParentalRules(string userName, string webServicePassword, int domainId, long ruleId, int isActive) {
-            object[] results = this.Invoke("SetDomainParentalRules", new object[] {
-                        userName,
-                        webServicePassword,
-                        domainId,
-                        ruleId,
-                        isActive});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SetDomainParentalRulesAsync(string userName, string webServicePassword, int domainId, long ruleId, int isActive) {
-            this.SetDomainParentalRulesAsync(userName, webServicePassword, domainId, ruleId, isActive, null);
-        }
-        
-        /// <remarks/>
-        public void SetDomainParentalRulesAsync(string userName, string webServicePassword, int domainId, long ruleId, int isActive, object userState) {
-            if ((this.SetDomainParentalRulesOperationCompleted == null)) {
-                this.SetDomainParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainParentalRulesOperationCompleted);
-            }
-            this.InvokeAsync("SetDomainParentalRules", new object[] {
-                        userName,
-                        webServicePassword,
-                        domainId,
-                        ruleId,
-                        isActive}, this.SetDomainParentalRulesOperationCompleted, userState);
-        }
-        
-        private void OnSetDomainParentalRulesOperationCompleted(object arg) {
-            if ((this.SetDomainParentalRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetDomainParentalRulesCompleted(this, new SetDomainParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PinResponse GetParentalPIN(string userName, string password, int domainId, string siteGuid) {
-            object[] results = this.Invoke("GetParentalPIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid});
-            return ((PinResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetParentalPINAsync(string userName, string password, int domainId, string siteGuid) {
-            this.GetParentalPINAsync(userName, password, domainId, siteGuid, null);
-        }
-        
-        /// <remarks/>
-        public void GetParentalPINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
-            if ((this.GetParentalPINOperationCompleted == null)) {
-                this.GetParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalPINOperationCompleted);
-            }
-            this.InvokeAsync("GetParentalPIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid}, this.GetParentalPINOperationCompleted, userState);
-        }
-        
-        private void OnGetParentalPINOperationCompleted(object arg) {
-            if ((this.GetParentalPINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetParentalPINCompleted(this, new GetParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetParentalPIN(string userName, string password, int domainId, string siteGuid, string pin) {
-            object[] results = this.Invoke("SetParentalPIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        pin});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SetParentalPINAsync(string userName, string password, int domainId, string siteGuid, string pin) {
-            this.SetParentalPINAsync(userName, password, domainId, siteGuid, pin, null);
-        }
-        
-        /// <remarks/>
-        public void SetParentalPINAsync(string userName, string password, int domainId, string siteGuid, string pin, object userState) {
-            if ((this.SetParentalPINOperationCompleted == null)) {
-                this.SetParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetParentalPINOperationCompleted);
-            }
-            this.InvokeAsync("SetParentalPIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        pin}, this.SetParentalPINOperationCompleted, userState);
-        }
-        
-        private void OnSetParentalPINOperationCompleted(object arg) {
-            if ((this.SetParentalPINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetParentalPINCompleted(this, new SetParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchaseSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PurchaseSettingsResponse GetPurchaseSettings(string userName, string password, int domainId, string siteGuid) {
-            object[] results = this.Invoke("GetPurchaseSettings", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid});
-            return ((PurchaseSettingsResponse)(results[0]));
-        }
+        public event GetMediaChannelsCompletedEventHandler GetMediaChannelsCompleted;
         
         /// <remarks/>
-        public void GetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid) {
-            this.GetPurchaseSettingsAsync(userName, password, domainId, siteGuid, null);
-        }
+        public event GetProgramDetailsCompletedEventHandler GetProgramDetailsCompleted;
         
         /// <remarks/>
-        public void GetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, object userState) {
-            if ((this.GetPurchaseSettingsOperationCompleted == null)) {
-                this.GetPurchaseSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchaseSettingsOperationCompleted);
-            }
-            this.InvokeAsync("GetPurchaseSettings", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid}, this.GetPurchaseSettingsOperationCompleted, userState);
-        }
+        public event GetMediaConcurrencyRulesCompletedEventHandler GetMediaConcurrencyRulesCompleted;
         
-        private void OnGetPurchaseSettingsOperationCompleted(object arg) {
-            if ((this.GetPurchaseSettingsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetPurchaseSettingsCompleted(this, new GetPurchaseSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetPurchaseSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPurchaseSettings(string userName, string password, int domainId, string siteGuid, int setting) {
-            object[] results = this.Invoke("SetPurchaseSettings", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        setting});
-            return ((Status)(results[0]));
-        }
+        public event GetRegionsCompletedEventHandler GetRegionsCompleted;
         
         /// <remarks/>
-        public void SetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, int setting) {
-            this.SetPurchaseSettingsAsync(userName, password, domainId, siteGuid, setting, null);
-        }
+        public event GetGroupLanguagesCompletedEventHandler GetGroupLanguagesCompleted;
         
         /// <remarks/>
-        public void SetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, int setting, object userState) {
-            if ((this.SetPurchaseSettingsOperationCompleted == null)) {
-                this.SetPurchaseSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPurchaseSettingsOperationCompleted);
-            }
-            this.InvokeAsync("SetPurchaseSettings", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        setting}, this.SetPurchaseSettingsOperationCompleted, userState);
-        }
-        
-        private void OnSetPurchaseSettingsOperationCompleted(object arg) {
-            if ((this.SetPurchaseSettingsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetPurchaseSettingsCompleted(this, new SetPurchaseSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event GetParentalRulesCompletedEventHandler GetParentalRulesCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PurchaseSettingsResponse GetPurchasePIN(string userName, string password, int domainId, string siteGuid) {
-            object[] results = this.Invoke("GetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid});
-            return ((PurchaseSettingsResponse)(results[0]));
-        }
+        public event GetDomainParentalRulesCompletedEventHandler GetDomainParentalRulesCompleted;
         
         /// <remarks/>
-        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid) {
-            this.GetPurchasePINAsync(userName, password, domainId, siteGuid, null);
-        }
+        public event GetUserParentalRulesCompletedEventHandler GetUserParentalRulesCompleted;
         
         /// <remarks/>
-        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
-            if ((this.GetPurchasePINOperationCompleted == null)) {
-                this.GetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchasePINOperationCompleted);
-            }
-            this.InvokeAsync("GetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid}, this.GetPurchasePINOperationCompleted, userState);
-        }
+        public event SetUserParentalRulesCompletedEventHandler SetUserParentalRulesCompleted;
         
-        private void OnGetPurchasePINOperationCompleted(object arg) {
-            if ((this.GetPurchasePINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetPurchasePINCompleted(this, new GetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPurchasePIN(string userName, string password, int domainId, string siteGuid, string pin) {
-            object[] results = this.Invoke("SetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        pin});
-            return ((Status)(results[0]));
-        }
+        public event SetDomainParentalRulesCompletedEventHandler SetDomainParentalRulesCompleted;
         
         /// <remarks/>
-        public void SetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, string pin) {
-            this.SetPurchasePINAsync(userName, password, domainId, siteGuid, pin, null);
-        }
+        public event GetParentalPINCompletedEventHandler GetParentalPINCompleted;
         
         /// <remarks/>
-        public void SetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, string pin, object userState) {
-            if ((this.SetPurchasePINOperationCompleted == null)) {
-                this.SetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPurchasePINOperationCompleted);
-            }
-            this.InvokeAsync("SetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid,
-                        pin}, this.SetPurchasePINOperationCompleted, userState);
-        }
-        
-        private void OnSetPurchasePINOperationCompleted(object arg) {
-            if ((this.SetPurchasePINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetPurchasePINCompleted(this, new SetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event SetParentalPINCompletedEventHandler SetParentalPINCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidateParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ValidateParentalPIN(string userName, string password, string siteGuid, string pin, int domainId) {
-            object[] results = this.Invoke("ValidateParentalPIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId});
-            return ((Status)(results[0]));
-        }
+        public event GetPurchaseSettingsCompletedEventHandler GetPurchaseSettingsCompleted;
         
         /// <remarks/>
-        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
-            this.ValidateParentalPINAsync(userName, password, siteGuid, pin, domainId, null);
-        }
+        public event SetPurchaseSettingsCompletedEventHandler SetPurchaseSettingsCompleted;
         
         /// <remarks/>
-        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
-            if ((this.ValidateParentalPINOperationCompleted == null)) {
-                this.ValidateParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateParentalPINOperationCompleted);
-            }
-            this.InvokeAsync("ValidateParentalPIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId}, this.ValidateParentalPINOperationCompleted, userState);
-        }
+        public event GetPurchasePINCompletedEventHandler GetPurchasePINCompleted;
         
-        private void OnValidateParentalPINOperationCompleted(object arg) {
-            if ((this.ValidateParentalPINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.ValidateParentalPINCompleted(this, new ValidateParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidatePurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin, int domainId) {
-            object[] results = this.Invoke("ValidatePurchasePIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId});
-            return ((Status)(results[0]));
-        }
+        public event SetPurchasePINCompletedEventHandler SetPurchasePINCompleted;
         
         /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
-            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, domainId, null);
-        }
+        public event ValidateParentalPINCompletedEventHandler ValidateParentalPINCompleted;
         
         /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
-            if ((this.ValidatePurchasePINOperationCompleted == null)) {
-                this.ValidatePurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidatePurchasePINOperationCompleted);
-            }
-            this.InvokeAsync("ValidatePurchasePIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId}, this.ValidatePurchasePINOperationCompleted, userState);
-        }
-        
-        private void OnValidatePurchasePINOperationCompleted(object arg) {
-            if ((this.ValidatePurchasePINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.ValidatePurchasePINCompleted(this, new ValidatePurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event ValidatePurchasePINCompletedEventHandler ValidatePurchasePINCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalMediaRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1358,6 +584,74 @@ namespace WebAPI.Api {
             if ((this.GetParentalEPGRulesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetParentalEPGRulesCompleted(this, new GetParentalEPGRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableUserDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DisableUserDefaultParentalRule(string userName, string webServicePassword, string siteGuid, int domainId) {
+            object[] results = this.Invoke("DisableUserDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId) {
+            this.DisableUserDefaultParentalRuleAsync(userName, webServicePassword, siteGuid, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId, object userState) {
+            if ((this.DisableUserDefaultParentalRuleOperationCompleted == null)) {
+                this.DisableUserDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableUserDefaultParentalRuleOperationCompleted);
+            }
+            this.InvokeAsync("DisableUserDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        domainId}, this.DisableUserDefaultParentalRuleOperationCompleted, userState);
+        }
+        
+        private void OnDisableUserDefaultParentalRuleOperationCompleted(object arg) {
+            if ((this.DisableUserDefaultParentalRuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DisableUserDefaultParentalRuleCompleted(this, new DisableUserDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableDomainDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DisableDomainDefaultParentalRule(string userName, string webServicePassword, int domainId) {
+            object[] results = this.Invoke("DisableDomainDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId) {
+            this.DisableDomainDefaultParentalRuleAsync(userName, webServicePassword, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId, object userState) {
+            if ((this.DisableDomainDefaultParentalRuleOperationCompleted == null)) {
+                this.DisableDomainDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableDomainDefaultParentalRuleOperationCompleted);
+            }
+            this.InvokeAsync("DisableDomainDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId}, this.DisableDomainDefaultParentalRuleOperationCompleted, userState);
+        }
+        
+        private void OnDisableDomainDefaultParentalRuleOperationCompleted(object arg) {
+            if ((this.DisableDomainDefaultParentalRuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DisableDomainDefaultParentalRuleCompleted(this, new DisableDomainDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3643,6 +2937,790 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetNpvrRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GroupRule[] GetNpvrRules(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
+            object[] results = this.Invoke("GetNpvrRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        recordedProgram,
+                        siteGuid,
+                        sIP,
+                        deviceUdid});
+            return ((GroupRule[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid) {
+            this.GetNpvrRulesAsync(sWSUserName, sWSPassword, recordedProgram, siteGuid, sIP, deviceUdid, null);
+        }
+        
+        /// <remarks/>
+        public void GetNpvrRulesAsync(string sWSUserName, string sWSPassword, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid, object userState) {
+            if ((this.GetNpvrRulesOperationCompleted == null)) {
+                this.GetNpvrRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetNpvrRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetNpvrRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        recordedProgram,
+                        siteGuid,
+                        sIP,
+                        deviceUdid}, this.GetNpvrRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetNpvrRulesOperationCompleted(object arg) {
+            if ((this.GetNpvrRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetNpvrRulesCompleted(this, new GetNpvrRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ChannelsContainingMedia", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int[] ChannelsContainingMedia(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID) {
+            object[] results = this.Invoke("ChannelsContainingMedia", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        lChannels,
+                        nMediaID,
+                        nMediaFileID});
+            return ((int[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ChannelsContainingMediaAsync(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID) {
+            this.ChannelsContainingMediaAsync(sWSUserName, sWSPassword, lChannels, nMediaID, nMediaFileID, null);
+        }
+        
+        /// <remarks/>
+        public void ChannelsContainingMediaAsync(string sWSUserName, string sWSPassword, int[] lChannels, int nMediaID, int nMediaFileID, object userState) {
+            if ((this.ChannelsContainingMediaOperationCompleted == null)) {
+                this.ChannelsContainingMediaOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChannelsContainingMediaOperationCompleted);
+            }
+            this.InvokeAsync("ChannelsContainingMedia", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        lChannels,
+                        nMediaID,
+                        nMediaFileID}, this.ChannelsContainingMediaOperationCompleted, userState);
+        }
+        
+        private void OnChannelsContainingMediaOperationCompleted(object arg) {
+            if ((this.ChannelsContainingMediaCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ChannelsContainingMediaCompleted(this, new ChannelsContainingMediaCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetSubscriptionMediaIds", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int[] GetSubscriptionMediaIds(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice) {
+            object[] results = this.Invoke("GetSubscriptionMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nSubscriptionCode,
+                        nFileTypeIDs,
+                        sDevice});
+            return ((int[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetSubscriptionMediaIdsAsync(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice) {
+            this.GetSubscriptionMediaIdsAsync(sWSUserName, sWSPassword, nSubscriptionCode, nFileTypeIDs, sDevice, null);
+        }
+        
+        /// <remarks/>
+        public void GetSubscriptionMediaIdsAsync(string sWSUserName, string sWSPassword, int nSubscriptionCode, int[] nFileTypeIDs, string sDevice, object userState) {
+            if ((this.GetSubscriptionMediaIdsOperationCompleted == null)) {
+                this.GetSubscriptionMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSubscriptionMediaIdsOperationCompleted);
+            }
+            this.InvokeAsync("GetSubscriptionMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nSubscriptionCode,
+                        nFileTypeIDs,
+                        sDevice}, this.GetSubscriptionMediaIdsOperationCompleted, userState);
+        }
+        
+        private void OnGetSubscriptionMediaIdsOperationCompleted(object arg) {
+            if ((this.GetSubscriptionMediaIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetSubscriptionMediaIdsCompleted(this, new GetSubscriptionMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCollectionMediaIds", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int[] GetCollectionMediaIds(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice) {
+            object[] results = this.Invoke("GetCollectionMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nCollectionCode,
+                        nFileTypeIDs,
+                        sDevice});
+            return ((int[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCollectionMediaIdsAsync(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice) {
+            this.GetCollectionMediaIdsAsync(sWSUserName, sWSPassword, nCollectionCode, nFileTypeIDs, sDevice, null);
+        }
+        
+        /// <remarks/>
+        public void GetCollectionMediaIdsAsync(string sWSUserName, string sWSPassword, int nCollectionCode, int[] nFileTypeIDs, string sDevice, object userState) {
+            if ((this.GetCollectionMediaIdsOperationCompleted == null)) {
+                this.GetCollectionMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCollectionMediaIdsOperationCompleted);
+            }
+            this.InvokeAsync("GetCollectionMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nCollectionCode,
+                        nFileTypeIDs,
+                        sDevice}, this.GetCollectionMediaIdsOperationCompleted, userState);
+        }
+        
+        private void OnGetCollectionMediaIdsOperationCompleted(object arg) {
+            if ((this.GetCollectionMediaIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCollectionMediaIdsCompleted(this, new GetCollectionMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaChannels", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int[] GetMediaChannels(string sWSUserName, string sWSPassword, int nMediaId) {
+            object[] results = this.Invoke("GetMediaChannels", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaId});
+            return ((int[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetMediaChannelsAsync(string sWSUserName, string sWSPassword, int nMediaId) {
+            this.GetMediaChannelsAsync(sWSUserName, sWSPassword, nMediaId, null);
+        }
+        
+        /// <remarks/>
+        public void GetMediaChannelsAsync(string sWSUserName, string sWSPassword, int nMediaId, object userState) {
+            if ((this.GetMediaChannelsOperationCompleted == null)) {
+                this.GetMediaChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaChannelsOperationCompleted);
+            }
+            this.InvokeAsync("GetMediaChannels", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaId}, this.GetMediaChannelsOperationCompleted, userState);
+        }
+        
+        private void OnGetMediaChannelsOperationCompleted(object arg) {
+            if ((this.GetMediaChannelsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetMediaChannelsCompleted(this, new GetMediaChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetProgramDetails", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public EPGChannelProgrammeObject GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
+            object[] results = this.Invoke("GetProgramDetails", new object[] {
+                        sWSUserName,
+                        sWSPass,
+                        nProgramId});
+            return ((EPGChannelProgrammeObject)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetProgramDetailsAsync(string sWSUserName, string sWSPass, int nProgramId) {
+            this.GetProgramDetailsAsync(sWSUserName, sWSPass, nProgramId, null);
+        }
+        
+        /// <remarks/>
+        public void GetProgramDetailsAsync(string sWSUserName, string sWSPass, int nProgramId, object userState) {
+            if ((this.GetProgramDetailsOperationCompleted == null)) {
+                this.GetProgramDetailsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetProgramDetailsOperationCompleted);
+            }
+            this.InvokeAsync("GetProgramDetails", new object[] {
+                        sWSUserName,
+                        sWSPass,
+                        nProgramId}, this.GetProgramDetailsOperationCompleted, userState);
+        }
+        
+        private void OnGetProgramDetailsOperationCompleted(object arg) {
+            if ((this.GetProgramDetailsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetProgramDetailsCompleted(this, new GetProgramDetailsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaConcurrencyRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public MediaConcurrencyRule[] GetMediaConcurrencyRules(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
+            object[] results = this.Invoke("GetMediaConcurrencyRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaID,
+                        sIP,
+                        bmID,
+                        eType});
+            return ((MediaConcurrencyRule[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
+            this.GetMediaConcurrencyRulesAsync(sWSUserName, sWSPassword, nMediaID, sIP, bmID, eType, null);
+        }
+        
+        /// <remarks/>
+        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType, object userState) {
+            if ((this.GetMediaConcurrencyRulesOperationCompleted == null)) {
+                this.GetMediaConcurrencyRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaConcurrencyRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetMediaConcurrencyRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaID,
+                        sIP,
+                        bmID,
+                        eType}, this.GetMediaConcurrencyRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetMediaConcurrencyRulesOperationCompleted(object arg) {
+            if ((this.GetMediaConcurrencyRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetMediaConcurrencyRulesCompleted(this, new GetMediaConcurrencyRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetRegions", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RegionsResponse GetRegions(string sWSUserName, string sWSPassword, int[] regionIds) {
+            object[] results = this.Invoke("GetRegions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        regionIds});
+            return ((RegionsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds) {
+            this.GetRegionsAsync(sWSUserName, sWSPassword, regionIds, null);
+        }
+        
+        /// <remarks/>
+        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds, object userState) {
+            if ((this.GetRegionsOperationCompleted == null)) {
+                this.GetRegionsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRegionsOperationCompleted);
+            }
+            this.InvokeAsync("GetRegions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        regionIds}, this.GetRegionsOperationCompleted, userState);
+        }
+        
+        private void OnGetRegionsOperationCompleted(object arg) {
+            if ((this.GetRegionsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetRegionsCompleted(this, new GetRegionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupLanguages", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public LanguageObj[] GetGroupLanguages(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetGroupLanguages", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((LanguageObj[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword) {
+            this.GetGroupLanguagesAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetGroupLanguagesAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetGroupLanguagesOperationCompleted == null)) {
+                this.GetGroupLanguagesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupLanguagesOperationCompleted);
+            }
+            this.InvokeAsync("GetGroupLanguages", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetGroupLanguagesOperationCompleted, userState);
+        }
+        
+        private void OnGetGroupLanguagesOperationCompleted(object arg) {
+            if ((this.GetGroupLanguagesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetGroupLanguagesCompleted(this, new GetGroupLanguagesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ParentalRulesResponse GetParentalRules(string userName, string password) {
+            object[] results = this.Invoke("GetParentalRules", new object[] {
+                        userName,
+                        password});
+            return ((ParentalRulesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetParentalRulesAsync(string userName, string password) {
+            this.GetParentalRulesAsync(userName, password, null);
+        }
+        
+        /// <remarks/>
+        public void GetParentalRulesAsync(string userName, string password, object userState) {
+            if ((this.GetParentalRulesOperationCompleted == null)) {
+                this.GetParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetParentalRules", new object[] {
+                        userName,
+                        password}, this.GetParentalRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetParentalRulesOperationCompleted(object arg) {
+            if ((this.GetParentalRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetParentalRulesCompleted(this, new GetParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetDomainParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ParentalRulesResponse GetDomainParentalRules(string userName, string password, int domainId) {
+            object[] results = this.Invoke("GetDomainParentalRules", new object[] {
+                        userName,
+                        password,
+                        domainId});
+            return ((ParentalRulesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainParentalRulesAsync(string userName, string password, int domainId) {
+            this.GetDomainParentalRulesAsync(userName, password, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainParentalRulesAsync(string userName, string password, int domainId, object userState) {
+            if ((this.GetDomainParentalRulesOperationCompleted == null)) {
+                this.GetDomainParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainParentalRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainParentalRules", new object[] {
+                        userName,
+                        password,
+                        domainId}, this.GetDomainParentalRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainParentalRulesOperationCompleted(object arg) {
+            if ((this.GetDomainParentalRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainParentalRulesCompleted(this, new GetDomainParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ParentalRulesResponse GetUserParentalRules(string userName, string password, string siteGuid, int domainId) {
+            object[] results = this.Invoke("GetUserParentalRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        domainId});
+            return ((ParentalRulesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId) {
+            this.GetUserParentalRulesAsync(userName, password, siteGuid, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserParentalRulesAsync(string userName, string password, string siteGuid, int domainId, object userState) {
+            if ((this.GetUserParentalRulesOperationCompleted == null)) {
+                this.GetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserParentalRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetUserParentalRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        domainId}, this.GetUserParentalRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetUserParentalRulesOperationCompleted(object arg) {
+            if ((this.GetUserParentalRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserParentalRulesCompleted(this, new GetUserParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetUserParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetUserParentalRules(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
+            object[] results = this.Invoke("SetUserParentalRules", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        ruleId,
+                        isActive,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId) {
+            this.SetUserParentalRulesAsync(userName, webServicePassword, siteGuid, ruleId, isActive, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void SetUserParentalRulesAsync(string userName, string webServicePassword, string siteGuid, long ruleId, int isActive, int domainId, object userState) {
+            if ((this.SetUserParentalRulesOperationCompleted == null)) {
+                this.SetUserParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserParentalRulesOperationCompleted);
+            }
+            this.InvokeAsync("SetUserParentalRules", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        ruleId,
+                        isActive,
+                        domainId}, this.SetUserParentalRulesOperationCompleted, userState);
+        }
+        
+        private void OnSetUserParentalRulesOperationCompleted(object arg) {
+            if ((this.SetUserParentalRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetUserParentalRulesCompleted(this, new SetUserParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetDomainParentalRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetDomainParentalRules(string userName, string webServicePassword, int domainId, long ruleId, int isActive) {
+            object[] results = this.Invoke("SetDomainParentalRules", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId,
+                        ruleId,
+                        isActive});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDomainParentalRulesAsync(string userName, string webServicePassword, int domainId, long ruleId, int isActive) {
+            this.SetDomainParentalRulesAsync(userName, webServicePassword, domainId, ruleId, isActive, null);
+        }
+        
+        /// <remarks/>
+        public void SetDomainParentalRulesAsync(string userName, string webServicePassword, int domainId, long ruleId, int isActive, object userState) {
+            if ((this.SetDomainParentalRulesOperationCompleted == null)) {
+                this.SetDomainParentalRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainParentalRulesOperationCompleted);
+            }
+            this.InvokeAsync("SetDomainParentalRules", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId,
+                        ruleId,
+                        isActive}, this.SetDomainParentalRulesOperationCompleted, userState);
+        }
+        
+        private void OnSetDomainParentalRulesOperationCompleted(object arg) {
+            if ((this.SetDomainParentalRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDomainParentalRulesCompleted(this, new SetDomainParentalRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PinResponse GetParentalPIN(string userName, string password, int domainId, string siteGuid) {
+            object[] results = this.Invoke("GetParentalPIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid});
+            return ((PinResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetParentalPINAsync(string userName, string password, int domainId, string siteGuid) {
+            this.GetParentalPINAsync(userName, password, domainId, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetParentalPINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
+            if ((this.GetParentalPINOperationCompleted == null)) {
+                this.GetParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalPINOperationCompleted);
+            }
+            this.InvokeAsync("GetParentalPIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid}, this.GetParentalPINOperationCompleted, userState);
+        }
+        
+        private void OnGetParentalPINOperationCompleted(object arg) {
+            if ((this.GetParentalPINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetParentalPINCompleted(this, new GetParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetParentalPIN(string userName, string password, int domainId, string siteGuid, string pin) {
+            object[] results = this.Invoke("SetParentalPIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        pin});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetParentalPINAsync(string userName, string password, int domainId, string siteGuid, string pin) {
+            this.SetParentalPINAsync(userName, password, domainId, siteGuid, pin, null);
+        }
+        
+        /// <remarks/>
+        public void SetParentalPINAsync(string userName, string password, int domainId, string siteGuid, string pin, object userState) {
+            if ((this.SetParentalPINOperationCompleted == null)) {
+                this.SetParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetParentalPINOperationCompleted);
+            }
+            this.InvokeAsync("SetParentalPIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        pin}, this.SetParentalPINOperationCompleted, userState);
+        }
+        
+        private void OnSetParentalPINOperationCompleted(object arg) {
+            if ((this.SetParentalPINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetParentalPINCompleted(this, new SetParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchaseSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PurchaseSettingsResponse GetPurchaseSettings(string userName, string password, int domainId, string siteGuid) {
+            object[] results = this.Invoke("GetPurchaseSettings", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid});
+            return ((PurchaseSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid) {
+            this.GetPurchaseSettingsAsync(userName, password, domainId, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, object userState) {
+            if ((this.GetPurchaseSettingsOperationCompleted == null)) {
+                this.GetPurchaseSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchaseSettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetPurchaseSettings", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid}, this.GetPurchaseSettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetPurchaseSettingsOperationCompleted(object arg) {
+            if ((this.GetPurchaseSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPurchaseSettingsCompleted(this, new GetPurchaseSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetPurchaseSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPurchaseSettings(string userName, string password, int domainId, string siteGuid, int setting) {
+            object[] results = this.Invoke("SetPurchaseSettings", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        setting});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, int setting) {
+            this.SetPurchaseSettingsAsync(userName, password, domainId, siteGuid, setting, null);
+        }
+        
+        /// <remarks/>
+        public void SetPurchaseSettingsAsync(string userName, string password, int domainId, string siteGuid, int setting, object userState) {
+            if ((this.SetPurchaseSettingsOperationCompleted == null)) {
+                this.SetPurchaseSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPurchaseSettingsOperationCompleted);
+            }
+            this.InvokeAsync("SetPurchaseSettings", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        setting}, this.SetPurchaseSettingsOperationCompleted, userState);
+        }
+        
+        private void OnSetPurchaseSettingsOperationCompleted(object arg) {
+            if ((this.SetPurchaseSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPurchaseSettingsCompleted(this, new SetPurchaseSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PurchaseSettingsResponse GetPurchasePIN(string userName, string password, int domainId, string siteGuid) {
+            object[] results = this.Invoke("GetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid});
+            return ((PurchaseSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid) {
+            this.GetPurchasePINAsync(userName, password, domainId, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
+            if ((this.GetPurchasePINOperationCompleted == null)) {
+                this.GetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchasePINOperationCompleted);
+            }
+            this.InvokeAsync("GetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid}, this.GetPurchasePINOperationCompleted, userState);
+        }
+        
+        private void OnGetPurchasePINOperationCompleted(object arg) {
+            if ((this.GetPurchasePINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPurchasePINCompleted(this, new GetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPurchasePIN(string userName, string password, int domainId, string siteGuid, string pin) {
+            object[] results = this.Invoke("SetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        pin});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, string pin) {
+            this.SetPurchasePINAsync(userName, password, domainId, siteGuid, pin, null);
+        }
+        
+        /// <remarks/>
+        public void SetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, string pin, object userState) {
+            if ((this.SetPurchasePINOperationCompleted == null)) {
+                this.SetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPurchasePINOperationCompleted);
+            }
+            this.InvokeAsync("SetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid,
+                        pin}, this.SetPurchasePINOperationCompleted, userState);
+        }
+        
+        private void OnSetPurchasePINOperationCompleted(object arg) {
+            if ((this.SetPurchasePINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPurchasePINCompleted(this, new SetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidateParentalPIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ValidateParentalPIN(string userName, string password, string siteGuid, string pin, int domainId) {
+            object[] results = this.Invoke("ValidateParentalPIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
+            this.ValidateParentalPINAsync(userName, password, siteGuid, pin, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void ValidateParentalPINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
+            if ((this.ValidateParentalPINOperationCompleted == null)) {
+                this.ValidateParentalPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateParentalPINOperationCompleted);
+            }
+            this.InvokeAsync("ValidateParentalPIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId}, this.ValidateParentalPINOperationCompleted, userState);
+        }
+        
+        private void OnValidateParentalPINOperationCompleted(object arg) {
+            if ((this.ValidateParentalPINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ValidateParentalPINCompleted(this, new ValidateParentalPINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidatePurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin, int domainId) {
+            object[] results = this.Invoke("ValidatePurchasePIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
+            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
+            if ((this.ValidatePurchasePINOperationCompleted == null)) {
+                this.ValidatePurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidatePurchasePINOperationCompleted);
+            }
+            this.InvokeAsync("ValidatePurchasePIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId}, this.ValidatePurchasePINOperationCompleted, userState);
+        }
+        
+        private void OnValidatePurchasePINOperationCompleted(object arg) {
+            if ((this.ValidatePurchasePINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ValidatePurchasePINCompleted(this, new ValidatePurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3667,53 +3745,610 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject {
+    public partial class ParentalRulesResponse {
         
-        private string recordingIDField;
+        private Status statusField;
         
-        private bool isAssetProtectedField;
-        
-        private string channelNameField;
-        
-        private string recordSourceField;
+        private ParentalRule[] rulesField;
         
         /// <remarks/>
-        public string RecordingID {
+        public Status status {
             get {
-                return this.recordingIDField;
+                return this.statusField;
             }
             set {
-                this.recordingIDField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public bool IsAssetProtected {
+        public ParentalRule[] rules {
             get {
-                return this.isAssetProtectedField;
+                return this.rulesField;
             }
             set {
-                this.isAssetProtectedField = value;
+                this.rulesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
             }
         }
         
         /// <remarks/>
-        public string ChannelName {
+        public string Message {
             get {
-                return this.channelNameField;
+                return this.messageField;
             }
             set {
-                this.channelNameField = value;
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseSettingsResponse {
+        
+        private Status statusField;
+        
+        private System.Nullable<ePurchaeSettingsType> typeField;
+        
+        private string pinField;
+        
+        private System.Nullable<eRuleLevel> levelField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public string RecordSource {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<ePurchaeSettingsType> type {
             get {
-                return this.recordSourceField;
+                return this.typeField;
             }
             set {
-                this.recordSourceField = value;
+                this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string pin {
+            get {
+                return this.pinField;
+            }
+            set {
+                this.pinField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<eRuleLevel> level {
+            get {
+                return this.levelField;
+            }
+            set {
+                this.levelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum ePurchaeSettingsType {
+        
+        /// <remarks/>
+        Block,
+        
+        /// <remarks/>
+        Ask,
+        
+        /// <remarks/>
+        Allow,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eRuleLevel {
+        
+        /// <remarks/>
+        User,
+        
+        /// <remarks/>
+        Domain,
+        
+        /// <remarks/>
+        Group,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PinResponse {
+        
+        private Status statusField;
+        
+        private string pinField;
+        
+        private System.Nullable<eRuleLevel> levelField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string pin {
+            get {
+                return this.pinField;
+            }
+            set {
+                this.pinField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<eRuleLevel> level {
+            get {
+                return this.levelField;
+            }
+            set {
+                this.levelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class LanguageObj {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private string codeField;
+        
+        private string directionField;
+        
+        private bool isDefaultField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Direction {
+            get {
+                return this.directionField;
+            }
+            set {
+                this.directionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Region {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private string externalIdField;
+        
+        private bool isDefaultField;
+        
+        private KeyValuePair[] linearChannelsField;
+        
+        private int groupIdField;
+        
+        /// <remarks/>
+        public int id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string externalId {
+            get {
+                return this.externalIdField;
+            }
+            set {
+                this.externalIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool isDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public KeyValuePair[] linearChannels {
+            get {
+                return this.linearChannelsField;
+            }
+            set {
+                this.linearChannelsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int groupId {
+            get {
+                return this.groupIdField;
+            }
+            set {
+                this.groupIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class RegionsResponse {
+        
+        private Region[] regionsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Region[] Regions {
+            get {
+                return this.regionsField;
+            }
+            set {
+                this.regionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class MediaConcurrencyRule {
+        
+        private int ruleIDField;
+        
+        private string nameField;
+        
+        private int tagTypeIDField;
+        
+        private string tagTypeField;
+        
+        private string[] allTagValuesField;
+        
+        private int bmIdField;
+        
+        private bool isActiveField;
+        
+        /// <remarks/>
+        public int RuleID {
+            get {
+                return this.ruleIDField;
+            }
+            set {
+                this.ruleIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TagTypeID {
+            get {
+                return this.tagTypeIDField;
+            }
+            set {
+                this.tagTypeIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string TagType {
+            get {
+                return this.tagTypeField;
+            }
+            set {
+                this.tagTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] AllTagValues {
+            get {
+                return this.allTagValuesField;
+            }
+            set {
+                this.allTagValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int bmId {
+            get {
+                return this.bmIdField;
+            }
+            set {
+                this.bmIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EpgPicture {
+        
+        private int picWidthField;
+        
+        private int picHeightField;
+        
+        private string ratioField;
+        
+        private int picIDField;
+        
+        private string urlField;
+        
+        /// <remarks/>
+        public int PicWidth {
+            get {
+                return this.picWidthField;
+            }
+            set {
+                this.picWidthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicHeight {
+            get {
+                return this.picHeightField;
+            }
+            set {
+                this.picHeightField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Ratio {
+            get {
+                return this.ratioField;
+            }
+            set {
+                this.ratioField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicID {
+            get {
+                return this.picIDField;
+            }
+            set {
+                this.picIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Url {
+            get {
+                return this.urlField;
+            }
+            set {
+                this.urlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class EPGDictionary {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string Key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
             }
         }
     }
@@ -3976,29 +4611,53 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class EPGDictionary {
+    public partial class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject {
         
-        private string keyField;
+        private string recordingIDField;
         
-        private string valueField;
+        private bool isAssetProtectedField;
+        
+        private string channelNameField;
+        
+        private string recordSourceField;
         
         /// <remarks/>
-        public string Key {
+        public string RecordingID {
             get {
-                return this.keyField;
+                return this.recordingIDField;
             }
             set {
-                this.keyField = value;
+                this.recordingIDField = value;
             }
         }
         
         /// <remarks/>
-        public string Value {
+        public bool IsAssetProtected {
             get {
-                return this.valueField;
+                return this.isAssetProtectedField;
             }
             set {
-                this.valueField = value;
+                this.isAssetProtectedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ChannelName {
+            get {
+                return this.channelNameField;
+            }
+            set {
+                this.channelNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string RecordSource {
+            get {
+                return this.recordSourceField;
+            }
+            set {
+                this.recordSourceField = value;
             }
         }
     }
@@ -4396,39 +5055,6 @@ namespace WebAPI.Api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum eOperatorType {
         
@@ -4590,6 +5216,185 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class GroupRule {
+        
+        private int ruleIDField;
+        
+        private string nameField;
+        
+        private int tagTypeIDField;
+        
+        private string dynamicDataKeyField;
+        
+        private string tagValueField;
+        
+        private string[] allTagValuesField;
+        
+        private bool isActiveField;
+        
+        private eBlockType blockTypeField;
+        
+        private eGroupRuleType groupRuleTypeField;
+        
+        private bool blockAnonymousField;
+        
+        /// <remarks/>
+        public int RuleID {
+            get {
+                return this.ruleIDField;
+            }
+            set {
+                this.ruleIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TagTypeID {
+            get {
+                return this.tagTypeIDField;
+            }
+            set {
+                this.tagTypeIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DynamicDataKey {
+            get {
+                return this.dynamicDataKeyField;
+            }
+            set {
+                this.dynamicDataKeyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string TagValue {
+            get {
+                return this.tagValueField;
+            }
+            set {
+                this.tagValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] AllTagValues {
+            get {
+                return this.allTagValuesField;
+            }
+            set {
+                this.allTagValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eBlockType BlockType {
+            get {
+                return this.blockTypeField;
+            }
+            set {
+                this.blockTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eGroupRuleType GroupRuleType {
+            get {
+                return this.groupRuleTypeField;
+            }
+            set {
+                this.groupRuleTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool BlockAnonymous {
+            get {
+                return this.blockAnonymousField;
+            }
+            set {
+                this.blockAnonymousField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBlockType {
+        
+        /// <remarks/>
+        Allowed,
+        
+        /// <remarks/>
+        Validation,
+        
+        /// <remarks/>
+        AgeBlock,
+        
+        /// <remarks/>
+        Geo,
+        
+        /// <remarks/>
+        Device,
+        
+        /// <remarks/>
+        UserType,
+        
+        /// <remarks/>
+        AnonymousAccessBlock,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eGroupRuleType {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        Parental,
+        
+        /// <remarks/>
+        Purchase,
+        
+        /// <remarks/>
+        Device,
+        
+        /// <remarks/>
+        EPG,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class TagPair {
         
         private string keyField;
@@ -4618,10 +5423,10 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
@@ -4808,63 +5613,6 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         AddDeviceToDomain,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddDeviceMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sMasterUsernameField;
-        
-        private string m_sNewDeviceUdidField;
-        
-        private string m_sNewDeviceNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sMasterUsername {
-            get {
-                return this.m_sMasterUsernameField;
-            }
-            set {
-                this.m_sMasterUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewDeviceUdid {
-            get {
-                return this.m_sNewDeviceUdidField;
-            }
-            set {
-                this.m_sNewDeviceUdidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewDeviceName {
-            get {
-                return this.m_sNewDeviceNameField;
-            }
-            set {
-                this.m_sNewDeviceNameField = value;
-            }
-        }
     }
     
     /// <remarks/>
@@ -5070,6 +5818,63 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sTokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class AddDeviceMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sMasterUsernameField;
+        
+        private string m_sNewDeviceUdidField;
+        
+        private string m_sNewDeviceNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sMasterUsername {
+            get {
+                return this.m_sMasterUsernameField;
+            }
+            set {
+                this.m_sMasterUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewDeviceUdid {
+            get {
+                return this.m_sNewDeviceUdidField;
+            }
+            set {
+                this.m_sNewDeviceUdidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewDeviceName {
+            get {
+                return this.m_sNewDeviceNameField;
+            }
+            set {
+                this.m_sNewDeviceNameField = value;
             }
         }
     }
@@ -8406,176 +9211,6 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseSettingsResponse {
-        
-        private Status statusField;
-        
-        private System.Nullable<ePurchaeSettingsType> typeField;
-        
-        private string pinField;
-        
-        private System.Nullable<eRuleLevel> levelField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<ePurchaeSettingsType> type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string pin {
-            get {
-                return this.pinField;
-            }
-            set {
-                this.pinField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<eRuleLevel> level {
-            get {
-                return this.levelField;
-            }
-            set {
-                this.levelField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum ePurchaeSettingsType {
-        
-        /// <remarks/>
-        Block,
-        
-        /// <remarks/>
-        Ask,
-        
-        /// <remarks/>
-        Allow,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eRuleLevel {
-        
-        /// <remarks/>
-        User,
-        
-        /// <remarks/>
-        Domain,
-        
-        /// <remarks/>
-        Group,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PinResponse {
-        
-        private Status statusField;
-        
-        private string pinField;
-        
-        private System.Nullable<eRuleLevel> levelField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string pin {
-            get {
-                return this.pinField;
-            }
-            set {
-                this.pinField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<eRuleLevel> level {
-            get {
-                return this.levelField;
-            }
-            set {
-                this.levelField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ParentalRule {
         
         private long idField;
@@ -8742,576 +9377,6 @@ namespace WebAPI.Api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ParentalRulesResponse {
-        
-        private Status statusField;
-        
-        private ParentalRule[] rulesField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ParentalRule[] rules {
-            get {
-                return this.rulesField;
-            }
-            set {
-                this.rulesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class LanguageObj {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        private string codeField;
-        
-        private string directionField;
-        
-        private bool isDefaultField;
-        
-        /// <remarks/>
-        public int ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Direction {
-            get {
-                return this.directionField;
-            }
-            set {
-                this.directionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Region {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        private string externalIdField;
-        
-        private bool isDefaultField;
-        
-        private KeyValuePair[] linearChannelsField;
-        
-        private int groupIdField;
-        
-        /// <remarks/>
-        public int id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string externalId {
-            get {
-                return this.externalIdField;
-            }
-            set {
-                this.externalIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool isDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public KeyValuePair[] linearChannels {
-            get {
-                return this.linearChannelsField;
-            }
-            set {
-                this.linearChannelsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int groupId {
-            get {
-                return this.groupIdField;
-            }
-            set {
-                this.groupIdField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class RegionsResponse {
-        
-        private Region[] regionsField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public Region[] Regions {
-            get {
-                return this.regionsField;
-            }
-            set {
-                this.regionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class MediaConcurrencyRule {
-        
-        private int ruleIDField;
-        
-        private string nameField;
-        
-        private int tagTypeIDField;
-        
-        private string tagTypeField;
-        
-        private string[] allTagValuesField;
-        
-        private int bmIdField;
-        
-        private bool isActiveField;
-        
-        /// <remarks/>
-        public int RuleID {
-            get {
-                return this.ruleIDField;
-            }
-            set {
-                this.ruleIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TagTypeID {
-            get {
-                return this.tagTypeIDField;
-            }
-            set {
-                this.tagTypeIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string TagType {
-            get {
-                return this.tagTypeField;
-            }
-            set {
-                this.tagTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] AllTagValues {
-            get {
-                return this.allTagValuesField;
-            }
-            set {
-                this.allTagValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int bmId {
-            get {
-                return this.bmIdField;
-            }
-            set {
-                this.bmIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class GroupRule {
-        
-        private int ruleIDField;
-        
-        private string nameField;
-        
-        private int tagTypeIDField;
-        
-        private string dynamicDataKeyField;
-        
-        private string tagValueField;
-        
-        private string[] allTagValuesField;
-        
-        private bool isActiveField;
-        
-        private eBlockType blockTypeField;
-        
-        private eGroupRuleType groupRuleTypeField;
-        
-        private bool blockAnonymousField;
-        
-        /// <remarks/>
-        public int RuleID {
-            get {
-                return this.ruleIDField;
-            }
-            set {
-                this.ruleIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TagTypeID {
-            get {
-                return this.tagTypeIDField;
-            }
-            set {
-                this.tagTypeIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DynamicDataKey {
-            get {
-                return this.dynamicDataKeyField;
-            }
-            set {
-                this.dynamicDataKeyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string TagValue {
-            get {
-                return this.tagValueField;
-            }
-            set {
-                this.tagValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] AllTagValues {
-            get {
-                return this.allTagValuesField;
-            }
-            set {
-                this.allTagValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eBlockType BlockType {
-            get {
-                return this.blockTypeField;
-            }
-            set {
-                this.blockTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eGroupRuleType GroupRuleType {
-            get {
-                return this.groupRuleTypeField;
-            }
-            set {
-                this.groupRuleTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool BlockAnonymous {
-            get {
-                return this.blockAnonymousField;
-            }
-            set {
-                this.blockAnonymousField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eBlockType {
-        
-        /// <remarks/>
-        Allowed,
-        
-        /// <remarks/>
-        Validation,
-        
-        /// <remarks/>
-        AgeBlock,
-        
-        /// <remarks/>
-        Geo,
-        
-        /// <remarks/>
-        Device,
-        
-        /// <remarks/>
-        UserType,
-        
-        /// <remarks/>
-        AnonymousAccessBlock,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eGroupRuleType {
-        
-        /// <remarks/>
-        Unknown,
-        
-        /// <remarks/>
-        Parental,
-        
-        /// <remarks/>
-        Purchase,
-        
-        /// <remarks/>
-        Device,
-        
-        /// <remarks/>
-        EPG,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class EpgPicture {
-        
-        private int picWidthField;
-        
-        private int picHeightField;
-        
-        private string ratioField;
-        
-        private int picIDField;
-        
-        private string urlField;
-        
-        /// <remarks/>
-        public int PicWidth {
-            get {
-                return this.picWidthField;
-            }
-            set {
-                this.picWidthField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PicHeight {
-            get {
-                return this.picHeightField;
-            }
-            set {
-                this.picHeightField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Ratio {
-            get {
-                return this.ratioField;
-            }
-            set {
-                this.ratioField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PicID {
-            get {
-                return this.picIDField;
-            }
-            set {
-                this.picIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eBusinessModule {
-        
-        /// <remarks/>
-        PPV,
-        
-        /// <remarks/>
-        Subscription,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum UserStatus {
         
@@ -9376,575 +9441,16 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetNpvrRulesCompletedEventHandler(object sender, GetNpvrRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetNpvrRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetNpvrRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBusinessModule {
         
         /// <remarks/>
-        public GroupRule[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((GroupRule[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void ChannelsContainingMediaCompletedEventHandler(object sender, ChannelsContainingMediaCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ChannelsContainingMediaCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal ChannelsContainingMediaCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
+        PPV,
         
         /// <remarks/>
-        public int[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((int[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetSubscriptionMediaIdsCompletedEventHandler(object sender, GetSubscriptionMediaIdsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetSubscriptionMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetSubscriptionMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public int[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((int[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetCollectionMediaIdsCompletedEventHandler(object sender, GetCollectionMediaIdsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetCollectionMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetCollectionMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public int[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((int[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetMediaChannelsCompletedEventHandler(object sender, GetMediaChannelsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetMediaChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetMediaChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public int[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((int[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetProgramDetailsCompletedEventHandler(object sender, GetProgramDetailsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetProgramDetailsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetProgramDetailsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public EPGChannelProgrammeObject Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((EPGChannelProgrammeObject)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetMediaConcurrencyRulesCompletedEventHandler(object sender, GetMediaConcurrencyRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetMediaConcurrencyRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetMediaConcurrencyRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public MediaConcurrencyRule[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((MediaConcurrencyRule[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetRegionsCompletedEventHandler(object sender, GetRegionsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetRegionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetRegionsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public RegionsResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((RegionsResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetGroupLanguagesCompletedEventHandler(object sender, GetGroupLanguagesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetGroupLanguagesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetGroupLanguagesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public LanguageObj[] Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((LanguageObj[])(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetParentalRulesCompletedEventHandler(object sender, GetParentalRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ParentalRulesResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ParentalRulesResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetDomainParentalRulesCompletedEventHandler(object sender, GetDomainParentalRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDomainParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetDomainParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ParentalRulesResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ParentalRulesResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetUserParentalRulesCompletedEventHandler(object sender, GetUserParentalRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetUserParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetUserParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ParentalRulesResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ParentalRulesResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SetUserParentalRulesCompletedEventHandler(object sender, SetUserParentalRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetUserParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetUserParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SetDomainParentalRulesCompletedEventHandler(object sender, SetDomainParentalRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetDomainParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetDomainParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetParentalPINCompletedEventHandler(object sender, GetParentalPINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public PinResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((PinResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SetParentalPINCompletedEventHandler(object sender, SetParentalPINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetPurchaseSettingsCompletedEventHandler(object sender, GetPurchaseSettingsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetPurchaseSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetPurchaseSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public PurchaseSettingsResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((PurchaseSettingsResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SetPurchaseSettingsCompletedEventHandler(object sender, SetPurchaseSettingsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetPurchaseSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetPurchaseSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetPurchasePINCompletedEventHandler(object sender, GetPurchasePINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public PurchaseSettingsResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((PurchaseSettingsResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SetPurchasePINCompletedEventHandler(object sender, SetPurchasePINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void ValidateParentalPINCompletedEventHandler(object sender, ValidateParentalPINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ValidateParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal ValidateParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void ValidatePurchasePINCompletedEventHandler(object sender, ValidatePurchasePINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ValidatePurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal ValidatePurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
+        Subscription,
     }
     
     /// <remarks/>
@@ -9995,6 +9501,58 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DisableUserDefaultParentalRuleCompletedEventHandler(object sender, DisableUserDefaultParentalRuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DisableUserDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DisableUserDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DisableDomainDefaultParentalRuleCompletedEventHandler(object sender, DisableDomainDefaultParentalRuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DisableDomainDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DisableDomainDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -11665,6 +11223,578 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((GroupRule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetNpvrRulesCompletedEventHandler(object sender, GetNpvrRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetNpvrRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetNpvrRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public GroupRule[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((GroupRule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ChannelsContainingMediaCompletedEventHandler(object sender, ChannelsContainingMediaCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ChannelsContainingMediaCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ChannelsContainingMediaCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetSubscriptionMediaIdsCompletedEventHandler(object sender, GetSubscriptionMediaIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetSubscriptionMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetSubscriptionMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetCollectionMediaIdsCompletedEventHandler(object sender, GetCollectionMediaIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCollectionMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCollectionMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetMediaChannelsCompletedEventHandler(object sender, GetMediaChannelsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetMediaChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetMediaChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetProgramDetailsCompletedEventHandler(object sender, GetProgramDetailsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetProgramDetailsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetProgramDetailsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public EPGChannelProgrammeObject Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((EPGChannelProgrammeObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetMediaConcurrencyRulesCompletedEventHandler(object sender, GetMediaConcurrencyRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetMediaConcurrencyRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetMediaConcurrencyRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public MediaConcurrencyRule[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((MediaConcurrencyRule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetRegionsCompletedEventHandler(object sender, GetRegionsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetRegionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetRegionsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RegionsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RegionsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetGroupLanguagesCompletedEventHandler(object sender, GetGroupLanguagesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetGroupLanguagesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetGroupLanguagesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public LanguageObj[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((LanguageObj[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetParentalRulesCompletedEventHandler(object sender, GetParentalRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ParentalRulesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetDomainParentalRulesCompletedEventHandler(object sender, GetDomainParentalRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ParentalRulesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUserParentalRulesCompletedEventHandler(object sender, GetUserParentalRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ParentalRulesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetUserParentalRulesCompletedEventHandler(object sender, SetUserParentalRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetUserParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetUserParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetDomainParentalRulesCompletedEventHandler(object sender, SetDomainParentalRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDomainParentalRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDomainParentalRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetParentalPINCompletedEventHandler(object sender, GetParentalPINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PinResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PinResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetParentalPINCompletedEventHandler(object sender, SetParentalPINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPurchaseSettingsCompletedEventHandler(object sender, GetPurchaseSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPurchaseSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPurchaseSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PurchaseSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PurchaseSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPurchaseSettingsCompletedEventHandler(object sender, SetPurchaseSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPurchaseSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPurchaseSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPurchasePINCompletedEventHandler(object sender, GetPurchasePINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PurchaseSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PurchaseSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPurchasePINCompletedEventHandler(object sender, SetPurchasePINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ValidateParentalPINCompletedEventHandler(object sender, ValidateParentalPINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ValidateParentalPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ValidateParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ValidatePurchasePINCompletedEventHandler(object sender, ValidatePurchasePINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ValidatePurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ValidatePurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }
