@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2E48DC40-A9AB-485D-A847-8E3662C69696}</ProjectGuid>
+    <ProjectGuid>{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceExtensions</RootNamespace>
-    <AssemblyName>ServiceExtensions</AssemblyName>
+    <RootNamespace>KlogMonitorHelper</RootNamespace>
+    <AssemblyName>KlogMonitorHelper</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -30,51 +30,33 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <OutputPath>bin\Local\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="KLogMonitor">
       <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoggerWCFDispatcher.cs" />
-    <Compile Include="MessageBehaviourExtension.cs" />
-    <Compile Include="MessageInspector.cs" />
-    <Compile Include="WSExtension.cs" />
+    <Compile Include="MonitorLogsHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj">
-      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
-      <Name>KlogMonitorHelper</Name>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
-      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
-      <Name>TVinciShared</Name>
+    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

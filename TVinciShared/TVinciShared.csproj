@@ -126,7 +126,6 @@
     <Compile Include="LoginManager.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="Menu.cs" />
-    <Compile Include="MonitorLogsHelper.cs" />
     <Compile Include="Notifier.cs" />
     <Compile Include="ObjectCopier.cs" />
     <Compile Include="PageUtils.cs" />

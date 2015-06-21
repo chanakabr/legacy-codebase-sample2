@@ -13,6 +13,8 @@ using TVinciShared;
 using System.Xml;
 using System.ServiceModel.Web;
 using System.Net;
+using KlogMonitorHelper;
+
 namespace ServiceExtensions
 {
     public class MessageInspector : IDispatchMessageInspector

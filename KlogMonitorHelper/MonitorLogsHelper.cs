@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
+using ApiObjects;
 using KLogMonitor;
 
-namespace TVinciShared
+namespace KlogMonitorHelper
 {
     public class MonitorLogsHelper
     {
@@ -48,11 +47,11 @@ namespace TVinciShared
             return null;
         }
 
-        public static void InitMonitorLogsDataWS(string requestString, string wsName)
+        public static void InitMonitorLogsDataWS(eWSModules module, string requestString)
         {
             if (!string.IsNullOrEmpty(requestString))
             {
-            
+
 
                 // get request ID
                 HttpContext.Current.Items.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
@@ -84,10 +83,7 @@ namespace TVinciShared
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
                     XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
                     if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
-                    {
-                        if (!string.IsNullOrEmpty(wsName))
-                            HttpContext.Current.Items.Add(Constants.GROUP_ID, WS_Utils.GetGroupID(wsName, xmlUserName[0].InnerText, xmlPassword[0].InnerText));
-                    }
+                        HttpContext.Current.Items.Add(Constants.GROUP_ID, GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText));
                 }
                 catch (Exception ex)
                 {
@@ -181,6 +177,20 @@ namespace TVinciShared
             {
                 // ignore exception
             }
+        }
+
+        static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
+        {
+            try
+            {
+                Credentials wsc = new Credentials(sWSUserName, sWSPassword);
+                return TvinciCache.WSCredentials.GetGroupID(module, wsc);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get groupId", ex);
+            }
+            return 0;
         }
     }
 }
