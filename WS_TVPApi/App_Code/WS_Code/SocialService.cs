@@ -198,7 +198,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets FB user data")]
-        [PrivateMethod]
         public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass,
