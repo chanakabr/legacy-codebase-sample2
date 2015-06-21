@@ -653,6 +653,7 @@ namespace TVPApiServices
                 // Tokenization: validate siteGuid
                 if (AuthorizationManager.IsTokenizationEnabled() && initObj.SiteGuid != sSiteGuid)
                 {
+                    AuthorizationManager.Instance.returnError(403);
                     return ChangeSubscriptionStatus.Error;
                 }
                 try
@@ -915,6 +916,7 @@ namespace TVPApiServices
                 // Tokenization: validate if siteGuid is the same as in initObj
                 if (AuthorizationManager.IsTokenizationEnabled() && initObj.SiteGuid != siteGuid)
                 {
+                    AuthorizationManager.Instance.returnError(403);
                     return false;
                 }
                 try

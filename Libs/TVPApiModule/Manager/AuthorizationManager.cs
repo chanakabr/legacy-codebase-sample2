@@ -416,6 +416,11 @@ namespace TVPApiModule.Manager
             return true;
         }
 
+        public void returnError(int statusCode)
+        {
+            returnError(statusCode);
+        }
+
         public void returnError(int statusCode, string description = null)
         {
             HttpContext.Current.Items["StatusCode"] = statusCode;
