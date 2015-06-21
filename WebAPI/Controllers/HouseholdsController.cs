@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
         /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromBody] string pin)
+        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
         {
             bool success = false;
 
@@ -260,7 +260,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
         /// <returns>The PIN that applies for the household</returns>
-        [Route("{household_id}/purchase/pin/"), HttpGet]
+        [Route("{household_id}/purchase/pin"), HttpGet]
         public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
         {
             PinResponse pinResponse = null;
@@ -601,7 +601,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household<br/>
         /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// Household not initialized = 1023, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
+        /// Household not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
@@ -623,43 +623,104 @@ namespace WebAPI.Controllers
             }
             catch (ClientException ex)
             {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Adds a user to household<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="master_user_id">Identifier of household master</param>
+        /// <param name="is_master">True if the new user should be set to be master</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/users/{user_id}"), HttpPost]
+        public bool AddUserToHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master = false)
+        {
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, master_user_id, is_master);
+            }
+            catch (ClientException ex)
+            {
                 ErrorUtils.HandleClientException(ex);
             }
 
             return true;
         }
 
-        ///// <summary>
-        ///// Adds a user to household<br/>
-        ///// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        ///// Household not initialized = 1023, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
-        ///// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
-        ///// </summary>        
-        ///// <param name="partner_id">Partner identifier</param>
-        ///// <param name="household_id">Household identifier</param>
-        ///// <param name="user_id">User identifier</param>
-        ///// <param name="master_user_id">Identifier of household master</param>
-        ///// <param name="is_master">True if the new user should be set to be master</param>
-        ///// <remarks></remarks>
-        ///// <response code="200">OK</response>
-        ///// <response code="400">Bad request</response>
-        ///// <response code="500">Internal Server Error</response>
-        //[Route("{household_id}/users/{user_id}"), HttpPost]
-        //public bool AddUserToHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master)
-        //{
-        //    int groupId = int.Parse(partner_id);
+        /// <summary>
+        /// Removes a device from household<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="udid">device UDID</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/devices/{udid}"), HttpDelete]
+        public bool RemoveDeviceFromHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string udid)
+        {
+            int groupId = int.Parse(partner_id);
 
-        //    try
-        //    {
-        //        // call client
-        //        return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, master_user_id, is_master);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
-        //    }
+            try
+            {
+                // call client
+                return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, household_id, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+            }
 
-        //    return true;
-        //}
+            return true;
+        }
+
+        /// <summary>
+        /// Registers a device to a household using pin code<br/>
+        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
+        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="device_name">Device name</param>
+        /// <param name="pin">Pin code</param>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="500">Internal Server Error</response>
+        [Route("{household_id}/devices/pin"), HttpPost]
+        public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
+        {
+            Device device = null;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, household_id, device_name, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex, null, new List<int>() { 1006 });
+            }
+            return device;
+        }
     }
 }

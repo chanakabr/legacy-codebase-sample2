@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     public class WatchHistory : BaseAssetsRequest
     {
         /// <summary>
-        /// List of asset types to search within.
+        /// List of asset types to search within. The list is a string separated be comma.
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.
         /// </summary>
