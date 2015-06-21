@@ -748,6 +748,8 @@ namespace Catalog
 
                 if (group != null)
                 {
+                    Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
+
                     Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
                     nodes.Enqueue(request.filterTree);
 
@@ -764,87 +766,118 @@ namespace Catalog
                             bool isTagOrMeta;
                             // Add prefix (meta/tag) e.g. metas.{key}
 
-                            string searchKey = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
-                            leaf.field = searchKey;
+                            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
 
-                            string searchKeyLowered = searchKey.ToLower();
-
-                            // Default - string, until proved otherwise
-                            leaf.valueType = typeof(string);
-
-                            // If this is a tag or a meta, we can continue happily.
-                            // If not, we check if it is one of the "core" fields.
-                            // If it is not one of them, an exception will be thrown
-                            if (!isTagOrMeta)
+                            if (searchKeys.Count > 1)
                             {
-                                // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                                if (searchKeyLowered == "start_date")
+                                if (isTagOrMeta)
                                 {
-                                    definitions.defaultStartDate = false;
-                                    leaf.valueType = typeof(DateTime);
+                                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
 
-                                    long epoch = Convert.ToInt64(leaf.value);
+                                    // Split the single leaf into several brothers connected with an "or" operand
+                                    foreach (var searchKey in searchKeys)
+                                    {
+                                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
+                                    }
 
-                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                                }
-                                else if (searchKeyLowered == "end_date")
-                                {
-                                    definitions.defaultEndDate = false;
-                                    leaf.valueType = typeof(DateTime);
+                                    BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
 
-                                    long epoch = Convert.ToInt64(leaf.value);
-
-                                    leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-                                }
-                                else if (reservedNumericFields.Contains(searchKeyLowered))
-                                {
-                                    leaf.valueType = typeof(long);
-                                }
-                                else if (!reservedStringFields.Contains(searchKeyLowered))
-                                {
-                                    var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", searchKey));
-                                    exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
-                                    throw exception;
+                                    // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+                                    if (parentMapping.ContainsKey(leaf))
+                                    {
+                                        parentMapping[leaf].nodes.Remove(leaf);
+                                        parentMapping[leaf].nodes.Add(newPhrase);
+                                    }
+                                    else
+                                    // If it doesn't exist in the mapping, it's probably the root
+                                    {
+                                        request.filterTree = newPhrase;
+                                    }
                                 }
                             }
-
-                            #region IN operator
-
-                            // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
-                            if (leaf.operand == ComparisonOperator.In)
+                            else if (searchKeys.Count == 1)
                             {
-                                leaf.valueType = typeof(List<string>);
-                                string value = leaf.value.ToString().ToLower();
+                                string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
+                                string originalKey = leaf.field;
 
-                                string[] values = value.Split(',');
+                                // Default - string, until proved otherwise
+                                leaf.valueType = typeof(string);
 
-                                // If there are 
-                                if (values.Length == 0)
+                                // If this is a tag or a meta, we can continue happily.
+                                // If not, we check if it is one of the "core" fields.
+                                // If it is not one of them, an exception will be thrown
+                                if (!isTagOrMeta)
                                 {
-                                    var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
-                                    exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                    throw exception;
-                                }
-
-                                foreach (var single in values)
-                                {
-                                    int temporaryInteger;
-
-                                    if (!int.TryParse(single, out temporaryInteger))
+                                    // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                                    if (searchKeyLowered == "start_date")
                                     {
-                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", searchKey));
-                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                        definitions.defaultStartDate = false;
+                                        leaf.valueType = typeof(DateTime);
+
+                                        long epoch = Convert.ToInt64(leaf.value);
+
+                                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                    }
+                                    else if (searchKeyLowered == "end_date")
+                                    {
+                                        definitions.defaultEndDate = false;
+                                        leaf.valueType = typeof(DateTime);
+
+                                        long epoch = Convert.ToInt64(leaf.value);
+
+                                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                    }
+                                    else if (reservedNumericFields.Contains(searchKeyLowered))
+                                    {
+                                        leaf.valueType = typeof(long);
+                                    }
+                                    else if (!reservedStringFields.Contains(searchKeyLowered))
+                                    {
+                                        var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", originalKey));
+                                        exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
                                         throw exception;
                                     }
                                 }
-                                
 
-                                // Put new list of strings in boolean leaf
-                                leaf.value = values.ToList();
-                            } 
+                                leaf.field = searchKeys.FirstOrDefault();
 
-                            #endregion
+                                #region IN operator
 
+                                // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
+                                if (leaf.operand == ComparisonOperator.In)
+                                {
+                                    leaf.valueType = typeof(List<string>);
+                                    string value = leaf.value.ToString().ToLower();
+
+                                    string[] values = value.Split(',');
+
+                                    // If there are 
+                                    if (values.Length == 0)
+                                    {
+                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
+                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                        throw exception;
+                                    }
+
+                                    foreach (var single in values)
+                                    {
+                                        int temporaryInteger;
+
+                                        if (!int.TryParse(single, out temporaryInteger))
+                                        {
+                                            var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
+                                            exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
+                                            throw exception;
+                                        }
+                                    }
+
+                                    // Put new list of strings in boolean leaf
+                                    leaf.value = values.ToList();
+                                }
+
+                                #endregion
+
+                            }
                         }
                         else if (node.type == BooleanNodeType.Parent)
                         {
@@ -854,6 +887,7 @@ namespace Catalog
                             foreach (var childNode in phrase.nodes)
                             {
                                 nodes.Enqueue(childNode);
+                                parentMapping.Add(childNode, phrase);
                             }
                         }
                     }
@@ -959,67 +993,68 @@ namespace Catalog
             return definitions;
         }
 
+        /// <summary>
         /// Verifies that the search key is a tag or a meta of either EPG or media
         /// </summary>
         /// <param name="originalKey"></param>
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        private static string GetUnifiedSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+        private static HashSet<string> GetUnifiedSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
         {
             isTagOrMeta = false;
 
-            string searchKey = originalKey.ToLower();
+            HashSet<string> searchKeys = new HashSet<string>();
 
             foreach (string tag in group.m_oGroupTags.Values)
             {
                 if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
                     isTagOrMeta = true;
+
+                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                    break;
+                }
+            }
+
+            var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+            foreach (var meta in metas)
+            {
+                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    isTagOrMeta = true;
+                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                    break;
+                }
+            }
+
+            foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+            {
+                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    isTagOrMeta = true;
+                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                    break;
+                }
+            }
+
+            foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+            {
+                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    isTagOrMeta = true;
+                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
                     break;
                 }
             }
 
             if (!isTagOrMeta)
             {
-                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
-                foreach (var meta in metas)
-                {
-                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isTagOrMeta = true;
-                        break;
-                    }
-                }
-
+                searchKeys.Add(originalKey.ToLower());
             }
 
-            if (!isTagOrMeta)
-            {
-                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
-                {
-                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isTagOrMeta = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!isTagOrMeta)
-            {
-                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
-                {
-                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isTagOrMeta = true;
-                        break;
-                    }
-                }
-            }
-
-            return searchKey;
+            return searchKeys;
         }
 
         /// <summary>
