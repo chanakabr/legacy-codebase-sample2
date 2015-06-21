@@ -235,6 +235,21 @@ namespace ElasticSearch.Common
 
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty()
+                {
+                    name = "autocomplete",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    analyzed = true,
+                    search_analyzer = autocompleteSearchAnalyzer,
+                    index_analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
             mappingObj.AddProperty(descProperty);
 
             #endregion
@@ -255,6 +270,20 @@ namespace ElasticSearch.Common
                         MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty() { name = sTagName };
                         multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = sTagName, type = ElasticSearch.Common.eESFieldType.STRING, null_value = string.Empty, analyzed = false });
                         multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+
+                        if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                        {
+                            multiField.fields.Add(new ElasticSearch.Common.BasicMappingProperty()
+                            {
+                                name = "autocomplete",
+                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                null_value = "",
+                                analyzed = true,
+                                search_analyzer = autocompleteSearchAnalyzer,
+                                index_analyzer = autocompleteIndexAnalyzer
+                            });
+                        }
+
                         tags.AddProperty(multiField);
                     }
                 }
@@ -283,6 +312,20 @@ namespace ElasticSearch.Common
                                 MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty() { name = sMetaName };
                                 multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = sMetaName, type = eMetaType, null_value = sNullValue, analyzed = false });
                                 multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+
+                                if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                                {
+                                    multiField.fields.Add(new ElasticSearch.Common.BasicMappingProperty()
+                                    {
+                                        name = "autocomplete",
+                                        type = ElasticSearch.Common.eESFieldType.STRING,
+                                        null_value = "",
+                                        analyzed = true,
+                                        search_analyzer = autocompleteSearchAnalyzer,
+                                        index_analyzer = autocompleteIndexAnalyzer
+                                    });
+                                }
+
                                 metas.AddProperty(multiField);
                             }
                         }
@@ -431,6 +474,20 @@ namespace ElasticSearch.Common
                 search_analyzer = searchAnalyzer,
                 index_analyzer = indexAnalyzer
             });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                {
+                    name = "description.autucomplete",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    analyzed = true,
+                    search_analyzer = autocompleteSearchAnalyzer,
+                    index_analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
             mappingObj.AddProperty(new BasicMappingProperty()
             {
                 name = "cache_date",
@@ -472,6 +529,18 @@ namespace ElasticSearch.Common
                         index_analyzer = indexAnalyzer
                     });
 
+                    if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                    {
+                        tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                        {
+                            name = string.Format("{0}.autucomplete", sTagName.ToLower()),
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            analyzed = true,
+                            search_analyzer = autocompleteSearchAnalyzer,
+                            index_analyzer = autocompleteIndexAnalyzer
+                        });
+                    }
                 }
             }
             #endregion
@@ -502,6 +571,19 @@ namespace ElasticSearch.Common
                         search_analyzer = searchAnalyzer,
                         index_analyzer = indexAnalyzer
                     });
+
+                    if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                    {
+                        metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
+                        {
+                            name = string.Format("{0}.autucomplete", sMetaName.ToLower()),
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            analyzed = true,
+                            search_analyzer = autocompleteSearchAnalyzer,
+                            index_analyzer = autocompleteIndexAnalyzer
+                        });
+                    }
                 }
             }
 
