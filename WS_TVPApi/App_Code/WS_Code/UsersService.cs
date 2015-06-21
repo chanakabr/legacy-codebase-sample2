@@ -240,8 +240,6 @@ namespace TVPApiServices
 
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
 
-                    // if sign in successful and tokenization enabled - generate access token and add to headers
-                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID);
                 }
                 catch (Exception ex)
                 {
