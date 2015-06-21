@@ -120,14 +120,14 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "frequency_next_device_action")]
         [JsonProperty("frequency_next_device_action")]
-        public long FrequencyNextDeviceAction { get; set; }
+        public DateTime FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
         /// The next time a user is allowed to be removed from the household (epoch)
         /// </summary>
         [DataMember(Name = "frequency_next_user_action")]
         [JsonProperty("frequency_next_user_action")]
-        public long FrequencyNextUserAction { get; set; }
+        public DateTime FrequencyNextUserAction { get; set; }
 
         /// <summary>
         /// Household restriction
@@ -142,5 +142,12 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "home_networks")]
         [JsonProperty("home_networks")]
         public List<HomeNetwork> HomeNetworks{ get; set; }
+        
+        /// <summary>
+        /// Household device families
+        /// </summary>
+        [DataMember(Name = "device_families")]
+        [JsonProperty("device_families")]
+        public List<DeviceFamily> DeviceFamilies { get; set; }
     }
 }

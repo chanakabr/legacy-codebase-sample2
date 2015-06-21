@@ -20,7 +20,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
-                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => src.m_activationDate))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)));
 
             //HomeNetwork
@@ -49,8 +49,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DevicesLimit, opt => opt.MapFrom(src => src.m_nDeviceLimit))
                 .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nLimit))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGuid))
-                .ForMember(dest => dest.FrequencyNextDeviceAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextActionFreq)))
-                .ForMember(dest => dest.FrequencyNextUserAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextUserActionFreq)))
+                .ForMember(dest => dest.FrequencyNextDeviceAction, opt => opt.MapFrom(src => src.m_NextActionFreq))
+                .ForMember(dest => dest.FrequencyNextUserAction, opt => opt.MapFrom(src => src.m_NextUserActionFreq))
                 .ForMember(dest => dest.HomeNetworks, opt => opt.MapFrom(src => src.m_homeNetworks))
                 .ForMember(dest => dest.IsFrequencyEnabled, opt => opt.MapFrom(src => src.m_frequencyFlag))
                 .ForMember(dest => dest.MasterUsers, opt => opt.MapFrom(src => src.m_masterGUIDs))
@@ -59,7 +59,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Restriction, opt => opt.MapFrom(src => ConvertDomainRestriction(src.m_DomainRestriction)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDomainStatus(src.m_DomainStatus)))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
-                .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit));
+                .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
+                .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
         }
 
         private static HouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)

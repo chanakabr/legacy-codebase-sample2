@@ -42,7 +42,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "activated_on")]
         [JsonProperty("activated_on")]
-        public long ActivatedOn { get; set; }
+        public DateTime ActivatedOn { get; set; }
 
         /// <summary>
         /// Device state
