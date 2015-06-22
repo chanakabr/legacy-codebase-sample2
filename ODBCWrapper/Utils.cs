@@ -747,9 +747,9 @@ namespace ODBCWrapper
                             for (int i = 0; i < allMatches.Count; i++)
                             {
                                 if (i == 0)
-                                    sb.Append(allMatches[i].ToString());
+                                    sb.Append(allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
                                 else
-                                    sb.Append(" " + allMatches[i].ToString());
+                                    sb.Append(" " + allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
                             }
 
                             sqlInfo.Table = sb.ToString();
