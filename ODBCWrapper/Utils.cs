@@ -744,8 +744,13 @@ namespace ODBCWrapper
                         if (allMatches != null)
                         {
                             StringBuilder sb = new StringBuilder();
-                            foreach (var table in allMatches)
-                                sb.Append(table.ToString() + " ");
+                            for (int i = 0; i < allMatches.Count; i++)
+                            {
+                                if (i == 0)
+                                    sb.Append(allMatches[i].ToString());
+                                else
+                                    sb.Append(" " + allMatches[i].ToString());
+                            }
 
                             sqlInfo.Table = sb.ToString();
                         }
