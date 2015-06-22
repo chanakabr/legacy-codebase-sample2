@@ -164,9 +164,9 @@ namespace KlogMonitorHelper
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // ignore exception
+                log.Error("Error while trying to dispose monitor object", ex);
             }
         }
 
