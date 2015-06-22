@@ -14,13 +14,16 @@ namespace WebAPI.Utils
         private static Dictionary<int, HttpStatusCode> statuses = new Dictionary<int, HttpStatusCode>() { 
             { 1006, HttpStatusCode.NotFound },
             { 2000, HttpStatusCode.NotFound },
+            { 2010, HttpStatusCode.BadRequest },
+            { 2012, HttpStatusCode.BadRequest },
+            { 2013, HttpStatusCode.BadRequest },
             { 4002, HttpStatusCode.BadRequest },
             { 4003, HttpStatusCode.BadRequest },
             { 4004, HttpStatusCode.BadRequest },
             { 4005, HttpStatusCode.BadRequest },
-            { 2010, HttpStatusCode.BadRequest },
-            { 2012, HttpStatusCode.BadRequest },
-            { 2013, HttpStatusCode.BadRequest },
+            { (int)StatusCode.InternalConnectionIssue, HttpStatusCode.BadRequest },
+            { (int)StatusCode.Timeout, HttpStatusCode.GatewayTimeout },
+            { (int)StatusCode.Error, HttpStatusCode.InternalServerError }
         };
 
         public static void HandleWSException(Exception ex)
@@ -41,22 +44,22 @@ namespace WebAPI.Utils
             }
         }
 
-        // additionalBadRequestStatusCodes - might be WS statuses pointing on bad request 
-        // additionalNotFoundStatusCodes - might be WS statuses pointing on not found 
         public static void HandleClientException(ClientException ex)
         {
             if (!statuses.ContainsKey(ex.Code))
                 throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
-            
+
             switch (statuses[ex.Code])
             {
                 case HttpStatusCode.BadRequest:
                     throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 case HttpStatusCode.NotFound:
-                    throw new NotFoundException(ex.Code, ex.ExceptionMessage);                    
+                    throw new NotFoundException(ex.Code, ex.ExceptionMessage);
+                case HttpStatusCode.GatewayTimeout:
+                    throw new GatewayTimeoutException(ex.Code, ex.ExceptionMessage);
                 default:
-                    throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);                    
-            }            
+                    throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
+            }
         }
     }
 }
