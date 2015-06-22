@@ -15,6 +15,7 @@ namespace KLogMonitor
     public class KLogger : IDisposable
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private bool disposed;
 
         public static KLogEnums.AppType AppType { get; set; }
         public string UniqueID { get; set; }
@@ -36,6 +37,13 @@ namespace KLogMonitor
             this.Server = Environment.MachineName;
             this.ClassName = className;
         }
+
+
+        ~KLogger()
+        {
+            Dispose(false);
+        }
+
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
@@ -264,12 +272,27 @@ namespace KLogMonitor
             handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, false, args, null);
         }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            foreach (LogEvent e in logs)
-                sendLog(e);
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    //dispose managed resources
+                    foreach (LogEvent e in logs)
+                        sendLog(e);
 
-            logs.Clear();
+                    logs.Clear();
+                }
+            }
+            //dispose unmanaged resources
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private class LogEvent

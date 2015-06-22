@@ -17,6 +17,7 @@ namespace KLogMonitor
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static KLogEnums.AppType AppType { get; set; }
+        private bool disposed;
 
         [Newtonsoft.Json.JsonProperty(PropertyName = "e")]
         [DataMember(Name = "e")]
@@ -157,23 +158,15 @@ namespace KLogMonitor
                 logger.Monitor(this.ToString());
         }
 
+        ~KMonitor() 
+        {
+            Dispose(false);
+        }
+
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
-        }
-
-        public virtual void Dispose()
-        {
-            this.Watch.Stop();
-
-            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
-            {
-                /* We are firing the END event, so we just overriding the START */
-                this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
-            }
-
-            logger.Monitor(this.ToString());
         }
 
         public override string ToString()
@@ -200,6 +193,34 @@ namespace KLogMonitor
 
             return string.Empty;
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    //dispose managed resources
+                    this.Watch.Stop();
+
+                    if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
+                    {
+                        /* We are firing the END event, so we just overriding the START */
+                        this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
+                    }
+
+                    logger.Monitor(this.ToString());
+                }
+            }
+            //dispose unmanaged resources
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
     public static class ILogExtentions
@@ -215,4 +236,5 @@ namespace KLogMonitor
             log.Monitor(message, null);
         }
     }
+
 }
