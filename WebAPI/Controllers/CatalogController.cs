@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id">Partner Identifier</param>
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, BadSearchRequest = 4002, IndexMissing = 4003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003
         /// </summary>
         /// <param name="request">The search asset request parameters</param>
         /// <param name="partner_id">Partner Identifier</param>
