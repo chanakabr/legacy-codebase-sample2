@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
-        public bool SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
+        public void SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             int groupId = int.Parse(partner_id);
 
@@ -141,8 +141,6 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return true;
         }
 
         /// <summary>
@@ -574,7 +572,6 @@ namespace WebAPI.Controllers
             return response;
 
         }
-
 
         /// <summary>Edit user details info.<br />
         /// Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User suspended = 2001,User does not exist = 2025        

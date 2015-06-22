@@ -605,6 +605,7 @@
   <ItemGroup>
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
+    <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />

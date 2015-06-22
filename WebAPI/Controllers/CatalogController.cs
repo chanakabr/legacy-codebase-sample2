@@ -332,7 +332,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="404">Not Found</response>        
         [Route("categories/{category_id}"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
