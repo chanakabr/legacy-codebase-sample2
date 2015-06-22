@@ -14,7 +14,6 @@ namespace WebAPI.Utils
         private static Dictionary<int, HttpStatusCode> statuses = new Dictionary<int, HttpStatusCode>() { 
             { 1006, HttpStatusCode.NotFound },
             { 2000, HttpStatusCode.NotFound },
-            { 2025, HttpStatusCode.NotFound },
             { 4002, HttpStatusCode.BadRequest },
             { 4003, HttpStatusCode.BadRequest },
             { 4004, HttpStatusCode.BadRequest },
