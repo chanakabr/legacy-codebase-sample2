@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id">Partner Identifier</param>
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, BadSearchRequest = 4002, IndexMissing = 4003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, BadSearchRequest = 4002, IndexMissing = 4003
         /// </summary>
         /// <param name="request">The search asset request parameters</param>
         /// <param name="partner_id">Partner Identifier</param>
@@ -127,7 +127,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns related media by media identifier<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="request">The related media request parameters</param>
         /// <param name="media_id">Media Identifier</param>
@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns all channel media<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="channel_id">Channel Identifier</param>
@@ -215,7 +215,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns media by media identifiers<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="media_ids">Media Identifiers separated by , </param>
@@ -276,7 +276,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns channel info<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
@@ -321,7 +321,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns category by category identifier<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="category_id">Category Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>

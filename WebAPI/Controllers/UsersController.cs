@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
     {
         /// <summary>
         /// Generates a temporarily PIN that can allow a user to log-in.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserNotExists = 2000, UserSuspended = 2001
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User doesnt not exist = 2000, User suspended = 2001
         /// </summary>        
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
@@ -65,10 +65,10 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// User sign-in via a time-expired sign-in PIN.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
-        /// LoginViaPinNotAllowed = 2009, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, UserDoesNotExist = 2025
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// UserNotInHousehold = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2025
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="pin">pin code</param>
@@ -226,7 +226,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Get recently watched media for user, ordered by recently watched first.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id" >Partner Identifier</param>
@@ -282,9 +282,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// login with user name and password.<br />
-        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
+        /// Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2025
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="details">LogIn Object</param>
@@ -328,9 +328,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Sign up a new user.<br />
-        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserNotInHousehold = 1005, WrongPasswordOrUserName = 1011, UserSuspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserDoesNotExist = 2025
+        /// Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2025
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="sign_up">SignUp Object</param>
@@ -370,7 +370,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Send a new password by user name.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
@@ -409,7 +409,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Renew the user's password without validating the existing password.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserDoesNotExist = 2025, WrongPasswordOrUserName = 1011,
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User does not exist = 2025, Wrong username or password = 1011,
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
@@ -448,7 +448,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns the user name associated with a temporary reset token .<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="token">token</param>
@@ -487,7 +487,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Given a user name and existing password, change to a new password.<br />
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
@@ -577,7 +577,7 @@ namespace WebAPI.Controllers
 
 
         /// <summary>Edit user details info.<br />
-        /// BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, UserSuspended = 2001,UserDoesNotExist = 2025        
+        /// Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User suspended = 2001,User does not exist = 2025        
         /// </summary>
         /// <param name="partner_id">Household ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
@@ -619,8 +619,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Return the parental rules that applies to the user. Can include rules that have been associated in account, household, or user level.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -655,8 +655,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Enabled a parental rule for a specific user.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -692,8 +692,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Disables a parental rule for a specific user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <param name="user_id">User Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
@@ -729,8 +729,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the parental PIN that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -764,8 +764,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the parental PIN that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -794,8 +794,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase settings that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -829,8 +829,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase settings that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -865,8 +865,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve the purchase PIN that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// 5001 = No PIN defined, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// 5001 = No PIN defined, User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -900,8 +900,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Set the purchase PIN that applies for the user.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -936,8 +936,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -978,8 +978,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific EPG and a specific user according to the user parental settings.
-        /// Possible status codes: 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1020,8 +1020,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003, 
-        /// No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1061,8 +1061,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Validate that a given purchase PIN for a user is valid.
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// No PIN defined = 5001, PIN mismatch = 5002, UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001,
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001,
         /// 
         /// </summary>
         /// <response code="200">OK</response>
@@ -1103,8 +1103,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Disables the partner's default rule for this user
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003,
-        /// UserDoesNotExist = 2025, UserWithNoDomain = 2024, UserSuspended = 2001,
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// User does not exist = 2025, UserWithNoDomain = 2024, User suspended = 2001,
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -1144,7 +1144,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Gets list of Entitlement (subscriptions) by a given user.<br/>
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="user_id">User Id</param>
@@ -1178,7 +1178,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Gets user transaction history.<br/>
-        /// Possible status codes: BadCredentials = 500000, InternalConnectionIssue = 500001, Timeout = 500002, BadRequest = 500003
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
         /// <param name="user_id">User Id</param>
