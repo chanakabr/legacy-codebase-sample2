@@ -736,12 +736,15 @@ namespace ODBCWrapper
                         else if (query.StartsWith("update"))
                             sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
                         else if (query.StartsWith("set"))
+                        {
                             sqlInfo.QueryType = KLogEnums.eDBQueryType.COMMAND;
+                            sqlInfo.Table = command.CommandText != null ? command.CommandText : "command unknown";
+                        }
 
                         // get table name
                         Regex tableNameReegx = new Regex(REGEX_TABLE_NAME, RegexOptions.Singleline);
                         var allMatches = tableNameReegx.Matches(query);
-                        if (allMatches != null)
+                        if (allMatches != null && allMatches.Count > 0)
                         {
                             StringBuilder sb = new StringBuilder();
                             for (int i = 0; i < allMatches.Count; i++)
