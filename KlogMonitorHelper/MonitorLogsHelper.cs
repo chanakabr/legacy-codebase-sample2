@@ -6,6 +6,7 @@ using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Xml;
 using ApiObjects;
@@ -100,37 +101,27 @@ namespace KlogMonitorHelper
             string requestString = requestMessage.ToString();
             if (!string.IsNullOrEmpty(requestString))
             {
-                try
+                if (requestMessage.Headers != null)
                 {
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(requestString);
-
                     // get action name
-                    XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("request");
-                    if (tempXmlNodeList.Count > 0)
-                        OperationContext.Current.IncomingMessageProperties.Add(Constants.ACTION, tempXmlNodeList[0].Attributes["i:type"] != null ? tempXmlNodeList[0].Attributes["i:type"].Value : "null");
+                    if (requestMessage.Headers.Action != null)
+                    {
+                        string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
+                        OperationContext.Current.IncomingMessageProperties.Add(Constants.ACTION, actionName);
+                    }
                     else
                         OperationContext.Current.IncomingMessageProperties.Add(Constants.ACTION, "null");
-
-                    //// get group ID
-                    //XmlNodeList xmlGroupId = doc.GetElementsByTagName("b:m_nGroupID");
-                    //if (xmlGroupId.Count > 0)
-                    //    OperationContext.Current.IncomingMessageProperties.Add(Constants.GROUP_ID, xmlGroupId[0].InnerText);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error while getting log and monitor information", ex);
                 }
 
                 // get request ID
-                if (requestMessage.Headers != null && requestMessage.Headers.MessageId != null)
-                    OperationContext.Current.IncomingMessageProperties.Add(KLogMonitor.Constants.REQUEST_ID_KEY, requestMessage.Headers.MessageId.ToString().Replace(PREFIX_UNIQUE_ID, string.Empty));
+                OperationContext.Current.IncomingMessageProperties.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
 
                 // get user agent
                 OperationContext.Current.IncomingMessageProperties.Add(Constants.CLIENT_TAG, Dns.GetHostName());
 
                 // get host IP
-                OperationContext.Current.IncomingMessageProperties.Add(Constants.HOST_IP, (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address);
+                if (requestMessage.Properties != null && requestMessage.Properties[RemoteEndpointMessageProperty.Name] != null)
+                    OperationContext.Current.IncomingMessageProperties.Add(Constants.HOST_IP, (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address);
 
                 // start k-monitor
                 OperationContext.Current.IncomingMessageProperties.Add(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
