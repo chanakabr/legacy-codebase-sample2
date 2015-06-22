@@ -121,6 +121,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpPost]
         public void SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
@@ -151,9 +152,10 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/pin"), HttpDelete]       
-        public bool ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
+        public void ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
             int groupId = int.Parse(partner_id);
 
@@ -166,8 +168,6 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return true;
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
