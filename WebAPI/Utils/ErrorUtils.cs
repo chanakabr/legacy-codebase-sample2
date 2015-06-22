@@ -14,14 +14,14 @@ namespace WebAPI.Utils
         private static Dictionary<int, HttpStatusCode> statuses = new Dictionary<int, HttpStatusCode>() { 
             { 1006, HttpStatusCode.NotFound },
             { 2000, HttpStatusCode.NotFound },
+            { 2010, HttpStatusCode.BadRequest },
+            { 2012, HttpStatusCode.BadRequest },
+            { 2013, HttpStatusCode.BadRequest },
             { 2025, HttpStatusCode.NotFound },
             { 4002, HttpStatusCode.BadRequest },
             { 4003, HttpStatusCode.BadRequest },
             { 4004, HttpStatusCode.BadRequest },
             { 4005, HttpStatusCode.BadRequest },
-            { 2010, HttpStatusCode.BadRequest },
-            { 2012, HttpStatusCode.BadRequest },
-            { 2013, HttpStatusCode.BadRequest },
             { (int)StatusCode.InternalConnectionIssue, HttpStatusCode.BadRequest },
             { (int)StatusCode.Timeout, HttpStatusCode.GatewayTimeout },
             { (int)StatusCode.Error, HttpStatusCode.InternalServerError }
