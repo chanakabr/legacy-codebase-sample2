@@ -43,7 +43,7 @@ namespace ApiObjects.Response
         DuplicatePin = 1028,
         
         // User Section 2000 - 2999
-        UserNotExists = 2000, // don't use this one (use UserDoesNotExist)
+        UserDoesNotExist = 2000,
         UserSuspended = 2001,
         GenerateNewLoginPIN = 2002, 
         PinNotExists = 2003,
@@ -68,8 +68,7 @@ namespace ApiObjects.Response
         Activated = 2022,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
-        UserDoesNotExist = 2025,
-
+        
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
