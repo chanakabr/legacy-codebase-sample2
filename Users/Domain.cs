@@ -1058,7 +1058,10 @@ namespace Users
                         device.m_state = DeviceState.Activated;
                         eRetVal = DeviceResponseStatus.OK;
                         break;
-
+                    case DomainResponseStatus.DeviceTypeNotAllowed:
+                        device.m_state = DeviceState.Error;
+                        eRetVal = DeviceResponseStatus.Error;
+                        break;
                     default:
                         eRetVal = DeviceResponseStatus.DuplicatePin;
                         break;
