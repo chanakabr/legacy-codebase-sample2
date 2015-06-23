@@ -400,6 +400,8 @@ namespace WebAPI.Notifications {
         
         private System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<WebAPI.Notifications.TagIDValue>> dTagDictk__BackingFieldField;
         
+        private string dateFormatk__BackingFieldField;
+        
         private int mediaIDk__BackingFieldField;
         
         private string mediaPicURLk__BackingFieldField;
@@ -442,6 +444,19 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.dTagDictk__BackingFieldField, value) != true)) {
                     this.dTagDictk__BackingFieldField = value;
                     this.RaisePropertyChanged("dTagDictk__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<dateFormat>k__BackingField", IsRequired=true)]
+        public string dateFormatk__BackingField {
+            get {
+                return this.dateFormatk__BackingFieldField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.dateFormatk__BackingFieldField, value) != true)) {
+                    this.dateFormatk__BackingFieldField = value;
+                    this.RaisePropertyChanged("dateFormatk__BackingField");
                 }
             }
         }
