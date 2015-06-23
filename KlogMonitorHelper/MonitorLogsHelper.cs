@@ -52,8 +52,6 @@ namespace KlogMonitorHelper
         {
             if (!string.IsNullOrEmpty(requestString))
             {
-
-
                 // get request ID
                 HttpContext.Current.Items.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
 
@@ -65,8 +63,7 @@ namespace KlogMonitorHelper
                 if (HttpContext.Current.Request.UserHostAddress != null)
                     HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
 
-                // start k-monitor
-                HttpContext.Current.Items.Add(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
+              
 
                 try
                 {
@@ -90,6 +87,9 @@ namespace KlogMonitorHelper
                 {
                     log.Error("Error while getting log and monitor information", ex);
                 }
+
+                // start k-monitor
+                HttpContext.Current.Items.Add(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
 
                 // log request
                 log.Debug(requestString);
