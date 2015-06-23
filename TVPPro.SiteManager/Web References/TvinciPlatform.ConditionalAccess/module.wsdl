@@ -1462,7 +1462,7 @@
       <s:element name="CC_ChargeUserForSubscriptionResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForSubscriptionResult" type="tns:BillingResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForSubscriptionResult" type="tns:BillingStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3714,7 +3714,7 @@
     <wsdl:part name="sEncryptedCVV" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostOut">
-    <wsdl:part name="Body" element="tns:BillingResponse" />
+    <wsdl:part name="Body" element="tns:BillingStatusResponse" />
   </wsdl:message>
   <wsdl:message name="CC_ChargeUserForCollectionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

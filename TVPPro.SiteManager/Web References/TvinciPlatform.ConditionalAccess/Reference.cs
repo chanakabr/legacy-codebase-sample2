@@ -2717,7 +2717,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CC_ChargeUserForSubscription", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public BillingResponse CC_ChargeUserForSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV) {
+        public BillingStatusResponse CC_ChargeUserForSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV) {
             object[] results = this.Invoke("CC_ChargeUserForSubscription", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -2733,7 +2733,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sDeviceName,
                         sPaymentMethodID,
                         sEncryptedCVV});
-            return ((BillingResponse)(results[0]));
+            return ((BillingStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -9884,10 +9884,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public BillingResponse Result {
+        public BillingStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((BillingResponse)(this.results[0]));
+                return ((BillingStatusResponse)(this.results[0]));
             }
         }
     }
