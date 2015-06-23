@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://pricing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://billing.tvinci.com/" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s2="http://billing.tvinci.com/" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://pricing.tvinci.com/" />
@@ -2232,8 +2232,8 @@
       <s:element name="GetDomainServices">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUsername" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -4067,8 +4067,8 @@
     <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainServicesHttpPostIn">
-    <wsdl:part name="wsUsername" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainServicesHttpPostOut">
@@ -6854,13 +6854,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/ws_cas/module.asmx" />
+      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/ws_cas/module.asmx" />
+      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/ws_cas/module.asmx" />
+      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
