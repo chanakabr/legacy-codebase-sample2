@@ -1127,28 +1127,28 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/UpdateFriendsActivityFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateFriendsActivityFeed(string wsUserName, string wsPassword, int siteGuid, string dbActionId) {
+        public bool UpdateFriendsActivityFeed(string sWSUserName, string sWSPassword, int siteGuid, string dbActionId) {
             object[] results = this.Invoke("UpdateFriendsActivityFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid,
                         dbActionId});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, string dbActionId) {
-            this.UpdateFriendsActivityFeedAsync(wsUserName, wsPassword, siteGuid, dbActionId, null);
+        public void UpdateFriendsActivityFeedAsync(string sWSUserName, string sWSPassword, int siteGuid, string dbActionId) {
+            this.UpdateFriendsActivityFeedAsync(sWSUserName, sWSPassword, siteGuid, dbActionId, null);
         }
         
         /// <remarks/>
-        public void UpdateFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, string dbActionId, object userState) {
+        public void UpdateFriendsActivityFeedAsync(string sWSUserName, string sWSPassword, int siteGuid, string dbActionId, object userState) {
             if ((this.UpdateFriendsActivityFeedOperationCompleted == null)) {
                 this.UpdateFriendsActivityFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateFriendsActivityFeedOperationCompleted);
             }
             this.InvokeAsync("UpdateFriendsActivityFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid,
                         dbActionId}, this.UpdateFriendsActivityFeedOperationCompleted, userState);
         }
@@ -1162,26 +1162,26 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/DeleteFriendsFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void DeleteFriendsFeed(string wsUserName, string wsPassword, int siteGuid) {
+        public void DeleteFriendsFeed(string sWSUserName, string sWSPassword, int siteGuid) {
             this.Invoke("DeleteFriendsFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid});
         }
         
         /// <remarks/>
-        public void DeleteFriendsFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
-            this.DeleteFriendsFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        public void DeleteFriendsFeedAsync(string sWSUserName, string sWSPassword, int siteGuid) {
+            this.DeleteFriendsFeedAsync(sWSUserName, sWSPassword, siteGuid, null);
         }
         
         /// <remarks/>
-        public void DeleteFriendsFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+        public void DeleteFriendsFeedAsync(string sWSUserName, string sWSPassword, int siteGuid, object userState) {
             if ((this.DeleteFriendsFeedOperationCompleted == null)) {
                 this.DeleteFriendsFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteFriendsFeedOperationCompleted);
             }
             this.InvokeAsync("DeleteFriendsFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid}, this.DeleteFriendsFeedOperationCompleted, userState);
         }
         
@@ -1194,26 +1194,26 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/DeleteUserFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void DeleteUserFeed(string wsUserName, string wsPassword, int siteGuid) {
+        public void DeleteUserFeed(string sWSUserName, string sWSPassword, int siteGuid) {
             this.Invoke("DeleteUserFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid});
         }
         
         /// <remarks/>
-        public void DeleteUserFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
-            this.DeleteUserFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        public void DeleteUserFeedAsync(string sWSUserName, string sWSPassword, int siteGuid) {
+            this.DeleteUserFeedAsync(sWSUserName, sWSPassword, siteGuid, null);
         }
         
         /// <remarks/>
-        public void DeleteUserFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+        public void DeleteUserFeedAsync(string sWSUserName, string sWSPassword, int siteGuid, object userState) {
             if ((this.DeleteUserFeedOperationCompleted == null)) {
                 this.DeleteUserFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteUserFeedOperationCompleted);
             }
             this.InvokeAsync("DeleteUserFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid}, this.DeleteUserFeedOperationCompleted, userState);
         }
         
@@ -1226,26 +1226,26 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/MergeFriendsActivityFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void MergeFriendsActivityFeed(string wsUserName, string wsPassword, int siteGuid) {
+        public void MergeFriendsActivityFeed(string sWSUserName, string sWSPassword, int siteGuid) {
             this.Invoke("MergeFriendsActivityFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid});
         }
         
         /// <remarks/>
-        public void MergeFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid) {
-            this.MergeFriendsActivityFeedAsync(wsUserName, wsPassword, siteGuid, null);
+        public void MergeFriendsActivityFeedAsync(string sWSUserName, string sWSPassword, int siteGuid) {
+            this.MergeFriendsActivityFeedAsync(sWSUserName, sWSPassword, siteGuid, null);
         }
         
         /// <remarks/>
-        public void MergeFriendsActivityFeedAsync(string wsUserName, string wsPassword, int siteGuid, object userState) {
+        public void MergeFriendsActivityFeedAsync(string sWSUserName, string sWSPassword, int siteGuid, object userState) {
             if ((this.MergeFriendsActivityFeedOperationCompleted == null)) {
                 this.MergeFriendsActivityFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnMergeFriendsActivityFeedOperationCompleted);
             }
             this.InvokeAsync("MergeFriendsActivityFeed", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         siteGuid}, this.MergeFriendsActivityFeedOperationCompleted, userState);
         }
         
@@ -1793,6 +1793,8 @@ namespace WebAPI.Social {
         
         private int m_nSSOOperatorIDField;
         
+        private DomainSuspentionStatus m_eSuspendStateField;
+        
         /// <remarks/>
         public UserBasicData m_oBasicData {
             get {
@@ -1862,6 +1864,16 @@ namespace WebAPI.Social {
                 this.m_nSSOOperatorIDField = value;
             }
         }
+        
+        /// <remarks/>
+        public DomainSuspentionStatus m_eSuspendState {
+            get {
+                return this.m_eSuspendStateField;
+            }
+            set {
+                this.m_eSuspendStateField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -1884,6 +1896,19 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         LoggedOut,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum DomainSuspentionStatus {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        Suspended,
     }
     
     /// <remarks/>
@@ -2002,6 +2027,15 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         UserWithNoDomain,
+        
+        /// <remarks/>
+        InternalError,
+        
+        /// <remarks/>
+        LoginServerDown,
+        
+        /// <remarks/>
+        UserSuspended,
     }
     
     /// <remarks/>
