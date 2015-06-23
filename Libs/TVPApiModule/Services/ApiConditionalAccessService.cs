@@ -60,7 +60,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                    var res = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                    if (res != null)
+                    {
+                        response = res.BillingResponse;
+                    }
                 }
             }
             catch (Exception ex)
@@ -79,7 +83,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                    var res = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                    if (res != null)
+                    {
+                        response = res.BillingResponse;
+                    }
                 }
             }
             catch (Exception ex)
