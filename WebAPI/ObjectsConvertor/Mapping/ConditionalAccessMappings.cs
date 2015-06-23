@@ -30,8 +30,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result = WebAPI.ConditionalAccess.eTransactionType.Collection;
                         break;
                     default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
-                        break;
+                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");                        
                 }
                 return result;
             });
