@@ -75,7 +75,10 @@ namespace ConditionalAccess
          *    the flow in the mentioned method did not reach the step where it contacts the billing gateway.
          * 3. This patch resolves this situation without changing any billing logic related to different customers.
          */
-        protected abstract bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid);
+        protected bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
+        {
+            return (bIsCouponUsedAndValid && reason == PriceReason.Free) || bDummy;
+        }
 
         ///// <summary>
         ///// Get Licensed Link

@@ -462,11 +462,6 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
-        {
-            return bDummy;
-        }
-
         /*
          * Vodafone patch. 2.12.14
          * If this method is called from the module.asmx, sProgramId will be an int.

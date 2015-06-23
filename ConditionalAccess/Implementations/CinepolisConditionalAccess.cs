@@ -531,11 +531,6 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
-        {
-            return (bIsCouponUsedAndValid && reason == PriceReason.Free) || bDummy;
-        }
-
         protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, TvinciPricing.Price p)
         {
             return false;
