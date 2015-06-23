@@ -90,10 +90,31 @@ namespace KLogMonitor
             this.Event = Events.GetEventString(eventName);
             this.Server = Environment.MachineName;
 
-
-            // get monitor data
+            // get monitor data from context
             // WCF -> data is stored in IncomingMessageProperties
             // WS  -> data is stored in OperationContext
+            UpdateMonitorData();
+
+            // check if current constructor overwrites any of the context data
+            if (groupID != null)
+                this.PartnerID = groupID;
+
+            if (action != null)
+                this.Action = action;
+
+            if (uniqueID != null)
+                this.UniqueID = uniqueID;
+
+            if (clientTag != null)
+                this.ClientTag = clientTag;
+
+            // In case this is a start event, we fire it first, and on dispose, we will fire the END 
+            if (eventName == Events.eEvent.EVENT_API_START)
+                logger.Monitor(this.ToString());
+        }
+
+        private void UpdateMonitorData()
+        {
             switch (AppType)
             {
                 case KLogEnums.AppType.WCF:
@@ -140,25 +161,9 @@ namespace KLogMonitor
                     }
                     break;
             }
-
-            if (groupID != null)
-                this.PartnerID = groupID;
-
-            if (action != null)
-                this.Action = action;
-
-            if (uniqueID != null)
-                this.UniqueID = uniqueID;
-
-            if (clientTag != null)
-                this.ClientTag = clientTag;
-
-            /* In case this is a start event, we fire it first, and on dispose, we will fire the END */
-            if (eventName == Events.eEvent.EVENT_API_START)
-                logger.Monitor(this.ToString());
         }
 
-        ~KMonitor() 
+        ~KMonitor()
         {
             Dispose(false);
         }
@@ -208,6 +213,9 @@ namespace KLogMonitor
                         /* We are firing the END event, so we just overriding the START */
                         this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
                     }
+
+                    // check if data from context was updated
+                    UpdateMonitorData();
 
                     logger.Monitor(this.ToString());
                 }
