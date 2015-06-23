@@ -63,8 +63,6 @@ namespace KlogMonitorHelper
                 if (HttpContext.Current.Request.UserHostAddress != null)
                     HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
 
-              
-
                 try
                 {
                     XmlDocument doc = new XmlDocument();
