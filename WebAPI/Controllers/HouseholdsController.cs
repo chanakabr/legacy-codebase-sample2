@@ -633,7 +633,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Adds a user to household<br/>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021
+        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
