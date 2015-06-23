@@ -624,7 +624,11 @@ namespace TVPPro.SiteManager.Services
                 }
                 else
                 {
-                    response = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                    var res = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                    if (res != null)
+                    {
+                        response = res.BillingResponse;
+                    }
                 }
 
             }
@@ -659,7 +663,11 @@ namespace TVPPro.SiteManager.Services
                     sLocaleDevice = SessionHelper.LocaleInfo.LocaleDevice;
                 }
 
-                response = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                var res = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                if (res != null)
+                {
+                    response = res.BillingResponse;
+                }
             }
             catch (Exception ex)
             {
@@ -691,7 +699,11 @@ namespace TVPPro.SiteManager.Services
                     sLocaleCountry = SessionHelper.LocaleInfo.LocaleCountry;
                     sLocaleDevice = SessionHelper.LocaleInfo.LocaleDevice;
                 }
-                response = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                var res = m_Module.CC_ChargeUserForMediaFile(wsUser, wsPassword, UsersService.Instance.GetUserID(), iPrice, sCurrency, iFileID, sPPVModuleCode, sCouponCode, sUserIP, "", sLocaleCountry, sLocaleLanguage, sLocaleDevice, string.Empty, string.Empty);
+                if (res != null)
+                {
+                    response = res.BillingResponse;
+                }
             }
             catch (Exception ex)
             {

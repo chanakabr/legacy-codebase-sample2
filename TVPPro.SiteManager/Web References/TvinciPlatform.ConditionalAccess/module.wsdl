@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://pricing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://billing.tvinci.com/" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s2="http://billing.tvinci.com/" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://pricing.tvinci.com/" />
@@ -1429,10 +1429,16 @@
       <s:element name="CC_ChargeUserForMediaFileResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForMediaFileResult" type="tns:BillingResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForMediaFileResult" type="tns:BillingStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="BillingStatusResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="BillingResponse" type="tns:BillingResponse" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="CC_ChargeUserForSubscription">
         <s:complexType>
           <s:sequence>
@@ -2320,6 +2326,7 @@
       <s:element name="ArrayOfCollectionsPricesContainer" nillable="true" type="tns:ArrayOfCollectionsPricesContainer" />
       <s:element name="ArrayOfPrePaidPricesContainer" nillable="true" type="tns:ArrayOfPrePaidPricesContainer" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
+      <s:element name="BillingStatusResponse" nillable="true" type="tns:BillingStatusResponse" />
       <s:element name="int" type="s:int" />
       <s:element name="PrePaidResponse" nillable="true" type="tns:PrePaidResponse" />
       <s:element name="UserPrePaidContainer" nillable="true" type="tns:UserPrePaidContainer" />
@@ -3688,7 +3695,7 @@
     <wsdl:part name="sEncryptedCVV" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CC_ChargeUserForMediaFileHttpPostOut">
-    <wsdl:part name="Body" element="tns:BillingResponse" />
+    <wsdl:part name="Body" element="tns:BillingStatusResponse" />
   </wsdl:message>
   <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6854,13 +6861,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/ws_cas/module.asmx" />
+      <soap:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/ws_cas/module.asmx" />
+      <soap12:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/ws_cas/module.asmx" />
+      <http:address location="http://localhost/ws_conditionalaccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
