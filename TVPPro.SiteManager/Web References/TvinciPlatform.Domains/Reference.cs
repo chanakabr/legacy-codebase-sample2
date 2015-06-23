@@ -264,14 +264,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject AddDomain(string sWSUserName, string sWSPassword, string sDomainName, string sDomainDescription, int nMasterUserGuid) {
+        public DomainStatusResponse AddDomain(string sWSUserName, string sWSPassword, string sDomainName, string sDomainDescription, int nMasterUserGuid) {
             object[] results = this.Invoke("AddDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sDomainName,
                         sDomainDescription,
                         nMasterUserGuid});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -410,7 +410,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddUserToDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject AddUserToDomain(string sWSUserName, string sWSPassword, int nDomainID, int nUserGuid, int nMasterUserGuid, bool bIsMaster) {
+        public DomainStatusResponse AddUserToDomain(string sWSUserName, string sWSPassword, int nDomainID, int nUserGuid, int nMasterUserGuid, bool bIsMaster) {
             object[] results = this.Invoke("AddUserToDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -418,7 +418,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                         nUserGuid,
                         nMasterUserGuid,
                         bIsMaster});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -517,13 +517,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveUserFromDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject RemoveUserFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string sUserGUID) {
+        public DomainStatusResponse RemoveUserFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string sUserGUID) {
             object[] results = this.Invoke("RemoveUserFromDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID,
                         sUserGUID});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -591,13 +591,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDeviceFromDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject RemoveDeviceFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid) {
+        public DomainStatusResponse RemoveDeviceFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid) {
             object[] results = this.Invoke("RemoveDeviceFromDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID,
                         udid});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -663,12 +663,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainInfo", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Domain GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
+        public DomainResponse GetDomainInfo(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainInfo", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((Domain)(results[0]));
+            return ((DomainResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -830,14 +830,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RegisterDeviceToDomainWithPIN", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DeviceResponseObject RegisterDeviceToDomainWithPIN(string sWSUserName, string sWSPassword, string sPID, int nDomainID, string sDeviceName) {
+        public DeviceResponse RegisterDeviceToDomainWithPIN(string sWSUserName, string sWSPassword, string sPID, int nDomainID, string sDeviceName) {
             object[] results = this.Invoke("RegisterDeviceToDomainWithPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sPID,
                         nDomainID,
                         sDeviceName});
-            return ((DeviceResponseObject)(results[0]));
+            return ((DeviceResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1679,6 +1679,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                 return true;
             }
             return false;
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DomainStatusResponse {
+        
+        private DomainResponseObject domainResponseField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public DomainResponseObject DomainResponse {
+            get {
+                return this.domainResponseField;
+            }
+            set {
+                this.domainResponseField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
         }
     }
     
@@ -2853,6 +2886,72 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DeviceResponse {
+        
+        private DeviceResponseObject deviceField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public DeviceResponseObject Device {
+            get {
+                return this.deviceField;
+            }
+            set {
+                this.deviceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DomainResponse {
+        
+        private Domain domainField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Domain Domain {
+            get {
+                return this.domainField;
+            }
+            set {
+                this.domainField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class HomeNetwork {
         
         private string nameField;
@@ -3021,10 +3120,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3125,10 +3224,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3203,10 +3302,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3255,10 +3354,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -3307,10 +3406,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public Domain Result {
+        public DomainResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Domain)(this.results[0]));
+                return ((DomainResponse)(this.results[0]));
             }
         }
     }
@@ -3437,10 +3536,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DeviceResponseObject Result {
+        public DeviceResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DeviceResponseObject)(this.results[0]));
+                return ((DeviceResponse)(this.results[0]));
             }
         }
     }
