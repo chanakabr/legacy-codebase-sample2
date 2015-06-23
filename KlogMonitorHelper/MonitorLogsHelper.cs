@@ -164,7 +164,8 @@ namespace KlogMonitorHelper
             }
             catch (Exception ex)
             {
-                log.Error("Error while trying to dispose monitor object", ex);
+                // ignore error - this will happen when updating WCF reference
+                //log.Error("Error while trying to dispose monitor object", ex);
             }
         }
 
