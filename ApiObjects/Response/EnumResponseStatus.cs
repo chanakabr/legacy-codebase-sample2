@@ -11,7 +11,6 @@ namespace ApiObjects.Response
         Error = 1,
        
         // Domain Section 1000 - 1999
-        
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
         DeviceTypeNotAllowed = 1002,
@@ -87,6 +86,13 @@ namespace ApiObjects.Response
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
-        PinMismatch = 5002
+        PinMismatch = 5002,
+
+        // Billing 6000 - 6999
+        PriceNotCorrect = 6000,
+        UnKnownPPVModule = 6001,
+        ExpiredCard = 6002,
+        CellularPermissionsError = 6003,
+        UnKnownBillingProvider = 6004
     }
 }

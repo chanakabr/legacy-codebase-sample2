@@ -93,6 +93,7 @@
     <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
+    <Compile Include="Response\BillingStatusResponse.cs" />
     <Compile Include="Response\BillingTransactions.cs" />
     <Compile Include="Response\CancelDeleteResponse.cs" />
     <Compile Include="Commands\CancelNPVRCommand.cs" />
