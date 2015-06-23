@@ -45,7 +45,7 @@ namespace TvinciCache
             switch (res)
             {
                 case "OutOfProcess":
-                    //this.cache = new OutOfProcessCache(
+                    //this.cache = new OutOfProcessCache
                     break;
                 default:
                     this.cache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
