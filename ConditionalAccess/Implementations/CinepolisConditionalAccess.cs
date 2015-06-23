@@ -14,7 +14,6 @@ namespace ConditionalAccess
     public class CinepolisConditionalAccess : TvinciConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         internal const string CINEPOLIS_CA_LOG_FILE_NAME = "CinepolisConditionalAccess";
 
         public CinepolisConditionalAccess(Int32 nGroupID)
@@ -533,11 +532,6 @@ namespace ConditionalAccess
             }
 
             return res;
-        }
-
-        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
-        {
-            return (bIsCouponUsedAndValid && reason == PriceReason.Free) || bDummy;
         }
 
         protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, TvinciPricing.Price p)
