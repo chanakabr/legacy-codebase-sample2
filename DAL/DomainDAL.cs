@@ -14,6 +14,7 @@ namespace DAL
         #region Private Constants
 
         private const string SP_GET_USER_EXISTS_IN_DOMAIN = "Get_UserExistsInDomain";
+        private const string SP_GET_USER_IN_DOMAIN = "Get_UserInDomain";
         private const string SP_GET_USERS_IN_DOMAIN = "Get_UsersInDomain";
         private const string SP_GET_DOMAIN_SETTINGS = "sp_GetDomainSettings";
         private const string SP_GET_DEVICE_FAMILIES_LIMITS = "sp_GetDeviceFamiliesLimits";
@@ -323,6 +324,29 @@ namespace DAL
             nUserDomainID = int.TryParse(res.ToString(), out tmp) ? tmp : 0;
 
             return nUserDomainID;
+        }
+
+        /// <summary>
+        /// Get User In Domain
+        /// </summary>
+        /// <param name="nGroupID"></param>
+        /// <param name="nDomainID"></param>
+        /// <param name="nUserGuid"></param>
+        /// <param name="onlyActive"></param>
+        /// <returns>Table with User Data</returns>
+        public static DataTable GetUserInDomain(int nGroupID, int nDomainID, int nUserGuid, bool onlyActive = true)
+        {
+            ODBCWrapper.StoredProcedure spGetUserInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USER_IN_DOMAIN);
+            spGetUserInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUserInDomain.AddParameter("@domainID", nDomainID);
+            spGetUserInDomain.AddParameter("@groupID", nGroupID);
+            spGetUserInDomain.AddParameter("@userID", nUserGuid);
+
+            DataSet ds = spGetUserInDomain.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
         }
 
         public static int InsertUserToDomain(int nUserGuid, int nDomainID, int nGroupID, int userType, int status, int isActive, int nMasterUserGuid, string sActivationToken = "")

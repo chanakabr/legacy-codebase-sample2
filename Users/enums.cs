@@ -142,7 +142,8 @@ namespace Users
         InvalidUser = 23,
         ConcurrencyLimitation = 24,
         MediaConcurrencyLimitation = 25,
-        DomainSuspended = 26
+        DomainSuspended = 26,
+        UserAlreadyInDomain = 27
     }
 
     public enum DeviceResponseStatus
